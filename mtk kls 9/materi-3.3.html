@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 3: Volume Bangun Ruang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --bg:#07070f;
+        --panel:rgba(24,22,48,0.55);
+        --panel-solid:#15132c;
+        --panel2:rgba(34,31,64,0.6);
+        --violet:#8B5CF6;
+        --violet-bright:#C4B5FD;
+        --cyan:#22D3EE;
+        --cyan-bright:#8CF1FF;
+        --pink:#F472B6;
+        --success:#34D399;
+        --danger:#FB7185;
+        --text:#ECE9FB;
+        --muted:#8D8FBE;
+        --line:rgba(139,92,246,0.22);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+        font-family:'Plus Jakarta Sans', sans-serif;
+        color:var(--text);
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        padding:20px;
+        background:
+            radial-gradient(ellipse 700px 500px at 8% -5%, rgba(139,92,246,0.20), transparent 60%),
+            radial-gradient(ellipse 700px 500px at 95% 105%, rgba(34,211,238,0.14), transparent 60%),
+            var(--bg);
+    }
+    h1,h2,h3,h4,.display{ font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em; }
+    .mono{ font-family:'Space Mono', monospace; }
+
+    .container{
+        width:100%;
+        max-width:1000px;
+        background:linear-gradient(180deg, rgba(21,19,44,0.9), rgba(10,10,22,0.95));
+        border-radius:22px;
+        box-shadow:0 30px 90px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,92,246,0.12) inset;
+        overflow:hidden;
+        border:1px solid rgba(139,92,246,0.25);
+        backdrop-filter:blur(14px);
+    }
+
+    .slide-container{
+        position:relative;
+        width:100%;
+        aspect-ratio:16/9;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        background-image:
+            linear-gradient(rgba(139,92,246,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(139,92,246,0.06) 1px, transparent 1px);
+        background-size:38px 38px;
+        background-position:center;
+    }
+
+    .slide{
+        display:none;
+        width:100%;
+        height:100%;
+        padding:56px 44px;
+        text-align:center;
+        animation:slideIn .5s ease-in-out;
+        overflow-y:auto;
+        position:relative;
+    }
+    .slide.active{
+        display:flex;
+        flex-direction:column;
+        justify-content:safe center;
+    }
+    @keyframes slideIn{
+        from{ opacity:0; transform:translateX(18px); }
+        to{ opacity:1; transform:translateX(0); }
+    }
+
+    .slide h1{
+        font-size:2.6rem;
+        font-weight:700;
+        margin-bottom:18px;
+        background:linear-gradient(90deg, var(--violet-bright), var(--cyan-bright));
+        -webkit-background-clip:text;
+        background-clip:text;
+        color:transparent;
+    }
+    .slide h2{
+        font-size:2rem;
+        font-weight:700;
+        margin-bottom:28px;
+        color:var(--text);
+    }
+    .slide h2 .accent{
+        background:linear-gradient(90deg, var(--violet-bright), var(--cyan-bright));
+        -webkit-background-clip:text;
+        background-clip:text;
+        color:transparent;
+    }
+    .slide h3{
+        font-size:1.35rem;
+        color:var(--cyan-bright);
+        margin-top:18px;
+        margin-bottom:14px;
+        font-weight:600;
+    }
+    .slide p{
+        font-size:1.05rem;
+        color:#CBCBE8;
+        line-height:1.65;
+        margin:14px 0;
+    }
+
+    .formula{
+        background:linear-gradient(120deg, rgba(139,92,246,0.14), rgba(34,211,238,0.08));
+        border:1px solid rgba(139,92,246,0.4);
+        box-shadow:0 0 24px rgba(139,92,246,0.18);
+        padding:20px;
+        margin:22px 0;
+        border-radius:14px;
+        font-size:1.35rem;
+        font-weight:700;
+        color:var(--cyan-bright);
+        font-family:'Space Mono', monospace;
+        letter-spacing:.01em;
+    }
+
+    .example{
+        background:var(--panel2);
+        border:1px solid var(--line);
+        padding:20px 22px;
+        margin:20px 0;
+        border-radius:14px;
+        text-align:left;
+        backdrop-filter:blur(6px);
+    }
+    .example h4{ color:var(--violet-bright); margin-bottom:10px; font-family:'Space Grotesk', sans-serif; }
+    .example p{ margin:10px 0; font-size:1rem; color:#C7C7E6; }
+
+    .visualization{
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        margin:26px 0;
+        min-height:230px;
+    }
+    .visualization svg{
+        max-width:100%;
+        height:auto;
+        filter:drop-shadow(0 0 10px rgba(34,211,238,0.35));
+    }
+
+    /* Navigation */
+    .controls{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        padding:20px 40px;
+        background:rgba(10,9,22,0.85);
+        gap:20px;
+        border-top:1px solid rgba(139,92,246,0.2);
+    }
+
+    button{
+        padding:12px 28px;
+        font-size:.95rem;
+        border:none;
+        border-radius:999px;
+        cursor:pointer;
+        transition:all .25s ease;
+        font-weight:600;
+        font-family:'Plus Jakarta Sans', sans-serif;
+    }
+
+    .btn-nav, .btn-home{
+        background:var(--panel2);
+        color:var(--cyan-bright);
+        border:1px solid rgba(34,211,238,0.4);
+    }
+    .btn-nav:hover, .btn-home:hover{
+        background:rgba(34,211,238,0.12);
+        transform:translateY(-2px);
+        box-shadow:0 6px 20px rgba(34,211,238,0.25);
+        border-color:var(--cyan);
+    }
+    .btn-nav:disabled{
+        background:rgba(255,255,255,0.03);
+        color:#4a4a66;
+        border-color:rgba(255,255,255,0.06);
+        cursor:not-allowed;
+        transform:none;
+        box-shadow:none;
+    }
+
+    .slide-counter{
+        font-size:1rem;
+        color:var(--violet-bright);
+        font-weight:700;
+        font-family:'Space Mono', monospace;
+    }
+
+    /* Quiz Styles */
+    .quiz-question{
+        background:var(--panel2);
+        padding:20px;
+        border-radius:14px;
+        margin:18px 0;
+        text-align:left;
+        border:1px solid var(--line);
+    }
+    .quiz-question h4{
+        color:var(--cyan-bright);
+        margin-bottom:14px;
+        font-size:1.1rem;
+        font-family:'Space Grotesk', sans-serif;
+    }
+    .quiz-options{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+    }
+    .quiz-option{
+        padding:12px 16px;
+        background:rgba(255,255,255,0.02);
+        border:1px solid rgba(139,92,246,0.25);
+        border-radius:10px;
+        cursor:pointer;
+        transition:all .2s ease;
+        text-align:left;
+        font-size:.98rem;
+        color:#CFCFEA;
+        font-family:'Space Mono', monospace;
+    }
+    .quiz-option:hover{
+        border-color:var(--violet);
+        background:rgba(139,92,246,0.1);
+        color:var(--violet-bright);
+    }
+    .quiz-option.selected{
+        border-color:var(--violet);
+        background:rgba(139,92,246,0.16);
+        color:var(--violet-bright);
+    }
+    .quiz-option.correct{
+        background:rgba(52,211,153,0.14);
+        border-color:var(--success);
+        color:#7EEFC5;
+        box-shadow:0 0 14px rgba(52,211,153,0.25);
+    }
+    .quiz-option.incorrect{
+        background:rgba(251,113,133,0.14);
+        border-color:var(--danger);
+        color:#FFB3C0;
+        box-shadow:0 0 14px rgba(251,113,133,0.2);
+    }
+
+    .progress-bar{
+        height:5px;
+        background:rgba(255,255,255,0.06);
+        overflow:hidden;
+    }
+    .progress-fill{
+        height:100%;
+        background:linear-gradient(90deg, var(--violet), var(--cyan));
+        box-shadow:0 0 10px rgba(34,211,238,0.6);
+        transition:width .3s ease;
+    }
+
+    /* Responsive */
+    @media (max-width:768px){
+        .slide{ padding:36px 20px; }
+        .slide h1{ font-size:1.9rem; }
+        .slide h2{ font-size:1.5rem; }
+        .slide p{ font-size:1rem; }
+        .formula{ font-size:1rem; }
+        .controls{ padding:15px 20px; flex-wrap:wrap; }
+        button{ padding:10px 20px; font-size:.9rem; }
+        .slide-container{ aspect-ratio:auto; min-height:600px; background-size:28px 28px; }
+        .visualization{ min-height:200px; }
+        .slide h3{ font-size:1.15rem; }
+    }
+    @media (max-width:480px){
+        body{ padding:10px; }
+        .slide{ padding:28px 15px; }
+        .slide h1{ font-size:1.5rem; }
+        .slide h2{ font-size:1.25rem; }
+        .slide p{ font-size:.95rem; }
+        .formula{ font-size:.9rem; padding:15px; }
+        .controls{ padding:10px 15px; }
+        button{ padding:8px 15px; font-size:.85rem; }
+        .slide-counter{ font-size:.85rem; }
+    }
+
+    .daftar-materi{
+        text-align:left;
+        display:inline-block;
+        background:var(--panel2);
+        padding:28px 34px;
+        border-radius:16px;
+        margin:20px auto;
+        border:1px solid rgba(139,92,246,0.35);
+        box-shadow:0 0 30px rgba(139,92,246,0.1);
+    }
+    .daftar-materi li{
+        margin:12px 0;
+        font-size:1.05rem;
+        color:#D2D2EE;
+    }
+    .daftar-materi li strong{ color:var(--cyan-bright); }
+
+    .title-slide{ min-height:100%; position:relative; overflow:hidden; }
+    .title-slide .subtitle{ font-size:1.3rem; color:var(--muted); margin:16px 0; }
+    .title-slide .hint{ margin-top:26px; font-size:1rem; color:var(--muted); }
+
+    .wire-deco{
+        position:absolute;
+        pointer-events:none;
+        opacity:.55;
+        filter:drop-shadow(0 0 10px rgba(139,92,246,0.45));
+    }
+    .wire-cube{ top:8%; left:4%; width:130px; animation:floatY 7s ease-in-out infinite; }
+    .wire-sphere{ bottom:6%; right:5%; width:150px; animation:floatY 9s ease-in-out infinite reverse; }
+    @keyframes floatY{
+        0%,100%{ transform:translateY(0) rotate(0deg); }
+        50%{ transform:translateY(-16px) rotate(6deg); }
+    }
+    @media (prefers-reduced-motion: reduce){
+        .wire-cube, .wire-sphere{ animation:none; }
+    }
+    @media (max-width:768px){
+        .wire-deco{ display:none; }
+    }
+
+    .finish-slide h1{ font-size:2.6rem; }
+    .finish-slide p{ color:var(--muted); font-size:1.2rem; }
+
+    .btn-back{
+        background:linear-gradient(90deg, var(--violet), var(--cyan));
+        color:#07070f;
+        font-size:1.05rem;
+        margin-top:28px;
+        font-weight:700;
+        border:none;
+    }
+    .btn-back:hover{
+        transform:translateY(-2px);
+        box-shadow:0 10px 30px rgba(139,92,246,0.4);
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="slide-container">
+            <!-- Slide 1: Judul -->
+            <div class="slide active title-slide">
+                <svg class="wire-deco wire-cube" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="100,20 170,55 170,135 100,170 30,135 30,55" fill="none" stroke="#8B5CF6" stroke-width="2"/>
+                    <line x1="30" y1="55" x2="100" y2="90" stroke="#22D3EE" stroke-width="2"/>
+                    <line x1="170" y1="55" x2="100" y2="90" stroke="#22D3EE" stroke-width="2"/>
+                    <line x1="100" y1="90" x2="100" y2="170" stroke="#22D3EE" stroke-width="2"/>
+                </svg>
+                <svg class="wire-deco wire-sphere" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="75" fill="none" stroke="#22D3EE" stroke-width="2"/>
+                    <ellipse cx="100" cy="100" rx="75" ry="22" fill="none" stroke="#8B5CF6" stroke-width="1.5"/>
+                    <ellipse cx="100" cy="100" rx="22" ry="75" fill="none" stroke="#8B5CF6" stroke-width="1.5"/>
+                </svg>
+                <h1>VOLUME BANGUN RUANG</h1>
+                <p class="subtitle">Bab 3 &middot; Geometri Ruang &middot; Matematika SMP</p>
+                <p class="hint">Pelajari konsep volume berbagai bangun ruang — klik navigasi di bawah untuk mulai</p>
+            </div>
+
+            <!-- Slide 2: Daftar Materi -->
+            <div class="slide">
+                <h2>Materi yang Akan Dipelajari</h2>
+                <div class="daftar-materi">
+                    <ol style="font-size:1.05rem;">
+                        <li><strong>Pengertian Volume Bangun Ruang</strong></li>
+                        <li><strong>Kubus:</strong> V = s³</li>
+                        <li><strong>Balok:</strong> V = p × l × t</li>
+                        <li><strong>Prisma:</strong> V = Luas alas × tinggi</li>
+                        <li><strong>Silinder:</strong> V = πr²t</li>
+                        <li><strong>Kerucut:</strong> V = ⅓πr²t</li>
+                        <li><strong>Bola:</strong> V = ⁴⁄₃πr³</li>
+                        <li><strong>Kuis dan Latihan Soal</strong></li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Slide 3: Pengertian Volume -->
+            <div class="slide">
+                <h2>Apa itu <span class="accent">Volume</span>?</h2>
+                <p style="font-size:1.15rem; font-weight:600; color:var(--violet-bright);">Volume adalah banyaknya ruang yang dapat ditempati oleh suatu bangun ruang.</p>
+
+                <p style="margin:26px 0;">Satuan volume: cm³, m³, mm³, km³, dan lain-lain</p>
+
+                <div class="example">
+                    <h4>Analogi Sederhana</h4>
+                    <p>Bayangkan volume seperti air yang dapat diisi ke dalam wadah. Semakin besar wadahnya, semakin banyak air yang dapat ditampung.</p>
+                </div>
+
+                <div class="formula" style="text-align:left; font-size:1rem; font-family:'Plus Jakarta Sans', sans-serif; color:var(--cyan-bright); font-weight:500;">
+                    💡 Semua bangun ruang memiliki rumus volume yang berbeda-beda.
+                </div>
+            </div>
+
+            <!-- Slide 4: KUBUS -->
+            <div class="slide">
+                <h2>🟪 KUBUS</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <linearGradient id="cubeTop" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8CF1FF" stop-opacity="0.42"/>
+                                <stop offset="1" stop-color="#22D3EE" stop-opacity="0.14"/>
+                            </linearGradient>
+                            <linearGradient id="cubeLeft" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#A78BFA" stop-opacity="0.34"/>
+                                <stop offset="1" stop-color="#6D28D9" stop-opacity="0.14"/>
+                            </linearGradient>
+                            <linearGradient id="cubeRight" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.24"/>
+                                <stop offset="1" stop-color="#4C1D95" stop-opacity="0.10"/>
+                            </linearGradient>
+                        </defs>
+                        <polygon points="150,130 72,85 150,40 228,85" fill="url(#cubeTop)" stroke="#8CF1FF" stroke-width="2"/>
+                        <polygon points="150,130 72,85 72,175 150,220" fill="url(#cubeLeft)" stroke="#A78BFA" stroke-width="2"/>
+                        <polygon points="150,130 228,85 228,175 150,220" fill="url(#cubeRight)" stroke="#8B5CF6" stroke-width="2"/>
+
+                        <text x="88" y="98" font-size="15" fill="#C4B5FD" font-weight="bold">s</text>
+                        <text x="200" y="98" font-size="15" fill="#C4B5FD" font-weight="bold">s</text>
+                        <text x="158" y="178" font-size="15" fill="#8CF1FF" font-weight="bold">s</text>
+                    </svg>
+                </div>
+
+                <div class="formula">V = s × s × s = s³</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">s = panjang rusuk kubus</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal</h4>
+                    <p><strong>Soal:</strong> Sebuah kubus memiliki panjang rusuk 5 cm. Berapa volume kubus tersebut?</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = s³ = 5³ = 5 × 5 × 5 = <strong style="color:var(--cyan-bright);">125 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 5: BALOK -->
+            <div class="slide">
+                <h2>◼️ BALOK</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <linearGradient id="balokTop" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#8CF1FF" stop-opacity="0.42"/>
+                                <stop offset="1" stop-color="#22D3EE" stop-opacity="0.14"/>
+                            </linearGradient>
+                            <linearGradient id="balokLeft" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#A78BFA" stop-opacity="0.34"/>
+                                <stop offset="1" stop-color="#6D28D9" stop-opacity="0.14"/>
+                            </linearGradient>
+                            <linearGradient id="balokRight" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#8B5CF6" stop-opacity="0.24"/>
+                                <stop offset="1" stop-color="#4C1D95" stop-opacity="0.10"/>
+                            </linearGradient>
+                        </defs>
+                        <polygon points="150,140 72,95 120,67 198,112" fill="url(#balokTop)" stroke="#8CF1FF" stroke-width="2"/>
+                        <polygon points="150,140 72,95 72,165 150,210" fill="url(#balokLeft)" stroke="#A78BFA" stroke-width="2"/>
+                        <polygon points="150,140 198,112 198,182 150,210" fill="url(#balokRight)" stroke="#8B5CF6" stroke-width="2"/>
+
+                        <text x="86" y="122" font-size="14" fill="#C4B5FD" font-weight="bold">p</text>
+                        <text x="182" y="120" font-size="14" fill="#C4B5FD" font-weight="bold">l</text>
+                        <text x="158" y="178" font-size="14" fill="#8CF1FF" font-weight="bold">t</text>
+                    </svg>
+                </div>
+
+                <div class="formula">V = p × l × t</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">p = panjang, l = lebar, t = tinggi</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal</h4>
+                    <p><strong>Soal:</strong> Sebuah balok memiliki panjang 8 cm, lebar 5 cm, dan tinggi 4 cm. Hitung volumenya!</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = p × l × t = 8 × 5 × 4 = <strong style="color:var(--cyan-bright);">160 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 6: PRISMA -->
+            <div class="slide">
+                <h2>🔺 PRISMA</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <linearGradient id="prismaSide" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#A78BFA" stop-opacity="0.30"/>
+                                <stop offset="1" stop-color="#4C1D95" stop-opacity="0.12"/>
+                            </linearGradient>
+                            <linearGradient id="prismaFront" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#8CF1FF" stop-opacity="0.36"/>
+                                <stop offset="1" stop-color="#22D3EE" stop-opacity="0.14"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- garis tersembunyi (segitiga belakang) -->
+                        <polyline points="80,210 135,175 245,175" fill="none" stroke="#6D28D9" stroke-width="1.5" stroke-dasharray="4,4"/>
+                        <!-- sisi tegak (persegi panjang) -->
+                        <polygon points="190,210 135,90 190,55 245,175" fill="url(#prismaSide)" stroke="#8B5CF6" stroke-width="2"/>
+                        <!-- alas segitiga depan -->
+                        <polygon points="80,210 190,210 135,90" fill="url(#prismaFront)" stroke="#8CF1FF" stroke-width="2"/>
+
+                        <text x="122" y="185" font-size="14" fill="#C4B5FD" font-weight="bold">A</text>
+                        <text x="222" y="190" font-size="14" fill="#8CF1FF" font-weight="bold">t</text>
+                    </svg>
+                </div>
+
+                <div class="formula">V = Luas Alas × Tinggi</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">Alas = bidang berbentuk segitiga, persegi, atau polygon</p>
+                    <p style="color:#C7C7E6;">Tinggi = jarak antara dua alas</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal (Prisma Segitiga)</h4>
+                    <p><strong>Soal:</strong> Sebuah prisma segitiga memiliki luas alas 20 cm² dan tinggi 10 cm. Hitung volumenya!</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = Luas Alas × Tinggi = 20 × 10 = <strong style="color:var(--cyan-bright);">200 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 7: SILINDER -->
+            <div class="slide">
+                <h2>⭕ SILINDER (TABUNG)</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <linearGradient id="cylTop" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#8CF1FF" stop-opacity="0.46"/>
+                                <stop offset="1" stop-color="#22D3EE" stop-opacity="0.18"/>
+                            </linearGradient>
+                            <linearGradient id="cylBody" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0" stop-color="#4C1D95" stop-opacity="0.10"/>
+                                <stop offset="0.5" stop-color="#A78BFA" stop-opacity="0.30"/>
+                                <stop offset="1" stop-color="#4C1D95" stop-opacity="0.10"/>
+                            </linearGradient>
+                        </defs>
+                        <ellipse cx="150" cy="200" rx="80" ry="30" fill="#4C1D95" fill-opacity="0.30" stroke="#8B5CF6" stroke-width="2"/>
+                        <rect x="70" y="80" width="160" height="120" fill="url(#cylBody)" stroke="#8B5CF6" stroke-width="2"/>
+                        <ellipse cx="150" cy="80" rx="80" ry="30" fill="url(#cylTop)" stroke="#22D3EE" stroke-width="2"/>
+
+                        <text x="176" y="145" font-size="14" fill="#C4B5FD" font-weight="bold">t</text>
+                        <text x="102" y="65" font-size="14" fill="#8CF1FF" font-weight="bold">r</text>
+                        <line x1="150" y1="80" x2="150" y2="50" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3,3"/>
+                        <line x1="150" y1="50" x2="100" y2="50" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3,3"/>
+                    </svg>
+                </div>
+
+                <div class="formula">V = π × r² × t</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">π ≈ 3,14 atau 22/7</p>
+                    <p style="color:#C7C7E6;">r = jari-jari alas</p>
+                    <p style="color:#C7C7E6;">t = tinggi silinder</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal</h4>
+                    <p><strong>Soal:</strong> Sebuah silinder memiliki jari-jari 7 cm dan tinggi 10 cm. Hitung volumenya! (π = 22/7)</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = π × r² × t = 22/7 × 7² × 10 = 22/7 × 49 × 10 = <strong style="color:var(--cyan-bright);">1.540 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 8: KERUCUT -->
+            <div class="slide">
+                <h2>🔻 KERUCUT</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <linearGradient id="coneBody" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0" stop-color="#A78BFA" stop-opacity="0.34"/>
+                                <stop offset="1" stop-color="#4C1D95" stop-opacity="0.12"/>
+                            </linearGradient>
+                        </defs>
+                        <ellipse cx="150" cy="220" rx="80" ry="25" fill="#22D3EE" fill-opacity="0.18" stroke="#22D3EE" stroke-width="2"/>
+                        <polygon points="150,50 70,220 230,220" fill="url(#coneBody)" stroke="#8B5CF6" stroke-width="2"/>
+
+                        <text x="164" y="130" font-size="14" fill="#C4B5FD" font-weight="bold">t</text>
+                        <text x="184" y="240" font-size="14" fill="#8CF1FF" font-weight="bold">r</text>
+                        <line x1="150" y1="50" x2="150" y2="220" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="3,3"/>
+                    </svg>
+                </div>
+
+                <div class="formula">V = ⅓ × π × r² × t</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">r = jari-jari alas</p>
+                    <p style="color:#C7C7E6;">t = tinggi kerucut</p>
+                    <p style="color:#C7C7E6;">⅓ = 1 per 3</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal</h4>
+                    <p><strong>Soal:</strong> Sebuah kerucut memiliki jari-jari 6 cm dan tinggi 8 cm. Hitung volumenya! (π = 3,14)</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = ⅓ × π × r² × t = ⅓ × 3,14 × 6² × 8 = ⅓ × 3,14 × 36 × 8 = <strong style="color:var(--cyan-bright);">301,44 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 9: BOLA -->
+            <div class="slide">
+                <h2>⚫ BOLA</h2>
+
+                <div class="visualization">
+                    <svg viewBox="0 0 300 300" width="250" height="250">
+                        <defs>
+                            <radialGradient id="sphereShade" cx="35%" cy="30%" r="75%">
+                                <stop offset="0%" stop-color="#C4B5FD" stop-opacity="0.5"/>
+                                <stop offset="55%" stop-color="#8B5CF6" stop-opacity="0.22"/>
+                                <stop offset="100%" stop-color="#4C1D95" stop-opacity="0.10"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="150" cy="150" r="100" fill="url(#sphereShade)" stroke="#8B5CF6" stroke-width="2"/>
+                        <ellipse cx="150" cy="150" rx="100" ry="30" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+                        <line x1="150" y1="150" x2="150" y2="50" stroke="#22D3EE" stroke-width="2"/>
+                        <text x="160" y="100" font-size="14" fill="#8CF1FF" font-weight="bold">r</text>
+                        <circle cx="150" cy="150" r="2.5" fill="#22D3EE"/>
+                    </svg>
+                </div>
+
+                <div class="formula">V = ⁴⁄₃ × π × r³</div>
+
+                <div style="text-align:left; margin:18px 0;">
+                    <h4 style="color:var(--violet-bright); font-family:'Space Grotesk', sans-serif;">Keterangan</h4>
+                    <p style="color:#C7C7E6;">r = jari-jari bola</p>
+                    <p style="color:#C7C7E6;">⁴⁄₃ = 4 per 3</p>
+                </div>
+
+                <div class="example">
+                    <h4>Contoh Soal</h4>
+                    <p><strong>Soal:</strong> Sebuah bola memiliki jari-jari 7 cm. Hitung volumenya! (π = 22/7)</p>
+                    <p><strong>Penyelesaian:</strong></p>
+                    <p>V = ⁴⁄₃ × π × r³ = ⁴⁄₃ × 22/7 × 7³ = ⁴⁄₃ × 22/7 × 343 = <strong style="color:var(--cyan-bright);">1.437,33 cm³</strong></p>
+                </div>
+            </div>
+
+            <!-- Slide 10: Latihan Soal Campuran -->
+            <div class="slide">
+                <h2>Latihan Soal Campuran</h2>
+
+                <div class="example">
+                    <h4>1. Soal Kubus</h4>
+                    <p><strong>Sebuah kotak mainan berbentuk kubus memiliki rusuk 12 cm. Berapa volume mainan tersebut?</strong></p>
+                    <p style="font-size:.95rem; margin-top:10px; color:var(--cyan-bright);">Jawab: V = s³ = 12³ = 1.728 cm³</p>
+                </div>
+
+                <div class="example">
+                    <h4>2. Soal Silinder</h4>
+                    <p><strong>Sebuah drum berbentuk silinder memiliki diameter 20 cm dan tinggi 30 cm. Berapa volume drum? (π = 3,14)</strong></p>
+                    <p style="font-size:.95rem; margin-top:10px; color:var(--cyan-bright);">Jawab: V = π × r² × t = 3,14 × 10² × 30 = 9.420 cm³</p>
+                </div>
+
+                <div class="example">
+                    <h4>3. Soal Kerucut</h4>
+                    <p><strong>Sebuah es krim berbentuk kerucut memiliki jari-jari 3 cm dan tinggi 12 cm. Berapa volumenya? (π = 3,14)</strong></p>
+                    <p style="font-size:.95rem; margin-top:10px; color:var(--cyan-bright);">Jawab: V = ⅓ × π × r² × t = ⅓ × 3,14 × 3² × 12 = 113,04 cm³</p>
+                </div>
+            </div>
+
+            <!-- Slide 11: KUIS INTERAKTIF -->
+            <div class="slide">
+                <h2>Kuis — Uji Pemahamanmu!</h2>
+                <div id="quizContainer"></div>
+            </div>
+
+            <!-- Slide 12: Hasil Kuis -->
+            <div class="slide">
+                <h2>Hasil Kuis Anda</h2>
+                <div id="quizResultContainer"></div>
+            </div>
+
+            <!-- Slide 13: Selesai -->
+            <div class="slide finish-slide">
+                <h1>Selesai!</h1>
+                <p>Terima kasih telah mempelajari materi Volume Bangun Ruang</p>
+                <p style="margin-top:26px; font-size:1.1rem;">Anda telah menyelesaikan Bab 3 dengan baik!</p>
+                <button class="btn-back" onclick="kembaliKeBab3()">← Kembali ke Bab 3</button>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn-nav" id="prevBtn" onclick="changeSlide(-1)">← Sebelumnya</button>
+            <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">13</span></span>
+            <button class="btn-nav" id="nextBtn" onclick="changeSlide(1)">Selanjutnya →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 13;
+        let quizAnswers = {};
+
+        const quizzes = [
+            {
+                question: "Volume kubus dengan rusuk 4 cm adalah...",
+                options: ["64 cm³", "16 cm³", "12 cm³", "8 cm³"],
+                correct: 0
+            },
+            {
+                question: "Volume balok dengan panjang 5 cm, lebar 4 cm, tinggi 3 cm adalah...",
+                options: ["60 cm³", "45 cm³", "30 cm³", "20 cm³"],
+                correct: 0
+            },
+            {
+                question: "Volume silinder dengan r = 5 cm dan t = 10 cm (π = 3,14) adalah...",
+                options: ["785 cm³", "157 cm³", "314 cm³", "1.570 cm³"],
+                correct: 0
+            },
+            {
+                question: "Volume kerucut dengan r = 3 cm dan t = 10 cm (π = 3,14) adalah...",
+                options: ["90 cm³", "94,2 cm³", "282,6 cm³", "30 cm³"],
+                correct: 1
+            },
+            {
+                question: "Volume bola dengan r = 3 cm (π = 3,14) adalah...",
+                options: ["36 cm³", "113,04 cm³", "28,26 cm³", "339,12 cm³"],
+                correct: 1
+            }
+        ];
+
+        function initializeQuiz() {
+            const quizContainer = document.getElementById('quizContainer');
+            quizContainer.innerHTML = '';
+
+            quizzes.forEach((quiz, index) => {
+                const quizDiv = document.createElement('div');
+                quizDiv.className = 'quiz-question';
+                quizDiv.innerHTML = `
+                    <h4>Soal ${index + 1}:</h4>
+                    <p style="margin-bottom: 15px; font-weight: normal;">${quiz.question}</p>
+                    <div class="quiz-options">
+                        ${quiz.options.map((option, optIndex) => `
+                            <div class="quiz-option" onclick="selectAnswer(${index}, ${optIndex})" data-quiz="${index}" data-option="${optIndex}">
+                                ${String.fromCharCode(65 + optIndex)}. ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                quizContainer.appendChild(quizDiv);
+            });
+        }
+
+        function selectAnswer(quizIndex, optionIndex) {
+            quizAnswers[quizIndex] = optionIndex;
+
+            const options = document.querySelectorAll(`[data-quiz="${quizIndex}"]`);
+            options.forEach((opt, idx) => {
+                opt.classList.remove('selected', 'correct', 'incorrect');
+
+                if (idx === quizzes[quizIndex].correct) {
+                    opt.classList.add('correct');
+                }
+                if (idx === optionIndex && optionIndex !== quizzes[quizIndex].correct) {
+                    opt.classList.add('incorrect');
+                }
+            });
+        }
+
+        function showQuizResults() {
+            let correctCount = 0;
+            const resultContainer = document.getElementById('quizResultContainer');
+            resultContainer.innerHTML = '';
+
+            for (let i = 0; i < quizzes.length; i++) {
+                if (quizAnswers[i] === quizzes[i].correct) {
+                    correctCount++;
+                }
+            }
+
+            const percentage = Math.round((correctCount / quizzes.length) * 100);
+            const resultDiv = document.createElement('div');
+
+            let message = '';
+            let emoji = '';
+            if (percentage === 100) {
+                message = 'Sempurna! Anda menguasai semua materi!';
+                emoji = '🌟';
+            } else if (percentage >= 80) {
+                message = 'Sangat bagus! Anda sudah memahami materi dengan baik.';
+                emoji = '👏';
+            } else if (percentage >= 60) {
+                message = 'Bagus! Tapi ada beberapa materi yang perlu dipelajari lagi.';
+                emoji = '💪';
+            } else {
+                message = 'Silakan pelajari kembali materi ini dengan lebih seksama.';
+                emoji = '📖';
+            }
+
+            resultDiv.innerHTML = `
+                <div style="text-align:center; background:linear-gradient(150deg, rgba(139,92,246,0.18), rgba(34,211,238,0.08)); color:#ECE9FB; padding:40px; border-radius:16px; margin:20px 0; border:1px solid rgba(139,92,246,0.4); box-shadow:0 0 30px rgba(139,92,246,0.15);">
+                    <p style="font-size:3rem; margin-bottom:20px;">${emoji}</p>
+                    <h3 style="color:#8CF1FF; font-size:1.7rem; margin-bottom:16px; font-family:'Space Grotesk', sans-serif;">Skor Anda: ${correctCount}/${quizzes.length}</h3>
+                    <h3 style="color:#C4B5FD; font-size:1.4rem; margin-bottom:18px; font-family:'Space Mono', monospace;">${percentage}%</h3>
+                    <p style="font-size:1.15rem; margin-bottom:0; color:#B9B9DC;">${message}</p>
+                </div>
+
+                <div style="margin-top:28px;">
+                    <h4 style="color:#C4B5FD; margin-bottom:18px; text-align:left; font-family:'Space Grotesk', sans-serif;">Pembahasan Soal:</h4>
+                    ${quizzes.map((quiz, index) => `
+                        <div style="background: ${quizAnswers[index] === quiz.correct ? 'rgba(52,211,153,0.12)' : 'rgba(251,113,133,0.12)'};
+                                    padding: 15px 18px; margin: 10px 0; border-radius: 12px; text-align: left;
+                                    border:1px solid ${quizAnswers[index] === quiz.correct ? 'rgba(52,211,153,0.4)' : 'rgba(251,113,133,0.4)'};">
+                            <strong style="color: ${quizAnswers[index] === quiz.correct ? '#7EEFC5' : '#FFB3C0'};">
+                                Soal ${index + 1}: ${quizAnswers[index] === quiz.correct ? '✓ Benar' : '✗ Salah'}
+                            </strong>
+                            <p style="margin-top: 8px; color: ${quizAnswers[index] === quiz.correct ? '#7EEFC5' : '#FFB3C0'};">
+                                Jawaban Anda: <strong>${quiz.options[quizAnswers[index]] || 'Tidak dijawab'}</strong><br>
+                                Jawaban Benar: <strong>${quiz.options[quiz.correct]}</strong>
+                            </p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            resultContainer.appendChild(resultDiv);
+        }
+
+        function changeSlide(n) {
+            const newSlide = currentSlide + n;
+            if (newSlide >= 1 && newSlide <= totalSlides) {
+                currentSlide = newSlide;
+                updateSlide();
+            }
+        }
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            const slides = document.querySelectorAll('.slide');
+            const activeSlide = slides[currentSlide - 1];
+            activeSlide.classList.add('active');
+            activeSlide.scrollTop = 0;
+
+            document.getElementById('currentSlide').textContent = currentSlide;
+
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            if (currentSlide === 11) {
+                initializeQuiz();
+            }
+
+            if (currentSlide === 12) {
+                showQuizResults();
+            }
+
+            window.scrollTo(0, 0);
+        }
+
+        function kembaliKeBab3() {
+            window.location.href = 'bab3.html';
+        }
+
+        updateSlide();
+    </script>
+</body>
+</html>
