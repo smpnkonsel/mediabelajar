@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Interaktif BK - Teknik Pendekatan Masalah</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --primary-light: rgba(245, 158, 11, 0.15);
+            --secondary: #14b8a6;
+            --secondary-light: rgba(20, 184, 166, 0.15);
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #101c3f;
+            --card-bg: #16224b;
+            --border-color: #2d3d6e;
+            --text-main: #e2e8f0;
+            --text-muted: #a8b3d1;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a1330 0%, #1b2757 60%, #0f172a 100%);
+            color: var(--text-main);
+        }
+
+        /* CONTAINER FULL SCREEN & RESPONSIVE */
+        #app-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        /* SCREENS - FULL VIEWPORT CARD */
+        .screen {
+            display: none;
+            background: var(--light);
+            width: 100%;
+            height: 100vh;
+            padding: 2% 4%;
+            box-shadow: none;
+            animation: fadeIn 0.3s ease-out;
+            position: relative;
+            overflow-y: auto;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* TOP IN-SCREEN BAR */
+        .screen-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .screen-title-tag {
+            font-size: clamp(0.85rem, 1.4vw, 1rem);
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-indicator {
+            font-size: clamp(0.85rem, 1.4vw, 1rem);
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* CONTENT AREA */
+        .screen-body {
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        /* TYPOGRAPHY RESPONSIVE */
+        h1 { font-size: clamp(1.8rem, 3.5vw, 2.8rem); color: #f8fafc; margin: 0 0 10px 0; font-weight: 800; line-height: 1.2; font-family: Georgia, 'Times New Roman', serif; }
+        h2 { font-size: clamp(1.4rem, 2.5vw, 2rem); color: var(--primary); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 4px; margin-top: 0; font-weight: 700; }
+        h3 { font-size: clamp(1.1rem, 1.8vw, 1.4rem); color: #f1f5f9; margin-top: 12px; font-weight: 600; }
+        p, li { font-size: clamp(0.95rem, 1.5vw, 1.15rem); line-height: 1.5; color: var(--text-muted); }
+
+        /* VISUAL PLACEHOLDERS */
+        .visual-placeholder {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 3px dashed var(--primary);
+            border-radius: 16px;
+            padding: 12px 18px;
+            text-align: center;
+            font-size: clamp(0.85rem, 1.3vw, 1rem);
+            font-weight: 600;
+            margin: 12px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .visual-placeholder .icon { font-size: clamp(2.5rem, 5vw, 4rem); }
+
+        /* IN-SCREEN BOTTOM NAVIGATION CONTROLS */
+        .screen-bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid var(--border-color);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* BUTTONS RESPONSIVE */
+        .btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: clamp(8px, 1.3vw, 12px) clamp(16px, 2vw, 24px);
+            font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-secondary { background: #2d3d6e; color: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+        .btn-secondary:hover { background: #3b4d8a; }
+
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25); }
+        .btn-success:hover { background: #059669; }
+
+        .btn-warning { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(20, 184, 166, 0.25); }
+        .btn-warning:hover { background: #0f9c8e; }
+
+        /* INTERACTIVE CARDS & GRID */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+
+        .interactive-card {
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-main);
+        }
+        .interactive-card .card-icon { font-size: clamp(2rem, 4vw, 3rem); }
+        .interactive-card .card-text { font-size: clamp(0.85rem, 1.3vw, 1rem); font-weight: 600; color: var(--text-main); }
+
+        .interactive-card:hover {
+            border-color: var(--primary);
+            background: #1c2a5e;
+            transform: translateY(-3px);
+        }
+        .interactive-card.selected { border-color: var(--primary); background: rgba(245, 158, 11, 0.18); color: var(--primary); }
+
+        /* FEEDBACK BOX */
+        .feedback-box {
+            margin-top: 10px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+            font-weight: 600;
+            display: none;
+        }
+        .feedback-box.correct { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 2px solid var(--success); display: block; }
+        .feedback-box.incorrect { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 2px solid var(--danger); display: block; }
+
+        /* QUIZ OPTIONS */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 12px 18px;
+            margin: 8px 0;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            text-align: left;
+            font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+        .quiz-option:hover { background: #1c2a5e; border-color: var(--primary); }
+        .quiz-option.correct-choice { background: rgba(16, 185, 129, 0.18); border-color: var(--success); color: #6ee7b7; }
+        .quiz-option.incorrect-choice { background: rgba(239, 68, 68, 0.18); border-color: var(--danger); color: #fca5a5; }
+        .quiz-option:disabled { cursor: default; }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1rem;
+            resize: none;
+            margin-top: 10px;
+            color: var(--text-main);
+        }
+        textarea::placeholder { color: var(--text-muted); }
+
+        /* TOAST/MODAL NOTIFICATION (replaces alert()) */
+        #toast-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #toast-modal {
+            background: var(--card-bg);
+            border: 3px solid var(--primary);
+            border-radius: 16px;
+            padding: 22px 32px;
+            max-width: 420px;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fbbf24;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        #toast-modal.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* RESPONSIVE MEDIA QUERIES FOR SMALL SCREENS */
+        @media (max-width: 600px) {
+            .screen { padding: 12px; }
+            .screen-bottom-nav { justify-content: space-between; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+
+        <!-- SCREEN 1: COVER -->
+        <div class="screen active" id="screen1">
+            <div class="screen-body" style="text-align: center;">
+                <div class="visual-placeholder" style="background:none; border:none;">
+                    <div class="icon">🧩💡⚙️</div>
+                </div>
+                <h1>Teknik Pendekatan Masalah</h1>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Bab 1: Berpikir Komputasional (Kelas VII SMP / 6 JP)</p>
+                <div style="background: var(--primary-light); padding: 12px 20px; border-radius: 12px; display: inline-block; margin-bottom: 20px; border: 1px solid var(--primary);">
+                    <p style="margin: 0; font-weight: 600; color: #fbbf24;">🎯 Capaian: Peserta didik mampu memilih dan menerapkan teknik pendekatan yang tepat dalam menyelesaikan masalah secara sistematis.</p>
+                </div>
+                <div>
+                    <button class="btn" onclick="nextScreen()">Mulai Belajar 🚀</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav" style="justify-content: center;">
+                <span class="progress-indicator">Halaman 1 / 12</span>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: TUJUAN PEMBELAJARAN -->
+        <div class="screen" id="screen2">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🎯 TUJUAN PEMBELAJARAN (6 JP)</span>
+                <span class="progress-indicator">Halaman 2 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Target Pembelajaran Kita</h2>
+                <p>Selama 6 Jam Pelajaran (6 JP), kamu akan belajar menguasai 4 strategi utama penyelesaian masalah:</p>
+
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                    <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; border: 2px solid var(--border-color);">
+                        <span style="font-size: 1.8rem;">🔨</span>
+                        <h3 style="margin: 5px 0;">1. Dekomposisi</h3>
+                        <p style="font-size: 0.9rem; margin: 0;">Memecah masalah besar jadi bagian-bagian kecil yang mudah dikelola.</p>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; border: 2px solid var(--border-color);">
+                        <span style="font-size: 1.8rem;">🔍</span>
+                        <h3 style="margin: 5px 0;">2. Pengenalan Pola</h3>
+                        <p style="font-size: 0.9rem; margin: 0;">Mengenali kesamaan atau keteraturan dari masalah terdahulu.</p>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; border: 2px solid var(--border-color);">
+                        <span style="font-size: 1.8rem;">🎨</span>
+                        <h3 style="margin: 5px 0;">3. Abstraksi</h3>
+                        <p style="font-size: 0.9rem; margin: 0;">Fokus pada hal penting & mengabaikan detail tak relevan.</p>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; border: 2px solid var(--border-color);">
+                        <span style="font-size: 1.8rem;">📝</span>
+                        <h3 style="margin: 5px 0;">4. Algoritma</h3>
+                        <p style="font-size: 0.9rem; margin: 0;">Rangkaian langkah terstruktur untuk menyelesaikan masalah.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: APERSEPSI & STUDI KASUS -->
+        <div class="screen" id="screen3">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🤔 APERSEPSI: APA ITU MASALAH?</span>
+                <span class="progress-indicator">Halaman 3 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Bayangkan Situasi Ini!</h2>
+                <p>Kelompokmu bertugas menyelenggarakan <strong>Pentas Seni Sekolah</strong> dalam waktu 1 minggu. Masalahnya sangat besar dan rumit!</p>
+
+                <div class="visual-placeholder" style="background: rgba(245, 158, 11, 0.15); border-color: var(--accent); color: #fbbf24;">
+                    <div class="icon">🎪🎭📢🔊</div>
+                    <div>[ILUSTRASI: Kekacauan persiapan pentas seni: panggung belum siap, jadwal acak, pengisi acara bingung]</div>
+                </div>
+
+                <p><strong>Pertanyaan Pemantik:</strong> Apa tindakan pertama yang harus dilakukan agar pekerjaan tidak menumpuk dan membingungkan?</p>
+
+                <div class="card-grid">
+                    <div class="interactive-card" onclick="selectApersepsi(this, 'salah')">
+                        <div class="card-icon">🏃‍♂️</div>
+                        <div class="card-text">A. Langsung mengerjakan apa saja yang terlihat tanpa pembagian tugas</div>
+                    </div>
+                    <div class="interactive-card" onclick="selectApersepsi(this, 'benar')">
+                        <div class="card-icon">📋</div>
+                        <div class="card-text">B. Memecah acara menjadi sub-bagian (Sie Acara, Perlengkapan, Konsumsi, Humas)</div>
+                    </div>
+                </div>
+                <div id="apersepsiFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: PILAR 1 - DEKOMPOSISI -->
+        <div class="screen" id="screen4">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🔨 TEKNIK 1: DEKOMPOSISI</span>
+                <span class="progress-indicator">Halaman 4 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Membagi Masalah Rumit Jadi Kecil</h2>
+                <p><strong>Dekomposisi</strong> adalah proses memecah masalah kompleks menjadi komponen-komponen yang lebih kecil dan lebih mudah dikelola (<em>divide and conquer</em>).</p>
+
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; border-left: 5px solid var(--primary);">
+                    <h3 style="margin-top:0;">Contoh Dekomposisi: "Membuat Sepeda Motor"</h3>
+                    <p style="margin: 5px 0;">Sangat sulit membuat motor sekaligus. Maka dipecah menjadi sub-sistem:</p>
+                    <ul style="margin-bottom:0;">
+                        <li>⚙️ System Mesin & Transmisi</li>
+                        <li>🛠️ Sub-sistem Rangka & Bodi</li>
+                        <li>⚡ Sub-sistem Kelistrikan & Lampu</li>
+                        <li>🛞 Sub-sistem Roda & Pengereman</li>
+                    </ul>
+                </div>
+
+                <p style="margin-top: 10px;">💡 <strong>Manfaat:</strong> Setiap tim dapat fokus pada satu bagian tanpa kewalahan oleh rumitnya keseluruhan sistem!</p>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: PILAR 2 - PENGENALAN POLA -->
+        <div class="screen" id="screen5">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🔍 TEKNIK 2: PENGENALAN POLA</span>
+                <span class="progress-indicator">Halaman 5 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Belajar dari Pengalaman Lalu</h2>
+                <p><strong>Pengenalan Pola (Pattern Recognition)</strong> adalah kemampuan menemukan kesamaan, keteraturan, atau tren antara masalah yang sedang dihadapi dengan masalah yang pernah diselesaikan sebelumnya.</p>
+
+                <div class="visual-placeholder" style="background: rgba(20, 184, 166, 0.15); border-color: var(--secondary); color: #5eead4;">
+                    <div class="icon">🧩🔍📉</div>
+                    <div>[ILUSTRASI: Membandingkan dua grafik data yang memiliki gelombang naik-turun serupa]</div>
+                </div>
+
+                <div style="background: var(--card-bg); padding: 12px; border-radius: 10px;">
+                    <p style="margin: 0;">💡 <strong>Contoh:</strong> Seorang dokter mendiagnosis penyakit pasien bukan dari nol, tapi dengan <strong>mengenali pola gejala</strong> (demam, bintik merah, pusing) yang pernah ditemui pada pasien demam berdarah sebelumnya.</p>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: PILAR 3 - ABSTRAKSI -->
+        <div class="screen" id="screen6">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🎨 TEKNIK 3: ABSTRAKSI</span>
+                <span class="progress-indicator">Halaman 6 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Fokus pada Informasi Penting saja</h2>
+                <p><strong>Abstraksi</strong> adalah memilah informasi penting dan mengabaikan rincian atau detail yang tidak relevan dengan solusi masalah.</p>
+
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; border-left: 5px solid var(--accent);">
+                    <h3 style="margin-top:0;">Contoh Nyata: Peta Jalur TransJakarta / MRT</h3>
+                    <p style="margin: 5px 0;">Peta MRT tidak menampilkan pepohonan, gedung, atau lebar jalan raya. Peta hanya menampilkan <strong>stasiun, warna jalur, dan titik transit</strong>.</p>
+                    <p style="margin: 0;">👉 Mengapa? Karena informasi pepohonan & gedung <strong>tidak relevan</strong> untuk orang yang ingin naik kereta!</p>
+                </div>
+
+                <div class="visual-placeholder" style="background: rgba(245, 158, 11, 0.15); border-color: var(--accent); color: #fbbf24;">
+                    <div class="icon">🗺️📍🚇</div>
+                    <div>[ILUSTRASI: Perbandingan Peta Satelit Asli vs Peta Abstraksi Skematik MRT]</div>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 7: PILAR 4 - ALGORITMA -->
+        <div class="screen" id="screen7">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">📝 TEKNIK 4: RANCANGAN ALGORITMA</span>
+                <span class="progress-indicator">Halaman 7 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Menyusun Langkah demi Langkah</h2>
+                <p><strong>Algoritma</strong> adalah urutan langkah-langkah logis dan terstruktur yang disusun secara sistematis untuk menyelesaikan masalah dari awal hingga akhir.</p>
+
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 12px;">
+                    <h3 style="margin-top:0;">Syarat Algoritma yang Baik:</h3>
+                    <ol style="margin-bottom:0; padding-left:20px;">
+                        <li><strong>Jelas & Tidak Ambigu:</strong> Setiap langkah memiliki arti yang pasti.</li>
+                        <li><strong>Ada Awal & Akhir:</strong> Harus selesai setelah sejumlah langkah terbatas.</li>
+                        <li><strong>Efektif:</strong> Langkah-langkahnya benar-benar menyelesaikan masalah.</li>
+                    </ol>
+                </div>
+
+                <p style="margin-top: 10px;">💡 <strong>Contoh dalam Keseharian:</strong> Resep memasak mie instan, panduan merakit lemari plastik, atau algoritma pencarian kata di Google.</p>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 8: STUDI KASUS INTEGRASI -->
+        <div class="screen" id="screen8">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">💡 INTEGRASI 4 TEKNIK PENDEKATAN</span>
+                <span class="progress-indicator">Halaman 8 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Studi Kasus: Memperbaiki Nilai Matematika yang Anjlok</h2>
+                <p>Mari kita lihat bagaimana 4 teknik ini bekerja sama menyelesaikan masalah nyata:</p>
+
+                <div style="background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 12px;">
+                    <p style="margin: 4px 0;"><strong>1. Dekomposisi:</strong> Memecah Matematika menjadi topik (Aljabar, Geometri, Statistik) untuk melihat di mana letak kelemahannya.</p>
+                    <p style="margin: 4px 0;"><strong>2. Pengenalan Pola:</strong> Memperhatikan pola: "Saya selalu salah saat mengerjakan soal cerita yang rumit."</p>
+                    <p style="margin: 4px 0;"><strong>3. Abstraksi:</strong> Menganalisis soal cerita dengan mencatat rumus & angka penting saja, mengabaikan kalimat hiasan soal.</p>
+                    <p style="margin: 4px 0;"><strong>4. Algoritma:</strong> Membuat jadwal belajar harian terstruktur: 15 menit baca rumus ➡️ 30 menit latihan 10 soal ➡️ evaluasi.</p>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 9: LATIHAN INTERAKTIF (IDENTIFIKASI TEKNIK) -->
+        <div class="screen" id="screen9">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🛠️ LATIHAN IDENTIFIKASI TEKNIK</span>
+                <span class="progress-indicator">Halaman 9 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Cobalah Identifikasi Teknik yang Tepat!</h2>
+                <p>Skenario: <strong>"Dina membuat denah rumahnya, ia hanya menggambar garis dinding, pintu, dan jendela, serta sengaja tidak menggambar warna cat maupun letak pot bunga."</strong></p>
+
+                <p>Teknik pendekatan manakah yang sedang diterapkan Dina?</p>
+
+                <div class="card-grid">
+                    <div class="interactive-card" onclick="checkSimulasi(this, 'salah')">
+                        <div class="card-icon">🔨</div>
+                        <div class="card-text">Dekomposisi</div>
+                    </div>
+                    <div class="interactive-card" onclick="checkSimulasi(this, 'benar')">
+                        <div class="card-icon">🎨</div>
+                        <div class="card-text">Abstraksi</div>
+                    </div>
+                    <div class="interactive-card" onclick="checkSimulasi(this, 'salah')">
+                        <div class="card-icon">📝</div>
+                        <div class="card-text">Algoritma</div>
+                    </div>
+                </div>
+                <div id="simulasiFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 10: KUIS EVALUASI (5 SOAL) -->
+        <div class="screen" id="screen10">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">📝 KUIS EVALUASI</span>
+                <span class="progress-indicator">Halaman 10 / 12</span>
+            </div>
+            <div class="screen-body">
+                <div id="quizContainer">
+                    <p id="quizQuestionText" style="font-size: clamp(1.05rem, 1.8vw, 1.25rem); font-weight: 700; color: #f8fafc;">Memuat soal...</p>
+                    <div id="quizOptions"></div>
+                </div>
+
+                <div id="quizResult" style="display:none; text-align:center;">
+                    <div class="visual-placeholder" style="background:none; border:none;">
+                        <div class="icon" id="quizResultIcon">🏆</div>
+                    </div>
+                    <h3>Hasil Evaluasi Kamu:</h3>
+                    <p id="quizScoreText" style="font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight:800; color:var(--primary); margin: 10px 0;"></p>
+                    <p id="quizFeedbackText" style="color: var(--text-muted);"></p>
+                    <button class="btn btn-secondary" onclick="restartQuiz()" style="margin-top: 10px;">Ulangi Kuis 🔄</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 11: TANTANGAN HOTS -->
+        <div class="screen" id="screen11">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🔥 TANTANGAN HOTS & ANALISIS</span>
+                <span class="progress-indicator">Halaman 11 / 12</span>
+            </div>
+            <div class="screen-body">
+                <h2>Tantangan Solusi Masalah Nyata</h2>
+                <p><strong>Masalah:</strong> Sampah plastik di kantin sekolahmu sangat menumpuk setiap hari. Pilih <strong>2 teknik pendekatan</strong> (misal: Dekomposisi & Algoritma) lalu tuliskan strategi konkretmu untuk menyelesaikan masalah tersebut!</p>
+
+                <textarea id="hotsResponse" placeholder="Contoh: 1. Dekomposisi: Memecah jenis sampah menjadi botol, sedotan, dan pembungkus makanan..."></textarea>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-success" onclick="submitHots()">Kirim Analisis Solusi</button>
+                </div>
+                <div id="hotsFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 12: RANGKUMAN & SELESAI -->
+        <div class="screen" id="screen12">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🎉 RANGKUMAN & SELESAI</span>
+                <span class="progress-indicator">Halaman 12 / 12</span>
+            </div>
+            <div class="screen-body" style="text-align: center;">
+                <div class="visual-placeholder" style="background:none; border:none;">
+                    <div class="icon">🎉🏆🎓</div>
+                </div>
+                <h2>Selamat! Kamu Telah Menyelesaikan 6 JP Materi</h2>
+
+                <div style="background: var(--card-bg); padding: 18px; border-radius: 15px; text-align: left; max-width: 800px; margin: 15px auto; border: 2px solid var(--border-color);">
+                    <h3 style="margin-top:0;">📌 Rangkuman Penting:</h3>
+                    <ul style="padding-left: 20px; margin-bottom:0;">
+                        <li><strong>Dekomposisi:</strong> Pecah masalah besar jadi bagian kecil.</li>
+                        <li><strong>Pengenalan Pola:</strong> Cari kemiripan dengan masalah terdahulu.</li>
+                        <li><strong>Abstraksi:</strong> Fokus pada informasi penting, abaikan detail tak berguna.</li>
+                        <li><strong>Algoritma:</strong> Susun langkah logis berurutan secara sistematis.</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+                    <button class="btn btn-warning" onclick="backToChapterList()">📚 Kembali ke Daftar Bab</button>
+                    <button class="btn btn-success" onclick="goToScreen(1)">Ulangi Pembelajaran 🔄</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CUSTOM TOAST/MODAL NOTIFICATION -->
+    <div id="toast-overlay">
+        <div id="toast-modal"></div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentScreen = 1;
+        const totalScreens = 12;
+
+        function updateUI() {
+            document.querySelectorAll('.screen').forEach((s, idx) => {
+                s.classList.toggle('active', idx + 1 === currentScreen);
+            });
+        }
+
+        function nextScreen() { if (currentScreen < totalScreens) { currentScreen++; updateUI(); } }
+        function prevScreen() { if (currentScreen > 1) { currentScreen--; updateUI(); } }
+        function goToScreen(num) { currentScreen = num; updateUI(); }
+
+        /* TOAST NOTIFICATION (replaces alert()) */
+        let toastTimer = null;
+        function showToast(message, duration = 2000) {
+            const modal = document.getElementById('toast-modal');
+            clearTimeout(toastTimer);
+            modal.innerText = message;
+            void modal.offsetWidth;
+            modal.classList.add('show');
+            toastTimer = setTimeout(() => modal.classList.remove('show'), duration);
+        }
+
+        /* Tombol Kembali ke Daftar Bab -> arahkan ke halaman daftar bab */
+        function backToChapterList() {
+            window.location.href = '../info-bab1.html';
+        }
+
+        /* Apersepsi */
+        function selectApersepsi(el, ans) {
+            const fb = document.getElementById('apersepsiFeedback');
+            document.querySelectorAll('#screen3 .interactive-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            if (ans === 'benar') {
+                fb.className = 'feedback-box correct';
+                fb.innerHTML = '✅ <strong>Tepat Sekali!</strong> Memecah kepanitiaan menjadi sub-bagian adalah bentuk <strong>Dekomposisi</strong> agar masalah besar dapat ditangani dengan fokus.';
+            } else {
+                fb.className = 'feedback-box incorrect';
+                fb.innerHTML = '❌ <strong>Kurang Tepat.</strong> Bekerja tanpa pembagian tugas akan menimbulkan kekacauan dan tumpang tindih pekerjaan.';
+            }
+        }
+
+        /* Simulasi Latihan */
+        function checkSimulasi(el, ans) {
+            const fb = document.getElementById('simulasiFeedback');
+            document.querySelectorAll('#screen9 .interactive-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            if (ans === 'benar') {
+                fb.className = 'feedback-box correct';
+                fb.innerHTML = '🎉 <strong>Benar! Jawabannya Abstraksi.</strong> Dina fokus pada informasi penting (struktur rumah) dan mengabaikan detail hiasan yang tidak relevan.';
+            } else {
+                fb.className = 'feedback-box incorrect';
+                fb.innerHTML = '❌ <strong>Kurang Tepat.</strong> Mengabaikan detail hiasan dan fokus pada hal esensial adalah ciri utama Abstraksi.';
+            }
+        }
+
+        /* Kuis (5 Soal) */
+        const quizQuestions = [
+            { q: "Membagi masalah besar dan rumit menjadi bagian-bagian kecil yang lebih mudah dikelola disebut...", a: ["Abstraksi", "Dekomposisi", "Algoritma"], correct: 1 },
+            { q: "Ketika kamu menyusun resep membuat kue langkah demi langkah secara terurut, kamu sedang menerapkan...", a: ["Algoritma", "Pengenalan Pola", "Dekomposisi"], correct: 0 },
+            { q: "Seseorang mengenali bahwa gejala flu selalu diawali pusing dan tenggorokan gatal. Ini contoh dari...", a: ["Abstraksi", "Pengenalan Pola", "Algoritma"], correct: 1 },
+            { q: "Menghilangkan warna cat dan hiasan pada gambar peta lokasi rumah merupakan contoh penerapan...", a: ["Abstraksi", "Dekomposisi", "Evaluasi"], correct: 0 },
+            { q: "Manakah pendekatan yang TEPAT jika kamu ingin membagi tugas kelompok pembersihan kelas?", a: ["Algoritma", "Dekomposisi", "Abstraksi"], correct: 1 }
+        ];
+
+        let quizData = { current: 0, score: 0 };
+
+        function loadQuizQuestion() {
+            const qText = document.getElementById('quizQuestionText');
+            const opts = document.getElementById('quizOptions');
+            opts.innerHTML = '';
+
+            const currentQ = quizQuestions[quizData.current];
+            qText.innerText = `Soal ${quizData.current + 1} dari ${quizQuestions.length}: ${currentQ.q}`;
+
+            currentQ.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => handleQuizAnswer(idx);
+                opts.appendChild(btn);
+            });
+        }
+
+        function handleQuizAnswer(idx) {
+            const currentQ = quizQuestions[quizData.current];
+            const opts = document.querySelectorAll('.quiz-option');
+            opts.forEach(b => b.disabled = true);
+
+            if (idx === currentQ.correct) {
+                quizData.score += 20;
+                opts[idx].classList.add('correct-choice');
+            } else {
+                opts[idx].classList.add('incorrect-choice');
+                opts[currentQ.correct].classList.add('correct-choice');
+            }
+
+            setTimeout(() => {
+                quizData.current++;
+                if (quizData.current < quizQuestions.length) loadQuizQuestion();
+                else showQuizResult();
+            }, 1000);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const res = document.getElementById('quizResult');
+            res.style.display = 'block';
+            document.getElementById('quizScoreText').innerText = `${quizData.score} / 100`;
+            document.getElementById('quizFeedbackText').innerText = quizData.score >= 80 ? "Luar Biasa! Kamu sangat menguasai 4 teknik pendekatan masalah!" : "Tetap Semangat! Coba ulangi kuis untuk memperkuat pemahamanmu.";
+        }
+
+        function restartQuiz() {
+            quizData.current = 0;
+            quizData.score = 0;
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            loadQuizQuestion();
+        }
+
+        /* HOTS */
+        function submitHots() {
+            const txt = document.getElementById('hotsResponse').value;
+            const fb = document.getElementById('hotsFeedback');
+            if (txt.trim().length > 25) {
+                fb.className = "feedback-box correct";
+                fb.innerHTML = "🔥 <strong>Analisis Diterima!</strong> Kombinasi teknik yang kamu terapkan menunjukkan pemahaman penyelesaian masalah secara terstruktur.";
+            } else {
+                fb.className = "feedback-box incorrect";
+                fb.innerHTML = "⚠️ Tuliskan penjelasan analisis solusimu sedikit lebih detail.";
+            }
+        }
+
+        // Init
+        updateUI();
+        loadQuizQuestion();
+    </script>
+</body>
+</html>

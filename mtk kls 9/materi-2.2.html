@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 2 · Keliling dan Luas Lingkaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1B3C;
+    --bg-deep:#0A1430;
+    --card:#16264F;
+    --card-2:#1C2E5C;
+    --grid:rgba(255,255,255,0.045);
+    --text:#F2F1EC;
+    --text-dim:#93A3C7;
+    --line:rgba(255,255,255,0.10);
+
+    --pi:#FFC857;
+    --keliling:#4ECDC4;
+    --luas:#C4E86B;
+    --soal:#A78BFA;
+    --warn:#FF6B6B;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      repeating-linear-gradient(0deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 44px),
+      repeating-linear-gradient(90deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 44px),
+      radial-gradient(ellipse at 20% -10%, #1B2F63 0%, var(--bg) 55%);
+    background-color:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    height:100vh; width:100vw;
+  }
+  .display{ font-family:'Baloo 2', sans-serif; }
+
+  .app{ position:relative; height:100vh; width:100vw; display:flex; flex-direction:column; }
+
+  .topbar{ display:flex; align-items:center; gap:14px; padding:16px clamp(18px,4vw,48px) 0; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:15px; color:var(--text-dim); letter-spacing:.02em; }
+  .brand .dot-logo{ width:20px;height:20px;border-radius:50%; border:2.5px solid var(--pi); position:relative; flex-shrink:0; }
+  .brand .dot-logo::after{ content:""; position:absolute; top:50%; left:50%; width:3px;height:3px;border-radius:50%; background:var(--pi); transform:translate(-50%,-50%); }
+  .progress-track{ flex:1; height:4px; background:var(--line); border-radius:4px; overflow:hidden; }
+  .progress-fill{ height:100%; width:14.28%; background:linear-gradient(90deg, var(--pi), var(--keliling)); border-radius:4px; transition:width .5s cubic-bezier(.65,0,.35,1); }
+  .slide-count{ font-size:13px; color:var(--text-dim); font-variant-numeric:tabular-nums; min-width:44px; text-align:right; }
+
+  .stage{ position:relative; flex:1; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    padding:clamp(20px,4vw,56px) clamp(20px,6vw,80px);
+    opacity:0; transform:translateX(40px); pointer-events:none;
+    transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1);
+    overflow-y:auto;
+  }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--keliling); margin-bottom:14px; }
+  .eyebrow::before{ content:""; width:16px;height:1.5px; background:var(--keliling); }
+
+  h1{ font-family:'Baloo 2', sans-serif; font-size:clamp(26px, 4vw, 44px); font-weight:700; line-height:1.12; max-width:18ch; }
+  h2{ font-family:'Baloo 2', sans-serif; font-size:clamp(22px, 3vw, 32px); font-weight:700; margin-bottom:8px; }
+  p.lead{ color:var(--text-dim); font-size:clamp(14px,1.4vw,17px); max-width:62ch; margin-top:10px; line-height:1.6; }
+
+  /* ---- Slide 1: Cover ---- */
+  #slide-1{ justify-content:center; }
+  .cover-wrap{ display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap; }
+  .cover-text{ flex:1; min-width:280px; }
+  .cover-goal{ margin-top:24px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; max-width:54ch; }
+  .cover-goal .k{ font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--pi); display:block; margin-bottom:6px; }
+  .cover-goal p{ font-size:14.5px; color:var(--text); line-height:1.55; }
+  .badge-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:20px; }
+  .badge{ font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:100px; border:1px solid var(--line); color:var(--text-dim); background:var(--card); }
+
+  .pi-hero{ width:min(36vw,300px); aspect-ratio:1/1; flex-shrink:0; position:relative; }
+  .pi-hero svg{ width:100%; height:100%; }
+  .roll-circle{ transform-origin:150px 220px; animation:roll 2.6s cubic-bezier(.65,0,.35,1) forwards .3s; }
+  @keyframes roll{ from{ transform:translateX(0) rotate(0deg);} to{ transform:translateX(220px) rotate(690deg);} }
+  .roll-line{ stroke-dasharray:260; stroke-dashoffset:260; animation:drawline 2.6s ease forwards .3s; }
+  @keyframes drawline{ to{ stroke-dashoffset:0; } }
+
+  /* ---- Slide 2: Konsep Pi interaktif ---- */
+  .pi-demo{ display:flex; gap:36px; margin-top:20px; flex-wrap:wrap; align-items:flex-start; flex:1; }
+  .pi-demo-visual{ flex:1.2; min-width:320px; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:28px; }
+  .pi-circle-row{ display:flex; align-items:center; gap:26px; margin-bottom:26px; flex-wrap:wrap; }
+  .pi-circle-row svg{ flex-shrink:0; }
+  .pi-circle-row .cap{ font-size:13px; color:var(--text-dim); max-width:26ch; }
+
+  .line-track{ position:relative; height:38px; background:var(--bg-deep); border:1px dashed var(--line); border-radius:8px; overflow:hidden; }
+  .d-block{ position:absolute; top:0; height:100%; border-right:2px solid var(--bg-deep); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#0A1430; }
+  .pi-controls{ display:flex; align-items:center; gap:14px; margin-top:20px; flex-wrap:wrap; }
+  .pi-counter{ font-family:'Baloo 2',sans-serif; font-size:22px; color:var(--pi); }
+  .pi-counter span{ font-size:13px; color:var(--text-dim); font-family:'Inter',sans-serif; }
+  .pi-conclusion{ margin-top:16px; font-size:13.5px; color:var(--text-dim); min-height:20px; }
+
+  .pi-demo-copy{ flex:1; min-width:260px; }
+  .pi-demo-copy p{ color:var(--text-dim); font-size:14.5px; line-height:1.7; margin-bottom:14px; max-width:52ch; }
+  .pi-demo-copy strong{ color:var(--text); }
+  .pi-formula-box{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 20px; margin-top:6px; }
+  .pi-formula-box .f{ font-family:'Baloo 2',sans-serif; font-size:20px; color:var(--pi); }
+
+  /* ---- Slide 3 & 4: Kalkulator interaktif ---- */
+  .calc-layout{ display:flex; gap:32px; margin-top:16px; flex:1; min-height:0; flex-wrap:wrap; }
+  .calc-visual{ flex:1; min-width:280px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--line); border-radius:20px; padding:24px; }
+  .calc-panel{ flex:1.1; min-width:300px; display:flex; flex-direction:column; gap:16px; }
+
+  .slider-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+  .slider-card .lbl{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+  .slider-card .lbl span:first-child{ font-size:13px; color:var(--text-dim); font-weight:600; }
+  .slider-card .lbl .val{ font-family:'Baloo 2',sans-serif; font-size:22px; }
+  input[type=range]{
+    -webkit-appearance:none; width:100%; height:5px; border-radius:5px;
+    background:var(--line); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--pi); cursor:pointer; border:3px solid var(--bg-deep);
+  }
+  input[type=range]::-moz-range-thumb{ width:20px; height:20px; border-radius:50%; background:var(--pi); cursor:pointer; border:3px solid var(--bg-deep); }
+
+  .formula-result{ background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px 22px; }
+  .formula-result .name{ font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-dim); margin-bottom:8px; }
+  .formula-result .steps{ font-size:15px; color:var(--text); line-height:1.9; font-family:'Inter',sans-serif; }
+  .formula-result .steps b{ font-family:'Baloo 2',sans-serif; font-weight:600; }
+  .formula-result .final{ font-family:'Baloo 2',sans-serif; font-size:26px; margin-top:8px; }
+
+  .mini-note{ font-size:12.5px; color:var(--text-dim); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+
+  /* ---- Slide 5: Contoh Soal ---- */
+  .soal-list{ display:flex; flex-direction:column; gap:12px; margin-top:18px; max-width:780px; }
+  .soal-card{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .soal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:16px 20px; cursor:pointer; background:none; border:none; width:100%; text-align:left;
+    color:var(--text); font-family:'Inter',sans-serif;
+  }
+  .soal-head .num{ font-family:'Baloo 2',sans-serif; color:var(--soal); font-size:14px; margin-right:10px; }
+  .soal-head .txt{ font-size:14.5px; line-height:1.5; flex:1; }
+  .soal-head .chev{ transition:transform .25s; color:var(--text-dim); flex-shrink:0; }
+  .soal-card.open .chev{ transform:rotate(180deg); }
+  .soal-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .soal-card.open .soal-body{ max-height:400px; }
+  .soal-body-inner{ padding:0 20px 20px; font-size:13.5px; color:var(--text-dim); line-height:1.8; border-top:1px solid var(--line); padding-top:14px; margin:0 20px; }
+  .soal-body-inner b{ color:var(--text); }
+
+  /* ---- Slide 6: Kuis (shared style) ---- */
+  .quiz-wrap{ flex:1; display:flex; flex-direction:column; max-width:680px; }
+  .quiz-progress{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .quiz-progress span{ font-size:12.5px; color:var(--text-dim); font-weight:600; }
+  .quiz-dots{ display:flex; gap:5px; }
+  .qdot{ width:7px;height:7px;border-radius:50%; background:var(--line); }
+  .qdot.done{ background:var(--keliling); }
+  .qdot.current{ background:var(--pi); }
+  .quiz-card{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:26px 28px; margin-top:16px; }
+  .quiz-q{ font-family:'Baloo 2',sans-serif; font-size:18px; margin-bottom:18px; line-height:1.4; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-opt{ text-align:left; background:var(--bg-deep); border:1px solid var(--line); border-radius:10px; padding:12px 16px; color:var(--text); font-size:14.5px; font-family:'Inter',sans-serif; cursor:pointer; transition:border-color .2s, background .2s; }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--keliling); }
+  .quiz-opt.correct{ border-color:var(--luas); background:rgba(196,232,107,0.12); }
+  .quiz-opt.wrong{ border-color:var(--warn); background:rgba(255,107,107,0.12); }
+  .quiz-opt:disabled{ cursor:default; opacity:.8; }
+  .quiz-feedback{ margin-top:14px; font-size:13.5px; color:var(--text-dim); min-height:20px; }
+  .quiz-next{ align-self:flex-end; margin-top:16px; }
+  .quiz-result{ display:none; flex-direction:column; align-items:flex-start; gap:14px; }
+  .quiz-result .score{ font-family:'Baloo 2',sans-serif; font-size:40px; color:var(--pi); }
+
+  /* ---- Slide 7: Ringkasan ---- */
+  .summary-list{ margin-top:18px; display:flex; flex-direction:column; gap:10px; max-width:62ch; }
+  .summary-item{ display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px 16px; }
+  .summary-item .sw{ width:9px;height:9px;border-radius:50%; margin-top:6px; flex-shrink:0; }
+  .summary-item p{ font-size:14px; color:var(--text-dim); line-height:1.5; }
+  .summary-item strong{ color:var(--text); }
+  .end-actions{ display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; }
+
+  .btn{ display:inline-flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-weight:600; font-size:14px; padding:11px 20px; border-radius:100px; border:1px solid var(--line); background:var(--card); color:var(--text); cursor:pointer; transition:border-color .2s, background .2s, transform .15s; }
+  .btn:hover{ border-color:var(--keliling); transform:translateY(-1px); }
+  .btn.primary{ background:var(--pi); color:#1B1300; border-color:var(--pi); }
+  .btn.primary:hover{ filter:brightness(1.06); }
+  .btn:disabled{ opacity:.4; cursor:default; transform:none; }
+
+  .bottomnav{ display:flex; align-items:center; justify-content:space-between; padding:14px clamp(18px,4vw,48px) 20px; gap:16px; }
+  .nav-dots{ display:flex; gap:8px; }
+  .nav-dot{ width:8px;height:8px;border-radius:50%; background:var(--line); border:none; cursor:pointer; transition:background .2s, transform .2s; padding:0; }
+  .nav-dot.active{ background:var(--pi); transform:scale(1.35); }
+  .navbtns{ display:flex; gap:10px; }
+  .navbtn{ width:40px;height:40px; border-radius:50%; background:var(--card); border:1px solid var(--line); color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:border-color .2s, opacity .2s; }
+  .navbtn:hover:not(:disabled){ border-color:var(--keliling); }
+  .navbtn:disabled{ opacity:.3; cursor:default; }
+
+  @media (max-width:640px){ .cover-wrap{ flex-direction:column-reverse; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot-logo"></span>Bab 2 · Keliling &amp; Luas Lingkaran</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="slide-count"><span id="slideNow">1</span>/<span id="slideTotal">7</span></div>
+  </div>
+
+  <div class="stage">
+
+    <!-- SLIDE 1 — COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-wrap">
+        <div class="cover-text">
+          <div class="eyebrow">Matematika · Kelas VIII SMP</div>
+          <h1 class="display">Keliling &amp; Luas<br>Lingkaran</h1>
+          <p class="lead">Dari roda yang berputar sampai taman berbentuk bundar — semuanya bisa dihitung dengan satu angka ajaib: π.</p>
+          <div class="cover-goal">
+            <span class="k">Tujuan Pembelajaran</span>
+            <p>Peserta didik mampu menentukan keliling dan luas lingkaran serta menyelesaikan masalah yang berkaitan dengannya.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge">🎯 Demo π interaktif</span>
+            <span class="badge">🧮 Kalkulator langsung</span>
+            <span class="badge">📝 Kuis latihan</span>
+          </div>
+        </div>
+        <div class="pi-hero">
+          <svg viewBox="0 0 300 260" fill="none">
+            <line class="roll-line" x1="30" y1="220" x2="290" y2="220" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+            <g class="roll-circle">
+              <circle cx="70" cy="180" r="40" stroke="#FFC857" stroke-width="3"/>
+              <line x1="70" y1="180" x2="70" y2="140" stroke="#FFC857" stroke-width="3"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 — KONSEP PI INTERAKTIF -->
+    <section class="slide" id="slide-2">
+      <div class="eyebrow">Signature · Klik untuk mencoba</div>
+      <h2 class="display">Dari mana angka π berasal?</h2>
+      <p class="lead" style="margin-top:0;">Bayangkan diameter lingkaran "digulingkan" sepanjang tepi lingkarannya. Klik tombol di bawah untuk menaruh diameter satu per satu di sepanjang keliling.</p>
+
+      <div class="pi-demo">
+        <div class="pi-demo-visual">
+          <div class="pi-circle-row">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="50" stroke="#2A3A66" stroke-width="2" fill="none"/>
+              <line id="piDiaLine" x1="10" y1="60" x2="110" y2="60" stroke="#FFC857" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="60" cy="60" r="3.5" fill="#F2F1EC"/>
+            </svg>
+            <p class="cap">Panjang garis kuning ini adalah <strong style="color:var(--text)">satu diameter (d)</strong>. Sekarang lihat berapa kali diameter ini "pas" mengelilingi tepi lingkaran.</p>
+          </div>
+
+          <div class="line-track" id="lineTrack"></div>
+
+          <div class="pi-controls">
+            <button class="btn primary" id="addDiaBtn">➕ Taruh satu diameter</button>
+            <button class="btn" id="resetPiBtn">🔁 Ulangi</button>
+            <div class="pi-counter"><span>total ditaruh:</span> <span id="piCount">0</span></div>
+          </div>
+          <div class="pi-conclusion" id="piConclusion"></div>
+        </div>
+
+        <div class="pi-demo-copy">
+          <p>Ternyata, berapa pun ukuran lingkarannya — besar atau kecil — keliling lingkaran <strong>selalu sekitar 3,14159...</strong> kali panjang diameternya.</p>
+          <p>Angka konstan ini disebut <strong>π (pi)</strong>. Untuk perhitungan sehari-hari, π biasanya dibulatkan menjadi:</p>
+          <div class="pi-formula-box">
+            <div class="f">π ≈ 3,14  atau  π ≈ 22/7</div>
+          </div>
+          <p style="margin-top:14px;">Gunakan 22/7 saat jari-jari atau diameter habis dibagi 7, dan 3,14 untuk angka lainnya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 — KELILING -->
+    <section class="slide" id="slide-3">
+      <div class="eyebrow">Rumus 1</div>
+      <h2 class="display">Keliling lingkaran</h2>
+      <p class="lead" style="margin-top:0;">Geser slider untuk mengubah jari-jari dan lihat kelilingnya terhitung otomatis.</p>
+
+      <div class="calc-layout">
+        <div class="calc-visual">
+          <svg id="kelilingSvg" viewBox="0 0 260 260" width="240" height="240">
+            <circle id="kelilingCircle" cx="130" cy="130" r="70" fill="none" stroke="#4ECDC4" stroke-width="4"/>
+            <line id="kelilingRLine" x1="130" y1="130" x2="200" y2="130" stroke="#FFC857" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="130" cy="130" r="3.5" fill="#F2F1EC"/>
+            <text id="kelilingRLabel" x="160" y="122" fill="#93A3C7" font-size="12" font-family="Inter">r</text>
+          </svg>
+        </div>
+        <div class="calc-panel">
+          <div class="slider-card">
+            <div class="lbl"><span>Jari-jari (r)</span><span class="val"><span id="kR">7</span> cm</span></div>
+            <input type="range" id="kelilingSlider" min="1" max="21" step="1" value="7">
+          </div>
+          <div class="formula-result">
+            <div class="name">Rumus keliling</div>
+            <div class="steps">K = 2 × π × r <span style="color:var(--text-dim)">(atau K = π × d)</span></div>
+            <div class="steps" id="kelilingSteps" style="margin-top:6px;"></div>
+            <div class="final" id="kelilingFinal" style="color:var(--keliling);"></div>
+          </div>
+          <div class="mini-note">💡 Diameter d = 2r, jadi K = π × d dan K = 2 × π × r akan selalu menghasilkan nilai yang sama.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 — LUAS -->
+    <section class="slide" id="slide-4">
+      <div class="eyebrow">Rumus 2</div>
+      <h2 class="display">Luas lingkaran</h2>
+      <p class="lead" style="margin-top:0;">Geser slider yang sama untuk melihat bagaimana luas berubah jauh lebih cepat daripada keliling.</p>
+
+      <div class="calc-layout">
+        <div class="calc-visual">
+          <svg id="luasSvg" viewBox="0 0 260 260" width="240" height="240">
+            <circle id="luasCircle" cx="130" cy="130" r="70" fill="#C4E86B" fill-opacity="0.22" stroke="#C4E86B" stroke-width="3"/>
+            <line id="luasRLine" x1="130" y1="130" x2="200" y2="130" stroke="#FFC857" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="130" cy="130" r="3.5" fill="#F2F1EC"/>
+          </svg>
+        </div>
+        <div class="calc-panel">
+          <div class="slider-card">
+            <div class="lbl"><span>Jari-jari (r)</span><span class="val"><span id="lR">7</span> cm</span></div>
+            <input type="range" id="luasSlider" min="1" max="21" step="1" value="7">
+          </div>
+          <div class="formula-result">
+            <div class="name">Rumus luas</div>
+            <div class="steps">L = π × r × r <span style="color:var(--text-dim)">(atau L = π r²)</span></div>
+            <div class="steps" id="luasSteps" style="margin-top:6px;"></div>
+            <div class="final" id="luasFinal" style="color:var(--luas);"></div>
+          </div>
+          <div class="mini-note">💡 Karena r dikalikan dua kali (r²), memperbesar jari-jari sedikit saja membuat luas bertambah jauh lebih besar daripada keliling.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 — CONTOH SOAL -->
+    <section class="slide" id="slide-5">
+      <div class="eyebrow">Terapkan rumusnya</div>
+      <h2 class="display">Contoh soal cerita</h2>
+      <p class="lead" style="margin-top:0;">Klik setiap soal untuk melihat langkah-langkah penyelesaiannya.</p>
+
+      <div class="soal-list" id="soalList">
+        <div class="soal-card">
+          <button class="soal-head">
+            <span class="num">Soal 1</span>
+            <span class="txt">Sebuah roda sepeda memiliki diameter 56 cm. Berapa keliling roda tersebut? (gunakan π = 22/7)</span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="soal-body"><div class="soal-body-inner">
+            <b>Diketahui:</b> d = 56 cm, π = 22/7<br>
+            <b>Ditanya:</b> Keliling roda (K)<br>
+            <b>Penyelesaian:</b><br>
+            K = π × d = 22/7 × 56 cm = 176 cm<br>
+            <b>Jawaban:</b> Keliling roda sepeda adalah <b>176 cm</b>.
+          </div></div>
+        </div>
+
+        <div class="soal-card">
+          <button class="soal-head">
+            <span class="num">Soal 2</span>
+            <span class="txt">Sebuah taman berbentuk lingkaran memiliki jari-jari 14 m dan akan ditanami rumput. Berapa luas taman tersebut? (gunakan π = 22/7)</span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="soal-body"><div class="soal-body-inner">
+            <b>Diketahui:</b> r = 14 m, π = 22/7<br>
+            <b>Ditanya:</b> Luas taman (L)<br>
+            <b>Penyelesaian:</b><br>
+            L = π × r² = 22/7 × 14 × 14 = 22/7 × 196 = 616 m²<br>
+            <b>Jawaban:</b> Luas taman yang ditanami rumput adalah <b>616 m²</b>.
+          </div></div>
+        </div>
+
+        <div class="soal-card">
+          <button class="soal-head">
+            <span class="num">Soal 3</span>
+            <span class="txt">Sebuah kolam berbentuk lingkaran memiliki keliling 44 m. Berapa jari-jari kolam tersebut? (gunakan π = 22/7)</span>
+            <span class="chev">▾</span>
+          </button>
+          <div class="soal-body"><div class="soal-body-inner">
+            <b>Diketahui:</b> K = 44 m, π = 22/7<br>
+            <b>Ditanya:</b> Jari-jari kolam (r)<br>
+            <b>Penyelesaian:</b><br>
+            K = 2 × π × r<br>
+            44 = 2 × 22/7 × r<br>
+            44 = 44/7 × r<br>
+            r = 44 ÷ 44/7 = 44 × 7/44 = 7 m<br>
+            <b>Jawaban:</b> Jari-jari kolam adalah <b>7 m</b>.
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 — KUIS -->
+    <section class="slide" id="slide-6">
+      <div class="eyebrow">Uji pemahaman</div>
+      <h2 class="display">Kuis singkat</h2>
+
+      <div class="quiz-wrap" id="quizWrap">
+        <div class="quiz-progress">
+          <span id="quizLabel">Soal 1 dari 5</span>
+          <div class="quiz-dots" id="quizDots"></div>
+        </div>
+
+        <div class="quiz-card" id="quizCard">
+          <div class="quiz-q" id="quizQ"></div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn primary quiz-next" id="quizNextBtn" style="display:none;">Soal berikutnya →</button>
+          </div>
+        </div>
+
+        <div class="quiz-card quiz-result" id="quizResult">
+          <span style="color:var(--text-dim); font-size:13px;">Hasil kuis kamu</span>
+          <div class="score"><span id="scoreVal">0</span>/5 benar</div>
+          <p style="color:var(--text-dim); font-size:14px;" id="scoreMsg"></p>
+          <button class="btn" id="retryBtn">🔁 Ulangi kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 — RINGKASAN -->
+    <section class="slide" id="slide-7">
+      <div class="eyebrow">Penutup</div>
+      <h2 class="display">Yang perlu kamu ingat</h2>
+      <div class="summary-list">
+        <div class="summary-item"><span class="sw" style="background:var(--pi);"></span><p><strong>π (pi)</strong> adalah bilangan konstan ≈ 3,14 atau 22/7 — hasil bagi keliling lingkaran dengan diameternya, berlaku untuk lingkaran berukuran berapa pun.</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--keliling);"></span><p><strong>Keliling</strong> lingkaran dihitung dengan K = 2πr atau K = πd.</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--luas);"></span><p><strong>Luas</strong> lingkaran dihitung dengan L = πr² — meningkat jauh lebih cepat saat jari-jari membesar.</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--soal);"></span><p><strong>Soal cerita</strong> tentang lingkaran bisa dibalik: dari K atau L yang diketahui, kita juga bisa mencari kembali nilai r atau d.</p></div>
+      </div>
+      <div class="end-actions">
+        <button class="btn" onclick="goTo(2)">🧮 Coba kalkulator lagi</button>
+            <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottomnav">
+    <div class="navbtns">
+      <button class="navbtn" id="prevBtn" aria-label="Sebelumnya">←</button>
+      <button class="navbtn" id="nextBtn" aria-label="Berikutnya">→</button>
+    </div>
+    <div class="nav-dots" id="navDots"></div>
+    <div style="width:88px;"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ============ SLIDE NAVIGATION ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  const navDotsEl = document.getElementById('navDots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    navDotsEl.appendChild(d);
+  });
+  const dotEls = Array.from(navDotsEl.children);
+
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const slideNow = document.getElementById('slideNow');
+  const slideTotal = document.getElementById('slideTotal');
+  slideTotal.textContent = total;
+
+  function goTo(index){
+    if(index < 0 || index >= total || index === current) return;
+    slides[current].classList.remove('active');
+    slides[index].classList.add('active');
+    dotEls[current].classList.remove('active');
+    dotEls[index].classList.add('active');
+    current = index;
+    progressFill.style.width = ((current+1)/total*100) + '%';
+    slideNow.textContent = current + 1;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    if(index === 1) resetPiDemo();
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+  prevBtn.disabled = true;
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  /* ============ SLIDE 2: DEMO PI INTERAKTIF ============ */
+  const lineTrack = document.getElementById('lineTrack');
+  const addDiaBtn = document.getElementById('addDiaBtn');
+  const resetPiBtn = document.getElementById('resetPiBtn');
+  const piCount = document.getElementById('piCount');
+  const piConclusion = document.getElementById('piConclusion');
+
+  const CIRC_WIDTH = 502; // px, represents circumference for demo circle
+  const DIA_WIDTH = 160;  // px, represents one diameter
+  const diaColors = ['#FFC857','#FF8FB1','#A78BFA','#FFC857'];
+  let piPlaced = 0; // px placed so far
+  let piClicks = 0;
+
+  function resetPiDemo(){
+    lineTrack.innerHTML = '';
+    lineTrack.style.width = CIRC_WIDTH + 'px';
+    lineTrack.style.maxWidth = '100%';
+    piPlaced = 0; piClicks = 0;
+    piCount.textContent = '0';
+    piConclusion.textContent = '';
+    addDiaBtn.disabled = false;
+  }
+
+  addDiaBtn.addEventListener('click', () => {
+    const remaining = CIRC_WIDTH - piPlaced;
+    if(remaining <= 0) return;
+    const w = Math.min(DIA_WIDTH, remaining);
+    const block = document.createElement('div');
+    block.className = 'd-block';
+    block.style.left = piPlaced + 'px';
+    block.style.width = w + 'px';
+    block.style.background = diaColors[piClicks % diaColors.length];
+    block.textContent = 'd';
+    lineTrack.appendChild(block);
+    piPlaced += w;
+    piClicks++;
+    const ratio = (piPlaced / DIA_WIDTH).toFixed(2);
+    piCount.textContent = ratio;
+    if(piPlaced >= CIRC_WIDTH - 0.5){
+      addDiaBtn.disabled = true;
+      piConclusion.textContent = '🎉 Butuh 3 diameter penuh + sedikit lagi (≈0,14 diameter) untuk mengelilingi lingkaran. Itulah asal π ≈ 3,14159...!';
+    }
+  });
+  resetPiBtn.addEventListener('click', resetPiDemo);
+  resetPiDemo();
+
+  /* ============ SLIDE 3: KELILING ============ */
+  const kelilingSlider = document.getElementById('kelilingSlider');
+  const kR = document.getElementById('kR');
+  const kelilingSteps = document.getElementById('kelilingSteps');
+  const kelilingFinal = document.getElementById('kelilingFinal');
+  const kelilingCircle = document.getElementById('kelilingCircle');
+  const kelilingRLine = document.getElementById('kelilingRLine');
+  const kelilingRLabel = document.getElementById('kelilingRLabel');
+
+  function updateKeliling(){
+    const r = parseFloat(kelilingSlider.value);
+    kR.textContent = r;
+    const displayR = 30 + (r/21)*100; // scale for visual only
+    kelilingCircle.setAttribute('r', displayR);
+    kelilingRLine.setAttribute('x2', 130 + displayR);
+    kelilingRLabel.setAttribute('x', 130 + displayR/2 - 4);
+    const K = 2 * Math.PI * r;
+    kelilingSteps.textContent = `K = 2 × 3,14 × ${r} cm`;
+    kelilingFinal.textContent = `K ≈ ${K.toFixed(2)} cm`;
+  }
+  kelilingSlider.addEventListener('input', updateKeliling);
+  updateKeliling();
+
+  /* ============ SLIDE 4: LUAS ============ */
+  const luasSlider = document.getElementById('luasSlider');
+  const lR = document.getElementById('lR');
+  const luasSteps = document.getElementById('luasSteps');
+  const luasFinal = document.getElementById('luasFinal');
+  const luasCircle = document.getElementById('luasCircle');
+  const luasRLine = document.getElementById('luasRLine');
+
+  function updateLuas(){
+    const r = parseFloat(luasSlider.value);
+    lR.textContent = r;
+    const displayR = 30 + (r/21)*100;
+    luasCircle.setAttribute('r', displayR);
+    luasRLine.setAttribute('x2', 130 + displayR);
+    const L = Math.PI * r * r;
+    luasSteps.textContent = `L = 3,14 × ${r} × ${r} cm`;
+    luasFinal.textContent = `L ≈ ${L.toFixed(2)} cm²`;
+  }
+  luasSlider.addEventListener('input', updateLuas);
+  updateLuas();
+
+  /* ============ SLIDE 5: CONTOH SOAL ============ */
+  document.querySelectorAll('.soal-head').forEach(head => {
+    head.addEventListener('click', () => {
+      head.parentElement.classList.toggle('open');
+    });
+  });
+
+  /* ============ SLIDE 6: KUIS ============ */
+  const quizData = [
+    { q:'Sebuah lingkaran memiliki jari-jari 10 cm. Berapa kelilingnya? (π ≈ 3,14)',
+      opts:['31,4 cm','62,8 cm','314 cm','15,7 cm'], correct:1,
+      fb:'K = 2 × 3,14 × 10 = 62,8 cm.' },
+    { q:'Sebuah lingkaran memiliki diameter 20 cm. Berapa luasnya? (π ≈ 3,14)',
+      opts:['62,8 cm²','314 cm²','628 cm²','125,6 cm²'], correct:1,
+      fb:'r = d/2 = 10 cm, L = 3,14 × 10 × 10 = 314 cm².' },
+    { q:'Rumus keliling lingkaran yang benar adalah...',
+      opts:['K = πr²','K = 2πr','K = πr','K = 2r²'], correct:1,
+      fb:'Keliling lingkaran K = 2πr (atau πd).' },
+    { q:'Jika jari-jari suatu lingkaran diperbesar 2 kali lipat, maka luasnya menjadi...',
+      opts:['2 kali lebih besar','3 kali lebih besar','4 kali lebih besar','Tetap sama'], correct:2,
+      fb:'Karena L = πr², memperbesar r 2 kali membuat luas menjadi 2² = 4 kali lebih besar.' },
+    { q:'Sebuah kolam berbentuk lingkaran memiliki keliling 88 m. Berapa jari-jarinya? (π ≈ 22/7)',
+      opts:['7 m','14 m','21 m','28 m'], correct:1,
+      fb:'r = K ÷ (2π) = 88 ÷ (2 × 22/7) = 88 ÷ 44/7 = 88 × 7/44 = 14 m.' },
+  ];
+
+  let qIndex = 0, score = 0, answered = false;
+
+  const quizQ = document.getElementById('quizQ');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizFeedback = document.getElementById('quizFeedback');
+  const quizNextBtn = document.getElementById('quizNextBtn');
+  const quizLabel = document.getElementById('quizLabel');
+  const quizDots = document.getElementById('quizDots');
+  const quizCard = document.getElementById('quizCard');
+  const quizResult = document.getElementById('quizResult');
+  const scoreVal = document.getElementById('scoreVal');
+  const scoreMsg = document.getElementById('scoreMsg');
+  const retryBtn = document.getElementById('retryBtn');
+
+  quizData.forEach(() => {
+    const d = document.createElement('span');
+    d.className = 'qdot';
+    quizDots.appendChild(d);
+  });
+  const qDotEls = Array.from(quizDots.children);
+
+  function renderQuiz(){
+    answered = false;
+    const item = quizData[qIndex];
+    quizLabel.textContent = `Soal ${qIndex+1} dari ${quizData.length}`;
+    qDotEls.forEach((d,i) => {
+      d.classList.toggle('current', i === qIndex);
+      d.classList.toggle('done', i < qIndex);
+    });
+    quizQ.textContent = item.q;
+    quizFeedback.textContent = '';
+    quizNextBtn.style.display = 'none';
+    quizOptions.innerHTML = '';
+    item.opts.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = opt;
+      b.addEventListener('click', () => handleAnswer(i, b));
+      quizOptions.appendChild(b);
+    });
+  }
+
+  function handleAnswer(i, btnEl){
+    if(answered) return;
+    answered = true;
+    const item = quizData[qIndex];
+    const optBtns = Array.from(quizOptions.children);
+    optBtns.forEach(b => b.disabled = true);
+    if(i === item.correct){
+      score++;
+      btnEl.classList.add('correct');
+      quizFeedback.textContent = '✅ ' + item.fb;
+    } else {
+      btnEl.classList.add('wrong');
+      optBtns[item.correct].classList.add('correct');
+      quizFeedback.textContent = '❌ ' + item.fb;
+    }
+    quizNextBtn.style.display = 'inline-flex';
+    quizNextBtn.textContent = qIndex < quizData.length - 1 ? 'Soal berikutnya →' : 'Lihat hasil →';
+  }
+
+  quizNextBtn.addEventListener('click', () => {
+    if(qIndex < quizData.length - 1){
+      qIndex++;
+      renderQuiz();
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult(){
+    quizCard.style.display = 'none';
+    quizResult.style.display = 'flex';
+    scoreVal.textContent = score;
+    let msg = '';
+    if(score === 5) msg = 'Sempurna! Kamu sudah menguasai keliling dan luas lingkaran. 🎉';
+    else if(score >= 3) msg = 'Bagus! Coba tinjau lagi kalkulator interaktif untuk rumus yang masih tertukar.';
+    else msg = 'Yuk kembali ke slide kalkulator dan pelajari lagi sebelum mencoba ulang.';
+    scoreMsg.textContent = msg;
+  }
+
+  retryBtn.addEventListener('click', () => {
+    qIndex = 0; score = 0;
+    quizResult.style.display = 'none';
+    quizCard.style.display = 'block';
+    renderQuiz();
+  });
+
+  renderQuiz();
+</script>
+</body>
+</html>

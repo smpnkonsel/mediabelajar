@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1.4 Bentuk Akar — Presentasi Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F7F6F1;
+    --ink:#16241F;
+    --teal:#0E6B5C;
+    --teal-dark:#0A4E43;
+    --amber:#F2A93B;
+    --coral:#E85D4C;
+    --violet:#6C4AB6;
+    --line:#D8D4C6;
+    --card:#FFFFFF;
+    --radius:18px;
+    --shadow: 0 10px 30px rgba(14,107,92,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(14,107,92,0.08) 1px, transparent 0) 0 0/24px 24px,
+      var(--paper);
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2', sans-serif;}
+  .mono{font-family:'Space Mono', monospace;}
+
+  /* ---- shell ---- */
+  #shell{
+    width:100%;
+    max-width:960px;
+    padding:18px 20px 28px;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+  header.topbar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:10px 4px 18px;
+  }
+  .root-badge{
+    width:40px;height:40px;
+    border-radius:50%;
+    background:var(--teal);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:18px;
+    flex:0 0 auto;
+    box-shadow: var(--shadow);
+  }
+  .topbar-title{
+    font-size:13px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--teal-dark);
+    font-weight:700;
+  }
+  .topbar-sub{font-size:12px; color:#6b7a75;}
+
+  .progress-track{
+    flex:1;
+    display:flex;
+    gap:6px;
+    margin-left:8px;
+  }
+  .progress-seg{
+    flex:1;
+    height:6px;
+    border-radius:4px;
+    background:var(--line);
+    overflow:hidden;
+    position:relative;
+  }
+  .progress-seg.done{background:var(--teal);}
+  .progress-seg.current::after{
+    content:"";
+    position:absolute; inset:0;
+    background:var(--amber);
+    animation:none;
+  }
+
+  main{
+    flex:1;
+    position:relative;
+  }
+  .slide{
+    display:none;
+    animation:fadeUp .45s ease;
+  }
+  .slide.active{display:block;}
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'Space Mono',monospace;
+    font-size:12px;
+    color:var(--coral);
+    background:rgba(232,93,76,0.1);
+    padding:5px 12px;
+    border-radius:99px;
+    font-weight:700;
+    letter-spacing:.03em;
+    margin-bottom:14px;
+  }
+  .slide h2{font-size:clamp(24px,4.4vw,36px); color:var(--teal-dark); line-height:1.15; margin-bottom:10px;}
+  .slide p.lead{font-size:16px; color:#3b4b45; line-height:1.65; max-width:640px; margin-bottom:20px;}
+
+  /* nav buttons */
+  .navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:20px;
+    gap:12px;
+  }
+  .btn{
+    border:none;
+    cursor:pointer;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:12px 22px;
+    border-radius:99px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:active{transform:scale(0.96);}
+  .btn-primary{background:var(--teal); color:#fff; box-shadow:var(--shadow);}
+  .btn-primary:hover{background:var(--teal-dark);}
+  .btn-ghost{background:transparent; color:var(--teal-dark); border:2px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--teal);}
+  .btn:disabled{opacity:.35; cursor:not-allowed;}
+  .slide-index{font-family:'Space Mono',monospace; font-size:12px; color:#8a978f;}
+
+  /* ---- Slide 1: cover ---- */
+  .cover{
+    text-align:center;
+    padding:40px 10px 10px;
+  }
+  .cover .big-root{
+    font-family:'Space Mono',monospace;
+    font-size:min(22vw,140px);
+    color:var(--teal);
+    line-height:1;
+    position:relative;
+    display:inline-block;
+    margin-bottom:6px;
+  }
+  .cover .big-root .radicand{
+    border-top:6px solid var(--teal);
+    padding:0 14px 0 6px;
+  }
+  .cover h1{font-size:clamp(28px,6vw,46px); color:var(--teal-dark); margin-bottom:8px;}
+  .cover .tag{color:var(--coral); font-weight:700; font-family:'Space Mono',monospace; letter-spacing:.04em; margin-bottom:22px;}
+  .cover .desc{max-width:520px; margin:0 auto 26px; color:#3b4b45; font-size:15px; line-height:1.6;}
+  .chips{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:28px;}
+  .chip{background:var(--card); border:1px solid var(--line); padding:8px 14px; border-radius:99px; font-size:13px; font-weight:600; color:var(--teal-dark); box-shadow:0 4px 10px rgba(0,0,0,0.03);}
+
+  /* card grid */
+  .card-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:6px;}
+  .flip-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:18px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    min-height:120px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    transition:transform .2s ease, border-color .2s ease;
+    position:relative;
+  }
+  .flip-card:hover{transform:translateY(-3px); border-color:var(--teal);}
+  .flip-card .expr{font-family:'Space Mono',monospace; font-size:22px; color:var(--teal-dark); font-weight:700; margin-bottom:6px;}
+  .flip-card .hint{font-size:12px; color:#8a978f;}
+  .flip-card .reveal{
+    display:none;
+    font-size:13px;
+    color:var(--ink);
+    line-height:1.5;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed var(--line);
+  }
+  .flip-card.open .reveal{display:block;}
+  .flip-card.open{border-color:var(--teal);}
+  .tagpill{
+    position:absolute; top:14px; right:14px;
+    font-size:10px; font-weight:700; padding:3px 9px; border-radius:99px;
+    display:none;
+  }
+  .flip-card.open.irasional .tagpill{display:inline-block; background:rgba(232,93,76,0.12); color:var(--coral);}
+  .flip-card.open.rasional .tagpill{display:inline-block; background:rgba(14,107,92,0.12); color:var(--teal);}
+
+  /* sort game */
+  .sort-pool{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;}
+  .sort-chip{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    background:var(--card);
+    border:2px solid var(--line);
+    padding:10px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+    transition:.15s ease;
+  }
+  .sort-chip:hover{border-color:var(--teal);}
+  .sort-chip.placed{opacity:.3; pointer-events:none;}
+  .bins{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .bin{
+    border-radius:var(--radius);
+    padding:14px;
+    min-height:120px;
+    border:2px dashed var(--line);
+  }
+  .bin h4{font-size:13px; margin-bottom:8px; letter-spacing:.02em;}
+  .bin.irasional{background:rgba(232,93,76,0.06); border-color:rgba(232,93,76,0.3);}
+  .bin.irasional h4{color:var(--coral);}
+  .bin.rasional{background:rgba(14,107,92,0.06); border-color:rgba(14,107,92,0.3);}
+  .bin.rasional h4{color:var(--teal);}
+  .bin .items{display:flex; flex-wrap:wrap; gap:8px;}
+  .bin-item{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:8px;
+    background:#fff;
+  }
+  .bin-item.correct{outline:2px solid var(--teal);}
+  .bin-item.wrong{outline:2px solid var(--coral);}
+  .feedback-msg{font-size:13px; margin-top:14px; color:var(--teal-dark); font-weight:600; min-height:18px;}
+
+  /* rules cards */
+  .rule-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    padding:20px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .rule-card .formula{
+    font-family:'Space Mono',monospace;
+    font-size:20px;
+    color:var(--teal-dark);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  .rule-card .expl{font-size:13.5px; color:#3b4b45; line-height:1.55;}
+
+  /* step-through simplify */
+  .step-box{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+    padding:24px;
+  }
+  .step-line{
+    font-family:'Space Mono',monospace;
+    font-size:clamp(18px,3.6vw,26px);
+    color:var(--line);
+    padding:10px 0;
+    opacity:.3;
+    transition:opacity .3s ease, color .3s ease;
+    border-bottom:1px dashed var(--line);
+  }
+  .step-line.shown{opacity:1; color:var(--teal-dark);}
+  .step-line:last-child{border-bottom:none;}
+  .step-note{font-size:12.5px; color:#8a978f; font-weight:400; display:block; margin-top:2px;}
+  .step-controls{display:flex; gap:10px; margin-top:18px;}
+
+  /* worked examples */
+  .example-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    border:1px solid var(--line);
+    padding:20px;
+    margin-bottom:14px;
+  }
+  .example-card .q{font-family:'Space Mono',monospace; font-size:19px; font-weight:700; color:var(--teal-dark);}
+  .example-card .solution{
+    display:none;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px dashed var(--line);
+    font-size:14px;
+    line-height:1.7;
+    color:#3b4b45;
+  }
+  .example-card.open .solution{display:block;}
+  .reveal-btn{
+    margin-top:10px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--coral);
+    cursor:pointer;
+    background:none;
+    border:none;
+    padding:0;
+  }
+
+  /* quiz */
+  .quiz-wrap{background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid var(--line); padding:24px;}
+  .quiz-progress{font-size:12px; font-family:'Space Mono',monospace; color:#8a978f; margin-bottom:10px;}
+  .quiz-q{font-size:19px; font-weight:700; color:var(--teal-dark); margin-bottom:16px; font-family:'Baloo 2',sans-serif;}
+  .quiz-options{display:grid; gap:10px;}
+  .quiz-opt{
+    text-align:left;
+    padding:13px 16px;
+    border-radius:12px;
+    border:2px solid var(--line);
+    background:#fff;
+    cursor:pointer;
+    font-size:14.5px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    color:var(--ink);
+    transition:.15s ease;
+  }
+  .quiz-opt:hover{border-color:var(--teal);}
+  .quiz-opt.correct{background:rgba(14,107,92,0.1); border-color:var(--teal); color:var(--teal-dark);}
+  .quiz-opt.wrong{background:rgba(232,93,76,0.1); border-color:var(--coral); color:var(--coral);}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-explain{margin-top:14px; font-size:13px; color:#3b4b45; background:var(--paper); padding:12px 14px; border-radius:10px; display:none;}
+  .quiz-explain.show{display:block;}
+  .quiz-next{margin-top:16px;}
+  .score-screen{text-align:center; padding:20px 0;}
+  .score-num{font-family:'Space Mono',monospace; font-size:56px; color:var(--teal); font-weight:700;}
+  .score-label{color:#6b7a75; font-size:14px; margin-bottom:18px;}
+
+  /* summary */
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px;}
+  .summary-card{background:var(--card); border-radius:var(--radius); border:1px solid var(--line); padding:18px; box-shadow:var(--shadow);}
+  .summary-card .num{font-family:'Space Mono',monospace; color:var(--amber); font-weight:700; font-size:13px;}
+  .summary-card h4{margin:6px 0; color:var(--teal-dark); font-size:15px;}
+  .summary-card p{font-size:13px; color:#3b4b45; line-height:1.5;}
+
+  @media (max-width:600px){
+    .bins{grid-template-columns:1fr;}
+    .topbar-title, .topbar-sub{display:none;}
+  }
+</style>
+</head>
+<body>
+<div id="shell">
+  <header class="topbar">
+    <div class="root-badge">√</div>
+    <div>
+      <div class="topbar-title">Bab 1 · Bilangan</div>
+      <div class="topbar-sub">1.4 Bentuk Akar</div>
+    </div>
+    <div class="progress-track" id="progressTrack"></div>
+  </header>
+
+  <main id="slides">
+
+    <!-- SLIDE 1 : COVER -->
+    <section class="slide active" data-title="Cover">
+      <div class="cover">
+        <div class="big-root">√<span class="radicand">2</span></div>
+        <div class="tag">BAB 1 · SUBBAB 1.4</div>
+        <h1>Bentuk Akar</h1>
+        <p class="desc">Menjelaskan pengertian bentuk akar sebagai bilangan irasional, dan belajar menyederhanakannya langkah demi langkah — lengkap dengan contoh yang bisa kamu klik dan kuis latihan.</p>
+        <div class="chips">
+          <div class="chip">🔎 Contoh interaktif</div>
+          <div class="chip">🧮 Latihan langkah</div>
+          <div class="chip">🏆 Kuis skor</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : PENGERTIAN -->
+    <section class="slide" data-title="Pengertian">
+      <div class="eyebrow">01 · PENGERTIAN</div>
+      <h2>Apa itu Bentuk Akar?</h2>
+      <p class="lead"><strong>Bentuk akar</strong> adalah akar suatu bilangan yang hasilnya bukan bilangan rasional — nilainya berupa desimal yang tidak berhenti dan tidak berulang. Bilangan seperti ini disebut <strong>bilangan irasional</strong>. Sebaliknya, jika hasil akarnya berupa bilangan bulat, itu <em>bukan</em> bentuk akar. Klik dua kartu di bawah untuk membandingkan.</p>
+      <div class="card-grid">
+        <div class="flip-card irasional" data-target="c1">
+          <div class="expr">√2</div>
+          <div class="hint">klik untuk lihat penjelasan</div>
+          <div class="reveal">√2 = 1,41421356... Desimalnya tak berhenti & tak berulang → <strong>bilangan irasional</strong>, jadi √2 adalah bentuk akar.</div>
+          <span class="tagpill">IRASIONAL</span>
+        </div>
+        <div class="flip-card rasional" data-target="c2">
+          <div class="expr">√4</div>
+          <div class="hint">klik untuk lihat penjelasan</div>
+          <div class="reveal">√4 = 2. Hasilnya bilangan bulat → <strong>bilangan rasional</strong>, jadi √4 <em>bukan</em> bentuk akar.</div>
+          <span class="tagpill">RASIONAL</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : SORT GAME -->
+    <section class="slide" data-title="Klasifikasi">
+      <div class="eyebrow">02 · KENALI BENTUKNYA</div>
+      <h2>Bentuk Akar atau Bukan?</h2>
+      <p class="lead">Klik setiap angka lalu tempatkan pada kelompok yang tepat. Sistem akan memberi tahu jika jawabanmu benar.</p>
+      <div class="sort-pool" id="sortPool"></div>
+      <div class="bins">
+        <div class="bin irasional">
+          <h4>BENTUK AKAR (irasional)</h4>
+          <div class="items" id="binIrasional"></div>
+        </div>
+        <div class="bin rasional">
+          <h4>BUKAN BENTUK AKAR (rasional)</h4>
+          <div class="items" id="binRasional"></div>
+        </div>
+      </div>
+      <div class="feedback-msg" id="sortFeedback">Klik salah satu angka, lalu pilih kelompoknya.</div>
+    </section>
+
+    <!-- SLIDE 4 : SIFAT -->
+    <section class="slide" data-title="Sifat">
+      <div class="eyebrow">03 · SIFAT-SIFAT</div>
+      <h2>Sifat Operasi Bentuk Akar</h2>
+      <p class="lead">Empat sifat dasar ini jadi kunci untuk menyederhanakan bentuk akar.</p>
+      <div class="rule-card">
+        <div class="formula">√a × √b = √(a × b)</div>
+        <div class="expl">Perkalian dua akar bisa digabung menjadi satu akar dari hasil kali bilangannya. Contoh: √3 × √12 = √36 = 6.</div>
+      </div>
+      <div class="rule-card">
+        <div class="formula">√a ÷ √b = √(a ÷ b)</div>
+        <div class="expl">Pembagian dua akar bisa digabung menjadi satu akar dari hasil bagi bilangannya (b ≠ 0). Contoh: √50 ÷ √2 = √25 = 5.</div>
+      </div>
+      <div class="rule-card">
+        <div class="formula">a√c ± b√c = (a ± b)√c</div>
+        <div class="expl">Bentuk akar sejenis (akar yang sama) bisa dijumlahkan/dikurangkan seperti suku sejenis. Contoh: 3√2 + 5√2 = 8√2.</div>
+      </div>
+      <div class="rule-card">
+        <div class="formula">(√a)² = a</div>
+        <div class="expl">Akar kuadrat yang dikuadratkan kembali menghasilkan bilangan semula. Ini dasar untuk mengecek hasil penyederhanaan.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : STEP BY STEP -->
+    <section class="slide" data-title="Menyederhanakan">
+      <div class="eyebrow">04 · LANGKAH DEMI LANGKAH</div>
+      <h2>Menyederhanakan Bentuk Akar</h2>
+      <p class="lead">Kunci: cari <strong>faktor kuadrat sempurna terbesar</strong> (4, 9, 16, 25, 36, 49, 64, 100, …) dari bilangan di dalam akar. Klik tombol "Langkah berikutnya" untuk mengikuti proses menyederhanakan √72.</p>
+      <div class="step-box">
+        <div class="step-line" id="s1">√72<span class="step-note">Bilangan awal yang akan disederhanakan.</span></div>
+        <div class="step-line" id="s2">= √(36 × 2)<span class="step-note">36 adalah faktor kuadrat sempurna terbesar dari 72 (72 ÷ 36 = 2).</span></div>
+        <div class="step-line" id="s3">= √36 × √2<span class="step-note">Pisahkan menjadi perkalian dua akar (sifat perkalian akar).</span></div>
+        <div class="step-line" id="s4">= 6 × √2<span class="step-note">√36 = 6, karena 6 × 6 = 36.</span></div>
+        <div class="step-line" id="s5">= 6√2<span class="step-note">Bentuk paling sederhana — tidak ada lagi faktor kuadrat sempurna di dalam akar.</span></div>
+        <div class="step-controls">
+          <button class="btn btn-primary" id="stepNextBtn" type="button">Langkah berikutnya →</button>
+          <button class="btn btn-ghost" id="stepResetBtn" type="button">Ulangi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : CONTOH SOAL -->
+    <section class="slide" data-title="Contoh Soal">
+      <div class="eyebrow">05 · CONTOH SOAL</div>
+      <h2>Coba Sendiri Dulu</h2>
+      <p class="lead">Pikirkan jawabannya, lalu klik "Lihat penyelesaian" untuk mengecek.</p>
+      <div id="exampleList"></div>
+    </section>
+
+    <!-- SLIDE 7 : QUIZ -->
+    <section class="slide" data-title="Kuis">
+      <div class="eyebrow">06 · KUIS LATIHAN</div>
+      <h2>Uji Pemahamanmu</h2>
+      <p class="lead">5 soal pilihan ganda. Jawab satu per satu, skormu akan muncul di akhir.</p>
+      <div class="quiz-wrap" id="quizWrap"></div>
+    </section>
+
+    <!-- SLIDE 8 : SUMMARY -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="eyebrow">07 · RANGKUMAN</div>
+      <h2>Yang Perlu Kamu Ingat</h2>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="num">01</div>
+          <h4>Bentuk akar = bilangan irasional</h4>
+          <p>Akar yang hasilnya bukan bilangan bulat, desimalnya tak berhenti & tak berulang.</p>
+        </div>
+        <div class="summary-card">
+          <div class="num">02</div>
+          <h4>Kunci menyederhanakan</h4>
+          <p>Cari faktor kuadrat sempurna terbesar (4, 9, 16, 25, 36, ...) dari bilangan dalam akar.</p>
+        </div>
+        <div class="summary-card">
+          <div class="num">03</div>
+          <h4>Empat sifat penting</h4>
+          <p>√a×√b=√(ab), √a÷√b=√(a÷b), a√c±b√c=(a±b)√c, (√a)²=a.</p>
+        </div>
+        <div class="summary-card">
+          <div class="num">04</div>
+          <h4>Latihan terus!</h4>
+          <p>Makin sering berlatih menyederhanakan, makin cepat kamu mengenali faktor kuadrat sempurna.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="navbar">
+    <button class="btn btn-ghost" id="prevBtn" type="button">← Sebelumnya</button>
+    <div class="slide-index" id="slideIndex">1 / 8</div>
+    <button class="btn btn-primary" id="nextBtn" type="button">Berikutnya →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const progressTrack = document.getElementById('progressTrack');
+  slides.forEach((_,i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    seg.dataset.i = i;
+    progressTrack.appendChild(seg);
+  });
+
+  function render(){
+    slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+    document.querySelectorAll('.progress-seg').forEach((seg,i)=>{
+      seg.classList.toggle('done', i<current);
+      seg.classList.toggle('current', i===current);
+    });
+    document.getElementById('slideIndex').textContent = (current+1)+' / '+total;
+    document.getElementById('prevBtn').disabled = current===0;
+    document.getElementById('nextBtn').textContent = current===total-1 ? 'Selesai ✓' : 'Berikutnya →';
+  }
+
+  document.getElementById('prevBtn').addEventListener('click', ()=>{
+    if(current>0){ current--; render(); }
+  });
+  document.getElementById('nextBtn').addEventListener('click', ()=>{
+    if(current<total-1){ current++; render(); }
+    else{ window.location.href = 'matb-bab1.html'; }
+  });
+  document.querySelectorAll('.progress-seg').forEach(seg=>{
+    seg.style.cursor='pointer';
+    seg.addEventListener('click', ()=>{ current = parseInt(seg.dataset.i); render(); });
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight' && current<total-1){ current++; render(); }
+    if(e.key==='ArrowLeft' && current>0){ current--; render(); }
+  });
+
+  render();
+
+  // ---- Slide 2: flip cards ----
+  document.querySelectorAll('.flip-card').forEach(card=>{
+    card.addEventListener('click', ()=> card.classList.toggle('open'));
+  });
+
+  // ---- Slide 3: sort game ----
+  const items = [
+    {label:'√5', type:'irasional'},
+    {label:'√9', type:'rasional'},
+    {label:'√8', type:'irasional'},
+    {label:'√16', type:'rasional'},
+    {label:'√10', type:'irasional'},
+    {label:'√25', type:'rasional'},
+    {label:'√20', type:'irasional'},
+    {label:'√49', type:'rasional'},
+  ];
+  const pool = document.getElementById('sortPool');
+  let activeChip = null;
+
+  items.forEach((it,idx)=>{
+    const chip = document.createElement('div');
+    chip.className = 'sort-chip';
+    chip.textContent = it.label;
+    chip.dataset.type = it.type;
+    chip.dataset.idx = idx;
+    chip.addEventListener('click', ()=>{
+      if(chip.classList.contains('placed')) return;
+      document.querySelectorAll('.sort-chip').forEach(c=>c.style.borderColor='');
+      activeChip = chip;
+      chip.style.borderColor = 'var(--amber)';
+      document.getElementById('sortFeedback').textContent = 'Sekarang klik kelompok yang menurutmu tepat untuk '+it.label+'.';
+    });
+    pool.appendChild(chip);
+  });
+
+  function handleBinClick(binType, binSelector, itemsId){
+    document.querySelector(binSelector).addEventListener('click', ()=>{
+      if(!activeChip) return;
+      const correct = activeChip.dataset.type === binType;
+      const el = document.createElement('div');
+      el.className = 'bin-item ' + (correct ? 'correct' : 'wrong');
+      el.textContent = activeChip.textContent;
+      document.getElementById(itemsId).appendChild(el);
+      activeChip.classList.add('placed');
+      document.getElementById('sortFeedback').textContent = correct
+        ? '✓ Benar! '+activeChip.textContent+' termasuk '+(binType==='irasional'?'bentuk akar.':'bukan bentuk akar.')
+        : '✗ Belum tepat. '+activeChip.textContent+' sebenarnya termasuk '+(activeChip.dataset.type==='irasional'?'bentuk akar.':'bukan bentuk akar.');
+      activeChip.style.borderColor='';
+      activeChip = null;
+    });
+  }
+  handleBinClick('irasional','.bin.irasional','binIrasional');
+  handleBinClick('rasional','.bin.rasional','binRasional');
+
+  // ---- Slide 5: step through ----
+  const stepIds = ['s1','s2','s3','s4','s5'];
+  let stepIndex = 0;
+  document.getElementById(stepIds[0]).classList.add('shown');
+  document.getElementById('stepNextBtn').addEventListener('click', ()=>{
+    if(stepIndex < stepIds.length-1){
+      stepIndex++;
+      document.getElementById(stepIds[stepIndex]).classList.add('shown');
+    }
+    if(stepIndex === stepIds.length-1){
+      document.getElementById('stepNextBtn').disabled = true;
+    }
+  });
+  document.getElementById('stepResetBtn').addEventListener('click', ()=>{
+    stepIndex = 0;
+    stepIds.forEach((id,i)=> document.getElementById(id).classList.toggle('shown', i===0));
+    document.getElementById('stepNextBtn').disabled = false;
+  });
+
+  // ---- Slide 6: worked examples ----
+  const examples = [
+    {q:'Sederhanakan √48', sol:'48 = 16 × 3 (16 adalah kuadrat sempurna terbesar)<br>√48 = √16 × √3 = 4√3'},
+    {q:'Sederhanakan √75', sol:'75 = 25 × 3<br>√75 = √25 × √3 = 5√3'},
+    {q:'Sederhanakan √200', sol:'200 = 100 × 2<br>√200 = √100 × √2 = 10√2'},
+  ];
+  const exList = document.getElementById('exampleList');
+  examples.forEach((ex,i)=>{
+    const card = document.createElement('div');
+    card.className = 'example-card';
+    card.innerHTML = `
+      <div class="q">${ex.q}</div>
+      <button class="reveal-btn" type="button">Lihat penyelesaian ▾</button>
+      <div class="solution">${ex.sol}</div>
+    `;
+    card.querySelector('.reveal-btn').addEventListener('click', ()=>{
+      card.classList.toggle('open');
+      const btn = card.querySelector('.reveal-btn');
+      btn.textContent = card.classList.contains('open') ? 'Sembunyikan ▴' : 'Lihat penyelesaian ▾';
+    });
+    exList.appendChild(card);
+  });
+
+  // ---- Slide 7: quiz ----
+  const questions = [
+    {
+      q:'Manakah yang merupakan bentuk akar (bilangan irasional)?',
+      opts:['√25','√36','√18','√49'],
+      correct:2,
+      explain:'√18 tidak menghasilkan bilangan bulat (√18 ≈ 4,24...), sedangkan √25=5, √36=6, √49=7 semuanya bulat.'
+    },
+    {
+      q:'Bentuk sederhana dari √32 adalah...',
+      opts:['4√2','2√8','8√2','16√2'],
+      correct:0,
+      explain:'32 = 16 × 2, jadi √32 = √16 × √2 = 4√2.'
+    },
+    {
+      q:'Hasil dari √3 × √12 = ?',
+      opts:['6','15','√15','36'],
+      correct:0,
+      explain:'√3 × √12 = √(3×12) = √36 = 6.'
+    },
+    {
+      q:'Bentuk sederhana dari √125 adalah...',
+      opts:['5√5','25√5','5√25','10√5'],
+      correct:0,
+      explain:'125 = 25 × 5, jadi √125 = √25 × √5 = 5√5.'
+    },
+    {
+      q:'3√2 + 5√2 = ?',
+      opts:['8√2','8√4','15√2','8'],
+      correct:0,
+      explain:'Karena akarnya sejenis (√2), cukup jumlahkan koefisiennya: (3+5)√2 = 8√2.'
+    },
+  ];
+  let qIndex = 0;
+  let score = 0;
+  const quizWrap = document.getElementById('quizWrap');
+
+  function renderQuestion(){
+    const item = questions[qIndex];
+    quizWrap.innerHTML = `
+      <div class="quiz-progress">SOAL ${qIndex+1} DARI ${questions.length} · SKOR: ${score}</div>
+      <div class="quiz-q">${item.q}</div>
+      <div class="quiz-options">
+        ${item.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}" type="button">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-explain" id="quizExplain">${item.explain}</div>
+      <div class="quiz-next">
+        <button class="btn btn-primary" id="quizNextBtn" style="display:none;" type="button">${qIndex===questions.length-1 ? 'Lihat hasil' : 'Soal berikutnya →'}</button>
+      </div>
+    `;
+    quizWrap.querySelectorAll('.quiz-opt').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const i = parseInt(btn.dataset.i);
+        const correct = item.correct;
+        quizWrap.querySelectorAll('.quiz-opt').forEach(b=>b.disabled=true);
+        if(i===correct){
+          btn.classList.add('correct');
+          score++;
+        } else {
+          btn.classList.add('wrong');
+          quizWrap.querySelector(`.quiz-opt[data-i="${correct}"]`).classList.add('correct');
+        }
+        document.getElementById('quizExplain').classList.add('show');
+        document.getElementById('quizNextBtn').style.display = 'inline-flex';
+      });
+    });
+    const nextBtn = document.getElementById('quizNextBtn');
+    nextBtn.addEventListener('click', ()=>{
+      if(qIndex < questions.length-1){
+        qIndex++;
+        renderQuestion();
+      } else {
+        renderScore();
+      }
+    });
+  }
+
+  function renderScore(){
+    quizWrap.innerHTML = `
+      <div class="score-screen">
+        <div class="score-num">${score}/${questions.length}</div>
+        <div class="score-label">${score===questions.length ? 'Sempurna! Kamu sudah menguasai bentuk akar. 🎉' : score>=questions.length-2 ? 'Bagus! Sedikit lagi lebih mahir. 💪' : 'Terus berlatih menyederhanakan bentuk akar ya! 📘'}</div>
+        <button class="btn btn-primary" id="retryBtn" type="button">Coba lagi</button>
+      </div>
+    `;
+    document.getElementById('retryBtn').addEventListener('click', ()=>{
+      qIndex = 0; score = 0; renderQuestion();
+    });
+  }
+
+  renderQuestion();
+})();
+</script>
+</body>
+</html>

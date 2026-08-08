@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Konsep SPLDV — Presentasi Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#121F3D;
+  --paper:#EEF1EA;
+  --paper-2:#E3E7DC;
+  --coral:#FF6B4A;
+  --coral-dim:#ffe3da;
+  --teal:#06A99A;
+  --teal-dim:#d7f3ef;
+  --gold:#FFC94A;
+  --gold-dim:#fff2d1;
+  --muted:#5C6470;
+  --white:#FFFFFF;
+  --radius:18px;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{
+  font-family:'Inter', sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  overflow:hidden;
+  height:100vh;
+}
+::selection{background:var(--gold); color:var(--ink);}
+h1,h2,h3{font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em;}
+.mono{font-family:'Space Mono', monospace;}
+
+/* ---------------- paginated stage ---------------- */
+.stage{position:fixed; inset:0; overflow:hidden;}
+.track{
+  display:flex; height:100%; width:100%;
+  transition: transform .55s cubic-bezier(.65,0,.35,1);
+}
+.slide{
+  min-width:100vw; width:100vw; height:100%;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:76px 8vw 90px;
+  display:flex; flex-direction:column; justify-content:center;
+  position:relative;
+  background-image: radial-gradient(rgba(18,31,61,0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+.slide.dark{
+  background-color:var(--ink);
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+}
+@media (max-width:768px){ .slide{padding:66px 6vw 110px;} }
+
+.eyebrow{
+  font-family:'Space Mono', monospace;
+  font-size:0.76rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--coral);
+  margin-bottom:14px;
+  display:flex; align-items:center; gap:10px;
+}
+.eyebrow::before{content:""; width:22px; height:2px; background:var(--coral); display:inline-block;}
+.dark .eyebrow{color:var(--gold);}
+.dark .eyebrow::before{background:var(--gold);}
+
+.sec-title{font-size:clamp(1.7rem, 3.6vw, 2.6rem); font-weight:700; max-width:24ch; margin-bottom:10px;}
+.sec-desc{max-width:70ch; color:var(--muted); font-size:1.03rem; line-height:1.65; margin-bottom:28px;}
+.dark .sec-desc{color:#C7CDDB;}
+
+/* ---------------- top progress + counter ---------------- */
+.progress-track{position:fixed; top:0; left:0; right:0; height:4px; background:rgba(18,31,61,0.08); z-index:80;}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--coral),var(--teal)); width:9%; transition:width .4s ease;}
+.counter{
+  position:fixed; bottom:26px; left:8vw; z-index:80;
+  font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--muted);
+  background:rgba(255,255,255,0.7); backdrop-filter:blur(6px);
+  padding:6px 12px; border-radius:20px; border:1px solid rgba(18,31,61,0.08);
+}
+
+/* ---------------- dots ---------------- */
+.dots{position:fixed; right:24px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:12px; z-index:80;}
+.dot{width:9px; height:9px; border-radius:50%; background:transparent; border:2px solid rgba(18,31,61,0.3); cursor:pointer; padding:0; transition:all .25s ease;}
+.dot.active{background:var(--coral); border-color:var(--coral); transform:scale(1.4);}
+@media (max-width:768px){ .dots{display:none;} }
+
+/* ---------------- arrow nav ---------------- */
+.navbtns{position:fixed; bottom:22px; right:8vw; display:flex; gap:10px; z-index:80;}
+.navbtn{
+  width:48px; height:48px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--ink); color:var(--paper); font-size:1.1rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .18s ease; box-shadow:0 8px 18px rgba(18,31,61,0.18);
+}
+.navbtn:hover{background:var(--coral); transform:translateY(-2px);}
+.navbtn:disabled{opacity:0.25; pointer-events:none;}
+.swipe-hint{
+  position:fixed; bottom:26px; left:50%; transform:translateX(-50%); z-index:80;
+  font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--muted);
+  display:flex; align-items:center; gap:6px; opacity:0.8;
+}
+@media (max-width:640px){ .swipe-hint{display:none;} .counter{left:6vw;} .navbtns{right:6vw;} }
+
+/* ---------------- HERO ---------------- */
+.hero h1{font-size:clamp(2.1rem, 5.4vw, 4.4rem); line-height:1.05; font-weight:700; max-width:15ch; color:var(--paper);}
+.hero h1 span{color:var(--coral);}
+.hero .sub{margin-top:20px; max-width:56ch; font-size:1.1rem; color:#C7CDDB;}
+.hero .goal{margin-top:28px; padding:16px 20px; border-left:3px solid var(--teal); background:rgba(6,169,154,0.12); max-width:58ch; font-size:0.95rem; color:#DDE4EA;}
+.hero .goal b{color:var(--teal); font-family:'Space Grotesk',sans-serif;}
+.hero-x{position:absolute; right:6vw; top:50%; transform:translateY(-50%); width:min(34vw,380px); opacity:0.95;}
+@media (max-width:900px){ .hero-x{display:none;} }
+
+/* ---------------- story slide ---------------- */
+.story-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:start;}
+@media (max-width:850px){ .story-grid{grid-template-columns:1fr;} }
+.story-card{background:var(--white); border-radius:var(--radius); padding:28px; box-shadow:0 10px 30px rgba(18,31,61,0.06); border:1px solid rgba(18,31,61,0.06);}
+.story-card p{line-height:1.72; font-size:1rem; margin-bottom:12px;}
+.eq-pair{display:flex; flex-direction:column; gap:10px; margin-top:16px;}
+.eq-line{font-family:'Space Mono',monospace; background:var(--paper-2); padding:12px 16px; border-radius:10px; font-size:1.02rem; display:flex; align-items:center; gap:10px;}
+.eq-line .tag{font-family:'Inter',sans-serif; font-size:0.68rem; font-weight:600; background:var(--ink); color:var(--paper); padding:3px 8px; border-radius:6px;}
+.reveal-btn{margin-top:18px; border:none; cursor:pointer; background:var(--ink); color:var(--paper); font-family:'Space Grotesk',sans-serif; font-weight:600; padding:12px 20px; border-radius:30px; font-size:0.92rem; transition:transform .15s ease, background .2s ease;}
+.reveal-btn:hover{transform:translateY(-2px); background:var(--coral);}
+.answer-box{margin-top:14px; padding:15px 17px; border-radius:12px; background:var(--teal-dim); border:1px solid var(--teal); font-size:0.92rem; line-height:1.6; display:none;}
+.answer-box.show{display:block; animation:fadeUp .35s ease;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+.big-def{background:var(--ink); color:var(--paper); border-radius:var(--radius); padding:28px;}
+.big-def .term{color:var(--gold); font-family:'Space Mono',monospace; font-size:0.8rem; letter-spacing:0.1em; text-transform:uppercase;}
+.big-def h3{font-size:1.35rem; margin:10px 0 14px; line-height:1.35;}
+.big-def p{color:#C7CDDB; line-height:1.7; font-size:0.92rem;}
+.big-def .chip-row{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;}
+.chip{font-family:'Space Mono',monospace; font-size:0.75rem; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); padding:6px 11px; border-radius:20px;}
+
+/* ---------------- checklist slide ---------------- */
+.checklist{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:30px;}
+@media (max-width:800px){ .checklist{grid-template-columns:1fr;} }
+.chk-item{background:var(--white); border-radius:14px; padding:20px 22px; border:1px solid rgba(18,31,61,0.07); box-shadow:0 6px 16px rgba(18,31,61,0.05); display:flex; gap:14px;}
+.chk-num{font-family:'Space Mono',monospace; font-weight:700; color:var(--white); background:var(--teal); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.85rem;}
+.chk-item h4{font-size:1rem; margin-bottom:5px;}
+.chk-item p{font-size:0.88rem; color:var(--muted); line-height:1.55;}
+.demo-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+@media (max-width:800px){ .demo-row{grid-template-columns:1fr;} }
+.demo-card{border-radius:14px; padding:20px 22px;}
+.demo-card.ok{background:var(--teal-dim); border:1.5px solid var(--teal);}
+.demo-card.no{background:var(--coral-dim); border:1.5px solid var(--coral);}
+.demo-card .eqs{font-family:'Space Mono',monospace; font-size:0.98rem; line-height:1.75; margin-bottom:10px;}
+.demo-card .verdict{font-weight:700; font-size:0.9rem; margin-bottom:6px;}
+.demo-card p{font-size:0.85rem; color:var(--ink); line-height:1.55;}
+
+/* ---------------- general form slide ---------------- */
+.form-wrap{display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center;}
+@media (max-width:850px){ .form-wrap{grid-template-columns:1fr;} }
+.form-box{background:var(--white); border-radius:var(--radius); padding:32px; box-shadow:0 10px 30px rgba(18,31,61,0.06); border:1px solid rgba(18,31,61,0.06);}
+.form-eq{font-family:'Space Mono',monospace; font-size:clamp(1.2rem,2.6vw,1.7rem); line-height:2.2;}
+.form-eq .a{color:var(--coral); font-weight:700;} .form-eq .b{color:var(--teal); font-weight:700;} .form-eq .c{color:#8A6100; font-weight:700;}
+.legend{display:flex; flex-direction:column; gap:14px;}
+.legend-item{display:flex; gap:14px; align-items:flex-start;}
+.legend-dot{width:16px; height:16px; border-radius:5px; flex-shrink:0; margin-top:3px;}
+.legend-item p{font-size:0.92rem; color:var(--muted); line-height:1.55;}
+.legend-item b{color:var(--ink); font-family:'Space Mono',monospace;}
+
+/* ---------------- anatomy ---------------- */
+.equation-box{background:var(--white); border-radius:var(--radius); padding:40px; box-shadow:0 10px 30px rgba(18,31,61,0.06); display:flex; justify-content:center; margin-bottom:22px; border:1px solid rgba(18,31,61,0.06);}
+.equation{font-family:'Space Mono',monospace; font-size:clamp(1.7rem, 4.6vw, 2.9rem); display:flex; gap:6px; flex-wrap:wrap; align-items:baseline;}
+.tok{cursor:pointer; padding:4px 8px; border-radius:8px; transition:all .18s ease; border:2px solid transparent;}
+.tok:hover{background:var(--paper-2);}
+.tok.active-coef{background:var(--coral-dim); border-color:var(--coral); color:#B8391E;}
+.tok.active-var{background:var(--teal-dim); border-color:var(--teal); color:#046B60;}
+.tok.active-const{background:var(--gold-dim); border-color:var(--gold); color:#8A6100;}
+.tok.active-op{background:var(--paper-2); border-color:var(--muted); color:var(--ink);}
+.hint{text-align:center; font-family:'Space Mono',monospace; font-size:0.76rem; color:var(--muted); margin-top:-14px; margin-bottom:22px;}
+.explain-card{min-height:100px; background:var(--paper-2); border-radius:14px; padding:20px 24px; display:flex; flex-direction:column; justify-content:center; transition:background .25s ease;}
+.explain-card .label{font-family:'Space Mono',monospace; font-size:0.73rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; font-weight:700;}
+.explain-card .desc{font-size:0.96rem; color:var(--ink); line-height:1.55;}
+.explain-card.empty .desc{color:var(--muted); font-style:italic;}
+
+/* ---------------- flip cards ---------------- */
+.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+@media (max-width:900px){ .card-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:520px){ .card-grid{grid-template-columns:1fr;} }
+.flip-card{perspective:1200px; height:200px; cursor:pointer;}
+.flip-inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.4,.2,.2,1);}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute; inset:0; backface-visibility:hidden; border-radius:16px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;}
+.flip-front{background:var(--white); border:1px solid rgba(18,31,61,0.08); box-shadow:0 8px 22px rgba(18,31,61,0.06);}
+.flip-front .icon{font-size:1.6rem;}
+.flip-front h4{font-size:1.05rem; margin-top:auto;}
+.flip-front .tap-cue{font-family:'Space Mono',monospace; font-size:0.68rem; color:var(--muted);}
+.flip-back{background:var(--ink); color:var(--paper); transform:rotateY(180deg); justify-content:center;}
+.flip-back p{font-size:0.85rem; line-height:1.5; color:#C7CDDB;}
+.flip-back .ex{margin-top:10px; font-family:'Space Mono',monospace; font-size:0.8rem; color:var(--gold);}
+
+/* ---------------- PLDV vs SPLDV compare ---------------- */
+.compare-wrap{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+@media (max-width:850px){ .compare-wrap{grid-template-columns:1fr;} }
+.compare-card{background:var(--white); border-radius:var(--radius); padding:24px; box-shadow:0 10px 30px rgba(18,31,61,0.06); border:1px solid rgba(18,31,61,0.06);}
+.compare-card h4{font-size:1.1rem; margin-bottom:4px;}
+.compare-card .tag2{font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--muted); margin-bottom:14px; display:block;}
+.compare-card svg{width:100%; height:auto; margin-bottom:14px;}
+.compare-card p{font-size:0.88rem; color:var(--muted); line-height:1.6;}
+.compare-card.right{border-top:3px solid var(--gold);}
+.compare-card.left{border-top:3px solid var(--teal);}
+
+/* ---------------- graph slide ---------------- */
+.graph-wrap{display:grid; grid-template-columns:1fr 1fr; gap:36px; align-items:start;}
+@media (max-width:900px){ .graph-wrap{grid-template-columns:1fr;} }
+.controls{display:flex; flex-direction:column; gap:18px;}
+.eq-control{background:var(--white); border-radius:14px; padding:16px 18px; border:1px solid rgba(18,31,61,0.07);}
+.eq-control .eqtitle{font-family:'Space Mono',monospace; font-weight:700; margin-bottom:10px; font-size:1rem;}
+.slider-row{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
+.slider-row label{width:24px; font-family:'Space Mono',monospace; font-size:0.82rem; font-weight:700;}
+.slider-row input[type=range]{flex:1; accent-color: var(--coral);}
+.slider-row .val{width:32px; text-align:right; font-family:'Space Mono',monospace; font-size:0.82rem;}
+.eq-control.line2 .slider-row input[type=range]{accent-color:var(--teal);}
+.solution-box{margin-top:4px; padding:14px 16px; border-radius:14px; background:var(--gold-dim); border:1px solid var(--gold); font-family:'Space Mono',monospace; font-size:0.9rem; line-height:1.6;}
+.graph-svg-wrap{background:var(--white); border-radius:var(--radius); padding:14px; box-shadow:0 10px 30px rgba(18,31,61,0.06); border:1px solid rgba(18,31,61,0.06);}
+
+/* ---------------- classify ---------------- */
+.classify-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+@media (max-width:1000px){ .classify-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:640px){ .classify-grid{grid-template-columns:1fr;} }
+.cfy-card{background:var(--white); border-radius:16px; padding:20px; border:1px solid rgba(18,31,61,0.07); box-shadow:0 8px 20px rgba(18,31,61,0.05);}
+.cfy-card .eqs{font-family:'Space Mono',monospace; font-size:0.95rem; line-height:1.85;}
+.cfy-btns{display:flex; gap:8px; margin-top:12px;}
+.cfy-btn{flex:1; border:2px solid var(--ink); background:transparent; cursor:pointer; padding:8px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:0.85rem; transition:all .15s ease;}
+.cfy-btn:hover{background:var(--ink); color:var(--paper);}
+.cfy-fb{margin-top:10px; padding:10px 12px; border-radius:10px; font-size:0.82rem; line-height:1.5; display:none;}
+.cfy-fb.show{display:block; animation:fadeUp .3s ease;}
+.cfy-fb.correct{background:var(--teal-dim); border:1px solid var(--teal);}
+.cfy-fb.wrong{background:var(--coral-dim); border:1px solid var(--coral);}
+.cfy-card.locked .cfy-btn{opacity:0.4; pointer-events:none;}
+
+/* ---------------- quiz ---------------- */
+.quiz-shell{background:var(--white); border-radius:var(--radius); padding:32px; max-width:740px; box-shadow:0 14px 34px rgba(18,31,61,0.08); border:1px solid rgba(18,31,61,0.06);}
+.quiz-top{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+.quiz-progress-text{font-family:'Space Mono',monospace; font-size:0.78rem; color:var(--muted);}
+.quiz-score{font-family:'Space Mono',monospace; font-size:0.78rem; color:var(--teal); font-weight:700;}
+.qbar{height:6px; background:var(--paper-2); border-radius:6px; overflow:hidden; margin-bottom:22px;}
+.qbar-fill{height:100%; background:linear-gradient(90deg,var(--coral),var(--teal)); width:0%; transition:width .3s ease;}
+.qtext{font-size:1.18rem; font-weight:600; margin-bottom:20px; line-height:1.5; font-family:'Space Grotesk',sans-serif;}
+.qoptions{display:flex; flex-direction:column; gap:11px;}
+.qopt{text-align:left; padding:13px 16px; border-radius:12px; border:2px solid rgba(18,31,61,0.12); background:var(--paper); cursor:pointer; font-size:0.94rem; font-family:'Inter',sans-serif; transition:all .15s ease;}
+.qopt:hover{border-color:var(--ink);}
+.qopt.correct{background:var(--teal-dim); border-color:var(--teal); font-weight:600;}
+.qopt.wrong{background:var(--coral-dim); border-color:var(--coral);}
+.qopt.disabled{pointer-events:none;}
+.qnext{margin-top:20px; border:none; cursor:pointer; background:var(--ink); color:var(--paper); padding:12px 24px; border-radius:30px; font-family:'Space Grotesk',sans-serif; font-weight:600; display:none;}
+.qnext.show{display:inline-block;}
+.quiz-result{display:none; text-align:center;}
+.quiz-result.show{display:block;}
+.quiz-result .score-num{font-size:3.2rem; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--coral);}
+.quiz-result p{color:var(--muted); margin:10px 0 20px;}
+
+/* ---------------- closing ---------------- */
+.closing h2{font-size:clamp(1.9rem,4.6vw,2.9rem); max-width:18ch; color:var(--paper);}
+.recap-grid{margin-top:26px; display:grid; grid-template-columns:repeat(3,1fr); gap:14px; width:100%;}
+@media (max-width:850px){ .recap-grid{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:520px){ .recap-grid{grid-template-columns:1fr;} }
+.recap-item{background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:14px; padding:16px;}
+.recap-item .n{font-family:'Space Mono',monospace; color:var(--gold); font-size:0.76rem;}
+.recap-item p{color:#C7CDDB; font-size:0.86rem; margin-top:6px; line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<div class="dots" id="dotsNav"></div>
+<div class="counter" id="counterText">01 / 11</div>
+<div class="swipe-hint">⟵ geser atau gunakan panah ⟶</div>
+<div class="navbtns">
+  <button class="navbtn" id="prevBtn" aria-label="Sebelumnya">←</button>
+  <button class="navbtn" id="nextBtn" aria-label="Berikutnya">→</button>
+</div>
+
+<div class="stage" id="stage">
+<div class="track" id="track">
+
+  <!-- SLIDE 1: HERO -->
+  <section class="slide dark hero">
+    <div class="eyebrow">Bab 1 · Sistem Persamaan Linear Dua Variabel</div>
+    <h1>Konsep <span>SPLDV</span><br>dari nol sampai paham.</h1>
+    <p class="sub">Sebelum menyelesaikan SPLDV, kamu perlu tahu dulu apa sebenarnya SPLDV itu, ciri-cirinya, bentuk umumnya, dan apa saja bagian-bagiannya. Presentasi ini membahasnya tahap demi tahap, lengkap dengan visualisasi dan latihan.</p>
+    <div class="goal"><b>Tujuan pembelajaran —</b> Peserta didik mampu memahami konsep SPLDV dan mengidentifikasi bentuk serta unsur-unsurnya.</div>
+    <svg class="hero-x" viewBox="0 0 300 300" fill="none">
+      <line x1="20" y1="260" x2="280" y2="260" stroke="#3A4568" stroke-width="1.5"/>
+      <line x1="20" y1="260" x2="20" y2="20" stroke="#3A4568" stroke-width="1.5"/>
+      <line x1="30" y1="230" x2="260" y2="60" stroke="#FF6B4A" stroke-width="4" stroke-linecap="round"/>
+      <line x1="40" y1="60" x2="250" y2="220" stroke="#06A99A" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="141" cy="141" r="9" fill="#FFC94A"/>
+      <circle cx="141" cy="141" r="16" fill="none" stroke="#FFC94A" stroke-width="1.5" opacity="0.5"/>
+    </svg>
+  </section>
+
+  <!-- SLIDE 2: APA ITU SPLDV -->
+  <section class="slide">
+    <div class="eyebrow">01 · Mengapa perlu SPLDV</div>
+    <h2 class="sec-title">Dari cerita sehari-hari ke persamaan</h2>
+    <p class="sec-desc">Dalam kehidupan sehari-hari, kita sering menghadapi situasi dengan <b>dua hal yang belum diketahui</b> sekaligus, misalnya dua harga barang. Untuk menemukan keduanya, kita butuh dua "petunjuk" atau dua persamaan yang saling berkaitan. Baca cerita berikut, lalu klik tombolnya.</p>
+
+    <div class="story-grid">
+      <div class="story-card">
+        <p>🛒 Rani membeli <b>2 buku</b> dan <b>1 pensil</b> seharga <b>Rp16.000</b>. Di toko yang sama, Dio membeli <b>1 buku</b> dan <b>3 pensil</b> seharga <b>Rp18.000</b>.</p>
+        <p>Berapa harga satu buku dan satu pensil?</p>
+        <button class="reveal-btn" onclick="revealStory()">Ubah jadi persamaan →</button>
+        <div class="answer-box" id="storyAnswer">
+          <p style="margin-bottom:10px;">Misalkan harga buku = <b>x</b> dan harga pensil = <b>y</b>, maka cerita di atas berubah menjadi dua persamaan:</p>
+          <div class="eq-pair">
+            <div class="eq-line"><span class="tag">Persamaan 1</span> 2x + y = 16.000</div>
+            <div class="eq-line"><span class="tag">Persamaan 2</span> x + 3y = 18.000</div>
+          </div>
+          <p style="margin-top:12px;">Kedua persamaan itu memuat variabel yang <b>sama</b> (x dan y) dan harus dipenuhi <b>bersamaan</b>. Nilai x dan y yang dicari adalah pasangan yang benar untuk persamaan 1 <i>maupun</i> persamaan 2. Gabungan dua persamaan seperti inilah yang disebut <b>Sistem Persamaan Linear Dua Variabel (SPLDV)</b>.</p>
+        </div>
+      </div>
+
+      <div class="big-def">
+        <div class="term">Definisi</div>
+        <h3>SPLDV adalah gabungan dua persamaan linear yang memiliki dua variabel yang sama, dan berlaku secara bersamaan.</h3>
+        <p>Kata "sistem" di sini berarti dua persamaan itu tidak berdiri sendiri-sendiri, melainkan satu kesatuan. Kita mencari satu nilai x dan satu nilai y yang memenuhi <b>kedua</b> persamaan sekaligus — bukan salah satu saja.</p>
+        <div class="chip-row">
+          <span class="chip">2 persamaan</span>
+          <span class="chip">2 variabel</span>
+          <span class="chip">pangkat 1 (linear)</span>
+          <span class="chip">berlaku bersamaan</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3: CIRI-CIRI -->
+  <section class="slide">
+    <div class="eyebrow">02 · Syarat & ciri-ciri</div>
+    <h2 class="sec-title">Kapan sesuatu disebut SPLDV?</h2>
+    <p class="sec-desc">Ada empat syarat yang harus dipenuhi bersamaan. Kalau salah satu saja tidak terpenuhi, maka itu <b>bukan</b> SPLDV.</p>
+
+    <div class="checklist">
+      <div class="chk-item"><div class="chk-num">1</div><div><h4>Terdiri dari dua persamaan</h4><p>Bukan satu persamaan, dan bukan tiga persamaan atau lebih — tepat dua persamaan yang digabung menjadi satu sistem.</p></div></div>
+      <div class="chk-item"><div class="chk-num">2</div><div><h4>Memakai dua variabel yang sama</h4><p>Kedua persamaan menggunakan variabel yang identik, umumnya ditulis x dan y, muncul di kedua persamaan tersebut.</p></div></div>
+      <div class="chk-item"><div class="chk-num">3</div><div><h4>Setiap variabel berpangkat satu</h4><p>Inilah arti "linear". Tidak boleh ada x², √y, atau perkalian antar variabel seperti xy.</p></div></div>
+      <div class="chk-item"><div class="chk-num">4</div><div><h4>Dihubungkan tanda operasi & "="</h4><p>Suku-suku dijumlah/dikurang dengan tanda + atau −, lalu disetarakan dengan tanda "=" terhadap sebuah konstanta.</p></div></div>
+    </div>
+
+    <div class="demo-row">
+      <div class="demo-card ok">
+        <div class="eqs">3x + 2y = 12<br>x − y = 1</div>
+        <div class="verdict" style="color:#046B60;">✓ Ini SPLDV</div>
+        <p>Dua persamaan ✓, variabel sama (x, y) ✓, semua berpangkat satu ✓, memakai tanda operasi dan "=" ✓. Semua syarat terpenuhi.</p>
+      </div>
+      <div class="demo-card no">
+        <div class="eqs">x² + y = 9<br>x − y = 1</div>
+        <div class="verdict" style="color:#B8391E;">✕ Bukan SPLDV</div>
+        <p>Dua persamaan ✓, variabel sama ✓, tapi x pada persamaan pertama berpangkat dua — melanggar syarat "linear". Gagal di syarat ke-3.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4: BENTUK UMUM -->
+  <section class="slide">
+    <div class="eyebrow">03 · Bentuk umum</div>
+    <h2 class="sec-title">Menulis SPLDV secara formal</h2>
+    <p class="sec-desc">Semua contoh SPLDV, apa pun angkanya, sebenarnya mengikuti satu pola yang sama. Pola inilah yang disebut <b>bentuk umum</b>.</p>
+
+    <div class="form-wrap">
+      <div class="form-box">
+        <div class="form-eq">
+          <span class="a">a₁</span>x <span class="b">+ b₁</span>y <span class="c">= c₁</span><br>
+          <span class="a">a₂</span>x <span class="b">+ b₂</span>y <span class="c">= c₂</span>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div><p><b>a₁, a₂</b> — koefisien dari variabel x pada persamaan pertama dan kedua.</p></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div><p><b>b₁, b₂</b> — koefisien dari variabel y pada persamaan pertama dan kedua.</p></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8A6100"></div><p><b>c₁, c₂</b> — konstanta di ruas kanan tiap persamaan.</p></div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--ink)"></div><p><b>x, y</b> — dua variabel yang sama, nilainya belum diketahui dan ingin dicari.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5: ANATOMI PERSAMAAN -->
+  <section class="slide">
+    <div class="eyebrow">04 · Bedah satu persamaan</div>
+    <h2 class="sec-title">Klik untuk mengenali tiap bagian</h2>
+    <p class="sec-desc">Sekarang lihat lebih dekat salah satu persamaan dari sebuah SPLDV. Klik tiap angka, huruf, atau tanda di bawah ini untuk melihat namanya dan fungsinya.</p>
+
+    <div class="equation-box">
+      <div class="equation" id="equationTokens">
+        <span class="tok" data-type="coef" data-label="Koefisien x" data-desc="Angka yang mengalikan variabel x. Koefisien menunjukkan seberapa banyak 'jumlah x' yang dihitung.">2</span>
+        <span class="tok" data-type="var" data-label="Variabel x" data-desc="Huruf yang mewakili nilai yang belum diketahui / dicari. Pangkatnya harus 1 agar persamaan tetap linear.">x</span>
+        <span class="tok" data-type="op" data-label="Operator" data-desc="Tanda penjumlahan yang menghubungkan suku 2x dengan suku 3y.">+</span>
+        <span class="tok" data-type="coef" data-label="Koefisien y" data-desc="Angka yang mengalikan variabel y, yaitu 3.">3</span>
+        <span class="tok" data-type="var" data-label="Variabel y" data-desc="Huruf kedua yang mewakili nilai yang belum diketahui. Inilah yang membuatnya disebut 'dua variabel'.">y</span>
+        <span class="tok" data-type="op" data-label="Tanda sama dengan" data-desc="Menunjukkan bahwa nilai di ruas kiri (2x + 3y) harus sama besar dengan nilai di ruas kanan (12).">=</span>
+        <span class="tok" data-type="const" data-label="Konstanta" data-desc="Angka tetap di ruas kanan yang tidak dikalikan variabel apapun. Nilainya sudah pasti, tidak berubah.">12</span>
+      </div>
+    </div>
+    <p class="hint">↑ klik bagian mana saja pada persamaan di atas</p>
+
+    <div class="explain-card empty" id="explainCard">
+      <div class="desc">Belum ada bagian yang dipilih. Coba klik salah satu angka atau huruf di atas 👆</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6: UNSUR-UNSUR -->
+  <section class="slide">
+    <div class="eyebrow">05 · Unsur-unsur SPLDV</div>
+    <h2 class="sec-title">Enam istilah yang wajib kamu kenal</h2>
+    <p class="sec-desc">Klik tiap kartu untuk membalik dan membaca penjelasan lengkapnya.</p>
+
+    <div class="card-grid">
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">🔤</div><h4>Variabel</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Huruf yang mewakili nilai yang belum diketahui / yang dicari nilainya. Dalam SPLDV selalu ada dua variabel berbeda.</p><div class="ex">contoh: x, y</div></div>
+      </div></div>
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">✖️</div><h4>Koefisien</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Angka yang terletak tepat di depan dan mengalikan sebuah variabel. Boleh berupa bilangan bulat, pecahan, atau negatif.</p><div class="ex">pada 5x → koefisiennya 5</div></div>
+      </div></div>
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">🔒</div><h4>Konstanta</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Suku berupa angka tetap yang berdiri sendiri, tidak dikalikan variabel apapun.</p><div class="ex">pada 2x+3y=12 → konstantanya 12</div></div>
+      </div></div>
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">📏</div><h4>Persamaan Linear</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Persamaan yang setiap variabelnya berpangkat satu, sehingga jika digambar grafiknya berupa garis lurus.</p><div class="ex">bukan x², bukan xy</div></div>
+      </div></div>
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">⚖️</div><h4>Ruas Kiri & Kanan</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Bagian di sebelah kiri tanda "=" disebut ruas kiri, bagian sebelah kanan disebut ruas kanan. Nilai keduanya harus sama besar.</p><div class="ex">2x+3y | 12</div></div>
+      </div></div>
+      <div class="flip-card"><div class="flip-inner">
+        <div class="flip-face flip-front"><div class="icon">➕</div><h4>Operator & "="</h4><div class="tap-cue">tap untuk lihat arti</div></div>
+        <div class="flip-face flip-back"><p>Tanda + atau − menghubungkan suku-suku, sedangkan tanda "=" menyatakan bahwa dua ruas bernilai sama.</p><div class="ex">+, −, =</div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7: PLDV vs SPLDV -->
+  <section class="slide">
+    <div class="eyebrow">06 · Kenapa harus dua persamaan?</div>
+    <h2 class="sec-title">Satu persamaan vs sistem dua persamaan</h2>
+    <p class="sec-desc">Satu persamaan linear dua variabel (PLDV) saja punya <b>banyak sekali</b> jawaban yang mungkin. Baru setelah digabung menjadi sistem (SPLDV), jawabannya bisa dipersempit jadi satu pasangan saja.</p>
+
+    <div class="compare-wrap">
+      <div class="compare-card left">
+        <span class="tag2">HANYA 1 PERSAMAAN (PLDV)</span>
+        <h4>x + y = 6</h4>
+        <svg viewBox="0 0 320 180">
+          <line x1="20" y1="160" x2="300" y2="160" stroke="#E3E7DC" stroke-width="1"/>
+          <line x1="30" y1="10" x2="30" y2="170" stroke="#E3E7DC" stroke-width="1"/>
+          <line x1="30" y1="160" x2="290" y2="20" stroke="#06A99A" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="70" cy="140" r="5" fill="#121F3D"/><text x="72" y="132" font-size="10" font-family="Space Mono" fill="#5C6470">(1,5)</text>
+          <circle cx="130" cy="110" r="5" fill="#121F3D"/><text x="132" y="102" font-size="10" font-family="Space Mono" fill="#5C6470">(2,4)</text>
+          <circle cx="190" cy="80" r="5" fill="#121F3D"/><text x="192" y="72" font-size="10" font-family="Space Mono" fill="#5C6470">(3,3)</text>
+          <circle cx="250" cy="50" r="5" fill="#121F3D"/><text x="252" y="42" font-size="10" font-family="Space Mono" fill="#5C6470">(4,2)</text>
+        </svg>
+        <p>Semua titik di sepanjang garis ini adalah jawaban yang sah — (1,5), (2,4), (3,3), (4,2), dan masih banyak lagi. Jawabannya <b>tidak tunggal</b>.</p>
+      </div>
+      <div class="compare-card right">
+        <span class="tag2">DIGABUNG JADI SISTEM (SPLDV)</span>
+        <h4>x + y = 6 &nbsp;dan&nbsp; x − y = 2</h4>
+        <svg viewBox="0 0 320 180">
+          <line x1="20" y1="160" x2="300" y2="160" stroke="#E3E7DC" stroke-width="1"/>
+          <line x1="30" y1="10" x2="30" y2="170" stroke="#E3E7DC" stroke-width="1"/>
+          <line x1="30" y1="160" x2="290" y2="20" stroke="#06A99A" stroke-width="3.5" stroke-linecap="round"/>
+          <line x1="60" y1="170" x2="270" y2="30" stroke="#FF6B4A" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="190" cy="80" r="7" fill="#FFC94A" stroke="#121F3D" stroke-width="1.5"/>
+          <text x="200" y="76" font-size="11" font-family="Space Mono" fill="#121F3D" font-weight="700">(4,2)</text>
+        </svg>
+        <p>Kedua garis hanya bertemu di <b>satu titik</b>: (4,2). Itulah satu-satunya pasangan x dan y yang memenuhi kedua persamaan sekaligus — penyelesaian SPLDV.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8: VISUALISASI GRAFIK -->
+  <section class="slide">
+    <div class="eyebrow">07 · Coba sendiri</div>
+    <h2 class="sec-title">Setiap persamaan adalah sebuah garis</h2>
+    <p class="sec-desc">Geser angka-angka berikut untuk mengubah kedua persamaan, dan perhatikan bagaimana garisnya ikut bergeser di grafik. Titik potong keduanya adalah <b>penyelesaian</b> SPLDV — persis seperti pada slide sebelumnya.</p>
+
+    <div class="graph-wrap">
+      <div class="controls">
+        <div class="eq-control line1">
+          <div class="eqtitle" style="color:var(--coral)" id="eq1label">Garis 1: 1x + 1y = 6</div>
+          <div class="slider-row"><label>a₁</label><input type="range" id="a1" min="-5" max="5" step="1" value="1"><span class="val" id="a1v">1</span></div>
+          <div class="slider-row"><label>b₁</label><input type="range" id="b1" min="-5" max="5" step="1" value="1"><span class="val" id="b1v">1</span></div>
+          <div class="slider-row"><label>c₁</label><input type="range" id="c1" min="-10" max="10" step="1" value="6"><span class="val" id="c1v">6</span></div>
+        </div>
+        <div class="eq-control line2">
+          <div class="eqtitle" style="color:var(--teal)" id="eq2label">Garis 2: 1x + -1y = 2</div>
+          <div class="slider-row"><label>a₂</label><input type="range" id="a2" min="-5" max="5" step="1" value="1"><span class="val" id="a2v">1</span></div>
+          <div class="slider-row"><label>b₂</label><input type="range" id="b2" min="-5" max="5" step="1" value="-1"><span class="val" id="b2v">-1</span></div>
+          <div class="slider-row"><label>c₂</label><input type="range" id="c2" min="-10" max="10" step="1" value="2"><span class="val" id="c2v">2</span></div>
+        </div>
+        <div class="solution-box" id="solutionBox">Titik potong: (4, 2)</div>
+      </div>
+      <div class="graph-svg-wrap"><svg id="graphSvg" viewBox="0 0 400 400" width="100%"></svg></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9: KLASIFIKASI -->
+  <section class="slide">
+    <div class="eyebrow">08 · Latihan kenali</div>
+    <h2 class="sec-title">SPLDV atau bukan?</h2>
+    <p class="sec-desc">Baca tiap pasangan persamaan berikut, lalu tebak: apakah ini termasuk SPLDV? Gunakan keempat syarat yang sudah kamu pelajari.</p>
+    <div class="classify-grid" id="classifyGrid"></div>
+  </section>
+
+  <!-- SLIDE 10: KUIS -->
+  <section class="slide">
+    <div class="eyebrow">09 · Uji pemahaman</div>
+    <h2 class="sec-title">Kuis singkat — 6 soal</h2>
+    <div class="quiz-shell">
+      <div id="quizActive">
+        <div class="quiz-top">
+          <span class="quiz-progress-text" id="quizProgressText">Soal 1 dari 6</span>
+          <span class="quiz-score" id="quizScoreText">Skor: 0</span>
+        </div>
+        <div class="qbar"><div class="qbar-fill" id="qbarFill"></div></div>
+        <div class="qtext" id="qtext"></div>
+        <div class="qoptions" id="qoptions"></div>
+        <button class="qnext" id="qnextBtn" onclick="nextQuestion()">Lanjut →</button>
+      </div>
+      <div class="quiz-result" id="quizResult">
+        <div class="score-num" id="finalScore">0/6</div>
+        <p id="finalMsg">Pesan hasil kuis</p>
+        <button class="reveal-btn" onclick="restartQuiz()">Ulangi kuis</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11: PENUTUP -->
+  <section class="slide dark closing">
+    <div class="eyebrow">Ringkasan</div>
+    <h2>Sebelum lanjut ke cara menyelesaikan SPLDV, ingat enam hal ini.</h2>
+    <div class="recap-grid">
+      <div class="recap-item"><div class="n">01</div><p>SPLDV terdiri dari <b>dua persamaan linear</b> yang berlaku bersamaan.</p></div>
+      <div class="recap-item"><div class="n">02</div><p>Kedua persamaan memakai <b>dua variabel yang sama</b>, biasanya x dan y.</p></div>
+      <div class="recap-item"><div class="n">03</div><p>Setiap variabel wajib berpangkat satu — itulah arti <b>linear</b>.</p></div>
+      <div class="recap-item"><div class="n">04</div><p>Bentuk umumnya: <b>a₁x+b₁y=c₁</b> dan <b>a₂x+b₂y=c₂</b>.</p></div>
+      <div class="recap-item"><div class="n">05</div><p>Unsurnya: variabel, koefisien, konstanta, ruas, dan operator.</p></div>
+      <div class="recap-item"><div class="n">06</div><p>Secara grafik, penyelesaiannya adalah <b>titik potong</b> dua garis.</p></div>
+    </div>
+    <p style="margin-top:30px; color:#8891A5; font-family:'Space Mono',monospace; font-size:0.82rem;">Bab 1 · Sistem Persamaan Linear Dua Variabel — Sub materi: Konsep SPLDV</p>
+    <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+  </section>
+
+</div>
+</div>
+
+<script>
+/* ================= PAGINATION ENGINE ================= */
+const track = document.getElementById('track');
+const slides = Array.from(track.children);
+const total = slides.length;
+let current = 0;
+
+const dotsNav = document.getElementById('dotsNav');
+slides.forEach((s,i)=>{
+  const d = document.createElement('button');
+  d.className = 'dot';
+  d.setAttribute('aria-label', 'Ke slide '+(i+1));
+  d.addEventListener('click', ()=> goTo(i));
+  dotsNav.appendChild(d);
+});
+const dotEls = Array.from(dotsNav.children);
+const progressFill = document.getElementById('progressFill');
+const counterText = document.getElementById('counterText');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+function updateUI(){
+  track.style.transform = `translateX(-${current*100}vw)`;
+  dotEls.forEach((d,i)=> d.classList.toggle('active', i===current));
+  progressFill.style.width = ((current+1)/total*100)+'%';
+  counterText.textContent = pad(current+1)+' / '+pad(total);
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total-1;
+}
+function goTo(i){
+  current = Math.max(0, Math.min(total-1, i));
+  updateUI();
+}
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+
+prevBtn.addEventListener('click', prevSlide);
+nextBtn.addEventListener('click', nextSlide);
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+  if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+});
+
+/* touch swipe */
+let touchStartX = 0, touchStartY = 0;
+const stage = document.getElementById('stage');
+stage.addEventListener('touchstart', (e)=>{
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+stage.addEventListener('touchend', (e)=>{
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+    if(dx < 0) nextSlide(); else prevSlide();
+  }
+}, {passive:true});
+
+/* wheel: only trigger when the active slide itself isn't scrollable further */
+let wheelLock = false;
+stage.addEventListener('wheel', (e)=>{
+  const activeEl = slides[current];
+  const atTop = activeEl.scrollTop <= 0;
+  const atBottom = activeEl.scrollTop + activeEl.clientHeight >= activeEl.scrollHeight - 2;
+  const goingDown = e.deltaY > 0;
+  const wantsPageChange = (goingDown && atBottom) || (!goingDown && atTop);
+  if(!wantsPageChange) return; // let inner content scroll
+  if(wheelLock) return;
+  if(Math.abs(e.deltaY) < 12) return;
+  wheelLock = true;
+  if(goingDown) nextSlide(); else prevSlide();
+  setTimeout(()=> wheelLock = false, 650);
+}, {passive:true});
+
+updateUI();
+
+document.getElementById('backToMenuBtn').addEventListener('click', ()=> goTo(0));
+
+/* ================= Slide: story reveal ================= */
+function revealStory(){ document.getElementById('storyAnswer').classList.add('show'); }
+
+/* ================= Slide: equation anatomy ================= */
+const explainCard = document.getElementById('explainCard');
+const colorMap = {coef:'var(--coral)', var:'var(--teal)', const:'#8A6100', op:'var(--muted)'};
+const classMap = {coef:'active-coef', var:'active-var', const:'active-const', op:'active-op'};
+document.querySelectorAll('#equationTokens .tok').forEach(tok=>{
+  tok.addEventListener('click', ()=>{
+    document.querySelectorAll('#equationTokens .tok').forEach(t=> t.classList.remove('active-coef','active-var','active-const','active-op'));
+    tok.classList.add(classMap[tok.dataset.type]);
+    explainCard.classList.remove('empty');
+    explainCard.style.background = tok.dataset.type==='coef' ? 'var(--coral-dim)'
+      : tok.dataset.type==='var' ? 'var(--teal-dim)'
+      : tok.dataset.type==='const' ? 'var(--gold-dim)' : 'var(--paper-2)';
+    explainCard.innerHTML = `<div class="label" style="color:${colorMap[tok.dataset.type]}">${tok.dataset.label}</div><div class="desc">${tok.dataset.desc}</div>`;
+  });
+});
+
+/* ================= Slide: flip cards ================= */
+document.querySelectorAll('.flip-card').forEach(card=>{
+  card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+});
+
+/* ================= Slide: interactive graph ================= */
+const svg = document.getElementById('graphSvg');
+const ids = ['a1','b1','c1','a2','b2','c2'];
+const inputs = {}; ids.forEach(id=> inputs[id] = document.getElementById(id));
+const vals = {}; ids.forEach(id=> vals[id] = document.getElementById(id+'v'));
+
+function drawGrid(){
+  let s = ''; const scale = 18; const cx = 200, cy = 200;
+  for(let u=-10; u<=10; u+=2){
+    const gx = cx + u*scale, gy = cy - u*scale;
+    s += `<line x1="${gx}" y1="0" x2="${gx}" y2="400" stroke="#E3E7DC" stroke-width="1"/>`;
+    s += `<line x1="0" y1="${gy}" x2="400" y2="${gy}" stroke="#E3E7DC" stroke-width="1"/>`;
+  }
+  s += `<line x1="0" y1="${cy}" x2="400" y2="${cy}" stroke="#121F3D" stroke-width="1.5" opacity="0.5"/>`;
+  s += `<line x1="${cx}" y1="0" x2="${cx}" y2="400" stroke="#121F3D" stroke-width="1.5" opacity="0.5"/>`;
+  s += `<text x="378" y="${cy-8}" font-size="11" fill="#5C6470" font-family="Space Mono">x</text>`;
+  s += `<text x="${cx+8}" y="16" font-size="11" fill="#5C6470" font-family="Space Mono">y</text>`;
+  return s;
+}
+function lineSegment(a,b,c,color){
+  const scale = 18; const cx = 200, cy = 200; const RANGE = 12;
+  let pts = [];
+  if(Math.abs(b) > 1e-9){
+    const x1 = -RANGE, y1v = (c - a*x1)/b;
+    const x2 = RANGE, y2v = (c - a*x2)/b;
+    pts = [[x1,y1v],[x2,y2v]];
+  } else if(Math.abs(a) > 1e-9){
+    const xv = c/a; pts = [[xv,-RANGE],[xv,RANGE]];
+  } else { return ''; }
+  const [x1,y1] = pts[0]; const [x2,y2] = pts[1];
+  const sx1 = cx + x1*scale, sy1 = cy - y1*scale;
+  const sx2 = cx + x2*scale, sy2 = cy - y2*scale;
+  return `<line x1="${sx1}" y1="${sy1}" x2="${sx2}" y2="${sy2}" stroke="${color}" stroke-width="3.5" stroke-linecap="round"/>`;
+}
+function updateGraph(){
+  const a1=+inputs.a1.value, b1=+inputs.b1.value, c1=+inputs.c1.value;
+  const a2=+inputs.a2.value, b2=+inputs.b2.value, c2=+inputs.c2.value;
+  ids.forEach(id=> vals[id].textContent = inputs[id].value);
+  document.getElementById('eq1label').textContent = `Garis 1: ${a1}x + ${b1}y = ${c1}`;
+  document.getElementById('eq2label').textContent = `Garis 2: ${a2}x + ${b2}y = ${c2}`;
+  let html = drawGrid();
+  html += lineSegment(a1,b1,c1,'#FF6B4A');
+  html += lineSegment(a2,b2,c2,'#06A99A');
+  const det = a1*b2 - a2*b1;
+  const solBox = document.getElementById('solutionBox');
+  if(Math.abs(det) < 1e-9){
+    solBox.innerHTML = 'Kedua garis <b>sejajar</b> — tidak ada satu titik potong (tidak ada penyelesaian tunggal).';
+  } else {
+    const x = (c1*b2 - c2*b1)/det;
+    const y = (a1*c2 - a2*c1)/det;
+    const xr = Math.round(x*100)/100, yr = Math.round(y*100)/100;
+    solBox.innerHTML = `Titik potong (penyelesaian SPLDV): <b>(${xr}, ${yr})</b>`;
+    if(Math.abs(xr) <= 11 && Math.abs(yr) <= 11){
+      const scale = 18; const cx=200, cy=200;
+      const sx = cx + xr*scale, sy = cy - yr*scale;
+      html += `<circle cx="${sx}" cy="${sy}" r="7" fill="#FFC94A" stroke="#121F3D" stroke-width="1.5"/>`;
+      html += `<circle cx="${sx}" cy="${sy}" r="13" fill="none" stroke="#FFC94A" stroke-width="1.5" opacity="0.5"/>`;
+    }
+  }
+  svg.innerHTML = html;
+}
+ids.forEach(id=> inputs[id].addEventListener('input', updateGraph));
+updateGraph();
+
+/* ================= Slide: classification cards ================= */
+const classifyData = [
+  { eqs: ['2x + y = 10', 'x - y = 2'], answer: 'ya', explain: 'Benar — dua persamaan, keduanya linear (pangkat 1), dan memakai dua variabel yang sama (x dan y). Ini SPLDV.' },
+  { eqs: ['x² + y = 5', 'x - y = 1'], answer: 'tidak', explain: 'Bukan SPLDV — pada persamaan pertama x berpangkat dua, sehingga bukan persamaan linear.' },
+  { eqs: ['3x + 2y = 12'], answer: 'tidak', explain: 'Bukan SPLDV — ini hanya satu persamaan. SPLDV butuh dua persamaan sekaligus.' },
+  { eqs: ['x + y + z = 10', 'x - y = 3'], answer: 'tidak', explain: 'Bukan SPLDV — persamaan pertama punya tiga variabel (x, y, z), bukan dua.' },
+  { eqs: ['½x + y = 4', 'x - 2y = -1'], answer: 'ya', explain: 'Benar — koefisien boleh berupa pecahan. Yang penting tetap dua persamaan, dua variabel sama, dan pangkat satu.' },
+  { eqs: ['xy + y = 5', 'x - y = 1'], answer: 'tidak', explain: 'Bukan SPLDV — suku "xy" adalah perkalian dua variabel, sehingga bukan persamaan linear.' }
+];
+const classifyGrid = document.getElementById('classifyGrid');
+classifyData.forEach((item)=>{
+  const card = document.createElement('div');
+  card.className = 'cfy-card';
+  card.innerHTML = `
+    <div class="eqs">${item.eqs.map(e=>'• '+e).join('<br>')}</div>
+    <div class="cfy-btns">
+      <button class="cfy-btn" data-choice="ya">Ya, SPLDV</button>
+      <button class="cfy-btn" data-choice="tidak">Bukan SPLDV</button>
+    </div>
+    <div class="cfy-fb"></div>`;
+  const fb = card.querySelector('.cfy-fb');
+  card.querySelectorAll('.cfy-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const correct = btn.dataset.choice === item.answer;
+      fb.textContent = (correct ? '✓ Tepat sekali. ' : '✕ Belum tepat. ') + item.explain;
+      fb.className = 'cfy-fb show ' + (correct ? 'correct' : 'wrong');
+      card.classList.add('locked');
+    });
+  });
+  classifyGrid.appendChild(card);
+});
+
+/* ================= Slide: quiz ================= */
+const quizData = [
+  { q: 'Apa yang dimaksud dengan SPLDV?', opts: ['Satu persamaan dengan satu variabel', 'Dua persamaan linear dengan dua variabel yang berlaku bersamaan', 'Persamaan yang mengandung variabel berpangkat dua', 'Kumpulan bilangan konstanta saja'], correct: 1 },
+  { q: 'Berapa banyak variabel yang digunakan dalam sebuah SPLDV?', opts: ['1', '2', '3', 'Bebas, tidak tentu'], correct: 1 },
+  { q: 'Pada persamaan 5x − 2y = 8, berapakah koefisien dari y?', opts: ['5', '8', '-2', '2'], correct: 2 },
+  { q: 'Manakah pasangan berikut yang termasuk SPLDV?', opts: ['x² + y = 4 dan x − y = 1', '2x + 3y = 12 dan x − y = 1', '3x + 2y = 9 (hanya satu persamaan)', 'x + y + z = 6 dan x − y = 2'], correct: 1 },
+  { q: 'Konstanta pada persamaan 7x + y = 20 adalah ...', opts: ['7', '1', '20', 'x dan y'], correct: 2 },
+  { q: 'Manakah yang BUKAN merupakan ciri dari SPLDV?', opts: ['Terdiri dari dua persamaan', 'Memakai dua variabel yang sama', 'Setiap variabel berpangkat satu', 'Mengandung variabel berpangkat dua'], correct: 3 }
+];
+let quizIdx = 0, quizScore = 0, answered = false;
+function renderQuestion(){
+  answered = false;
+  const item = quizData[quizIdx];
+  document.getElementById('quizProgressText').textContent = `Soal ${quizIdx+1} dari ${quizData.length}`;
+  document.getElementById('quizScoreText').textContent = `Skor: ${quizScore}`;
+  document.getElementById('qbarFill').style.width = ((quizIdx)/quizData.length*100)+'%';
+  document.getElementById('qtext').textContent = item.q;
+  const optWrap = document.getElementById('qoptions');
+  optWrap.innerHTML = '';
+  item.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'qopt'; b.textContent = opt;
+    b.addEventListener('click', ()=> selectAnswer(i));
+    optWrap.appendChild(b);
+  });
+  document.getElementById('qnextBtn').classList.remove('show');
+}
+function selectAnswer(i){
+  if(answered) return; answered = true;
+  const item = quizData[quizIdx];
+  const opts = document.querySelectorAll('.qopt');
+  opts.forEach(o=> o.classList.add('disabled'));
+  if(i === item.correct){ opts[i].classList.add('correct'); quizScore++; }
+  else { opts[i].classList.add('wrong'); opts[item.correct].classList.add('correct'); }
+  document.getElementById('quizScoreText').textContent = `Skor: ${quizScore}`;
+  document.getElementById('qnextBtn').classList.add('show');
+  document.getElementById('qnextBtn').textContent = (quizIdx === quizData.length-1) ? 'Lihat hasil →' : 'Lanjut →';
+}
+function nextQuestion(){
+  quizIdx++;
+  if(quizIdx >= quizData.length) showResult(); else renderQuestion();
+}
+function showResult(){
+  document.getElementById('quizActive').style.display = 'none';
+  const resultEl = document.getElementById('quizResult');
+  resultEl.classList.add('show');
+  document.getElementById('finalScore').textContent = `${quizScore}/${quizData.length}`;
+  let msg;
+  if(quizScore === quizData.length) msg = 'Sempurna! Kamu sudah benar-benar paham konsep SPLDV. 🎉';
+  else if(quizScore >= quizData.length-1) msg = 'Bagus sekali, hampir sempurna! Sedikit lagi kamu kuasai konsepnya.';
+  else if(quizScore >= quizData.length/2) msg = 'Lumayan! Coba tinjau lagi bagian ciri-ciri dan unsur-unsur SPLDV.';
+  else msg = 'Yuk geser kembali ke awal dan pelajari lagi bagian ciri-ciri dan anatomi persamaan.';
+  document.getElementById('finalMsg').textContent = msg;
+}
+function restartQuiz(){
+  quizIdx = 0; quizScore = 0;
+  document.getElementById('quizActive').style.display = 'block';
+  document.getElementById('quizResult').classList.remove('show');
+  renderQuestion();
+}
+renderQuestion();
+</script>
+</body>
+</html>

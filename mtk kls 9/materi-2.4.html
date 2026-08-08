@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bab 2: Penerapan Kontekstual Lingkaran - Kelas 9 SMP</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-inner: #0f172a;
+      --accent-yellow: #f59e0b;
+      --accent-blue: #38bdf8;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+
+    /* Frame Utama Presentasi */
+    .deck-container { 
+      width: 100%; 
+      max-width: 900px; 
+      height: 670px; 
+      background-color: var(--bg-card); 
+      border-radius: 16px; 
+      box-shadow: 0 15px 30px rgba(0,0,0,0.5); 
+      position: relative; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+      border: 1px solid var(--border-color); 
+    }
+
+    /* Area Slide */
+    .slide { 
+      display: none; 
+      padding: 25px 30px; 
+      height: calc(100% - 70px); 
+      overflow-y: auto; 
+      flex-direction: column; 
+      align-items: center; 
+      text-align: center; 
+    }
+    .slide.active { display: flex; }
+
+    /* Tipografi */
+    h1 { font-size: 1.8rem; color: var(--accent-yellow); margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 10px; }
+    p { font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; max-width: 750px; margin-bottom: 15px; }
+
+    .badge { background-color: var(--border-color); padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; color: var(--accent-yellow); font-weight: bold; margin-bottom: 15px; display: inline-block; line-height: 1.4; }
+
+    /* Layout Grid & Card */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 800px; text-align: left; }
+    .card { background: var(--bg-card-inner); padding: 16px; border-radius: 10px; border: 1px solid var(--border-color); }
+    .card h3 { font-size: 1rem; margin-bottom: 8px; }
+
+    /* Interactive Box Layout */
+    .interactive-box { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 800px; margin-top: 10px; }
+    .controls { background: var(--bg-card-inner); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); text-align: left; min-width: 280px; flex: 1; }
+    .controls label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 0.88rem; }
+    .controls input[type=range] { width: 100%; margin-bottom: 12px; accent-color: var(--accent-blue); }
+
+    /* Accordion Soal */
+    .soal-container { width: 100%; max-width: 800px; text-align: left; }
+    .soal-item { background: var(--bg-card-inner); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+    .soal-header { padding: 12px 16px; background: #1e293b; cursor: pointer; font-weight: bold; color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; }
+    .soal-header:hover { background: #334155; }
+    .soal-body { padding: 15px; display: none; line-height: 1.6; font-size: 0.9rem; background: var(--bg-card-inner); border-top: 1px solid var(--border-color); }
+
+    /* Kuis Card */
+    .quiz-card { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 100%; max-width: 750px; text-align: left; }
+    .quiz-option { display: block; width: 100%; padding: 10px 14px; margin: 8px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; text-align: left; transition: 0.2s; }
+    .quiz-option:hover { background: #475569; }
+    .quiz-option.correct { background: var(--accent-green) !important; font-weight: bold; }
+    .quiz-option.wrong { background: #ef4444 !important; font-weight: bold; }
+
+    /* Navigasi Bawah */
+    .nav-bar { height: 70px; background-color: #0f172a; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; border-top: 1px solid var(--border-color); margin-top: auto; width: 100%; }
+    .nav-btn { background: var(--accent-blue); color: #0f172a; font-weight: bold; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+    .nav-btn:hover { opacity: 0.9; }
+    .nav-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
+
+    .dots-container { display: flex; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #475569; cursor: pointer; }
+    .dot.active { background-color: var(--accent-yellow); width: 20px; border-radius: 5px; transition: 0.3s; }
+  </style>
+</head>
+<body>
+
+<div class="deck-container">
+  
+  <!-- Slide 1: Cover Presentasi -->
+  <div class="slide active" id="slide-1">
+    <p style="color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Matematika SMP Kelas 9 • Buku Terbitan Erlangga</p>
+    <h1>Bab 2: Penerapan Kontekstual Lingkaran</h1>
+    <p>Media Pembelajaran Interaktif: Menentukan dan Menghitung Panjang Busur serta Luas Juring Lingkaran dalam Penerapan Sehari-hari.</p>
+    <div class="badge">🎯 Capaian Pembelajaran: Peserta didik mampu menyelesaikan masalah kontekstual yang berkaitan dengan lingkaran.</div>
+    <div style="margin-top: 10px;">
+      <button class="nav-btn" style="background: var(--accent-yellow); padding: 12px 24px; font-size: 1rem;" onclick="goToSlide(1)">Mulai Belajar →</button>
+    </div>
+  </div>
+
+  <!-- Slide 2: Aplikasi Lingkaran di Dunia Nyata -->
+  <div class="slide" id="slide-2">
+    <h2>1. Penerapan Lingkaran Saat Ini</h2>
+    <p>Prinsip panjang busur dan luas juring banyak digunakan dalam kehidupan sehari-hari, antara lain:</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="color: var(--accent-yellow);">💧 Penyiram Taman Otomatis</h3>
+        <p style="font-size:0.85rem;">Luas rumput yang basah terkena semprotan air berbentuk juring lingkaran dengan sudut sapuan tertentu.</p>
+      </div>
+
+      <div class="card">
+        <h3 style="color: var(--accent-green);">📡 Jangkauan Radar Navigasi</h3>
+        <p style="font-size:0.85rem;">Area sapuan gelombang radar kapal atau pesawat membentuk juring lingkaran.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 12px; width:100%; max-width:800px; text-align:left;">
+      <h3 style="color: var(--accent-purple);">🎡 Bianglala & Tikungan Lintasan Lari</h3>
+      <p style="font-size:0.85rem;">Lintasan melengkung yang dilalui kabin bianglala atau jarak tempuh pelari di tikungan dihitung dengan rumus <b>Panjang Busur Lingkaran</b>.</p>
+    </div>
+  </div>
+
+  <!-- Slide 3: Simulasi Visual Sprinkler Taman -->
+  <div class="slide" id="slide-3">
+    <h2>2. Visualisasi Interaktif: Sprinkler Taman</h2>
+    <p>Geser slider <b>Jangkauan (r)</b> dan <b>Sudut Putaran (α)</b> untuk mengamati perubahan panjang busur dan luas juring secara rinci!</p>
+    
+    <div class="interactive-box">
+      <svg id="circleCanvas" width="200" height="200" viewBox="-90 -90 180 180" style="background:#0f172a; border-radius:50%; border:1px solid #334155;">
+        <circle id="baseCircle" cx="0" cy="0" r="45" fill="none" stroke="#334155" stroke-width="2"/>
+        <path id="juringPath" fill="rgba(16, 185, 129, 0.35)" stroke="none" />
+        <path id="busurPath" fill="none" stroke="#f59e0b" stroke-width="5" />
+        <line id="baseRadius" x1="0" y1="0" x2="45" y2="0" stroke="#38bdf8" stroke-width="2"/>
+        <line id="radiusLine" x1="0" y1="0" x2="0" y2="0" stroke="#38bdf8" stroke-width="2"/>
+        <circle cx="0" cy="0" r="5" fill="#38bdf8"/>
+      </svg>
+
+      <div class="controls">
+        <label>Sudut Putaran (α): <span id="angleVal" style="color:var(--accent-yellow)">120</span>°</label>
+        <input type="range" id="angleSlider" min="10" max="350" value="120">
+
+        <label>Jangkauan/Jari-jari (r): <span id="radiusVal" style="color:var(--accent-blue)">7</span> m</label>
+        <input type="range" id="radiusSlider" min="7" max="28" step="7" value="7">
+
+        <div style="margin-top: 6px; font-size: 0.85rem; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+          <p style="margin-bottom: 4px;">🔸 Panjang Busur Lengkung: <b id="arcResult" style="color: var(--accent-yellow)">--</b> m</p>
+          <p style="margin-bottom: 0;">🔹 Luas Juring (Daerah Tersiram): <b id="sectorResult" style="color: var(--accent-green)">--</b> m²</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: Contoh Masalah Kontekstual Beragam (5 Kasus) -->
+  <div class="slide" id="slide-4">
+    <h2>3. Contoh Masalah Kontekstual (Aplikasi Lingkaran)</h2>
+    <p>Klik judul masalah di bawah untuk membuka pembahasan solusinya secara terperinci:</p>
+
+    <div class="soal-container">
+      <div class="soal-item">
+        <div class="soal-header" onclick="toggleSoal(this)">
+          <span>Kasus 1: Luas Semprotan Penyiram Rumput</span> <span>▼</span>
+        </div>
+        <div class="soal-body">
+          <b>Soal:</b> Alat penyiram rumput berputar menyemprotkan air sejauh <b>7 meter</b> dengan sudut putaran <b>120°</b>. Berapa luas area rumput yang tersiram air? (Gunakan $\pi = \frac{22}{7}$)<br><br>
+          <b>Penyelesaian:</b><br>
+          • $r = 7\text{ m}$, $\alpha = 120^\circ$<br>
+          • $\text{Luas Juring} = \frac{\alpha}{360^\circ} \times \pi \times r^2$<br>
+          • $\text{Luas} = \frac{120^\circ}{360^\circ} \times \frac{22}{7} \times 7 \times 7 = \frac{1}{3} \times 154 = \mathbf{51{,}33\text{ m}^2}$.
+        </div>
+      </div>
+
+      <div class="soal-item">
+        <div class="soal-header" onclick="toggleSoal(this)">
+          <span>Kasus 2: Jarak Tempuh Kabin Bianglala</span> <span>▼</span>
+        </div>
+        <div class="soal-body">
+          <b>Soal:</b> Sebuah wahana Bianglala memiliki jari-jari <b>14 meter</b>. Jika kabin bergerak berputar membentuk sudut pusat <b>45°</b>, tentukan panjang lintasan busur yang ditempuh kabin tersebut!<br><br>
+          <b>Penyelesaian:</b><br>
+          • $r = 14\text{ m}$, $\alpha = 45^\circ$<br>
+          • $\text{Panjang Busur} = \frac{\alpha}{360^\circ} \times 2 \times \pi \times r$<br>
+          • $\text{Busur} = \frac{45^\circ}{360^\circ} \times 2 \times \frac{22}{7} \times 14 = \frac{1}{8} \times 88 = \mathbf{11\text{ meter}}$.
+        </div>
+      </div>
+
+      <div class="soal-item">
+        <div class="soal-header" onclick="toggleSoal(this)">
+          <span>Kasus 3: Luas Potongan Pizza / Kue Ultah</span> <span>▼</span>
+        </div>
+        <div class="soal-body">
+          <b>Soal:</b> Sebuah pizza berbentuk lingkaran sempurna berdiameter <b>28 cm</b> dipotong menjadi <b>8 bagian sama besar</b>. Berapakah luas satu potong pizza tersebut?<br><br>
+          <b>Penyelesaian:</b><br>
+          • Jari-jari ($r$) = $14\text{ cm}$. Sudut 1 potong ($\alpha$) = $360^\circ / 8 = 45^\circ$.<br>
+          • $\text{Luas Potongan} = \frac{45^\circ}{360^\circ} \times \frac{22}{7} \times 14 \times 14 = \frac{1}{8} \times 616 = \mathbf{77\text{ cm}^2}$.
+        </div>
+      </div>
+
+      <div class="soal-item">
+        <div class="soal-header" onclick="toggleSoal(this)">
+          <span>Kasus 4: Tikungan Lintasan Lari Stadion</span> <span>▼</span>
+        </div>
+        <div class="soal-body">
+          <b>Soal:</b> Tikungan lintasan atletik berbentuk busur lingkaran dengan jari-jari <b>35 meter</b> dan sudut pusat <b>72°</b>. Berapakah panjang tikungan lintasan yang dilewati pelari?<br><br>
+          <b>Penyelesaian:</b><br>
+          • $r = 35\text{ m}$, $\alpha = 72^\circ$<br>
+          • $\text{Panjang Busur} = \frac{72^\circ}{360^\circ} \times 2 \times \frac{22}{7} \times 35 = \frac{1}{5} \times 220 = \mathbf{44\text{ meter}}$.
+        </div>
+      </div>
+
+      <div class="soal-item">
+        <div class="soal-header" onclick="toggleSoal(this)">
+          <span>Kasus 5: Perbandingan Cakupan Stasiun Radar</span> <span>▼</span>
+        </div>
+        <div class="soal-body">
+          <b>Soal:</b> Radar pemancar A memindai daerah berbentuk juring dengan sudut <b>40°</b> dan memiliki luas area <b>30 km²</b>. Berapakah luas jangkauan Radar B jika sudut pemindaiannya diperbesar menjadi <b>120°</b> pada jarak/radius yang sama?<br><br>
+          <b>Penyelesaian:</b><br>
+          • Gunakan hubungan perbandingan senilai juring:<br>
+          $$\frac{\text{Luas B}}{\text{Luas A}} = \frac{\text{Sudut B}}{\text{Sudut A}}$$
+          $$\frac{\text{Luas B}}{30} = \frac{120^\circ}{40^\circ} = 3 \implies \text{Luas B} = 3 \times 30 = \mathbf{90\text{ km}^2}.$$
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Kuis Latihan Evaluasi 5 Soal Presisi -->
+  <div class="slide" id="slide-5">
+    <h2>4. Kuis Latihan Evaluasi (5 Soal)</h2>
+    <p>Pilih satu jawaban yang benar untuk menguji tingkat pemahamanmu!</p>
+
+    <div class="quiz-card">
+      <div id="quizContent">
+        <h3 id="quizQuestion" style="margin-bottom:12px; color:var(--accent-yellow); font-size:0.95rem; line-height:1.5;">Pertanyaan Kuis...</h3>
+        <div id="quizOptions"></div>
+        <p id="quizFeedback" style="margin-top:10px; font-weight:bold; font-size:0.88rem; line-height: 1.5;"></p>
+        <button id="nextQuizBtn" class="nav-btn" style="margin-top:12px; display:none;" onclick="loadNextQuiz()">Soal Selanjutnya →</button>
+      </div>
+      <div id="quizResult" style="display:none; text-align:center;">
+        <h3 style="color:var(--accent-green); font-size:1.3rem;">🎉 Kuis Selesai!</h3>
+        <p id="scoreText" style="font-size:1.1rem; margin:15px 0;">Skor Anda: 0 / 5</p>
+        <button class="nav-btn" onclick="resetQuiz()">Ulangi Kuis ↺</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Ringkasan & Navigasi Utama -->
+  <div class="slide" id="slide-6">
+    <h2>Rangkuman Bab 2: Lingkaran</h2>
+    <p>Selamat! Kamu telah menguasai materi penerapan panjang busur dan luas juring lingkaran.</p>
+
+    <div class="card" style="text-align: left; max-width:750px; width:100%; margin-bottom:20px; line-height:1.7; font-size:0.9rem;">
+      ✔️ <b>Panjang Busur</b> menghitung panjang garis lengkung tepi lingkaran:
+      $$\text{Panjang Busur} = \frac{\alpha}{360^\circ} \times 2\pi r$$
+      ✔️ <b>Luas Juring</b> menghitung luas daerah berbentuk pecahan lingkaran:
+      $$\text{Luas Juring} = \frac{\alpha}{360^\circ} \times \pi r^2$$
+      ✔️ Besar sudut pusat ($\alpha$) berbanding lurus dengan panjang busur dan luas juring.
+    </div>
+
+    <!-- Tombol Kembali ke Menu Utama Bab 2 -->
+        <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+
+  </div>
+
+  <!-- Navigation Bar Bawah -->
+  <div class="nav-bar">
+    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← SBLM</button>
+    <div class="dots-container" id="dotsContainer"></div>
+    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">SLDN →</button>
+  </div>
+
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('dotsContainer');
+
+  // Inisialisasi Navigasi Titik
+  slides.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.classList.add('dot');
+    if (idx === 0) dot.classList.add('active');
+    dot.addEventListener('click', () => goToSlide(idx));
+    dotsContainer.appendChild(dot);
+  });
+
+  const dots = document.querySelectorAll('.dot');
+
+  function updateNav() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
+    dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    document.getElementById('prevBtn').disabled = currentSlide === 0;
+    document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+  }
+
+  function changeSlide(direction) {
+    currentSlide += direction;
+    updateNav();
+  }
+
+  function goToSlide(index) {
+    currentSlide = index;
+    updateNav();
+  }
+
+  // Navigasi Keyboard Arrow
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) changeSlide(1);
+    if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
+  });
+
+  // Toggle Accordion Pembahasan Soal
+  function toggleSoal(header) {
+    const body = header.nextElementSibling;
+    const isVisible = body.style.display === 'block';
+    body.style.display = isVisible ? 'none' : 'block';
+    header.querySelector('span:last-child').textContent = isVisible ? '▼' : '▲';
+  }
+
+  // Interactive Canvas Logic (Interaktivitas Visual Sprinkler)
+  const angleSlider = document.getElementById('angleSlider');
+  const radiusSlider = document.getElementById('radiusSlider');
+  const angleVal = document.getElementById('angleVal');
+  const radiusVal = document.getElementById('radiusVal');
+
+  const baseCircle = document.getElementById('baseCircle');
+  const baseRadius = document.getElementById('baseRadius');
+  const juringPath = document.getElementById('juringPath');
+  const busurPath = document.getElementById('busurPath');
+  const radiusLine = document.getElementById('radiusLine');
+
+  function updateCircleVisual() {
+    const alpha = parseFloat(angleSlider.value);
+    const r = parseFloat(radiusSlider.value);
+
+    angleVal.textContent = alpha;
+    radiusVal.textContent = r;
+
+    // Skala visual SVG (Radius 7m -> 22.5px, 28m -> 80px)
+    const visualR = (r / 28) * 80;
+
+    baseCircle.setAttribute('r', visualR);
+    baseRadius.setAttribute('x2', visualR);
+
+    const rad = (alpha * Math.PI) / 180;
+    const x = visualR * Math.cos(rad);
+    const y = visualR * Math.sin(rad);
+    const largeArc = alpha > 180 ? 1 : 0;
+
+    busurPath.setAttribute('d', `M ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y}`);
+    juringPath.setAttribute('d', `M 0 0 L ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y} Z`);
+    radiusLine.setAttribute('x2', x);
+    radiusLine.setAttribute('y2', y);
+
+    const pi = 22 / 7;
+    const busur = ((alpha / 360) * 2 * pi * r).toFixed(2);
+    const juring = ((alpha / 360) * pi * r * r).toFixed(2);
+
+    document.getElementById('arcResult').textContent = busur;
+    document.getElementById('sectorResult').textContent = juring;
+  }
+
+  angleSlider.addEventListener('input', updateCircleVisual);
+  radiusSlider.addEventListener('input', updateCircleVisual);
+  updateCircleVisual();
+
+  // Bank Soal Kuis (5 Soal Kontekstual Presisi)
+  const quizData = [
+    {
+      q: "1. Alat penyiram rumput otomatis menyemprotkan air sejauh 14 meter dengan sudut putaran 90°. Berapakah panjang lintasan busur semprotan air tersebut? (π = 22/7)",
+      options: ["11 meter", "22 meter", "44 meter", "88 meter"],
+      correct: 1,
+      exp: "Panjang Busur = (90°/360°) × 2 × (22/7) × 14 = (1/4) × 88 = 22 meter."
+    },
+    {
+      q: "2. Sebuah juring lingkaran memiliki sudut pusat 60° dan panjang jari-jari 21 cm. Berapakah luas daerah juring tersebut? (π = 22/7)",
+      options: ["154 cm²", "231 cm²", "308 cm²", "462 cm²"],
+      correct: 1,
+      exp: "Luas Juring = (60°/360°) × (22/7) × 21 × 21 = (1/6) × 1386 = 231 cm²."
+    },
+    {
+      q: "3. Wahana Bianglala memiliki jari-jari 14 meter. Jika penumpang menempuh lintasan busur sepanjang 22 meter, berapakah sudut pusat putaran bianglala tersebut?",
+      options: ["45°", "60°", "90°", "120°"],
+      correct: 2,
+      exp: "Panjang Busur = (α/360°) × 2 × (22/7) × 14 => 22 = (α/360°) × 88 => α/360° = 1/4 => α = 90°."
+    },
+    {
+      q: "4. Sebuah pizza berdiameter 28 cm dipotong menjadi 6 bagian sama besar. Berapakah luas satu potong pizza tersebut?",
+      options: ["102,67 cm²", "154,00 cm²", "205,33 cm²", "308,00 cm²"],
+      correct: 0,
+      exp: "Jari-jari (r) = 14 cm. Luas Total = (22/7) × 14 × 14 = 616 cm². Luas 1 Potong = 616 / 6 = 102,67 cm²."
+    },
+    {
+      q: "5. Dua buah juring A dan B berada pada lingkaran yang sama. Juring A memiliki sudut pusat 40° dan luas 24 cm². Jika juring B memiliki sudut pusat 100°, berapakah luas juring B?",
+      options: ["48 cm²", "50 cm²", "60 cm²", "72 cm²"],
+      correct: 2,
+      exp: "Gunakan perbandingan senilai: (Luas B / Luas A) = (Sudut B / Sudut A) => Luas B / 24 = 100° / 40° => Luas B = 2,5 × 24 = 60 cm²."
+    }
+  ];
+
+  let currentQuizIdx = 0;
+  let score = 0;
+
+  function loadQuiz() {
+    const q = quizData[currentQuizIdx];
+    document.getElementById('quizQuestion').textContent = q.q;
+    const optionsContainer = document.getElementById('quizOptions');
+    optionsContainer.innerHTML = '';
+    document.getElementById('quizFeedback').textContent = '';
+    document.getElementById('nextQuizBtn').style.display = 'none';
+
+    q.options.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.classList.add('quiz-option');
+      btn.textContent = opt;
+      btn.onclick = () => checkQuiz(btn, i);
+      optionsContainer.appendChild(btn);
+    });
+  }
+
+  function checkQuiz(btn, selectedIdx) {
+    const q = quizData[currentQuizIdx];
+    const options = document.querySelectorAll('.quiz-option');
+    options.forEach(o => o.style.pointerEvents = 'none');
+
+    const feedback = document.getElementById('quizFeedback');
+    if (selectedIdx === q.correct) {
+      btn.classList.add('correct');
+      feedback.textContent = "✨ Benar! Pembahasan: " + q.exp;
+      feedback.style.color = "var(--accent-green)";
+      score++;
+    } else {
+      btn.classList.add('wrong');
+      options[q.correct].classList.add('correct');
+      feedback.textContent = "❌ Belum tepat. Pembahasan: " + q.exp;
+      feedback.style.color = "#ef4444";
+    }
+
+    document.getElementById('nextQuizBtn').style.display = 'inline-block';
+  }
+
+  function loadNextQuiz() {
+    currentQuizIdx++;
+    if (currentQuizIdx < quizData.length) {
+      loadQuiz();
+    } else {
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('quizResult').style.display = 'block';
+      document.getElementById('scoreText').textContent = `Skor Anda: ${score} / ${quizData.length}`;
+    }
+  }
+
+  function resetQuiz() {
+    currentQuizIdx = 0;
+    score = 0;
+    document.getElementById('quizContent').style.display = 'block';
+    document.getElementById('quizResult').style.display = 'none';
+    loadQuiz();
+  }
+
+  loadQuiz();
+</script>
+
+</body>
+</html>

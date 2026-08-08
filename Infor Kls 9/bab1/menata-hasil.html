@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Interaktif BK SMP - Full Screen & Responsive</title>
+    <style>
+        :root {
+            --primary: #f59e0b;
+            --primary-dark: #d97706;
+            --primary-light: rgba(245, 158, 11, 0.15);
+            --secondary: #14b8a6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --light: #101c3f;
+            --card-bg: #16224b;
+            --border-color: #2d3d6e;
+            --text-main: #e2e8f0;
+            --text-muted: #a8b3d1;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a1330 0%, #1b2757 60%, #0f172a 100%);
+            color: var(--text-main);
+        }
+
+        /* CONTAINER FULL SCREEN & RESPONSIVE */
+        #app-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+        }
+
+        /* SCREENS - FULL VIEWPORT CARD */
+        .screen {
+            display: none;
+            background: var(--light);
+            width: 100%;
+            height: 100vh;
+            padding: 2% 4%;
+            box-shadow: none;
+            animation: fadeIn 0.3s ease-out;
+            position: relative;
+            overflow-y: auto;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* TOP IN-SCREEN BAR */
+        .screen-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .screen-title-tag {
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 6px 14px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-indicator {
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        /* CONTENT AREA */
+        .screen-body {
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        /* TYPOGRAPHY RESPONSIVE */
+        h1 { font-size: clamp(2rem, 4vw, 3rem); color: #f8fafc; margin: 0 0 10px 0; font-weight: 800; line-height: 1.2; font-family: Georgia, 'Times New Roman', serif; }
+        h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); color: var(--primary); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 5px; margin-top: 0; font-weight: 700; }
+        h3 { font-size: clamp(1.2rem, 2vw, 1.5rem); color: #f1f5f9; margin-top: 15px; font-weight: 600; }
+        p, li { font-size: clamp(1rem, 1.8vw, 1.25rem); line-height: 1.5; color: var(--text-muted); }
+
+        /* VISUAL PLACEHOLDERS */
+        .visual-placeholder {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 3px dashed var(--primary);
+            border-radius: 16px;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            font-weight: 600;
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .visual-placeholder .icon { font-size: clamp(3rem, 6vw, 4.5rem); }
+
+        /* IN-SCREEN BOTTOM NAVIGATION CONTROLS */
+        .screen-bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 2px solid var(--border-color);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* BUTTONS RESPONSIVE */
+        .btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: clamp(10px, 1.5vw, 14px) clamp(18px, 2.5vw, 28px);
+            font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-secondary { background: #2d3d6e; color: #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+        .btn-secondary:hover { background: #3b4d8a; }
+
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25); }
+        .btn-success:hover { background: #059669; }
+
+        .btn-warning { background: var(--secondary); color: white; box-shadow: 0 4px 10px rgba(20, 184, 166, 0.25); }
+        .btn-warning:hover { background: #0f9c8e; }
+
+        /* INTERACTIVE CARDS & GRID */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .interactive-card {
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+        .interactive-card .card-icon { font-size: clamp(2.5rem, 5vw, 3.5rem); }
+        .interactive-card .card-text { font-size: clamp(0.95rem, 1.5vw, 1.1rem); font-weight: 600; color: var(--text-main); }
+
+        .interactive-card:hover {
+            border-color: var(--primary);
+            background: #1c2a5e;
+            transform: translateY(-3px);
+        }
+        .interactive-card.selected { border-color: var(--primary); background: rgba(245, 158, 11, 0.18); color: var(--primary); }
+
+        /* SORTABLE LIST */
+        .sortable-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .sortable-item {
+            background: var(--card-bg);
+            border: 2px dashed var(--secondary);
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+        }
+        .sortable-item .sort-btns { display: flex; gap: 6px; }
+        .sortable-item button {
+            background: #0f1c3f;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        /* FEEDBACK BOX */
+        .feedback-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 600;
+            display: none;
+        }
+        .feedback-box.correct { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 2px solid var(--success); display: block; }
+        .feedback-box.incorrect { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 2px solid var(--danger); display: block; }
+
+        /* QUIZ OPTIONS */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            margin: 10px 0;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            text-align: left;
+            font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: var(--text-main);
+        }
+        .quiz-option:hover { background: #1c2a5e; border-color: var(--primary); }
+        .quiz-option.correct-choice { background: rgba(16, 185, 129, 0.18); border-color: var(--success); color: #6ee7b7; }
+        .quiz-option.incorrect-choice { background: rgba(239, 68, 68, 0.18); border-color: var(--danger); color: #fca5a5; }
+        .quiz-option:disabled { cursor: default; }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 1.1rem;
+            resize: none;
+            margin-top: 10px;
+            color: var(--text-main);
+        }
+        textarea::placeholder { color: var(--text-muted); }
+
+        input[type="number"] {
+            background: var(--card-bg);
+            border: 3px solid var(--border-color);
+            color: var(--text-main);
+        }
+        input[type="number"]::placeholder { color: var(--text-muted); }
+
+        /* TOAST/MODAL NOTIFICATION (replaces alert()) */
+        #toast-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        #toast-modal {
+            background: var(--card-bg);
+            border: 3px solid var(--primary);
+            border-radius: 16px;
+            padding: 22px 32px;
+            max-width: 420px;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fbbf24;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        #toast-modal.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* RESPONSIVE MEDIA QUERIES FOR SMALL SCREENS */
+        @media (max-width: 600px) {
+            .screen { padding: 15px; }
+            .screen-bottom-nav { justify-content: space-between; }
+            .sortable-item { flex-direction: column; align-items: flex-start; }
+            .sortable-item .sort-btns { width: 100%; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+
+        <!-- SCREEN 1: COVER -->
+        <div class="screen active" id="screen1">
+            <div class="screen-body" style="text-align: center;">
+                <div class="visual-placeholder" style="background:none; border:none;">
+                    <div class="icon">🔍📊🧩</div>
+                </div>
+                <h1>Menyusun Data, Menemukan Pola, Menciptakan Solusi</h1>
+                <p style="color: var(--text-muted); margin-bottom: 25px;">Bab 1: Menerapkan Berpikir Komputasional (Kelas VII SMP / 4 JP)</p>
+                <div>
+                    <button class="btn" onclick="nextScreen()">Mulai Petualangan Belajar! 🚀</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav" style="justify-content: center;">
+                <span class="progress-indicator">Halaman 1 / 11</span>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: TUJUAN PEMBELAJARAN -->
+        <div class="screen" id="screen2">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🎯 TUJUAN PEMBELAJARAN</span>
+                <span class="progress-indicator">Halaman 2 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Target Pencapaian Hari Ini</h2>
+                <p>Peserta didik mampu <strong>menyusun dan mengolah informasi atau data</strong> untuk <strong>menemukan pola</strong> dan <strong>solusi</strong> dari suatu permasalahan. Setelah menyelesaikan media interaktif ini, kamu akan mampu:</p>
+
+                <div class="visual-placeholder">
+                    <div class="icon">🎯</div>
+                    <div>[ILUSTRASI: Target Panahan dengan anak panah tepat di tengah]</div>
+                </div>
+
+                <ul style="list-style-type: none; padding: 0;">
+                    <li style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px;">✅ <strong>Menyusun Data:</strong> Mengolah data mentah yang acak menjadi rapi dan terorganisir.</li>
+                    <li style="background: var(--card-bg); padding: 12px; border-radius: 10px; margin-bottom: 8px;">✅ <strong>Menemukan Pola:</strong> Mengenali keteraturan atau aturan tersembunyi dari data yang sudah tersusun.</li>
+                    <li style="background: var(--card-bg); padding: 12px; border-radius: 10px;">✅ <strong>Menentukan Solusi:</strong> Mengambil keputusan atau prediksi cerdas berbasis pola yang ditemukan untuk memecahkan masalah.</li>
+                </ul>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: APERSEPSI & PEMANTIK -->
+        <div class="screen" id="screen3">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🤔 APERSEPSI</span>
+                <span class="progress-indicator">Halaman 3 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Bayangkan Situasi Ini!</h2>
+                <p>Kamar tidurmu sangat berantakan! Pakaian, buku, dan mainan bercampur aduk.</p>
+
+                <div class="visual-placeholder" style="background: rgba(239, 68, 68, 0.12); border-color: var(--danger); color: #fca5a5;">
+                    <div class="icon">🧸👕📚🌀</div>
+                    <div>[ILUSTRASI: Kamar tidur acak-acakan dengan barang berserakan]</div>
+                </div>
+
+                <p><strong>Pertanyaan Pemantik:</strong> Manakah cara paling cepat untuk menemukan <strong>buku Matematika</strong>?</p>
+
+                <div class="card-grid">
+                    <div class="interactive-card" onclick="selectApersepsi(this, 'salah')">
+                        <div class="card-icon">🌀</div>
+                        <div class="card-text">A. Mengaduk-aduk seluruh tumpukan barang secara acak</div>
+                    </div>
+                    <div class="interactive-card" onclick="selectApersepsi(this, 'benar')">
+                        <div class="card-icon">🗄️</div>
+                        <div class="card-text">B. Mengelompokkan barang sesuai jenisnya terlebih dahulu</div>
+                    </div>
+                </div>
+                <div id="apersepsiFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: EKSPLORASI DATA ACAK -->
+        <div class="screen" id="screen4">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🔍 EKSPLORASI</span>
+                <span class="progress-indicator">Halaman 4 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Data Nilai Siswa (Acak vs Terurut)</h2>
+                <p>Berikut adalah nilai ujian siswa yang masih acak-acakan. Klik tombol untuk menyusun data ini secara komputasional!</p>
+
+                <div id="dataBox" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); font-weight: 800; text-align: center; background: var(--card-bg); padding: 20px; border-radius: 15px; margin: 15px 0; border: 3px solid var(--border-color); color: #f8fafc;">
+                    75, 90, 60, 85, 90, 70, 95, 80
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="btn btn-secondary" onclick="sortData()">Susun & Tata Data 🔄</button>
+                </div>
+
+                <div id="explorationExplanation" style="display: none; margin-top: 15px; background: var(--primary-light); padding: 15px; border-radius: 12px; border: 2px solid var(--primary);">
+                    <p style="margin: 0; color: var(--text-main);">💡 <strong>Lihat Bedanya!</strong> Setelah diurutkan (95, 90, 90, 85, 80, 75, 70, 60), kita langsung dapat mengetahui Nilai Tertinggi (95) dan Nilai Terendah (60) — sebuah solusi cepat yang sulit didapat dari data yang masih acak!</p>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: PAHAMI KONSEP -->
+        <div class="screen" id="screen5">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">📚 KONSEP UTAMA</span>
+                <span class="progress-indicator">Halaman 5 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Tiga Langkah Kunci Mengolah Data</h2>
+                <p>Untuk sampai pada solusi suatu permasalahan, data perlu melewati tiga langkah berikut:</p>
+
+                <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 15px; border: 2px solid var(--border-color);">
+                        <div style="font-size: 2.5rem; text-align: center;">📊</div>
+                        <h3 style="margin-top: 5px;">1. Susun Data</h3>
+                        <p>Mengatur dan mengelompokkan data acak menjadi format rapi (tabel, daftar terurut, atau kategori).</p>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 15px; border: 2px solid var(--border-color);">
+                        <div style="font-size: 2.5rem; text-align: center;">🔍</div>
+                        <h3 style="margin-top: 5px;">2. Temukan Pola</h3>
+                        <p>Mencari kesamaan, aturan berulang, atau hubungan antardata yang sudah ditata dengan rapi.</p>
+                    </div>
+                    <div style="background: var(--card-bg); padding: 15px; border-radius: 15px; border: 2px solid var(--border-color);">
+                        <div style="font-size: 2.5rem; text-align: center;">✅</div>
+                        <h3 style="margin-top: 5px;">3. Tentukan Solusi</h3>
+                        <p>Menggunakan pola yang ditemukan untuk mengambil keputusan, membuat prediksi, atau memecahkan masalah.</p>
+                    </div>
+                </div>
+
+                <div class="visual-placeholder">
+                    <div class="icon">📈</div>
+                    <div>[ILUSTRASI: Data Acak ➡️ Disusun ➡️ Ditemukan Pola ➡️ Solusi Masalah]</div>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 6: CONTOH SOAL -->
+        <div class="screen" id="screen6">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">💡 CONTOH SOAL & PEMBAHASAN</span>
+                <span class="progress-indicator">Halaman 6 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Analisis Pola Cuaca</h2>
+                <p><strong>Masalah:</strong> Andi mencatat cuaca 4 hari berturut-turut: Hari 1 Mendung, Hari 2 Hujan, Hari 3 Mendung, Hari 4 Hujan. Bagaimana Andi bisa menentukan solusi untuk memprediksi cuaca Hari ke-5?</p>
+
+                <div class="visual-placeholder" style="background: rgba(20, 184, 166, 0.12); border-color: var(--secondary); color: #5eead4;">
+                    <div class="icon">☁️🌧️☁️🌧️❓</div>
+                    <div>[ILUSTRASI: Pola Mendung ➡️ Hujan ➡️ Mendung ➡️ Hujan ➡️ ?]</div>
+                </div>
+
+                <div style="background: var(--card-bg); padding: 15px; border-radius: 12px;">
+                    <h3 style="margin-top: 0;">Pembahasan Sistematis:</h3>
+                    <p style="margin: 5px 0;">1. <strong>Data Disusun:</strong> (Mendung, Hujan, Mendung, Hujan)</p>
+                    <p style="margin: 5px 0;">2. <strong>Pola Ditemukan:</strong> Pengulangan 2 harian: (Mendung ➡️ Hujan)</p>
+                    <p style="margin: 5px 0;">3. <strong>Solusi/Prediksi:</strong> Hari ke-5 kembali ke awal pola, yaitu <strong>Mendung</strong>.</p>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 7: COBA MANDIRI -->
+        <div class="screen" id="screen7">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🛠️ COBA MANDIRI</span>
+                <span class="progress-indicator">Halaman 7 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Urutkan Tahapan Pengolahan Data!</h2>
+                <p>Gunakan tombol ⬆️ ⬇️ untuk menyusun tahapan berpikir komputasional yang tepat!</p>
+
+                <ul class="sortable-list" id="sortableSteps">
+                    <li class="sortable-item" data-id="3"><span>3. Tentukan Solusi atau Prediksi berdasarkan pola yang ditemukan</span> <div class="sort-btns"><button onclick="moveStep(this, -1)">⬆️</button><button onclick="moveStep(this, 1)">⬇️</button></div></li>
+                    <li class="sortable-item" data-id="1"><span>1. Kumpulkan & Catat Data Mentah yang Masih Acak</span> <div class="sort-btns"><button onclick="moveStep(this, -1)">⬆️</button><button onclick="moveStep(this, 1)">⬇️</button></div></li>
+                    <li class="sortable-item" data-id="2"><span>2. Susun Data & Temukan Keteraturan/Pola</span> <div class="sort-btns"><button onclick="moveStep(this, -1)">⬆️</button><button onclick="moveStep(this, 1)">⬇️</button></div></li>
+                </ul>
+
+                <div>
+                    <button class="btn btn-success" onclick="checkOrder()">Periksa Urutan</button>
+                </div>
+                <div id="orderFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 8: LATIHAN INTERAKTIF -->
+        <div class="screen" id="screen8">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">✏️ LATIHAN INTERAKTIF</span>
+                <span class="progress-indicator">Halaman 8 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Temukan Pola Bilangan!</h2>
+                <p>Perhatikan barisan bilangan di bawah ini:</p>
+
+                <div style="font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; text-align: center; background: var(--card-bg); padding: 20px; border-radius: 15px; margin: 15px 0; border: 3px solid var(--border-color); color: #f8fafc;">
+                    4, 8, 16, 32, ..., 128
+                </div>
+
+                <p>Berapakah angka yang tepat untuk mengisi titik-titik tersebut?</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <input type="number" id="latihanInput" placeholder="Ketik jawabanmu..." style="padding: 12px 16px; font-size: 1.1rem; border-radius: 10px; border: 3px solid var(--border-color); flex-grow: 1; max-width: 250px;">
+                    <button class="btn btn-success" onclick="checkLatihan()">Jawab</button>
+                </div>
+                <div id="latihanFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 9: KUIS EVALUASI -->
+        <div class="screen" id="screen9">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">📝 KUIS EVALUASI</span>
+                <span class="progress-indicator">Halaman 9 / 11</span>
+            </div>
+            <div class="screen-body">
+                <div id="quizContainer">
+                    <p id="quizQuestionText" style="font-size: clamp(1.1rem, 2vw, 1.3rem); font-weight: 700; color: #f8fafc;">Memuat soal...</p>
+                    <div id="quizOptions"></div>
+                </div>
+
+                <div id="quizResult" style="display:none; text-align:center;">
+                    <div class="visual-placeholder" style="background:none; border:none;">
+                        <div class="icon" id="quizResultIcon">🏆</div>
+                    </div>
+                    <h3>Hasil Kuis Kamu:</h3>
+                    <p id="quizScoreText" style="font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight:800; color:var(--primary); margin: 10px 0;"></p>
+                    <p id="quizFeedbackText" style="color: var(--text-muted);"></p>
+                    <button class="btn btn-secondary" onclick="restartQuiz()" style="margin-top: 10px;">Ulangi Kuis 🔄</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 10: TANTANGAN HOTS -->
+        <div class="screen" id="screen10">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🔥 TANTANGAN HOTS & REFLEKSI</span>
+                <span class="progress-indicator">Halaman 10 / 11</span>
+            </div>
+            <div class="screen-body">
+                <h2>Tantangan Solusi Sistematis</h2>
+                <p>Sekolah menerima <strong>1.000 buku baru</strong> yang bertumpuk acak di aula. Jelaskan strategi komputasionalmu untuk menyusun buku tersebut ke rak berdasarkan Mata Pelajaran dan Kelas, agar solusi penataan ini efisien dan cepat!</p>
+
+                <textarea id="hotsResponse" placeholder="Tuliskan setidaknya 3 langkah sistematis (susun data - temukan pola - tentukan solusi) di sini..."></textarea>
+                <div style="margin-top: 10px;">
+                    <button class="btn btn-success" onclick="submitHots()">Kirim Solusi</button>
+                </div>
+                <div id="hotsFeedback" class="feedback-box"></div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+                <button class="btn" onclick="nextScreen()">Lanjut ➡️</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 11: KESIMPULAN & SELESAI -->
+        <div class="screen" id="screen11">
+            <div class="screen-top-bar">
+                <span class="screen-title-tag">🎉 RANGKUMAN & SELESAI</span>
+                <span class="progress-indicator">Halaman 11 / 11</span>
+            </div>
+            <div class="screen-body" style="text-align: center;">
+                <div class="visual-placeholder" style="background:none; border:none;">
+                    <div class="icon">🎉🏆🥳</div>
+                </div>
+                <h2>Selamat! Pembelajaran Selesai</h2>
+
+                <div style="background: var(--card-bg); padding: 20px; border-radius: 15px; text-align: left; max-width: 800px; margin: 15px auto; border: 2px solid var(--border-color);">
+                    <h3 style="margin-top:0;">📌 Kesimpulan Materi:</h3>
+                    <ul style="padding-left: 20px;">
+                        <li><strong>Menyusun Data:</strong> Mengubah data mentah (acak) menjadi struktur yang terorganisir.</li>
+                        <li><strong>Menemukan Pola:</strong> Mencari keteraturan atau aturan berulang untuk memprediksi hasil.</li>
+                        <li><strong>Menentukan Solusi:</strong> Menggunakan pola yang ditemukan untuk memecahkan masalah sehari-hari secara efisien!</li>
+                    </ul>
+                </div>
+
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-top: 10px;">
+                    <button class="btn btn-warning" onclick="backToChapterList()">📚 Kembali ke Daftar Bab</button>
+                    <button class="btn btn-success" onclick="goToScreen(1)">Ulangi Dari Awal 🔄</button>
+                </div>
+            </div>
+            <div class="screen-bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">⬅️ Kembali</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CUSTOM TOAST/MODAL NOTIFICATION -->
+    <div id="toast-overlay">
+        <div id="toast-modal"></div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentScreen = 1;
+        const totalScreens = 11;
+
+        function updateUI() {
+            document.querySelectorAll('.screen').forEach((s, idx) => {
+                s.classList.toggle('active', idx + 1 === currentScreen);
+            });
+        }
+
+        function nextScreen() { if (currentScreen < totalScreens) { currentScreen++; updateUI(); } }
+        function prevScreen() { if (currentScreen > 1) { currentScreen--; updateUI(); } }
+        function goToScreen(num) { currentScreen = num; updateUI(); }
+
+        /* TOAST NOTIFICATION (replaces alert()) */
+        let toastTimer = null;
+        function showToast(message, duration = 2000) {
+            const modal = document.getElementById('toast-modal');
+            clearTimeout(toastTimer);
+            modal.innerText = message;
+            void modal.offsetWidth;
+            modal.classList.add('show');
+            toastTimer = setTimeout(() => modal.classList.remove('show'), duration);
+        }
+
+        /* Tombol Kembali ke Daftar Bab -> arahkan ke halaman daftar bab */
+        function backToChapterList() {
+            window.location.href = '../info-bab1.html';
+        }
+
+        /* Apersepsi */
+        function selectApersepsi(el, ans) {
+            const fb = document.getElementById('apersepsiFeedback');
+            document.querySelectorAll('#screen3 .interactive-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            if (ans === 'benar') {
+                fb.className = 'feedback-box correct';
+                fb.innerHTML = '✅ <strong>Tepat Sekali!</strong> Mengelompokkan barang sesuai jenisnya memudahkan pencarian secara sistematis.';
+            } else {
+                fb.className = 'feedback-box incorrect';
+                fb.innerHTML = '❌ <strong>Kurang Tepat.</strong> Mengaduk acak akan membuang waktu!';
+            }
+        }
+
+        /* Eksplorasi Data */
+        function sortData() {
+            document.getElementById('dataBox').innerText = "95, 90, 90, 85, 80, 75, 70, 60";
+            document.getElementById('explorationExplanation').style.display = 'block';
+        }
+
+        /* Sortable Steps */
+        function moveStep(btn, dir) {
+            const item = btn.closest('.sortable-item');
+            const list = document.getElementById('sortableSteps');
+            if (dir === -1 && item.previousElementSibling) list.insertBefore(item, item.previousElementSibling);
+            else if (dir === 1 && item.nextElementSibling) list.insertBefore(item, item.nextElementSibling);
+        }
+
+        function checkOrder() {
+            const items = document.querySelectorAll('#sortableSteps .sortable-item');
+            const order = Array.from(items).map(i => i.getAttribute('data-id')).join('');
+            const fb = document.getElementById('orderFeedback');
+            if (order === "123") {
+                fb.className = "feedback-box correct";
+                fb.innerHTML = "🎉 <strong>Urutan Benar!</strong> Catat Data Mentah ➡️ Susun & Temukan Pola ➡️ Tentukan Solusi/Prediksi.";
+            } else {
+                fb.className = "feedback-box incorrect";
+                fb.innerHTML = "❌ <strong>Urutan Belum Tepat.</strong> Awali dengan mengumpulkan data mentah terlebih dahulu!";
+            }
+        }
+
+        /* Latihan Angka */
+        function checkLatihan() {
+            const val = document.getElementById('latihanInput').value;
+            const fb = document.getElementById('latihanFeedback');
+            if (parseInt(val) === 64) {
+                fb.className = "feedback-box correct";
+                fb.innerHTML = "🎉 <strong>Benar! Jawabannya 64.</strong> Polanya adalah setiap bilangan **dikali 2**.";
+            } else {
+                fb.className = "feedback-box incorrect";
+                fb.innerHTML = "❌ <strong>Kurang Tepat.</strong> Perhatikan perkalian antarbilangan (4, 8, 16, 32)!";
+            }
+        }
+
+        /* Kuis (5 Soal) */
+        const quizQuestions = [
+            { q: "Apa tujuan utama dari 'menata hasil' dalam berpikir komputasional?", a: ["Agar data terlihat berantakan", "Agar data mudah dibaca, dianalisis, dan ditemukan pola serta solusinya", "Hanya untuk menghias laporan"], correct: 1 },
+            { q: "Buku di perpustakaan dikelompokkan berdasarkan kategori (Fiksi, IPA, Sejarah). Ini adalah contoh...", a: ["Pengenalan Pola", "Penyusunan Data (Pengelompokan)", "Abstraksi"], correct: 1 },
+            { q: "Andi mengamati pola bilangan: 5, 10, 15, 20. Angka berikutnya adalah...", a: ["22", "25", "30"], correct: 1 },
+            { q: "Mengapa komputer butuh instruksi yang sistematis?", a: ["Sebab komputer hanya memproses perintah langkah demi langkah", "Sebab komputer sangat pintar", "Agar komputer bisa memilih sendiri"], correct: 0 },
+            { q: "Manakah tiga langkah kunci dalam mengolah data untuk menemukan solusi?", a: ["Menghafal, Menggambar, Menghapus", "Susun Data, Temukan Pola, Tentukan Solusi", "Membuang, Mengulang, Melupakan"], correct: 1 }
+        ];
+
+        let quizData = { current: 0, score: 0 };
+
+        function loadQuizQuestion() {
+            const qText = document.getElementById('quizQuestionText');
+            const opts = document.getElementById('quizOptions');
+            opts.innerHTML = '';
+
+            const currentQ = quizQuestions[quizData.current];
+            qText.innerText = `Soal ${quizData.current + 1} dari ${quizQuestions.length}: ${currentQ.q}`;
+
+            currentQ.a.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => handleQuizAnswer(idx);
+                opts.appendChild(btn);
+            });
+        }
+
+        function handleQuizAnswer(idx) {
+            const currentQ = quizQuestions[quizData.current];
+            const opts = document.querySelectorAll('.quiz-option');
+            opts.forEach(b => b.disabled = true);
+
+            if (idx === currentQ.correct) {
+                quizData.score += 20;
+                opts[idx].classList.add('correct-choice');
+            } else {
+                opts[idx].classList.add('incorrect-choice');
+                opts[currentQ.correct].classList.add('correct-choice');
+            }
+
+            setTimeout(() => {
+                quizData.current++;
+                if (quizData.current < quizQuestions.length) loadQuizQuestion();
+                else showQuizResult();
+            }, 1000);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const res = document.getElementById('quizResult');
+            res.style.display = 'block';
+            document.getElementById('quizScoreText').innerText = `${quizData.score} / 100`;
+            document.getElementById('quizFeedbackText').innerText = quizData.score >= 80 ? "Hebat! Kamu menguasai materi dengan sangat baik!" : "Tetap semangat! Coba ulangi kuis untuk memperkuat pemahaman.";
+        }
+
+        function restartQuiz() {
+            quizData.current = 0;
+            quizData.score = 0;
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            loadQuizQuestion();
+        }
+
+        /* HOTS */
+        function submitHots() {
+            const txt = document.getElementById('hotsResponse').value;
+            const fb = document.getElementById('hotsFeedback');
+            if (txt.trim().length > 20) {
+                fb.className = "feedback-box correct";
+                fb.innerHTML = "🔥 <strong>Solusi Diterima!</strong> Langkah sistematis yang kamu tulis menunjukkan pemahaman cara menyusun, menemukan pola, dan menentukan solusi dari data besar secara efektif.";
+            } else {
+                fb.className = "feedback-box incorrect";
+                fb.innerHTML = "⚠️ Tuliskan penjelasan solusimu lebih terperinci terlebih dahulu.";
+            }
+        }
+
+        // Init
+        updateUI();
+        loadQuizQuestion();
+    </script>
+</body>
+</html>

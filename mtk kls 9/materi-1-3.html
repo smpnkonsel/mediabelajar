@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metode Penyelesaian SPLDV — Bab 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#101833;
+    --bg-deep-2:#0C1226;
+    --bg-panel:#1B2454;
+    --bg-panel-2:#232F63;
+    --line:rgba(255,255,255,0.09);
+    --accent-coral:#FF6F59;
+    --accent-coral-dim:rgba(255,111,89,0.16);
+    --accent-mint:#3ED9A6;
+    --accent-mint-dim:rgba(62,217,166,0.16);
+    --accent-gold:#FFC145;
+    --accent-gold-dim:rgba(255,193,69,0.16);
+    --accent-lilac:#B49CFF;
+    --accent-lilac-dim:rgba(180,156,255,0.16);
+    --accent-sky:#5FB4FF;
+    --accent-sky-dim:rgba(95,180,255,0.16);
+    --text-light:#F4F2ED;
+    --text-muted:#9AA4CC;
+    --text-faint:#6C76A3;
+    --danger:#FF5D6C;
+    --danger-dim:rgba(255,93,108,0.16);
+    --radius-lg:26px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --font-display:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--text-light);
+    background:
+      radial-gradient(circle at 12% 8%, rgba(180,156,255,0.10), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(62,217,166,0.08), transparent 45%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.028) 0px, rgba(255,255,255,0.028) 1px, transparent 1px, transparent 34px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.028) 0px, rgba(255,255,255,0.028) 1px, transparent 1px, transparent 34px),
+      var(--bg-deep);
+    height:100vh; height:100dvh;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  h1,h2,h3,.display{font-family:var(--font-display); font-weight:600; letter-spacing:0.2px;}
+  .eq{font-family:var(--font-mono); font-weight:700;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:3px solid var(--accent-gold); outline-offset:2px; border-radius:8px;}
+
+  /* ===== HEADER ===== */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px clamp(16px,4vw,40px) 10px; flex-shrink:0; }
+  .crumb{ display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-muted); }
+  .crumb .tag{ background:var(--accent-gold-dim); color:var(--accent-gold); padding:3px 10px; border-radius:100px; font-weight:700; font-size:11.5px; letter-spacing:0.5px; }
+  .crumb b{color:var(--text-light); font-weight:600;}
+  .counter{font-size:13px; color:var(--text-faint); font-family:var(--font-mono);}
+  .progress-track{ height:4px; background:var(--line); border-radius:4px; margin:0 clamp(16px,4vw,40px); flex-shrink:0; overflow:hidden; }
+  .progress-fill{ height:100%; width:9%; border-radius:4px; background:linear-gradient(90deg,var(--accent-coral),var(--accent-gold),var(--accent-mint),var(--accent-sky)); transition:width .5s cubic-bezier(.65,0,.35,1); }
+
+  /* ===== STAGE ===== */
+  .stage{ position:relative; flex:1 1 auto; min-height:0; }
+  .slide{
+    position:absolute; inset:0;
+    padding:clamp(16px,2.6vw,32px) clamp(16px,5vw,60px) clamp(20px,3vh,32px);
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    opacity:0; visibility:hidden; transform:translateX(24px);
+    transition:opacity .4s ease, transform .4s ease;
+  }
+  .slide.active{ opacity:1; visibility:visible; transform:translateX(0); }
+  .slide.prev{ transform:translateX(-24px); }
+  .slide-inner{ max-width:1080px; margin:0 auto; width:100%; padding-bottom:6px; }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--accent-mint); margin-bottom:10px; }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--accent-mint); display:inline-block;}
+  h1.slide-title{ font-size:clamp(24px,3.8vw,40px); margin:0 0 12px; line-height:1.15; }
+  p.lead{ color:var(--text-muted); font-size:clamp(14px,1.6vw,16.5px); line-height:1.65; max-width:700px; }
+  .accent-underline{ position:relative; display:inline-block; }
+  .accent-underline::after{ content:""; position:absolute; left:2px; right:2px; bottom:2px; height:9px; background:var(--accent-coral); opacity:.35; z-index:-1; border-radius:4px; }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottomnav{ flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:10px clamp(16px,4vw,40px) 14px; background:var(--bg-deep-2); border-top:1px solid var(--line); z-index:40; }
+  .navbtn{ display:flex; align-items:center; gap:8px; background:var(--bg-panel); color:var(--text-light); border:1px solid var(--line); padding:11px 18px; border-radius:100px; font-size:14px; font-weight:600; transition:transform .15s ease, background .15s ease, opacity .15s ease; }
+  .navbtn:hover{ background:var(--bg-panel-2); transform:translateY(-1px); }
+  .navbtn:disabled{ opacity:.3; cursor:not-allowed; transform:none; }
+  .navbtn.primary{ background:var(--accent-coral); border-color:transparent; color:#1a0e0a; }
+  .navbtn.primary:hover{ background:#ff805e; }
+  .dots{ display:flex; gap:6px; align-items:center; }
+  .dots button{ width:8px; height:8px; border-radius:50%; border:none; background:var(--line); padding:0; transition:all .25s ease; }
+  .dots button.active{ width:22px; border-radius:6px; background:var(--accent-gold); }
+
+  /* ===== GENERIC ===== */
+  .card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-lg); padding:clamp(18px,2.4vw,26px); }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+  @media (max-width:820px){ .grid2,.grid4{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .grid2,.grid3,.grid4{ grid-template-columns:1fr; } }
+
+  /* ===== COVER ===== */
+  .cover{ display:flex; flex-direction:column; align-items:center; text-align:center; padding-top:clamp(4px,1.5vh,16px); }
+  .cover .badge{ font-family:var(--font-mono); font-size:12.5px; color:var(--accent-lilac); background:var(--accent-lilac-dim); padding:6px 14px; border-radius:100px; margin-bottom:12px; font-weight:700; letter-spacing:0.5px; }
+  .cover h1{ font-size:clamp(26px,5vw,46px); margin:0 0 6px; }
+  .cover h2.sub{ font-size:clamp(14px,2.2vw,20px); color:var(--accent-gold); font-weight:600; margin:0 0 12px; font-family:var(--font-display); }
+  .method-icons{ display:flex; gap:16px; justify-content:center; margin:8px 0 16px; flex-wrap:wrap; }
+  .method-icons .mi{ display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11.5px; color:var(--text-muted); font-weight:600; }
+  .method-icons .mi .circ{ width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .tp-box{ text-align:left; max-width:660px; margin:6px auto 18px; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px 20px; }
+  .tp-box .k{ font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--accent-mint); font-weight:700; margin-bottom:6px; }
+  .tp-box p{ margin:0; color:var(--text-light); line-height:1.6; font-size:14.5px; }
+  .start-btn{ background:linear-gradient(120deg,var(--accent-coral),#ff8a5c); color:#1a0e0a; border:none; padding:14px 32px; border-radius:100px; font-weight:700; font-size:15.5px; box-shadow:0 10px 30px -8px rgba(255,111,89,0.55); transition:transform .2s ease; }
+  .start-btn:hover{ transform:translateY(-2px) scale(1.02); }
+
+  /* ===== DEFINITION / RECAP ===== */
+  .def-box{ text-align:center; padding:26px; border-radius:var(--radius-lg); background:var(--bg-panel-2); border:1px dashed var(--line); margin-top:18px; }
+  .def-box .big{ font-family:var(--font-mono); font-size:clamp(16px,2.2vw,20px); color:var(--accent-gold); font-weight:700; }
+
+  /* ===== METHOD OVERVIEW CARDS ===== */
+  .method-card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; cursor:pointer; transition:border-color .2s ease; }
+  .method-card.open{ border-color:var(--m-color, var(--accent-gold)); }
+  .method-card .m-head{ display:flex; align-items:center; gap:10px; }
+  .method-card .m-icon{ width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; background:var(--m-bg); color:var(--m-color); }
+  .method-card .m-name{ font-weight:700; font-size:14.5px; }
+  .method-card .m-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .method-card.open .m-body{ max-height:140px; }
+  .method-card .m-body-inner{ padding-top:10px; font-size:13px; color:var(--text-muted); line-height:1.6; }
+  .method-card .m-chev{ margin-left:auto; color:var(--text-faint); font-size:12px; transition:transform .25s ease; }
+  .method-card.open .m-chev{ transform:rotate(180deg); }
+
+  /* ===== STEP MACHINE (substitusi/eliminasi/campuran) ===== */
+  .translator-grid{ display:grid; grid-template-columns:1.05fr 1fr; gap:20px; align-items:start; }
+  @media (max-width:820px){ .translator-grid{ grid-template-columns:1fr; } }
+  .story-panel{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px; }
+  .sys-box{ font-family:var(--font-mono); font-size:15px; background:rgba(0,0,0,0.2); border-radius:10px; padding:12px 16px; margin-bottom:14px; line-height:1.8; }
+  .step-btn-list{ display:flex; flex-direction:column; gap:8px; }
+  .step-click{
+    display:flex; align-items:center; gap:10px; text-align:left; background:var(--bg-panel-2); border:1px solid var(--line); color:var(--text-light);
+    border-radius:var(--radius-sm); padding:11px 14px; font-size:13.5px; transition:all .18s ease;
+  }
+  .step-click .num{ flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--accent-lilac-dim); color:var(--accent-lilac); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:12px; font-weight:600; }
+  .step-click:hover:not(:disabled){ border-color:var(--accent-lilac); }
+  .step-click.done{ background:var(--accent-mint-dim); border-color:rgba(62,217,166,0.4); }
+  .step-click.done .num{ background:var(--accent-mint); color:#052; }
+  .machine-panel{ background:var(--bg-panel-2); border:1px solid var(--line); border-radius:var(--radius-lg); padding:20px; }
+  .machine-panel .m-title{ font-size:12px; text-transform:uppercase; letter-spacing:1px; color:var(--text-faint); font-weight:700; margin-bottom:12px; }
+  .machine-row{ opacity:0; max-height:0; overflow:hidden; transform:translateY(6px); transition:opacity .35s ease, transform .35s ease, max-height .35s ease, margin .35s ease; font-family:var(--font-mono); font-size:14px; background:rgba(0,0,0,0.2); border-radius:10px; padding:0 14px; line-height:1.7; }
+  .machine-row.visible{ opacity:1; max-height:100px; transform:translateY(0); padding:10px 14px; margin-bottom:10px; }
+  .machine-final{ opacity:0; transform:scale(.96); transition:all .4s cubic-bezier(.34,1.56,.64,1); border-top:1px dashed var(--line); margin-top:6px; padding-top:14px; font-family:var(--font-mono); font-size:14.5px; color:var(--accent-gold); font-weight:700; line-height:1.8; }
+  .machine-final.visible{ opacity:1; transform:scale(1); }
+
+  /* ===== GRAFIK SLIDE ===== */
+  .graph-grid{ display:grid; grid-template-columns:0.95fr 1.05fr; gap:22px; align-items:start; }
+  @media (max-width:820px){ .graph-grid{ grid-template-columns:1fr; } }
+  .graph-panel{ background:var(--bg-panel-2); border:1px solid var(--line); border-radius:var(--radius-lg); padding:16px; text-align:center; }
+  .line-draw{ stroke-dasharray:1; stroke-dashoffset:1; transition:stroke-dashoffset 1s ease; }
+  .line-draw.drawn{ stroke-dashoffset:0; }
+  .dot-pt{ opacity:0; transition:opacity .3s ease; }
+  .dot-pt.show{ opacity:1; }
+  .intersect-pt{ opacity:0; transform-origin:center; transition:opacity .4s ease; }
+  .intersect-pt.show{ opacity:1; animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{ r:7; } 50%{ r:9.5; } }
+  @media (prefers-reduced-motion:reduce){ .intersect-pt.show{ animation:none; } }
+  .mini-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:13px; margin-top:8px; }
+  .mini-table th,.mini-table td{ border:1px solid var(--line); padding:6px 10px; text-align:center; }
+  .mini-table th{ background:var(--bg-panel); color:var(--accent-gold); font-weight:700; }
+
+  /* ===== LATIHAN PILIH METODE ===== */
+  .scenario-card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; margin-bottom:14px; }
+  .scenario-eq{ font-family:var(--font-mono); font-size:14.5px; background:rgba(0,0,0,0.2); border-radius:8px; padding:10px 14px; margin-bottom:12px; }
+  .method-choice-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .method-choice-btn{ background:var(--bg-panel-2); border:1px solid var(--line); color:var(--text-light); border-radius:100px; padding:8px 16px; font-size:13px; font-weight:600; transition:all .18s ease; }
+  .method-choice-btn:hover:not(:disabled){ border-color:var(--accent-lilac); }
+  .method-choice-btn.correct{ background:var(--accent-mint-dim); border-color:var(--accent-mint); color:var(--accent-mint); }
+  .method-choice-btn.wrong{ background:var(--danger-dim); border-color:var(--danger); color:var(--danger); }
+  .method-choice-btn:disabled{ cursor:default; }
+  .scenario-fb{ font-size:13px; color:var(--text-muted); margin-top:10px; min-height:16px; }
+  .scenario-fb.ok{ color:var(--accent-mint); }
+  .scenario-fb.bad{ color:var(--danger); }
+
+  /* ===== QUIZ ===== */
+  .quiz-shell{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-lg); padding:clamp(18px,2.6vw,28px); }
+  .quiz-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .quiz-pos{ font-family:var(--font-mono); font-size:13px; color:var(--text-faint); }
+  .quiz-score{ font-size:13px; color:var(--accent-gold); font-weight:700; font-family:var(--font-mono); }
+  .quiz-tag{ display:inline-block; font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; padding:3px 10px; border-radius:100px; margin-bottom:10px; }
+  .quiz-q{ font-size:16px; line-height:1.6; margin-bottom:16px; }
+  .quiz-opt{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--bg-panel-2); border:1px solid var(--line); color:var(--text-light); border-radius:var(--radius-sm); padding:13px 16px; margin-bottom:10px; font-family:var(--font-mono); font-size:13.6px; transition:all .18s ease; }
+  .quiz-opt .letter{ flex-shrink:0; width:26px; height:26px; border-radius:50%; background:var(--bg-deep); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:12.5px; color:var(--text-muted); }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--accent-lilac); }
+  .quiz-opt.correct{ background:var(--accent-mint-dim); border-color:var(--accent-mint); }
+  .quiz-opt.correct .letter{ background:var(--accent-mint); color:#052; }
+  .quiz-opt.wrong{ background:var(--danger-dim); border-color:var(--danger); }
+  .quiz-opt.wrong .letter{ background:var(--danger); color:#300; }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-explain{ margin-top:14px; padding:12px 16px; border-radius:var(--radius-sm); background:var(--bg-panel-2); font-size:13.5px; color:var(--text-muted); line-height:1.6; display:none; }
+  .quiz-explain.show{ display:block; }
+  .quiz-footer{ display:flex; justify-content:flex-end; margin-top:18px; }
+  .quiz-next{ background:var(--accent-coral); border:none; color:#1a0e0a; font-weight:700; padding:11px 24px; border-radius:100px; font-size:14px; opacity:0; pointer-events:none; transition:opacity .2s ease; }
+  .quiz-next.show{ opacity:1; pointer-events:auto; }
+  .quiz-result{ text-align:center; padding:20px 10px; }
+  .quiz-result .score-num{ font-family:var(--font-display); font-size:52px; color:var(--accent-gold); line-height:1; }
+  .quiz-result .score-label{ color:var(--text-muted); font-size:14px; margin-top:6px; }
+  .quiz-result .msg{ margin:16px auto 20px; max-width:440px; font-size:14.5px; color:var(--text-light); line-height:1.6; }
+  .quiz-result .retry-btn{ background:var(--accent-lilac); border:none; color:#150c33; font-weight:700; padding:11px 26px; border-radius:100px; }
+
+  /* ===== SUMMARY ===== */
+  .sum-card{ display:flex; gap:14px; align-items:flex-start; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius-md); padding:15px 18px; }
+  .sum-card .ic{ flex-shrink:0; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+
+  /* ===== CLOSING ===== */
+  .closing{ text-align:center; }
+  .closing .big-check{ font-size:50px; margin-bottom:8px; }
+  .roadmap{ display:flex; gap:14px; justify-content:center; margin:22px auto 6px; flex-wrap:wrap; max-width:520px; }
+  .road-chip{ flex:1; min-width:180px; border-radius:var(--radius-md); padding:16px; text-align:left; border:1px solid var(--line); }
+  .road-chip.done{ background:var(--accent-mint-dim); border-color:rgba(62,217,166,0.4); }
+  .road-chip.next{ background:var(--accent-sky-dim); border-color:rgba(95,180,255,0.4); }
+  .road-chip .rc-tag{ font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; }
+  .road-chip.done .rc-tag{ color:var(--accent-mint); }
+  .road-chip.next .rc-tag{ color:var(--accent-sky); }
+  .road-chip .rc-title{ font-weight:700; margin-top:4px; font-size:14.5px; }
+  .closing-actions{ display:flex; gap:14px; justify-content:center; margin-top:22px; flex-wrap:wrap; }
+  .menu-btn{ background:var(--bg-panel); border:1px solid var(--accent-sky); color:var(--accent-sky); font-weight:700; padding:13px 26px; border-radius:100px; font-size:14.5px; display:inline-flex; align-items:center; gap:8px; transition:all .2s ease; }
+  .menu-btn:hover{ background:var(--accent-sky-dim); transform:translateY(-2px); }
+  .toast{ margin-top:16px; font-size:13px; color:var(--text-faint); opacity:0; transition:opacity .3s ease; max-width:420px; margin-left:auto; margin-right:auto; }
+  .toast.show{ opacity:1; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--bg-panel-2); border-radius:8px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="crumb"><span class="tag">BAB 1</span> <b>SPLDV</b> &nbsp;·&nbsp; Metode Penyelesaian SPLDV</div>
+  <div class="counter" id="counterText">1 / 11</div>
+</div>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="stage" id="stage">
+
+  <!-- 0 COVER -->
+  <section class="slide">
+    <div class="slide-inner cover">
+      <div class="badge">MATEMATIKA · KELAS 9 SMP</div>
+      <div class="method-icons">
+        <div class="mi"><div class="circ" style="background:var(--accent-coral-dim); color:var(--accent-coral);">📈</div>Grafik</div>
+        <div class="mi"><div class="circ" style="background:var(--accent-gold-dim); color:var(--accent-gold);">🔁</div>Substitusi</div>
+        <div class="mi"><div class="circ" style="background:var(--accent-mint-dim); color:var(--accent-mint);">➕</div>Eliminasi</div>
+        <div class="mi"><div class="circ" style="background:var(--accent-lilac-dim); color:var(--accent-lilac);">🧩</div>Campuran</div>
+      </div>
+      <h1>Metode Penyelesaian <span class="accent-underline">SPLDV</span></h1>
+      <h2 class="sub">Grafik · Substitusi · Eliminasi · Campuran</h2>
+      <div class="tp-box">
+        <div class="k">🎯 Tujuan Pembelajaran</div>
+        <p>Peserta didik mampu menyelesaikan Sistem Persamaan Linear Dua Variabel (SPLDV) menggunakan metode grafik, substitusi, eliminasi, dan campuran.</p>
+      </div>
+      <button class="start-btn" onclick="goToSlide(1)">Mulai Belajar →</button>
+    </div>
+  </section>
+
+  <!-- 1 RECAP / APERSEPSI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Sebelumnya</div>
+      <h1 class="slide-title">Dari Model Matematika ke Penyelesaian</h1>
+      <p class="lead">Pada sub-materi sebelumnya, kita sudah belajar mengubah masalah kontekstual menjadi model matematika berbentuk SPLDV, misalnya:</p>
+      <div class="sys-box" style="max-width:360px; margin-top:14px;">2x + 3y = 17.000<br>x + 2y = 10.000</div>
+      <p class="lead" style="margin-top:16px;">Sekarang pertanyaannya: <b style="color:var(--text-light)">berapa nilai x dan y yang memenuhi kedua persamaan itu sekaligus?</b> Itulah yang disebut <b style="color:var(--accent-gold)">penyelesaian SPLDV</b>.</p>
+      <div class="def-box">
+        <div class="big">Penyelesaian SPLDV = pasangan (x, y) yang memenuhi <u>kedua</u> persamaan sekaligus</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 OVERVIEW METODE -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Empat Cara</div>
+      <h1 class="slide-title">Mengenal 4 Metode Penyelesaian</h1>
+      <p class="lead" style="margin-bottom:16px;">Ketuk setiap kartu untuk melihat gambaran singkatnya.</p>
+      <div class="grid2" id="methodOverview"></div>
+    </div>
+  </section>
+
+  <!-- 3 METODE GRAFIK -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Metode 1 · Grafik</div>
+      <h1 class="slide-title">Menyelesaikan dengan Grafik</h1>
+      <p class="lead">Sistem: <span class="eq" style="color:var(--accent-gold)">x + y = 6</span> dan <span class="eq" style="color:var(--accent-sky)">x − y = 2</span>. Klik langkah 1–5 secara berurutan.</p>
+      <div class="graph-grid" style="margin-top:14px;">
+        <div class="story-panel">
+          <div class="step-btn-list" id="graphSteps"></div>
+        </div>
+        <div class="graph-panel">
+          <svg viewBox="0 0 340 420" width="100%" height="320" xmlns="http://www.w3.org/2000/svg">
+            <!-- grid -->
+            <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+              <line x1="10" y1="0" x2="10" y2="420"/><line x1="40" y1="0" x2="40" y2="420"/><line x1="70" y1="0" x2="70" y2="420"/>
+              <line x1="100" y1="0" x2="100" y2="420"/><line x1="130" y1="0" x2="130" y2="420"/><line x1="160" y1="0" x2="160" y2="420"/>
+              <line x1="190" y1="0" x2="190" y2="420"/><line x1="220" y1="0" x2="220" y2="420"/><line x1="250" y1="0" x2="250" y2="420"/>
+              <line x1="280" y1="0" x2="280" y2="420"/><line x1="310" y1="0" x2="310" y2="420"/>
+              <line x1="0" y1="10" x2="340" y2="10"/><line x1="0" y1="40" x2="340" y2="40"/><line x1="0" y1="70" x2="340" y2="70"/>
+              <line x1="0" y1="100" x2="340" y2="100"/><line x1="0" y1="130" x2="340" y2="130"/><line x1="0" y1="160" x2="340" y2="160"/>
+              <line x1="0" y1="190" x2="340" y2="190"/><line x1="0" y1="220" x2="340" y2="220"/><line x1="0" y1="250" x2="340" y2="250"/>
+              <line x1="0" y1="280" x2="340" y2="280"/><line x1="0" y1="310" x2="340" y2="310"/><line x1="0" y1="340" x2="340" y2="340"/>
+              <line x1="0" y1="370" x2="340" y2="370"/><line x1="0" y1="400" x2="340" y2="400"/>
+            </g>
+            <line x1="5" y1="310" x2="335" y2="310" stroke="#9AA4CC" stroke-width="1.5"/>
+            <line x1="70" y1="10" x2="70" y2="415" stroke="#9AA4CC" stroke-width="1.5"/>
+            <text x="325" y="303" font-family="JetBrains Mono" font-size="11" fill="#9AA4CC">x</text>
+            <text x="76" y="20" font-family="JetBrains Mono" font-size="11" fill="#9AA4CC">y</text>
+            <text x="66" y="325" font-family="JetBrains Mono" font-size="10" fill="#6C76A3" text-anchor="end">0</text>
+
+            <!-- line 1: x+y=6 -->
+            <path id="g-line1" class="line-draw" pathLength="1" d="M10,70 L310,370" stroke="#FFC145" stroke-width="3" fill="none"/>
+            <!-- line 2: x-y=2 -->
+            <path id="g-line2" class="line-draw" pathLength="1" d="M40,400 L310,130" stroke="#5FB4FF" stroke-width="3" fill="none"/>
+
+            <!-- table points line1 -->
+            <circle id="g-p1a" class="dot-pt" cx="70" cy="130" r="4.5" fill="#FFC145"/>
+            <circle id="g-p1b" class="dot-pt" cx="250" cy="310" r="4.5" fill="#FFC145"/>
+            <!-- table points line2 -->
+            <circle id="g-p2a" class="dot-pt" cx="70" cy="370" r="4.5" fill="#5FB4FF"/>
+            <circle id="g-p2b" class="dot-pt" cx="130" cy="310" r="4.5" fill="#5FB4FF"/>
+
+            <!-- intersection -->
+            <circle id="g-intersect" class="intersect-pt" cx="190" cy="250" r="7" fill="#FF6F59" stroke="#0C1226" stroke-width="2"/>
+            <text id="g-intersect-label" class="intersect-pt" x="200" y="242" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#FF6F59">(4, 2)</text>
+          </svg>
+          <div id="graphConclusion" style="min-height:20px; font-family:var(--font-mono); font-size:13.5px; color:var(--accent-coral); margin-top:6px; opacity:0; transition:opacity .4s ease;">Himpunan penyelesaian: {(4, 2)}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 METODE SUBSTITUSI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Metode 2 · Substitusi</div>
+      <h1 class="slide-title">Menyelesaikan dengan Substitusi</h1>
+      <p class="lead">Ganti (substitusikan) satu variabel dengan bentuk dari persamaan lain. Klik langkah 1–4.</p>
+      <div class="translator-grid" style="margin-top:14px;">
+        <div class="story-panel">
+          <div class="sys-box">x + y = 6 &nbsp;…(1)<br>x − y = 2 &nbsp;…(2)</div>
+          <div class="step-btn-list" id="subSteps"></div>
+        </div>
+        <div class="machine-panel">
+          <div class="m-title">⚙️ Proses Substitusi</div>
+          <div class="machine-row" id="sub-row0">Dari (1): x + y = 6 → <b>x = 6 − y</b></div>
+          <div class="machine-row" id="sub-row1">Substitusikan ke (2): (6 − y) − y = 2 → 6 − 2y = 2</div>
+          <div class="machine-row" id="sub-row2">−2y = 2 − 6 = −4 → <b>y = 2</b></div>
+          <div class="machine-row" id="sub-row3">Substitusi balik: x = 6 − y = 6 − 2 → <b>x = 4</b></div>
+          <div class="machine-final" id="sub-final">✅ Himpunan penyelesaian: {(4, 2)}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 METODE ELIMINASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Metode 3 · Eliminasi</div>
+      <h1 class="slide-title">Menyelesaikan dengan Eliminasi</h1>
+      <p class="lead">Hilangkan (eliminasi) salah satu variabel dengan menjumlahkan atau mengurangkan dua persamaan. Klik langkah 1–3.</p>
+      <div class="translator-grid" style="margin-top:14px;">
+        <div class="story-panel">
+          <div class="sys-box">x + y = 6 &nbsp;…(1)<br>x − y = 2 &nbsp;…(2)</div>
+          <div class="step-btn-list" id="elimSteps"></div>
+        </div>
+        <div class="machine-panel">
+          <div class="m-title">⚙️ Proses Eliminasi</div>
+          <div class="machine-row" id="elim-row0">Koefisien x pada (1) dan (2) sudah sama (=1), siap dieliminasi.</div>
+          <div class="machine-row" id="elim-row1">Eliminasi x — kurangkan (1) − (2):<br>(x+y) − (x−y) = 6 − 2 → 2y = 4 → <b>y = 2</b></div>
+          <div class="machine-row" id="elim-row2">Eliminasi y — jumlahkan (1) + (2):<br>(x+y) + (x−y) = 6 + 2 → 2x = 8 → <b>x = 4</b></div>
+          <div class="machine-final" id="elim-final">✅ Himpunan penyelesaian: {(4, 2)}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 METODE CAMPURAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Metode 4 · Campuran (Gabungan)</div>
+      <h1 class="slide-title">Eliminasi Dulu, Baru Substitusi</h1>
+      <p class="lead">Metode campuran biasanya paling efisien: eliminasi untuk mencari satu variabel, lalu substitusi untuk mencari variabel lainnya. Klik langkah 1–4.</p>
+      <div class="translator-grid" style="margin-top:14px;">
+        <div class="story-panel">
+          <p style="font-size:13.5px; color:var(--text-muted); margin:0 0 10px;">Dini membeli 2 buku &amp; 3 pensil seharga Rp17.000. Reno membeli 1 buku &amp; 2 pensil seharga Rp10.000. (x = harga buku, y = harga pensil)</p>
+          <div class="sys-box">2x + 3y = 17.000 &nbsp;…(1)<br>x + 2y = 10.000 &nbsp;…(2)</div>
+          <div class="step-btn-list" id="camSteps"></div>
+        </div>
+        <div class="machine-panel">
+          <div class="m-title">⚙️ Proses Campuran</div>
+          <div class="machine-row" id="cam-row0">Samakan koefisien x: kalikan (2) dengan 2 →<br>2x + 4y = 20.000 &nbsp;…(2′)</div>
+          <div class="machine-row" id="cam-row1">Eliminasi x — kurangkan (1) − (2′):<br>(2x+3y) − (2x+4y) = 17.000−20.000 → −y = −3.000 → <b>y = 3.000</b></div>
+          <div class="machine-row" id="cam-row2">Substitusikan y = 3.000 ke (2):<br>x + 2(3.000) = 10.000 → x = 10.000 − 6.000 → <b>x = 4.000</b></div>
+          <div class="machine-final" id="cam-final">✅ Harga 1 buku = Rp4.000, harga 1 pensil = Rp3.000<br>Himpunan penyelesaian: {(4000, 3000)}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 LATIHAN PILIH METODE -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Latihan Interaktif</div>
+      <h1 class="slide-title">Pilih Metode Paling Tepat</h1>
+      <p class="lead" style="margin-bottom:16px;">Perhatikan bentuk setiap SPLDV, lalu pilih metode yang paling efisien untuk menyelesaikannya.</p>
+      <div id="scenarioWrap"></div>
+    </div>
+  </section>
+
+  <!-- 8 KUIS -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Kuis Latihan</div>
+      <h1 class="slide-title">Uji Kemampuan Menyelesaikan SPLDV</h1>
+      <p class="lead" style="margin-bottom:18px;">5 soal — gunakan metode yang sesuai untuk menjawab.</p>
+      <div class="quiz-shell" id="quizShell"></div>
+    </div>
+  </section>
+
+  <!-- 9 RANGKUMAN -->
+  <section class="slide">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+      <h1 class="slide-title">Empat Jalan, Satu Tujuan</h1>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+        <div class="sum-card"><div class="ic" style="background:var(--accent-coral-dim); color:var(--accent-coral);">📈</div><div><b>Grafik</b><p style="margin:4px 0 0; color:var(--text-muted); font-size:13.5px;">Gambar kedua garis; titik potongnya adalah penyelesaian. Cocok untuk visualisasi.</p></div></div>
+        <div class="sum-card"><div class="ic" style="background:var(--accent-gold-dim); color:var(--accent-gold);">🔁</div><div><b>Substitusi</b><p style="margin:4px 0 0; color:var(--text-muted); font-size:13.5px;">Nyatakan satu variabel dalam variabel lain, lalu gantikan ke persamaan lainnya.</p></div></div>
+        <div class="sum-card"><div class="ic" style="background:var(--accent-mint-dim); color:var(--accent-mint);">➕</div><div><b>Eliminasi</b><p style="margin:4px 0 0; color:var(--text-muted); font-size:13.5px;">Samakan koefisien salah satu variabel, lalu jumlahkan/kurangkan kedua persamaan.</p></div></div>
+        <div class="sum-card"><div class="ic" style="background:var(--accent-lilac-dim); color:var(--accent-lilac);">🧩</div><div><b>Campuran</b><p style="margin:4px 0 0; color:var(--text-muted); font-size:13.5px;">Gabungan eliminasi (cari satu variabel) lalu substitusi (cari variabel lainnya). Paling efisien untuk sistem yang lebih rumit.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 PENUTUP -->
+  <section class="slide">
+    <div class="slide-inner closing">
+      <div class="big-check">🎉</div>
+      <h1 class="slide-title">Bab 1 Selesai!</h1>
+      <p class="lead" style="margin:0 auto;">Kamu sudah mampu menyusun model matematika SPLDV dan menyelesaikannya dengan metode grafik, substitusi, eliminasi, maupun campuran.</p>
+      <div class="roadmap">
+        <div class="road-chip done"><div class="rc-tag">✓ Selesai</div><div class="rc-title">Bab 1 — SPLDV</div></div>
+        <div class="road-chip next"><div class="rc-tag">Berikutnya</div><div class="rc-title">Bab 2</div></div>
+      </div>
+      <div class="closing-actions">
+        <button class="menu-btn" onclick="showToast()">🏠 Kembali ke Menu Bab → Lanjut Bab 2</button>    <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+
+        <button class="navbtn" onclick="goToSlide(8)">↺ Ulangi Kuis</button>
+        <button class="navbtn" onclick="goToSlide(0)">↺ Ulangi dari Awal</button>
+      </div>
+      <div class="toast" id="closingToast">Materi Bab 2 dikelola sebagai modul terpisah oleh pengajarmu — mintalah tautan atau file Bab 2 untuk melanjutkan.</div>
+    </div>
+  </section>
+
+</div>
+
+<div class="bottomnav">
+  <button class="navbtn" id="prevBtn" onclick="prevSlide()">← Sebelumnya</button>
+  <div class="dots" id="dots"></div>
+  <button class="navbtn primary" id="nextBtn" onclick="nextSlide()">Selanjutnya →</button>
+</div>
+
+<script>
+/* ================= SLIDE NAV ================= */
+const slideEls = document.querySelectorAll('.slide');
+const total = slideEls.length;
+let current = 0;
+
+function renderDots(){
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', 'Slide '+(i+1));
+    b.onclick = ()=>goToSlide(i);
+    dotsEl.appendChild(b);
+  }
+}
+renderDots();
+
+function updateUI(){
+  slideEls.forEach((s,i)=>{
+    s.classList.toggle('active', i===current);
+    s.classList.toggle('prev', i<current);
+  });
+  document.querySelectorAll('#dots button').forEach((d,i)=> d.classList.toggle('active', i===current));
+  document.getElementById('progressFill').style.width = ((current)/(total-1)*100)+'%';
+  document.getElementById('counterText').textContent = (current+1)+' / '+total;
+  document.getElementById('prevBtn').disabled = current===0;
+  const nextBtn = document.getElementById('nextBtn');
+  if(current===total-1){ nextBtn.textContent='Selesai ✓'; nextBtn.disabled = true; }
+  else { nextBtn.textContent='Selanjutnya →'; nextBtn.disabled = false; }
+  slideEls[current].scrollTop = 0;
+}
+function goToSlide(i){ current = Math.max(0, Math.min(total-1, i)); updateUI(); }
+function nextSlide(){ goToSlide(current+1); }
+function prevSlide(){ goToSlide(current-1); }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+updateUI();
+
+function showToast(){
+  const t = document.getElementById('closingToast');
+  t.classList.add('show');
+}
+
+/* ================= METHOD OVERVIEW (slide 2) ================= */
+const methods = [
+  {icon:'📈', name:'Metode Grafik', color:'var(--accent-coral)', bg:'var(--accent-coral-dim)', d:'Menggambar kedua persamaan sebagai garis lurus pada bidang koordinat. Titik potong kedua garis adalah penyelesaiannya.'},
+  {icon:'🔁', name:'Metode Substitusi', color:'var(--accent-gold)', bg:'var(--accent-gold-dim)', d:'Menyatakan salah satu variabel dalam variabel lain dari satu persamaan, lalu menggantikannya (substitusi) ke persamaan yang lain.'},
+  {icon:'➕', name:'Metode Eliminasi', color:'var(--accent-mint)', bg:'var(--accent-mint-dim)', d:'Menyamakan koefisien salah satu variabel, lalu menjumlahkan atau mengurangkan kedua persamaan untuk menghilangkannya.'},
+  {icon:'🧩', name:'Metode Campuran', color:'var(--accent-lilac)', bg:'var(--accent-lilac-dim)', d:'Menggabungkan eliminasi (mencari satu variabel) dan substitusi (mencari variabel lainnya) — sering menjadi cara paling efisien.'}
+];
+const moWrap = document.getElementById('methodOverview');
+methods.forEach(m=>{
+  const el = document.createElement('div');
+  el.className='method-card';
+  el.style.setProperty('--m-color', m.color);
+  el.style.setProperty('--m-bg', m.bg);
+  el.innerHTML = `
+    <div class="m-head">
+      <div class="m-icon">${m.icon}</div>
+      <div class="m-name">${m.name}</div>
+      <div class="m-chev">▾</div>
+    </div>
+    <div class="m-body"><div class="m-body-inner">${m.d}</div></div>`;
+  el.onclick = ()=> el.classList.toggle('open');
+  moWrap.appendChild(el);
+});
+document.querySelectorAll('.method-card')[0].classList.add('open');
+
+/* ================= GRAFIK STEPS (slide 3) ================= */
+const graphStepDefs = [
+  {label:'Buat tabel nilai persamaan (1): x + y = 6', action:()=>{ show('g-p1a'); show('g-p1b'); }},
+  {label:'Gambar garis persamaan (1)', action:()=>{ draw('g-line1'); }},
+  {label:'Buat tabel nilai persamaan (2): x − y = 2', action:()=>{ show('g-p2a'); show('g-p2b'); }},
+  {label:'Gambar garis persamaan (2)', action:()=>{ draw('g-line2'); }},
+  {label:'Tentukan titik potong kedua garis', action:()=>{ show('g-intersect'); show('g-intersect-label'); document.getElementById('graphConclusion').style.opacity=1; }}
+];
+function show(id){ document.getElementById(id).classList.add('show'); }
+function draw(id){ document.getElementById(id).classList.add('drawn'); }
+buildStepList('graphSteps', graphStepDefs);
+
+function buildStepList(containerId, defs){
+  const wrap = document.getElementById(containerId);
+  defs.forEach((s,i)=>{
+    const b = document.createElement('button');
+    b.className='step-click';
+    b.innerHTML = `<span class="num">${i+1}</span><span>${s.label}</span>`;
+    b.onclick = ()=>{ if(b.classList.contains('done')) return; b.classList.add('done'); s.action(); };
+    wrap.appendChild(b);
+  });
+}
+
+/* ================= SUBSTITUSI / ELIMINASI / CAMPURAN STEPS ================= */
+function buildMachineSteps(containerId, rowPrefix, count, finalId){
+  const labels = {
+    subSteps:['Nyatakan x dari persamaan (1)','Substitusikan ke persamaan (2)','Selesaikan nilai y','Substitusi balik untuk mencari x'],
+    elimSteps:['Periksa koefisien x pada kedua persamaan','Eliminasi x untuk mencari y','Eliminasi y untuk mencari x'],
+    camSteps:['Samakan koefisien x (kalikan persamaan 2)','Eliminasi x untuk mencari y','Substitusikan y untuk mencari x']
+  };
+  const defs = labels[containerId].map((label,i)=>({
+    label, action:()=>{
+      document.getElementById(rowPrefix+i).classList.add('visible');
+      const allDone = [...Array(count).keys()].every(k=> document.getElementById(rowPrefix+k).classList.contains('visible'));
+      if(allDone) setTimeout(()=> document.getElementById(finalId).classList.add('visible'), 200);
+    }
+  }));
+  buildStepList(containerId, defs);
+}
+buildMachineSteps('subSteps','sub-row',4,'sub-final');
+buildMachineSteps('elimSteps','elim-row',3,'elim-final');
+buildMachineSteps('camSteps','cam-row',3,'cam-final');
+
+/* ================= LATIHAN PILIH METODE (slide 7) ================= */
+const scenarios = [
+  {eq:'3x + y = 10  dan  x = y + 2', correct:'Substitusi', reason:'Variabel x sudah dinyatakan secara eksplisit (x = y + 2), sehingga tinggal digantikan langsung — cocok untuk metode Substitusi.'},
+  {eq:'2x + 3y = 12  dan  2x − y = 4', correct:'Eliminasi', reason:'Koefisien x pada kedua persamaan sudah sama (2), sehingga mudah dihilangkan langsung — cocok untuk metode Eliminasi.'},
+  {eq:'x + y = 5  dan  x − y = 1', correct:'Grafik', reason:'Sistem sederhana ini cocok digambarkan sebagai dua garis untuk menunjukkan titik potongnya secara visual — cocok untuk metode Grafik.'},
+  {eq:'4x + 3y = 26.000  dan  2x + 5y = 26.000', correct:'Campuran', reason:'Tidak ada variabel yang mudah diisolasi maupun koefisien yang langsung sama — kombinasi eliminasi lalu substitusi (Campuran) lebih efisien.'}
+];
+const scenarioWrap = document.getElementById('scenarioWrap');
+scenarios.forEach((sc,idx)=>{
+  const card = document.createElement('div');
+  card.className='scenario-card';
+  const fbId = 'scfb'+idx;
+  card.innerHTML = `
+    <div class="scenario-eq">${sc.eq}</div>
+    <div class="method-choice-row" id="scrow${idx}"></div>
+    <div class="scenario-fb" id="${fbId}"></div>`;
+  scenarioWrap.appendChild(card);
+  const row = card.querySelector('#scrow'+idx);
+  ['Grafik','Substitusi','Eliminasi','Campuran'].forEach(name=>{
+    const b = document.createElement('button');
+    b.className='method-choice-btn';
+    b.textContent = name;
+    b.onclick = ()=>{
+      const fb = document.getElementById(fbId);
+      [...row.children].forEach(x=>x.disabled=true);
+      if(name===sc.correct){ b.classList.add('correct'); fb.textContent='✓ '+sc.reason; fb.className='scenario-fb ok'; }
+      else{ b.classList.add('wrong'); [...row.children].find(x=>x.textContent===sc.correct).classList.add('correct'); fb.textContent='✕ Metode yang lebih tepat: '+sc.correct+'. '+sc.reason; fb.className='scenario-fb bad'; }
+    };
+    row.appendChild(b);
+  });
+});
+
+/* ================= KUIS (slide 8) ================= */
+const quizData = [
+  {tag:'Substitusi', color:'var(--accent-gold)', bg:'var(--accent-gold-dim)',
+   q:'Diketahui SPLDV: y = 2x − 1 dan x + y = 8. Nilai x yang memenuhi adalah...',
+   opts:['3','5','2','4'], correct:0,
+   exp:'Substitusikan y = 2x−1 ke x+y=8: x + (2x−1) = 8 → 3x = 9 → x = 3.'},
+  {tag:'Eliminasi', color:'var(--accent-mint)', bg:'var(--accent-mint-dim)',
+   q:'SPLDV: 3x + 2y = 12 dan x + 2y = 8. Dengan metode eliminasi, nilai y adalah...',
+   opts:['3','2','4','6'], correct:0,
+   exp:'Kurangkan kedua persamaan: (3x+2y)−(x+2y)=12−8 → 2x=4 → x=2. Substitusi ke x+2y=8 → 2+2y=8 → y=3.'},
+  {tag:'Grafik', color:'var(--accent-coral)', bg:'var(--accent-coral-dim)',
+   q:'Perhatikan sistem x + y = 4 dan x − y = 0. Titik potong kedua garis pada grafik adalah...',
+   opts:['(2, 2)','(4, 0)','(0, 4)','(1, 3)'], correct:0,
+   exp:'Jumlahkan kedua persamaan: 2x=4 → x=2, dan karena x−y=0 maka y=x=2. Titik potong (2,2).'},
+  {tag:'Campuran', color:'var(--accent-lilac)', bg:'var(--accent-lilac-dim)',
+   q:'Harga 2 pulpen dan 1 buku Rp13.000. Harga 1 pulpen dan 3 buku Rp24.000. Jika x = harga pulpen, y = harga buku, harga satu buku adalah...',
+   opts:['Rp7.000','Rp3.000','Rp6.000','Rp10.000'], correct:0,
+   exp:'2x+y=13.000 …(1), x+3y=24.000 …(2). Kalikan (1)×3: 6x+3y=39.000. Kurangi (2): 5x=15.000 → x=3.000. Substitusi ke (1): y=13.000−6.000=7.000.'},
+  {tag:'Konsep', color:'var(--accent-sky)', bg:'var(--accent-sky-dim)',
+   q:'Metode yang paling tepat digunakan ketika salah satu variabel pada satu persamaan sudah dinyatakan secara eksplisit (misalnya y = ...) adalah...',
+   opts:['Substitusi','Eliminasi','Grafik','Campuran'], correct:0,
+   exp:'Jika satu variabel sudah dinyatakan dalam bentuk variabel lain, tinggal digantikan (substitusi) langsung ke persamaan lainnya.'}
+];
+let qIndex = 0, qScore = 0, qAnswered = false;
+const quizShell = document.getElementById('quizShell');
+
+function renderQuiz(){
+  if(qIndex >= quizData.length){ renderResult(); return; }
+  const item = quizData[qIndex];
+  qAnswered = false;
+  const letters = ['A','B','C','D'];
+  quizShell.innerHTML = `
+    <div class="quiz-top">
+      <span class="quiz-pos">Soal ${qIndex+1} / ${quizData.length}</span>
+      <span class="quiz-score">Skor: ${qScore}</span>
+    </div>
+    <div class="quiz-tag" style="color:${item.color}; background:${item.bg};">${item.tag}</div>
+    <div class="quiz-q">${item.q}</div>
+    <div id="quizOpts"></div>
+    <div class="quiz-explain" id="quizExplain">${item.exp}</div>
+    <div class="quiz-footer"><button class="quiz-next" id="quizNextBtn" onclick="quizNext()">${qIndex===quizData.length-1?'Lihat Hasil →':'Soal Berikutnya →'}</button></div>
+  `;
+  const optsWrap = document.getElementById('quizOpts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className='quiz-opt';
+    b.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    b.onclick = ()=>{
+      if(qAnswered) return;
+      qAnswered = true;
+      [...optsWrap.children].forEach(x=>x.disabled=true);
+      if(i===item.correct){ b.classList.add('correct'); qScore++; }
+      else{ b.classList.add('wrong'); optsWrap.children[item.correct].classList.add('correct'); }
+      document.getElementById('quizExplain').classList.add('show');
+      document.getElementById('quizNextBtn').classList.add('show');
+      quizShell.querySelector('.quiz-score').textContent = 'Skor: '+qScore;
+    };
+    optsWrap.appendChild(b);
+  });
+}
+function quizNext(){ qIndex++; renderQuiz(); }
+function renderResult(){
+  let msg, emoji;
+  if(qScore===quizData.length){ msg='Sempurna! Kamu sudah menguasai keempat metode penyelesaian SPLDV.'; emoji='🏆'; }
+  else if(qScore>=quizData.length-2){ msg='Bagus sekali! Tinjau kembali soal yang salah untuk memperkuat pemahamanmu.'; emoji='👏'; }
+  else{ msg='Terus berlatih! Pelajari kembali langkah-langkah tiap metode, lalu ulangi kuis ini.'; emoji='💪'; }
+  quizShell.innerHTML = `
+    <div class="quiz-result">
+      <div style="font-size:44px;">${emoji}</div>
+      <div class="score-num">${qScore}/${quizData.length}</div>
+      <div class="score-label">jawaban benar</div>
+      <div class="msg">${msg}</div>
+      <button class="retry-btn" onclick="resetQuiz()">↺ Ulangi Kuis</button>
+    </div>`;
+}
+function resetQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

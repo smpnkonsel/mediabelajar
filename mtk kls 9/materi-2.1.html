@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 2 · Lingkaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1B3C;
+    --bg-deep:#0A1430;
+    --card:#16264F;
+    --card-2:#1C2E5C;
+    --grid:rgba(255,255,255,0.045);
+    --text:#F2F1EC;
+    --text-dim:#93A3C7;
+    --line:rgba(255,255,255,0.10);
+
+    --pusat:#F2F1EC;
+    --jarijari:#FFC857;
+    --diameter:#FF6B6B;
+    --busur:#4ECDC4;
+    --tali:#A78BFA;
+    --juring:#C4E86B;
+    --tembereng:#FF8FB1;
+    --apotema:#6EC6FF;
+
+    --radius-lg:20px;
+    --radius-md:12px;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{height:100%;}
+
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      repeating-linear-gradient(0deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 44px),
+      repeating-linear-gradient(90deg, var(--grid) 0px, var(--grid) 1px, transparent 1px, transparent 44px),
+      radial-gradient(ellipse at 20% -10%, #1B2F63 0%, var(--bg) 55%);
+    background-color:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    height:100vh;
+    width:100vw;
+  }
+
+  .display{ font-family:'Baloo 2', sans-serif; }
+
+  /* ---------- App shell ---------- */
+  .app{
+    position:relative;
+    height:100vh;
+    width:100vw;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:16px clamp(18px,4vw,48px) 0;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:var(--text-dim);
+    letter-spacing:.02em;
+  }
+  .brand .dot-logo{
+    width:20px;height:20px;border-radius:50%;
+    border:2.5px solid var(--jarijari);
+    position:relative;
+    flex-shrink:0;
+  }
+  .brand .dot-logo::after{
+    content:"";
+    position:absolute; top:50%; left:50%;
+    width:3px;height:3px;border-radius:50%;
+    background:var(--jarijari);
+    transform:translate(-50%,-50%);
+  }
+  .progress-track{
+    flex:1;
+    height:4px;
+    background:var(--line);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    width:16.66%;
+    background:linear-gradient(90deg, var(--jarijari), var(--busur));
+    border-radius:4px;
+    transition:width .5s cubic-bezier(.65,0,.35,1);
+  }
+  .slide-count{
+    font-size:13px;
+    color:var(--text-dim);
+    font-variant-numeric:tabular-nums;
+    min-width:44px;
+    text-align:right;
+  }
+
+  /* ---------- Slides ---------- */
+  .stage{
+    position:relative;
+    flex:1;
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    padding:clamp(20px,4vw,56px) clamp(20px,6vw,80px);
+    opacity:0;
+    transform:translateX(40px);
+    pointer-events:none;
+    transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1);
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+  }
+  .slide.exit-left{ transform:translateX(-40px); }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    font-weight:600;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--busur);
+    margin-bottom:14px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:16px;height:1.5px;
+    background:var(--busur);
+  }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-size:clamp(28px, 4.2vw, 46px);
+    font-weight:700;
+    line-height:1.1;
+    max-width:16ch;
+  }
+  h2{
+    font-family:'Baloo 2', sans-serif;
+    font-size:clamp(22px, 3vw, 32px);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  p.lead{
+    color:var(--text-dim);
+    font-size:clamp(14px,1.4vw,17px);
+    max-width:60ch;
+    margin-top:10px;
+    line-height:1.6;
+  }
+
+  /* ---------- Slide 1: Cover ---------- */
+  #slide-1{ justify-content:center; }
+  .cover-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:40px;
+    flex-wrap:wrap;
+  }
+  .cover-text{ flex:1; min-width:280px; }
+  .cover-goal{
+    margin-top:26px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:16px 20px;
+    max-width:52ch;
+  }
+  .cover-goal .k{
+    font-size:11.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--jarijari); display:block; margin-bottom:6px;
+  }
+  .cover-goal p{ font-size:14.5px; color:var(--text); line-height:1.55; }
+
+  .compass-hero{
+    width:min(38vw,320px);
+    aspect-ratio:1/1;
+    flex-shrink:0;
+    position:relative;
+  }
+  .compass-hero svg{ width:100%; height:100%; }
+  .draw-circle{
+    stroke-dasharray:820;
+    stroke-dashoffset:820;
+    animation:draw 2.2s cubic-bezier(.65,0,.35,1) forwards .3s;
+  }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .compass-arm{
+    transform-origin:159px 159px;
+    animation:sweep 2.2s cubic-bezier(.65,0,.35,1) forwards .3s;
+  }
+  @keyframes sweep{ from{ transform:rotate(0deg);} to{ transform:rotate(360deg);} }
+
+  .badge-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
+  .badge{
+    font-size:12.5px; font-weight:600;
+    padding:6px 12px; border-radius:100px;
+    border:1px solid var(--line);
+    color:var(--text-dim);
+    background:var(--card);
+  }
+
+  /* ---------- Slide 2: Definisi ---------- */
+  .def-grid{
+    display:flex; gap:36px; margin-top:22px; flex-wrap:wrap; align-items:flex-start;
+  }
+  .def-visual{ width:min(30vw,260px); flex-shrink:0; }
+  .def-visual svg{ width:100%; height:auto; }
+  .def-copy{ flex:1; min-width:280px; }
+  .def-copy p{ color:var(--text-dim); line-height:1.7; font-size:15px; margin-bottom:14px; max-width:56ch; }
+  .def-copy strong{ color:var(--text); }
+  .world-examples{ display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .world-chip{
+    display:flex; align-items:center; gap:8px;
+    background:var(--card); border:1px solid var(--line);
+    padding:8px 14px; border-radius:100px; font-size:13px; color:var(--text);
+  }
+  .world-chip .swatch{ width:9px;height:9px;border-radius:50%; background:var(--jarijari); }
+
+  /* ---------- Slide 3: Diagram interaktif ---------- */
+  .diagram-layout{
+    display:flex; gap:32px; margin-top:10px; flex:1; min-height:0; flex-wrap:wrap;
+  }
+  .diagram-svg-wrap{
+    flex:1.1; min-width:300px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:16px;
+  }
+  .diagram-svg-wrap svg{ width:100%; max-width:480px; height:auto; }
+
+  .diagram-panel{
+    flex:1; min-width:300px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .chip-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .unsur-chip{
+    display:flex; align-items:center; gap:9px;
+    text-align:left;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--text-dim);
+    cursor:pointer;
+    transition:border-color .2s, color .2s, background .2s, transform .15s;
+    font-family:'Inter',sans-serif;
+  }
+  .unsur-chip .sw{ width:10px;height:10px;border-radius:50%; flex-shrink:0; }
+  .unsur-chip:hover{ transform:translateY(-1px); }
+  .unsur-chip.active{
+    color:var(--text);
+    background:var(--card-2);
+  }
+
+  .desc-panel{
+    flex:1;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:20px 22px;
+    min-height:150px;
+    display:flex; flex-direction:column; justify-content:center;
+    transition:border-color .25s;
+  }
+  .desc-panel .tag{
+    display:inline-block;
+    font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    padding:4px 10px; border-radius:100px;
+    margin-bottom:10px;
+    width:fit-content;
+  }
+  .desc-panel h3{ font-family:'Baloo 2',sans-serif; font-size:19px; margin-bottom:8px; }
+  .desc-panel p{ font-size:14px; color:var(--text-dim); line-height:1.6; }
+  .desc-panel .hint{ font-size:13px; color:var(--text-dim); font-style:italic; }
+
+  /* svg element base states */
+  .el{ transition:opacity .35s ease, stroke-width .25s ease; }
+  .el.dim{ opacity:.16; }
+  .el.hi{ opacity:1; }
+
+  /* ---------- Slide 4: Hubungan ---------- */
+  .rel-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(230px,1fr));
+    gap:14px;
+    margin-top:20px;
+  }
+  .rel-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+    border-top:3px solid var(--line);
+  }
+  .rel-card svg{ width:100%; height:70px; margin-bottom:10px; }
+  .rel-card h4{ font-family:'Baloo 2',sans-serif; font-size:15.5px; margin-bottom:6px; }
+  .rel-card p{ font-size:13px; color:var(--text-dim); line-height:1.55; }
+
+  /* ---------- Slide 5: Kuis ---------- */
+  .quiz-wrap{
+    flex:1; display:flex; flex-direction:column;
+    max-width:680px;
+  }
+  .quiz-progress{
+    display:flex; align-items:center; gap:10px; margin-bottom:6px;
+  }
+  .quiz-progress span{ font-size:12.5px; color:var(--text-dim); font-weight:600; }
+  .quiz-dots{ display:flex; gap:5px; }
+  .qdot{ width:7px;height:7px;border-radius:50%; background:var(--line); }
+  .qdot.done{ background:var(--busur); }
+  .qdot.current{ background:var(--jarijari); }
+
+  .quiz-card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:26px 28px;
+    margin-top:16px;
+  }
+  .quiz-q{ font-family:'Baloo 2',sans-serif; font-size:18px; margin-bottom:18px; line-height:1.4; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-opt{
+    text-align:left;
+    background:var(--bg-deep);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 16px;
+    color:var(--text);
+    font-size:14.5px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    transition:border-color .2s, background .2s;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--busur); }
+  .quiz-opt.correct{ border-color:var(--juring); background:rgba(196,232,107,0.12); }
+  .quiz-opt.wrong{ border-color:var(--diameter); background:rgba(255,107,107,0.12); }
+  .quiz-opt:disabled{ cursor:default; opacity:.8; }
+  .quiz-feedback{
+    margin-top:14px; font-size:13.5px; color:var(--text-dim); min-height:20px;
+  }
+  .quiz-next{
+    align-self:flex-end;
+    margin-top:16px;
+  }
+  .quiz-result{ display:none; flex-direction:column; align-items:flex-start; gap:14px; }
+  .quiz-result .score{ font-family:'Baloo 2',sans-serif; font-size:40px; color:var(--jarijari); }
+
+  /* ---------- Slide 6: Ringkasan ---------- */
+  .summary-list{ margin-top:18px; display:flex; flex-direction:column; gap:10px; max-width:60ch; }
+  .summary-item{
+    display:flex; gap:12px; align-items:flex-start;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius-md); padding:12px 16px;
+  }
+  .summary-item .sw{ width:9px;height:9px;border-radius:50%; margin-top:6px; flex-shrink:0; }
+  .summary-item p{ font-size:14px; color:var(--text-dim); line-height:1.5; }
+  .summary-item strong{ color:var(--text); }
+
+  .end-actions{ display:flex; gap:12px; margin-top:26px; flex-wrap:wrap; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:11px 20px;
+    border-radius:100px;
+    border:1px solid var(--line);
+    background:var(--card);
+    color:var(--text);
+    cursor:pointer;
+    transition:border-color .2s, background .2s, transform .15s;
+  }
+  .btn:hover{ border-color:var(--busur); transform:translateY(-1px); }
+  .btn.primary{
+    background:var(--jarijari);
+    color:#1B1300;
+    border-color:var(--jarijari);
+  }
+  .btn.primary:hover{ filter:brightness(1.06); }
+  .btn:active{ transform:translateY(0); }
+
+  /* ---------- Bottom nav ---------- */
+  .bottomnav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px clamp(18px,4vw,48px) 20px;
+    gap:16px;
+  }
+  .nav-dots{ display:flex; gap:8px; }
+  .nav-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--line);
+    border:none; cursor:pointer;
+    transition:background .2s, transform .2s;
+    padding:0;
+  }
+  .nav-dot.active{ background:var(--jarijari); transform:scale(1.35); }
+  .navbtns{ display:flex; gap:10px; }
+  .navbtn{
+    width:40px;height:40px; border-radius:50%;
+    background:var(--card); border:1px solid var(--line);
+    color:var(--text); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:border-color .2s, opacity .2s;
+  }
+  .navbtn:hover:not(:disabled){ border-color:var(--busur); }
+  .navbtn:disabled{ opacity:.3; cursor:default; }
+
+  @media (max-width:640px){
+    .chip-grid{ grid-template-columns:1fr; }
+    .cover-wrap{ flex-direction:column-reverse; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot-logo"></span>Bab 2 · Lingkaran</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="slide-count"><span id="slideNow">1</span>/<span id="slideTotal">6</span></div>
+  </div>
+
+  <div class="stage">
+
+    <!-- SLIDE 1 — COVER -->
+    <section class="slide active" id="slide-1">
+      <div class="cover-wrap">
+        <div class="cover-text">
+          <div class="eyebrow">Matematika · Kelas VII SMP</div>
+          <h1 class="display">Bab 2<br>Lingkaran</h1>
+          <p class="lead">Menjelajahi bentuk yang tidak pernah punya sudut — namun punya banyak bagian dengan nama dan perannya masing-masing.</p>
+          <div class="cover-goal">
+            <span class="k">Tujuan Pembelajaran</span>
+            <p>Peserta didik mampu mengidentifikasi unsur-unsur lingkaran dan menjelaskan hubungan antarunsurnya.</p>
+          </div>
+          <div class="badge-row">
+            <span class="badge">🎯 Diagram interaktif</span>
+            <span class="badge">🧩 Kartu hubungan</span>
+            <span class="badge">📝 Kuis latihan</span>
+          </div>
+        </div>
+        <div class="compass-hero">
+          <svg viewBox="0 0 320 320" fill="none">
+            <circle cx="159" cy="159" r="130" class="draw-circle" stroke="#FFC857" stroke-width="3"/>
+            <g class="compass-arm">
+              <line x1="159" y1="159" x2="159" y2="29" stroke="#4ECDC4" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="159" cy="159" r="4" fill="#F2F1EC"/>
+              <circle cx="159" cy="29" r="5" fill="#4ECDC4"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 — DEFINISI -->
+    <section class="slide" id="slide-2">
+      <div class="eyebrow">Pengantar</div>
+      <h2 class="display">Apa itu lingkaran?</h2>
+      <div class="def-grid">
+        <div class="def-copy">
+          <p><strong>Lingkaran</strong> adalah kumpulan titik-titik pada bidang datar yang jaraknya <strong>sama</strong> terhadap satu titik tertentu. Titik tetap itu disebut <strong>titik pusat</strong>, dan jarak yang selalu sama itu disebut <strong>jari-jari</strong>.</p>
+          <p>Karena setiap titik pada tepi lingkaran berjarak sama dari pusatnya, lingkaran menjadi satu-satunya bangun datar yang tidak memiliki sudut maupun sisi lurus.</p>
+          <p>Lingkaran ada di sekelilingmu — dan pada slide berikutnya, kamu akan membedah bagian-bagiannya satu per satu.</p>
+          <div class="world-examples">
+            <div class="world-chip"><span class="swatch"></span>Roda sepeda</div>
+            <div class="world-chip"><span class="swatch"></span>Jam dinding</div>
+            <div class="world-chip"><span class="swatch"></span>Piring makan</div>
+            <div class="world-chip"><span class="swatch"></span>Uang koin</div>
+          </div>
+        </div>
+        <div class="def-visual">
+          <svg viewBox="0 0 260 260" fill="none">
+            <circle cx="130" cy="130" r="105" stroke="#4ECDC4" stroke-width="2" stroke-dasharray="3 5"/>
+            <line x1="130" y1="130" x2="235" y2="130" stroke="#FFC857" stroke-width="2.5"/>
+            <line x1="130" y1="130" x2="130" y2="25" stroke="#FFC857" stroke-width="2.5" opacity="0.5"/>
+            <line x1="130" y1="130" x2="55.7" y2="204.3" stroke="#FFC857" stroke-width="2.5" opacity="0.5"/>
+            <circle cx="130" cy="130" r="3.5" fill="#F2F1EC"/>
+            <circle cx="235" cy="130" r="4" fill="#FFC857"/>
+            <circle cx="130" cy="25" r="4" fill="#FFC857" opacity="0.5"/>
+            <circle cx="55.7" cy="204.3" r="4" fill="#FFC857" opacity="0.5"/>
+            <text x="178" y="122" fill="#93A3C7" font-size="11" font-family="Inter">r</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 — DIAGRAM INTERAKTIF -->
+    <section class="slide" id="slide-3">
+      <div class="eyebrow">Signature · Klik untuk menjelajah</div>
+      <h2 class="display">Unsur-unsur lingkaran</h2>
+      <p class="lead" style="margin-top:0;">Klik salah satu bagian di daftar untuk menyorotinya pada diagram dan membaca penjelasannya.</p>
+
+      <div class="diagram-layout">
+        <div class="diagram-svg-wrap">
+          <svg id="circleDiagram" viewBox="0 0 600 600" fill="none">
+            <circle cx="300" cy="300" r="180" stroke="#2A3A66" stroke-width="2"/>
+
+            <!-- juring (sector) -->
+            <path id="el-juring" class="el dim" d="M300,300 L130.8,361.6 A180,180 0 0,0 268.7,477.3 Z" fill="#C4E86B" fill-opacity="0.18" stroke="#C4E86B" stroke-width="2"/>
+
+            <!-- tembereng (segment) -->
+            <path id="el-tembereng" class="el dim" d="M469.2,238.4 A180,180 0 0,1 331.3,122.7 L469.2,238.4 Z" fill="#FF8FB1" fill-opacity="0.22" stroke="#FF8FB1" stroke-width="2"/>
+
+            <!-- busur highlight (arc for the chord above) -->
+            <path id="el-busur" class="el dim" d="M469.2,238.4 A180,180 0 0,1 331.3,122.7" stroke="#4ECDC4" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+            <!-- diameter -->
+            <line id="el-diameter" class="el dim" x1="120" y1="300" x2="480" y2="300" stroke="#FF6B6B" stroke-width="3.5" stroke-linecap="round"/>
+
+            <!-- jari-jari -->
+            <line id="el-jarijari" class="el dim" x1="300" y1="300" x2="480" y2="300" stroke="#FFC857" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- tali busur (chord) -->
+            <line id="el-tali" class="el dim" x1="469.2" y1="238.4" x2="331.3" y2="122.7" stroke="#A78BFA" stroke-width="3.5" stroke-linecap="round"/>
+
+            <!-- apotema -->
+            <line id="el-apotema" class="el dim" x1="300" y1="300" x2="400.25" y2="180.55" stroke="#6EC6FF" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="6 4"/>
+
+            <!-- titik pusat -->
+            <circle id="el-pusat" class="el dim" cx="300" cy="300" r="6" fill="#F2F1EC"/>
+
+            <!-- static end point markers -->
+            <circle cx="480" cy="300" r="4" fill="#93A3C7"/>
+            <circle cx="120" cy="300" r="4" fill="#93A3C7"/>
+            <circle cx="469.2" cy="238.4" r="4" fill="#93A3C7"/>
+            <circle cx="331.3" cy="122.7" r="4" fill="#93A3C7"/>
+          </svg>
+        </div>
+
+        <div class="diagram-panel">
+          <div class="chip-grid" id="chipGrid"></div>
+          <div class="desc-panel" id="descPanel">
+            <span class="hint">👆 Pilih salah satu unsur di atas untuk memulai.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 — HUBUNGAN ANTARUNSUR -->
+    <section class="slide" id="slide-4">
+      <div class="eyebrow">Menghubungkan konsep</div>
+      <h2 class="display">Hubungan antarunsur</h2>
+      <p class="lead" style="margin-top:0;">Unsur-unsur lingkaran tidak berdiri sendiri — satu unsur sering membentuk atau membatasi unsur lainnya.</p>
+
+      <div class="rel-grid">
+        <div class="rel-card" style="border-top-color:#FF6B6B;">
+          <svg viewBox="0 0 200 70"><line x1="20" y1="35" x2="180" y2="35" stroke="#FF6B6B" stroke-width="3"/><line x1="100" y1="35" x2="180" y2="35" stroke="#FFC857" stroke-width="5"/><circle cx="100" cy="35" r="4" fill="#F2F1EC"/></svg>
+          <h4 class="display">Diameter = 2 × Jari-jari</h4>
+          <p>Diameter selalu melewati titik pusat dan sama panjang dengan dua kali jari-jari (d = 2r).</p>
+        </div>
+
+        <div class="rel-card" style="border-top-color:#FFC857;">
+          <svg viewBox="0 0 200 70"><circle cx="100" cy="35" r="30" stroke="#2A3A66" stroke-width="2" fill="none"/><line x1="100" y1="35" x2="130" y2="35" stroke="#FFC857" stroke-width="3"/><line x1="100" y1="35" x2="82" y2="61" stroke="#FFC857" stroke-width="3"/><line x1="100" y1="35" x2="70" y2="15" stroke="#FFC857" stroke-width="3"/></svg>
+          <h4 class="display">Semua jari-jari sama panjang</h4>
+          <p>Dalam satu lingkaran, seluruh jari-jari yang ditarik dari pusat ke tepi lingkaran memiliki panjang yang identik.</p>
+        </div>
+
+        <div class="rel-card" style="border-top-color:#C4E86B;">
+          <svg viewBox="0 0 200 70"><path d="M100,10 L70,55 A38,38 0 0,0 130,55 Z" fill="#C4E86B" fill-opacity="0.25" stroke="#C4E86B" stroke-width="2"/></svg>
+          <h4 class="display">Juring dibatasi 2 jari-jari + busur</h4>
+          <p>Daerah juring "diapit" oleh dua ruas jari-jari dan busur lingkaran di antara keduanya — seperti sepotong pizza.</p>
+        </div>
+
+        <div class="rel-card" style="border-top-color:#FF8FB1;">
+          <svg viewBox="0 0 200 70"><path d="M70,20 A38,38 0 0,0 130,20" fill="none" stroke="#4ECDC4" stroke-width="3"/><line x1="70" y1="20" x2="130" y2="20" stroke="#A78BFA" stroke-width="3"/><path d="M70,20 A38,38 0 0,0 130,20 L70,20 Z" fill="#FF8FB1" fill-opacity="0.2"/></svg>
+          <h4 class="display">Tembereng dibatasi tali busur + busur</h4>
+          <p>Berbeda dari juring, tembereng dibatasi oleh sebuah tali busur dan busur di depannya — tanpa melibatkan titik pusat.</p>
+        </div>
+
+        <div class="rel-card" style="border-top-color:#A78BFA;">
+          <svg viewBox="0 0 200 70"><line x1="30" y1="20" x2="170" y2="20" stroke="#A78BFA" stroke-width="3"/><line x1="20" y1="35" x2="180" y2="35" stroke="#FF6B6B" stroke-width="3"/></svg>
+          <h4 class="display">Diameter = tali busur terpanjang</h4>
+          <p>Diameter adalah bentuk khusus dari tali busur — yaitu tali busur yang melewati tepat di titik pusat lingkaran.</p>
+        </div>
+
+        <div class="rel-card" style="border-top-color:#6EC6FF;">
+          <svg viewBox="0 0 200 70"><line x1="60" y1="15" x2="140" y2="55" stroke="#A78BFA" stroke-width="3"/><line x1="100" y1="35" x2="118" y2="20" stroke="#6EC6FF" stroke-width="3" stroke-dasharray="4 3"/><circle cx="100" cy="35" r="3.5" fill="#F2F1EC"/></svg>
+          <h4 class="display">Apotema tegak lurus tali busur</h4>
+          <p>Apotema adalah jarak terpendek dari titik pusat ke sebuah tali busur, dan arahnya selalu tegak lurus terhadap tali busur itu.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 — KUIS -->
+    <section class="slide" id="slide-5">
+      <div class="eyebrow">Uji pemahaman</div>
+      <h2 class="display">Kuis singkat</h2>
+
+      <div class="quiz-wrap" id="quizWrap">
+        <div class="quiz-progress">
+          <span id="quizLabel">Soal 1 dari 5</span>
+          <div class="quiz-dots" id="quizDots"></div>
+        </div>
+
+        <div class="quiz-card" id="quizCard">
+          <div class="quiz-q" id="quizQ"></div>
+          <div class="quiz-options" id="quizOptions"></div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <div style="display:flex; justify-content:flex-end;">
+            <button class="btn primary quiz-next" id="quizNextBtn" style="display:none;">Soal berikutnya →</button>
+          </div>
+        </div>
+
+        <div class="quiz-card quiz-result" id="quizResult">
+          <span class="hint" style="color:var(--text-dim); font-size:13px;">Hasil kuis kamu</span>
+          <div class="score"><span id="scoreVal">0</span>/5 benar</div>
+          <p style="color:var(--text-dim); font-size:14px;" id="scoreMsg"></p>
+          <button class="btn" id="retryBtn">🔁 Ulangi kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 — RINGKASAN -->
+    <section class="slide" id="slide-6">
+      <div class="eyebrow">Penutup</div>
+      <h2 class="display">Yang perlu kamu ingat</h2>
+      <div class="summary-list">
+        <div class="summary-item"><span class="sw" style="background:var(--pusat);"></span><p><strong>Titik pusat, jari-jari, dan diameter</strong> adalah unsur dasar yang menentukan ukuran lingkaran (d = 2r).</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--busur);"></span><p><strong>Busur dan tali busur</strong> berkaitan dengan tepi lingkaran — busur melengkung, tali busur berupa garis lurus penghubung dua titik.</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--juring);"></span><p><strong>Juring dan tembereng</strong> adalah dua daerah di dalam lingkaran; juring melibatkan titik pusat, tembereng tidak.</p></div>
+        <div class="summary-item"><span class="sw" style="background:var(--apotema);"></span><p><strong>Apotema</strong> menghubungkan titik pusat dengan tali busur secara tegak lurus, mengukur jarak terpendek di antara keduanya.</p></div>
+      </div>
+      <div class="end-actions">
+        <button class="btn" onclick="goTo(2)">🔍 Lihat diagram lagi</button>
+           <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottomnav">
+    <div class="navbtns">
+      <button class="navbtn" id="prevBtn" aria-label="Sebelumnya">←</button>
+      <button class="navbtn" id="nextBtn" aria-label="Berikutnya">→</button>
+    </div>
+    <div class="nav-dots" id="navDots"></div>
+    <div style="width:88px;"></div>
+  </div>
+
+</div>
+
+<script>
+  /* ============ SLIDE NAVIGATION ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  const navDotsEl = document.getElementById('navDots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('button');
+    d.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    navDotsEl.appendChild(d);
+  });
+  const dotEls = Array.from(navDotsEl.children);
+
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const slideNow = document.getElementById('slideNow');
+  const slideTotal = document.getElementById('slideTotal');
+  slideTotal.textContent = total;
+
+  function goTo(index){
+    if(index < 0 || index >= total || index === current) return;
+    slides[current].classList.remove('active');
+    slides[index].classList.add('active');
+    dotEls[current].classList.remove('active');
+    dotEls[index].classList.add('active');
+    current = index;
+    progressFill.style.width = ((current+1)/total*100) + '%';
+    slideNow.textContent = current + 1;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+  prevBtn.disabled = true;
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  /* ============ SLIDE 3: DIAGRAM INTERAKTIF ============ */
+  const unsurData = [
+    { id:'pusat', label:'Titik Pusat', color:'var(--pusat)', hex:'#F2F1EC', els:['el-pusat'],
+      desc:'Titik tetap yang berjarak sama ke semua titik pada tepi lingkaran. Semua unsur lain diukur relatif terhadap titik ini.' },
+    { id:'jarijari', label:'Jari-jari', color:'var(--jarijari)', hex:'#FFC857', els:['el-jarijari'],
+      desc:'Ruas garis dari titik pusat ke sembarang titik pada tepi lingkaran. Dilambangkan dengan r, dan semua jari-jari dalam satu lingkaran panjangnya sama.' },
+    { id:'diameter', label:'Diameter', color:'var(--diameter)', hex:'#FF6B6B', els:['el-diameter'],
+      desc:'Ruas garis lurus yang melewati titik pusat dan menghubungkan dua titik di tepi lingkaran. Panjangnya dua kali jari-jari (d = 2r).' },
+    { id:'busur', label:'Busur', color:'var(--busur)', hex:'#4ECDC4', els:['el-busur'],
+      desc:'Bagian lengkung dari tepi lingkaran, terletak di antara dua titik pada lingkaran.' },
+    { id:'tali', label:'Tali Busur', color:'var(--tali)', hex:'#A78BFA', els:['el-tali'],
+      desc:'Ruas garis lurus yang menghubungkan dua titik pada lingkaran, tetapi tidak melewati titik pusat.' },
+    { id:'juring', label:'Juring', color:'var(--juring)', hex:'#C4E86B', els:['el-juring'],
+      desc:'Daerah di dalam lingkaran yang dibatasi oleh dua jari-jari dan busur di antara keduanya — bentuknya seperti sepotong pizza.' },
+    { id:'tembereng', label:'Tembereng', color:'var(--tembereng)', hex:'#FF8FB1', els:['el-tembereng'],
+      desc:'Daerah di dalam lingkaran yang dibatasi oleh sebuah tali busur dan busur di depannya.' },
+    { id:'apotema', label:'Apotema', color:'var(--apotema)', hex:'#6EC6FF', els:['el-apotema'],
+      desc:'Jarak terpendek dari titik pusat ke sebuah tali busur, arahnya selalu tegak lurus terhadap tali busur tersebut.' },
+  ];
+
+  const chipGrid = document.getElementById('chipGrid');
+  const descPanel = document.getElementById('descPanel');
+  const allDiagramEls = unsurData.flatMap(u => u.els).map(id => document.getElementById(id));
+
+  unsurData.forEach(u => {
+    const chip = document.createElement('button');
+    chip.className = 'unsur-chip';
+    chip.innerHTML = `<span class="sw" style="background:${u.hex}"></span>${u.label}`;
+    chip.addEventListener('click', () => selectUnsur(u.id));
+    chip.dataset.id = u.id;
+    chipGrid.appendChild(chip);
+  });
+  const chipEls = Array.from(chipGrid.children);
+
+  function selectUnsur(id){
+    const u = unsurData.find(x => x.id === id);
+    allDiagramEls.forEach(el => { el.classList.add('dim'); el.classList.remove('hi'); });
+    u.els.forEach(elId => {
+      const el = document.getElementById(elId);
+      el.classList.remove('dim'); el.classList.add('hi');
+    });
+    chipEls.forEach(c => c.classList.toggle('active', c.dataset.id === id));
+    descPanel.style.borderColor = u.hex;
+    descPanel.innerHTML = `
+      <span class="tag" style="background:${u.hex}22; color:${u.hex};">${u.label}</span>
+      <h3 class="display">${u.label}</h3>
+      <p>${u.desc}</p>
+    `;
+  }
+
+  /* ============ SLIDE 5: KUIS ============ */
+  const quizData = [
+    { q:'Apa nama garis yang menghubungkan titik pusat dengan sembarang titik pada lingkaran?',
+      opts:['Diameter','Jari-jari','Tali busur','Apotema'], correct:1,
+      fb:'Betul — itulah jari-jari, ruas garis dari pusat ke tepi lingkaran.' },
+    { q:'Jika panjang jari-jari sebuah lingkaran adalah 7 cm, berapakah panjang diameternya?',
+      opts:['7 cm','14 cm','21 cm','3,5 cm'], correct:1,
+      fb:'Diameter = 2 × jari-jari, jadi 2 × 7 cm = 14 cm.' },
+    { q:'Daerah yang dibatasi oleh dua jari-jari dan sebuah busur disebut...',
+      opts:['Tembereng','Juring','Tali busur','Apotema'], correct:1,
+      fb:'Tepat — juring dibatasi dua jari-jari dan busur di antaranya, seperti sepotong pizza.' },
+    { q:'Garis lurus yang menghubungkan dua titik pada lingkaran tetapi tidak melalui titik pusat disebut...',
+      opts:['Diameter','Jari-jari','Tali busur','Busur'], correct:2,
+      fb:'Benar, itu adalah tali busur — berbeda dari diameter karena tidak melewati pusat.' },
+    { q:'Apotema pada sebuah lingkaran adalah...',
+      opts:['Jarak terpendek dari pusat ke tali busur','Garis dari pusat ke tepi lingkaran','Bagian lengkung lingkaran','Daerah dibatasi tali busur dan busur'], correct:0,
+      fb:'Sesuai — apotema adalah jarak tegak lurus terpendek dari pusat ke tali busur.' },
+  ];
+
+  let qIndex = 0, score = 0, answered = false;
+
+  const quizQ = document.getElementById('quizQ');
+  const quizOptions = document.getElementById('quizOptions');
+  const quizFeedback = document.getElementById('quizFeedback');
+  const quizNextBtn = document.getElementById('quizNextBtn');
+  const quizLabel = document.getElementById('quizLabel');
+  const quizDots = document.getElementById('quizDots');
+  const quizCard = document.getElementById('quizCard');
+  const quizResult = document.getElementById('quizResult');
+  const scoreVal = document.getElementById('scoreVal');
+  const scoreMsg = document.getElementById('scoreMsg');
+  const retryBtn = document.getElementById('retryBtn');
+
+  quizData.forEach(() => {
+    const d = document.createElement('span');
+    d.className = 'qdot';
+    quizDots.appendChild(d);
+  });
+  const qDotEls = Array.from(quizDots.children);
+
+  function renderQuiz(){
+    answered = false;
+    const item = quizData[qIndex];
+    quizLabel.textContent = `Soal ${qIndex+1} dari ${quizData.length}`;
+    qDotEls.forEach((d,i) => {
+      d.classList.toggle('current', i === qIndex);
+      d.classList.toggle('done', i < qIndex);
+    });
+    quizQ.textContent = item.q;
+    quizFeedback.textContent = '';
+    quizNextBtn.style.display = 'none';
+    quizOptions.innerHTML = '';
+    item.opts.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = opt;
+      b.addEventListener('click', () => handleAnswer(i, b));
+      quizOptions.appendChild(b);
+    });
+  }
+
+  function handleAnswer(i, btnEl){
+    if(answered) return;
+    answered = true;
+    const item = quizData[qIndex];
+    const optBtns = Array.from(quizOptions.children);
+    optBtns.forEach(b => b.disabled = true);
+    if(i === item.correct){
+      score++;
+      btnEl.classList.add('correct');
+      quizFeedback.textContent = '✅ ' + item.fb;
+    } else {
+      btnEl.classList.add('wrong');
+      optBtns[item.correct].classList.add('correct');
+      quizFeedback.textContent = '❌ ' + item.fb;
+    }
+    quizNextBtn.style.display = 'inline-flex';
+    quizNextBtn.textContent = qIndex < quizData.length - 1 ? 'Soal berikutnya →' : 'Lihat hasil →';
+  }
+
+  quizNextBtn.addEventListener('click', () => {
+    if(qIndex < quizData.length - 1){
+      qIndex++;
+      renderQuiz();
+    } else {
+      showResult();
+    }
+  });
+
+  function showResult(){
+    quizCard.style.display = 'none';
+    quizResult.style.display = 'flex';
+    scoreVal.textContent = score;
+    let msg = '';
+    if(score === 5) msg = 'Sempurna! Kamu sudah menguasai unsur-unsur lingkaran. 🎉';
+    else if(score >= 3) msg = 'Bagus! Coba tinjau lagi diagram interaktif untuk unsur yang masih tertukar.';
+    else msg = 'Yuk kembali ke diagram interaktif dan pelajari lagi sebelum mencoba ulang.';
+    scoreMsg.textContent = msg;
+  }
+
+  retryBtn.addEventListener('click', () => {
+    qIndex = 0; score = 0;
+    quizResult.style.display = 'none';
+    quizCard.style.display = 'block';
+    renderQuiz();
+  });
+
+  renderQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sifat-sifat Bilangan Berpangkat — Presentasi Interaktif</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+:root{
+  --bg:#0E1526;
+  --bg-alt:#121B32;
+  --surface:#1A2440;
+  --surface-2:#212E52;
+  --border:rgba(255,255,255,0.09);
+  --text:#F3F6FC;
+  --text-muted:#8FA0C2;
+  --text-faint:#5B6B8C;
+
+  --pos:#45D9A0;
+  --pos-dim:rgba(69,217,160,0.14);
+  --zero:#FFC857;
+  --zero-dim:rgba(255,200,87,0.14);
+  --neg:#FF7086;
+  --neg-dim:rgba(255,112,134,0.14);
+  --primary:#6C8CFF;
+  --primary-dim:rgba(108,140,255,0.15);
+  --violet:#B694FF;
+  --violet-dim:rgba(182,148,255,0.14);
+
+  --display:'Space Grotesk',sans-serif;
+  --body:'Inter',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size:44px 44px;
+  pointer-events:none;
+  z-index:0;
+}
+::selection{background:var(--primary); color:#0E1526;}
+:focus-visible{outline:2px solid var(--primary); outline-offset:3px; border-radius:4px;}
+
+.deck{position:relative; width:100%; height:100vh;}
+
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:56px 8vw 40px;
+  opacity:0; visibility:hidden;
+  transform:translateX(40px);
+  transition:opacity .5s ease, transform .5s ease, visibility .5s;
+  overflow-y:auto;
+}
+.slide.active{opacity:1; visibility:visible; transform:translateX(0); z-index:2;}
+.slide.prev{transform:translateX(-40px);}
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:13px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--violet);
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:14px;
+}
+.eyebrow::before{content:""; width:22px; height:1px; background:var(--violet);}
+
+h1.headline{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(30px,4.4vw,54px);
+  line-height:1.08;
+  letter-spacing:-.01em;
+  max-width:900px;
+}
+h2.headline{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(24px,3.2vw,38px);
+  line-height:1.15;
+  letter-spacing:-.01em;
+  max-width:820px;
+}
+.lede{
+  font-size:clamp(15px,1.4vw,18px);
+  color:var(--text-muted);
+  max-width:660px;
+  margin-top:14px;
+  line-height:1.6;
+}
+
+.slide-body{flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; padding-top:8px;}
+
+/* ---------- Buttons ---------- */
+.btn{
+  font-family:var(--body);
+  font-weight:600;
+  font-size:14px;
+  padding:11px 20px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text);
+  cursor:pointer;
+  transition:border-color .2s, transform .15s, background .2s;
+}
+.btn:hover{border-color:var(--violet); transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn.primary{background:var(--violet); color:#0E1526; border-color:var(--violet);}
+.btn.primary:hover{filter:brightness(1.08);}
+.btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+
+/* ---------- Widget shell (reused across slides) ---------- */
+.expo-widget{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:30px 26px;
+  display:flex; flex-direction:column; gap:20px;
+}
+.expo-controls{display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap;}
+.control-group{display:flex; align-items:center; gap:10px;}
+.control-group .cg-label{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+.round-btn{
+  width:38px; height:38px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--border);
+  color:var(--text); font-size:18px; font-family:var(--mono);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.round-btn:hover{border-color:var(--violet); color:var(--violet);}
+.round-btn:disabled{opacity:.3; cursor:not-allowed;}
+.cg-val{
+  font-family:var(--mono); font-weight:700; font-size:20px;
+  min-width:28px; text-align:center;
+}
+
+.eq-display{
+  font-family:var(--mono); font-weight:700;
+  font-size:clamp(22px,3vw,32px);
+  text-align:center;
+  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+}
+.eq-display sup{font-size:.55em; vertical-align:super;}
+
+.expo-visual{
+  min-height:110px;
+  display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+  gap:10px; padding:14px 4px;
+}
+.tile-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;}
+.tile{
+  font-family:var(--mono); font-weight:700; font-size:17px;
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border);
+  animation:popIn .35s ease backwards;
+  position:relative;
+}
+.tile.m-tile{background:var(--primary-dim); color:var(--primary); border-color:rgba(108,140,255,.35);}
+.tile.n-tile{background:var(--violet-dim); color:var(--violet); border-color:rgba(182,148,255,.35);}
+.tile.combo-tile{background:var(--pos-dim); color:var(--pos); border-color:rgba(69,217,160,.35);}
+.tile.cancel-tile{background:rgba(255,255,255,0.03); color:var(--text-faint); border-color:var(--border); opacity:.45;}
+.tile.cancel-tile::after{
+  content:""; position:absolute; left:2px; right:2px; top:50%; height:2px;
+  background:var(--neg); transform:rotate(-20deg);
+}
+.tile.result-tile{width:auto; min-width:52px; padding:0 12px; font-size:17px;}
+@keyframes popIn{from{opacity:0; transform:scale(.6);} to{opacity:1; transform:scale(1);}}
+.times{color:var(--text-faint); font-family:var(--mono); font-size:16px;}
+.eq-arrow{color:var(--text-faint); font-family:var(--mono); font-size:18px; padding:0 4px;}
+
+.frac{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.frac-num, .frac-den{display:flex; align-items:center; gap:8px;}
+.frac-line{width:100%; height:2px; background:var(--text-faint); border-radius:2px;}
+
+.group-box{
+  border:1.5px dashed var(--violet); border-radius:12px; padding:8px 10px;
+  display:flex; align-items:center; gap:6px;
+  animation:popIn .35s ease backwards;
+}
+
+.expo-caption{
+  text-align:center; font-family:var(--mono); font-size:13px; color:var(--text-muted);
+  min-height:20px; line-height:1.5;
+}
+.expo-caption b{color:var(--text);}
+
+/* ---------- Example cards ---------- */
+.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
+@media (max-width:960px){.card-grid{grid-template-columns:1fr;}}
+.example-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:22px; cursor:pointer; transition:border-color .2s, transform .15s;
+}
+.example-card:hover{border-color:var(--violet); transform:translateY(-2px);}
+.example-card .expr{
+  font-family:var(--mono); font-weight:700; font-size:22px; color:var(--text); text-align:center;
+}
+.example-card .expr sup{color:var(--violet); font-size:.62em;}
+.example-card .hint{text-align:center; font-size:12.5px; color:var(--text-faint); margin-top:8px; font-family:var(--mono);}
+.example-card .reveal{
+  max-height:0; overflow:hidden; transition:max-height .4s ease, margin-top .4s ease;
+}
+.example-card.open .reveal{max-height:260px; margin-top:16px;}
+.example-card.open{border-color:var(--violet);}
+.step-line{
+  font-family:var(--mono); font-size:14px; color:var(--text-muted);
+  padding:6px 0; border-top:1px dashed var(--border);
+}
+.step-line:first-child{border-top:none;}
+.step-line b{color:var(--text);}
+
+/* ---------- Summary cards (sifat) ---------- */
+.law-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+@media (max-width:820px){.law-grid{grid-template-columns:1fr;}}
+.law-card{
+  border-radius:16px; padding:20px 22px; border:1px solid var(--border);
+  background:var(--surface);
+  display:flex; align-items:center; gap:18px;
+}
+.law-card .law-num{
+  font-family:var(--mono); font-weight:700; font-size:13px; color:var(--violet);
+  background:var(--violet-dim); width:34px; height:34px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.law-card .law-formula{font-family:var(--mono); font-weight:700; font-size:19px;}
+.law-card .law-formula sup{font-size:.6em;}
+.law-card .law-name{font-size:12.5px; color:var(--text-muted); margin-top:4px;}
+
+/* ---------- Quiz ---------- */
+.quiz-wrap{max-width:680px; margin:0 auto; width:100%;}
+.quiz-progress{display:flex; gap:6px; margin-bottom:22px;}
+.quiz-progress .seg{flex:1; height:4px; border-radius:99px; background:var(--surface-2); overflow:hidden;}
+.quiz-progress .seg i{display:block; height:100%; width:0%; background:var(--violet); transition:width .3s;}
+.quiz-progress .seg.done i{width:100%; background:var(--pos);}
+.quiz-progress .seg.active i{width:100%;}
+.q-text{font-family:var(--display); font-weight:600; font-size:clamp(19px,2.4vw,25px); margin-bottom:22px; line-height:1.4;}
+.q-options{display:flex; flex-direction:column; gap:10px;}
+.q-option{
+  text-align:left; padding:14px 16px; border-radius:12px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); font-family:var(--mono); font-size:15px;
+  cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:12px;
+}
+.q-option:hover{border-color:var(--violet);}
+.q-option .letter{
+  width:26px; height:26px; border-radius:50%; background:var(--surface-2); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;
+}
+.q-option.correct{border-color:var(--pos); background:var(--pos-dim); color:var(--pos);}
+.q-option.wrong{border-color:var(--neg); background:var(--neg-dim); color:var(--neg);}
+.q-option.disabled{cursor:default;}
+.q-feedback{margin-top:18px; font-size:14px; color:var(--text-muted); min-height:22px;}
+.q-footer{display:flex; justify-content:space-between; align-items:center; margin-top:24px;}
+.score-tag{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+
+/* ---------- Closing / score ---------- */
+.score-circle{
+  width:160px; height:160px; border-radius:50%; margin:0 auto 24px;
+  background:var(--surface); border:3px solid var(--violet);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.score-circle .num{font-family:var(--display); font-weight:700; font-size:44px;}
+.score-circle .of{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+
+/* ---------- Nav ---------- */
+.nav-bar{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:16px;
+  background:rgba(20,28,50,0.85); backdrop-filter:blur(10px);
+  border:1px solid var(--border); border-radius:99px;
+  padding:10px 16px; z-index:10;
+}
+.nav-arrow{
+  width:34px; height:34px; border-radius:50%; border:none; background:transparent;
+  color:var(--text); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.nav-arrow:hover{background:var(--surface-2);}
+.nav-arrow:disabled{opacity:.25; cursor:not-allowed;}
+.nav-dots{display:flex; gap:7px;}
+.nav-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint); cursor:pointer; transition:all .2s; border:none;}
+.nav-dot.active{background:var(--violet); width:20px; border-radius:99px;}
+
+.slide-index{
+  position:fixed; top:24px; right:8vw; font-family:var(--mono); font-size:12.5px; color:var(--text-faint); z-index:10;
+}
+
+@media (max-width:640px){
+  .slide{padding:80px 24px 100px;}
+  .expo-controls{gap:14px;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001s !important; transition-duration:0.001s !important;}
+}
+</style>
+</head>
+<body>
+
+<div class="slide-index" id="slideIndex">01 / 08</div>
+<div class="deck" id="deck"></div>
+
+<div class="nav-bar">
+  <button class="nav-arrow" id="prevBtn" aria-label="Sebelumnya">←</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-arrow" id="nextBtn" aria-label="Berikutnya">→</button>
+</div>
+
+<script>
+/* ============ Small helpers ============ */
+function tileRow(count, cls, delayBase){
+  let out = "";
+  for(let i=0;i<count;i++){
+    out += `<div class="tile ${cls}" style="animation-delay:${(delayBase||0)+i*0.04}s">${window.__curBase||2}</div>`;
+    if(i < count-1) out += `<div class="times">×</div>`;
+  }
+  return out;
+}
+
+/* ============ Slide 1: Cover ============ */
+function renderCover(){
+  return `
+  <div class="eyebrow">Bab 1 · 1.2 Sifat-sifat Bilangan Berpangkat</div>
+  <h1 class="headline">Menyederhanakan Operasi Bilangan Berpangkat</h1>
+  <p class="lede">Perkalian, pembagian, dan pangkat bertingkat punya jalan pintas masing-masing. Ubah nilai m dan n di bawah untuk melihat sifat pertama secara langsung.</p>
+
+  <div class="slide-body" style="align-items:center;">
+    <div class="expo-widget" style="max-width:560px; width:100%;">
+      <div class="expo-controls">
+        <div class="control-group">
+          <button class="round-btn" id="c1MMinus">−</button>
+          <span class="cg-label">m =</span><span class="cg-val" id="c1MVal">2</span>
+          <button class="round-btn" id="c1MPlus">+</button>
+        </div>
+        <div class="control-group">
+          <button class="round-btn" id="c1NMinus">−</button>
+          <span class="cg-label">n =</span><span class="cg-val" id="c1NVal">3</span>
+          <button class="round-btn" id="c1NPlus">+</button>
+        </div>
+      </div>
+      <div class="eq-display" id="c1Eq"></div>
+      <div class="expo-visual" id="c1Visual"></div>
+      <div class="expo-caption" id="c1Caption"></div>
+    </div>
+  </div>`;
+}
+function initCover(){
+  let m=2, n=3; const base=2; const min=1, max=5;
+  const mVal=document.getElementById('c1MVal'), nVal=document.getElementById('c1NVal');
+  const mMinus=document.getElementById('c1MMinus'), mPlus=document.getElementById('c1MPlus');
+  const nMinus=document.getElementById('c1NMinus'), nPlus=document.getElementById('c1NPlus');
+  const eq=document.getElementById('c1Eq'), visual=document.getElementById('c1Visual'), caption=document.getElementById('c1Caption');
+  function update(){
+    mVal.textContent=m; nVal.textContent=n;
+    eq.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${m+n}</sup>`;
+    let g1=""; for(let i=0;i<m;i++){ g1 += `<div class="tile m-tile">${base}</div>`; if(i<m-1) g1+=`<div class="times">×</div>`; }
+    let g2=""; for(let i=0;i<n;i++){ g2 += `<div class="tile n-tile">${base}</div>`; if(i<n-1) g2+=`<div class="times">×</div>`; }
+    let g3=""; for(let i=0;i<m+n;i++){ g3 += `<div class="tile combo-tile">${base}</div>`; if(i<m+n-1) g3+=`<div class="times">×</div>`; }
+    visual.innerHTML = `<div class="tile-row">${g1}</div><div class="times" style="font-size:20px;">×</div><div class="tile-row">${g2}</div>
+      <div class="eq-arrow">=</div><div class="tile-row">${g3}</div>`;
+    caption.innerHTML = `${m} faktor digabung ${n} faktor = <b>${m+n} faktor</b> → pangkatnya <b>dijumlahkan</b>`;
+    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
+    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
+  }
+  mMinus.onclick=()=>{ if(m>min){m--; update();} };
+  mPlus.onclick=()=>{ if(m<max){m++; update();} };
+  nMinus.onclick=()=>{ if(n>min){n--; update();} };
+  nPlus.onclick=()=>{ if(n<max){n++; update();} };
+  update();
+}
+
+/* ============ Slide 2: Sifat 1 - Perkalian (detail, base 3) ============ */
+function renderMultiplication(){
+  return `
+  <div class="eyebrow">Sifat 1 · Perkalian</div>
+  <h2 class="headline">aᵐ × aⁿ = aᵐ⁺ⁿ</h2>
+  <p class="lede">Jika basisnya sama, kalikan cukup dengan menjumlahkan pangkatnya. Coba dengan basis 3.</p>
+  <div class="slide-body" style="align-items:center;">
+    <div class="expo-widget" style="max-width:560px; width:100%;">
+      <div class="expo-controls">
+        <div class="control-group">
+          <button class="round-btn" id="s1MMinus">−</button>
+          <span class="cg-label">m =</span><span class="cg-val" id="s1MVal">2</span>
+          <button class="round-btn" id="s1MPlus">+</button>
+        </div>
+        <div class="control-group">
+          <button class="round-btn" id="s1NMinus">−</button>
+          <span class="cg-label">n =</span><span class="cg-val" id="s1NVal">2</span>
+          <button class="round-btn" id="s1NPlus">+</button>
+        </div>
+      </div>
+      <div class="eq-display" id="s1Eq"></div>
+      <div class="expo-visual" id="s1Visual"></div>
+      <div class="expo-caption" id="s1Caption"></div>
+    </div>
+  </div>`;
+}
+function initMultiplication(){
+  let m=2, n=2; const base=3; const min=1, max=4;
+  const mVal=document.getElementById('s1MVal'), nVal=document.getElementById('s1NVal');
+  const mMinus=document.getElementById('s1MMinus'), mPlus=document.getElementById('s1MPlus');
+  const nMinus=document.getElementById('s1NMinus'), nPlus=document.getElementById('s1NPlus');
+  const eq=document.getElementById('s1Eq'), visual=document.getElementById('s1Visual'), caption=document.getElementById('s1Caption');
+  function update(){
+    mVal.textContent=m; nVal.textContent=n;
+    const total = m+n;
+    eq.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${total}</sup> = ${Math.pow(base,total)}`;
+    let g1=""; for(let i=0;i<m;i++){ g1 += `<div class="tile m-tile">${base}</div>`; if(i<m-1) g1+=`<div class="times">×</div>`; }
+    let g2=""; for(let i=0;i<n;i++){ g2 += `<div class="tile n-tile">${base}</div>`; if(i<n-1) g2+=`<div class="times">×</div>`; }
+    let g3=""; for(let i=0;i<total;i++){ g3 += `<div class="tile combo-tile">${base}</div>`; if(i<total-1) g3+=`<div class="times">×</div>`; }
+    visual.innerHTML = `<div class="tile-row">${g1}</div><div class="times" style="font-size:20px;">×</div><div class="tile-row">${g2}</div>
+      <div class="eq-arrow">=</div><div class="tile-row">${g3}</div>`;
+    caption.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${m}+${n}</sup> = ${base}<sup>${total}</sup>`;
+    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
+    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
+  }
+  mMinus.onclick=()=>{ if(m>min){m--; update();} };
+  mPlus.onclick=()=>{ if(m<max){m++; update();} };
+  nMinus.onclick=()=>{ if(n>min){n--; update();} };
+  nPlus.onclick=()=>{ if(n<max){n++; update();} };
+  update();
+}
+
+/* ============ Slide 3: Sifat 2 - Pembagian ============ */
+function renderDivision(){
+  return `
+  <div class="eyebrow">Sifat 2 · Pembagian</div>
+  <h2 class="headline">aᵐ : aⁿ = aᵐ⁻ⁿ</h2>
+  <p class="lede">Jika basisnya sama, membagi berarti mengurangkan pangkat. Faktor yang sama di atas dan bawah saling coret. Coba dengan basis 2.</p>
+  <div class="slide-body" style="align-items:center;">
+    <div class="expo-widget" style="max-width:600px; width:100%;">
+      <div class="expo-controls">
+        <div class="control-group">
+          <button class="round-btn" id="s2MMinus">−</button>
+          <span class="cg-label">m =</span><span class="cg-val" id="s2MVal">5</span>
+          <button class="round-btn" id="s2MPlus">+</button>
+        </div>
+        <div class="control-group">
+          <button class="round-btn" id="s2NMinus">−</button>
+          <span class="cg-label">n =</span><span class="cg-val" id="s2NVal">2</span>
+          <button class="round-btn" id="s2NPlus">+</button>
+        </div>
+      </div>
+      <div class="eq-display" id="s2Eq"></div>
+      <div class="expo-visual" id="s2Visual"></div>
+      <div class="expo-caption" id="s2Caption"></div>
+    </div>
+  </div>`;
+}
+function initDivision(){
+  let m=5, n=2; const base=2; const min=1, max=6;
+  const mVal=document.getElementById('s2MVal'), nVal=document.getElementById('s2NVal');
+  const mMinus=document.getElementById('s2MMinus'), mPlus=document.getElementById('s2MPlus');
+  const nMinus=document.getElementById('s2NMinus'), nPlus=document.getElementById('s2NPlus');
+  const eq=document.getElementById('s2Eq'), visual=document.getElementById('s2Visual'), caption=document.getElementById('s2Caption');
+  function resultStr(diff){
+    if(diff>0) return `${base}<sup>${diff}</sup> = ${Math.pow(base,diff)}`;
+    if(diff===0) return `${base}<sup>0</sup> = 1`;
+    return `${base}<sup>${diff}</sup> = 1/${Math.pow(base,Math.abs(diff))}`;
+  }
+  function update(){
+    mVal.textContent=m; nVal.textContent=n;
+    const diff = m-n;
+    eq.innerHTML = `${base}<sup>${m}</sup> : ${base}<sup>${n}</sup> = ${base}<sup>${diff}</sup>`;
+    const cancel = Math.min(m,n);
+    let top=""; for(let i=0;i<m;i++){ top += `<div class="tile ${i<cancel?'cancel-tile':'m-tile'}">${base}</div>`; if(i<m-1) top+=`<div class="times">×</div>`; }
+    let bot=""; for(let i=0;i<n;i++){ bot += `<div class="tile ${i<cancel?'cancel-tile':'n-tile'}">${base}</div>`; if(i<n-1) bot+=`<div class="times">×</div>`; }
+    visual.innerHTML = `<div class="frac">
+        <div class="frac-num tile-row">${top}</div>
+        <div class="frac-line"></div>
+        <div class="frac-den tile-row">${bot}</div>
+      </div>
+      <div class="eq-arrow">=</div>
+      <div class="tile result-tile combo-tile">${resultStr(diff)}</div>`;
+    if(diff>0) caption.innerHTML = `Sisa <b>${diff}</b> faktor di atas → hasil positif`;
+    else if(diff===0) caption.innerHTML = `Semua faktor habis dicoret → hasil <b>1</b> (pangkat nol)`;
+    else caption.innerHTML = `Sisa <b>${Math.abs(diff)}</b> faktor di bawah → hasil pecahan (pangkat negatif)`;
+    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
+    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
+  }
+  mMinus.onclick=()=>{ if(m>min){m--; update();} };
+  mPlus.onclick=()=>{ if(m<max){m++; update();} };
+  nMinus.onclick=()=>{ if(n>min){n--; update();} };
+  nPlus.onclick=()=>{ if(n<max){n++; update();} };
+  update();
+}
+
+/* ============ Slide 4: Sifat 3 - Pangkat dari pangkat ============ */
+function renderPowerOfPower(){
+  return `
+  <div class="eyebrow">Sifat 3 · Pangkat dari Pangkat</div>
+  <h2 class="headline">(aᵐ)ⁿ = aᵐˣⁿ</h2>
+  <p class="lede">Bentuk (aᵐ)ⁿ berarti ada n kelompok, masing-masing berisi m faktor a. Pangkatnya dikalikan, bukan dijumlahkan.</p>
+  <div class="slide-body" style="align-items:center;">
+    <div class="expo-widget" style="max-width:620px; width:100%;">
+      <div class="expo-controls">
+        <div class="control-group">
+          <button class="round-btn" id="s3MMinus">−</button>
+          <span class="cg-label">m =</span><span class="cg-val" id="s3MVal">2</span>
+          <button class="round-btn" id="s3MPlus">+</button>
+        </div>
+        <div class="control-group">
+          <button class="round-btn" id="s3NMinus">−</button>
+          <span class="cg-label">n =</span><span class="cg-val" id="s3NVal">3</span>
+          <button class="round-btn" id="s3NPlus">+</button>
+        </div>
+      </div>
+      <div class="eq-display" id="s3Eq"></div>
+      <div class="expo-visual" id="s3Visual"></div>
+      <div class="expo-caption" id="s3Caption"></div>
+    </div>
+  </div>`;
+}
+function initPowerOfPower(){
+  let m=2, n=3; const base=2; const min=1, max=4;
+  const mVal=document.getElementById('s3MVal'), nVal=document.getElementById('s3NVal');
+  const mMinus=document.getElementById('s3MMinus'), mPlus=document.getElementById('s3MPlus');
+  const nMinus=document.getElementById('s3NMinus'), nPlus=document.getElementById('s3NPlus');
+  const eq=document.getElementById('s3Eq'), visual=document.getElementById('s3Visual'), caption=document.getElementById('s3Caption');
+  function update(){
+    mVal.textContent=m; nVal.textContent=n;
+    const total = m*n;
+    eq.innerHTML = `(${base}<sup>${m}</sup>)<sup>${n}</sup> = ${base}<sup>${m}×${n}</sup> = ${base}<sup>${total}</sup>`;
+    let groups="";
+    for(let g=0; g<n; g++){
+      let inner=""; for(let i=0;i<m;i++){ inner += `<div class="tile m-tile">${base}</div>`; if(i<m-1) inner+=`<div class="times">×</div>`; }
+      groups += `<div class="group-box" style="animation-delay:${g*0.08}s"><div class="tile-row">${inner}</div></div>`;
+      if(g<n-1) groups += `<div class="times">×</div>`;
+    }
+    visual.innerHTML = `<div class="tile-row">${groups}</div>
+      <div class="eq-arrow">=</div>
+      <div class="tile result-tile combo-tile">${base}<sup>${total}</sup> = ${Math.pow(base,total)}</div>`;
+    caption.innerHTML = `<b>${n}</b> kelompok berisi <b>${m}</b> faktor → total <b>${total}</b> faktor ${base}`;
+    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
+    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
+  }
+  mMinus.onclick=()=>{ if(m>min){m--; update();} };
+  mPlus.onclick=()=>{ if(m<max){m++; update();} };
+  nMinus.onclick=()=>{ if(n>min){n--; update();} };
+  nPlus.onclick=()=>{ if(n<max){n++; update();} };
+  update();
+}
+
+/* ============ Slide 5: Sifat 4 & 5 + latihan gabungan (example cards) ============ */
+const combinedExamples = [
+  {
+    expr:"(2 × 3)<sup>3</sup>",
+    steps:[
+      "Sifat 4: (a × b)ⁿ = aⁿ × bⁿ",
+      "(2 × 3)³ = 2³ × 3³",
+      "= 8 × 27",
+      "<b>= 216</b>"
+    ]
+  },
+  {
+    expr:"(10 ÷ 2)<sup>3</sup>",
+    steps:[
+      "Sifat 5: (a ÷ b)ⁿ = aⁿ ÷ bⁿ",
+      "(10 ÷ 2)³ = 10³ ÷ 2³",
+      "= 1000 ÷ 8",
+      "<b>= 125</b>"
+    ]
+  },
+  {
+    expr:"(2<sup>2</sup> × 2<sup>3</sup>)<sup>2</sup>",
+    steps:[
+      "Sifat 1 dulu: 2² × 2³ = 2⁵",
+      "Lalu sifat 3: (2⁵)² = 2¹⁰",
+      "2¹⁰ = 1024",
+      "<b>= 1024</b>"
+    ]
+  }
+];
+function renderCombined(){
+  const cards = combinedExamples.map((e,i)=>`
+    <div class="example-card" data-i="${i}">
+      <div class="expr">${e.expr}</div>
+      <div class="hint">klik untuk lihat langkah</div>
+      <div class="reveal">${e.steps.map(s=>`<div class="step-line">${s}</div>`).join('')}</div>
+    </div>`).join('');
+  return `
+  <div class="eyebrow">Sifat 4 & 5 · Perkalian dan Pembagian Dua Bilangan</div>
+  <h2 class="headline">(a×b)ⁿ = aⁿ×bⁿ &nbsp;·&nbsp; (a÷b)ⁿ = aⁿ÷bⁿ</h2>
+  <p class="lede">Pangkat dari hasil kali atau hasil bagi dua bilangan dapat dipecah ke masing-masing bilangan. Klik kartu untuk melihat langkah penyelesaiannya — termasuk satu contoh gabungan beberapa sifat sekaligus.</p>
+  <div class="slide-body">
+    <div class="card-grid">${cards}</div>
+  </div>`;
+}
+function initCombined(){
+  document.querySelectorAll('.example-card').forEach(card=>{
+    card.addEventListener('click', ()=> card.classList.toggle('open'));
+  });
+}
+
+/* ============ Slide 6: Ringkasan sifat ============ */
+function renderSummary(){
+  return `
+  <div class="eyebrow">1.2 · Ringkasan</div>
+  <h2 class="headline">Lima Sifat Bilangan Berpangkat</h2>
+  <p class="lede">Semua sifat ini berlaku selama basisnya sama (untuk sifat 1–3) atau berpangkat sama (untuk sifat 4–5).</p>
+  <div class="slide-body">
+    <div class="law-grid">
+      <div class="law-card"><div class="law-num">1</div><div><div class="law-formula">aᵐ × aⁿ = aᵐ⁺ⁿ</div><div class="law-name">Perkalian, basis sama → pangkat dijumlah</div></div></div>
+      <div class="law-card"><div class="law-num">2</div><div><div class="law-formula">aᵐ : aⁿ = aᵐ⁻ⁿ</div><div class="law-name">Pembagian, basis sama → pangkat dikurang</div></div></div>
+      <div class="law-card"><div class="law-num">3</div><div><div class="law-formula">(aᵐ)ⁿ = aᵐˣⁿ</div><div class="law-name">Pangkat dari pangkat → pangkat dikali</div></div></div>
+      <div class="law-card"><div class="law-num">4</div><div><div class="law-formula">(a×b)ⁿ = aⁿ×bⁿ</div><div class="law-name">Pangkat dari perkalian dua bilangan</div></div></div>
+      <div class="law-card" style="grid-column: span 2;"><div class="law-num">5</div><div><div class="law-formula">(a÷b)ⁿ = aⁿ÷bⁿ</div><div class="law-name">Pangkat dari pembagian dua bilangan (b ≠ 0)</div></div></div>
+    </div>
+  </div>`;
+}
+
+/* ============ Slide 7: Quiz ============ */
+const quizData = [
+  { q:"3² × 3⁴ = ...", opts:["3⁶","3⁸","3²","9⁶"], correct:0 },
+  { q:"5⁷ : 5³ = ...", opts:["5⁴","5¹⁰","5²·³³","25⁴"], correct:0 },
+  { q:"(2³)² = ...", opts:["2⁵","2⁶","2⁹","4³"], correct:1 },
+  { q:"(2 × 5)³ setara dengan ...", opts:["2³ + 5³","2³ × 5³","2 × 5³","30"], correct:1 },
+  { q:"(4 ÷ 2)³ setara dengan ...", opts:["4³ ÷ 2³","4 ÷ 2³","4³ ÷ 2","4 − 2³"], correct:0 },
+];
+let quizState = { index:0, score:0, answered:false };
+
+function renderQuiz(){
+  return `
+  <div class="eyebrow">1.2 · Latihan</div>
+  <h2 class="headline">Uji Pemahamanmu</h2>
+  <div class="slide-body">
+    <div class="quiz-wrap">
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizBody"></div>
+    </div>
+  </div>`;
+}
+function initQuiz(){
+  quizState = { index:0, score:0, answered:false };
+  buildQuizProgress();
+  renderQuestion();
+}
+function buildQuizProgress(){
+  const wrap = document.getElementById('quizProgress');
+  wrap.innerHTML = quizData.map((_,i)=>`<div class="seg" data-i="${i}"><i></i></div>`).join('');
+}
+function updateQuizProgress(){
+  document.querySelectorAll('.quiz-progress .seg').forEach((seg,i)=>{
+    seg.classList.remove('active','done');
+    if(i < quizState.index) seg.classList.add('done');
+    else if(i === quizState.index) seg.classList.add('active');
+  });
+}
+function renderQuestion(){
+  updateQuizProgress();
+  const item = quizData[quizState.index];
+  const letters = ['A','B','C','D'];
+  const body = document.getElementById('quizBody');
+  body.innerHTML = `
+    <p class="q-text">${quizState.index+1}. ${item.q}</p>
+    <div class="q-options">
+      ${item.opts.map((o,i)=>`<button class="q-option" data-i="${i}"><span class="letter">${letters[i]}</span>${o}</button>`).join('')}
+    </div>
+    <p class="q-feedback" id="qFeedback"></p>
+    <div class="q-footer">
+      <span class="score-tag">Skor: ${quizState.score} / ${quizData.length}</span>
+      <button class="btn primary" id="qNextBtn" style="display:none;">
+        ${quizState.index === quizData.length-1 ? 'Lihat hasil →' : 'Lanjut →'}
+      </button>
+    </div>`;
+  quizState.answered = false;
+  document.querySelectorAll('.q-option').forEach(btn=>{
+    btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.i)));
+  });
+}
+function handleAnswer(i){
+  if(quizState.answered) return;
+  quizState.answered = true;
+  const item = quizData[quizState.index];
+  const opts = document.querySelectorAll('.q-option');
+  opts.forEach((btn,idx)=>{
+    btn.classList.add('disabled');
+    if(idx === item.correct) btn.classList.add('correct');
+    else if(idx === i) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('qFeedback');
+  if(i === item.correct){
+    quizState.score++;
+    fb.innerHTML = `<span style="color:var(--pos)">Benar! ✓</span>`;
+  } else {
+    fb.innerHTML = `<span style="color:var(--neg)">Belum tepat.</span> Jawaban benar: <b style="color:var(--text)">${item.opts[item.correct]}</b>`;
+  }
+  document.querySelector('.score-tag').textContent = `Skor: ${quizState.score} / ${quizData.length}`;
+  const nextBtn = document.getElementById('qNextBtn');
+  nextBtn.style.display = 'inline-block';
+  nextBtn.onclick = ()=>{
+    if(quizState.index < quizData.length-1){
+      quizState.index++;
+      renderQuestion();
+    } else {
+      goToSlide(7);
+    }
+  };
+}
+
+/* ============ Slide 8: Closing ============ */
+function renderClosing(){
+  return `
+  <div class="eyebrow">Selesai</div>
+  <h2 class="headline">Hasil Latihanmu</h2>
+  <div class="slide-body" style="align-items:center; text-align:center;">
+    <div class="score-circle">
+      <div class="num" id="finalScore">0</div>
+      <div class="of">dari ${quizData.length} benar</div>
+    </div>
+    <p class="lede" id="closingMsg" style="text-align:center;"></p>
+    <div style="display:flex; gap:12px; margin-top:20px;">
+      <button class="btn" id="retryQuizBtn">Ulangi kuis</button>
+      <button class="btn primary" id="restartDeckBtn">Kembali ke Menu</button>
+    </div>
+  </div>`;
+}
+function initClosing(){
+  document.getElementById('finalScore').textContent = quizState.score;
+  const msg = document.getElementById('closingMsg');
+  const ratio = quizState.score / quizData.length;
+  if(ratio === 1) msg.textContent = "Sempurna! Kamu sudah menguasai kelima sifat bilangan berpangkat.";
+  else if(ratio >= 0.6) msg.textContent = "Bagus! Sedikit lagi untuk menguasai penuh sifat-sifatnya.";
+  else msg.textContent = "Coba tinjau kembali slide sifat 1–5, lalu ulangi kuisnya.";
+
+  document.getElementById('retryQuizBtn').onclick = ()=> goToSlide(6);
+  document.getElementById('restartDeckBtn').onclick = ()=> { window.location.href = "matb-bab1.html";};
+}
+
+/* ============ Slide registry ============ */
+const slides = [
+  { render: renderCover,          init: initCover },
+  { render: renderMultiplication, init: initMultiplication },
+  { render: renderDivision,       init: initDivision },
+  { render: renderPowerOfPower,   init: initPowerOfPower },
+  { render: renderCombined,       init: initCombined },
+  { render: renderSummary,        init: null },
+  { render: renderQuiz,           init: initQuiz },
+  { render: renderClosing,        init: initClosing },
+];
+
+let current = 0;
+const deck = document.getElementById('deck');
+const navDots = document.getElementById('navDots');
+const slideIndexEl = document.getElementById('slideIndex');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function buildDeck(){
+  slides.forEach((s,i)=>{
+    const el = document.createElement('div');
+    el.className = 'slide';
+    el.id = 'slide-'+i;
+    el.innerHTML = s.render();
+    deck.appendChild(el);
+  });
+  navDots.innerHTML = slides.map((_,i)=>`<button class="nav-dot" data-i="${i}" aria-label="Ke slide ${i+1}"></button>`).join('');
+  navDots.querySelectorAll('.nav-dot').forEach(d=>{
+    d.addEventListener('click', ()=> goToSlide(parseInt(d.dataset.i)));
+  });
+}
+
+function goToSlide(i){
+  if(i<0 || i>=slides.length) return;
+  document.querySelectorAll('.slide').forEach((el,idx)=>{
+    el.classList.remove('active','prev');
+    if(idx === i) el.classList.add('active');
+    if(idx < i) el.classList.add('prev');
+  });
+  current = i;
+  navDots.querySelectorAll('.nav-dot').forEach((d,idx)=> d.classList.toggle('active', idx===i));
+  slideIndexEl.textContent = String(i+1).padStart(2,'0') + " / " + String(slides.length).padStart(2,'0');
+  prevBtn.disabled = i===0;
+  nextBtn.disabled = i===slides.length-1;
+  if(slides[i].init) slides[i].init();
+}
+
+prevBtn.addEventListener('click', ()=> goToSlide(current-1));
+nextBtn.addEventListener('click', ()=> goToSlide(current+1));
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') goToSlide(current+1);
+  if(e.key === 'ArrowLeft') goToSlide(current-1);
+});
+
+let touchStartX = null;
+document.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX; });
+document.addEventListener('touchend', e=>{
+  if(touchStartX === null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if(Math.abs(dx) > 60){ dx < 0 ? goToSlide(current+1) : goToSlide(current-1); }
+  touchStartX = null;
+});
+
+buildDeck();
+goToSlide(0);
+</script>
+</body>
+</html>

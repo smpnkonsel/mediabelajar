@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Penerapan SPLDV - Matematika SMP Kelas 9</title>
+    <style>
+        :root {
+            --primary: #2b580c;
+            --secondary: #639a67;
+            --accent: #d8ebb5;
+            --dark: #1e3009;
+            --light: #f7fbe8;
+            --white: #ffffff;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e8f0d8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 600px;
+            position: relative;
+        }
+
+        /* Slide Styles */
+        .slide {
+            display: none;
+            padding: 40px;
+            flex: 1;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        h1 { font-size: 2.2rem; }
+        h2 { font-size: 1.6rem; border-bottom: 3px solid var(--accent); padding-bottom: 8px; }
+
+        p, li {
+            font-size: 1.05rem;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        /* Interactive Elements */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: var(--light);
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            background: var(--accent);
+        }
+
+        .step-box {
+            background: #f0f7e6;
+            border-left: 5px solid var(--primary);
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+            margin: 5px 0;
+        }
+
+        .btn:hover {
+            background: var(--dark);
+        }
+
+        /* Quiz Styles */
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            background: var(--light);
+            border: 1px solid #ccc;
+            padding: 12px;
+            margin: 6px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .option-btn:hover {
+            background: var(--accent);
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .correct { background: #d4edda; color: #155724; }
+        .wrong { background: #f8d7da; color: #721c24; }
+
+        /* Controls / Navigation */
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--light);
+            border-top: 1px solid #ddd;
+        }
+
+        .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: var(--primary);
+            width: 22px;
+            border-radius: 10px;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="presentation-container">
+
+    <!-- SLIDE 1: COVER -->
+    <div class="slide active">
+        <span class="badge">Bab 1 • Kelas 9 SMP (Erlangga)</span>
+        <h1>Penerapan SPLDV</h1>
+        <p style="font-size: 1.2rem; color: #555;">Menyelesaikan Masalah Kontekstual & Menafsirkan Hasilnya</p>
+        <hr style="margin: 20px 0; border: none; border-top: 2px solid var(--accent);">
+        <p><strong>Capaian Pembelajaran:</strong> Peserta didik mampu merumuskan model matematika, menyelesaikan SPLDV dalam kehidupan sehari-hari, dan memberikan penafsiran atas solusi yang diperoleh.</p>
+        <div style="text-align: center; margin-top: 30px;">
+            <button class="btn" onclick="nextSlide()" style="font-size: 1.1rem; padding: 12px 30px;">Mulai Pembelajaran ➔</button>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: ALUR PENYELESAIAN -->
+    <div class="slide">
+        <h2>4 Langkah Strategis Penerapan SPLDV</h2>
+        <p>Klik tiap langkah di bawah untuk mempelajari detailnya:</p>
+        
+        <div class="step-box" onclick="toggleDetail('s1')">
+            <strong>1. Pemisalan (Variabel) 🔍</strong>
+            <div id="s1" style="display:none; margin-top:8px;">Tentukan objek yang belum diketahui harganya/nilainya, lalu misalkan sebagai $x$ dan $y$.</div>
+        </div>
+        <div class="step-box" onclick="toggleDetail('s2')">
+            <strong>2. Model Matematika 📝</strong>
+            <div id="s2" style="display:none; margin-top:8px;">Terjemahkan hubungan/informasi pada soal menjadi 2 buah persamaan linear dua variabel.</div>
+        </div>
+        <div class="step-box" onclick="toggleDetail('s3')">
+            <strong>3. Selesaikan Sistem ⚙️</strong>
+            <div id="s3" style="display:none; margin-top:8px;">Gunakan metode yang paling efisien (Eliminasi, Substitusi, atau Campuran) untuk mencari $x$ dan $y$.</div>
+        </div>
+        <div class="step-box" onclick="toggleDetail('s4')">
+            <strong>4. Penafsiran Hasil 💡</strong>
+            <div id="s4" style="display:none; margin-top:8px;">Kembalikan nilai variabel ke konteks nyata (misal: harga barang, umur, atau ukuran) dan jawab pertanyaan soal!</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: APLIKASI 1 (JUAL BELI) -->
+    <div class="slide">
+        <h2>Aplikasi 1: Masalah Jual Beli</h2>
+        <p><strong>Soal:</strong> Andi membeli 3 tiket dewasa dan 2 tiket anak seharga Rp140.000. Budi membeli 1 tiket dewasa dan 3 tiket anak seharga Rp105.000. Berapa harga 1 tiket dewasa?</p>
+        
+        <button class="btn" onclick="runSim1()">Jalankan Analisis Langkah demi Langkah</button>
+        
+        <div id="sim1-output" style="margin-top:15px;"></div>
+    </div>
+
+    <!-- SLIDE 4: APLIKASI 2 (GEOMETRI) -->
+    <div class="slide">
+        <h2>Aplikasi 2: Masalah Keliling & Ukuran</h2>
+        <p><strong>Soal:</strong> Keliling suatu persegi panjang adalah 40 cm. Panjangnya 4 cm lebih dari lebarnya. Berapakah luas persegi panjang tersebut?</p>
+        
+        <div class="card-grid">
+            <div class="card" onclick="showGeo(1)">
+                <h4>Langkah 1: Pemisalan & Model</h4>
+                <p>Klik untuk buka</p>
+            </div>
+            <div class="card" onclick="showGeo(2)">
+                <h4>Langkah 2: Penyelesaian</h4>
+                <p>Klik untuk buka</p>
+            </div>
+            <div class="card" onclick="showGeo(3)">
+                <h4>Langkah 3: Penafsiran Luas</h4>
+                <p>Klik untuk buka</p>
+            </div>
+        </div>
+        <div id="geo-output" class="step-box" style="display:none;"></div>
+    </div>
+
+    <!-- SLIDE 5: APLIKASI 3 (UMUR) -->
+    <div class="slide">
+        <h2>Aplikasi 3: Masalah Usia / Umur</h2>
+        <p><strong>Soal:</strong> Umur Ayah sekarang 3 kali umur Bimo. Empat tahun yang lalu, jumlah umur mereka adalah 48 tahun. Berapa umur Bimo sekarang?</p>
+        <button class="btn" onclick="showAgeSim()">Tampilkan Solusi Interaktif</button>
+        <div id="age-output" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- SLIDE 6: PENAFSIRAN HASIL / KRITIS -->
+    <div class="slide">
+        <h2>⚠️ Penting: Penafsiran Hasil Kontekstual</h2>
+        <p>Solusi matematika tidak boleh langsung diterima begitu saja tanpa memeriksa logis tidaknya dalam kehidupan nyata!</p>
+        <div class="card-grid">
+            <div class="card">
+                <h4>Nilai Negatif</h4>
+                <p>Jumlah barang, umur, atau jarak <strong>tidak mungkin bernilai negatif</strong>.</p>
+            </div>
+            <div class="card">
+                <h4>Bilangan Pecahan</h4>
+                <p>Jumlah orang atau barang utuh (misal: jumlah kendaraan) <strong>harus berupa bilangan bulat</strong>.</p>
+            </div>
+        </div>
+        <p style="background: #fff3cd; padding: 10px; border-radius: 6px;">💡 <em>Jika diperoleh hasil yang tidak logis, periksalah kembali model matematika atau perhitungan yang telah dibuat.</em></p>
+    </div>
+
+    <!-- SLIDE 7: LATIHAN INTERAKTIF -->
+    <div class="slide">
+        <h2>Latihan Interaktif: Susun Modelnya!</h2>
+        <p>Dua kali bilangan pertama ditambah bilangan kedua sama dengan 18. Selisih kedua bilangan tersebut adalah 3.</p>
+        <p>Manakah pasangan model matematika yang tepat?</p>
+        
+        <button class="option-btn" onclick="checkEx(false)">A. 2x + y = 18 dan x + y = 3</button>
+        <button class="option-btn" onclick="checkEx(true)">B. 2x + y = 18 dan x - y = 3</button>
+        <button class="option-btn" onclick="checkEx(false)">C. x + 2y = 18 dan x - y = 3</button>
+
+        <div id="ex-fb" class="feedback"></div>
+    </div>
+
+    <!-- SLIDE 8: KUIS SOAL 1 & 2 -->
+    <div class="slide">
+        <h2>Kuis Evaluasi (Bagian 1)</h2>
+        <p><strong>1. Harga 2 kg apel dan 3 kg jeruk Rp80.000, sedangkan 1 kg apel dan 2 kg jeruk Rp48.000. Harga 1 kg apel adalah...</strong></p>
+        <button class="option-btn" onclick="quizAns(1, false)">A. Rp12.000</button>
+        <button class="option-btn" onclick="quizAns(1, true)">B. Rp16.000</button>
+        <button class="option-btn" onclick="quizAns(1, false)">C. Rp20.000</button>
+        <div id="q1-fb" class="feedback"></div>
+
+        <p style="margin-top:20px;"><strong>2. Jumlah dua buah bilangan adalah 25. Selisih kedua bilangan itu adalah 7. Hasil kali kedua bilangan tersebut adalah...</strong></p>
+        <button class="option-btn" onclick="quizAns(2, true)">A. 144</button>
+        <button class="option-btn" onclick="quizAns(2, false)">B. 128</button>
+        <button class="option-btn" onclick="quizAns(2, false)">C. 150</button>
+        <div id="q2-fb" class="feedback"></div>
+    </div>
+
+    <!-- SLIDE 9: KUIS SOAL 3 & SKOR -->
+    <div class="slide">
+        <h2>Kuis Evaluasi (Bagian 2)</h2>
+        <p><strong>3. Di sebuah tempat parkir terdapat 40 kendaraan (sepeda motor dan mobil). Jumlah roda seluruhnya adalah 100. Berapa banyak mobil di tempat parkir tersebut?</strong></p>
+        <button class="option-btn" onclick="quizAns(3, false)">A. 30 mobil</button>
+        <button class="option-btn" onclick="quizAns(3, true)">B. 10 mobil</button>
+        <button class="option-btn" onclick="quizAns(3, false)">C. 20 mobil</button>
+        <div id="q3-fb" class="feedback"></div>
+
+        <div style="margin-top:20px; text-align:center;">
+            <button class="btn" onclick="showFinalScore()">Lihat Hasil Kuis</button>
+            <h3 id="score-display" style="margin-top:10px;"></h3>
+        </div>
+    </div>
+
+    <!-- SLIDE 10: RANGKUMAN -->
+    <div class="slide">
+        <h2>Rangkuman Bab 1: SPLDV</h2>
+        <ul style="margin-left: 20px;">
+            <li><strong>Model Matematika:</strong> Mengubah bahasa soal cerita menjadi persamaan $ax + by = c$.</li>
+            <li><strong>Metode Penyelesaian:</strong>
+                <ul>
+                    <li>Grafik (menemukan titik potong)</li>
+                    <li>Substitusi (mengganti variabel)</li>
+                    <li>Eliminasi (menghilangkan variabel)</li>
+                    <li>Campuran (Eliminasi + Substitusi — paling efisien)</li>
+                </ul>
+            </li>
+            <li><strong>Penafsiran Solusi:</strong> Menyesuaikan hasil $x$ dan $y$ dengan pertanyaan dan logika dunia nyata.</li>
+        </ul>
+    </div>
+
+    <!-- SLIDE 11: PENATUP & NAVIGASI BAB -->
+    <div class="slide">
+        <h2>Selamat! Bab 1 Telah Selesai 🎉</h2>
+        <p>Kamu telah mempelajari penyelesaian dan penerapan Sistem Persamaan Linear Dua Variabel (SPLDV).</p>
+        
+        <div style="background: var(--light); padding: 25px; border-radius: 12px; text-align: center; margin-top: 30px;">
+            <h3>Langkah Selanjutnya</h3>
+            <p>Siap untuk melanjutkan ke materi berikutnya?</p>
+            <br>
+            <button class="btn" style="background: #28a745; font-size: 1.1rem; padding: 12px 25px;" onclick="goToBab2()">
+                ⏩ Lanjut ke Bab 2 (Persamaan Kuadrat)
+            </button>
+            <br><br>
+                <button class="reveal-btn" onclick="window.location.href='../materi-kelas9-matematika.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 1 </button>
+
+        </div>
+    </div>
+
+    <!-- NAVIGASI BOTTOM -->
+    <div class="nav-bar">
+        <button class="nav-btn" id="prevBtn" onclick="prevSlide()">◀ Seb</button>
+        <div class="dots" id="dotsContainer"></div>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">Lanj ▶</button>
+    </div>
+
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const dotsContainer = document.getElementById('dotsContainer');
+    let score = 0;
+    let answered = {1: false, 2: false, 3: false};
+
+    // Initialize Dots
+    slides.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('dot');
+        if (index === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(index));
+        dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateNav() {
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('active', index === currentSlide);
+            dots[index].classList.toggle('active', index === currentSlide);
+        });
+
+        document.getElementById('prevBtn').disabled = currentSlide === 0;
+        document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+    }
+
+    function nextSlide() {
+        if (currentSlide < slides.length - 1) {
+            currentSlide++;
+            updateNav();
+        }
+    }
+
+    function prevSlide() {
+        if (currentSlide > 0) {
+            currentSlide--;
+            updateNav();
+        }
+    }
+
+    function goToSlide(index) {
+        currentSlide = index;
+        updateNav();
+    }
+
+    function toggleDetail(id) {
+        const el = document.getElementById(id);
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Simulation 1
+    function runSim1() {
+        const out = document.getElementById('sim1-output');
+        out.innerHTML = `
+            <div class="step-box"><strong>Misal:</strong> Tiket Dewasa = x, Tiket Anak = y</div>
+            <div class="step-box"><strong>Persamaan 1:</strong> 3x + 2y = 140.000</div>
+            <div class="step-box"><strong>Persamaan 2:</strong> 1x + 3y = 105.000 ➔ x = 105.000 - 3y</div>
+            <div class="step-box"><strong>Substitusi:</strong> 3(105.000 - 3y) + 2y = 140.000 <br> 315.000 - 7y = 140.000 ➔ 7y = 175.000 ➔ <strong>y = 25.000</strong></div>
+            <div class="step-box"><strong>Hitung x:</strong> x = 105.000 - 3(25.000) = <strong>30.000</strong></div>
+            <p style="color: green; font-weight: bold;">Penafsiran: Harga 1 tiket dewasa adalah Rp30.000 dan 1 tiket anak adalah Rp25.000.</p>
+        `;
+    }
+
+    // Geometry Simulation
+    function showGeo(step) {
+        const out = document.getElementById('geo-output');
+        out.style.display = 'block';
+        if(step === 1) {
+            out.innerHTML = '<strong>Langkah 1:</strong><br>Misal panjang = p, lebar = l.<br>Keliling = 2(p + l) = 40 ➔ p + l = 20<br>Panjang = l + 4 ➔ p - l = 4';
+        } else if(step === 2) {
+            out.innerHTML = '<strong>Langkah 2:</strong><br>Eliminasi (p + l = 20) dan (p - l = 4):<br>2p = 24 ➔ <strong>p = 12 cm</strong><br>12 + l = 20 ➔ <strong>l = 8 cm</strong>';
+        } else if(step === 3) {
+            out.innerHTML = '<strong>Langkah 3 (Penafsiran):</strong><br>Luas = p × l = 12 cm × 8 cm = <strong>96 cm²</strong>.';
+        }
+    }
+
+    // Age Sim
+    function showAgeSim() {
+        document.getElementById('age-output').innerHTML = `
+            <div class="step-box">
+                Model Matematika:<br>
+                1) x = 3y<br>
+                2) (x - 4) + (y - 4) = 48 ➔ x + y - 8 = 48 ➔ x + y = 56
+            </div>
+            <div class="step-box">
+                Substitusi x = 3y ke (2):<br>
+                3y + y = 56 ➔ 4y = 56 ➔ <strong>y = 14</strong>
+            </div>
+            <p style="color: green; font-weight: bold;">Penafsiran: Umur Bimo sekarang adalah 14 tahun (dan umur Ayah = 42 tahun).</p>
+        `;
+    }
+
+    // Interactive Ex
+    function checkEx(isCorrect) {
+        const fb = document.getElementById('ex-fb');
+        fb.style.display = 'block';
+        if(isCorrect) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = 'Bagus sekali! "Dua kali bilangan pertama + kedua" ➔ 2x + y = 18. "Selisih" ➔ x - y = 3.';
+        } else {
+            fb.className = 'feedback wrong';
+            fb.innerHTML = 'Kurang tepat. Perhatikan kata "Selisih" menunjukkan pengurangan (x - y).';
+        }
+    }
+
+    // Quiz
+    function quizAns(qNum, isCorrect) {
+        const fb = document.getElementById(`q${qNum}-fb`);
+        fb.style.display = 'block';
+        if(!answered[qNum]) {
+            if(isCorrect) score += 33.3;
+            answered[qNum] = true;
+        }
+
+        if(isCorrect) {
+            fb.className = 'feedback correct';
+            fb.innerHTML = 'Jawaban Benar! 🎉';
+        } else {
+            fb.className = 'feedback wrong';
+            fb.innerHTML = 'Jawaban Coba Lagi!';
+        }
+    }
+
+    function showFinalScore() {
+        const display = document.getElementById('score-display');
+        display.innerHTML = `Skor Akhir Kuis Anda: ${Math.round(score)} / 100`;
+    }
+
+    function goToBab2() {
+        alert("Mengarahkan ke Modul Bab 2: Persamaan & Fungsi Kuadrat...");
+    }
+</script>
+
+</body>
+</html>
