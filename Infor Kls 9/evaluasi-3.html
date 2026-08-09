@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi Bab 3 - Citra Digital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0f1621;
+            --dark-secondary: #1a2332;
+            --cyan: #22d3ee;
+            --cyan-dark: #06b6d4;
+            --lime: #84cc16;
+            --orange: #fb923c;
+            --blue: #3b82f6;
+            --text-white: #ffffff;
+            --text-gray: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--dark-secondary);
+            border-radius: 20px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(34, 211, 238, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+            color: var(--text-white);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--cyan);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--lime), var(--orange));
+            transition: width 0.3s ease;
+        }
+
+        .slide-container {
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateX(50px);
+            color: var(--text-white);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 25px 15px;
+            }
+        }
+
+        /* PILIHAN GANDA SLIDE */
+        .pg-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 500px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .question-header h2 {
+            color: var(--cyan);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: var(--dark-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .question-text {
+            color: var(--text-white);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .question-text .topic {
+            display: inline-block;
+            background: rgba(34, 211, 238, 0.2);
+            color: var(--lime);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            background: rgba(26, 35, 50, 0.8);
+            border: 2px solid var(--border);
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .option:hover {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.08);
+        }
+
+        .option input[type="radio"] {
+            margin-top: 4px;
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--cyan);
+        }
+
+        .option label {
+            flex: 1;
+            cursor: pointer;
+            color: var(--text-gray);
+            font-size: 15px;
+        }
+
+        .option.selected {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.15);
+        }
+
+        /* ESSAY SLIDE */
+        .essay-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .essay-header {
+            color: var(--cyan);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .essay-instructions {
+            background: rgba(34, 211, 238, 0.1);
+            border-left: 4px solid var(--cyan);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .essay-questions {
+            display: grid;
+            gap: 20px;
+            max-height: 550px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .essay-questions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .essay-questions::-webkit-scrollbar-track {
+            background: rgba(26, 35, 50, 0.8);
+            border-radius: 3px;
+        }
+
+        .essay-questions::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            border-radius: 3px;
+        }
+
+        .essay-item {
+            padding: 15px;
+            background: rgba(26, 35, 50, 0.8);
+            border-left: 4px solid var(--lime);
+            border-radius: 6px;
+        }
+
+        .essay-item h4 {
+            color: var(--orange);
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .essay-item p {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* ANSWER KEY SLIDE */
+        .answer-key-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .answer-key-header {
+            color: var(--lime);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reveal-btn {
+            background: linear-gradient(135deg, var(--orange), #d97706);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 146, 60, 0.3);
+        }
+
+        .reveal-btn.hidden {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .answer-key-content {
+            display: grid;
+            gap: 15px;
+            max-height: 550px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .answer-key-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .answer-key-content::-webkit-scrollbar-thumb {
+            background: var(--lime);
+            border-radius: 3px;
+        }
+
+        .answer-item {
+            padding: 12px;
+            background: rgba(26, 35, 50, 0.8);
+            border-left: 4px solid var(--success);
+            border-radius: 6px;
+        }
+
+        .answer-item.hidden {
+            filter: blur(5px);
+            user-select: none;
+        }
+
+        .answer-item.revealed {
+            filter: blur(0);
+        }
+
+        .answer-item h5 {
+            color: var(--cyan);
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .answer-item p {
+            color: var(--text-gray);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .answer-item.pg p {
+            color: var(--lime);
+        }
+
+        /* SCORING GUIDE SLIDE */
+        .scoring-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scoring-header {
+            color: var(--orange);
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .scoring-section {
+            margin-bottom: 20px;
+        }
+
+        .scoring-section h3 {
+            color: var(--lime);
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .scoring-box {
+            background: rgba(26, 35, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--cyan);
+            margin-bottom: 10px;
+        }
+
+        .scoring-box p {
+            color: var(--text-gray);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .scoring-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .scoring-table th {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: var(--dark-bg);
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .scoring-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-gray);
+        }
+
+        .scoring-table tr:nth-child(even) {
+            background: rgba(26, 35, 50, 0.5);
+        }
+
+        .final-score {
+            background: linear-gradient(135deg, rgba(34, 211, 238, 0.1), rgba(132, 204, 22, 0.1));
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid var(--cyan);
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .final-score h3 {
+            color: var(--lime);
+            margin-bottom: 10px;
+        }
+
+        .final-score p {
+            color: var(--cyan);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .final-score small {
+            color: var(--text-gray);
+            display: block;
+        }
+
+        /* FOOTER */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(26, 35, 50, 0.8);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 15px 20px;
+            }
+        }
+
+        .slide-indicator {
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button.btn-nav {
+            padding: 10px 20px;
+            background: var(--cyan);
+            color: var(--dark-bg);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        button.btn-nav:hover {
+            background: var(--cyan-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 211, 238, 0.3);
+        }
+
+        button.btn-nav:disabled {
+            background: var(--border);
+            color: var(--text-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .question-text {
+                font-size: 16px;
+            }
+            .option label {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Evaluasi Bab 3 - Citra Digital</h1>
+            <p>Pilihan Ganda (15 soal) + Essay (5 soal) | Total Nilai: 100</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slideContainer">
+            <!-- PG SOAL 1 -->
+            <div class="slide active pg-container">
+                <div class="slide-number">1 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 1</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Konsep Dasar Citra Digital</span><br>
+                    Apa yang dimaksud dengan piksel dalam citra digital?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg1" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Unit terkecil dari layar yang menampilkan satu warna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg1" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Ukuran file dari sebuah gambar</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg1" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Jenis format gambar digital</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg1" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Alat untuk menangkap gambar</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 2 -->
+            <div class="slide pg-container">
+                <div class="slide-number">2 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 2</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Konsep Dasar Citra Digital</span><br>
+                    Berapa jumlah warna yang dapat ditampilkan dengan 24-bit color?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg2" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> 256 warna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg2" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> 65.536 warna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg2" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> 16,7 juta warna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg2" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> 1 miliar warna</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 3 -->
+            <div class="slide pg-container">
+                <div class="slide-number">3 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 3</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Konsep Dasar Citra Digital</span><br>
+                    Format file gambar mana yang merupakan format lossless (tidak kehilangan data)?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg3" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> JPEG</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg3" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> PNG</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg3" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> WebP</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg3" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> TIFF dan PNG</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 4 -->
+            <div class="slide pg-container">
+                <div class="slide-number">4 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 4</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Akuisisi dan Penyimpanan Citra</span><br>
+                    Perangkat apa yang paling sering digunakan untuk melakukan akuisisi citra?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg4" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Printer dan Scanner</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg4" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Kamera digital dan Smartphone</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg4" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Monitor dan Speaker</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg4" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Hard disk dan SSD</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 5 -->
+            <div class="slide pg-container">
+                <div class="slide-number">5 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 5</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Akuisisi dan Penyimpanan Citra</span><br>
+                    Resolusi gambar 1920 × 1080 piksel sama dengan berapa megapiksel?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg5" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> 1,5 MP</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg5" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> 2 MP</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg5" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> 2,1 MP</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg5" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> 3 MP</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 6 -->
+            <div class="slide pg-container">
+                <div class="slide-number">6 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 6</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Akuisisi dan Penyimpanan Citra</span><br>
+                    Model warna mana yang digunakan untuk cetakan/printing?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg6" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> RGB</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg6" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> HSL</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg6" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> CMYK</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg6" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> LAB</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 7 -->
+            <div class="slide pg-container">
+                <div class="slide-number">7 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 7</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengolahan Citra Digital</span><br>
+                    Operasi apa yang digunakan untuk memperbesar atau memperkecil ukuran gambar?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg7" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Cropping</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg7" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Rotating</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg7" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Resizing</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg7" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Flipping</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 8 -->
+            <div class="slide pg-container">
+                <div class="slide-number">8 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 8</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengolahan Citra Digital</span><br>
+                    Bagaimana cara mengatur kecerahan dan kontras gambar?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg8" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Menggunakan Blur dan Sharpen</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg8" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Menggunakan Brightness dan Contrast tools</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg8" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Menggunakan Crop dan Rotate</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg8" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Menggunakan Color Balance saja</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 9 -->
+            <div class="slide pg-container">
+                <div class="slide-number">9 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 9</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengolahan Citra Digital</span><br>
+                    Efek apa yang menghasilkan warna citra menjadi hitam putih?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg9" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Sepia</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg9" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Invert</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg9" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Desaturate/Grayscale</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg9" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Bloom</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 10 -->
+            <div class="slide pg-container">
+                <div class="slide-number">10 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 10</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengubahan dan Manipulasi Citra</span><br>
+                    Model warna RGB (Red, Green, Blue) bekerja dengan prinsip pencampuran apa?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg10" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Pencampuran tinta (subtractive)</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg10" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Pencampuran cahaya (additive)</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg10" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Pencampuran pigmen alami</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg10" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Pencampuran digital saja</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 11 -->
+            <div class="slide pg-container">
+                <div class="slide-number">11 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 11</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengubahan dan Manipulasi Citra</span><br>
+                    Apa fungsi dari Opacity dalam menggabungkan dua layer gambar?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg11" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Mengubah ukuran layer</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg11" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Mengatur tingkat transparansi/keliatan layer</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg11" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Menggabungkan warna secara sempurna</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg11" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Menghapus bagian gambar yang tidak perlu</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 12 -->
+            <div class="slide pg-container">
+                <div class="slide-number">12 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 12</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengubahan dan Manipulasi Citra</span><br>
+                    Blend mode mana yang menghasilkan efek cahaya bersinar pada gambar?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg12" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Multiply</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg12" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Screen</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg12" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Overlay</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg12" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Darken</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 13 -->
+            <div class="slide pg-container">
+                <div class="slide-number">13 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 13</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Pengubahan dan Manipulasi Citra</span><br>
+                    Alat mana yang digunakan untuk menyalin bagian tertentu gambar ke area lain?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg13" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Eraser Tool</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg13" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Clone/Healing Tool</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg13" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Blur Tool</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg13" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Magic Wand</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 14 -->
+            <div class="slide pg-container">
+                <div class="slide-number">14 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 14</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Praktik Pengolahan dan Pengubahan Citra</span><br>
+                    Manakah langkah yang tepat dalam melakukan editing gambar?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg14" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Buka gambar → Edit → Simpan dengan format asli</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg14" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Edit → Buka gambar → Simpan hasil</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg14" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> Buka gambar → Edit dengan layer → Merge → Simpan hasil</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg14" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Simpan → Buka → Edit</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PG SOAL 15 -->
+            <div class="slide pg-container">
+                <div class="slide-number">15 / 23</div>
+                <div class="question-header">
+                    <h2>Pilihan Ganda</h2>
+                    <div class="question-number">SOAL 15</div>
+                </div>
+                <div class="question-text">
+                    <span class="topic">Praktik Pengolahan dan Pengubahan Citra</span><br>
+                    Software mana yang paling populer untuk editing gambar profesional?
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <input type="radio" name="pg15" value="A" onchange="selectOption(this)">
+                        <label><strong>A)</strong> Microsoft Word</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg15" value="B" onchange="selectOption(this)">
+                        <label><strong>B)</strong> Adobe Photoshop</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg15" value="C" onchange="selectOption(this)">
+                        <label><strong>C)</strong> VLC Media Player</label>
+                    </div>
+                    <div class="option">
+                        <input type="radio" name="pg15" value="D" onchange="selectOption(this)">
+                        <label><strong>D)</strong> Google Chrome</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ESSAY SLIDE -->
+            <div class="slide essay-container">
+                <div class="slide-number">16 / 23</div>
+                <div class="essay-header">📝 Soal Essay</div>
+                <div class="essay-instructions">
+                    Jawab semua pertanyaan essay di bawah dengan jawaban yang jelas, ringkas, dan mudah dipahami. Setiap pertanyaan bernilai 8 poin.
+                </div>
+                <div class="essay-questions">
+                    <div class="essay-item">
+                        <h4>1. Jelaskan perbedaan antara resolusi dan ukuran file gambar!</h4>
+                        <p style="color: var(--text-gray); font-style: italic;">Berikan contoh konkret untuk memperjelas jawaban Anda.</p>
+                    </div>
+                    <div class="essay-item">
+                        <h4>2. Bagaimana proses kerja sensor digital pada kamera dalam mengakuisisi citra?</h4>
+                        <p style="color: var(--text-gray); font-style: italic;">Jelaskan dari cahaya masuk hingga terbentuk file gambar digital.</p>
+                    </div>
+                    <div class="essay-item">
+                        <h4>3. Apa keuntungan menggunakan layer dan blend mode dalam menggabungkan gambar?</h4>
+                        <p style="color: var(--text-gray); font-style: italic;">Sebutkan minimal 3 keuntungan dan jelaskan masing-masing.</p>
+                    </div>
+                    <div class="essay-item">
+                        <h4>4. Jelaskan mengapa format PNG lebih cocok untuk desain grafis dibanding JPEG!</h4>
+                        <p style="color: var(--text-gray); font-style: italic;">Bandingkan dengan detail teknis.</p>
+                    </div>
+                    <div class="essay-item">
+                        <h4>5. Buatlah langkah-langkah lengkap untuk membuat poster menggunakan teknik manipulasi citra!</h4>
+                        <p style="color: var(--text-gray); font-style: italic;">Mulai dari persiapan hingga penyimpanan hasil akhir.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ANSWER KEY SLIDE -->
+            <div class="slide answer-key-container">
+                <div class="slide-number">17 / 23</div>
+                <div class="answer-key-header">
+                    <span>🔐 Kunci Jawaban (Tersembunyi)</span>
+                    <button class="reveal-btn" onclick="revealAnswerKey()" id="revealBtn">Tampilkan Kunci</button>
+                </div>
+                <div class="answer-key-content" id="answerKeyContent">
+                    <!-- PG KEYS -->
+                    <div class="answer-item pg hidden" id="answerKey1">
+                        <h5>PG Soal 1 - Jawaban: A</h5>
+                        <p>Unit terkecil dari layar yang menampilkan satu warna</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey2">
+                        <h5>PG Soal 2 - Jawaban: C</h5>
+                        <p>16,7 juta warna (2^24 = 16.777.216 warna)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey3">
+                        <h5>PG Soal 3 - Jawaban: D</h5>
+                        <p>TIFF dan PNG (keduanya format lossless)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey4">
+                        <h5>PG Soal 4 - Jawaban: B</h5>
+                        <p>Kamera digital dan Smartphone</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey5">
+                        <h5>PG Soal 5 - Jawaban: C</h5>
+                        <p>2,1 MP (1920 × 1080 = 2.073.600 piksel ÷ 1.000.000 = 2,07 MP ≈ 2,1 MP)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey6">
+                        <h5>PG Soal 6 - Jawaban: C</h5>
+                        <p>CMYK (Cyan, Magenta, Yellow, blacK)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey7">
+                        <h5>PG Soal 7 - Jawaban: C</h5>
+                        <p>Resizing (mengubah ukuran gambar)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey8">
+                        <h5>PG Soal 8 - Jawaban: B</h5>
+                        <p>Menggunakan Brightness dan Contrast tools</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey9">
+                        <h5>PG Soal 9 - Jawaban: C</h5>
+                        <p>Desaturate/Grayscale (menghilangkan saturasi warna)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey10">
+                        <h5>PG Soal 10 - Jawaban: B</h5>
+                        <p>Pencampuran cahaya (additive) - layar emitif</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey11">
+                        <h5>PG Soal 11 - Jawaban: B</h5>
+                        <p>Mengatur tingkat transparansi/keliatan layer</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey12">
+                        <h5>PG Soal 12 - Jawaban: B</h5>
+                        <p>Screen (efek cahaya bersinar/additive blending)</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey13">
+                        <h5>PG Soal 13 - Jawaban: B</h5>
+                        <p>Clone/Healing Tool</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey14">
+                        <h5>PG Soal 14 - Jawaban: C</h5>
+                        <p>Buka gambar → Edit dengan layer → Merge → Simpan hasil</p>
+                    </div>
+                    <div class="answer-item pg hidden" id="answerKey15">
+                        <h5>PG Soal 15 - Jawaban: B</h5>
+                        <p>Adobe Photoshop</p>
+                    </div>
+
+                    <!-- ESSAY KEYS -->
+                    <div class="answer-item hidden" id="answerKeyEssay1">
+                        <h5>Essay Soal 1 - Resolusi vs Ukuran File</h5>
+                        <p><strong>Perbedaan:</strong> Resolusi adalah jumlah piksel (lebar × tinggi), sedangkan ukuran file adalah besarnya data yang disimpan dalam byte/MB. Contoh: Gambar 1920×1080 dengan 24-bit = ~6MB, tetapi gambar 100×100 dengan 24-bit = ~30KB. Resolusi sama tidak berarti ukuran file sama jika bit warna berbeda.</p>
+                    </div>
+                    <div class="answer-item hidden" id="answerKeyEssay2">
+                        <h5>Essay Soal 2 - Proses Sensor Kamera</h5>
+                        <p><strong>Proses:</strong> 1) Cahaya dari objek memasuki lensa, 2) Sensor (CCD/CMOS) menangkap cahaya dan mengubahnya menjadi muatan elektrik, 3) Charge-Coupled Device (CCD) atau CMOS membaca muatan setiap piksel, 4) Analog-to-Digital Converter (ADC) mengubah sinyal analog menjadi digital, 5) Processor menggabungkan data RGB dan mengkompresi data, 6) File gambar disimpan dalam format tertentu.</p>
+                    </div>
+                    <div class="answer-item hidden" id="answerKeyEssay3">
+                        <h5>Essay Soal 3 - Keuntungan Layer dan Blend Mode</h5>
+                        <p><strong>Keuntungan:</strong> 1) Non-destructive editing - tidak menghapus data asli, 2) Fleksibilitas - dapat menyesuaikan opacity dan blend mode kapan saja, 3) Kontrol presisi - mengedit bagian tertentu tanpa mempengaruhi layer lain, 4) Hasil natural - blend mode memberikan transisi warna yang halus dan realistis, 5) Kemudahan revisi - dapat menghapus layer dan mencoba opsi lain.</p>
+                    </div>
+                    <div class="answer-item hidden" id="answerKeyEssay4">
+                        <h5>Essay Soal 4 - PNG vs JPEG untuk Desain</h5>
+                        <p><strong>Alasan PNG lebih cocok:</strong> 1) PNG lossless - tidak kehilangan detail, 2) Mendukung transparansi alpha channel - penting untuk desain berlapis, 3) Tidak ada kompres lossy yang mengurangi kualitas, 4) Format JPEG lossy akan meninggalkan artefak kompresi yang terlihat pada garis tajam, 5) PNG ideal untuk grafis, logo, desain yang memerlukan presisi tinggi.</p>
+                    </div>
+                    <div class="answer-item hidden" id="answerKeyEssay5">
+                        <h5>Essay Soal 5 - Langkah Membuat Poster</h5>
+                        <p><strong>Langkah:</strong> 1) Perencanaan - tentukan tema, ukuran, dan konsep visual, 2) Siapkan aset - kumpulkan gambar, font, elemen desain, 3) Buat kanvas baru dengan ukuran yang tepat, 4) Import dan arrange elemen (gambar, teks) menggunakan layer, 5) Lakukan penyuntingan - crop, resize, adjust warna & kontras, 6) Terapkan efek/filter jika diperlukan, 7) Merge layer atau export dengan layer, 8) Simpan hasil dalam format PNG (desain) dan JPG (publikasi).</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCORING GUIDE SLIDE -->
+            <div class="slide scoring-container">
+                <div class="slide-number">18 / 23</div>
+                <div class="scoring-header">📊 Panduan Penilaian</div>
+
+                <div class="scoring-section">
+                    <h3>A. Pilihan Ganda (15 Soal × 5 Poin = 75 Poin)</h3>
+                    <div class="scoring-box">
+                        <p><strong>Sistem Penilaian:</strong></p>
+                        <p style="margin-top: 8px;">• Setiap jawaban BENAR = 5 poin</p>
+                        <p>• Setiap jawaban SALAH = 0 poin</p>
+                        <p>• Tidak dijawab = 0 poin</p>
+                    </div>
+                    <table class="scoring-table">
+                        <tr>
+                            <th>Jumlah Benar</th>
+                            <th>Skor PG</th>
+                            <th>Jumlah Benar</th>
+                            <th>Skor PG</th>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td><strong>75</strong></td>
+                            <td>8</td>
+                            <td><strong>40</strong></td>
+                        </tr>
+                        <tr>
+                            <td>14</td>
+                            <td><strong>70</strong></td>
+                            <td>7</td>
+                            <td><strong>35</strong></td>
+                        </tr>
+                        <tr>
+                            <td>13</td>
+                            <td><strong>65</strong></td>
+                            <td>6</td>
+                            <td><strong>30</strong></td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td><strong>60</strong></td>
+                            <td>5</td>
+                            <td><strong>25</strong></td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td><strong>55</strong></td>
+                            <td>< 5</td>
+                            <td><strong>< 25</strong></td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td><strong>50</strong></td>
+                            <td>0</td>
+                            <td><strong>0</strong></td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td><strong>45</strong></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="scoring-section">
+                    <h3>B. Essay (5 Soal × 5 Poin = 25 Poin)</h3>
+                    <div class="scoring-box">
+                        <p><strong>Rubrik Penilaian per Soal:</strong></p>
+                    </div>
+                    <table class="scoring-table">
+                        <tr>
+                            <th>Skor</th>
+                            <th>Kriteria</th>
+                        </tr>
+                        <tr>
+                            <td><strong>5</strong></td>
+                            <td>Jawaban sangat lengkap, akurat, dan terstruktur dengan baik. Mencakup detail dan contoh relevan.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4</strong></td>
+                            <td>Jawaban lengkap dan sebagian besar akurat. Detail dan contoh cukup namun kurang mendalam.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3</strong></td>
+                            <td>Jawaban cukup namun ada bagian yang kurang akurat atau detail kurang lengkap.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2</strong></td>
+                            <td>Jawaban basic, ada kesalahan, atau hanya menjawab sebagian dari pertanyaan.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>1</strong></td>
+                            <td>Jawaban sangat terbatas atau sebagian besar salah.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>0</strong></td>
+                            <td>Tidak dijawab atau jawaban tidak relevan sama sekali.</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="final-score">
+                    <h3>💯 RUMUS NILAI AKHIR</h3>
+                    <p>Nilai Akhir = (Skor PG + Skor Essay) / 100 × 100</p>
+                    <small style="color: var(--text-gray); margin-top: 10px;">Contoh: (70 + 20) / 100 × 100 = 90/100</small>
+                </div>
+
+                <div class="scoring-section" style="margin-top: 20px;">
+                    <h3>Kriteria Ketuntasan</h3>
+                    <table class="scoring-table">
+                        <tr>
+                            <th>Nilai</th>
+                            <th>Keterangan</th>
+                        </tr>
+                        <tr>
+                            <td><strong>80 - 100</strong></td>
+                            <td>Sangat Baik (A)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>70 - 79</strong></td>
+                            <td>Baik (B)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>60 - 69</strong></td>
+                            <td>Cukup (C)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>< 60</strong></td>
+                            <td>Kurang (D) - Remedial</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="slide-indicator">
+                Slide <span id="currentSlide">1</span> / <span id="totalSlides">18</span>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-nav" id="prevBtn" onclick="previousSlide()">← Sebelumnya</button>
+                <button class="btn-nav" id="nextBtn" onclick="nextSlide()">Selanjutnya →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let keyRevealed = false;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('totalSlides').textContent = totalSlides;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function selectOption(radio) {
+            const parent = radio.closest('.option');
+            const allOptions = radio.closest('.options-container').querySelectorAll('.option');
+            allOptions.forEach(opt => opt.classList.remove('selected'));
+            parent.classList.add('selected');
+        }
+
+        function revealAnswerKey() {
+            if (!keyRevealed) {
+                const items = document.querySelectorAll('.answer-item.hidden');
+                items.forEach(item => {
+                    item.classList.remove('hidden');
+                    item.classList.add('revealed');
+                });
+                document.getElementById('revealBtn').textContent = 'Kunci Tersembunyi';
+                document.getElementById('revealBtn').classList.add('hidden');
+                keyRevealed = true;
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') previousSlide();
+            if (event.key === 'ArrowRight') nextSlide();
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>

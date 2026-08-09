@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 2 · Algoritma dan Penyusunan Langkah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A1830;
+    --navy-2:#122A4E;
+    --navy-3:#1B3A66;
+    --paper:#F7F2E7;
+    --paper-2:#EFE7D6;
+    --ink:#12141B;
+    --coral:#FF6B4A;
+    --coral-dim:#c94f34;
+    --teal:#2FDFC4;
+    --amber:#FFC145;
+    --violet:#9C8CFF;
+    --mute:#9FB0C9;
+    --mute-2:#5B6E8C;
+    --danger:#FF6B6B;
+    --radius:18px;
+    --radius-sm:10px;
+    --ff-display:'Sora', sans-serif;
+    --ff-body:'Plus Jakarta Sans', sans-serif;
+    --ff-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--ff-body);
+    background:
+      radial-gradient(circle at 12% 10%, rgba(156,140,255,0.12), transparent 42%),
+      radial-gradient(circle at 90% 85%, rgba(255,107,74,0.12), transparent 45%),
+      var(--navy);
+    color:var(--paper);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--coral); color:white; }
+  button{ font-family:inherit; cursor:pointer; }
+  .deck{ height:100vh; height:100dvh; display:flex; flex-direction:column; }
+
+  .topbar{ position:relative; height:4px; background:rgba(255,255,255,0.08); flex-shrink:0; }
+  .topbar .fill{ position:absolute; inset:0 auto 0 0; width:0%; background:linear-gradient(90deg, var(--violet), var(--coral)); transition:width .45s cubic-bezier(.65,0,.35,1); }
+
+  .slides{ flex:1; position:relative; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:flex-start;
+    padding: clamp(24px,5vw,64px) clamp(18px,6vw,90px) clamp(90px,10vw,110px);
+    overflow-y:auto; opacity:0; transform:translateX(40px); pointer-events:none;
+    transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1);
+  }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.prev{ transform:translateX(-40px); }
+  .slide-inner{ width:100%; max-width:980px; margin:0 auto; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--ff-display); font-size:12px; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--violet);
+    background:rgba(156,140,255,0.09); border:1px solid rgba(156,140,255,0.28);
+    padding:6px 14px; border-radius:999px; margin-bottom:18px;
+  }
+  h1.title{ font-family:var(--ff-display); font-weight:800; font-size:clamp(28px,5vw,52px); line-height:1.08; margin:0 0 14px; letter-spacing:-0.01em; }
+  h2.title{ font-family:var(--ff-display); font-weight:700; font-size:clamp(22px,3.6vw,36px); line-height:1.15; margin:0 0 14px; letter-spacing:-0.01em; }
+  .lead{ font-size:clamp(15px,1.9vw,18px); color:var(--mute); line-height:1.6; max-width:640px; margin:0 0 28px; }
+  strong.hl{ color:var(--violet); font-weight:700; }
+  strong.hl2{ color:var(--coral); font-weight:700; }
+  strong.hl3{ color:var(--teal); font-weight:700; }
+
+  .card{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius); padding:22px 24px; }
+
+  .btn{ font-family:var(--ff-display); font-weight:700; font-size:14px; border-radius:999px; border:none; padding:13px 26px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .btn-primary{ background:var(--coral); color:#1a0d08; box-shadow:0 10px 24px -10px rgba(255,107,74,0.6); }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--paper); border:1.5px solid rgba(255,255,255,0.25); }
+  .btn-ghost:hover{ border-color:var(--violet); color:var(--violet); }
+  .btn:active{ transform:scale(.97); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+
+  .navbar{ position:fixed; left:0; right:0; bottom:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px clamp(14px,4vw,40px); background:linear-gradient(0deg, rgba(10,24,48,0.97), rgba(10,24,48,0.85)); backdrop-filter:blur(10px); border-top:1px solid rgba(255,255,255,0.08); z-index:50; }
+  .navbar .navbtn{ width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:var(--paper); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; transition:background .15s ease, transform .15s ease, opacity .15s; }
+  .navbar .navbtn:hover:not(:disabled){ background:var(--violet); color:var(--navy); transform:translateY(-2px); }
+  .navbar .navbtn:disabled{ opacity:.25; cursor:default; }
+  .navmid{ flex:1; text-align:center; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .navmid .label{ font-family:var(--ff-display); font-weight:700; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--paper); }
+  .navmid .count{ font-size:11px; color:var(--mute-2); letter-spacing:.05em; }
+
+  .grid{ display:grid; gap:16px; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:repeat(3,1fr); }
+  .grid-4{ grid-template-columns:repeat(4,1fr); }
+  .grid-5{ grid-template-columns:repeat(5,1fr); }
+  .grid-auto{ grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+  @media (max-width:760px){ .grid-2,.grid-3,.grid-4,.grid-5{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .grid-2,.grid-3,.grid-4,.grid-5{ grid-template-columns:1fr; } }
+
+  .pillar{ padding:20px; border-radius:var(--radius-sm); background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); transition:transform .2s ease, border-color .2s ease; }
+  .pillar .num{ font-family:var(--ff-display); font-size:11px; color:var(--mute-2); letter-spacing:.1em; }
+  .pillar .icon{ font-size:28px; margin:6px 0 10px; }
+  .pillar .name{ font-family:var(--ff-display); font-weight:700; font-size:16px; margin-bottom:6px; }
+  .pillar .desc{ font-size:13px; color:var(--mute); line-height:1.5; }
+  .pillar.active{ border-color:var(--violet); background:rgba(156,140,255,0.08); transform:translateY(-4px); }
+  .pillar.active .name{ color:var(--violet); }
+
+  .def-box{ border-radius:var(--radius); padding:26px 28px; background:linear-gradient(135deg, var(--navy-3), var(--navy-2)); border-left:4px solid var(--violet); margin-bottom:18px; }
+  .def-box .tag{ font-family:var(--ff-display); font-size:11px; letter-spacing:.12em; color:var(--violet); text-transform:uppercase; margin-bottom:8px; }
+  .def-box p{ margin:0; font-size:clamp(15px,2vw,19px); line-height:1.6; }
+  .def-box.simple{ border-left-color:var(--coral); }
+  .def-box.simple .tag{ color:var(--coral); }
+
+  /* ---------- Ciri-ciri (5 syarat algoritma) ---------- */
+  .trait{ padding:18px; border-radius:var(--radius-sm); background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); text-align:center; }
+  .trait .icon{ font-size:26px; margin-bottom:8px; }
+  .trait .name{ font-family:var(--ff-display); font-weight:700; font-size:13.5px; margin-bottom:6px; color:var(--violet); }
+  .trait .desc{ font-size:12px; color:var(--mute); line-height:1.5; }
+
+  /* ---------- Step reveal (mie instan) ---------- */
+  .steps-click{ display:flex; flex-direction:column; gap:10px; }
+  .step-click{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.09); border-radius:var(--radius-sm); overflow:hidden; }
+  .step-click .head{ display:flex; align-items:center; gap:14px; padding:14px 18px; }
+  .step-click .head .n{ font-family:var(--ff-display); font-weight:800; font-size:14px; width:28px; height:28px; border-radius:50%; background:var(--coral); color:#1a0d08; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .step-click .head .t{ font-family:var(--ff-display); font-weight:700; font-size:14px; flex:1; }
+  .step-click .head .arw{ color:var(--mute-2); transition:transform .25s ease; }
+  .step-click.open .head .arw{ transform:rotate(180deg); }
+  .step-click .body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .step-click.open .body{ max-height:200px; }
+  .step-click .body-in{ padding:0 18px 16px 60px; font-size:13px; color:var(--mute); line-height:1.55; }
+
+  /* ---------- Reorder puzzle ---------- */
+  .reorder-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:18px; }
+  .reorder-item{ display:flex; align-items:center; gap:12px; background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.1); border-radius:var(--radius-sm); padding:12px 14px; }
+  .reorder-item .pos{ font-family:var(--ff-display); font-weight:800; font-size:13px; width:26px; height:26px; border-radius:50%; background:var(--navy-3); color:var(--mute); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .reorder-item .txt{ flex:1; font-size:13.5px; }
+  .reorder-item .arrows{ display:flex; gap:6px; flex-shrink:0; }
+  .reorder-item .arrows button{ width:30px; height:30px; border-radius:8px; background:var(--navy-3); border:1px solid rgba(255,255,255,0.1); color:var(--paper); font-size:13px; }
+  .reorder-item .arrows button:hover{ background:var(--violet); color:var(--navy); }
+  .reorder-item .arrows button:disabled{ opacity:.25; cursor:default; }
+  .reorder-item.correct{ border-color:var(--teal); background:rgba(47,223,196,0.08); }
+  .reorder-item.correct .pos{ background:var(--teal); color:#062a24; }
+  .reorder-item.wrong{ border-color:var(--danger); background:rgba(255,107,107,0.08); }
+  .reorder-result{ margin-top:6px; padding:14px 18px; border-radius:var(--radius-sm); background:var(--navy-3); font-size:13.5px; display:none; }
+  .reorder-result.show{ display:block; }
+
+  /* ---------- Terminal / pseudocode ---------- */
+  .terminal{ background:#0D1420; border:1px solid rgba(255,255,255,0.1); border-radius:var(--radius); overflow:hidden; }
+  .terminal .bar{ display:flex; align-items:center; gap:8px; padding:12px 16px; background:#111B2E; border-bottom:1px solid rgba(255,255,255,0.06); }
+  .terminal .dot{ width:10px; height:10px; border-radius:50%; }
+  .terminal .dot.r{ background:#FF5F57; } .terminal .dot.y{ background:#FEBC2E; } .terminal .dot.g{ background:#28C840; }
+  .terminal .fname{ margin-left:8px; font-family:var(--ff-mono); font-size:12px; color:var(--mute-2); }
+  .terminal pre{ margin:0; padding:20px 22px; font-family:var(--ff-mono); font-size:13.5px; line-height:1.9; overflow-x:auto; }
+  .terminal .kw{ color:var(--violet); font-weight:700; }
+  .terminal .str{ color:var(--amber); }
+  .terminal .cm{ color:var(--mute-2); font-style:italic; }
+  .terminal .fn{ color:var(--teal); }
+
+  /* ---------- Flowchart symbols ---------- */
+  .symbol-tile{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.09); border-radius:var(--radius-sm); padding:18px 14px; text-align:center; transition:transform .18s ease, border-color .18s ease; }
+  .symbol-tile:hover{ transform:translateY(-4px); border-color:var(--violet); }
+  .symbol-tile.selected{ border-color:var(--violet); background:rgba(156,140,255,0.08); }
+  .sym-shape{ width:60px; height:40px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; font-family:var(--ff-display); }
+  .sym-oval{ border-radius:50%/50%; background:var(--teal); color:#062a24; }
+  .sym-rect{ background:var(--coral); color:#1a0d08; }
+  .sym-diamond{ background:var(--amber); color:#332400; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); width:70px; height:56px; }
+  .sym-para{ background:var(--violet); color:#1a0d33; clip-path:polygon(15% 0%, 100% 0%, 85% 100%, 0% 100%); }
+  .symbol-tile .lbl{ font-family:var(--ff-display); font-weight:700; font-size:12.5px; }
+  .symbol-detail{ margin-top:18px; padding:16px 20px; border-radius:var(--radius-sm); background:var(--navy-3); border-left:3px solid var(--violet); font-size:13.5px; line-height:1.6; min-height:56px; display:flex; align-items:center; }
+  .symbol-detail .placeholder{ color:var(--mute-2); }
+
+  /* ---------- Flowchart demo (genap/ganjil) ---------- */
+  .fc-controls{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+  .fc-btn{ background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.12); color:var(--mute); padding:11px 20px; border-radius:999px; font-family:var(--ff-display); font-weight:700; font-size:13px; }
+  .fc-btn.on{ background:var(--violet); color:#161033; border-color:var(--violet); }
+  .fc-stage{ display:flex; flex-direction:column; align-items:center; gap:0; }
+  .fc-node{ position:relative; padding:12px 22px; font-size:13px; font-weight:600; text-align:center; background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.14); color:var(--mute); transition:all .3s ease; }
+  .fc-node.oval{ border-radius:999px; }
+  .fc-node.para{ clip-path:polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%); padding:12px 30px; }
+  .fc-node.diamond{ width:190px; height:110px; display:flex; align-items:center; justify-content:center; clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); padding:0; }
+  .fc-node.active{ background:var(--violet); color:#161033; border-color:var(--violet); font-weight:700; box-shadow:0 0 0 4px rgba(156,140,255,0.2); }
+  .fc-arrow{ font-size:16px; color:var(--mute-2); margin:2px 0; }
+  .fc-branch{ display:flex; gap:50px; margin:4px 0; }
+  .fc-branch-col{ display:flex; flex-direction:column; align-items:center; }
+  .fc-branch-tag{ font-family:var(--ff-display); font-weight:800; font-size:11px; color:var(--mute-2); margin-bottom:4px; }
+  .fc-trace{ margin-top:22px; background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius-sm); padding:16px 20px; font-size:13px; color:var(--mute); line-height:1.7; }
+  .fc-trace b{ color:var(--paper); }
+
+  .flow{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:20px; }
+  .flow .chip{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.1); padding:10px 16px; border-radius:999px; font-size:13px; font-weight:600; }
+  .flow .chip.filter{ background:var(--violet); color:#161033; border:none; font-family:var(--ff-display); }
+  .flow .chip.result{ background:var(--teal); color:#062a24; border:none; font-family:var(--ff-display); }
+  .flow .arrow{ color:var(--mute-2); font-size:18px; }
+
+  .soal-box{ background:var(--paper); color:var(--ink); border-radius:var(--radius); padding:24px 26px; margin-bottom:16px; }
+  .soal-box .kicker{ font-family:var(--ff-display); font-weight:800; font-size:12px; color:var(--coral-dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .soal-box p{ line-height:1.65; font-size:14.5px; margin:0 0 8px; }
+  .reveal-panel{ max-height:0; overflow:hidden; transition:max-height .4s ease; border-radius:var(--radius-sm); }
+  .reveal-panel.open{ max-height:700px; }
+  .reveal-inner{ margin-top:14px; padding:18px 20px; background:var(--navy-3); border-left:3px solid var(--amber); border-radius:var(--radius-sm); font-size:13.5px; line-height:1.65; color:var(--paper); }
+  .reveal-inner ol{ margin:8px 0 0; padding-left:20px; }
+  .reveal-inner li{ margin-bottom:6px; }
+  .reveal-inner pre{ margin:10px 0 0; padding:14px 16px; background:#0D1420; border-radius:8px; font-family:var(--ff-mono); font-size:12.5px; line-height:1.7; overflow-x:auto; color:var(--teal); }
+
+  .quiz-wrap{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius); padding:26px; }
+  .quiz-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:12px; color:var(--mute-2); font-family:var(--ff-display); font-weight:700; letter-spacing:.05em; }
+  .quiz-bar{ height:5px; border-radius:99px; background:rgba(255,255,255,0.08); overflow:hidden; margin-bottom:22px; }
+  .quiz-bar .f{ height:100%; background:linear-gradient(90deg,var(--violet),var(--coral)); width:0%; transition:width .35s ease; }
+  .q-text{ font-family:var(--ff-display); font-weight:700; font-size:clamp(15px,2.2vw,19px); line-height:1.5; margin-bottom:18px; }
+  .q-text code, .q-code{ display:block; background:#0D1420; color:var(--teal); font-family:var(--ff-mono); font-size:12.5px; line-height:1.8; padding:14px 16px; border-radius:8px; margin:10px 0; white-space:pre; overflow-x:auto; }
+  .q-options{ display:flex; flex-direction:column; gap:10px; }
+  .q-opt{ text-align:left; background:var(--navy-3); border:1.5px solid rgba(255,255,255,0.1); color:var(--paper); padding:14px 18px; border-radius:12px; font-size:14px; line-height:1.5; display:flex; gap:12px; align-items:flex-start; }
+  .q-opt .k{ font-family:var(--ff-display); font-weight:800; color:var(--mute-2); flex-shrink:0; }
+  .q-opt:hover:not(:disabled){ border-color:var(--violet); }
+  .q-opt.correct{ background:rgba(47,223,196,0.14); border-color:var(--teal); }
+  .q-opt.correct .k{ color:var(--teal); }
+  .q-opt.wrong{ background:rgba(255,107,107,0.12); border-color:var(--danger); }
+  .q-opt.wrong .k{ color:var(--danger); }
+  .q-opt:disabled{ cursor:default; }
+  .q-feedback{ margin-top:16px; padding:14px 16px; border-radius:10px; background:var(--navy); font-size:13.5px; line-height:1.55; color:var(--mute); display:none; }
+  .q-feedback.show{ display:block; }
+  .q-next{ margin-top:18px; text-align:right; }
+  .quiz-result{ display:none; text-align:center; padding:20px 0; }
+  .quiz-result.show{ display:block; }
+  .quiz-result .score{ font-family:var(--ff-display); font-weight:800; font-size:clamp(38px,7vw,58px); color:var(--violet); margin:8px 0; }
+  .quiz-result .msg{ color:var(--mute); font-size:14px; margin-bottom:20px; }
+
+  .sum-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .sum-item{ display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.55; color:var(--mute); }
+  .sum-item .ic{ color:var(--violet); flex-shrink:0; font-size:16px; }
+
+  .cover-slide, .final-slide{ justify-content:center; align-items:center; text-align:center; }
+  .cover-visual{ position:relative; width:min(300px,68vw); margin:6px auto 26px; display:flex; flex-direction:column; align-items:center; gap:0; }
+  .cv-node{ font-family:var(--ff-mono); font-size:12px; font-weight:700; padding:9px 18px; border-radius:8px; background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.14); animation:pulseNode 3.6s ease-in-out infinite; }
+  .cv-node:nth-child(1){ animation-delay:0s; border-radius:999px; background:var(--teal); color:#062a24; border:none; }
+  .cv-node:nth-child(3){ animation-delay:.6s; }
+  .cv-node:nth-child(5){ animation-delay:1.2s; clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); padding:16px 30px; background:var(--amber); color:#332400; border:none; }
+  .cv-node:nth-child(7){ animation-delay:1.8s; background:var(--coral); color:#1a0d08; border:none; }
+  .cv-node:nth-child(9){ animation-delay:2.4s; border-radius:999px; background:var(--violet); color:#161033; border:none; }
+  .cv-arrow{ color:var(--mute-2); font-size:14px; }
+  @keyframes pulseNode{ 0%,100%{ box-shadow:0 0 0 0 rgba(156,140,255,0); } 8%{ box-shadow:0 0 0 8px rgba(156,140,255,0.15); } 16%{ box-shadow:0 0 0 0 rgba(156,140,255,0); } }
+  .final-emoji{ font-size:clamp(46px,9vw,72px); margin-bottom:10px; }
+  .final-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:24px; }
+
+  .slide::-webkit-scrollbar{ width:6px; }
+  .slide::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.15); border-radius:99px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide, .cv-node, .icon-tile, .navbar .navbtn{ transition:none !important; animation:none !important; }
+  }
+  @media (max-width:640px){
+    .navmid .label{ display:none; }
+    .navbar{ padding:10px 14px; }
+    .card{ padding:18px; }
+    .fc-branch{ gap:20px; }
+    .fc-node.diamond{ width:150px; height:96px; font-size:12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="topbar"><div class="fill" id="progressFill"></div></div>
+
+  <div class="slides" id="slides">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide cover-slide" data-title="Cover">
+      <div class="slide-inner">
+        <div class="cover-visual">
+          <div class="cv-node">MULAI</div>
+          <div class="cv-arrow">↓</div>
+          <div class="cv-node">BACA input</div>
+          <div class="cv-arrow">↓</div>
+          <div class="cv-node">cek kondisi?</div>
+          <div class="cv-arrow">↓</div>
+          <div class="cv-node">PROSES</div>
+          <div class="cv-arrow">↓</div>
+          <div class="cv-node">SELESAI</div>
+        </div>
+        <div class="eyebrow">Informatika · Bab 2 · Berpikir Komputasional</div>
+        <h1 class="title">Algoritma dan<br>Penyusunan Langkah</h1>
+        <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center;">
+          Belajar menyusun <strong class="hl">langkah-langkah sistematis</strong> untuk menyelesaikan masalah,
+          lengkap dengan <strong class="hl2">pseudocode</strong> dan <strong class="hl3">flowchart</strong> sederhana.
+        </p>
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : APERSEPSI -->
+    <section class="slide" data-title="Dari Abstraksi ke Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 01 · Pengantar</div>
+        <h2 class="title">Dari Abstraksi Menuju Algoritma</h2>
+        <p class="lead">
+          Setelah kita tahu cara memilih <strong class="hl2">informasi penting</strong> lewat abstraksi, langkah
+          selanjutnya dalam Berpikir Komputasional adalah menyusun <strong class="hl">Algoritma</strong> —
+          urutan langkah yang jelas untuk benar-benar menyelesaikan masalahnya.
+        </p>
+        <div class="grid grid-4">
+          <div class="pillar"><div class="num">PILAR 01</div><div class="icon">🧩</div><div class="name">Dekomposisi</div><div class="desc">Memecah masalah besar jadi bagian kecil.</div></div>
+          <div class="pillar"><div class="num">PILAR 02</div><div class="icon">🔁</div><div class="name">Pengenalan Pola</div><div class="desc">Menemukan kesamaan dari bagian-bagian.</div></div>
+          <div class="pillar"><div class="num">PILAR 03</div><div class="icon">🎯</div><div class="name">Abstraksi</div><div class="desc">Memilih info penting, buang yang tidak perlu.</div></div>
+          <div class="pillar active"><div class="num">PILAR 04 · FOKUS BAB INI</div><div class="icon">📋</div><div class="name">Algoritma</div><div class="desc">Menyusun langkah runtut menuju solusi.</div></div>
+        </div>
+        <p class="lead" style="margin-top:20px;">Yuk kita bedah lebih dalam apa itu algoritma!</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : DEFINISI -->
+    <section class="slide" data-title="Definisi Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 02 · Konsep Dasar</div>
+        <h2 class="title">Apa itu Algoritma?</h2>
+        <div class="def-box">
+          <div class="tag">Definisi Formal</div>
+          <p>Algoritma adalah <strong class="hl">urutan langkah-langkah logis dan sistematis</strong> yang
+            disusun untuk menyelesaikan suatu masalah, di mana setiap langkah dikerjakan secara berurutan
+            hingga mencapai hasil yang diinginkan.</p>
+        </div>
+        <div class="def-box simple" style="border-left-color:var(--coral);">
+          <div class="tag" style="color:var(--coral);">Bahasa Gampangnya</div>
+          <p>Algoritma itu seperti <strong class="hl2">resep masakan</strong> — ada bahan (input), ada
+            langkah-langkah yang harus diikuti berurutan (proses), dan ada hasil akhirnya (output).</p>
+        </div>
+        <div class="flow">
+          <div class="chip">📥 Input</div><div class="arrow">→</div>
+          <div class="chip filter">⚙️ Proses (Langkah-langkah)</div><div class="arrow">→</div>
+          <div class="chip result">📤 Output</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : CIRI-CIRI ALGORITMA -->
+    <section class="slide" data-title="Ciri-Ciri Algoritma yang Baik">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 03 · Konsep Dasar</div>
+        <h2 class="title">5 Ciri Algoritma yang Baik</h2>
+        <p class="lead">Sebuah urutan langkah baru bisa disebut "algoritma" kalau memenuhi ciri-ciri berikut:</p>
+        <div class="grid grid-5">
+          <div class="trait"><div class="icon">📥</div><div class="name">Input</div><div class="desc">Punya nol atau lebih data masukan.</div></div>
+          <div class="trait"><div class="icon">📤</div><div class="name">Output</div><div class="desc">Menghasilkan minimal satu keluaran.</div></div>
+          <div class="trait"><div class="icon">🎯</div><div class="name">Definite</div><div class="desc">Setiap langkah jelas & tidak ambigu.</div></div>
+          <div class="trait"><div class="icon">🏁</div><div class="name">Finite</div><div class="desc">Berhenti setelah langkah berhingga.</div></div>
+          <div class="trait"><div class="icon">✅</div><div class="name">Effective</div><div class="desc">Setiap langkah bisa benar-benar dikerjakan.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : STEP REVEAL MIE INSTAN -->
+    <section class="slide" data-title="Contoh: Algoritma Sehari-hari">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 01</div>
+        <h2 class="title">Klik Tiap Langkah untuk Detailnya</h2>
+        <p class="lead">Algoritma tidak melulu soal komputer — membuat mi instan pun sebenarnya sebuah algoritma!</p>
+        <div class="steps-click" id="stepsClick">
+          <div class="step-click">
+            <div class="head"><div class="n">1</div><div class="t">Rebus air hingga mendidih</div><div class="arw">▾</div></div>
+            <div class="body"><div class="body-in">Ini adalah langkah <b>input/persiapan</b> — kita menyiapkan "bahan" utama sebelum proses selanjutnya bisa dijalankan.</div></div>
+          </div>
+          <div class="step-click">
+            <div class="head"><div class="n">2</div><div class="t">Masukkan mi ke dalam air mendidih</div><div class="arw">▾</div></div>
+            <div class="body"><div class="body-in">Langkah ini harus dilakukan <b>setelah</b> langkah 1 — urutannya tidak boleh dibalik, itulah sifat algoritma yang sistematis.</div></div>
+          </div>
+          <div class="step-click">
+            <div class="head"><div class="n">3</div><div class="t">Tunggu selama 3 menit</div><div class="arw">▾</div></div>
+            <div class="body"><div class="body-in">Ada <b>kondisi berhenti yang jelas</b> (3 menit) — inilah ciri "finite", algoritma tidak berjalan selamanya.</div></div>
+          </div>
+          <div class="step-click">
+            <div class="head"><div class="n">4</div><div class="t">Tiriskan, campur dengan bumbu</div><div class="arw">▾</div></div>
+            <div class="body"><div class="body-in">Ini adalah tahap <b>proses akhir</b> yang mengolah hasil sebelumnya menjadi bentuk siap saji.</div></div>
+          </div>
+          <div class="step-click">
+            <div class="head"><div class="n">5</div><div class="t">Mi instan siap disajikan</div><div class="arw">▾</div></div>
+            <div class="body"><div class="body-in">Ini adalah <b>output</b> — hasil akhir dari keseluruhan algoritma yang sudah dijalankan.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : REORDER PUZZLE -->
+    <section class="slide" data-title="Latihan: Susun Urutan Langkah">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 02 · Latihan</div>
+        <h2 class="title">Urutkan Langkah dengan Benar</h2>
+        <p class="lead">Susun ulang langkah "Membuat Teh Manis" di bawah ini agar urutannya logis. Gunakan tombol panah, lalu tekan "Cek Urutan".</p>
+        <div class="reorder-list" id="reorderList"></div>
+        <button class="btn btn-primary" onclick="checkReorder()">Cek Urutan</button>
+        <div class="reorder-result" id="reorderResult"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : PSEUDOCODE INTRO -->
+    <section class="slide" data-title="Pengenalan Pseudocode">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 04 · Pseudocode</div>
+        <h2 class="title">Apa itu Pseudocode?</h2>
+        <p class="lead">
+          <strong class="hl">Pseudocode</strong> adalah cara menuliskan algoritma menggunakan bahasa
+          sehari-hari yang terstruktur — bukan bahasa pemrograman asli, tapi mirip. Tujuannya supaya
+          logika program mudah dipahami sebelum ditulis dalam bahasa pemrograman sungguhan.
+        </p>
+        <div class="terminal">
+          <div class="bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="fname">contoh.pseudocode</div></div>
+          <pre><span class="kw">MULAI</span>
+  <span class="fn">BACA</span> nama
+  <span class="fn">TULIS</span> <span class="str">"Halo, "</span> + nama
+<span class="kw">SELESAI</span>
+<span class="cm">// urutan ini menyapa pengguna berdasarkan nama yang dimasukkan</span></pre>
+        </div>
+        <p class="lead" style="margin-top:18px;">
+          Kata kunci umum dalam pseudocode: <strong class="hl">MULAI</strong>, <strong class="hl">BACA</strong>,
+          <strong class="hl">JIKA...MAKA</strong>, <strong class="hl">TULIS</strong>, <strong class="hl">SELESAI</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : PSEUDOCODE CONTOH INTERAKTIF -->
+    <section class="slide" data-title="Contoh Interaktif: Pseudocode">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 03</div>
+        <h2 class="title">Pseudocode: Cek Bilangan Genap/Ganjil</h2>
+        <p class="lead">Ini pseudocode untuk memeriksa apakah sebuah angka genap atau ganjil.</p>
+        <div class="terminal">
+          <div class="bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><div class="fname">genap_ganjil.pseudocode</div></div>
+          <pre><span class="kw">MULAI</span>
+  <span class="fn">BACA</span> angka
+  <span class="kw">JIKA</span> angka <span class="kw">MOD</span> 2 = 0 <span class="kw">MAKA</span>
+    <span class="fn">TULIS</span> <span class="str">"Bilangan Genap"</span>
+  <span class="kw">LAINNYA</span>
+    <span class="fn">TULIS</span> <span class="str">"Bilangan Ganjil"</span>
+  <span class="kw">SELESAI JIKA</span>
+<span class="kw">SELESAI</span></pre>
+        </div>
+        <button class="btn btn-ghost" style="margin-top:18px;" onclick="toggleReveal('revPseudo')">🔍 Lihat Penjelasan Baris per Baris</button>
+        <div class="reveal-panel" id="revPseudo">
+          <div class="reveal-inner">
+            <ol>
+              <li><b>BACA angka</b> — program menerima input berupa sebuah angka dari pengguna.</li>
+              <li><b>JIKA angka MOD 2 = 0</b> — mengecek sisa bagi angka dengan 2 (MOD = sisa pembagian).</li>
+              <li>Jika sisa baginya <b>0</b>, artinya angka tersebut <b>genap</b> → tampilkan "Bilangan Genap".</li>
+              <li>Jika tidak (LAINNYA), berarti angka tersebut <b>ganjil</b> → tampilkan "Bilangan Ganjil".</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 : SIMBOL FLOWCHART -->
+    <section class="slide" data-title="Simbol Flowchart">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 05 · Flowchart</div>
+        <h2 class="title">Klik Setiap Simbol Flowchart</h2>
+        <p class="lead"><strong class="hl">Flowchart</strong> adalah cara menggambarkan algoritma dalam bentuk diagram alur menggunakan simbol-simbol standar. Klik tiap simbol untuk melihat fungsinya.</p>
+        <div class="grid grid-4" id="symbolGallery">
+          <div class="symbol-tile" data-sym="oval"><div class="sym-shape sym-oval">START/END</div><div class="lbl">Oval</div></div>
+          <div class="symbol-tile" data-sym="para"><div class="sym-shape sym-para">I/O</div><div class="lbl">Jajar Genjang</div></div>
+          <div class="symbol-tile" data-sym="rect"><div class="sym-shape sym-rect">PROSES</div><div class="lbl">Persegi Panjang</div></div>
+          <div class="symbol-tile" data-sym="diamond"><div class="sym-shape sym-diamond">?</div><div class="lbl">Belah Ketupat</div></div>
+        </div>
+        <div class="symbol-detail" id="symbolDetail"><span class="placeholder">👆 Klik salah satu simbol untuk melihat penjelasannya.</span></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : FLOWCHART DEMO -->
+    <section class="slide" data-title="Contoh Interaktif: Flowchart">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 04</div>
+        <h2 class="title">Coba Jalankan Flowchart Ini</h2>
+        <p class="lead">Flowchart untuk mengecek bilangan genap/ganjil. Pilih contoh angka untuk melihat jalur mana yang dilalui.</p>
+        <div class="fc-controls">
+          <button class="fc-btn on" id="fcEven" onclick="runFlowchart('even')">🔢 Coba angka 4 (Genap)</button>
+          <button class="fc-btn" id="fcOdd" onclick="runFlowchart('odd')">🔢 Coba angka 7 (Ganjil)</button>
+        </div>
+        <div class="card">
+          <div class="fc-stage">
+            <div class="fc-node oval" id="fcStart">MULAI</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-node para" id="fcInput">BACA angka</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-node diamond" id="fcDecision">angka MOD 2 = 0 ?</div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-branch">
+              <div class="fc-branch-col">
+                <div class="fc-branch-tag">YA</div>
+                <div class="fc-node para" id="fcYes">TULIS "Genap"</div>
+              </div>
+              <div class="fc-branch-col">
+                <div class="fc-branch-tag">TIDAK</div>
+                <div class="fc-node para" id="fcNo">TULIS "Ganjil"</div>
+              </div>
+            </div>
+            <div class="fc-arrow">↓</div>
+            <div class="fc-node oval" id="fcEnd">SELESAI</div>
+          </div>
+        </div>
+        <div class="fc-trace" id="fcTrace">Klik salah satu tombol contoh angka di atas untuk melihat jalur eksekusinya.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : CONTOH SOAL 1 -->
+    <section class="slide" data-title="Contoh Soal 1">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Soal · Pembahasan 01</div>
+        <h2 class="title">Yuk, Coba Selesaikan Soal Ini</h2>
+        <div class="soal-box">
+          <div class="kicker">Soal</div>
+          <p>Buatlah <b>algoritma</b> (dalam bentuk langkah-langkah biasa) untuk menentukan nilai terbesar
+            dari dua buah angka, sebut saja A dan B.</p>
+        </div>
+        <button class="btn btn-ghost" onclick="toggleReveal('rev1')">🔍 Lihat Pembahasan</button>
+        <div class="reveal-panel" id="rev1">
+          <div class="reveal-inner">
+            <b>Langkah algoritma:</b>
+            <ol>
+              <li>Mulai</li>
+              <li>Masukkan nilai A dan B</li>
+              <li>Jika A lebih besar dari B, maka A adalah nilai terbesar</li>
+              <li>Jika tidak, maka B adalah nilai terbesar</li>
+              <li>Tampilkan nilai terbesar</li>
+              <li>Selesai</li>
+            </ol>
+            <b>Versi pseudocode:</b>
+            <pre>MULAI
+  BACA A, B
+  JIKA A &gt; B MAKA
+    TULIS A
+  LAINNYA
+    TULIS B
+  SELESAI JIKA
+SELESAI</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11 : CONTOH SOAL 2 -->
+    <section class="slide" data-title="Contoh Soal 2">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Soal · Pembahasan 02</div>
+        <h2 class="title">Satu Lagi, Yuk Coba!</h2>
+        <div class="soal-box">
+          <div class="kicker">Soal</div>
+          <p>Seorang siswa dinyatakan <b>LULUS</b> jika nilai ujiannya 75 atau lebih. Jika kurang dari 75,
+            siswa dinyatakan <b>TIDAK LULUS</b>. Susunlah pseudocode untuk kasus ini!</p>
+        </div>
+        <button class="btn btn-ghost" onclick="toggleReveal('rev2')">🔍 Lihat Pembahasan</button>
+        <div class="reveal-panel" id="rev2">
+          <div class="reveal-inner">
+            <b>Langkah berpikir:</b>
+            <ol>
+              <li>Program perlu menerima input berupa nilai ujian</li>
+              <li>Bandingkan nilai tersebut dengan syarat kelulusan (75)</li>
+              <li>Tampilkan status kelulusan sesuai hasil perbandingan</li>
+            </ol>
+            <b>Versi pseudocode:</b>
+            <pre>MULAI
+  BACA nilai
+  JIKA nilai &gt;= 75 MAKA
+    TULIS "LULUS"
+  LAINNYA
+    TULIS "TIDAK LULUS"
+  SELESAI JIKA
+SELESAI</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 : QUIZ -->
+    <section class="slide" data-title="Kuis Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Kuis · Uji Pemahamanmu</div>
+        <h2 class="title">Kuis Latihan Algoritma</h2>
+        <div class="quiz-wrap">
+          <div class="quiz-top"><span id="quizPos">SOAL 1 / 6</span><span id="quizScoreTop">SKOR: 0</span></div>
+          <div class="quiz-bar"><div class="f" id="quizBarFill"></div></div>
+          <div id="quizQuestionArea"></div>
+          <div class="quiz-result" id="quizResult">
+            <div style="font-size:40px;">🏆</div>
+            <div class="score" id="quizFinalScore">0/6</div>
+            <div class="msg" id="quizFinalMsg">Terus berlatih, ya!</div>
+            <button class="btn btn-primary" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">Rangkuman</div>
+        <h2 class="title">Yang Perlu Kamu Ingat</h2>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="sum-list">
+            <div class="sum-item"><span class="ic">✔</span><span><b style="color:var(--paper)">Algoritma</b> = urutan langkah logis dan sistematis untuk menyelesaikan masalah.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Algoritma yang baik punya 5 ciri: <b style="color:var(--paper)">Input, Output, Definite, Finite, Effective</b>.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span><b style="color:var(--paper)">Pseudocode</b> adalah cara menulis algoritma dengan bahasa terstruktur mirip bahasa pemrograman.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span><b style="color:var(--paper)">Flowchart</b> menggambarkan algoritma memakai simbol: oval (mulai/selesai), jajar genjang (input/output), persegi panjang (proses), belah ketupat (keputusan).</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Algoritma, pseudocode, dan flowchart adalah <b style="color:var(--paper)">3 cara berbeda</b> untuk menggambarkan solusi logis yang sama.</span></div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="chip">📋 Langkah-langkah</div><div class="arrow">→</div>
+          <div class="chip filter">📝 Pseudocode</div><div class="arrow">→</div>
+          <div class="chip result">🔷 Flowchart</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14 : FINAL -->
+    <section class="slide final-slide" data-title="Selesai">
+      <div class="slide-inner">
+        <div class="final-emoji">🎉</div>
+        <div class="eyebrow">Materi Selesai</div>
+        <h1 class="title">Kerja Bagus!</h1>
+        <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center;">
+          Kamu telah menyelesaikan materi <strong class="hl">Algoritma dan Penyusunan Langkah</strong>.
+          Sekarang kamu tahu cara menyusun langkah sistematis, menuliskan pseudocode, dan menggambar
+          flowchart sederhana untuk menyelesaikan masalah.
+        </p>
+        <div class="final-actions">
+          <button class="btn btn-ghost" onclick="goTo(0)">↺ Ulangi Materi</button>
+          <a class="btn btn-primary" href="infob-bab2.html" style="text-decoration:none;">✅ Selesai & Kembali</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="navbtn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+    <div class="navmid">
+      <div class="label" id="navLabel">Cover</div>
+      <div class="count" id="navCount">01 / 15</div>
+    </div>
+    <button class="navbtn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+  </div>
+</div>
+
+<script>
+/* ============ NAVIGASI DECK ============ */
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const total = slideEls.length;
+let current = 0;
+
+function pad(n){ return String(n).padStart(2,'0'); }
+function renderSlide(){
+  slideEls.forEach((el,i)=>{
+    el.classList.remove('active','prev');
+    if(i===current) el.classList.add('active');
+    else if(i<current) el.classList.add('prev');
+  });
+  document.getElementById('navLabel').textContent = slideEls[current].dataset.title || '';
+  document.getElementById('navCount').textContent = pad(current+1) + ' / ' + pad(total);
+  document.getElementById('progressFill').style.width = (current/(total-1))*100 + '%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  slideEls[current].scrollTop = 0;
+}
+function goTo(i){ if(i<0||i>=total) return; current=i; renderSlide(); }
+function nextSlide(){ if(current<total-1){ current++; renderSlide(); } }
+function prevSlide(){ if(current>0){ current--; renderSlide(); } }
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+let touchX=null;
+document.getElementById('slides').addEventListener('touchstart', e=>{ touchX=e.changedTouches[0].clientX; }, {passive:true});
+document.getElementById('slides').addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 50){ dx < 0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+renderSlide();
+
+/* ============ SLIDE 4: STEP REVEAL ============ */
+document.getElementById('stepsClick').addEventListener('click',(e)=>{
+  const head = e.target.closest('.head');
+  if(!head) return;
+  head.parentElement.classList.toggle('open');
+});
+
+/* ============ SLIDE 5: REORDER PUZZLE ============ */
+const correctOrder = [
+  "Siapkan gelas dan teh celup",
+  "Tuang air panas ke dalam gelas",
+  "Masukkan teh celup, seduh sebentar",
+  "Tambahkan gula secukupnya",
+  "Aduk hingga gula larut merata"
+];
+let currentOrder = [correctOrder[2], correctOrder[0], correctOrder[4], correctOrder[1], correctOrder[3]];
+
+function renderReorder(){
+  const list = document.getElementById('reorderList');
+  list.innerHTML = currentOrder.map((txt,i)=>`
+    <div class="reorder-item" data-idx="${i}">
+      <div class="pos">${i+1}</div>
+      <div class="txt">${txt}</div>
+      <div class="arrows">
+        <button onclick="moveItem(${i},-1)" ${i===0?'disabled':''}>↑</button>
+        <button onclick="moveItem(${i},1)" ${i===currentOrder.length-1?'disabled':''}>↓</button>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('reorderResult').classList.remove('show');
+}
+function moveItem(idx,dir){
+  const newIdx = idx+dir;
+  if(newIdx<0||newIdx>=currentOrder.length) return;
+  [currentOrder[idx],currentOrder[newIdx]] = [currentOrder[newIdx],currentOrder[idx]];
+  renderReorder();
+}
+function checkReorder(){
+  const items = document.querySelectorAll('.reorder-item');
+  let allCorrect = true;
+  currentOrder.forEach((txt,i)=>{
+    const el = items[i];
+    el.classList.remove('correct','wrong');
+    if(txt === correctOrder[i]){ el.classList.add('correct'); }
+    else { el.classList.add('wrong'); allCorrect = false; }
+  });
+  const result = document.getElementById('reorderResult');
+  result.classList.add('show');
+  result.innerHTML = allCorrect
+    ? '🎉 <b style="color:var(--teal);">Tepat sekali!</b> Urutan langkahmu sudah logis dan sistematis — itulah inti dari algoritma.'
+    : '📝 Ada langkah yang masih tertukar (ditandai merah). Pikirkan lagi: bahan disiapkan dulu, baru diproses, baru dirasakan hasilnya.';
+}
+renderReorder();
+
+/* ============ SLIDE 7: REVEAL PSEUDOCODE ============ */
+function toggleReveal(id){ document.getElementById(id).classList.toggle('open'); }
+
+/* ============ SLIDE 8: SYMBOL GALLERY ============ */
+const symbolInfo = {
+  oval: '🟢 <b>Oval (Terminator):</b> menandai titik <b>awal (MULAI)</b> atau <b>akhir (SELESAI)</b> dari sebuah algoritma/flowchart.',
+  para: '🟣 <b>Jajar Genjang (Input/Output):</b> digunakan untuk menandai proses <b>memasukkan data</b> (input) atau <b>menampilkan hasil</b> (output).',
+  rect: '🟠 <b>Persegi Panjang (Proses):</b> digunakan untuk menuliskan <b>proses atau perhitungan</b> yang dilakukan, misalnya operasi matematika.',
+  diamond: '🟡 <b>Belah Ketupat (Decision):</b> digunakan untuk <b>pengambilan keputusan</b> berdasarkan suatu kondisi — hasilnya bercabang jadi "Ya" atau "Tidak".'
+};
+document.getElementById('symbolGallery').addEventListener('click',(e)=>{
+  const tile = e.target.closest('.symbol-tile');
+  if(!tile) return;
+  document.querySelectorAll('#symbolGallery .symbol-tile').forEach(t=>t.classList.remove('selected'));
+  tile.classList.add('selected');
+  document.getElementById('symbolDetail').innerHTML = symbolInfo[tile.dataset.sym];
+});
+
+/* ============ SLIDE 9: FLOWCHART DEMO ============ */
+function runFlowchart(mode){
+  document.getElementById('fcEven').classList.toggle('on', mode==='even');
+  document.getElementById('fcOdd').classList.toggle('on', mode==='odd');
+  const ids = ['fcStart','fcInput','fcDecision','fcYes','fcNo','fcEnd'];
+  ids.forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById('fcStart').classList.add('active');
+  document.getElementById('fcInput').classList.add('active');
+  document.getElementById('fcDecision').classList.add('active');
+  const trace = document.getElementById('fcTrace');
+  if(mode==='even'){
+    document.getElementById('fcYes').classList.add('active');
+    document.getElementById('fcEnd').classList.add('active');
+    trace.innerHTML = '<b>Jalur eksekusi (angka = 4):</b> MULAI → BACA angka (4) → cek 4 MOD 2 = 0? → <b>YA</b> → TULIS "Genap" → SELESAI.';
+  } else {
+    document.getElementById('fcNo').classList.add('active');
+    document.getElementById('fcEnd').classList.add('active');
+    trace.innerHTML = '<b>Jalur eksekusi (angka = 7):</b> MULAI → BACA angka (7) → cek 7 MOD 2 = 0? → <b>TIDAK</b> → TULIS "Ganjil" → SELESAI.';
+  }
+}
+runFlowchart('even');
+
+/* ============ SLIDE 12: QUIZ ============ */
+const quizData = [
+  {
+    q: "Yang dimaksud dengan algoritma adalah...",
+    opts: ["Kumpulan gambar dengan warna berbeda","Urutan langkah logis dan sistematis untuk menyelesaikan masalah","Bahasa pemrograman resmi","Alat untuk menggambar flowchart"],
+    correct: 1,
+    exp: "Algoritma adalah urutan langkah logis dan sistematis yang disusun untuk menyelesaikan suatu masalah."
+  },
+  {
+    q: "Algoritma yang baik harus berhenti setelah langkah tertentu (tidak berjalan selamanya). Ciri ini disebut...",
+    opts: ["Input","Output","Finite (Berhingga)","Definite"],
+    correct: 2,
+    exp: "Finite artinya algoritma harus berhenti setelah sejumlah langkah yang berhingga, bukan berjalan tanpa akhir."
+  },
+  {
+    q: "Simbol flowchart berbentuk belah ketupat digunakan untuk...",
+    opts: ["Menyatakan awal/akhir program","Menyatakan proses perhitungan","Menyatakan pengambilan keputusan (kondisi)","Menyatakan input/output data"],
+    correct: 2,
+    exp: "Belah ketupat (diamond) adalah simbol untuk pengambilan keputusan/kondisi yang menghasilkan cabang Ya/Tidak."
+  },
+  {
+    q: 'Perhatikan pseudocode berikut:\nMULAI\n  BACA angka\n  JIKA angka MOD 2 = 0 MAKA\n    TULIS "Genap"\n  LAINNYA\n    TULIS "Ganjil"\nSELESAI\nApa yang ditampilkan jika angka = 7?',
+    opts: ["Genap","Ganjil","7","Error"],
+    correct: 1,
+    exp: '7 MOD 2 hasilnya 1 (bukan 0), sehingga kondisi JIKA bernilai salah dan program menjalankan bagian LAINNYA: menampilkan "Ganjil".',
+    code: true
+  },
+  {
+    q: "Simbol flowchart berbentuk oval biasanya digunakan untuk menandai...",
+    opts: ["Proses perhitungan","Awal (Start) dan akhir (End) suatu program","Pengambilan keputusan","Input data dari pengguna"],
+    correct: 1,
+    exp: "Oval (terminator) digunakan untuk menandai titik MULAI dan SELESAI dalam sebuah flowchart."
+  },
+  {
+    q: "Urutan langkah membuat teh manis berikut ini yang paling tepat adalah...",
+    opts: [
+      "Aduk teh → Tuang air panas → Masukkan gula → Seduh teh",
+      "Seduh teh → Tuang air panas → Masukkan gula → Aduk",
+      "Tuang air panas → Seduh teh → Masukkan gula → Aduk hingga larut",
+      "Masukkan gula → Aduk → Tuang air panas → Seduh teh"
+    ],
+    correct: 2,
+    exp: "Urutan logisnya: tuang air panas dulu, seduh teh, baru tambahkan gula, lalu aduk hingga larut — sesuai sifat algoritma yang sistematis (definite & effective)."
+  }
+];
+let qIndex=0, qScore=0, qAnswered=false;
+
+function renderQuiz(){
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizQuestionArea').style.display='block';
+  document.getElementById('quizPos').textContent = 'SOAL ' + (qIndex+1) + ' / ' + quizData.length;
+  document.getElementById('quizScoreTop').textContent = 'SKOR: ' + qScore;
+  document.getElementById('quizBarFill').style.width = (qIndex/quizData.length)*100 + '%';
+  qAnswered=false;
+  const item = quizData[qIndex];
+  const letters=['A','B','C','D'];
+  const area = document.getElementById('quizQuestionArea');
+  let qHtml = item.q;
+  let codeBlock = '';
+  if(item.code){
+    const parts = item.q.split('\n');
+    qHtml = parts[0];
+    codeBlock = `<div class="q-code">${parts.slice(1).join('\n')}</div>`;
+  }
+  area.innerHTML = `
+    <div class="q-text">${qHtml}${codeBlock}</div>
+    <div class="q-options">
+      ${item.opts.map((o,i)=>`<button class="q-opt" data-i="${i}"><span class="k">${letters[i]}</span><span>${o}</span></button>`).join('')}
+    </div>
+    <div class="q-feedback" id="qFeedback"></div>
+    <div class="q-next"><button class="btn btn-primary" id="qNextBtn" style="display:none;" onclick="nextQuizQuestion()">${qIndex===quizData.length-1?'Lihat Hasil →':'Soal Berikutnya →'}</button></div>
+  `;
+  area.querySelectorAll('.q-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>answerQuiz(parseInt(btn.dataset.i)));
+  });
+}
+function answerQuiz(choice){
+  if(qAnswered) return;
+  qAnswered=true;
+  const item = quizData[qIndex];
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===item.correct) btn.classList.add('correct');
+    else if(i===choice) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('qFeedback');
+  fb.classList.add('show');
+  if(choice===item.correct){ qScore++; fb.innerHTML = '✅ <b style="color:var(--teal);">Benar!</b> ' + item.exp; }
+  else{ fb.innerHTML = '❌ <b style="color:var(--danger);">Belum tepat.</b> ' + item.exp; }
+  document.getElementById('quizScoreTop').textContent = 'SKOR: ' + qScore;
+  document.getElementById('qNextBtn').style.display='inline-flex';
+}
+function nextQuizQuestion(){
+  if(qIndex < quizData.length-1){ qIndex++; renderQuiz(); }
+  else{
+    document.getElementById('quizBarFill').style.width='100%';
+    document.getElementById('quizQuestionArea').style.display='none';
+    const result = document.getElementById('quizResult');
+    result.classList.add('show');
+    document.getElementById('quizFinalScore').textContent = qScore + '/' + quizData.length;
+    let msg='';
+    if(qScore===quizData.length) msg='Luar biasa! Kamu benar-benar paham algoritma, pseudocode, dan flowchart. 🌟';
+    else if(qScore >= quizData.length-2) msg='Bagus sekali! Sedikit lagi sempurna.';
+    else if(qScore >= quizData.length/2) msg='Lumayan! Coba baca ulang materinya, ya.';
+    else msg='Yuk, ulangi materi Algoritma dulu supaya lebih paham.';
+    document.getElementById('quizFinalMsg').textContent = msg;
+  }
+}
+function restartQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

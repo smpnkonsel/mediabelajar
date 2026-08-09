@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Tripel Pythagoras — Presentasi Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111a30;
+  --bg-deep:#0c1322;
+  --panel:#1b2747;
+  --panel-light:#233257;
+  --line: rgba(148,163,196,0.18);
+  --text:#f4f1ea;
+  --text-dim:#9aa8c9;
+  --a-color:#2dd4bf;
+  --a-color-dim: rgba(45,212,191,0.18);
+  --b-color:#fbbf24;
+  --b-color-dim: rgba(251,191,36,0.18);
+  --c-color:#fb7185;
+  --c-color-dim: rgba(251,113,133,0.2);
+  --accent:#7c9eff;
+  --accent-dim: rgba(124,158,255,0.16);
+  --good:#34d399;
+  --bad:#fb7185;
+  --radius:18px;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{ margin:0; padding:0; height:100%; background:var(--bg); color:var(--text); font-family:var(--font-body); overflow:hidden; }
+body{
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(124,158,255,0.10), transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(251,113,133,0.08), transparent 45%),
+    linear-gradient(var(--bg), var(--bg-deep));
+}
+::selection{ background: var(--accent); color:#0c1322; }
+.grid-bg{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(148,163,196,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,196,0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 78%);
+}
+.app{ position:relative; z-index:1; height:100vh; height:100dvh; display:flex; flex-direction:column; }
+.progress-track{ height:4px; width:100%; background:rgba(148,163,196,0.12); flex-shrink:0; }
+.progress-fill{ height:100%; width:0%; background: linear-gradient(90deg, var(--a-color), var(--accent), var(--c-color)); transition: width .5s cubic-bezier(.4,0,.2,1); }
+.topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px 28px; flex-shrink:0; border-bottom:1px solid var(--line); }
+.topbar .brand{ font-family:var(--font-display); font-weight:600; letter-spacing:.02em; font-size:15px; color:var(--text-dim); display:flex; align-items:center; gap:10px; }
+.topbar .brand .mark{ width:22px;height:22px; display:inline-flex; align-items:center; justify-content:center; border:1.5px solid var(--accent); border-radius:6px; color:var(--accent); font-size:11px; font-family:var(--font-mono); }
+.topbar .slide-counter{ font-family:var(--font-mono); font-size:13px; color:var(--text-dim); }
+.slides-viewport{ flex:1; min-height:0; position:relative; }
+.slide{ position:absolute; inset:0; display:none; overflow-y:auto; padding:40px 8vw 140px; animation: slideIn .45s cubic-bezier(.4,0,.2,1); }
+.slide.active{ display:block; }
+@keyframes slideIn{ from{ opacity:0; transform: translateY(14px); } to{ opacity:1; transform: translateY(0); } }
+.slide-inner{ max-width:1080px; margin:0 auto; }
+.eyebrow{ font-family:var(--font-mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+.eyebrow .dash{ width:22px; height:1.5px; background:var(--accent); display:inline-block; }
+h1.slide-title{ font-family:var(--font-display); font-weight:700; font-size:clamp(28px,4.6vw,52px); line-height:1.08; margin:0 0 16px; letter-spacing:-.01em; }
+h2.sub{ font-family:var(--font-display); font-weight:600; font-size:clamp(19px,2.2vw,25px); margin:34px 0 14px; color:var(--text); }
+p.lead{ font-size:clamp(15px,1.6vw,18px); color:var(--text-dim); line-height:1.65; max-width:64ch; }
+.panel{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px 26px; }
+.hero-slide{ display:flex; flex-direction:column; justify-content:center; min-height:calc(100vh - 160px); }
+.hero-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:48px; align-items:center; }
+@media(max-width:860px){ .hero-grid{ grid-template-columns:1fr; } }
+.hero-title{ font-family:var(--font-display); font-weight:700; letter-spacing:-.02em; font-size:clamp(34px,5.6vw,60px); line-height:1.05; margin:0 0 20px; }
+.hero-title .accentword{ color:var(--accent); }
+.hero-desc{ color:var(--text-dim); font-size:17px; line-height:1.7; max-width:54ch; margin-bottom:28px; }
+.btn{ font-family:var(--font-body); font-weight:600; font-size:15px; padding:13px 26px; border-radius:100px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.btn:active{ transform:scale(.97); }
+.btn-primary{ background:linear-gradient(120deg, var(--accent), #5f7fe0); color:#0c1322; box-shadow:0 8px 22px -8px rgba(124,158,255,0.6); }
+.btn-primary:hover{ box-shadow:0 10px 26px -6px rgba(124,158,255,0.75); }
+.btn-ghost{ background:var(--panel-light); color:var(--text); border:1px solid var(--line); }
+.btn-ghost:hover{ background:#2a3a66; }
+.btn-outline{ background:transparent; color:var(--accent); border:1.5px solid var(--accent); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+.hero-svg-wrap{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+.hero-svg-wrap svg{ width:100%; max-width:340px; height:auto; }
+.diagram-card{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:20px; display:flex; flex-direction:column; align-items:center; gap:14px; }
+.diagram-card svg{ width:100%; max-width:400px; height:auto; }
+.legend{ display:flex; flex-wrap:wrap; gap:14px; justify-content:center; font-size:13.5px; color:var(--text-dim); font-family:var(--font-mono); }
+.legend span{ display:inline-flex; align-items:center; gap:7px; }
+.swatch{ width:12px;height:12px;border-radius:3px; display:inline-block; }
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:32px; align-items:start; }
+@media(max-width:860px){ .two-col{ grid-template-columns:1fr; } }
+.formula-hero{ display:flex; align-items:center; justify-content:center; gap:18px; background:linear-gradient(135deg, var(--panel-light), var(--panel)); border:1px solid var(--line); border-radius:20px; padding:30px 20px; margin:22px 0; flex-wrap:wrap; }
+.formula-hero .term{ font-family:var(--font-mono); font-weight:700; font-size:clamp(26px,4.4vw,42px); padding:6px 14px; border-radius:12px; }
+.formula-hero .term.a{ color:var(--a-color); background:var(--a-color-dim); }
+.formula-hero .term.b{ color:var(--b-color); background:var(--b-color-dim); }
+.formula-hero .term.c{ color:var(--c-color); background:var(--c-color-dim); }
+.formula-hero .op{ font-family:var(--font-mono); font-size:clamp(20px,3vw,28px); color:var(--text-dim); }
+.tag{ display:inline-block; font-family:var(--font-mono); font-size:11.5px; padding:3px 9px; border-radius:100px; border:1px solid var(--line); color:var(--text-dim); margin-right:8px; }
+.tag.prim{ color:var(--good); border-color: var(--good); }
+.tag.mult{ color:var(--b-color); border-color: var(--b-color); }
+.center{ text-align:center; }
+
+/* checker / generator */
+.check-panel{ display:grid; grid-template-columns:1fr 1fr; gap:34px; align-items:center; }
+@media(max-width:860px){ .check-panel{ grid-template-columns:1fr; } }
+.check-inputs{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.check-inputs input[type=number]{
+  width:90px; padding:12px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-deep); color:var(--text); font-family:var(--font-mono); font-size:16px; text-align:center;
+}
+.check-result{ min-height:70px; padding:16px 18px; border-radius:14px; background:var(--panel-light); border:1px solid var(--line); font-size:14.5px; line-height:1.6; }
+.check-result.ok{ border-color:var(--good); }
+.check-result.no{ border-color:var(--bad); }
+.check-result.empty{ color:var(--text-dim); font-style:italic; }
+
+/* triple grid */
+.triple-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; margin-top:20px; }
+.triple-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 14px; text-align:center; cursor:pointer; transition:border-color .2s ease, transform .15s ease; }
+.triple-card:hover{ transform:translateY(-3px); border-color:var(--accent); }
+.triple-card .nums{ font-family:var(--font-mono); font-size:19px; font-weight:700; }
+.triple-card .hint{ font-size:12px; color:var(--text-dim); margin-top:6px; }
+.triple-detail{ margin-top:18px; min-height:30px; font-family:var(--font-mono); font-size:14.5px; color:var(--text); text-align:center; }
+
+/* multiplier demo */
+.mult-panel{ display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:center; }
+@media(max-width:860px){ .mult-panel{ grid-template-columns:1fr; } }
+.base-select{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.base-btn{ padding:9px 14px; border-radius:100px; border:1px solid var(--line); background:var(--panel-light); color:var(--text); font-family:var(--font-mono); font-size:13.5px; cursor:pointer; }
+.base-btn.active{ background:var(--accent); color:#0c1322; border-color:var(--accent); font-weight:700; }
+.slider-controls label{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:14px; margin-bottom:10px; }
+.slider-controls label .val{ font-weight:700; color:var(--accent); }
+input[type=range]{ width:100%; -webkit-appearance:none; appearance:none; height:6px; border-radius:6px; background:var(--panel-light); outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--accent); cursor:pointer; border:3px solid #0c1322; }
+input[type=range]::-moz-range-thumb{ width:16px;height:16px;border-radius:50%; background:var(--accent); border:3px solid #0c1322; cursor:pointer; }
+.result-line{ font-family:var(--font-mono); font-size:15px; color:var(--text-dim); margin-top:6px; }
+.result-line .big{ font-size:20px; color:var(--c-color); font-weight:700; }
+
+/* example / step reveal */
+.example-box{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px 28px; }
+.example-question{ font-size:16px; line-height:1.6; margin-bottom:18px; color:var(--text); }
+.example-question b{ color:var(--accent); }
+.step{ display:none; padding:12px 16px; border-left:3px solid var(--accent); background:var(--panel-light); border-radius:0 10px 10px 0; margin-bottom:10px; font-size:14.5px; line-height:1.6; }
+.step.shown{ display:block; animation:stepIn .3s ease; }
+.step .step-formula{ font-family:var(--font-mono); color:var(--c-color); font-weight:600; }
+@keyframes stepIn{ from{opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+.step.final{ border-left-color:var(--good); }
+.step.final .step-formula{ color:var(--good); }
+.example-actions{ display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+
+/* practice */
+.practice-item{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:18px; }
+.practice-item .q{ font-size:15px; margin-bottom:14px; }
+.practice-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.practice-row input[type=number]{ width:110px; padding:10px 12px; border-radius:10px; border:1px solid var(--line); background:var(--bg-deep); color:var(--text); font-family:var(--font-mono); font-size:15px; }
+.feedback{ font-size:14px; font-family:var(--font-mono); margin-left:6px; }
+.feedback.ok{ color:var(--good); }
+.feedback.no{ color:var(--bad); }
+
+/* quiz */
+.quiz-wrap{ max-width:720px; margin:0 auto; }
+.quiz-progress{ display:flex; gap:6px; margin-bottom:22px; }
+.quiz-progress .dot{ flex:1; height:5px; border-radius:4px; background:var(--panel-light); }
+.quiz-progress .dot.done{ background:var(--accent); }
+.quiz-question{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px 28px; }
+.quiz-question .qtext{ font-size:17px; margin-bottom:20px; line-height:1.5; }
+.qoptions{ display:flex; flex-direction:column; gap:10px; }
+.qoption{ text-align:left; padding:14px 16px; border-radius:12px; border:1px solid var(--line); background:var(--panel-light); color:var(--text); font-size:14.5px; cursor:pointer; font-family:var(--font-body); transition:border-color .15s ease, background .15s ease; }
+.qoption:hover{ border-color:var(--accent); }
+.qoption.correct{ border-color:var(--good); background:rgba(52,211,153,0.14); }
+.qoption.wrong{ border-color:var(--bad); background:rgba(251,113,133,0.14); }
+.qoption[disabled]{ cursor:default; }
+.quiz-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; }
+.quiz-score-badge{ font-family:var(--font-mono); font-size:13px; color:var(--text-dim); }
+.quiz-result{ text-align:center; padding:40px 20px; }
+.quiz-result .score-num{ font-family:var(--font-display); font-size:64px; font-weight:700; color:var(--accent); }
+.quiz-result .score-msg{ font-size:18px; margin:12px 0 24px; color:var(--text-dim); }
+
+/* summary */
+.summary-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin:24px 0 8px; }
+@media(max-width:700px){ .summary-grid{ grid-template-columns:1fr; } }
+.summary-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; font-size:14.5px; line-height:1.55; }
+.summary-card .sf{ font-family:var(--font-mono); color:var(--accent); font-weight:700; display:block; margin-bottom:6px; font-size:13px; letter-spacing:.06em; }
+.final-actions{ display:flex; gap:14px; flex-wrap:wrap; margin-top:30px; }
+
+/* bottom nav */
+.bottom-nav{ position:fixed; left:0; right:0; bottom:0; z-index:5; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 22px; background:rgba(17,26,48,0.88); backdrop-filter:blur(10px); border-top:1px solid var(--line); }
+.nav-btn{ width:44px;height:44px; border-radius:50%; border:1px solid var(--line); background:var(--panel-light); color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; font-size:18px; transition:background .15s ease, opacity .15s ease; }
+.nav-btn:hover{ background:#2a3a66; }
+.nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+.dots{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:56vw; }
+.dot-item{ width:9px; height:9px; border-radius:50%; background:var(--panel-light); border:1px solid var(--line); cursor:pointer; transition:all .2s ease; flex-shrink:0; }
+.dot-item.active{ background:var(--accent); width:22px; border-radius:5px; border-color:var(--accent); }
+.dot-item.done{ background:var(--text-dim); }
+@media(max-width:700px){ .dots{ display:none; } .slide{ padding:28px 6vw 130px; } }
+.slide-name-mobile{ display:none; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); }
+@media(max-width:700px){ .slide-name-mobile{ display:block; } }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="app">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark">π</span> Matematika · Bab 2 · Tripel Pythagoras</div>
+    <div class="slide-counter"><span id="slideCurrent">01</span> / <span id="slideTotal">11</span></div>
+  </div>
+
+  <div class="slides-viewport" id="viewport">
+
+    <!-- SLIDE 1: HERO -->
+    <section class="slide active" data-title="Pembuka">
+      <div class="slide-inner hero-slide">
+        <div class="hero-grid">
+          <div>
+            <div class="eyebrow"><span class="dash"></span>Bab 2 · Sub-materi</div>
+            <h1 class="hero-title">Tripel <span class="accentword">Pythagoras</span></h1>
+            <p class="hero-desc">Pengertian, cara <b>mengenali</b>, dan cara <b>menentukan</b> pasangan bilangan Tripel Pythagoras — lengkap dengan alat cek interaktif, generator rumus, dan kuis.</p>
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="goToSlide(1)">Mulai Belajar →</button>
+              <button class="btn btn-ghost" onclick="goToSlide(9)">Langsung ke Kuis</button>
+            </div>
+          </div>
+          <div class="hero-svg-wrap">
+            <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="30,220 30,60 190,220" fill="var(--panel-light)" stroke="var(--accent)" stroke-width="2.5"/>
+              <rect x="-35" y="0" width="35" height="160" fill="var(--a-color)" opacity="0.75" transform="translate(30,60)"/>
+              <rect x="0" y="185" width="160" height="35" fill="var(--b-color)" opacity="0.75"/>
+              <line x1="30" y1="60" x2="190" y2="220" stroke="var(--c-color)" stroke-width="3"/>
+              <text x="8" y="145" fill="var(--a-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">4</text>
+              <text x="105" y="242" fill="var(--b-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">3</text>
+              <text x="95" y="132" fill="var(--c-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">5</text>
+              <rect x="30" y="200" width="16" height="16" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+            </svg>
+            <div style="text-align:center; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim);">contoh paling terkenal: 3, 4, 5</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: PENGERTIAN -->
+    <section class="slide" data-title="Pengertian">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>02 · Pengertian</p>
+        <h1 class="slide-title">Apa itu Tripel Pythagoras?</h1>
+        <p class="lead"><b>Tripel Pythagoras</b> adalah tiga bilangan bulat positif (a, b, c) yang jika dimasukkan ke rumus Pythagoras, hasilnya tetap benar — dengan c sebagai bilangan terbesar.</p>
+        <div class="formula-hero">
+          <span class="term a">a²</span><span class="op">+</span><span class="term b">b²</span><span class="op">=</span><span class="term c">c²</span>
+        </div>
+        <div class="two-col">
+          <div class="diagram-card">
+            <svg viewBox="0 0 260 240" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="40,220 40,60 200,220" fill="var(--panel-light)" stroke="var(--line)" stroke-width="1.5"/>
+              <rect x="0" y="60" width="40" height="160" fill="var(--a-color)" opacity="0.55"/>
+              <rect x="40" y="220" width="160" height="20" fill="var(--b-color)" opacity="0.55"/>
+              <text x="14" y="145" fill="var(--a-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">4</text>
+              <text x="110" y="252" fill="var(--b-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">3</text>
+              <text x="95" y="132" fill="var(--c-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">5</text>
+              <line x1="40" y1="60" x2="200" y2="220" stroke="var(--c-color)" stroke-width="4"/>
+            </svg>
+            <div class="legend">
+              <span><span class="swatch" style="background:var(--a-color)"></span>3</span>
+              <span><span class="swatch" style="background:var(--b-color)"></span>4</span>
+              <span><span class="swatch" style="background:var(--c-color)"></span>5</span>
+            </div>
+          </div>
+          <div class="panel">
+            <h2 class="sub" style="margin-top:0;">Contoh paling terkenal</h2>
+            <p class="lead" style="margin:0 0 10px;">Angka <b>3, 4, 5</b> adalah Tripel Pythagoras paling dikenal, karena:</p>
+            <p class="lead" style="margin:0; font-family:var(--font-mono); color:var(--text);">3² + 4² = 9 + 16 = 25 = 5² ✅</p>
+            <p class="lead" style="margin-top:14px;">Ingat: <b>urutan tidak selalu berupa a &lt; b &lt; c</b> di soal, tapi ketika kamu mengecek, bilangan terbesar harus diletakkan sebagai c (sisi miring).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: CIRI-CIRI / MENGENALI -->
+    <section class="slide" data-title="Mengenali Tripel">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>03 · Mengenali</p>
+        <h1 class="slide-title">Ciri-Ciri Tripel Pythagoras</h1>
+        <p class="lead">Ada dua jenis Tripel Pythagoras yang perlu kamu kenali:</p>
+        <div class="two-col" style="margin-top:10px;">
+          <div class="panel">
+            <span class="tag prim">PRIMITIF</span>
+            <h2 class="sub" style="margin-top:14px;">Tripel Primitif</h2>
+            <p class="lead" style="margin:0 0 10px;">Ketiga bilangannya <b>tidak memiliki faktor persekutuan</b> selain 1 (FPB = 1). Tripel ini adalah "tripel dasar".</p>
+            <p class="lead" style="margin:0; font-family:var(--font-mono); color:var(--text);">Contoh: (3, 4, 5) → FPB(3,4,5) = 1</p>
+          </div>
+          <div class="panel">
+            <span class="tag mult">KELIPATAN</span>
+            <h2 class="sub" style="margin-top:14px;">Tripel Kelipatan</h2>
+            <p class="lead" style="margin:0 0 10px;">Diperoleh dari tripel primitif yang <b>dikalikan bilangan bulat k</b> (k = 2, 3, 4, …). Tetap memenuhi a²+b²=c².</p>
+            <p class="lead" style="margin:0; font-family:var(--font-mono); color:var(--text);">Contoh: (3,4,5) × 2 = (6, 8, 10)</p>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:20px;">
+          <h2 class="sub" style="margin-top:0;">Cara cepat mengenali</h2>
+          <p class="lead" style="margin:0;">1) Pastikan ketiganya bilangan bulat positif. &nbsp; 2) Urutkan dari kecil ke besar. &nbsp; 3) Kuadratkan dua bilangan terkecil, jumlahkan. &nbsp; 4) Bandingkan dengan kuadrat bilangan terbesar — jika sama, itu Tripel Pythagoras!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CEK INTERAKTIF -->
+    <section class="slide" data-title="Cek Tripel">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>04 · Coba Sendiri</p>
+        <h1 class="slide-title">Alat Cek Tripel Pythagoras</h1>
+        <p class="lead">Masukkan tiga bilangan bulat, lalu klik "Cek" untuk mengetahui apakah ketiganya membentuk Tripel Pythagoras — sekaligus apakah termasuk primitif atau kelipatan.</p>
+        <div class="check-panel panel" style="margin-top:22px;">
+          <div>
+            <div class="check-inputs">
+              <input type="number" id="chk-x" placeholder="bil. 1" min="1">
+              <input type="number" id="chk-y" placeholder="bil. 2" min="1">
+              <input type="number" id="chk-z" placeholder="bil. 3" min="1">
+              <button class="btn btn-primary" onclick="checkTriple()">Cek Sekarang</button>
+            </div>
+            <p class="lead" style="margin:0; font-size:13.5px;">Tips: coba masukkan 6, 8, 10 — atau 5, 6, 7 untuk lihat yang bukan tripel.</p>
+          </div>
+          <div class="check-result empty" id="checkResult">Hasil pengecekan akan muncul di sini.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: TRIPEL PRIMITIF UMUM -->
+    <section class="slide" data-title="Tripel Primitif">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>05 · Tripel Primitif Umum</p>
+        <h1 class="slide-title">Tripel Pythagoras yang Sering Muncul</h1>
+        <p class="lead">Hafalkan beberapa tripel primitif berikut agar lebih cepat mengerjakan soal. Klik kartu untuk melihat pembuktian angkanya.</p>
+        <div class="triple-grid" id="tripleGrid"></div>
+        <div class="triple-detail panel" id="tripleDetail">👆 Klik salah satu tripel di atas untuk melihat perhitungannya.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: KELIPATAN -->
+    <section class="slide" data-title="Menentukan Kelipatan">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>06 · Menentukan (Cara 1)</p>
+        <h1 class="slide-title">Membuat Tripel Baru dari Kelipatan</h1>
+        <p class="lead">Cara termudah menentukan Tripel Pythagoras baru: ambil tripel primitif, lalu kalikan ketiga bilangannya dengan bilangan bulat k yang sama.</p>
+        <div class="mult-panel panel" style="margin-top:22px;">
+          <div>
+            <h2 class="sub" style="margin-top:0;">1. Pilih tripel dasar</h2>
+            <div class="base-select" id="baseSelect"></div>
+            <h2 class="sub">2. Pilih pengali k</h2>
+            <div class="slider-controls">
+              <label>Pengali k <span class="val" id="kVal">2</span></label>
+              <input type="range" id="slider-k" min="1" max="6" value="2" oninput="updateMultiplierDemo()">
+            </div>
+          </div>
+          <div>
+            <div class="result-line" id="multFormula" style="font-size:16px;"></div>
+            <div class="result-line" id="multCheck" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: RUMUS EUCLID -->
+    <section class="slide" data-title="Rumus Pembangkit">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>07 · Menentukan (Cara 2)</p>
+        <h1 class="slide-title">Rumus Pembangkit Euclid</h1>
+        <p class="lead">Cara lain untuk membentuk Tripel Pythagoras: pilih dua bilangan bulat <b>m &gt; n &gt; 0</b>, lalu hitung:</p>
+        <div class="formula-hero" style="gap:10px;">
+          <span class="term a" style="font-size:22px;">a = m² − n²</span>
+        </div>
+        <div class="formula-hero" style="gap:10px; margin-top:-8px;">
+          <span class="term b" style="font-size:22px;">b = 2mn</span>
+        </div>
+        <div class="formula-hero" style="gap:10px; margin-top:-8px;">
+          <span class="term c" style="font-size:22px;">c = m² + n²</span>
+        </div>
+        <div class="two-col" style="margin-top:10px;">
+          <div class="panel">
+            <div class="slider-controls">
+              <label>m <span class="val" id="mVal">2</span></label>
+              <input type="range" id="slider-m" min="2" max="9" value="2" oninput="updateEuclidDemo()">
+              <label style="margin-top:16px;">n <span class="val" id="nVal">1</span></label>
+              <input type="range" id="slider-n" min="1" max="8" value="1" oninput="updateEuclidDemo()">
+            </div>
+            <div class="result-line" id="euclidCalc" style="margin-top:14px;"></div>
+            <div class="result-line" id="euclidResult" style="margin-top:6px;"></div>
+          </div>
+          <div class="diagram-card" style="background:transparent; border:none; padding:0;">
+            <svg viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg" id="euclidSvg">
+              <g id="euclidGroup"></g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: CONTOH SOAL -->
+    <section class="slide" data-title="Contoh Soal">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>08 · Contoh Soal</p>
+        <h1 class="slide-title">Latihan Terpandu</h1>
+
+        <div class="example-box" id="ex1">
+          <div class="example-question">Contoh 1. Apakah 9, 12, 15 merupakan Tripel Pythagoras? Jika ya, apakah primitif atau kelipatan?</div>
+          <div class="step">1. Urutkan: bilangan terbesar adalah 15, jadi c = 15, sedangkan a = 9 dan b = 12.</div>
+          <div class="step">2. Uji rumus: <span class="step-formula">9² + 12² = 81 + 144 = 225</span></div>
+          <div class="step">3. Bandingkan dengan c²: <span class="step-formula">15² = 225</span> → sama, jadi ini Tripel Pythagoras.</div>
+          <div class="step final">4. FPB(9,12,15) = 3, jadi ini <span class="step-formula">tripel kelipatan</span> dari (3,4,5) × 3 ✅</div>
+          <div class="example-actions"><button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button></div>
+        </div>
+
+        <div class="example-box" id="ex2" style="margin-top:20px;">
+          <div class="example-question">Contoh 2. Gunakan rumus Euclid dengan m = 4 dan n = 1. Tentukan Tripel Pythagoras yang terbentuk!</div>
+          <div class="step">1. Hitung a: <span class="step-formula">a = m² − n² = 16 − 1 = 15</span></div>
+          <div class="step">2. Hitung b: <span class="step-formula">b = 2mn = 2 × 4 × 1 = 8</span></div>
+          <div class="step">3. Hitung c: <span class="step-formula">c = m² + n² = 16 + 1 = 17</span></div>
+          <div class="step final">4. Tripel Pythagoras yang terbentuk: <span class="step-formula">(8, 15, 17)</span> ✅</div>
+          <div class="example-actions"><button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: LATIHAN MANDIRI -->
+    <section class="slide" data-title="Latihan Mandiri">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>09 · Latihan Mandiri</p>
+        <h1 class="slide-title">Sekarang Coba Kamu Hitung</h1>
+        <p class="lead">Isi jawabanmu pada kotak, lalu klik "Cek Jawaban".</p>
+
+        <div class="practice-item">
+          <div class="q">1. Tripel dasar (5, 12, 13) dikalikan k = 4. Berapa nilai c yang baru?</div>
+          <div class="practice-row">
+            <input type="number" id="p1-input" placeholder="nilai c">
+            <button class="btn btn-ghost" onclick="checkPractice('p1', 52)">Cek Jawaban</button>
+            <span class="feedback" id="p1-fb"></span>
+          </div>
+        </div>
+
+        <div class="practice-item">
+          <div class="q">2. Gunakan rumus Euclid dengan m = 5 dan n = 2. Berapa nilai a (a = m² − n²)?</div>
+          <div class="practice-row">
+            <input type="number" id="p2-input" placeholder="nilai a">
+            <button class="btn btn-ghost" onclick="checkPractice('p2', 21)">Cek Jawaban</button>
+            <span class="feedback" id="p2-fb"></span>
+          </div>
+        </div>
+
+        <div class="practice-item">
+          <div class="q">3. Pada tripel primitif (20, 21, ?), berapakah nilai bilangan ketiga (c)?</div>
+          <div class="practice-row">
+            <input type="number" id="p3-input" placeholder="nilai c">
+            <button class="btn btn-ghost" onclick="checkPractice('p3', 29)">Cek Jawaban</button>
+            <span class="feedback" id="p3-fb"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>10 · Kuis Interaktif</p>
+        <h1 class="slide-title">Uji Pemahamanmu</h1>
+        <div class="quiz-wrap">
+          <div class="quiz-progress" id="quizProgress"></div>
+          <div id="quizArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: RINGKASAN & SELESAI -->
+    <section class="slide" data-title="Selesai">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>11 · Penutup</p>
+        <h1 class="slide-title">Ringkasan Tripel Pythagoras</h1>
+        <div class="summary-grid">
+          <div class="summary-card"><span class="sf">PENGERTIAN</span>Tripel Pythagoras adalah tiga bilangan bulat positif (a,b,c) yang memenuhi a² + b² = c², dengan c sebagai bilangan terbesar.</div>
+          <div class="summary-card"><span class="sf">JENIS</span>Ada tripel <b>primitif</b> (FPB ketiganya = 1) dan tripel <b>kelipatan</b> (hasil kali tripel primitif dengan bilangan bulat k).</div>
+          <div class="summary-card"><span class="sf">CARA MENENTUKAN 1</span>Kalikan tripel primitif dengan bilangan bulat k untuk mendapatkan tripel kelipatan baru.</div>
+          <div class="summary-card"><span class="sf">CARA MENENTUKAN 2</span>Gunakan rumus Euclid: a = m²−n², b = 2mn, c = m²+n², dengan m &gt; n &gt; 0.</div>
+        </div>
+        <div class="panel center" style="margin-top:8px;">
+          <p class="lead" style="margin:0;">Terima kasih sudah belajar Tripel Pythagoras! Sekarang kamu bisa mengenali dan menentukan pasangan bilangannya sendiri. 🎉</p>
+        </div>
+        <div class="final-actions">
+          <button class="btn btn-ghost" onclick="goToSlide(0)">↺ Ulangi dari Awal</button>
+          <button class="btn btn-primary" id="btnSelesai" onclick="window.location.href='matb-bab2.html'">✓ Selesai — Kembali ke Bab 2</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+    <div class="slide-name-mobile" id="slideNameMobile">Pembuka</div>
+    <div class="dots" id="dotsWrap"></div>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+  </div>
+
+</div>
+
+<script>
+/* ============ NAVIGATION ============ */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+
+const dotsWrap = document.getElementById('dotsWrap');
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-item';
+  d.title = s.dataset.title || ('Slide ' + (i+1));
+  d.onclick = () => goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+document.getElementById('slideTotal').textContent = String(total).padStart(2,'0');
+
+function render(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.querySelectorAll('.dot-item').forEach((d,i)=>{
+    d.classList.toggle('active', i===current);
+    d.classList.toggle('done', i<current);
+  });
+  document.getElementById('slideCurrent').textContent = String(current+1).padStart(2,'0');
+  document.getElementById('progressFill').style.width = (((current)/(total-1))*100) + '%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  document.getElementById('slideNameMobile').textContent = slides[current].dataset.title || '';
+  document.getElementById('viewport').scrollTop = 0;
+  slides[current].scrollTop = 0;
+  if(current === 4) renderTriples();
+  if(current === 5) { renderBaseSelect(); updateMultiplierDemo(); }
+  if(current === 6) updateEuclidDemo();
+  if(current === 9) initQuiz();
+}
+function goToSlide(i){ if(i<0||i>=total) return; current=i; render(); }
+function nextSlide(){ if(current<total-1){ current++; render(); } }
+function prevSlide(){ if(current>0){ current--; render(); } }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* ============ Helper: gcd ============ */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b, a%b]; } return a; }
+function gcd3(a,b,c){ return gcd(gcd(a,b),c); }
+
+/* ============ SLIDE 4: checker ============ */
+function checkTriple(){
+  const x = parseInt(document.getElementById('chk-x').value);
+  const y = parseInt(document.getElementById('chk-y').value);
+  const z = parseInt(document.getElementById('chk-z').value);
+  const box = document.getElementById('checkResult');
+  if(isNaN(x)||isNaN(y)||isNaN(z)||x<=0||y<=0||z<=0){
+    box.className='check-result no'; box.innerHTML='Isi ketiga kotak dengan bilangan bulat positif terlebih dahulu.'; return;
+  }
+  const nums = [x,y,z].sort((a,b)=>a-b);
+  const [p,q,r] = nums;
+  const left = p*p+q*q, right = r*r;
+  if(left===right){
+    const g = gcd3(p,q,r);
+    const jenis = g===1 ? 'tripel PRIMITIF' : `tripel KELIPATAN (dari tripel primitif ${p/g}, ${q/g}, ${r/g} × ${g})`;
+    box.className='check-result ok';
+    box.innerHTML = `<b style="color:var(--good)">✅ Ya, ini Tripel Pythagoras!</b><br>${p}² + ${q}² = ${p*p} + ${q*q} = ${left} = ${r}²<br>Jenis: <b>${jenis}</b>`;
+  } else {
+    box.className='check-result no';
+    box.innerHTML = `<b style="color:var(--bad)">❌ Bukan Tripel Pythagoras.</b><br>${p}² + ${q}² = ${left}, sedangkan ${r}² = ${right} — tidak sama.`;
+  }
+}
+
+/* ============ SLIDE 5: primitive triples ============ */
+const triples = [
+  {a:3,b:4,c:5},{a:5,b:12,c:13},{a:8,b:15,c:17},
+  {a:7,b:24,c:25},{a:20,b:21,c:29},{a:9,b:40,c:41},
+];
+let triplesRendered = false;
+function renderTriples(){
+  if(triplesRendered) return;
+  triplesRendered = true;
+  const grid = document.getElementById('tripleGrid');
+  triples.forEach(t=>{
+    const card = document.createElement('div');
+    card.className='triple-card';
+    card.innerHTML = `<div class="nums">${t.a}-${t.b}-${t.c}</div><div class="hint">klik untuk cek</div>`;
+    card.onclick = ()=>{
+      document.getElementById('tripleDetail').innerHTML =
+        `<b style="color:var(--a-color)">${t.a}²</b> + <b style="color:var(--b-color)">${t.b}²</b> = ${t.a*t.a} + ${t.b*t.b} = ${t.a*t.a+t.b*t.b} &nbsp;=&nbsp; <b style="color:var(--c-color)">${t.c}²</b> = ${t.c*t.c} ✅ Ini tripel primitif (FPB=1).`;
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ============ SLIDE 6: multiplier demo ============ */
+const baseTriples = [ {a:3,b:4,c:5}, {a:5,b:12,c:13}, {a:8,b:15,c:17}, {a:7,b:24,c:25} ];
+let selectedBase = 0;
+let baseRendered = false;
+function renderBaseSelect(){
+  if(baseRendered) return;
+  baseRendered = true;
+  const wrap = document.getElementById('baseSelect');
+  baseTriples.forEach((t,i)=>{
+    const b = document.createElement('button');
+    b.className = 'base-btn' + (i===0 ? ' active':'');
+    b.textContent = `${t.a}-${t.b}-${t.c}`;
+    b.onclick = ()=>{
+      selectedBase = i;
+      document.querySelectorAll('.base-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      updateMultiplierDemo();
+    };
+    wrap.appendChild(b);
+  });
+}
+function updateMultiplierDemo(){
+  const t = baseTriples[selectedBase];
+  const k = parseInt(document.getElementById('slider-k').value);
+  document.getElementById('kVal').textContent = k;
+  const na = t.a*k, nb = t.b*k, nc = t.c*k;
+  document.getElementById('multFormula').innerHTML =
+    `(${t.a}, ${t.b}, ${t.c}) × ${k} = <b style="color:var(--accent)">(${na}, ${nb}, ${nc})</b>`;
+  document.getElementById('multCheck').innerHTML =
+    `Cek: ${na}² + ${nb}² = ${na*na} + ${nb*nb} = ${na*na+nb*nb} &nbsp;=&nbsp; ${nc}² = ${nc*nc} <span style="color:var(--good)">✅ valid</span>`;
+}
+
+/* ============ SLIDE 7: euclid formula demo ============ */
+function updateEuclidDemo(){
+  let m = parseInt(document.getElementById('slider-m').value);
+  let n = parseInt(document.getElementById('slider-n').value);
+  const nSlider = document.getElementById('slider-n');
+  nSlider.max = m-1;
+  if(n>=m){ n = m-1; nSlider.value = n; }
+  document.getElementById('mVal').textContent = m;
+  document.getElementById('nVal').textContent = n;
+
+  const a = m*m - n*n, b = 2*m*n, c = m*m + n*n;
+  document.getElementById('euclidCalc').innerHTML =
+    `a = ${m}²−${n}² = <b style="color:var(--a-color)">${a}</b> &nbsp;·&nbsp; b = 2×${m}×${n} = <b style="color:var(--b-color)">${b}</b> &nbsp;·&nbsp; c = ${m}²+${n}² = <b style="color:var(--c-color)">${c}</b>`;
+  document.getElementById('euclidResult').innerHTML =
+    `Tripel: <span class="big">(${a}, ${b}, ${c})</span> — cek: ${a}²+${b}² = ${a*a+b*b} = ${c}² = ${c*c} <span style="color:var(--good)">✅</span>`;
+
+  // draw scaled right triangle
+  const legs = [a,b].sort((x,y)=>x-y);
+  const shortLeg = legs[0], longLeg = legs[1];
+  const maxDim = 220;
+  const scale = maxDim / Math.max(shortLeg, longLeg, 1);
+  const ax = shortLeg*scale, bx = longLeg*scale;
+  const ox = 40, oy = 250;
+  const p1 = [ox, oy-ax], p2 = [ox+bx, oy];
+  const g = document.getElementById('euclidGroup');
+  g.innerHTML = `
+    <rect x="${ox-ax}" y="${oy-ax}" width="${ax}" height="${ax}" fill="var(--a-color)" opacity="0.4" stroke="var(--a-color)" stroke-width="2"/>
+    <rect x="${ox}" y="${oy}" width="${bx}" height="${bx}" fill="var(--b-color)" opacity="0.4" stroke="var(--b-color)" stroke-width="2"/>
+    <polygon points="${p1[0]},${p1[1]} ${ox},${oy} ${p2[0]},${p2[1]}" fill="var(--panel-light)" stroke="var(--line)" stroke-width="1.5"/>
+    <rect x="${ox}" y="${oy-14}" width="14" height="14" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+    <line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="var(--c-color)" stroke-width="4"/>
+  `;
+}
+
+/* ============ Example step reveal ============ */
+function stepReveal(btn){
+  const box = btn.closest('.example-box');
+  const steps = Array.from(box.querySelectorAll('.step'));
+  const nextHidden = steps.find(s=>!s.classList.contains('shown'));
+  if(nextHidden){ nextHidden.classList.add('shown'); }
+  const remaining = steps.filter(s=>!s.classList.contains('shown'));
+  if(remaining.length===0){
+    btn.textContent = '↺ Ulangi';
+    btn.onclick = ()=>{ steps.forEach(s=>s.classList.remove('shown')); btn.textContent='Tampilkan Langkah →'; btn.onclick=()=>stepReveal(btn); };
+  } else {
+    btn.textContent = 'Tampilkan Langkah →';
+  }
+}
+
+/* ============ Practice check ============ */
+function checkPractice(id, answer){
+  const input = document.getElementById(id+'-input');
+  const fb = document.getElementById(id+'-fb');
+  const val = parseFloat(input.value);
+  if(isNaN(val)){ fb.textContent = 'Isi jawabanmu dulu ya'; fb.className='feedback no'; return; }
+  if(Math.abs(val-answer) < 0.001){
+    fb.textContent = '✅ Benar! Kerja bagus.';
+    fb.className='feedback ok';
+  } else {
+    fb.textContent = `❌ Belum tepat. Jawaban: ${answer}`;
+    fb.className='feedback no';
+  }
+}
+
+/* ============ Quiz ============ */
+const quizData = [
+  { q:'Tripel Pythagoras adalah tiga bilangan bulat positif yang memenuhi…', opts:['a + b = c','a² + b² = c²','a² − b² = c²','a × b = c²'], correct:1 },
+  { q:'Manakah yang termasuk Tripel Pythagoras PRIMITIF?', opts:['(6, 8, 10)','(9, 12, 15)','(3, 4, 5)','(2, 3, 4)'], correct:2 },
+  { q:'(6, 8, 10) disebut Tripel Pythagoras…', opts:['Primitif','Kelipatan','Bukan tripel','Ganjil'], correct:1 },
+  { q:'Menggunakan rumus Euclid dengan m = 3 dan n = 2, berapa nilai b (b = 2mn)?', opts:['6','10','12','5'], correct:2 },
+  { q:'Manakah pasangan berikut yang BUKAN Tripel Pythagoras?', opts:['(7, 24, 25)','(9, 40, 41)','(5, 6, 7)','(20, 21, 29)'], correct:2 },
+];
+let quizIndex = 0, quizScore = 0, quizAnswered = [];
+function initQuiz(){
+  quizIndex = 0; quizScore = 0; quizAnswered = new Array(quizData.length).fill(null);
+  renderQuizProgress();
+  renderQuizQuestion();
+}
+function renderQuizProgress(){
+  const wrap = document.getElementById('quizProgress');
+  wrap.innerHTML='';
+  quizData.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (quizAnswered[i]!==null ? ' done' : '');
+    wrap.appendChild(d);
+  });
+}
+function renderQuizQuestion(){
+  const area = document.getElementById('quizArea');
+  if(quizIndex >= quizData.length){
+    let msg = 'Yuk pelajari lagi materinya, kamu pasti bisa!';
+    if(quizScore===5) msg = 'Sempurna! Kamu sudah paham betul Tripel Pythagoras! 🏆';
+    else if(quizScore===4) msg = 'Hebat! Tinggal sedikit lagi sempurna. 🎯';
+    else if(quizScore===3) msg = 'Bagus! Terus berlatih soal-soalnya ya. 💪';
+    area.innerHTML = `
+      <div class="quiz-question quiz-result">
+        <div class="score-num">${quizScore}/${quizData.length}</div>
+        <div class="score-msg">${msg}</div>
+        <button class="btn btn-primary" onclick="initQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const item = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="quiz-question">
+      <div class="qtext">Soal ${quizIndex+1}. ${item.q}</div>
+      <div class="qoptions" id="qopts"></div>
+      <div class="quiz-footer">
+        <span class="quiz-score-badge">Skor sementara: ${quizScore}/${quizData.length}</span>
+        <button class="btn btn-ghost" id="quizNextBtn" style="display:none;" onclick="quizNext()">Lanjut →</button>
+      </div>
+    </div>`;
+  const optsWrap = document.getElementById('qopts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'qoption';
+    b.textContent = opt;
+    b.onclick = ()=> selectQuizOption(i);
+    optsWrap.appendChild(b);
+  });
+}
+function selectQuizOption(i){
+  const item = quizData[quizIndex];
+  const opts = document.querySelectorAll('#qopts .qoption');
+  opts.forEach(o=>o.disabled = true);
+  if(i===item.correct){
+    opts[i].classList.add('correct');
+    quizScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[item.correct].classList.add('correct');
+  }
+  quizAnswered[quizIndex] = i;
+  renderQuizProgress();
+  document.getElementById('quizNextBtn').style.display='inline-flex';
+  document.querySelector('.quiz-score-badge').textContent = `Skor sementara: ${quizScore}/${quizData.length}`;
+}
+function quizNext(){ quizIndex++; renderQuizQuestion(); }
+</script>
+</body>
+</html>

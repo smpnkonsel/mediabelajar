@@ -1,784 +1,593 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pangkat Negatif ⇄ Pecahan — Presentasi Interaktif</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentasi Interaktif: Bilangan Berpangkat & Bentuk Akar</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #06b6d4;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --danger: #ef4444;
+        }
 
-:root{
-  --bg:#0E1526;
-  --bg-alt:#121B32;
-  --surface:#1A2440;
-  --surface-2:#212E52;
-  --border:rgba(255,255,255,0.09);
-  --text:#F3F6FC;
-  --text-muted:#8FA0C2;
-  --text-faint:#5B6B8C;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-  --pos:#45D9A0;
-  --pos-dim:rgba(69,217,160,0.14);
-  --zero:#FFC857;
-  --zero-dim:rgba(255,200,87,0.14);
-  --neg:#FF7086;
-  --neg-dim:rgba(255,112,134,0.14);
-  --primary:#45C7E0;
-  --primary-dim:rgba(69,199,224,0.15);
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-  --display:'Space Grotesk',sans-serif;
-  --body:'Inter',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-}
+        /* Header & Navigation Bar */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{height:100%;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--body);
-  overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:"";
-  position:fixed; inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size:44px 44px;
-  pointer-events:none;
-  z-index:0;
-}
-::selection{background:var(--primary); color:#0E1526;}
-:focus-visible{outline:2px solid var(--primary); outline-offset:3px; border-radius:4px;}
+        .logo {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-.deck{position:relative; width:100%; height:100vh;}
+        .slide-counter {
+            background: #334155;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
 
-.slide{
-  position:absolute; inset:0;
-  display:flex; flex-direction:column;
-  padding:56px 8vw 40px;
-  opacity:0; visibility:hidden;
-  transform:translateX(40px);
-  transition:opacity .5s ease, transform .5s ease, visibility .5s;
-  overflow-y:auto;
-}
-.slide.active{opacity:1; visibility:visible; transform:translateX(0); z-index:2;}
-.slide.prev{transform:translateX(-40px);}
+        /* Container Main Slide */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
 
-.eyebrow{
-  font-family:var(--mono);
-  font-size:13px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--primary);
-  display:flex; align-items:center; gap:10px;
-  margin-bottom:14px;
-}
-.eyebrow::before{content:""; width:22px; height:1px; background:var(--primary);}
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+            animation: fadeIn 0.4s ease-in-out;
+        }
 
-h1.headline{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(28px,4.2vw,50px);
-  line-height:1.1;
-  letter-spacing:-.01em;
-  max-width:900px;
-}
-h2.headline{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(24px,3.2vw,38px);
-  line-height:1.15;
-  letter-spacing:-.01em;
-  max-width:820px;
-}
-.lede{
-  font-size:clamp(15px,1.4vw,18px);
-  color:var(--text-muted);
-  max-width:660px;
-  margin-top:14px;
-  line-height:1.6;
-}
+        .slide.active {
+            display: block;
+        }
 
-.slide-body{flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; padding-top:8px;}
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-/* ---------- Buttons ---------- */
-.btn{
-  font-family:var(--body);
-  font-weight:600;
-  font-size:14px;
-  padding:11px 20px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  cursor:pointer;
-  transition:border-color .2s, transform .15s, background .2s;
-}
-.btn:hover{border-color:var(--primary); transform:translateY(-1px);}
-.btn:active{transform:translateY(0);}
-.btn.primary{background:var(--primary); color:#0E1526; border-color:var(--primary);}
-.btn.primary:hover{filter:brightness(1.08);}
-.btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
-.chip{
-  font-family:var(--mono); font-size:13px; font-weight:600;
-  padding:8px 16px; border-radius:99px; border:1px solid var(--border);
-  background:var(--surface); color:var(--text-muted); cursor:pointer; transition:all .18s;
-}
-.chip:hover{border-color:var(--primary); color:var(--text);}
-.chip.active{background:var(--primary-dim); border-color:var(--primary); color:var(--primary);}
+        h1, h2 {
+            color: #fff;
+            margin-bottom: 1rem;
+        }
 
-/* ---------- Widget shell ---------- */
-.expo-widget{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:30px 26px;
-  display:flex; flex-direction:column; gap:20px;
-}
-.expo-controls{display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap;}
-.control-group{display:flex; align-items:center; gap:10px;}
-.control-group .cg-label{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
-.round-btn{
-  width:38px; height:38px; border-radius:50%;
-  background:var(--surface-2); border:1px solid var(--border);
-  color:var(--text); font-size:18px; font-family:var(--mono);
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:all .15s;
-}
-.round-btn:hover{border-color:var(--primary); color:var(--primary);}
-.round-btn:disabled{opacity:.3; cursor:not-allowed;}
-.cg-val{font-family:var(--mono); font-weight:700; font-size:20px; min-width:26px; text-align:center;}
+        h2 {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
 
-.equiv-row{display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap;}
-.equiv-box{
-  font-family:var(--mono); font-weight:700; font-size:clamp(24px,3.4vw,34px);
-  padding:14px 22px; border-radius:14px; text-align:center; min-width:130px;
-}
-.equiv-box sup{font-size:.55em; vertical-align:super;}
-.equiv-box.neg-side{background:var(--neg-dim); color:var(--neg); border:1px solid rgba(255,112,134,.35);}
-.equiv-box.frac-side{background:var(--primary-dim); color:var(--primary); border:1px solid rgba(69,199,224,.35);}
-.equiv-arrow{
-  font-family:var(--mono); font-size:22px; color:var(--text-faint);
-  display:flex; flex-direction:column; align-items:center; gap:2px;
-}
-.equiv-arrow .lbl{font-size:10px; letter-spacing:.05em; text-transform:uppercase;}
+        p {
+            line-height: 1.6;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 1.05rem;
+        }
 
-.expo-visual{
-  min-height:100px;
-  display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
-  gap:10px; padding:10px 4px;
-}
-.tile-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;}
-.tile{
-  font-family:var(--mono); font-weight:700; font-size:17px;
-  width:40px; height:40px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  border:1px solid var(--border);
-  animation:popIn .35s ease backwards;
-}
-.tile.neg-tile{background:var(--neg-dim); color:var(--neg); border-color:rgba(255,112,134,.35);}
-.tile.frac-tile{background:var(--primary-dim); color:var(--primary); border-color:rgba(69,199,224,.35);}
-@keyframes popIn{from{opacity:0; transform:scale(.6);} to{opacity:1; transform:scale(1);}}
-.times{color:var(--text-faint); font-family:var(--mono); font-size:16px;}
-.frac{display:flex; flex-direction:column; align-items:center; gap:6px;}
-.frac-num{font-family:var(--mono); font-weight:700; font-size:20px; color:var(--text);}
-.frac-line{width:100%; height:2px; background:var(--text-faint); border-radius:2px;}
+        /* Card Elements & Formula Styling */
+        .math-box {
+            background: #0f172a;
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
 
-.expo-caption{
-  text-align:center; font-family:var(--mono); font-size:13px; color:var(--text-muted);
-  min-height:20px; line-height:1.5;
-}
-.expo-caption b{color:var(--text);}
+        .math-expr {
+            font-family: 'Courier New', Courier, monospace;
+            color: #38bdf8;
+            font-weight: bold;
+        }
 
-/* ---------- Definition slide ---------- */
-.def-box{
-  display:flex; align-items:center; justify-content:center; gap:0;
-  font-family:var(--mono); font-weight:700; font-size:clamp(46px,7.5vw,88px);
-  margin:30px 0 14px;
-  position:relative;
-}
-.def-part{cursor:pointer; position:relative; padding:6px 10px; border-radius:10px; transition:background .2s;}
-.def-part:hover{background:var(--surface);}
-.def-part .label{
-  position:absolute; top:100%; left:50%; transform:translateX(-50%);
-  font-family:var(--body); font-weight:600; font-size:13px;
-  background:var(--surface-2); border:1px solid var(--border);
-  padding:6px 12px; border-radius:8px; white-space:nowrap;
-  opacity:0; pointer-events:none; transition:opacity .2s;
-  margin-top:10px; color:var(--text-muted);
-}
-.def-part:hover .label, .def-part.pinned .label{opacity:1;}
-.def-part.base{color:var(--primary);}
-.def-part.exp{color:var(--neg); font-size:.5em; vertical-align:super; position:relative; top:-.3em;}
-.def-formula{
-  text-align:center; font-family:var(--mono); font-size:22px; color:var(--text-muted); margin-top:20px;
-}
-.def-formula b{color:var(--text);}
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
 
-/* ---------- Step converter (slide 3) ---------- */
-.step-wrap{display:flex; flex-direction:column; align-items:center; gap:18px;}
-.step-line{
-  font-family:var(--mono); font-size:19px; font-weight:600; color:var(--text-muted);
-  opacity:0; transform:translateY(10px);
-  transition:opacity .4s ease, transform .4s ease;
-  text-align:center;
-}
-.step-line.shown{opacity:1; transform:translateY(0);}
-.step-line.final{color:var(--primary); font-size:22px;}
-.step-line sup{font-size:.6em;}
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .slide { padding: 1.5rem; }
+        }
 
-/* ---------- Example cards ---------- */
-.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
-@media (max-width:960px){.card-grid{grid-template-columns:1fr;}}
-.example-card{
-  background:var(--surface); border:1px solid var(--border); border-radius:16px;
-  padding:22px; cursor:pointer; transition:border-color .2s, transform .15s;
-}
-.example-card:hover{border-color:var(--primary); transform:translateY(-2px);}
-.example-card .expr{
-  font-family:var(--mono); font-weight:700; font-size:22px; color:var(--text); text-align:center;
-}
-.example-card .expr sup{color:var(--primary); font-size:.62em;}
-.example-card .hint{text-align:center; font-size:12.5px; color:var(--text-faint); margin-top:8px; font-family:var(--mono);}
-.example-card .reveal{
-  max-height:0; overflow:hidden; transition:max-height .4s ease, margin-top .4s ease;
-}
-.example-card.open .reveal{max-height:220px; margin-top:16px;}
-.example-card.open{border-color:var(--primary);}
-.card-step{
-  font-family:var(--mono); font-size:14px; color:var(--text-muted);
-  padding:6px 0; border-top:1px dashed var(--border);
-}
-.card-step:first-child{border-top:none;}
-.card-step b{color:var(--text);}
+        /* Interactive Elements */
+        .interactive-card {
+            background: #334155;
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
 
-/* ---------- Summary cards ---------- */
-.law-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
-@media (max-width:820px){.law-grid{grid-template-columns:1fr;}}
-.law-card{
-  border-radius:16px; padding:20px 22px; border:1px solid var(--border);
-  background:var(--surface);
-  display:flex; align-items:center; gap:18px;
-}
-.law-card .law-num{
-  font-family:var(--mono); font-weight:700; font-size:13px; color:var(--primary);
-  background:var(--primary-dim); width:34px; height:34px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.law-card .law-formula{font-family:var(--mono); font-weight:700; font-size:19px;}
-.law-card .law-formula sup{font-size:.6em;}
-.law-card .law-name{font-size:12.5px; color:var(--text-muted); margin-top:4px;}
+        .interactive-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-3px);
+        }
 
-/* ---------- Quiz ---------- */
-.quiz-wrap{max-width:680px; margin:0 auto; width:100%;}
-.quiz-progress{display:flex; gap:6px; margin-bottom:22px;}
-.quiz-progress .seg{flex:1; height:4px; border-radius:99px; background:var(--surface-2); overflow:hidden;}
-.quiz-progress .seg i{display:block; height:100%; width:0%; background:var(--primary); transition:width .3s;}
-.quiz-progress .seg.done i{width:100%; background:var(--pos);}
-.quiz-progress .seg.active i{width:100%;}
-.q-text{font-family:var(--display); font-weight:600; font-size:clamp(19px,2.4vw,25px); margin-bottom:22px; line-height:1.4;}
-.q-options{display:flex; flex-direction:column; gap:10px;}
-.q-option{
-  text-align:left; padding:14px 16px; border-radius:12px; border:1px solid var(--border);
-  background:var(--surface); color:var(--text); font-family:var(--mono); font-size:15px;
-  cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:12px;
-}
-.q-option:hover{border-color:var(--primary);}
-.q-option .letter{
-  width:26px; height:26px; border-radius:50%; background:var(--surface-2); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;
-}
-.q-option.correct{border-color:var(--pos); background:var(--pos-dim); color:var(--pos);}
-.q-option.wrong{border-color:var(--neg); background:var(--neg-dim); color:var(--neg);}
-.q-option.disabled{cursor:default;}
-.q-feedback{margin-top:18px; font-size:14px; color:var(--text-muted); min-height:22px;}
-.q-footer{display:flex; justify-content:space-between; align-items:center; margin-top:24px;}
-.score-tag{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+        .interactive-card .step {
+            display: none;
+            margin-top: 0.8rem;
+            padding-top: 0.8rem;
+            border-top: 1px dashed #64748b;
+            color: #a7f3d0;
+        }
 
-/* ---------- Closing ---------- */
-.score-circle{
-  width:160px; height:160px; border-radius:50%; margin:0 auto 24px;
-  background:var(--surface); border:3px solid var(--primary);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-}
-.score-circle .num{font-family:var(--display); font-weight:700; font-size:44px;}
-.score-circle .of{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
+        .interactive-card.open .step {
+            display: block;
+        }
 
-/* ---------- Nav ---------- */
-.nav-bar{
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-  display:flex; align-items:center; gap:16px;
-  background:rgba(20,28,50,0.85); backdrop-filter:blur(10px);
-  border:1px solid var(--border); border-radius:99px;
-  padding:10px 16px; z-index:10;
-}
-.nav-arrow{
-  width:34px; height:34px; border-radius:50%; border:none; background:transparent;
-  color:var(--text); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;
-  transition:background .15s;
-}
-.nav-arrow:hover{background:var(--surface-2);}
-.nav-arrow:disabled{opacity:.25; cursor:not-allowed;}
-.nav-dots{display:flex; gap:7px;}
-.nav-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint); cursor:pointer; transition:all .2s; border:none;}
-.nav-dot.active{background:var(--primary); width:20px; border-radius:99px;}
+        .click-hint {
+            font-size: 0.85rem;
+            color: var(--secondary);
+            font-style: italic;
+            margin-top: 0.3rem;
+        }
 
-.slide-index{
-  position:fixed; top:24px; right:8vw; font-family:var(--mono); font-size:12.5px; color:var(--text-faint); z-index:10;
-}
+        /* Quiz Styling */
+        .quiz-option {
+            background: #334155;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-@media (max-width:640px){
-  .slide{padding:80px 24px 100px;}
-  .expo-controls{gap:14px;}
-  .equiv-row{gap:12px;}
-}
+        .quiz-option:hover {
+            background: #475569;
+        }
 
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:0.001s !important; transition-duration:0.001s !important;}
-}
-</style>
+        .quiz-option.correct {
+            background: var(--accent) !important;
+            color: white;
+        }
+
+        .quiz-option.wrong {
+            background: var(--danger) !important;
+            color: white;
+        }
+
+        .feedback {
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        /* Control Footer */
+        footer {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #334155;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-finish {
+            background: var(--accent);
+        }
+
+        .btn-finish:hover {
+            background: #059669;
+        }
+
+        /* Visual Tag */
+        .tag {
+            display: inline-block;
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--secondary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 
-<div class="slide-index" id="slideIndex">01 / 08</div>
-<div class="deck" id="deck"></div>
-
-<div class="nav-bar">
-  <button class="nav-arrow" id="prevBtn" aria-label="Sebelumnya">←</button>
-  <div class="nav-dots" id="navDots"></div>
-  <button class="nav-arrow" id="nextBtn" aria-label="Berikutnya">→</button>
-</div>
-
-<script>
-/* ============ Helpers ============ */
-function negTiles(base, n){
-  let out = "";
-  for(let i=0;i<n;i++){
-    out += `<div class="tile neg-tile" style="animation-delay:${i*0.05}s">${base}</div>`;
-    if(i<n-1) out += `<div class="times">×</div>`;
-  }
-  return out;
-}
-function fracTiles(base, n){
-  let out = "";
-  for(let i=0;i<n;i++){
-    out += `<div class="tile frac-tile" style="animation-delay:${i*0.05}s">${base}</div>`;
-    if(i<n-1) out += `<div class="times">×</div>`;
-  }
-  return out;
-}
-
-/* ============ Slide 1: Cover ============ */
-function renderCover(){
-  return `
-  <div class="eyebrow">Bab 1 · 1.3 Pangkat Negatif ⇄ Pecahan</div>
-  <h1 class="headline">Mengubah Pangkat Negatif menjadi Pecahan, dan Sebaliknya</h1>
-  <p class="lede">Dua cara menulis, satu nilai yang sama. Atur basis dan besar pangkatnya, lalu lihat kedua bentuknya sejajar.</p>
-
-  <div class="slide-body" style="align-items:center;">
-    <div class="expo-widget" style="max-width:620px; width:100%;">
-      <div class="expo-controls">
-        <div class="control-group" id="baseChips">
-          <span class="cg-label">basis a =</span>
-          <button class="chip" data-base="2">2</button>
-          <button class="chip" data-base="3">3</button>
-          <button class="chip" data-base="5">5</button>
-          <button class="chip" data-base="10">10</button>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <span>📐</span> Matematika Kelas 9 SMP
         </div>
-        <div class="control-group">
-          <button class="round-btn" id="covMinus">−</button>
-          <span class="cg-label">n =</span><span class="cg-val" id="covNVal">3</span>
-          <button class="round-btn" id="covPlus">+</button>
+        <div class="slide-counter" id="slideCounter">Slide 1 dari 8</div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main>
+        <!-- Slide 1: Cover -->
+        <div class="slide active">
+            <span class="tag">BAB 1</span>
+            <h1>Bilangan Berpangkat & Bentuk Akar</h1>
+            <p>Sub-Topik: Konsep dan Operasi Bentuk Akar</p>
+            
+            <div class="math-box" style="margin-top: 2rem;">
+                <p><strong>🎯 Tujuan Pembelajaran:</strong></p>
+                <ul style="margin-left: 1.5rem; color: var(--text-muted); line-height: 1.8;">
+                    <li>Memahami pengertian dan konsep bentuk akar</li>
+                    <li>Menyederhanakan berbagai bentuk akar</li>
+                    <li>Melakukan operasi penjumlahan, pengurangan, perkalian, dan pembagian bentuk akar</li>
+                </ul>
+            </div>
+            <p style="text-align: center; margin-top: 2rem; color: var(--secondary);">Gunakan tombol <strong>Selanjutnya</strong> di bawah untuk mulai belajar!</p>
         </div>
-      </div>
-      <div class="equiv-row">
-        <div class="equiv-box neg-side" id="covLeft"></div>
-        <div class="equiv-arrow">⇄<span class="lbl">setara</span></div>
-        <div class="equiv-box frac-side" id="covRight"></div>
-      </div>
-      <div class="expo-visual" id="covVisual"></div>
-      <div class="expo-caption" id="covCaption"></div>
-    </div>
-  </div>`;
-}
-function initCover(){
-  let base=2, n=3; const min=1, max=4;
-  const left=document.getElementById('covLeft'), right=document.getElementById('covRight');
-  const visual=document.getElementById('covVisual'), caption=document.getElementById('covCaption');
-  const nVal=document.getElementById('covNVal');
-  const minusBtn=document.getElementById('covMinus'), plusBtn=document.getElementById('covPlus');
-  const chips = document.querySelectorAll('#baseChips .chip');
 
-  function update(){
-    nVal.textContent = n;
-    left.innerHTML = `${base}<sup>-${n}</sup>`;
-    const val = Math.pow(base,n);
-    right.innerHTML = `1/${base}<sup>${n}</sup>`;
-    visual.innerHTML = `<div class="frac">
-        <div class="frac-num">1</div>
-        <div class="frac-line"></div>
-        <div class="frac-den tile-row">${negTiles(base,n)}</div>
-      </div>`;
-    caption.innerHTML = `${base}<sup>-${n}</sup> = 1/${base}<sup>${n}</sup> = <b>1/${val}</b>`;
-    minusBtn.disabled = n<=min; plusBtn.disabled = n>=max;
-    chips.forEach(c=> c.classList.toggle('active', parseInt(c.dataset.base)===base));
-  }
-  chips.forEach(c=>{
-    c.addEventListener('click', ()=>{ base = parseInt(c.dataset.base); update(); });
-  });
-  minusBtn.onclick=()=>{ if(n>min){n--; update();} };
-  plusBtn.onclick=()=>{ if(n<max){n++; update();} };
-  update();
-}
+        <!-- Slide 2: Pengertian Bentuk Akar -->
+        <div class="slide">
+            <span class="tag">KONSEP DASAR</span>
+            <h2>1. Pengertian Bentuk Akar</h2>
+            <p>Bentuk akar adalah akar dari suatu bilangan rasional yang hasilnya merupakan <strong>bilangan irasional</strong> (desimal tak berulang dan tak terbatas).</p>
+            
+            <div class="grid-2">
+                <div class="math-box">
+                    <h3>Bukan Bentuk Akar</h3>
+                    <p>Hasil akarnya berupa bilangan rasional:</p>
+                    <p><span class="math-expr">√4 = 2</span></p>
+                    <p><span class="math-expr">√9 = 3</span></p>
+                    <p><span class="math-expr">√25 = 5</span></p>
+                </div>
+                <div class="math-box" style="border-left-color: var(--accent);">
+                    <h3>Termasuk Bentuk Akar</h3>
+                    <p>Hasil akarnya berupa bilangan irasional:</p>
+                    <p><span class="math-expr">√2 ≈ 1,4142...</span></p>
+                    <p><span class="math-expr">√3 ≈ 1,7320...</span></p>
+                    <p><span class="math-expr">√5 ≈ 2,2360...</span></p>
+                </div>
+            </div>
+        </div>
 
-/* ============ Slide 2: Pengertian ============ */
-function renderDefinition(){
-  return `
-  <div class="eyebrow">1.3 · Pengertian</div>
-  <h2 class="headline">Bentuk Dasar Konversinya</h2>
-  <p class="lede">Arahkan kursor atau ketuk bagian notasi untuk mengingat kembali istilahnya.</p>
-  <div class="slide-body">
-    <div class="def-box">
-      <div class="def-part base">a<span class="label">Basis — bilangan bulat, a ≠ 0</span></div><div class="def-part exp">-n<span class="label">Pangkat negatif — n bilangan bulat positif</span></div>
-    </div>
-    <p class="def-formula">a<sup>-n</sup> = <b>1</b> / a<sup>n</sup></p>
-    <p class="lede" style="text-align:center; margin:20px auto 0;">
-      Bacanya: "a pangkat negatif n sama dengan satu per a pangkat n". Aturan ini berlaku dua arah —
-      bentuk pangkat negatif bisa diubah jadi pecahan, dan bentuk pecahan seperti ini juga bisa ditulis balik jadi pangkat negatif.
-    </p>
-  </div>`;
-}
-function initDefinition(){
-  document.querySelectorAll('.def-part').forEach(el=>{
-    el.addEventListener('click', ()=> el.classList.toggle('pinned'));
-  });
-}
+        <!-- Slide 3: Menyederhanakan Bentuk Akar -->
+        <div class="slide">
+            <span class="tag">TEKNIK DASAR</span>
+            <h2>2. Menyederhanakan Bentuk Akar</h2>
+            <p>Cara menyederhanakan: Ubah bilangan di dalam akar menjadi perkalian 2 bilangan, di mana salah satu bilangannya adalah <strong>bilangan kuadrat murni</strong> (4, 9, 16, 25, 36, ...).</p>
+            
+            <p><strong>Rumus Utama:</strong> <span class="math-expr">√(a × b) = √a × √b</span></p>
 
-/* ============ Slide 3: Negatif -> Pecahan (step reveal) ============ */
-const negToFracExamples = [
-  {base:2, n:3},
-  {base:5, n:2},
-  {base:10, n:4},
-];
-function renderNegToFrac(){
-  const chips = negToFracExamples.map((e,i)=>`<button class="chip ${i===0?'active':''}" data-i="${i}">${e.base}<sup>-${e.n}</sup></button>`).join('');
-  return `
-  <div class="eyebrow">1.3 · Pangkat Negatif → Pecahan</div>
-  <h2 class="headline">Mengubah Bentuk Pangkat Negatif</h2>
-  <p class="lede">Pilih salah satu contoh, lalu klik "Lanjutkan" untuk melihat langkahnya satu per satu.</p>
-  <div class="slide-body">
-    <div class="step-wrap">
-      <div class="expo-controls" id="n2fChips">${chips}</div>
-      <div id="n2fSteps" style="display:flex; flex-direction:column; gap:10px; align-items:center; min-height:150px; justify-content:center;"></div>
-      <button class="btn primary" id="n2fBtn">Lanjutkan →</button>
-    </div>
-  </div>`;
-}
-function initNegToFrac(){
-  let exIdx = 0, step = 0;
-  const stepsWrap = document.getElementById('n2fSteps');
-  const btn = document.getElementById('n2fBtn');
-  const chips = document.querySelectorAll('#n2fChips .chip');
+            <p><em>Klik kartu di bawah untuk melihat proses penyederhanaan:</em></p>
 
-  function buildSteps(ex){
-    const val = Math.pow(ex.base, ex.n);
-    return [
-      `${ex.base}<sup>-${ex.n}</sup> = 1 / ${ex.base}<sup>${ex.n}</sup>`,
-      `${ex.base}<sup>${ex.n}</sup> = ${val}`,
-      `<span class="final">${ex.base}<sup>-${ex.n}</sup> = <b>1/${val}</b></span>`,
-    ];
-  }
-  function reset(){
-    step = 0;
-    stepsWrap.innerHTML = "";
-    btn.textContent = "Lanjutkan →";
-    btn.disabled = false;
-  }
-  function reveal(){
-    const ex = negToFracExamples[exIdx];
-    const steps = buildSteps(ex);
-    if(step < steps.length){
-      const line = document.createElement('div');
-      line.className = 'step-line' + (step===steps.length-1 ? ' final' : '');
-      line.innerHTML = steps[step];
-      stepsWrap.appendChild(line);
-      requestAnimationFrame(()=> line.classList.add('shown'));
-      step++;
-      if(step === steps.length){
-        btn.textContent = "Selesai ✓";
-        btn.disabled = true;
-      }
-    }
-  }
-  chips.forEach(c=>{
-    c.addEventListener('click', ()=>{
-      chips.forEach(x=>x.classList.remove('active'));
-      c.classList.add('active');
-      exIdx = parseInt(c.dataset.i);
-      reset();
-    });
-  });
-  btn.addEventListener('click', reveal);
-  reset();
-}
+            <div class="grid-2">
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Sederhanakan √12</h4>
+                    <span class="click-hint">👇 Klik untuk lihat langkah</span>
+                    <div class="step">
+                        √12 = √(4 × 3)<br>
+                        √12 = √4 × √3<br>
+                        <strong>√12 = 2√3</strong>
+                    </div>
+                </div>
 
-/* ============ Slide 4: Pecahan -> Negatif (example cards) ============ */
-const fracToNegExamples = [
-  { frac:"1/16", steps:["1/16 = 1/2<sup>4</sup>", "1/aⁿ = a<sup>-n</sup>", "<b>1/16 = 2<sup>-4</sup></b>"] },
-  { frac:"1/49", steps:["1/49 = 1/7<sup>2</sup>", "1/aⁿ = a<sup>-n</sup>", "<b>1/49 = 7<sup>-2</sup></b>"] },
-  { frac:"1/1000", steps:["1/1000 = 1/10<sup>3</sup>", "1/aⁿ = a<sup>-n</sup>", "<b>1/1000 = 10<sup>-3</sup></b>"] },
-];
-function renderFracToNeg(){
-  const cards = fracToNegExamples.map((e,i)=>`
-    <div class="example-card" data-i="${i}">
-      <div class="expr">${e.frac}</div>
-      <div class="hint">klik untuk lihat langkah</div>
-      <div class="reveal">${e.steps.map(s=>`<div class="card-step">${s}</div>`).join('')}</div>
-    </div>`).join('');
-  return `
-  <div class="eyebrow">1.3 · Pecahan → Pangkat Negatif</div>
-  <h2 class="headline">Mengubah Bentuk Pecahan</h2>
-  <p class="lede">Kebalikannya juga berlaku: pecahan berbentuk 1/aⁿ bisa ditulis ringkas sebagai pangkat negatif. Klik kartu untuk membuktikannya.</p>
-  <div class="slide-body">
-    <div class="card-grid">${cards}</div>
-  </div>`;
-}
-function initFracToNeg(){
-  document.querySelectorAll('.example-card').forEach(card=>{
-    card.addEventListener('click', ()=> card.classList.toggle('open'));
-  });
-}
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Sederhanakan √50</h4>
+                    <span class="click-hint">👇 Klik untuk lihat langkah</span>
+                    <div class="step">
+                        √50 = √(25 × 2)<br>
+                        √50 = √25 × √2<br>
+                        <strong>√50 = 5√2</strong>
+                    </div>
+                </div>
 
-/* ============ Slide 5: Kasus khusus ============ */
-const specialCases = [
-  { expr:"1 / 2<sup>-3</sup>", steps:["1/a<sup>-n</sup> = a<sup>n</sup>", "1/2<sup>-3</sup> = 2<sup>3</sup>", "<b>= 8</b>"] },
-  { expr:"(2/3)<sup>-2</sup>", steps:["(a/b)<sup>-n</sup> = (b/a)<sup>n</sup>", "(2/3)<sup>-2</sup> = (3/2)<sup>2</sup>", "<b>= 9/4</b>"] },
-  { expr:"(5/2)<sup>-1</sup>", steps:["(a/b)<sup>-n</sup> = (b/a)<sup>n</sup>", "(5/2)<sup>-1</sup> = (2/5)<sup>1</sup>", "<b>= 2/5</b>"] },
-];
-function renderSpecial(){
-  const cards = specialCases.map((e,i)=>`
-    <div class="example-card" data-i="${i}">
-      <div class="expr">${e.expr}</div>
-      <div class="hint">klik untuk lihat langkah</div>
-      <div class="reveal">${e.steps.map(s=>`<div class="card-step">${s}</div>`).join('')}</div>
-    </div>`).join('');
-  return `
-  <div class="eyebrow">1.3 · Kasus Khusus</div>
-  <h2 class="headline">Pecahan di Penyebut & Pangkat Negatif</h2>
-  <p class="lede">Dua aturan tambahan yang sering muncul: pangkat negatif di penyebut, dan pecahan a/b yang dipangkatkan negatif.</p>
-  <div class="slide-body">
-    <div class="card-grid">${cards}</div>
-  </div>`;
-}
-function initSpecial(){
-  document.querySelectorAll('.example-card').forEach(card=>{
-    card.addEventListener('click', ()=> card.classList.toggle('open'));
-  });
-}
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Sederhanakan √72</h4>
+                    <span class="click-hint">👇 Klik untuk lihat langkah</span>
+                    <div class="step">
+                        √72 = √(36 × 2)<br>
+                        √72 = √36 × √2<br>
+                        <strong>√72 = 6√2</strong>
+                    </div>
+                </div>
 
-/* ============ Slide 6: Ringkasan ============ */
-function renderSummary(){
-  return `
-  <div class="eyebrow">1.3 · Ringkasan</div>
-  <h2 class="headline">Empat Aturan Konversi</h2>
-  <p class="lede">Semua berlaku untuk a, b ≠ 0 dan n bilangan bulat positif.</p>
-  <div class="slide-body">
-    <div class="law-grid">
-      <div class="law-card"><div class="law-num">1</div><div><div class="law-formula">a<sup>-n</sup> = 1/aⁿ</div><div class="law-name">Pangkat negatif → pecahan</div></div></div>
-      <div class="law-card"><div class="law-num">2</div><div><div class="law-formula">1/aⁿ = a<sup>-n</sup></div><div class="law-name">Pecahan → pangkat negatif</div></div></div>
-      <div class="law-card"><div class="law-num">3</div><div><div class="law-formula">1/a<sup>-n</sup> = aⁿ</div><div class="law-name">Pangkat negatif di penyebut</div></div></div>
-      <div class="law-card"><div class="law-num">4</div><div><div class="law-formula">(a/b)<sup>-n</sup> = (b/a)ⁿ</div><div class="law-name">Pecahan berpangkat negatif → dibalik</div></div></div>
-    </div>
-  </div>`;
-}
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Sederhanakan √300</h4>
+                    <span class="click-hint">👇 Klik untuk lihat langkah</span>
+                    <div class="step">
+                        √300 = √(100 × 3)<br>
+                        √300 = √100 × √3<br>
+                        <strong>√300 = 10√3</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-/* ============ Slide 7: Quiz ============ */
-const quizData = [
-  { q:"Bentuk pecahan dari 4⁻² adalah ...", opts:["1/16","-16","1/8","16"], correct:0 },
-  { q:"1/125 setara dengan bentuk pangkat negatif ...", opts:["5⁻³","5³","-5³","3⁻⁵"], correct:0 },
-  { q:"Bentuk sederhana dari 1/3⁻² adalah ...", opts:["3²","1/9","-9","3⁻²"], correct:0 },
-  { q:"(2/3)⁻² setara dengan ...", opts:["(3/2)²","(2/3)²","-4/9","2²/3⁻²"], correct:0 },
-  { q:"7⁻¹ dalam bentuk pecahan adalah ...", opts:["1/7","7","-7","1/49"], correct:0 },
-];
-let quizState = { index:0, score:0, answered:false };
+        <!-- Slide 4: Penjumlahan & Pengurangan -->
+        <div class="slide">
+            <span class="tag">OPERASI HITUNG</span>
+            <h2>3. Penjumlahan & Pengurangan</h2>
+            <p>Bentuk akar hanya dapat dijumlahkan atau dikurangi jika memiliki <strong>sejenis (angka di dalam akar sama)</strong>.</p>
+            
+            <div class="math-box">
+                <p><span class="math-expr">a√c + b√c = (a + b)√c</span></p>
+                <p><span class="math-expr">a√c - b√c = (a - b)√c</span></p>
+            </div>
 
-function renderQuiz(){
-  return `
-  <div class="eyebrow">1.3 · Latihan</div>
-  <h2 class="headline">Uji Pemahamanmu</h2>
-  <div class="slide-body">
-    <div class="quiz-wrap">
-      <div class="quiz-progress" id="quizProgress"></div>
-      <div id="quizBody"></div>
-    </div>
-  </div>`;
-}
-function initQuiz(){
-  quizState = { index:0, score:0, answered:false };
-  buildQuizProgress();
-  renderQuestion();
-}
-function buildQuizProgress(){
-  const wrap = document.getElementById('quizProgress');
-  wrap.innerHTML = quizData.map((_,i)=>`<div class="seg" data-i="${i}"><i></i></div>`).join('');
-}
-function updateQuizProgress(){
-  document.querySelectorAll('.quiz-progress .seg').forEach((seg,i)=>{
-    seg.classList.remove('active','done');
-    if(i < quizState.index) seg.classList.add('done');
-    else if(i === quizState.index) seg.classList.add('active');
-  });
-}
-function renderQuestion(){
-  updateQuizProgress();
-  const item = quizData[quizState.index];
-  const letters = ['A','B','C','D'];
-  const body = document.getElementById('quizBody');
-  body.innerHTML = `
-    <p class="q-text">${quizState.index+1}. ${item.q}</p>
-    <div class="q-options">
-      ${item.opts.map((o,i)=>`<button class="q-option" data-i="${i}"><span class="letter">${letters[i]}</span>${o}</button>`).join('')}
-    </div>
-    <p class="q-feedback" id="qFeedback"></p>
-    <div class="q-footer">
-      <span class="score-tag">Skor: ${quizState.score} / ${quizData.length}</span>
-      <button class="btn primary" id="qNextBtn" style="display:none;">
-        ${quizState.index === quizData.length-1 ? 'Lihat hasil →' : 'Lanjut →'}
-      </button>
-    </div>`;
-  quizState.answered = false;
-  document.querySelectorAll('.q-option').forEach(btn=>{
-    btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.i)));
-  });
-}
-function handleAnswer(i){
-  if(quizState.answered) return;
-  quizState.answered = true;
-  const item = quizData[quizState.index];
-  const opts = document.querySelectorAll('.q-option');
-  opts.forEach((btn,idx)=>{
-    btn.classList.add('disabled');
-    if(idx === item.correct) btn.classList.add('correct');
-    else if(idx === i) btn.classList.add('wrong');
-  });
-  const fb = document.getElementById('qFeedback');
-  if(i === item.correct){
-    quizState.score++;
-    fb.innerHTML = `<span style="color:var(--pos)">Benar! ✓</span>`;
-  } else {
-    fb.innerHTML = `<span style="color:var(--neg)">Belum tepat.</span> Jawaban benar: <b style="color:var(--text)">${item.opts[item.correct]}</b>`;
-  }
-  document.querySelector('.score-tag').textContent = `Skor: ${quizState.score} / ${quizData.length}`;
-  const nextBtn = document.getElementById('qNextBtn');
-  nextBtn.style.display = 'inline-block';
-  nextBtn.onclick = ()=>{
-    if(quizState.index < quizData.length-1){
-      quizState.index++;
-      renderQuestion();
-    } else {
-      goToSlide(7);
-    }
-  };
-}
+            <p><em>Klik contoh soal berikut untuk membuka pembahasannya:</em></p>
 
-/* ============ Slide 8: Closing ============ */
-function renderClosing(){
-  return `
-  <div class="eyebrow">Selesai</div>
-  <h2 class="headline">Hasil Latihanmu</h2>
-  <div class="slide-body" style="align-items:center; text-align:center;">
-    <div class="score-circle">
-      <div class="num" id="finalScore">0</div>
-      <div class="of">dari ${quizData.length} benar</div>
-    </div>
-    <p class="lede" id="closingMsg" style="text-align:center;"></p>
-    <div style="display:flex; gap:12px; margin-top:20px;">
-      <button class="btn" id="retryQuizBtn">Ulangi kuis</button>
-      <button class="btn primary" id="restartDeckBtn">Kembali ke Menu</button>
-    </div>
-  </div>`;
-}
-function initClosing(){
-  document.getElementById('finalScore').textContent = quizState.score;
-  const msg = document.getElementById('closingMsg');
-  const ratio = quizState.score / quizData.length;
-  if(ratio === 1) msg.textContent = "Sempurna! Kamu sudah mahir mengubah pangkat negatif ke pecahan dan sebaliknya.";
-  else if(ratio >= 0.6) msg.textContent = "Bagus! Sedikit lagi untuk menguasai penuh materi konversi ini.";
-  else msg.textContent = "Coba tinjau kembali slide sebelumnya, lalu ulangi kuisnya.";
+            <div class="interactive-card" onclick="toggleCard(this)" style="margin-bottom: 1rem;">
+                <strong>Contoh 1: 3√5 + 4√5</strong>
+                <span class="click-hint">👇 Klik untuk lihat hasil</span>
+                <div class="step">
+                    Karena akarnya sama-sama √5:<br>
+                    (3 + 4)√5 = <strong>7√5</strong>
+                </div>
+            </div>
 
-  document.getElementById('retryQuizBtn').onclick = ()=> goToSlide(6);
-  document.getElementById('restartDeckBtn').onclick = ()=> { window.location.href = "matb-bab1.html";};
-}
+            <div class="interactive-card" onclick="toggleCard(this)">
+                <strong>Contoh 2: √20 + √45</strong> (Akar berbeda, sederhanakan dulu!)
+                <span class="click-hint">👇 Klik untuk lihat hasil</span>
+                <div class="step">
+                    √20 = √(4 × 5) = 2√5<br>
+                    √45 = √(9 × 5) = 3√5<br>
+                    Maka: 2√5 + 3√5 = <strong>5√5</strong>
+                </div>
+            </div>
+        </div>
 
-/* ============ Slide registry ============ */
-const slides = [
-  { render: renderCover,       init: initCover },
-  { render: renderDefinition,  init: initDefinition },
-  { render: renderNegToFrac,   init: initNegToFrac },
-  { render: renderFracToNeg,   init: initFracToNeg },
-  { render: renderSpecial,     init: initSpecial },
-  { render: renderSummary,     init: null },
-  { render: renderQuiz,        init: initQuiz },
-  { render: renderClosing,     init: initClosing },
-];
+        <!-- Slide 5: Perkalian Bentuk Akar -->
+        <div class="slide">
+            <span class="tag">OPERASI HITUNG</span>
+            <h2>4. Perkalian Bentuk Akar</h2>
+            <p>Untuk perkalian, kalikan bilangan luar dengan luar, dan bilangan dalam akar dengan dalam akar.</p>
+            
+            <div class="math-box">
+                <p><span class="math-expr">√a × √b = √(a × b)</span></p>
+                <p><span class="math-expr">(x√a) × (y√b) = (x × y)√(a × b)</span></p>
+            </div>
 
-let current = 0;
-const deck = document.getElementById('deck');
-const navDots = document.getElementById('navDots');
-const slideIndexEl = document.getElementById('slideIndex');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
+            <div class="grid-2">
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Soal: √3 × √12</h4>
+                    <span class="click-hint">👇 Klik untuk pembahasan</span>
+                    <div class="step">
+                        = √(3 × 12)<br>
+                        = √36<br>
+                        = <strong>6</strong>
+                    </div>
+                </div>
 
-function buildDeck(){
-  slides.forEach((s,i)=>{
-    const el = document.createElement('div');
-    el.className = 'slide';
-    el.id = 'slide-'+i;
-    el.innerHTML = s.render();
-    deck.appendChild(el);
-  });
-  navDots.innerHTML = slides.map((_,i)=>`<button class="nav-dot" data-i="${i}" aria-label="Ke slide ${i+1}"></button>`).join('');
-  navDots.querySelectorAll('.nav-dot').forEach(d=>{
-    d.addEventListener('click', ()=> goToSlide(parseInt(d.dataset.i)));
-  });
-}
+                <div class="interactive-card" onclick="toggleCard(this)">
+                    <h4>Soal: 2√3 × 5√2</h4>
+                    <span class="click-hint">👇 Klik untuk pembahasan</span>
+                    <div class="step">
+                        = (2 × 5) × √(3 × 2)<br>
+                        = <strong>10√6</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-function goToSlide(i){
-  if(i<0 || i>=slides.length) return;
-  document.querySelectorAll('.slide').forEach((el,idx)=>{
-    el.classList.remove('active','prev');
-    if(idx === i) el.classList.add('active');
-    if(idx < i) el.classList.add('prev');
-  });
-  current = i;
-  navDots.querySelectorAll('.nav-dot').forEach((d,idx)=> d.classList.toggle('active', idx===i));
-  slideIndexEl.textContent = String(i+1).padStart(2,'0') + " / " + String(slides.length).padStart(2,'0');
-  prevBtn.disabled = i===0;
-  nextBtn.disabled = i===slides.length-1;
-  if(slides[i].init) slides[i].init();
-}
+        <!-- Slide 6: Pembagian / Merasionalkan Penyebut -->
+        <div class="slide">
+            <span class="tag">OPERASI HITUNG</span>
+            <h2>5. Pembagian & Merasionalkan Penyebut</h2>
+            <p>Pembagian bentuk akar sering disebut sebagai <strong>merasionalkan penyebut</strong> (menghilangkan akar pada bagian bawah pecahan).</p>
+            
+            <div class="math-box">
+                <p>Rumus: <span class="math-expr">a / √b = (a / √b) × (√b / √b) = (a√b) / b</span></p>
+            </div>
 
-prevBtn.addEventListener('click', ()=> goToSlide(current-1));
-nextBtn.addEventListener('click', ()=> goToSlide(current+1));
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowRight') goToSlide(current+1);
-  if(e.key === 'ArrowLeft') goToSlide(current-1);
-});
+            <div class="interactive-card" onclick="toggleCard(this)" style="margin-bottom: 1rem;">
+                <strong>Rasionalkan pecahan: 6 / √3</strong>
+                <span class="click-hint">👇 Klik untuk langkah penyelesaian</span>
+                <div class="step">
+                    (6 / √3) × (√3 / √3)<br>
+                    = (6√3) / 3<br>
+                    = <strong>2√3</strong>
+                </div>
+            </div>
 
-let touchStartX = null;
-document.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX; });
-document.addEventListener('touchend', e=>{
-  if(touchStartX === null) return;
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if(Math.abs(dx) > 60){ dx < 0 ? goToSlide(current+1) : goToSlide(current-1); }
-  touchStartX = null;
-});
+            <div class="interactive-card" onclick="toggleCard(this)">
+                <strong>Rasionalkan pecahan: 8 / (2√2)</strong>
+                <span class="click-hint">👇 Klik untuk langkah penyelesaian</span>
+                <div class="step">
+                    Sederhanakan dulu: 8 / 2 = 4, jadi sisa 4 / √2<br>
+                    (4 / √2) × (√2 / √2) = (4√2) / 2 = <strong>2√2</strong>
+                </div>
+            </div>
+        </div>
 
-buildDeck();
-goToSlide(0);
-</script>
+        <!-- Slide 7: Kuis Latihan -->
+        <div class="slide">
+            <span class="tag">EVALUASI</span>
+            <h2>Kuis Interaktif 📝</h2>
+            <p>Uji pemahamanmu! Pilih jawaban yang paling tepat.</p>
+            
+            <div id="quiz-1">
+                <p><strong>Soal 1: Bentuk sederhana dari √48 adalah...</strong></p>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q1-fb')">A. 2√12</div>
+                <div class="quiz-option" onclick="checkAnswer(this, true, 'q1-fb')">B. 4√3</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q1-fb')">C. 3√4</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q1-fb')">D. 16√3</div>
+                <div class="feedback" id="q1-fb"></div>
+            </div>
+
+            <hr style="border-color: #334155; margin: 1.5rem 0;">
+
+            <div id="quiz-2">
+                <p><strong>Soal 2: Hasil dari 3√2 + √50 - 2√8 adalah...</strong></p>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q2-fb')">A. 6√2</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q2-fb')">B. 5√2</div>
+                <div class="quiz-option" onclick="checkAnswer(this, true, 'q2-fb')">C. 4√2</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false, 'q2-fb')">D. 2√2</div>
+                <div class="feedback" id="q2-fb"></div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Penutup & Navigation Back -->
+        <div class="slide">
+            <span class="tag">SELESAI</span>
+            <h2>Rangkuman & Penutup 🎉</h2>
+            <p>Selamat! Kamu telah mempelajari seluruh materi konsep dan operasi bentuk akar:</p>
+            
+            <div class="math-box">
+                <ul style="margin-left: 1.2rem; line-height: 1.8;">
+                    <li>Menyederhanakan akar dengan mencari faktor kuadrat murni.</li>
+                    <li>Penjumlahan & Pengurangan syaratnya harus memiliki akar sejenis.</li>
+                    <li>Perkalian dilakukan langsung: luar × luar, dalam × dalam.</li>
+                    <li>Merasionalkan pecahan dengan mengalikan akar sekawan/penyebut.</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem;">Klik tombol di bawah ini untuk mengakhiri presentasi dan kembali ke modul utama.</p>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <a href="matb-bab1.html" class="btn btn-finish" style="font-size: 1.1rem; padding: 0.8rem 2rem;">
+                    ✔ Selesai & Kembali ke Info Bab 1
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer / Navigation -->
+    <footer>
+        <button class="btn" id="prevBtn" onclick="changeSlide(-1)">⬅ Sebelumnya</button>
+        <button class="btn" id="nextBtn" onclick="changeSlide(1)">Selanjutnya ➡</button>
+    </footer>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const slideCounter = document.getElementById('slideCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            slideCounter.textContent = `Slide ${currentSlide + 1} dari ${slides.length}`;
+
+            // Control Prev Button
+            prevBtn.disabled = currentSlide === 0;
+
+            // Control Next Button
+            if (currentSlide === slides.length - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'inline-flex';
+            }
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= slides.length) currentSlide = slides.length - 1;
+            updateSlide();
+        }
+
+        function toggleCard(card) {
+            card.classList.toggle('open');
+        }
+
+        function checkAnswer(element, isCorrect, feedbackId) {
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById(feedbackId);
+
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'wrong');
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+                feedback.textContent = "✨ Benar sekali! Jawaban kamu tepat.";
+                feedback.style.color = "var(--accent)";
+            } else {
+                element.classList.add('wrong');
+                feedback.textContent = "❌ Masih kurang tepat, coba lagi ya!";
+                feedback.style.color = "var(--danger)";
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' && currentSlide > 0) {
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
 </body>
 </html>

@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 3 · Penyelesaian Persamaan Linear Satu Variabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16213E;
+    --navy-deep:#0B1226;
+    --paper:#EEF1F8;
+    --card:#FFFFFF;
+    --mint:#1FA99A;
+    --mint-soft:#E4F6F3;
+    --coral:#E85C4A;
+    --coral-soft:#FDE7E3;
+    --amber:#E8A23A;
+    --amber-soft:#FBEEDB;
+    --violet:#7B5FE0;
+    --violet-soft:#EEE9FB;
+    --ink:#1B2440;
+    --ink-soft:#5B6480;
+    --line: rgba(22,33,62,0.12);
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:
+      radial-gradient(circle at 15% 8%, rgba(123,95,224,0.08), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(31,169,154,0.10), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding: 18px clamp(14px,4vw,32px) 24px;
+  }
+
+  /* ---------- Top bar & progress ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:600;
+    color:var(--navy);
+    font-size:clamp(13px,2.4vw,15px);
+  }
+  .brand .badge{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--navy),#2A3B66);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff; font-size:15px; flex-shrink:0;
+  }
+  .slide-counter{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .progress-track{
+    width:100%;height:6px;border-radius:6px;
+    background:rgba(22,33,62,0.10);
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--violet),var(--mint));
+    border-radius:6px;
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+    width:7.6%;
+  }
+
+  /* ---------- Slides shell ---------- */
+  #slides{
+    flex:1;
+    position:relative;
+  }
+  .slide{
+    display:none;
+    animation: fadeSlide .5s cubic-bezier(.16,1,.3,1);
+  }
+  .slide.active{ display:block; }
+  @keyframes fadeSlide{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--violet);
+    background:var(--violet-soft);
+    padding:6px 12px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  h1.slide-title{
+    font-family:var(--font-display);
+    font-size:clamp(24px,4.4vw,38px);
+    line-height:1.15;
+    margin:0 0 10px;
+    color:var(--navy);
+  }
+  p.slide-sub{
+    font-size:clamp(14px,2vw,16px);
+    color:var(--ink-soft);
+    max-width:720px;
+    line-height:1.6;
+    margin:0 0 26px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:clamp(16px,3vw,26px);
+    box-shadow:0 2px 18px rgba(22,33,62,0.05);
+  }
+
+  /* ---------- Cover slide ---------- */
+  .cover{
+    min-height:62vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:20px 0;
+  }
+  .cover .chapter-tag{
+    font-family:var(--font-mono);
+    color:var(--mint);
+    background:var(--mint-soft);
+    padding:7px 16px;
+    border-radius:999px;
+    font-size:13px;
+    letter-spacing:.05em;
+    margin-bottom:22px;
+  }
+  .cover h1{
+    font-family:var(--font-display);
+    font-size:clamp(30px,6.4vw,54px);
+    line-height:1.08;
+    color:var(--navy);
+    margin:0 0 14px;
+    max-width:820px;
+  }
+  .cover h1 .accent{ color:var(--violet); }
+  .cover p{
+    font-size:clamp(15px,2.4vw,18px);
+    color:var(--ink-soft);
+    max-width:560px;
+    margin:0 0 30px;
+    line-height:1.6;
+  }
+  .cover-topics{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    margin-bottom:34px;
+  }
+  .cover-topics span{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    padding:7px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    color:var(--ink);
+    background:#fff;
+  }
+
+  /* Hero balance scale */
+  .hero-scale{ width:min(340px,70vw); height:auto; margin-bottom:6px; }
+  .beam-group{ transform-origin:170px 92px; transition:transform 1.1s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes floaty{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+  .hero-scale{ animation: floaty 4.5s ease-in-out infinite; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14.5px;
+    border-radius:12px;
+    border:none;
+    cursor:pointer;
+    padding:13px 22px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{
+    background:var(--navy);
+    color:#fff;
+    box-shadow:0 6px 18px rgba(22,33,62,0.22);
+  }
+  .btn-primary:hover{ background:#22315A; }
+  .btn-outline{
+    background:#fff;
+    color:var(--navy);
+    border:1.5px solid var(--line);
+  }
+  .btn-outline:hover{ border-color:var(--navy); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn-mint{ background:var(--mint); color:#fff; }
+  .btn-mint:hover{ background:#188E81; }
+
+  /* ---------- Definition / concept cards ---------- */
+  .formula-box{
+    font-family:var(--font-mono);
+    font-size:clamp(22px,4vw,30px);
+    color:var(--navy);
+    background:var(--navy-deep);
+    color:#EAF0FF;
+    padding:22px 26px;
+    border-radius:16px;
+    text-align:center;
+    letter-spacing:.02em;
+    margin:18px 0 22px;
+  }
+  .formula-box .lbl{
+    display:block;
+    font-family:var(--font-body);
+    font-size:12px;
+    color:#9FB0DE;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  .chip-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:12px;
+  }
+  .chip-card{
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:14px 16px;
+    cursor:pointer;
+    background:#fff;
+    transition:all .18s ease;
+  }
+  .chip-card:hover{ border-color:var(--violet); transform:translateY(-2px); }
+  .chip-card.open{ border-color:var(--violet); background:var(--violet-soft); }
+  .chip-card .chip-symbol{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:20px;
+    color:var(--violet);
+  }
+  .chip-card .chip-name{
+    font-weight:600; font-size:13.5px; margin-top:2px; color:var(--navy);
+  }
+  .chip-card .chip-desc{
+    font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;
+    display:none;
+  }
+  .chip-card.open .chip-desc{ display:block; }
+
+  /* ---------- Two column layout ---------- */
+  .two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:760px){
+    .two-col{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- Rule card per operation ---------- */
+  .op-header{
+    display:flex; align-items:center; gap:14px; margin-bottom:18px;
+  }
+  .op-icon{
+    width:48px;height:48px;border-radius:13px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:22px;
+    color:#fff; flex-shrink:0;
+  }
+  .op-rule{
+    font-family:var(--font-mono);
+    font-size:15px;
+    background:var(--paper);
+    border-left:4px solid var(--navy);
+    padding:14px 16px;
+    border-radius:8px;
+    margin-bottom:6px;
+    line-height:1.7;
+  }
+
+  /* ---------- Stepper widget ---------- */
+  .stepper{
+    margin-top:16px;
+  }
+  .stepper-story{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    background:var(--paper);
+    padding:12px 14px;
+    border-radius:10px;
+    margin-bottom:14px;
+    line-height:1.6;
+  }
+  .stepper-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .scale-wrap{ width:118px; height:74px; flex-shrink:0; }
+  .step-eq{
+    font-family:var(--font-mono);
+    font-size:clamp(18px,3.4vw,26px);
+    color:var(--navy);
+    font-weight:600;
+    flex:1;
+    min-width:180px;
+  }
+  .step-eq .hl{
+    background:var(--amber-soft);
+    color:#8A5A05;
+    padding:1px 7px;
+    border-radius:6px;
+  }
+  .step-expl{
+    font-size:14px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    min-height:22px;
+    margin-bottom:16px;
+  }
+  .step-controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .step-dots{ display:flex; gap:6px; }
+  .step-dots .dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--line);
+  }
+  .step-dots .dot.active{ background:var(--violet); width:20px; border-radius:5px; }
+  .step-btns{ display:flex; gap:8px; }
+
+  .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 5px; line-height:1.1; }
+  .frac .num{ border-bottom:2px solid currentColor; padding:0 8px 2px; }
+  .frac .den{ padding:2px 8px 0; }
+
+  /* ---------- Practice / reveal cards ---------- */
+  .practice-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:14px;
+    margin-top:16px;
+  }
+  .practice-card{
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:16px;
+    background:#fff;
+  }
+  .practice-card .q-label{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-bottom:6px;
+  }
+  .practice-card .q-eq{
+    font-family:var(--font-mono);
+    font-size:19px;
+    color:var(--navy);
+    font-weight:600;
+    margin-bottom:12px;
+  }
+  .practice-card .q-answer{
+    display:none;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    background:var(--mint-soft);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-top:10px;
+    line-height:1.6;
+  }
+  .practice-card .q-answer.shown{ display:block; }
+  .practice-card .btn{ padding:9px 14px; font-size:13px; width:100%; justify-content:center; }
+
+  /* ---------- Quiz ---------- */
+  .quiz-shell{ max-width:640px; margin:0 auto; }
+  .quiz-progress{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px; font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft);
+  }
+  .quiz-score{
+    color:var(--mint); font-weight:700;
+  }
+  .quiz-q{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(17px,2.6vw,21px);
+    color:var(--navy);
+    margin-bottom:18px;
+    line-height:1.4;
+  }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .quiz-opt{
+    text-align:left;
+    border:1.5px solid var(--line);
+    background:#fff;
+    border-radius:12px;
+    padding:13px 16px;
+    font-family:var(--font-mono);
+    font-size:15px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all .15s ease;
+    display:flex; align-items:center; gap:10px;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--violet); background:var(--violet-soft); }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-opt .opt-letter{
+    width:24px;height:24px;border-radius:7px;background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:700; color:var(--ink-soft); flex-shrink:0;
+  }
+  .quiz-opt.correct{ border-color:var(--mint); background:var(--mint-soft); }
+  .quiz-opt.correct .opt-letter{ background:var(--mint); color:#fff; }
+  .quiz-opt.wrong{ border-color:var(--coral); background:var(--coral-soft); }
+  .quiz-opt.wrong .opt-letter{ background:var(--coral); color:#fff; }
+  .quiz-feedback{
+    font-size:13.5px; line-height:1.6; padding:12px 14px; border-radius:10px;
+    margin-bottom:16px; display:none;
+  }
+  .quiz-feedback.show{ display:block; }
+  .quiz-feedback.ok{ background:var(--mint-soft); color:#0F6E62; }
+  .quiz-feedback.bad{ background:var(--coral-soft); color:#A13B2B; }
+  .quiz-result{ text-align:center; padding:20px 0; }
+  .quiz-result .score-big{
+    font-family:var(--font-display); font-weight:700; font-size:52px; color:var(--navy);
+  }
+  .quiz-result .score-label{ color:var(--ink-soft); font-size:14px; margin-bottom:20px; }
+
+  /* ---------- Summary table ---------- */
+  .summary-table{ width:100%; border-collapse:collapse; margin-top:14px; }
+  .summary-table th{
+    text-align:left; font-family:var(--font-mono); font-size:11.5px; text-transform:uppercase;
+    letter-spacing:.05em; color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--line);
+  }
+  .summary-table td{
+    padding:12px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:top;
+  }
+  .summary-table td.op-cell{ font-weight:600; color:var(--navy); white-space:nowrap; }
+  .summary-table td.rule-cell{ font-family:var(--font-mono); color:var(--ink); }
+
+  /* ---------- Closing slide ---------- */
+  .closing{
+    min-height:56vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+  }
+  .closing .check-badge{
+    width:74px;height:74px;border-radius:50%;
+    background:var(--mint); color:#fff; display:flex;align-items:center;justify-content:center;
+    font-size:34px; margin-bottom:22px;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .nav-controls{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    margin-top:26px; padding-top:18px; border-top:1px solid var(--line);
+  }
+  .nav-side{ display:flex; align-items:center; gap:10px; }
+  .nav-dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:320px; }
+  .nav-dots .ndot{
+    width:8px;height:8px;border-radius:50%; background:var(--line); cursor:pointer; border:none; padding:0;
+    transition:all .18s ease;
+  }
+  .nav-dots .ndot.active{ background:var(--navy); width:22px; border-radius:5px; }
+  .icon-btn{
+    width:44px;height:44px; border-radius:12px; border:1.5px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:var(--navy);
+    flex-shrink:0;
+  }
+  .icon-btn:hover:not(:disabled){ border-color:var(--navy); }
+  .icon-btn:disabled{ opacity:.3; cursor:not-allowed; }
+  .nav-label{ font-size:13px; color:var(--ink-soft); display:none; }
+  @media(min-width:640px){ .nav-label{ display:inline; } }
+
+  @media (max-width:640px){
+    .nav-dots{ display:none; }
+    .stepper-top{ flex-direction:column; align-items:flex-start; }
+    .op-header{ flex-wrap:wrap; }
+  }
+
+  .visually-hidden{ position:absolute; width:1px;height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+  :focus-visible{ outline:3px solid var(--violet); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="badge">Σ</span> Bab 3 · Persamaan &amp; Pertidaksamaan Linear</div>
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totalNum">13</span></div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <main id="slides">
+
+    <!-- SLIDE 1 : COVER -->
+    <section class="slide active" id="s1">
+      <div class="cover">
+        <span class="chapter-tag">BAB 3 · MATEMATIKA SMP</span>
+        <svg class="hero-scale" viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg">
+          <g class="beam-group" id="heroBeam">
+            <rect x="163" y="30" width="14" height="70" rx="4" fill="#16213E"/>
+            <circle cx="170" cy="26" r="10" fill="#7B5FE0"/>
+            <rect x="60" y="40" width="220" height="8" rx="4" fill="#16213E"/>
+            <line x1="70" y1="44" x2="70" y2="96" stroke="#16213E" stroke-width="3"/>
+            <line x1="270" y1="44" x2="270" y2="96" stroke="#16213E" stroke-width="3"/>
+            <path d="M35 96 Q70 130 105 96 Z" fill="#1FA99A"/>
+            <path d="M235 96 Q270 130 305 96 Z" fill="#E8A23A"/>
+            <text x="70" y="100" font-family="JetBrains Mono" font-size="22" font-weight="700" fill="#0B1226" text-anchor="middle">x</text>
+            <text x="270" y="100" font-family="JetBrains Mono" font-size="22" font-weight="700" fill="#0B1226" text-anchor="middle">8</text>
+          </g>
+          <rect x="150" y="98" width="40" height="14" rx="3" fill="#16213E"/>
+          <rect x="120" y="112" width="100" height="10" rx="3" fill="#16213E"/>
+          <rect x="90" y="122" width="10" height="70" fill="#16213E"/>
+          <rect x="240" y="122" width="10" height="70" fill="#16213E"/>
+          <rect x="70" y="192" width="200" height="12" rx="4" fill="#16213E"/>
+        </svg>
+        <h1>Penyelesaian <span class="accent">Persamaan Linear</span><br>Satu Variabel (PLSV)</h1>
+        <p>Belajar menyelesaikan PLSV lewat empat operasi dasar — penjumlahan, pengurangan, perkalian, dan pembagian — lengkap dengan contoh interaktif, soal latihan, dan kuis.</p>
+        <div class="cover-topics">
+          <span>➕ Penjumlahan</span><span>➖ Pengurangan</span><span>✖️ Perkalian</span><span>➗ Pembagian</span><span>📘 Penerapan Soal Cerita</span>
+        </div>
+        <button class="btn btn-primary" id="startBtn">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : APA ITU PLSV -->
+    <section class="slide" id="s2">
+      <span class="eyebrow">01 · Dasar-dasar</span>
+      <h1 class="slide-title">Apa itu PLSV?</h1>
+      <p class="slide-sub">Persamaan Linear Satu Variabel (PLSV) adalah kalimat matematika terbuka yang memuat tanda "=" dan hanya memiliki satu variabel berpangkat satu. Klik setiap bagian rumus di bawah untuk melihat penjelasannya.</p>
+      <div class="formula-box">
+        <span class="lbl">Bentuk umum PLSV</span>
+        a x + b = c &nbsp;&nbsp;(dengan a ≠ 0)
+      </div>
+      <div class="chip-grid" id="chipGrid">
+        <div class="chip-card" data-chip="a">
+          <div class="chip-symbol">a</div>
+          <div class="chip-name">Koefisien</div>
+          <div class="chip-desc">Angka yang menempel dan mengalikan variabel x. Tidak boleh bernilai 0, karena jika a = 0 maka x akan hilang dari persamaan.</div>
+        </div>
+        <div class="chip-card" data-chip="x">
+          <div class="chip-symbol">x</div>
+          <div class="chip-name">Variabel</div>
+          <div class="chip-desc">Simbol yang mewakili nilai yang belum diketahui dan akan kita cari. Bisa juga ditulis dengan huruf lain seperti y atau n.</div>
+        </div>
+        <div class="chip-card" data-chip="b">
+          <div class="chip-symbol">b</div>
+          <div class="chip-name">Konstanta</div>
+          <div class="chip-desc">Bilangan tetap yang berdiri sendiri di ruas kiri, tidak menempel pada variabel x.</div>
+        </div>
+        <div class="chip-card" data-chip="c">
+          <div class="chip-symbol">c</div>
+          <div class="chip-name">Ruas kanan</div>
+          <div class="chip-desc">Nilai konstanta di seberang tanda "=". Tujuan penyelesaian PLSV adalah membuat x sendirian di satu ruas, sehingga terlihat nilainya.</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div style="font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Contoh PLSV</div>
+        <div style="font-family:var(--font-mono); font-size:18px; color:var(--navy); display:flex; flex-wrap:wrap; gap:18px;">
+          <span>2x + 5 = 17</span><span>x − 4 = 9</span><span>6x = 30</span><span>x/3 = 8</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : PRINSIP KESETARAAN -->
+    <section class="slide" id="s3">
+      <span class="eyebrow">02 · Konsep Kunci</span>
+      <h1 class="slide-title">Prinsip Kesetaraan (Keseimbangan)</h1>
+      <p class="slide-sub">Bayangkan persamaan seperti timbangan yang setimbang. Apa pun yang kamu lakukan pada ruas kiri, kamu <strong>wajib melakukan hal yang sama</strong> pada ruas kanan — supaya timbangan tetap seimbang dan nilai x tetap benar.</p>
+      <div class="card">
+        <div class="stepper-top">
+          <svg class="scale-wrap" id="balanceDemoSvg" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">
+            <g id="demoBeam" style="transform-origin:110px 46px; transition:transform .6s cubic-bezier(.34,1.56,.64,1);">
+              <rect x="103" y="14" width="10" height="40" rx="3" fill="#16213E"/>
+              <circle cx="108" cy="12" r="7" fill="#7B5FE0"/>
+              <rect x="38" y="22" width="140" height="6" rx="3" fill="#16213E"/>
+              <line x1="45" y1="25" x2="45" y2="60" stroke="#16213E" stroke-width="2.5"/>
+              <line x1="171" y1="25" x2="171" y2="60" stroke="#16213E" stroke-width="2.5"/>
+              <path d="M22 60 Q45 84 68 60 Z" fill="#1FA99A"/>
+              <path d="M148 60 Q171 84 194 60 Z" fill="#E8A23A"/>
+              <text id="demoLeftText" x="45" y="64" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#06251f" text-anchor="middle">x</text>
+              <text id="demoRightText" x="171" y="64" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#3a2600" text-anchor="middle">8</text>
+            </g>
+            <rect x="98" y="55" width="24" height="9" rx="2" fill="#16213E"/>
+            <rect x="80" y="64" width="60" height="7" rx="2" fill="#16213E"/>
+            <rect x="60" y="71" width="7" height="44" fill="#16213E"/>
+            <rect x="153" y="71" width="7" height="44" fill="#16213E"/>
+            <rect x="46" y="115" width="128" height="8" rx="3" fill="#16213E"/>
+          </svg>
+          <div style="flex:1; min-width:180px;">
+            <div class="step-eq" id="demoEq">x = 8</div>
+            <div class="step-expl" id="demoExpl" style="margin-bottom:0;">Persamaan awal: kedua ruas nilainya setara.</div>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--ink-soft); margin-bottom:10px; font-weight:600;">Coba terapkan operasi yang sama ke kedua ruas:</div>
+        <div class="step-btns" style="flex-wrap:wrap;">
+          <button class="btn btn-outline" data-op="+5">+ 5</button>
+          <button class="btn btn-outline" data-op="-3">− 3</button>
+          <button class="btn btn-outline" data-op="×2">× 2</button>
+          <button class="btn btn-outline" data-op="÷2">÷ 2</button>
+          <button class="btn btn-outline" id="demoReset">↺ Ulangi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : PENJUMLAHAN -->
+    <section class="slide" id="s4">
+      <span class="eyebrow">03 · Empat Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--mint);">+</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Penjumlahan</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Digunakan saat variabel x dikurangi suatu bilangan.</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;x − b = c&nbsp;, maka kedua ruas ditambah b: &nbsp;x − b + b = c + b &nbsp;→&nbsp; x = c + b</div>
+
+      <div class="card stepper" id="stepAdd">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-mint" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceAdd"></div>
+    </section>
+
+    <!-- SLIDE 5 : PENGURANGAN -->
+    <section class="slide" id="s5">
+      <span class="eyebrow">03 · Empat Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--coral);">−</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Pengurangan</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Digunakan saat variabel x ditambah suatu bilangan.</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;x + b = c&nbsp;, maka kedua ruas dikurangi b: &nbsp;x + b − b = c − b &nbsp;→&nbsp; x = c − b</div>
+
+      <div class="card stepper" id="stepSub">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn" style="background:var(--coral); color:#fff;" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceSub"></div>
+    </section>
+
+    <!-- SLIDE 6 : PERKALIAN -->
+    <section class="slide" id="s6">
+      <span class="eyebrow">03 · Empat Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--amber);">×</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Perkalian</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Digunakan saat variabel x dibagi suatu bilangan (berbentuk pecahan).</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;x ÷ b = c&nbsp;, maka kedua ruas dikalikan b: &nbsp;x ÷ b × b = c × b &nbsp;→&nbsp; x = c × b</div>
+
+      <div class="card stepper" id="stepMul">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn" style="background:var(--amber); color:#fff;" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceMul"></div>
+    </section>
+
+    <!-- SLIDE 7 : PEMBAGIAN -->
+    <section class="slide" id="s7">
+      <span class="eyebrow">03 · Empat Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--violet);">÷</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Pembagian</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Digunakan saat variabel x dikalikan suatu bilangan (memiliki koefisien).</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;a x = c&nbsp;, maka kedua ruas dibagi a: &nbsp;a x ÷ a = c ÷ a &nbsp;→&nbsp; x = c ÷ a</div>
+
+      <div class="card stepper" id="stepDiv">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn" style="background:var(--violet); color:#fff;" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceDiv"></div>
+    </section>
+
+    <!-- SLIDE 8 : GABUNGAN OPERASI -->
+    <section class="slide" id="s8">
+      <span class="eyebrow">04 · Level Lanjutan</span>
+      <h1 class="slide-title">Menggabungkan Beberapa Operasi</h1>
+      <p class="slide-sub">Banyak soal PLSV butuh lebih dari satu operasi. Urutan yang biasa dipakai: selesaikan penjumlahan/pengurangan dulu, baru perkalian/pembagian. Ikuti langkah-langkahnya.</p>
+
+      <div class="card stepper" id="stepCombo1" style="margin-bottom:18px;">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stepper" id="stepCombo2">
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : PENERAPAN PLSV -->
+    <section class="slide" id="s9">
+      <span class="eyebrow">05 · Penerapan</span>
+      <h1 class="slide-title">Penerapan PLSV dalam Kehidupan Sehari-hari</h1>
+      <p class="slide-sub">PLSV sering dipakai untuk memecahkan masalah nyata: umur, harga barang, hingga keliling bangun datar. Kuncinya: ubah dulu cerita menjadi persamaan, baru selesaikan.</p>
+
+      <div class="card stepper" id="stepWord1" style="margin-bottom:18px;">
+        <div class="stepper-story" data-story></div>
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stepper" id="stepWord2">
+        <div class="stepper-story" data-story></div>
+        <div class="stepper-top">
+          <svg class="scale-wrap"><use/></svg>
+          <div class="step-eq" data-eq></div>
+        </div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : LATIHAN TAMBAHAN -->
+    <section class="slide" id="s10">
+      <span class="eyebrow">06 · Latihan Mandiri</span>
+      <h1 class="slide-title">Latihan Soal Tambahan</h1>
+      <p class="slide-sub">Coba selesaikan sendiri di kertas, lalu klik "Lihat Penyelesaian" untuk mencocokkan jawabanmu.</p>
+      <div class="practice-grid" id="practiceExtra"></div>
+    </section>
+
+    <!-- SLIDE 11 : KUIS -->
+    <section class="slide" id="s11">
+      <span class="eyebrow">07 · Uji Pemahaman</span>
+      <h1 class="slide-title">Kuis PLSV</h1>
+      <p class="slide-sub">8 soal pilihan ganda merangkum semua operasi yang sudah kamu pelajari. Semangat!</p>
+
+      <div class="card quiz-shell" id="quizArea">
+        <div class="quiz-progress">
+          <span id="quizPos">Soal 1 / 8</span>
+          <span class="quiz-score">Skor: <span id="quizScore">0</span></span>
+        </div>
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-options" id="quizOpts"></div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn btn-primary" id="quizNextBtn" disabled>Soal Berikutnya →</button>
+        </div>
+      </div>
+
+      <div class="card quiz-shell quiz-result" id="quizResult" style="display:none;">
+        <div class="score-big" id="finalScore">0/8</div>
+        <div class="score-label" id="finalLabel">Terus berlatih ya!</div>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn-outline" id="quizRestart">↺ Ulangi Kuis</button>
+          <button class="btn btn-primary" id="quizContinue">Lihat Rangkuman →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 : RANGKUMAN -->
+    <section class="slide" id="s12">
+      <span class="eyebrow">08 · Rangkuman</span>
+      <h1 class="slide-title">Rangkuman Materi</h1>
+      <p class="slide-sub">Empat aturan dasar untuk menyelesaikan PLSV — ingat prinsip utamanya: lakukan operasi yang sama pada kedua ruas.</p>
+
+      <div class="card">
+        <table class="summary-table">
+          <thead>
+            <tr><th>Operasi</th><th>Kapan digunakan</th><th>Aturan</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="op-cell" style="color:var(--mint);">➕ Penjumlahan</td>
+              <td>Saat bentuknya x − b = c</td>
+              <td class="rule-cell">Tambah b di kedua ruas → x = c + b</td>
+            </tr>
+            <tr>
+              <td class="op-cell" style="color:var(--coral);">➖ Pengurangan</td>
+              <td>Saat bentuknya x + b = c</td>
+              <td class="rule-cell">Kurangi b di kedua ruas → x = c − b</td>
+            </tr>
+            <tr>
+              <td class="op-cell" style="color:#8A5A05;">✖️ Perkalian</td>
+              <td>Saat bentuknya x ÷ b = c</td>
+              <td class="rule-cell">Kali b di kedua ruas → x = c × b</td>
+            </tr>
+            <tr>
+              <td class="op-cell" style="color:var(--violet);">➗ Pembagian</td>
+              <td>Saat bentuknya a·x = c</td>
+              <td class="rule-cell">Bagi a di kedua ruas → x = c ÷ a</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div style="font-family:var(--font-display); font-weight:600; color:var(--navy); margin-bottom:10px;">💡 Skor kuismu</div>
+        <div style="font-size:15px; color:var(--ink-soft);" id="summaryScoreText">Kamu belum mengerjakan kuis.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : PENUTUP -->
+    <section class="slide" id="s13">
+      <div class="closing">
+        <div class="check-badge">✓</div>
+        <h1 class="slide-title" style="text-align:center;">Selamat, Kamu Sudah Menyelesaikan Materi Ini!</h1>
+        <p class="slide-sub" style="text-align:center; margin-left:auto; margin-right:auto;">Kamu telah mempelajari cara menyelesaikan Persamaan Linear Satu Variabel menggunakan operasi penjumlahan, pengurangan, perkalian, dan pembagian — beserta penerapannya dalam soal cerita.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="btn btn-outline" id="restartAll">↺ Ulangi Presentasi</button>
+          <a class="btn btn-primary" href="matb-bab3.html" id="finishBtn">Selesai — Kembali ke Menu Bab 3 ✓</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="nav-controls">
+    <div class="nav-side">
+      <button class="icon-btn" id="prevBtn" aria-label="Sebelumnya">←</button>
+      <span class="nav-label">Sebelumnya</span>
+    </div>
+    <div class="nav-dots" id="navDots"></div>
+    <div class="nav-side">
+      <span class="nav-label">Berikutnya</span>
+      <button class="icon-btn" id="nextBtn" aria-label="Berikutnya">→</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= NAVIGATION ================= */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+
+  var navDots = document.getElementById('navDots');
+  slides.forEach(function(_, i){
+    var b = document.createElement('button');
+    b.className = 'ndot';
+    b.setAttribute('aria-label', 'Ke slide ' + (i+1));
+    b.addEventListener('click', function(){ goTo(i); });
+    navDots.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(navDots.children);
+
+  var curNum = document.getElementById('curNum');
+  var totalNum = document.getElementById('totalNum');
+  totalNum.textContent = total;
+  var progressFill = document.getElementById('progressFill');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  function goTo(i){
+    if(i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    curNum.textContent = current + 1;
+    progressFill.style.width = (((current+1)/total)*100) + '%';
+    dotEls.forEach(function(d, idx){ d.classList.toggle('active', idx === current); });
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+  document.getElementById('startBtn').addEventListener('click', function(){ goTo(current + 1); });
+  document.getElementById('restartAll').addEventListener('click', function(){ goTo(0); });
+
+  document.addEventListener('keydown', function(e){
+    var tag = (document.activeElement && document.activeElement.tagName) || '';
+    if(tag === 'BUTTON' || tag === 'A') { /* still allow arrow nav */ }
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  // basic touch swipe
+  var touchX = null;
+  var slidesEl = document.getElementById('slides');
+  slidesEl.addEventListener('touchstart', function(e){ touchX = e.changedTouches[0].clientX; }, {passive:true});
+  slidesEl.addEventListener('touchend', function(e){
+    if(touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 60){ dx < 0 ? goTo(current+1) : goTo(current-1); }
+    touchX = null;
+  }, {passive:true});
+
+  goTo(0);
+
+  /* ================= SLIDE 2 : CHIP TOGGLE ================= */
+  document.querySelectorAll('#chipGrid .chip-card').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var wasOpen = chip.classList.contains('open');
+      document.querySelectorAll('#chipGrid .chip-card').forEach(function(c){ c.classList.remove('open'); });
+      if(!wasOpen) chip.classList.add('open');
+    });
+  });
+
+  /* ================= SLIDE 3 : BALANCE DEMO ================= */
+  (function(){
+    var leftVal = 0, rightVal = 8; // represents x (unknown, tracked symbolically) vs number
+    var leftLabel = 'x', rightLabel = '8';
+    var demoEq = document.getElementById('demoEq');
+    var demoExpl = document.getElementById('demoExpl');
+    var demoBeam = document.getElementById('demoBeam');
+    var demoLeftText = document.getElementById('demoLeftText');
+    var demoRightText = document.getElementById('demoRightText');
+
+    var history = [];
+
+    function render(op){
+      demoEq.textContent = leftLabel + ' = ' + rightLabel;
+      demoLeftText.textContent = leftLabel.length > 6 ? 'x' : leftLabel;
+      demoRightText.textContent = rightLabel;
+      if(op){
+        demoExpl.textContent = 'Operasi "' + op + '" diterapkan ke KEDUA ruas sekaligus, sehingga timbangan tetap seimbang (rata).';
+      } else {
+        demoExpl.textContent = 'Persamaan awal: kedua ruas nilainya setara.';
+      }
+      demoBeam.style.transform = 'rotate(0deg)';
+    }
+
+    document.querySelectorAll('#s3 [data-op]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var op = btn.getAttribute('data-op');
+        // tiny tilt animation then settle back to balanced
+        demoBeam.style.transform = (op[0] === '+' || op[0] === '×') ? 'rotate(-4deg)' : 'rotate(4deg)';
+        setTimeout(function(){
+          leftLabel = leftLabel + ' ' + op[0] + ' ' + op.slice(1);
+          rightLabel = rightLabel + ' ' + op[0] + ' ' + op.slice(1);
+          render(op);
+        }, 220);
+      });
+    });
+
+    document.getElementById('demoReset').addEventListener('click', function(){
+      leftLabel = 'x'; rightLabel = '8';
+      render(null);
+    });
+
+    render(null);
+  })();
+
+  /* ================= GENERIC STEPPER ENGINE ================= */
+  function initStepper(rootId, steps){
+    var root = document.getElementById(rootId);
+    if(!root) return;
+    var eqEl = root.querySelector('[data-eq]');
+    var explEl = root.querySelector('[data-expl]');
+    var dotsEl = root.querySelector('[data-dots]');
+    var storyEl = root.querySelector('[data-story]');
+    var prevBtn = root.querySelector('[data-prev]');
+    var nextBtn = root.querySelector('[data-next]');
+    var scaleWrap = root.querySelector('.scale-wrap');
+    var idx = 0;
+
+    if(storyEl && steps.story) storyEl.innerHTML = steps.story;
+    var list = steps.list;
+
+    function scaleSVG(tilt){
+      return '<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg">' +
+        '<g style="transform-origin:110px 46px; transform:rotate(' + tilt + 'deg); transition:transform .55s cubic-bezier(.34,1.56,.64,1);">' +
+        '<rect x="103" y="14" width="10" height="40" rx="3" fill="#16213E"/>' +
+        '<circle cx="108" cy="12" r="7" fill="#7B5FE0"/>' +
+        '<rect x="38" y="22" width="140" height="6" rx="3" fill="#16213E"/>' +
+        '<line x1="45" y1="25" x2="45" y2="60" stroke="#16213E" stroke-width="2.5"/>' +
+        '<line x1="171" y1="25" x2="171" y2="60" stroke="#16213E" stroke-width="2.5"/>' +
+        '<path d="M22 60 Q45 84 68 60 Z" fill="#1FA99A"/>' +
+        '<path d="M148 60 Q171 84 194 60 Z" fill="#E8A23A"/>' +
+        '</g>' +
+        '<rect x="98" y="55" width="24" height="9" rx="2" fill="#16213E"/>' +
+        '<rect x="80" y="64" width="60" height="7" rx="2" fill="#16213E"/>' +
+        '<rect x="60" y="71" width="7" height="44" fill="#16213E"/>' +
+        '<rect x="153" y="71" width="7" height="44" fill="#16213E"/>' +
+        '<rect x="46" y="115" width="128" height="8" rx="3" fill="#16213E"/>' +
+        '</svg>';
+    }
+
+    function render(){
+      eqEl.innerHTML = list[idx].eq;
+      explEl.textContent = list[idx].expl;
+      dotsEl.innerHTML = list.map(function(_, i){
+        return '<span class="dot' + (i === idx ? ' active' : '') + '"></span>';
+      }).join('');
+      var isLast = idx === list.length - 1;
+      var tilt = isLast ? 0 : (list[idx].tilt || 0);
+      if(scaleWrap) scaleWrap.innerHTML = scaleSVG(tilt);
+      prevBtn.disabled = idx === 0;
+      nextBtn.textContent = isLast ? 'Selesai — Ulangi ↺' : 'Langkah Berikutnya →';
+    }
+
+    prevBtn.addEventListener('click', function(){ if(idx > 0){ idx--; render(); } });
+    nextBtn.addEventListener('click', function(){
+      if(idx < list.length - 1){ idx++; render(); }
+      else { idx = 0; render(); }
+    });
+
+    render();
+  }
+
+  var fx = function(a,b){ return '<span class="frac"><span class="num">'+a+'</span><span class="den">'+b+'</span></span>'; };
+
+  /* ---- Penjumlahan ---- */
+  initStepper('stepAdd', { list: [
+    { eq: 'x − <span class="hl">5</span> = 10', expl: 'Soal: cari nilai x. Variabel x dikurangi 5.', tilt: 0 },
+    { eq: 'x − 5 <span class="hl">+ 5</span> = 10 <span class="hl">+ 5</span>', expl: 'Tambahkan 5 di KEDUA ruas agar seimbang.', tilt: -3 },
+    { eq: 'x = 15', expl: 'Selesai! −5 dan +5 saling meniadakan, sehingga x = 15.', tilt: 0 }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceAdd');
+    var items = [
+      { eq: 'x − 9 = 14', ans: 'x − 9 + 9 = 14 + 9 → x = 23' },
+      { eq: 'x − 12 = 3', ans: 'x − 12 + 12 = 3 + 12 → x = 15' },
+      { eq: 'x − 20 = −5', ans: 'x − 20 + 20 = −5 + 20 → x = 15' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans)); });
+  })();
+
+  /* ---- Pengurangan ---- */
+  initStepper('stepSub', { list: [
+    { eq: 'x + <span class="hl">7</span> = 20', expl: 'Soal: cari nilai x. Variabel x ditambah 7.', tilt: 0 },
+    { eq: 'x + 7 <span class="hl">− 7</span> = 20 <span class="hl">− 7</span>', expl: 'Kurangkan 7 di KEDUA ruas agar seimbang.', tilt: 3 },
+    { eq: 'x = 13', expl: 'Selesai! +7 dan −7 saling meniadakan, sehingga x = 13.', tilt: 0 }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceSub');
+    var items = [
+      { eq: 'x + 16 = 25', ans: 'x + 16 − 16 = 25 − 16 → x = 9' },
+      { eq: 'x + 8 = 8', ans: 'x + 8 − 8 = 8 − 8 → x = 0' },
+      { eq: 'x + 30 = 22', ans: 'x + 30 − 30 = 22 − 30 → x = −8' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans)); });
+  })();
+
+  /* ---- Perkalian ---- */
+  initStepper('stepMul', { list: [
+    { eq: fx('x','4') + ' = 6', expl: 'Soal: cari nilai x. Variabel x dibagi 4.', tilt: 0 },
+    { eq: fx('x','4') + ' <span class="hl">× 4</span> = 6 <span class="hl">× 4</span>', expl: 'Kalikan KEDUA ruas dengan 4 agar seimbang.', tilt: -3 },
+    { eq: 'x = 24', expl: 'Selesai! ÷4 dan ×4 saling meniadakan, sehingga x = 24.', tilt: 0 }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceMul');
+    var items = [
+      { eq: fx('x','3') + ' = 9', ans: 'x/3 × 3 = 9 × 3 → x = 27' },
+      { eq: fx('x','5') + ' = 6', ans: 'x/5 × 5 = 6 × 5 → x = 30' },
+      { eq: fx('x','2') + ' = 11', ans: 'x/2 × 2 = 11 × 2 → x = 22' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans)); });
+  })();
+
+  /* ---- Pembagian ---- */
+  initStepper('stepDiv', { list: [
+    { eq: '<span class="hl">3</span>x = 21', expl: 'Soal: cari nilai x. Variabel x dikalikan 3.', tilt: 0 },
+    { eq: fx('3x','3') + ' = ' + fx('21','3'), expl: 'Bagi KEDUA ruas dengan 3 agar seimbang.', tilt: 3 },
+    { eq: 'x = 7', expl: 'Selesai! ×3 dan ÷3 saling meniadakan, sehingga x = 7.', tilt: 0 }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceDiv');
+    var items = [
+      { eq: '4x = 36', ans: '4x ÷ 4 = 36 ÷ 4 → x = 9' },
+      { eq: '7x = 63', ans: '7x ÷ 7 = 63 ÷ 7 → x = 9' },
+      { eq: '9x = 45', ans: '9x ÷ 9 = 45 ÷ 9 → x = 5' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans)); });
+  })();
+
+  /* ---- Gabungan operasi ---- */
+  initStepper('stepCombo1', { list: [
+    { eq: '2x + 5 = 17', expl: 'Soal gabungan: ada perkalian (2x) dan penjumlahan (+5). Selesaikan penjumlahan/pengurangan dulu.', tilt: 0 },
+    { eq: '2x + 5 <span class="hl">− 5</span> = 17 <span class="hl">− 5</span>', expl: 'Kurangi kedua ruas dengan 5.', tilt: 3 },
+    { eq: '2x = 12', expl: 'Sekarang bentuknya tinggal perkalian: 2x = 12.', tilt: 0 },
+    { eq: fx('2x','2') + ' = ' + fx('12','2') + ' <span class="hl">÷ 2</span>', expl: 'Bagi kedua ruas dengan 2 (koefisien x).', tilt: 3 },
+    { eq: 'x = 6', expl: 'Selesai! Nilai x = 6.', tilt: 0 }
+  ]});
+  initStepper('stepCombo2', { list: [
+    { eq: '5x + 8 = 3x + 20', expl: 'Soal ini punya variabel x di KEDUA ruas. Kumpulkan semua suku x di satu ruas dulu.', tilt: 0 },
+    { eq: '5x + 8 <span class="hl">− 3x</span> = 3x + 20 <span class="hl">− 3x</span>', expl: 'Kurangi kedua ruas dengan 3x agar x hanya ada di ruas kiri.', tilt: -3 },
+    { eq: '2x + 8 = 20', expl: 'Bentuk sudah sederhana. Lanjutkan seperti soal gabungan biasa.', tilt: 0 },
+    { eq: '2x + 8 <span class="hl">− 8</span> = 20 <span class="hl">− 8</span>', expl: 'Kurangi kedua ruas dengan 8.', tilt: 3 },
+    { eq: '2x = 12 &nbsp;→&nbsp; x = 6', expl: 'Bagi kedua ruas dengan 2. Selesai! Nilai x = 6.', tilt: 0 }
+  ]});
+
+  /* ---- Soal cerita / penerapan ---- */
+  initStepper('stepWord1', {
+    story: '📖 <strong>Cerita:</strong> Umur Budi 5 tahun lebih tua dari umur Dedi. Jumlah umur mereka berdua adalah 35 tahun. Berapa umur masing-masing?',
+    list: [
+      { eq: 'Misal umur Dedi = x, maka umur Budi = x + 5', expl: 'Ubah cerita menjadi simbol matematika terlebih dahulu.', tilt: 0 },
+      { eq: 'x + (x + 5) = 35', expl: 'Jumlah umur keduanya adalah 35 → susun persamaannya.', tilt: 0 },
+      { eq: '2x + 5 = 35', expl: 'Sederhanakan suku sejenis: x + x = 2x.', tilt: 0 },
+      { eq: '2x = 30 &nbsp;→&nbsp; x = 15', expl: 'Kurangi 5 dari kedua ruas, lalu bagi kedua ruas dengan 2.', tilt: 3 },
+      { eq: 'Dedi = 15 tahun, Budi = 20 tahun', expl: 'Selesai! Substitusikan x = 15 ke Budi = x + 5.', tilt: 0 }
+    ]
+  });
+  initStepper('stepWord2', {
+    story: '📖 <strong>Cerita:</strong> Harga 3 buku tulis dan 2 pensil adalah Rp23.000. Jika harga satu pensil Rp1.000, berapa harga satu buku tulis?',
+    list: [
+      { eq: 'Misal harga 1 buku = x rupiah', expl: 'Tentukan variabel yang mewakili hal yang ditanyakan.', tilt: 0 },
+      { eq: '3x + 2(1000) = 23000', expl: 'Susun persamaan dari cerita: 3 buku + 2 pensil = total harga.', tilt: 0 },
+      { eq: '3x + 2000 = 23000', expl: 'Hitung 2 × 1000 = 2000 terlebih dahulu.', tilt: 0 },
+      { eq: '3x = 21000', expl: 'Kurangi kedua ruas dengan 2000.', tilt: 3 },
+      { eq: 'x = 7000', expl: 'Selesai! Bagi kedua ruas dengan 3. Harga satu buku = Rp7.000.', tilt: 3 }
+    ]
+  });
+
+  /* ================= PRACTICE CARD FACTORY ================= */
+  function makePracticeCard(label, eqHtml, ansText){
+    var card = document.createElement('div');
+    card.className = 'practice-card';
+    card.innerHTML =
+      '<div class="q-label">' + label + '</div>' +
+      '<div class="q-eq">' + eqHtml + '</div>' +
+      '<button class="btn btn-outline">Lihat Penyelesaian</button>' +
+      '<div class="q-answer">' + ansText + '</div>';
+    var btn = card.querySelector('button');
+    var ans = card.querySelector('.q-answer');
+    btn.addEventListener('click', function(){
+      var showing = ans.classList.toggle('shown');
+      btn.textContent = showing ? 'Sembunyikan' : 'Lihat Penyelesaian';
+    });
+    return card;
+  }
+
+  /* ================= SLIDE 10 : EXTRA PRACTICE ================= */
+  (function(){
+    var wrap = document.getElementById('practiceExtra');
+    var items = [
+      { eq: 'x − 6 = 17', ans: 'Penjumlahan: x = 17 + 6 = 23' },
+      { eq: 'x + 9 = 4', ans: 'Pengurangan: x = 4 − 9 = −5' },
+      { eq: fx('x','7') + ' = 3', ans: 'Perkalian: x = 3 × 7 = 21' },
+      { eq: '8x = 56', ans: 'Pembagian: x = 56 ÷ 8 = 7' },
+      { eq: '3x + 7 = 22', ans: '3x = 22 − 7 = 15 → x = 15 ÷ 3 = 5' },
+      { eq: '10 − 2x = 4', ans: '−2x = 4 − 10 = −6 → x = −6 ÷ −2 = 3' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Latihan ' + (i+1), it.eq, it.ans)); });
+  })();
+
+  /* ================= SLIDE 11 : QUIZ ================= */
+  (function(){
+    var questions = [
+      { q: 'x − 8 = 15. Berapakah nilai x?', opts: ['7','23','−7','120'], correct: 1, expl: 'Tambahkan 8 di kedua ruas: x = 15 + 8 = 23.' },
+      { q: 'x + 14 = 30. Berapakah nilai x?', opts: ['44','16','−16','2,14'], correct: 1, expl: 'Kurangi 14 di kedua ruas: x = 30 − 14 = 16.' },
+      { q: 'x ÷ 6 = 7. Berapakah nilai x?', opts: ['1','13','42','0,86'], correct: 2, expl: 'Kalikan 6 di kedua ruas: x = 7 × 6 = 42.' },
+      { q: '5x = 45. Berapakah nilai x?', opts: ['9','225','40','50'], correct: 0, expl: 'Bagi 5 di kedua ruas: x = 45 ÷ 5 = 9.' },
+      { q: '3x + 4 = 19. Berapakah nilai x?', opts: ['5','7,67','23','15'], correct: 0, expl: '3x = 19 − 4 = 15, lalu x = 15 ÷ 3 = 5.' },
+      { q: '2x − 7 = 11. Berapakah nilai x?', opts: ['2','9','18','4'], correct: 1, expl: '2x = 11 + 7 = 18, lalu x = 18 ÷ 2 = 9.' },
+      { q: 'Umur Rani 4 tahun lebih muda dari kakaknya. Jumlah umur mereka 26 tahun. Berapa umur Rani?', opts: ['11','15','13','9'], correct: 0, expl: 'Misal kakak = x, Rani = x − 4. x + (x−4) = 26 → 2x = 30 → x = 15 (kakak), Rani = 11.' },
+      { q: '4(x + 3) = 32. Berapakah nilai x? (Tantangan!)', opts: ['5','2','8','29'], correct: 0, expl: 'Bagi kedua ruas dengan 4: x + 3 = 8, lalu x = 8 − 3 = 5.' }
+    ];
+    var qi = 0, score = 0, answered = false;
+
+    var quizQ = document.getElementById('quizQ');
+    var quizOpts = document.getElementById('quizOpts');
+    var quizFeedback = document.getElementById('quizFeedback');
+    var quizNextBtn = document.getElementById('quizNextBtn');
+    var quizPos = document.getElementById('quizPos');
+    var quizScoreEl = document.getElementById('quizScore');
+    var quizArea = document.getElementById('quizArea');
+    var quizResult = document.getElementById('quizResult');
+
+    var letters = ['A','B','C','D'];
+
+    function renderQ(){
+      answered = false;
+      quizFeedback.className = 'quiz-feedback';
+      quizFeedback.textContent = '';
+      quizNextBtn.disabled = true;
+      quizPos.textContent = 'Soal ' + (qi+1) + ' / ' + questions.length;
+      quizScoreEl.textContent = score;
+      var item = questions[qi];
+      quizQ.textContent = item.q;
+      quizOpts.innerHTML = '';
+      item.opts.forEach(function(optText, i){
+        var b = document.createElement('button');
+        b.className = 'quiz-opt';
+        b.innerHTML = '<span class="opt-letter">' + letters[i] + '</span><span>' + optText + '</span>';
+        b.addEventListener('click', function(){
+          if(answered) return;
+          answered = true;
+          var correctIdx = item.correct;
+          var allBtns = quizOpts.querySelectorAll('.quiz-opt');
+          allBtns.forEach(function(bb){ bb.disabled = true; });
+          if(i === correctIdx){
+            b.classList.add('correct');
+            score++;
+            quizFeedback.className = 'quiz-feedback show ok';
+            quizFeedback.textContent = '✓ Benar! ' + item.expl;
+          } else {
+            b.classList.add('wrong');
+            allBtns[correctIdx].classList.add('correct');
+            quizFeedback.className = 'quiz-feedback show bad';
+            quizFeedback.textContent = '✗ Belum tepat. ' + item.expl;
+          }
+          quizScoreEl.textContent = score;
+          quizNextBtn.disabled = false;
+          quizNextBtn.textContent = (qi === questions.length - 1) ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+        });
+        quizOpts.appendChild(b);
+      });
+    }
+
+    quizNextBtn.addEventListener('click', function(){
+      if(qi < questions.length - 1){
+        qi++;
+        renderQ();
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult(){
+      quizArea.style.display = 'none';
+      quizResult.style.display = 'block';
+      document.getElementById('finalScore').textContent = score + '/' + questions.length;
+      var label = document.getElementById('finalLabel');
+      var pct = score / questions.length;
+      if(pct === 1) label.textContent = 'Sempurna! Kamu benar-benar menguasai PLSV. 🎉';
+      else if(pct >= 0.75) label.textContent = 'Kerja bagus! Pemahamanmu sudah kuat.';
+      else if(pct >= 0.5) label.textContent = 'Lumayan! Coba ulas kembali materi yang keliru.';
+      else label.textContent = 'Yuk ulas lagi materinya, lalu coba kuis sekali lagi.';
+      document.getElementById('summaryScoreText').textContent = 'Kamu menjawab ' + score + ' dari ' + questions.length + ' soal dengan benar (' + Math.round(pct*100) + '%).';
+    }
+
+    document.getElementById('quizRestart').addEventListener('click', function(){
+      qi = 0; score = 0;
+      quizResult.style.display = 'none';
+      quizArea.style.display = 'block';
+      renderQ();
+    });
+    document.getElementById('quizContinue').addEventListener('click', function(){
+      goTo(current + 1);
+    });
+
+    renderQ();
+  })();
+
+})();
+</script>
+</body>
+</html>

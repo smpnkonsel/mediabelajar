@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengubahan dan Manipulasi Citra - Presentasi Interaktif</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0f1621;
+            --dark-secondary: #1a2332;
+            --cyan: #22d3ee;
+            --cyan-dark: #06b6d4;
+            --lime: #84cc16;
+            --orange: #fb923c;
+            --blue: #3b82f6;
+            --blue-light: #60a5fa;
+            --text-white: #ffffff;
+            --text-gray: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--dark-secondary);
+            border-radius: 20px;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(34, 211, 238, 0.1);
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+            border: 1px solid var(--border);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%);
+            color: var(--text-white);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--cyan);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            margin-top: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyan), var(--lime), var(--orange));
+            transition: width 0.3s ease;
+        }
+
+        .slide-container {
+            position: relative;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 60px 40px;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateX(50px);
+            color: var(--text-white);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px 20px;
+            }
+        }
+
+        .slide h2 {
+            color: var(--cyan);
+            font-size: 32px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .slide h3 {
+            color: var(--lime);
+            font-size: 20px;
+            margin: 20px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .slide p {
+            color: var(--text-gray);
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .slide ul, .slide ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .slide li {
+            color: var(--text-gray);
+            font-size: 16px;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(34, 211, 238, 0.1), rgba(132, 204, 22, 0.1));
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--cyan);
+            margin: 15px 0;
+        }
+
+        .example-box {
+            background: rgba(34, 211, 238, 0.08);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 2px solid var(--cyan);
+        }
+
+        .example-box h4 {
+            color: var(--lime);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        /* ===== INTERACTIVE ELEMENTS ===== */
+        .interactive-demo {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 2px solid var(--border);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .demo-card {
+            background: rgba(26, 35, 50, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .demo-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan);
+            box-shadow: 0 8px 15px rgba(34, 211, 238, 0.2);
+        }
+
+        .demo-card.selected {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: var(--dark-bg);
+            border-color: transparent;
+            font-weight: 600;
+        }
+
+        /* Filter Demo */
+        .filter-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+            border-radius: 8px;
+            margin: 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border);
+        }
+
+        /* Color Model Demo */
+        .color-input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .color-input-group label {
+            color: var(--lime);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .color-input-group input[type="color"], 
+        .color-input-group input[type="range"],
+        .color-input-group input[type="number"],
+        .color-input-group select {
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            background: rgba(26, 35, 50, 0.8);
+            color: var(--text-white);
+            transition: border-color 0.3s;
+        }
+
+        .color-input-group input:focus, 
+        .color-input-group select:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.2);
+        }
+
+        .slider-container {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .slider-container input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            color: var(--orange);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .color-preview {
+            width: 100%;
+            height: 80px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .color-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .color-swatch {
+            height: 80px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+            font-size: 12px;
+            color: white;
+            font-weight: 600;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ===== QUIZ STYLES ===== */
+        .quiz-container {
+            margin: 20px 0;
+        }
+
+        .question {
+            background: rgba(26, 35, 50, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--border);
+        }
+
+        .question-title {
+            color: var(--cyan);
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .answer-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .answer-btn {
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            background: rgba(26, 35, 50, 0.8);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: var(--text-gray);
+            display: flex;
+            align-items: center;
+        }
+
+        .answer-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.08);
+        }
+
+        .answer-btn.selected {
+            border-color: var(--cyan);
+            background: rgba(34, 211, 238, 0.15);
+            color: var(--cyan);
+        }
+
+        .answer-btn.correct {
+            border-color: var(--lime);
+            background: rgba(132, 204, 22, 0.1);
+            color: var(--lime);
+        }
+
+        .answer-btn.incorrect {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+        }
+
+        .feedback {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-weight: 500;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: rgba(132, 204, 22, 0.1);
+            color: var(--lime);
+            border-left-color: var(--lime);
+        }
+
+        .feedback.incorrect {
+            background: rgba(255, 107, 107, 0.1);
+            color: #ff6b6b;
+            border-left-color: #ff6b6b;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(26, 35, 50, 0.8);
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 15px 20px;
+            }
+        }
+
+        .slide-indicator {
+            color: var(--text-gray);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-nav {
+            background: var(--cyan);
+            color: var(--dark-bg);
+            min-width: 100px;
+            border: 2px solid var(--cyan);
+        }
+
+        .btn-nav:hover {
+            background: var(--cyan-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(34, 211, 238, 0.3);
+            border-color: var(--cyan-dark);
+        }
+
+        .btn-nav:disabled {
+            background: var(--border);
+            color: var(--text-gray);
+            cursor: not-allowed;
+            transform: none;
+            border-color: var(--border);
+        }
+
+        .btn-finish {
+            background: linear-gradient(135deg, var(--lime), #65a30d);
+            color: var(--dark-bg);
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 700;
+        }
+
+        .btn-finish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(132, 204, 22, 0.3);
+        }
+
+        /* ===== SLIDE SPECIFIC ===== */
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 500px;
+        }
+
+        .title-slide h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .title-slide .subtitle {
+            font-size: 20px;
+            color: var(--text-gray);
+            margin-bottom: 30px;
+        }
+
+        .title-slide .emoji {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .title-slide h2 {
+                font-size: 32px;
+            }
+            .title-slide .emoji {
+                font-size: 60px;
+            }
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .info-card {
+            background: rgba(26, 35, 50, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 8px 15px rgba(34, 211, 238, 0.1);
+        }
+
+        .info-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .info-card h4 {
+            color: var(--lime);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-card p {
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: var(--dark-bg);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            color: var(--text-gray);
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: rgba(26, 35, 50, 0.5);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--orange);
+            color: var(--dark-bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .slide-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: var(--text-gray);
+            font-weight: 600;
+        }
+
+        .rgb-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .effect-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .effect-btn {
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: rgba(26, 35, 50, 0.8);
+            border-radius: 8px;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .effect-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .effect-btn.active {
+            background: var(--cyan);
+            color: var(--dark-bg);
+            border-color: var(--cyan);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Pengubahan dan Manipulasi Citra</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="slide-container" id="slideContainer">
+            <!-- SLIDE 1: JUDUL -->
+            <div class="slide active title-slide">
+                <div class="slide-number">1 / 14</div>
+                <div class="emoji">🎨</div>
+                <h2>Pengubahan dan Manipulasi Citra</h2>
+                <p class="subtitle">Mengubah Warna, Efek, Filter, dan Penyuntingan Gambar</p>
+                <p style="font-size: 14px; margin-top: 40px; color: var(--text-gray);">
+                    Mata Pelajaran: Informatika | Kelas: SMP
+                </p>
+            </div>
+
+            <!-- SLIDE 2: PENGERTIAN MANIPULASI CITRA -->
+            <div class="slide">
+                <div class="slide-number">2 / 14</div>
+                <h2>Apa itu Manipulasi Citra?</h2>
+                <p>Manipulasi citra adalah proses mengubah atau mengolah gambar digital untuk mendapatkan hasil yang diinginkan.</p>
+                
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="icon">🎨</div>
+                        <h4>Mengubah Warna</h4>
+                        <p>Mengganti atau menyesuaikan warna gambar</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">✨</div>
+                        <h4>Efek & Filter</h4>
+                        <p>Menerapkan efek khusus pada gambar</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">🔗</div>
+                        <h4>Menggabung Gambar</h4>
+                        <p>Menggabungkan 2 atau lebih gambar</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">✏️</div>
+                        <h4>Penyuntingan</h4>
+                        <p>Mengedit bagian tertentu gambar</p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <strong>💡 Catatan:</strong> Manipulasi citra digunakan dalam fotografi, desain grafis, media sosial, dan banyak bidang lainnya.
+                </div>
+            </div>
+
+            <!-- SLIDE 3: MODEL WARNA RGB -->
+            <div class="slide">
+                <div class="slide-number">3 / 14</div>
+                <h2>Model Warna RGB</h2>
+                <p>RGB (Red, Green, Blue) adalah model warna yang digunakan untuk menampilkan warna di layar digital.</p>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Demo Interaktif: Mixer Warna RGB</h3>
+                    <div class="rgb-grid">
+                        <div class="color-input-group">
+                            <label for="redValue">Merah (R)</label>
+                            <div class="slider-container">
+                                <input type="range" id="redValue" min="0" max="255" value="255" oninput="updateRGBColor()">
+                                <div class="slider-value" id="redDisplay">255</div>
+                            </div>
+                        </div>
+                        <div class="color-input-group">
+                            <label for="greenValue">Hijau (G)</label>
+                            <div class="slider-container">
+                                <input type="range" id="greenValue" min="0" max="255" value="0" oninput="updateRGBColor()">
+                                <div class="slider-value" id="greenDisplay">0</div>
+                            </div>
+                        </div>
+                        <div class="color-input-group">
+                            <label for="blueValue">Biru (B)</label>
+                            <div class="slider-container">
+                                <input type="range" id="blueValue" min="0" max="255" value="0" oninput="updateRGBColor()">
+                                <div class="slider-value" id="blueDisplay">0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="color-preview" id="rgbPreview"></div>
+                    <p style="text-align: center; color: var(--cyan); font-weight: 600;">
+                        Kode Warna: <span id="rgbCode">#FF0000</span>
+                    </p>
+                </div>
+
+                <div class="example-box">
+                    <h4>📊 Contoh Warna RGB</h4>
+                    <table class="comparison-table">
+                        <tr>
+                            <td><strong>Merah</strong></td>
+                            <td style="color: #ff6b6b;">RGB(255, 0, 0)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hijau</strong></td>
+                            <td style="color: #51cf66;">RGB(0, 255, 0)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Biru</strong></td>
+                            <td style="color: #74c0fc;">RGB(0, 0, 255)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Putih</strong></td>
+                            <td style="color: #ffffff;">RGB(255, 255, 255)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hitam</strong></td>
+                            <td>RGB(0, 0, 0)</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: MODEL WARNA HSL -->
+            <div class="slide">
+                <div class="slide-number">4 / 14</div>
+                <h2>Model Warna HSL</h2>
+                <p>HSL (Hue, Saturation, Lightness) adalah model warna yang lebih intuitif untuk mengedit gambar.</p>
+
+                <div class="interactive-demo">
+                    <h3>🎨 Demo: Kontrol HSL</h3>
+                    <div class="color-input-group">
+                        <label for="hueValue">Hue (Corak) - 0° hingga 360°</label>
+                        <div class="slider-container">
+                            <input type="range" id="hueValue" min="0" max="360" value="0" oninput="updateHSLColor()">
+                            <div class="slider-value" id="hueDisplay">0°</div>
+                        </div>
+                    </div>
+                    <div class="color-input-group">
+                        <label for="satValue">Saturation (Kejenuhan) - 0% hingga 100%</label>
+                        <div class="slider-container">
+                            <input type="range" id="satValue" min="0" max="100" value="100" oninput="updateHSLColor()">
+                            <div class="slider-value" id="satDisplay">100%</div>
+                        </div>
+                    </div>
+                    <div class="color-input-group">
+                        <label for="lightValue">Lightness (Kecerahan) - 0% hingga 100%</label>
+                        <div class="slider-container">
+                            <input type="range" id="lightValue" min="0" max="100" value="50" oninput="updateHSLColor()">
+                            <div class="slider-value" id="lightDisplay">50%</div>
+                        </div>
+                    </div>
+                    <div class="color-preview" id="hslPreview"></div>
+                </div>
+
+                <div class="highlight">
+                    <strong>💡 Kapan Menggunakan HSL?</strong> HSL lebih mudah untuk menyesuaikan warna karena Anda bisa mengubah saturation dan kecerahan secara terpisah.
+                </div>
+            </div>
+
+            <!-- SLIDE 5: MODEL WARNA CMYK -->
+            <div class="slide">
+                <div class="slide-number">5 / 14</div>
+                <h2>Model Warna CMYK</h2>
+                <p>CMYK (Cyan, Magenta, Yellow, blacK) adalah model warna untuk <strong>cetakan/print</strong>, bukan layar digital.</p>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="icon">🔵</div>
+                        <h4>Cyan</h4>
+                        <p>Biru kehijauan</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">💜</div>
+                        <h4>Magenta</h4>
+                        <p>Merah muda/ungu</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">🟡</div>
+                        <h4>Yellow</h4>
+                        <p>Kuning</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">⚫</div>
+                        <h4>Black</h4>
+                        <p>Hitam</p>
+                    </div>
+                </div>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model Warna</th>
+                            <th>Penggunaan</th>
+                            <th>Jenis Layar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RGB</strong></td>
+                            <td>Layar digital (cahaya)</td>
+                            <td>Monitor, TV, Smartphone</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CMYK</strong></td>
+                            <td>Cetak/Print (tinta)</td>
+                            <td>Printer, Mesin Cetak</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="example-box">
+                    <h4>📌 Perbedaan Penting</h4>
+                    <p><strong>RGB (Additive):</strong> Menambahkan cahaya → warna lebih terang</p>
+                    <p><strong>CMYK (Subtractive):</strong> Mengurangi cahaya dengan tinta → warna lebih gelap</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: MENGUBAH WARNA -->
+            <div class="slide">
+                <div class="slide-number">6 / 14</div>
+                <h2>Teknik Mengubah Warna</h2>
+                
+                <h3>1. Color Balance (Keseimbangan Warna)</h3>
+                <p>Menyesuaikan keseimbangan antara warna hangat (merah, kuning) dan dingin (biru, hijau).</p>
+
+                <h3>2. Hue Shift (Perubahan Corak)</h3>
+                <p>Mengubah corak warna tanpa mengubah kecerahan.</p>
+
+                <h3>3. Saturation (Kejenuhan)</h3>
+                <p>Meningkatkan atau mengurangi intensitas warna. Saturation 0% = hitam putih.</p>
+
+                <h3>4. Invert (Negatif)</h3>
+                <p>Membalikkan semua warna ke warna komplementernya.</p>
+
+                <h3>5. Desaturate (Grayscale)</h3>
+                <p>Mengubah gambar berwarna menjadi hitam putih.</p>
+
+                <div class="interactive-demo">
+                    <p style="margin-bottom: 15px;"><strong>Contoh Gambar:</strong></p>
+                    <div class="effect-buttons">
+                        <button class="effect-btn" onclick="setFilterPreview('original')">Original</button>
+                        <button class="effect-btn" onclick="setFilterPreview('desaturate')">Grayscale</button>
+                        <button class="effect-btn" onclick="setFilterPreview('invert')">Invert</button>
+                        <button class="effect-btn" onclick="setFilterPreview('sepia')">Sepia</button>
+                    </div>
+                    <div id="filterPreview" class="filter-preview">Preview Gambar</div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: EFEK DAN FILTER -->
+            <div class="slide">
+                <div class="slide-number">7 / 14</div>
+                <h2>Efek dan Filter Gambar</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Efek</th>
+                            <th>Deskripsi</th>
+                            <th>Contoh Penggunaan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Blur (Buram)</strong></td>
+                            <td>Mengaburkan gambar untuk efek lembut</td>
+                            <td>Background foto portrait</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sharpen</strong></td>
+                            <td>Membuat detail lebih tajam</td>
+                            <td>Foto fokus kurang</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Brightness</strong></td>
+                            <td>Menambah/kurangi kecerahan</td>
+                            <td>Foto terlalu gelap/terang</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contrast</strong></td>
+                            <td>Meningkatkan perbedaan gelap-terang</td>
+                            <td>Membuat gambar lebih dramatis</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sepia</strong></td>
+                            <td>Efek warna coklat tua (vintage)</td>
+                            <td>Foto antik/nostalgia</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Shadow/Highlight</strong></td>
+                            <td>Mengatur area gelap/terang</td>
+                            <td>Menyeimbangkan exposure</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="example-box">
+                    <h4>🎬 Efek Populer</h4>
+                    <ul style="font-size: 14px;">
+                        <li><strong>Bloom:</strong> Efek cahaya bersinar</li>
+                        <li><strong>Vignette:</strong> Tepi gelap di sekitar foto</li>
+                        <li><strong>Grain:</strong> Tekstur butiran film lama</li>
+                        <li><strong>Bokeh:</strong> Blur latar belakang yang indah</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: MENGGABUNG GAMBAR -->
+            <div class="slide">
+                <div class="slide-number">8 / 14</div>
+                <h2>Menggabung Gambar</h2>
+                
+                <h3>Teknik Menggabung</h3>
+                <ol>
+                    <li><strong>Layer/Lapis</strong> - Meletakkan gambar di atas gambar lain</li>
+                    <li><strong>Blend Mode</strong> - Mengatur bagaimana 2 layer bercampur</li>
+                    <li><strong>Opacity/Transparansi</strong> - Mengatur tingkat keliatan layer</li>
+                    <li><strong>Masking</strong> - Menyembunyikan bagian tertentu dengan topeng</li>
+                    <li><strong>Merge/Gabung</strong> - Menyatukan semua layer menjadi satu</li>
+                </ol>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="icon">🔀</div>
+                        <h4>Normal</h4>
+                        <p>Layer atas menutupi bawah</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">💡</div>
+                        <h4>Screen</h4>
+                        <p>Menciptakan efek cahaya</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">🌑</div>
+                        <h4>Multiply</h4>
+                        <p>Menggandakan warna</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="icon">🎭</div>
+                        <h4>Overlay</h4>
+                        <p>Kombinasi multiply & screen</p>
+                    </div>
+                </div>
+
+                <div class="highlight">
+                    <strong>💡 Tips:</strong> Menggunakan layer memungkinkan Anda untuk non-destructive editing (mengedit tanpa menghilangkan data asli).
+                </div>
+            </div>
+
+            <!-- SLIDE 9: OPACITY (TRANSPARANSI) -->
+            <div class="slide">
+                <div class="slide-number">9 / 14</div>
+                <h2>Opacity (Transparansi) & Blend Mode</h2>
+                
+                <div class="interactive-demo">
+                    <h3>🎮 Demo: Opacity Layer</h3>
+                    <div class="color-input-group">
+                        <label for="opacitySlider">Opasitas Layer</label>
+                        <div class="slider-container">
+                            <input type="range" id="opacitySlider" min="0" max="100" value="100" oninput="updateOpacity()">
+                            <div class="slider-value" id="opacityDisplay">100%</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                        <div>
+                            <p style="margin-bottom: 10px; font-size: 12px; color: var(--lime); font-weight: 600;">Layer Bawah</p>
+                            <div style="width: 100%; height: 150px; background: linear-gradient(135deg, #ff6b6b, #ffd93d); border-radius: 8px; border: 2px solid var(--border);"></div>
+                        </div>
+                        <div>
+                            <p style="margin-bottom: 10px; font-size: 12px; color: var(--lime); font-weight: 600;">Layer Atas (dengan opacity)</p>
+                            <div id="opacityPreview" style="width: 100%; height: 150px; background: linear-gradient(135deg, #3b82f6, #06b6d4); border-radius: 8px; border: 2px solid var(--border); opacity: 1;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Blend Mode Populer</h3>
+                <ul>
+                    <li><strong>Normal:</strong> Layer atas menutupi layer bawah (default)</li>
+                    <li><strong>Multiply:</strong> Warna menjadi lebih gelap, seperti tinta</li>
+                    <li><strong>Screen:</strong> Warna menjadi lebih terang, seperti cahaya</li>
+                    <li><strong>Overlay:</strong> Kombinasi multiply dan screen</li>
+                    <li><strong>Soft Light:</strong> Sama seperti overlay tapi lebih lembut</li>
+                </ul>
+            </div>
+
+            <!-- SLIDE 10: TEKNIK PENYUNTINGAN -->
+            <div class="slide">
+                <div class="slide-number">10 / 14</div>
+                <h2>Teknik Penyuntingan Citra</h2>
+                
+                <h3>1. Cropping (Memotong)</h3>
+                <p>Menghapus bagian tepi gambar yang tidak perlu untuk fokus pada subjek utama.</p>
+
+                <h3>2. Rotating (Memutar)</h3>
+                <p>Memutar gambar agar posisinya lurus atau untuk efek kreatif.</p>
+
+                <h3>3. Resizing (Mengubah Ukuran)</h3>
+                <p>Memperbesar atau memperkecil gambar sesuai kebutuhan.</p>
+
+                <h3>4. Cloning/Healing (Kloning)</h3>
+                <p>Menyalin bagian gambar ke area lain untuk menghapus benda atau cacat.</p>
+
+                <h3>5. Selection Tools (Alat Seleksi)</h3>
+                <ul style="margin-left: 25px;">
+                    <li><strong>Rectangle Select:</strong> Memilih area berbentuk persegi</li>
+                    <li><strong>Ellipse Select:</strong> Memilih area berbentuk lingkaran</li>
+                    <li><strong>Free Select:</strong> Memilih bentuk bebas dengan tangan</li>
+                    <li><strong>Magic Wand:</strong> Memilih area dengan warna sama</li>
+                </ul>
+
+                <div class="example-box">
+                    <h4>🎯 Contoh Penyuntingan</h4>
+                    <p><strong>Skenario:</strong> Foto anggota keluarga tapi ada orang asing di belakang</p>
+                    <p><strong>Solusi:</strong> Gunakan Healing Tool untuk menghapus orang tersebut</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: CONTOH SOAL -->
+            <div class="slide">
+                <div class="slide-number">11 / 14</div>
+                <h2>📝 Contoh Soal Praktis</h2>
+                
+                <div class="question">
+                    <div class="question-title">❓ Soal 1: Mengubah Gambar Berwarna menjadi Grayscale</div>
+                    <p style="color: var(--text-gray); margin-bottom: 15px;">Bagaimanakah cara mengubah gambar berwarna menjadi hitam putih?</p>
+                    <p style="color: var(--cyan);"><strong>Jawaban:</strong></p>
+                    <p style="color: var(--text-gray);">Gunakan efek Desaturate atau Grayscale. Efek ini menghapus informasi warna (saturation = 0%) sehingga hanya tersisa tingkat kecerahan.</p>
+                </div>
+
+                <div class="question">
+                    <div class="question-title">❓ Soal 2: Mengapa Foto Terlihat Buram?</div>
+                    <p style="color: var(--text-gray); margin-bottom: 15px;">Bagaimanakah cara mengatasi foto yang buram?</p>
+                    <p style="color: var(--cyan);"><strong>Jawaban:</strong></p>
+                    <p style="color: var(--text-gray);">Gunakan Sharpen filter untuk meningkatkan ketajaman tepi. Jika masih kurang, tingkatkan Contrast untuk membedakan area terang dan gelap.</p>
+                </div>
+
+                <div class="question">
+                    <div class="question-title">❓ Soal 3: Menggabung 2 Foto</div>
+                    <p style="color: var(--text-gray); margin-bottom: 15px;">Bagaimanakah cara menggabung langit biru ke foto landscape yang mendung?</p>
+                    <p style="color: var(--cyan);"><strong>Jawaban:</strong></p>
+                    <p style="color: var(--text-gray);">1) Buka kedua foto, 2) Letakkan foto langit sebagai layer baru, 3) Gunakan Eraser atau Masking untuk menghapus langit yang mendung, 4) Sesuaikan Opacity jika diperlukan, 5) Merge semua layer.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 12: KUIS -->
+            <div class="slide">
+                <div class="slide-number">12 / 14</div>
+                <h2>🎯 Kuis - Bagian 1</h2>
+                
+                <div class="quiz-container">
+                    <div class="question">
+                        <div class="question-title">❓ Pertanyaan 1: Model warna apa yang digunakan untuk layar digital?</div>
+                        <div class="answer-options" id="quiz1">
+                            <button class="answer-btn" onclick="checkAnswer(this, 'correct', 'quiz1')">
+                                A) RGB
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz1')">
+                                B) CMYK
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz1')">
+                                C) HSL
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz1')">
+                                D) LAB
+                            </button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-title">❓ Pertanyaan 2: Apa fungsi Opacity dalam penggabungan gambar?</div>
+                        <div class="answer-options" id="quiz2">
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz2')">
+                                A) Mengubah warna gambar
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'correct', 'quiz2')">
+                                B) Mengatur tingkat keliatan/transparansi layer
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz2')">
+                                C) Memperbesar ukuran gambar
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz2')">
+                                D) Menghapus sebagian gambar
+                            </button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 13: KUIS BAGIAN 2 -->
+            <div class="slide">
+                <div class="slide-number">13 / 14</div>
+                <h2>🎯 Kuis - Bagian 2</h2>
+                
+                <div class="quiz-container">
+                    <div class="question">
+                        <div class="question-title">❓ Pertanyaan 3: Efek mana yang membuat gambar menjadi hitam putih?</div>
+                        <div class="answer-options" id="quiz3">
+                            <button class="answer-btn" onclick="checkAnswer(this, 'correct', 'quiz3')">
+                                A) Desaturate
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz3')">
+                                B) Blur
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz3')">
+                                C) Sharpen
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz3')">
+                                D) Brightness
+                            </button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+
+                    <div class="question">
+                        <div class="question-title">❓ Pertanyaan 4: Model warna apa yang digunakan untuk cetakan?</div>
+                        <div class="answer-options" id="quiz4">
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz4')">
+                                A) RGB
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'correct', 'quiz4')">
+                                B) CMYK
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz4')">
+                                C) HSL
+                            </button>
+                            <button class="answer-btn" onclick="checkAnswer(this, 'incorrect', 'quiz4')">
+                                D) LAB
+                            </button>
+                        </div>
+                        <div class="feedback"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 14: RINGKASAN & SELESAI -->
+            <div class="slide">
+                <div class="slide-number">14 / 14</div>
+                <h2>📚 Ringkasan Pembelajaran</h2>
+                
+                <div class="highlight">
+                    <h3>Yang Telah Kita Pelajari:</h3>
+                    <ul style="margin-left: 20px; font-size: 15px;">
+                        <li>✅ <strong>Manipulasi Citra:</strong> Mengubah warna, efek, filter, dan penyuntingan</li>
+                        <li>✅ <strong>Model Warna RGB:</strong> Untuk layar digital dengan pencampuran cahaya</li>
+                        <li>✅ <strong>Model Warna HSL:</strong> Hue, Saturation, Lightness untuk kontrol warna intuitif</li>
+                        <li>✅ <strong>Model Warna CMYK:</strong> Untuk cetakan dengan pencampuran tinta</li>
+                        <li>✅ <strong>Efek & Filter:</strong> Blur, Sharpen, Brightness, Contrast, Sepia</li>
+                        <li>✅ <strong>Penggabungan Gambar:</strong> Layer, Blend Mode, Opacity, Masking</li>
+                        <li>✅ <strong>Penyuntingan:</strong> Cropping, Rotating, Resizing, Cloning, Selection Tools</li>
+                    </ul>
+                </div>
+
+                <div class="example-box">
+                    <h4>💡 Software untuk Manipulasi Citra</h4>
+                    <ul style="font-size: 14px;">
+                        <li><strong>Photoshop:</strong> Software profesional paling populer</li>
+                        <li><strong>GIMP:</strong> Gratis dan open source</li>
+                        <li><strong>Lightroom:</strong> Khusus untuk editing foto</li>
+                        <li><strong>Pixlr:</strong> Online editor yang mudah</li>
+                        <li><strong>Canva:</strong> Template design yang user-friendly</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <p style="font-size: 20px; font-weight: 600; color: var(--lime); margin-bottom: 20px;">🎉 Selamat! Kamu Sudah Menyelesaikan Materi</p>
+                    <a href="info-bab3.html" class="btn-finish">✓ Selesai - Kembali ke Info Bab 3</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="slide-indicator">
+                Slide <span id="currentSlide">1</span> / <span id="totalSlides">14</span>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-nav" id="prevBtn" onclick="previousSlide()">← Sebelumnya</button>
+                <button class="btn-nav" id="nextBtn" onclick="nextSlide()">Selanjutnya →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('totalSlides').textContent = totalSlides;
+
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // RGB Color Mixer
+        function updateRGBColor() {
+            const r = parseInt(document.getElementById('redValue').value);
+            const g = parseInt(document.getElementById('greenValue').value);
+            const b = parseInt(document.getElementById('blueValue').value);
+
+            document.getElementById('redDisplay').textContent = r;
+            document.getElementById('greenDisplay').textContent = g;
+            document.getElementById('blueDisplay').textContent = b;
+
+            const rgbColor = `rgb(${r}, ${g}, ${b})`;
+            const hexColor = '#' + [r, g, b].map(x => {
+                const hex = x.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('').toUpperCase();
+
+            document.getElementById('rgbPreview').style.background = rgbColor;
+            document.getElementById('rgbCode').textContent = hexColor;
+        }
+
+        // HSL Color Mixer
+        function updateHSLColor() {
+            const h = parseInt(document.getElementById('hueValue').value);
+            const s = parseInt(document.getElementById('satValue').value);
+            const l = parseInt(document.getElementById('lightValue').value);
+
+            document.getElementById('hueDisplay').textContent = h + '°';
+            document.getElementById('satDisplay').textContent = s + '%';
+            document.getElementById('lightDisplay').textContent = l + '%';
+
+            const hslColor = `hsl(${h}, ${s}%, ${l}%)`;
+            document.getElementById('hslPreview').style.background = hslColor;
+        }
+
+        // Filter Preview
+        function setFilterPreview(filter) {
+            const preview = document.getElementById('filterPreview');
+            preview.style.transition = 'all 0.3s ease';
+            
+            switch(filter) {
+                case 'original':
+                    preview.style.filter = 'none';
+                    preview.textContent = 'Original';
+                    break;
+                case 'desaturate':
+                    preview.style.filter = 'grayscale(100%)';
+                    preview.textContent = 'Grayscale';
+                    break;
+                case 'invert':
+                    preview.style.filter = 'invert(100%)';
+                    preview.textContent = 'Invert';
+                    break;
+                case 'sepia':
+                    preview.style.filter = 'sepia(100%)';
+                    preview.textContent = 'Sepia';
+                    break;
+            }
+        }
+
+        // Opacity Control
+        function updateOpacity() {
+            const opacity = parseInt(document.getElementById('opacitySlider').value) / 100;
+            document.getElementById('opacityPreview').style.opacity = opacity;
+            document.getElementById('opacityDisplay').textContent = Math.round(opacity * 100) + '%';
+        }
+
+        // Quiz Answer Check
+        function checkAnswer(button, correctness, quizId) {
+            const buttons = document.querySelectorAll(`#${quizId} .answer-btn`);
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+            });
+
+            if (correctness === 'correct') {
+                button.classList.add('correct');
+                const feedback = button.closest('.question').querySelector('.feedback');
+                feedback.classList.add('show', 'correct');
+                feedback.textContent = '✓ Benar! Jawaban Anda tepat.';
+            } else {
+                button.classList.add('incorrect');
+                const feedback = button.closest('.question').querySelector('.feedback');
+                feedback.classList.add('show', 'incorrect');
+                feedback.textContent = '✗ Salah! Coba pelajari kembali materinya.';
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') previousSlide();
+            if (event.key === 'ArrowRight') nextSlide();
+        });
+
+        // Initialize
+        updateSlide();
+        updateRGBColor();
+        updateHSLColor();
+    </script>
+</body>
+</html>

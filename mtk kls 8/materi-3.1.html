@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 3 · Konsep Persamaan Linear Satu Variabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F0;
+  --paper-line: rgba(34,49,92,0.07);
+  --ink:#20263F;
+  --ink-soft:#535A75;
+  --navy:#22315C;
+  --navy-deep:#161F3B;
+  --teal:#149C8D;
+  --teal-soft:#DCF3EF;
+  --amber:#E8971F;
+  --amber-soft:#FCEBCE;
+  --coral:#E15C56;
+  --coral-soft:#FCE1DF;
+  --purple:#6E62D9;
+  --green:#2E9E5B;
+  --green-soft:#DFF3E6;
+  --red:#D14444;
+  --red-soft:#FBE1E0;
+  --radius:18px;
+  --shadow: 0 10px 30px rgba(22,31,59,0.10);
+  --font-display:'Baloo 2', system-ui, sans-serif;
+  --font-body:'Inter', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:
+    linear-gradient(var(--paper-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px),
+    var(--paper);
+  background-size:28px 28px, 28px 28px, auto;
+  overflow:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ===== APP SHELL ===== */
+#app{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
+}
+.progressbar{
+  position:fixed; top:0; left:0; right:0; height:5px;
+  background:rgba(34,49,92,0.08); z-index:50;
+}
+.progressbar-fill{
+  height:100%;
+  background:linear-gradient(90deg, var(--teal), var(--amber), var(--coral));
+  width:6.66%;
+  transition:width .45s cubic-bezier(.65,0,.35,1);
+}
+
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding: 64px clamp(20px,6vw,80px) 110px;
+  opacity:0; visibility:hidden;
+  transform:translateY(18px) scale(.99);
+  transition:opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+  overflow-y:auto;
+}
+.slide.active{
+  opacity:1; visibility:visible; transform:translateY(0) scale(1);
+  transition:opacity .5s ease, transform .5s ease, visibility 0s linear 0s;
+}
+.slide-inner{ width:100%; max-width:980px; margin:0 auto; }
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--navy); opacity:.65; font-weight:600; margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--coral);display:inline-block;}
+h1.slide-title{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(28px, 4.4vw, 48px);
+  line-height:1.08; margin:0 0 14px; color:var(--navy-deep);
+}
+p.lede{
+  font-size:clamp(15px,1.6vw,18px); color:var(--ink-soft); line-height:1.6;
+  max-width:66ch; margin:0 0 26px;
+}
+
+/* ===== NAV ===== */
+.nav-bar{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,0.92); backdrop-filter:blur(6px);
+  border:1px solid rgba(34,49,92,0.10);
+  padding:9px 12px; border-radius:999px; box-shadow:var(--shadow);
+  z-index:60;
+}
+.nav-btn{
+  width:42px; height:42px; border-radius:50%; border:none; cursor:pointer;
+  background:var(--navy); color:#fff; font-size:18px; display:flex;
+  align-items:center; justify-content:center; transition:transform .15s, background .15s;
+}
+.nav-btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.nav-btn:disabled{ opacity:.3; cursor:not-allowed; transform:none; }
+.nav-count{
+  font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); min-width:56px; text-align:center;
+}
+.nav-title{
+  display:none;
+}
+@media (min-width:720px){
+  .nav-title{ display:block; font-size:13px; color:var(--ink-soft); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-left:1px solid rgba(34,49,92,.12); padding-left:14px; margin-left:2px;}
+}
+
+/* ===== GENERIC COMPONENTS ===== */
+.card{
+  background:#fff; border-radius:var(--radius); box-shadow:var(--shadow);
+  border:1px solid rgba(34,49,92,0.06);
+  padding:clamp(16px,2.6vw,28px);
+}
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media (max-width:760px){ .grid2, .grid3{ grid-template-columns:1fr; } }
+
+.pill{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:var(--font-mono); font-size:12px; font-weight:600;
+  padding:5px 12px; border-radius:999px;
+}
+.pill-teal{ background:var(--teal-soft); color:var(--teal); }
+.pill-amber{ background:var(--amber-soft); color:#8a5c0d; }
+.pill-coral{ background:var(--coral-soft); color:var(--coral); }
+
+/* equation tokens */
+.eq-display{
+  font-family:var(--font-mono); font-weight:700; font-size:clamp(24px,3.4vw,34px);
+  display:flex; flex-wrap:wrap; align-items:center; gap:2px; margin:6px 0 14px;
+}
+.tok{
+  font-family:inherit; font-size:inherit; font-weight:inherit;
+  background:none; border:2px solid transparent; border-radius:10px;
+  padding:3px 8px; cursor:pointer; color:var(--navy-deep);
+  transition:transform .12s, background .18s, border-color .18s, color .18s;
+}
+.tok:hover{ background:rgba(34,49,92,0.06); transform:translateY(-2px); }
+.tok.correct, .tok.c-teal{ background:var(--teal-soft); color:var(--teal); border-color:var(--teal); }
+.tok.c-amber{ background:var(--amber-soft); color:#8a5c0d; border-color:var(--amber); }
+.tok.c-coral{ background:var(--coral-soft); color:var(--coral); border-color:var(--coral); }
+.tok.c-navy{ background:rgba(34,49,92,0.08); color:var(--navy); border-color:var(--navy); }
+.tok.wrong{ animation:shake .5s; background:var(--red-soft); border-color:var(--red); color:var(--red); }
+@keyframes shake{ 10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(4px);} 30%,50%,70%{transform:translateX(-7px);} 40%,60%{transform:translateX(7px);} }
+
+.eq-block{ margin-bottom:20px; padding-bottom:16px; border-bottom:1px dashed rgba(34,49,92,.14); }
+.eq-block:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+.feedback{
+  font-size:14.5px; min-height:22px; font-weight:600; border-radius:10px;
+  transition:all .2s;
+}
+.feedback.ok{ color:var(--green); }
+.feedback.bad{ color:var(--red); }
+.feedback.info{ color:var(--navy); }
+.hint{ font-size:13.5px; color:var(--ink-soft); margin-top:-6px; margin-bottom:10px;}
+
+.legend{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 4px; }
+.legend-chip{ display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--ink-soft); }
+.legend-swatch{ width:14px; height:14px; border-radius:5px; }
+
+.btn{
+  font-family:var(--font-body); font-weight:700; font-size:14.5px;
+  border:none; cursor:pointer; border-radius:12px; padding:11px 20px;
+  background:var(--navy); color:#fff; transition:transform .15s,background .15s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; transform:none;}
+.btn-ghost{ background:#fff; color:var(--navy); border:2px solid var(--navy); }
+.btn-teal{ background:var(--teal); } .btn-teal:hover{ background:#0f7a6e; }
+.btn-amber{ background:var(--amber); } .btn-amber:hover{ background:#c17e12; }
+.btn-coral{ background:var(--coral); } .btn-coral:hover{ background:#c8443e; }
+
+/* ===== SLIDE 0 : TITLE ===== */
+.title-slide{ justify-content:center; text-align:center; }
+.title-badge{
+  font-family:var(--font-mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase;
+  background:var(--navy); color:#fff; padding:8px 18px; border-radius:999px; margin-bottom:22px;
+  display:inline-block;
+}
+.title-main{
+  font-family:var(--font-display); font-weight:800; color:var(--navy-deep);
+  font-size:clamp(34px,6.5vw,64px); line-height:1.05; margin:0 0 16px;
+}
+.title-sub{ font-size:clamp(16px,2vw,20px); color:var(--ink-soft); max-width:640px; margin:0 auto 34px; line-height:1.55;}
+.hero-eq{
+  font-family:var(--font-mono); font-weight:700; font-size:clamp(30px,5vw,52px);
+  display:inline-flex; align-items:center; gap:14px; margin-bottom:14px;
+}
+.hero-eq span{ padding:4px 12px; border-radius:12px; }
+.hero-eq .hv{ background:var(--teal-soft); color:var(--teal); }
+.hero-eq .hc{ background:var(--coral-soft); color:var(--coral); }
+.hero-eq .hk{ background:var(--amber-soft); color:#8a5c0d; }
+.start-btn{ font-size:16px; padding:14px 30px; border-radius:14px; }
+
+/* ===== ROADMAP (slide 1) ===== */
+.roadmap{ display:flex; flex-direction:column; gap:12px; }
+.road-item{
+  display:flex; align-items:center; gap:16px; background:#fff; border-radius:14px;
+  padding:14px 18px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06);
+}
+.road-num{
+  font-family:var(--font-display); font-weight:700; font-size:18px; color:#fff;
+  width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.road-item p{ margin:2px 0 0; font-size:13.5px; color:var(--ink-soft); }
+.road-item h3{ margin:0; font-family:var(--font-display); font-size:16.5px; color:var(--navy-deep); }
+
+/* ===== klasifikasi ===== */
+.klas-item{ background:#fff; border-radius:14px; padding:16px 18px; box-shadow:var(--shadow); margin-bottom:12px; border:1px solid rgba(34,49,92,.06); }
+.klas-text{ font-family:var(--font-mono); font-size:17px; font-weight:600; margin-bottom:10px; color:var(--navy-deep); }
+.klas-btns{ display:flex; gap:10px; flex-wrap:wrap; }
+.klas-btn{
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  border:2px solid var(--navy); background:#fff; color:var(--navy);
+  padding:8px 16px; border-radius:10px; cursor:pointer; transition:all .15s;
+}
+.klas-btn:hover:not(:disabled){ background:var(--navy); color:#fff; }
+.klas-btn:disabled{ cursor:default; }
+.klas-btn.right{ background:var(--green); border-color:var(--green); color:#fff; }
+.klas-btn.wrongpick{ background:var(--red); border-color:var(--red); color:#fff; }
+.klas-fb{ font-size:13.5px; margin-top:10px; font-weight:600; display:none; }
+.score-chip{
+  position:sticky; top:0; display:inline-block; background:var(--navy); color:#fff;
+  font-family:var(--font-mono); font-weight:600; font-size:13px; padding:7px 16px; border-radius:999px; margin-bottom:16px;
+}
+
+/* ===== PLSV checker ===== */
+.check-item{ background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); }
+.check-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+.check-expr{ font-family:var(--font-mono); font-weight:700; font-size:19px; color:var(--navy-deep); }
+.check-reason{ font-size:13.5px; color:var(--ink-soft); margin-top:10px; display:none; padding-top:10px; border-top:1px dashed rgba(34,49,92,.15); }
+.verdict{ font-weight:700; font-size:12.5px; font-family:var(--font-mono); padding:6px 12px; border-radius:999px; }
+.verdict.yes{ background:var(--green-soft); color:var(--green); }
+.verdict.no{ background:var(--red-soft); color:var(--red); }
+
+/* ===== balance scale ===== */
+.balance-wrap{ position:relative; width:100%; max-width:320px; margin:6px auto 10px; aspect-ratio:300/170; }
+.balance-svg{ width:100%; height:100%; display:block; }
+.pan-label{
+  position:absolute; top:44%; transform:translateY(-50%);
+  font-family:var(--font-mono); font-weight:700; font-size:clamp(13px,1.6vw,16px);
+  background:#fff; border-radius:10px; padding:5px 9px; box-shadow:0 4px 10px rgba(22,31,59,.14);
+  transition:transform .25s; white-space:nowrap;
+}
+.pan-label.left{ left:2%; color:var(--teal); }
+.pan-label.right{ right:2%; color:var(--coral); }
+.pan-label.pulse{ animation:pulse .4s ease; }
+@keyframes pulse{ 0%{transform:translateY(-50%) scale(1);} 40%{transform:translateY(-50%) scale(1.18);} 100%{transform:translateY(-50%) scale(1);} }
+
+.step-log{ list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.step-log li{
+  font-size:14px; background:var(--teal-soft); color:#0e5b52; border-radius:10px; padding:9px 13px;
+  font-family:var(--font-mono); animation:slidein .35s ease;
+}
+@keyframes slidein{ from{ opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+.final-box{
+  margin-top:16px; background:var(--amber-soft); border:2px dashed var(--amber);
+  border-radius:14px; padding:14px 18px; font-family:var(--font-mono); font-weight:700; color:#8a5c0d;
+  display:none;
+}
+
+/* ===== practice ===== */
+.practice-item{ background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; border:1px solid rgba(34,49,92,.06);}
+.practice-q{ font-family:var(--font-mono); font-weight:700; font-size:18px; color:var(--navy-deep); }
+.practice-a{ font-family:var(--font-mono); font-weight:700; color:var(--green); display:none; }
+
+/* ===== quiz ===== */
+.quiz-item{ background:#fff; border-radius:16px; padding:18px 20px; margin-bottom:16px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); }
+.quiz-q{ font-weight:700; font-size:16px; margin-bottom:12px; color:var(--navy-deep); }
+.quiz-opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:640px){ .quiz-opts{ grid-template-columns:1fr; } }
+.quiz-opt{
+  font-family:var(--font-body); font-size:14px; font-weight:600; text-align:left;
+  border:2px solid rgba(34,49,92,.16); background:#fff; color:var(--ink);
+  padding:10px 14px; border-radius:11px; cursor:pointer; transition:all .15s;
+}
+.quiz-opt:hover:not(:disabled){ border-color:var(--navy); }
+.quiz-opt:disabled{ cursor:default; }
+.quiz-opt.correct{ background:var(--green-soft); border-color:var(--green); color:#1f6b3d; }
+.quiz-opt.wrong{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
+.quiz-score-bar{
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between;
+  background:var(--navy); color:#fff; border-radius:999px; padding:10px 20px; margin-bottom:18px;
+  font-family:var(--font-mono); font-size:14px; font-weight:600;
+}
+.result-panel{ display:none; text-align:center; padding:26px; border-radius:16px; margin-top:8px; }
+
+/* ===== finish ===== */
+.finish-wrap{ text-align:center; }
+.btn-finish{
+  display:inline-flex; align-items:center; gap:10px; text-decoration:none;
+  font-family:var(--font-display); font-weight:700; font-size:18px;
+  background:var(--navy); color:#fff; padding:16px 34px; border-radius:16px;
+  box-shadow:var(--shadow); transition:transform .15s, background .15s; margin-top:18px;
+}
+.btn-finish:hover{ transform:translateY(-3px); background:var(--navy-deep); }
+.recap-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:22px 0; text-align:left;}
+@media(max-width:760px){ .recap-grid{ grid-template-columns:1fr; } }
+.recap-card{ border-radius:14px; padding:16px; }
+.recap-card h4{ margin:0 0 6px; font-family:var(--font-display); font-size:15.5px; }
+.recap-card p{ margin:0; font-size:13px; line-height:1.5; }
+
+.final-score-chip{
+  display:inline-block; font-family:var(--font-mono); font-weight:700; font-size:15px;
+  background:var(--navy); color:#fff; padding:9px 20px; border-radius:999px; margin-bottom:8px;
+}
+
+/* helper text alignment */
+.center{ text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="progressbar"><div class="progressbar-fill" id="progressFill"></div></div>
+
+<div id="app">
+
+  <!-- SLIDE 0 : TITLE -->
+  <section class="slide title-slide active" data-title="Cover">
+    <div class="slide-inner">
+      <span class="title-badge">Bab 3 · Persamaan &amp; Pertidaksamaan Linear</span>
+      <h1 class="title-main">Konsep Persamaan<br>Linear Satu Variabel</h1>
+      <p class="title-sub">Yuk kenalan sama variabel, koefisien, konstanta, bentuk PLSV, dan kalimat terbuka — lengkap dengan contoh yang bisa kamu klik, latihan soal, dan kuis di akhir!</p>
+      <div class="hero-eq">
+        <span class="hk">2</span><span class="hv">x</span><span> + </span><span class="hc">5</span><span> = </span><span class="hc">13</span>
+      </div>
+      <div><button class="btn start-btn" onclick="goTo(1)">🚀 Mulai Belajar</button></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 1 : ROADMAP -->
+  <section class="slide" data-title="Peta Materi">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Peta Belajar</div>
+      <h1 class="slide-title">Apa yang Akan Kita Pelajari?</h1>
+      <p class="lede">Materi disusun berurutan supaya makin mudah dipahami — mulai dari konsep dasar sampai latihan soal.</p>
+      <div class="roadmap" id="roadmapList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 : KALIMAT TERBUKA VS TERTUTUP -->
+  <section class="slide" data-title="Kalimat Terbuka">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+      <h1 class="slide-title">Kalimat Terbuka &amp; Kalimat Tertutup</h1>
+      <p class="lede">Sebelum masuk ke persamaan, kita perlu tahu dua jenis kalimat matematika ini dulu.</p>
+      <div class="grid2">
+        <div class="card">
+          <span class="pill pill-teal">Kalimat Terbuka</span>
+          <p style="margin:12px 0 10px; font-size:14.5px; line-height:1.6;">Kalimat matematika yang <b>masih mengandung variabel</b>, sehingga belum bisa ditentukan nilai kebenarannya (benar/salah) sampai variabelnya diganti angka.</p>
+          <div class="eq-display" style="font-size:24px;"><span class="tok c-teal" style="cursor:default;">x + 4 = 9</span></div>
+          <p class="hint" style="margin-top:6px;">Belum tahu benar atau salah, karena nilai <i>x</i> belum diketahui.</p>
+        </div>
+        <div class="card">
+          <span class="pill pill-coral">Kalimat Tertutup</span>
+          <p style="margin:12px 0 10px; font-size:14.5px; line-height:1.6;">Kalimat matematika yang <b>semua sukunya sudah berupa angka pasti</b> (tidak ada variabel), sehingga sudah bisa dipastikan benar atau salah. Disebut juga <b>pernyataan</b>.</p>
+          <div class="eq-display" style="font-size:24px;"><span class="tok c-coral" style="cursor:default;">5 + 4 = 9</span></div>
+          <p class="hint" style="margin-top:6px;">Sudah pasti <b>benar</b>, karena 5 + 4 memang sama dengan 9.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 : LATIHAN KLASIFIKASI -->
+  <section class="slide" data-title="Latihan Klasifikasi">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+      <h1 class="slide-title">Latihan: Terbuka atau Tertutup?</h1>
+      <p class="lede">Klik tombol yang menurutmu benar untuk tiap kalimat berikut ini.</p>
+      <div class="score-chip" id="klasScoreChip">Skor: 0 / 6</div>
+      <div id="klasList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 : VARIABEL -->
+  <section class="slide" data-title="Variabel">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Anatomi PLSV · 1 dari 3</div>
+      <h1 class="slide-title">Variabel</h1>
+      <p class="lede"><b>Variabel</b> adalah simbol (biasanya huruf, seperti <i>x</i>, <i>y</i>, atau <i>n</i>) yang mewakili suatu bilangan yang belum diketahui nilainya.</p>
+      <div class="card">
+        <p class="hint" style="margin-top:0;">👉 Klik bagian yang menurutmu adalah <b>variabel</b> pada tiap persamaan di bawah ini.</p>
+        <div class="eq-group" id="varGroup" data-target="variable"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 : KOEFISIEN -->
+  <section class="slide" data-title="Koefisien">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Anatomi PLSV · 2 dari 3</div>
+      <h1 class="slide-title">Koefisien</h1>
+      <p class="lede"><b>Koefisien</b> adalah bilangan yang mengalikan variabel — ditulis langsung menempel di depan variabel tersebut.</p>
+      <div class="card">
+        <p class="hint" style="margin-top:0;">👉 Klik bagian yang menurutmu adalah <b>koefisien</b> pada tiap persamaan di bawah ini.</p>
+        <div class="eq-group" id="coefGroup" data-target="coefficient"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 : KONSTANTA -->
+  <section class="slide" data-title="Konstanta">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Anatomi PLSV · 3 dari 3</div>
+      <h1 class="slide-title">Konstanta</h1>
+      <p class="lede"><b>Konstanta</b> adalah bilangan tetap yang berdiri sendiri — tidak menempel pada variabel manapun.</p>
+      <div class="card">
+        <p class="hint" style="margin-top:0;">👉 Klik bagian yang menurutmu adalah <b>konstanta</b> pada tiap persamaan di bawah ini (bisa lebih dari satu di setiap persamaan!).</p>
+        <div class="eq-group" id="constGroup" data-target="constant"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 : BONGKAR PERSAMAAN -->
+  <section class="slide" data-title="Bongkar Persamaan">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Eksplorasi Bebas</div>
+      <h1 class="slide-title">Yuk, Bongkar Satu Persamaan Utuh!</h1>
+      <p class="lede">Klik bagian mana saja untuk melihat perannya. Atau tekan tombol di bawah untuk menyalakan semua warna sekaligus.</p>
+      <div class="card">
+        <div class="eq-group" id="fullGroup" data-target=""></div>
+        <div style="margin-top:14px;">
+          <button class="btn btn-ghost" id="revealAllBtn">🎨 Tampilkan Semua Warna</button>
+        </div>
+        <div class="legend">
+          <div class="legend-chip"><span class="legend-swatch" style="background:var(--teal)"></span>Variabel</div>
+          <div class="legend-chip"><span class="legend-swatch" style="background:var(--amber)"></span>Koefisien</div>
+          <div class="legend-chip"><span class="legend-swatch" style="background:var(--coral)"></span>Konstanta</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8 : BENTUK UMUM + CHECKER -->
+  <section class="slide" data-title="Bentuk Umum PLSV">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Inti</div>
+      <h1 class="slide-title">Bentuk Umum PLSV</h1>
+      <p class="lede">Persamaan Linear Satu Variabel (PLSV) selalu bisa ditulis dalam bentuk umum berikut:</p>
+      <div class="card center" style="margin-bottom:20px;">
+        <div class="eq-display" style="justify-content:center; font-size:clamp(28px,4vw,40px);">
+          <span class="tok c-amber" style="cursor:default;">a</span><span class="tok c-teal" style="cursor:default;">x</span><span style="padding:0 4px;">+</span><span class="tok c-coral" style="cursor:default;">b</span><span style="padding:0 4px;">=</span><span class="tok c-coral" style="cursor:default;">c</span>
+        </div>
+        <p style="font-size:13.5px; color:var(--ink-soft); margin:4px 0 0;"><b>a</b> = koefisien (a ≠ 0) &nbsp;·&nbsp; <b>x</b> = variabel &nbsp;·&nbsp; <b>b, c</b> = konstanta</p>
+      </div>
+      <p class="lede" style="margin-bottom:10px;">Sekarang coba tebak: mana yang termasuk PLSV, mana yang bukan? Klik untuk mengecek jawabanmu 👇</p>
+      <div id="checkerList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9 : CONTOH SOAL 1 -->
+  <section class="slide" data-title="Contoh Soal 1">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 1 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan x + 7 = 15</h1>
+      <p class="lede">Perhatikan timbangan ⚖️ — apapun yang kita lakukan, kedua sisi harus tetap <b>seimbang</b>!</p>
+      <div class="grid2">
+        <div class="card center" id="balanceCard-0"></div>
+        <div class="card">
+          <button class="btn btn-teal" id="stepBtn-0">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-0"></ul>
+          <div class="final-box" id="finalBox-0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10 : CONTOH SOAL 2 -->
+  <section class="slide" data-title="Contoh Soal 2">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 2 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan 3x = 21</h1>
+      <p class="lede">Kali ini kita akan <b>membagi</b> kedua ruas dengan koefisien x.</p>
+      <div class="grid2">
+        <div class="card center" id="balanceCard-1"></div>
+        <div class="card">
+          <button class="btn btn-amber" id="stepBtn-1">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-1"></ul>
+          <div class="final-box" id="finalBox-1"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11 : CONTOH SOAL 3 -->
+  <section class="slide" data-title="Contoh Soal 3">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 3 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan 2x + 5 = 17</h1>
+      <p class="lede">Soal ini butuh <b>dua langkah</b>: kurangi dulu, baru bagi.</p>
+      <div class="grid2">
+        <div class="card center" id="balanceCard-2"></div>
+        <div class="card">
+          <button class="btn btn-coral" id="stepBtn-2">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-2"></ul>
+          <div class="final-box" id="finalBox-2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12 : LATIHAN MANDIRI -->
+  <section class="slide" data-title="Latihan Mandiri">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Latihan Soal</div>
+      <h1 class="slide-title">Sekarang Giliranmu!</h1>
+      <p class="lede">Coba selesaikan sendiri di kertas dulu, baru klik "Lihat Jawaban" untuk mengecek.</p>
+      <div id="practiceList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13 : KUIS -->
+  <section class="slide" data-title="Kuis Akhir">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Uji Pemahaman</div>
+      <h1 class="slide-title">Kuis Akhir</h1>
+      <p class="lede">Jawab 8 soal berikut untuk menguji pemahamanmu tentang PLSV.</p>
+      <div class="quiz-score-bar"><span>📊 Progres Kuis</span><span id="quizScoreText">Skor: 0 / 8</span></div>
+      <div id="quizList"></div>
+      <div class="center">
+        <button class="btn" id="quizResultBtn" style="font-size:15px; padding:13px 26px;">🏁 Lihat Hasil Akhir</button>
+      </div>
+      <div class="result-panel" id="quizResult"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14 : RINGKASAN & SELESAI -->
+  <section class="slide finish-wrap" data-title="Selesai">
+    <div class="slide-inner">
+      <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>Ringkasan</div>
+      <h1 class="slide-title">Kerja Bagus! 🎉</h1>
+      <p class="lede" style="margin-left:auto; margin-right:auto;">Berikut ringkasan singkat yang sudah kamu pelajari hari ini.</p>
+      <div class="recap-grid">
+        <div class="recap-card" style="background:var(--teal-soft);">
+          <h4 style="color:var(--teal);">Variabel</h4>
+          <p>Simbol huruf yang mewakili bilangan belum diketahui, misalnya x pada x + 5 = 9.</p>
+        </div>
+        <div class="recap-card" style="background:var(--amber-soft);">
+          <h4 style="color:#8a5c0d;">Koefisien</h4>
+          <p>Bilangan yang menempel di depan variabel, misalnya 3 pada 3x + 5 = 9.</p>
+        </div>
+        <div class="recap-card" style="background:var(--coral-soft);">
+          <h4 style="color:var(--coral);">Konstanta</h4>
+          <p>Bilangan tetap yang berdiri sendiri, misalnya 5 dan 9 pada 3x + 5 = 9.</p>
+        </div>
+      </div>
+      <div class="card" style="max-width:520px; margin:0 auto 10px;">
+        <p style="font-size:14px; margin:0 0 10px; color:var(--ink-soft);">Bentuk umum PLSV: <b style="font-family:var(--font-mono);">ax + b = c</b> — kalimat matematika terbuka bervariabel satu dan berpangkat satu.</p>
+        <div class="final-score-chip" id="finalScoreChip">Skor kuis kamu akan muncul di sini</div>
+      </div>
+      <div>
+        <a class="btn-finish" href="matb-bab3.html">✅ Selesai — Kembali ke Bab 3</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+  <span class="nav-count" id="navCount">1 / 15</span>
+  <span class="nav-title" id="navTitle">Cover</span>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+function renderNav(){
+  document.getElementById('navCount').textContent = (current+1)+' / '+total;
+  document.getElementById('navTitle').textContent = slides[current].dataset.title || '';
+  document.getElementById('progressFill').style.width = (((current+1)/total)*100)+'%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+}
+function goTo(i){
+  if(i<0||i>=total) return;
+  slides[current].classList.remove('active');
+  current = i;
+  slides[current].classList.add('active');
+  slides[current].scrollTop = 0;
+  renderNav();
+}
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+let touchX=null;
+document.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 55){ dx<0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+
+renderNav();
+
+/* ================= ROADMAP ================= */
+const roadmapData = [
+  ['Kalimat Terbuka & Tertutup','Membedakan kalimat bervariabel dan pernyataan pasti', 'var(--teal)'],
+  ['Variabel, Koefisien, Konstanta','Mengenali tiap bagian dari sebuah persamaan', 'var(--amber)'],
+  ['Bentuk Umum PLSV','Memahami pola ax + b = c', 'var(--coral)'],
+  ['Contoh Soal Langkah demi Langkah','Melihat cara menyelesaikan PLSV dengan timbangan', 'var(--purple)'],
+  ['Latihan & Kuis','Menguji pemahamanmu sendiri', 'var(--navy)'],
+];
+document.getElementById('roadmapList').innerHTML = roadmapData.map((r,i)=>`
+  <div class="road-item">
+    <div class="road-num" style="background:${r[2]}">${i+1}</div>
+    <div><h3>${r[0]}</h3><p>${r[1]}</p></div>
+  </div>`).join('');
+
+/* ================= EQUATION TOKEN ENGINE ================= */
+const ROLE_LABEL = {variable:'Variabel', coefficient:'Koefisien', constant:'Konstanta', operator:'Tanda Operasi', eq:'Tanda Sama Dengan'};
+const ROLE_EXPLAIN = {
+  variable:'Simbol (huruf) yang mewakili bilangan yang belum diketahui nilainya.',
+  coefficient:'Bilangan yang mengalikan variabel, ditulis menempel di depan variabel.',
+  constant:'Bilangan tetap yang berdiri sendiri, tidak menempel pada variabel.',
+  operator:'Tanda operasi hitung yang menghubungkan suku-suku dalam persamaan.',
+  eq:'Tanda "=" yang menyatakan ruas kiri sama nilainya dengan ruas kanan.'
+};
+const ROLE_COLOR = {variable:'c-teal', coefficient:'c-amber', constant:'c-coral', operator:'c-navy', eq:'c-navy'};
+
+function tok(t,r){ return {t,r}; }
+function eqToTokens(str, roleMap){
+  // roleMap: object mapping literal text piece -> role, used for hand-built arrays instead. Not used; kept for clarity.
+}
+function buildEqHTML(tokens){
+  return tokens.map(k=>`<button type="button" class="tok" data-role="${k.r}">${k.t}</button>`).join('');
+}
+function makeEqBlock(tokens){
+  const div = document.createElement('div');
+  div.className='eq-block';
+  div.innerHTML = `<div class="eq-display">${buildEqHTML(tokens)}</div><p class="feedback"></p>`;
+  return div;
+}
+function wireEqBlock(block, targetRole){
+  block.querySelectorAll('.tok').forEach(t=>{
+    t.addEventListener('click', ()=>{
+      const role = t.dataset.role;
+      const fb = block.querySelector('.feedback');
+      if(targetRole){
+        if(role===targetRole){
+          t.classList.add('correct');
+          fb.className='feedback ok';
+          fb.textContent = `✅ Benar! "${t.textContent}" adalah ${ROLE_LABEL[role]}. ${ROLE_EXPLAIN[role]}`;
+        } else if(role==='operator' || role==='eq'){
+          fb.className='feedback info';
+          fb.textContent = `ℹ️ Itu ${ROLE_LABEL[role].toLowerCase()}, bukan bagian yang dicari. Coba klik angka atau hurufnya.`;
+        } else {
+          t.classList.add('wrong');
+          fb.className='feedback bad';
+          fb.textContent = `❌ "${t.textContent}" itu ${ROLE_LABEL[role]}, bukan ${ROLE_LABEL[targetRole]}. Coba lagi!`;
+          setTimeout(()=>t.classList.remove('wrong'),600);
+        }
+      } else {
+        block.querySelectorAll('.tok').forEach(x=>x.classList.remove('c-teal','c-amber','c-coral','c-navy'));
+        t.classList.add(ROLE_COLOR[role]);
+        fb.className='feedback info';
+        fb.textContent = `${ROLE_LABEL[role]}: ${ROLE_EXPLAIN[role]}`;
+      }
+    });
+  });
+}
+function initEqGroup(containerId, sets){
+  const container = document.getElementById(containerId);
+  const targetRole = container.dataset.target || null;
+  sets.forEach(tokens=>{
+    const block = makeEqBlock(tokens);
+    container.appendChild(block);
+    wireEqBlock(block, targetRole);
+  });
+}
+
+const VAR_EQS = [
+  [tok('x','variable'),tok('+','operator'),tok('6','constant'),tok('=','eq'),tok('14','constant')],
+  [tok('3','coefficient'),tok('y','variable'),tok('−','operator'),tok('2','constant'),tok('=','eq'),tok('10','constant')],
+  [tok('n','variable'),tok('+','operator'),tok('8','constant'),tok('=','eq'),tok('15','constant')],
+];
+const COEF_EQS = [
+  [tok('2','coefficient'),tok('x','variable'),tok('+','operator'),tok('5','constant'),tok('=','eq'),tok('13','constant')],
+  [tok('4','coefficient'),tok('a','variable'),tok('−','operator'),tok('3','constant'),tok('=','eq'),tok('9','constant')],
+  [tok('6','coefficient'),tok('n','variable'),tok('+','operator'),tok('1','constant'),tok('=','eq'),tok('19','constant')],
+];
+const CONST_EQS = [
+  [tok('x','variable'),tok('+','operator'),tok('6','constant'),tok('=','eq'),tok('14','constant')],
+  [tok('2','coefficient'),tok('y','variable'),tok('−','operator'),tok('9','constant'),tok('=','eq'),tok('5','constant')],
+  [tok('4','coefficient'),tok('a','variable'),tok('+','operator'),tok('7','constant'),tok('=','eq'),tok('27','constant')],
+];
+const FULL_EQ = [
+  [tok('5','coefficient'),tok('x','variable'),tok('+','operator'),tok('8','constant'),tok('=','eq'),tok('33','constant')],
+];
+
+initEqGroup('varGroup', VAR_EQS);
+initEqGroup('coefGroup', COEF_EQS);
+initEqGroup('constGroup', CONST_EQS);
+initEqGroup('fullGroup', FULL_EQ);
+
+document.getElementById('revealAllBtn').addEventListener('click', ()=>{
+  document.querySelectorAll('#fullGroup .tok').forEach(t=>{
+    t.classList.add(ROLE_COLOR[t.dataset.role]);
+  });
+  document.querySelector('#fullGroup .feedback').className='feedback info';
+  document.querySelector('#fullGroup .feedback').textContent = '🎨 Semua bagian sudah diwarnai sesuai perannya!';
+});
+
+/* ================= KLASIFIKASI ================= */
+const klasifikasiData = [
+  {text:"x + 5 = 10", answer:"terbuka", explain:"Ada variabel x yang belum diketahui nilainya, jadi belum bisa dipastikan benar/salah."},
+  {text:"3 + 4 = 7", answer:"tertutup", explain:"Semua sudah angka pasti dan sudah bisa dipastikan BENAR."},
+  {text:"2 + 5 = 9", answer:"tertutup", explain:"Semua sudah angka pasti, dan bisa dipastikan SALAH (2+5=7, bukan 9)."},
+  {text:"y − 3 = 8", answer:"terbuka", explain:"Ada variabel y yang nilainya belum diketahui."},
+  {text:"Jakarta ibu kota Indonesia", answer:"tertutup", explain:"Ini pernyataan yang pasti benar, tanpa variabel."},
+  {text:"2a + 1 = 15", answer:"terbuka", explain:"Ada variabel a yang nilainya belum diketahui."},
+];
+let klasScore=0;
+const klasListEl = document.getElementById('klasList');
+klasifikasiData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='klas-item';
+  div.innerHTML = `
+    <div class="klas-text">${i+1}. ${item.text}</div>
+    <div class="klas-btns">
+      <button class="klas-btn" data-val="terbuka">Kalimat Terbuka</button>
+      <button class="klas-btn" data-val="tertutup">Kalimat Tertutup</button>
+    </div>
+    <div class="klas-fb"></div>`;
+  klasListEl.appendChild(div);
+  const btns = div.querySelectorAll('.klas-btn');
+  const fb = div.querySelector('.klas-fb');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const chosen = b.dataset.val;
+      btns.forEach(x=>x.disabled=true);
+      if(chosen===item.answer){
+        b.classList.add('right');
+        klasScore++;
+      } else {
+        b.classList.add('wrongpick');
+        div.querySelector(`[data-val="${item.answer}"]`).classList.add('right');
+      }
+      fb.style.display='block';
+      fb.textContent = (chosen===item.answer ? '✅ Tepat! ' : '❌ Belum tepat. ') + item.explain;
+      document.getElementById('klasScoreChip').textContent = `Skor: ${klasScore} / ${klasifikasiData.length}`;
+    });
+  });
+});
+
+/* ================= PLSV CHECKER ================= */
+const plsvCheckerData = [
+  {expr:"x + 4 = 9", ok:true, reason:"Satu variabel (x) berpangkat 1, memakai tanda '=' → PLSV."},
+  {expr:"2x + 3y = 12", ok:false, reason:"Ada dua variabel berbeda (x dan y) → bukan PLSV, ini persamaan linear dua variabel."},
+  {expr:"5x − 2 > 8", ok:false, reason:"Memakai tanda pertidaksamaan '>', bukan '=' → ini pertidaksamaan, bukan persamaan."},
+  {expr:"x² + 1 = 10", ok:false, reason:"Variabel x berpangkat 2 (kuadrat) → bukan PLSV, karena PLSV harus pangkat 1."},
+  {expr:"7 = 3x − 2", ok:true, reason:"Tetap satu variabel berpangkat 1, walau posisinya di ruas kiri → PLSV."},
+  {expr:"4x = 20", ok:true, reason:"Satu variabel x berpangkat 1, ada tanda '=' → PLSV sederhana (b = 0)."},
+  {expr:"x + y = 10", ok:false, reason:"Dua variabel berbeda (x dan y) → bukan PLSV."},
+  {expr:"9 − x = 3", ok:true, reason:"Satu variabel x berpangkat 1, memakai tanda '=' → PLSV."},
+];
+const checkerListEl = document.getElementById('checkerList');
+plsvCheckerData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='check-item';
+  div.innerHTML = `
+    <div class="check-row">
+      <span class="check-expr">${i+1}. ${item.expr}</span>
+      <button class="btn btn-ghost check-btn" style="padding:8px 16px; font-size:13px;">Klik untuk cek</button>
+    </div>
+    <div class="check-reason"></div>`;
+  checkerListEl.appendChild(div);
+  const btn = div.querySelector('.check-btn');
+  const reasonEl = div.querySelector('.check-reason');
+  btn.addEventListener('click', ()=>{
+    btn.outerHTML = `<span class="verdict ${item.ok?'yes':'no'}">${item.ok?'✅ PLSV':'❌ Bukan PLSV'}</span>`;
+    reasonEl.textContent = item.reason;
+    reasonEl.style.display='block';
+  });
+});
+
+/* ================= BALANCE SCALE + STEP SOLVER ================= */
+function balanceSVG(){
+  return `<svg class="balance-svg" viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <line x1="150" y1="150" x2="150" y2="40" stroke="var(--navy)" stroke-width="6" stroke-linecap="round"/>
+    <polygon points="112,160 188,160 150,128" fill="var(--navy)"/>
+    <line x1="42" y1="40" x2="258" y2="40" stroke="var(--navy)" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="150" cy="40" r="7" fill="var(--amber)"/>
+    <line x1="42" y1="40" x2="42" y2="78" stroke="var(--navy)" stroke-width="3"/>
+    <path d="M17,78 Q42,104 67,78 Z" fill="var(--teal)" opacity="0.85"/>
+    <line x1="258" y1="40" x2="258" y2="78" stroke="var(--navy)" stroke-width="3"/>
+    <path d="M233,78 Q258,104 283,78 Z" fill="var(--coral)" opacity="0.85"/>
+  </svg>`;
+}
+function buildBalanceCard(idx, initLeft, initRight){
+  const el = document.getElementById('balanceCard-'+idx);
+  el.innerHTML = `<div class="balance-wrap">${balanceSVG()}
+    <div class="pan-label left" id="panL-${idx}">${initLeft}</div>
+    <div class="pan-label right" id="panR-${idx}">${initRight}</div>
+  </div><p class="hint" style="margin-top:2px;">⚖️ Kedua ruas selalu seimbang di setiap langkah</p>`;
+}
+function updatePan(idx, side, text){
+  const el = document.getElementById('pan'+side+'-'+idx);
+  el.textContent = text;
+  el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+}
+
+const PROBLEMS = [
+  {
+    left0:'x + 7', right0:'15',
+    steps:[
+      {left:'x + 7 − 7', right:'15 − 7', desc:'Langkah 1: Kurangi kedua ruas dengan 7'},
+      {left:'x', right:'8', desc:'Langkah 2: Sederhanakan kedua ruas'},
+    ],
+    final:'x = 8', check:'Cek: 8 + 7 = 15 ✓ Benar!'
+  },
+  {
+    left0:'3x', right0:'21',
+    steps:[
+      {left:'3x ÷ 3', right:'21 ÷ 3', desc:'Langkah 1: Bagi kedua ruas dengan koefisien x, yaitu 3'},
+      {left:'x', right:'7', desc:'Langkah 2: Sederhanakan kedua ruas'},
+    ],
+    final:'x = 7', check:'Cek: 3 × 7 = 21 ✓ Benar!'
+  },
+  {
+    left0:'2x + 5', right0:'17',
+    steps:[
+      {left:'2x + 5 − 5', right:'17 − 5', desc:'Langkah 1: Kurangi kedua ruas dengan 5'},
+      {left:'2x', right:'12', desc:'Langkah 2: Sederhanakan kedua ruas'},
+      {left:'2x ÷ 2', right:'12 ÷ 2', desc:'Langkah 3: Bagi kedua ruas dengan koefisien x, yaitu 2'},
+      {left:'x', right:'6', desc:'Langkah 4: Sederhanakan kedua ruas'},
+    ],
+    final:'x = 6', check:'Cek: 2 × 6 + 5 = 17 ✓ Benar!'
+  },
+];
+
+PROBLEMS.forEach((p,idx)=>{
+  buildBalanceCard(idx, p.left0, p.right0);
+  const btn = document.getElementById('stepBtn-'+idx);
+  const log = document.getElementById('stepLog-'+idx);
+  const finalBox = document.getElementById('finalBox-'+idx);
+  let stepIdx = 0;
+  btn.addEventListener('click', ()=>{
+    if(stepIdx < p.steps.length){
+      const s = p.steps[stepIdx];
+      updatePan(idx,'L', s.left);
+      updatePan(idx,'R', s.right);
+      const li = document.createElement('li');
+      li.textContent = s.desc + ' → ' + s.left + ' = ' + s.right;
+      log.appendChild(li);
+      stepIdx++;
+      if(stepIdx < p.steps.length){
+        btn.textContent = `▶️ Tampilkan Langkah ${stepIdx+1}`;
+      } else {
+        btn.textContent = '✅ Selesai';
+        btn.disabled = true;
+        finalBox.style.display='block';
+        finalBox.innerHTML = `🎯 ${p.final}<br><span style="font-weight:500; font-size:13px;">${p.check}</span>`;
+      }
+    }
+  });
+});
+
+/* ================= LATIHAN MANDIRI ================= */
+const practiceData = [
+  {q:"x + 9 = 16", a:"x = 7"},
+  {q:"5x = 45", a:"x = 9"},
+  {q:"3x − 4 = 11", a:"x = 5"},
+  {q:"4x − 3 = 21", a:"x = 6"},
+  {q:"20 − x = 8", a:"x = 12"},
+];
+const practiceListEl = document.getElementById('practiceList');
+practiceData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='practice-item';
+  div.innerHTML = `<span class="practice-q">${i+1}. ${item.q}</span>
+    <span><button class="btn btn-ghost reveal-btn" style="padding:8px 16px; font-size:13px;">Lihat Jawaban</button>
+    <span class="practice-a">${item.a}</span></span>`;
+  practiceListEl.appendChild(div);
+  const btn = div.querySelector('.reveal-btn');
+  const ans = div.querySelector('.practice-a');
+  btn.addEventListener('click', ()=>{
+    ans.style.display='inline';
+    btn.style.display='none';
+  });
+});
+
+/* ================= KUIS ================= */
+const quizData = [
+  {q:"Manakah yang disebut variabel pada persamaan 3x + 5 = 20?", opts:["x","3","5","20"], ans:0},
+  {q:"Koefisien dari x pada persamaan 7x − 4 = 10 adalah…", opts:["7","−4","10","x"], ans:0},
+  {q:"Konstanta pada bentuk aljabar 2x + 9 adalah…", opts:["2","9","x","2x"], ans:1},
+  {q:"Manakah di antara berikut yang merupakan kalimat terbuka?", opts:["5 + 3 = 8","x − 2 = 6","10 > 7","Jakarta ibu kota Indonesia"], ans:1},
+  {q:"Bentuk umum Persamaan Linear Satu Variabel (PLSV) adalah…", opts:["ax + b = c","ax + by = c","ax² + b = c","ax + b > c"], ans:0},
+  {q:"Penyelesaian dari x + 12 = 19 adalah…", opts:["31","6","7","8"], ans:2},
+  {q:"Penyelesaian dari 4x = 32 adalah…", opts:["6","7","8","9"], ans:2},
+  {q:"Manakah persamaan berikut yang BUKAN termasuk PLSV?", opts:["x + 5 = 10","2x = 8","x² + 1 = 5","3x − 2 = 7"], ans:2},
+];
+let quizScore = 0;
+let quizAnswered = 0;
+const quizListEl = document.getElementById('quizList');
+quizData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='quiz-item';
+  div.innerHTML = `<div class="quiz-q">${i+1}. ${item.q}</div>
+    <div class="quiz-opts">${item.opts.map((o,oi)=>`<button class="quiz-opt" data-idx="${oi}">${o}</button>`).join('')}</div>`;
+  quizListEl.appendChild(div);
+  const opts = div.querySelectorAll('.quiz-opt');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const chosenIdx = parseInt(opt.dataset.idx);
+      opts.forEach(o=>o.disabled=true);
+      opts[item.ans].classList.add('correct');
+      if(chosenIdx===item.ans){
+        quizScore++;
+      } else {
+        opt.classList.add('wrong');
+      }
+      quizAnswered++;
+      document.getElementById('quizScoreText').textContent = `Skor: ${quizScore} / ${quizData.length}`;
+    });
+  });
+});
+
+document.getElementById('quizResultBtn').addEventListener('click', ()=>{
+  const panel = document.getElementById('quizResult');
+  const pct = quizScore/quizData.length;
+  let msg, bg, col;
+  if(pct>=0.85){ msg='🌟 Luar Biasa! Kamu sudah sangat memahami PLSV!'; bg='var(--green-soft)'; col='#1f6b3d'; }
+  else if(pct>=0.6){ msg='👍 Bagus! Sedikit lagi, terus berlatih ya.'; bg='var(--amber-soft)'; col='#8a5c0d'; }
+  else { msg='💪 Yuk pelajari lagi materinya, kamu pasti bisa!'; bg='var(--coral-soft)'; col='var(--coral)'; }
+  panel.style.display='block';
+  panel.style.background=bg;
+  panel.innerHTML = `<div style="font-family:var(--font-display); font-size:26px; font-weight:700; color:${col};">Skor Akhir: ${quizScore} / ${quizData.length}</div><p style="margin:8px 0 0; color:${col}; font-size:15px;">${msg}</p>`;
+  document.getElementById('finalScoreChip').textContent = `🏆 Skor kuis kamu: ${quizScore} / ${quizData.length}`;
+});
+</script>
+</body>
+</html>

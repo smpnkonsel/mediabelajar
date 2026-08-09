@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bab 3 — Konsep Dasar Citra Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#080c17;
+  --bg-surface:#111a2e;
+  --bg-surface-2:#182543;
+  --bg-surface-3:#1f2f54;
+  --line:rgba(255,255,255,.09);
+  --line-soft:rgba(255,255,255,.05);
+  --text:#eaf0fb;
+  --text-muted:#8b9ac2;
+  --text-dim:#5c6a90;
+  --cyan:#4cc9f0;
+  --cyan-dim:rgba(76,201,240,.14);
+  --amber:#ffb454;
+  --amber-dim:rgba(255,180,84,.14);
+  --r:#ff5d6c;
+  --g:#4ce68a;
+  --b:#5d9dff;
+  --r-dim:rgba(255,93,108,.14);
+  --g-dim:rgba(76,230,138,.14);
+  --b-dim:rgba(93,157,255,.14);
+  --radius:18px;
+  --radius-sm:12px;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Plus Jakarta Sans',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --nav-h:84px;
+  --progress-h:5px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg-deep);}
+body{
+  font-family:var(--body);
+  color:var(--text);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(76,201,240,.07), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(255,180,84,.06), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 34px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 34px);
+}
+::selection{background:var(--cyan);color:#04121c;}
+h1,h2,h3{font-family:var(--disp);margin:0;letter-spacing:-.01em;}
+p{margin:0;}
+button{font-family:var(--body);cursor:pointer;border:none;background:none;color:inherit;}
+.mono{font-family:var(--mono);}
+
+/* ---------- progress bar ---------- */
+.progress-bar{position:fixed;top:0;left:0;width:100%;height:var(--progress-h);background:rgba(255,255,255,.06);z-index:60;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(76,201,240,.6);}
+
+/* ---------- deck ---------- */
+.slide-deck{position:fixed;top:0;left:0;width:100%;height:calc(100% - var(--nav-h));padding-top:var(--progress-h);overflow:hidden;}
+.slide{
+  position:absolute;inset:0;top:var(--progress-h);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:38px 6vw 30px;
+  opacity:0;visibility:hidden;
+  transform:translateX(40px) scale(.98);
+  transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1), visibility 0s linear .5s;
+  overflow-y:auto;
+}
+.slide.active{opacity:1;visibility:visible;transform:translateX(0) scale(1);transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1), visibility 0s;}
+.slide.prev-out{transform:translateX(-40px) scale(.98);}
+.slide-inner{width:100%;max-width:1080px;margin:0 auto;}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(76,201,240,.3);
+  padding:6px 14px;border-radius:100px;margin-bottom:18px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.slide-title{font-size:clamp(26px,4vw,42px);font-weight:700;line-height:1.12;margin-bottom:10px;}
+.slide-title .accent{color:var(--cyan);}
+.slide-title .accent2{color:var(--amber);}
+.slide-sub{font-size:clamp(14px,1.6vw,17px);color:var(--text-muted);max-width:680px;line-height:1.6;margin-bottom:28px;}
+.slide-num-tag{position:absolute;top:26px;right:6vw;font-family:var(--mono);font-size:13px;color:var(--text-dim);}
+
+/* ---------- card system ---------- */
+.card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;}
+.card-tight{padding:16px 18px;}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:820px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+/* ---------- cover ---------- */
+#slide-0 .slide-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.pixel-hero{width:min(78vw,300px);height:min(78vw,300px);display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:3px;margin:0 auto 30px;}
+.pixel-hero div{border-radius:3px;background:var(--bg-surface-2);opacity:0;transform:scale(.3);animation:pxin .5s cubic-bezier(.2,1.4,.4,1) forwards;}
+@keyframes pxin{to{opacity:1;transform:scale(1);}}
+.cover-kicker{font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:14px;}
+.cover-title{font-size:clamp(30px,5.6vw,58px);font-weight:700;line-height:1.08;margin-bottom:16px;}
+.cover-title span{background:linear-gradient(90deg,var(--cyan),#8de8ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.cover-desc{color:var(--text-muted);max-width:560px;font-size:16px;line-height:1.7;margin-bottom:8px;}
+.cover-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.chip{font-family:var(--mono);font-size:12.5px;padding:7px 13px;border-radius:100px;border:1px solid var(--line);color:var(--text-muted);}
+
+/* ---------- peta materi ---------- */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:820px){.map-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.map-grid{grid-template-columns:1fr;}}
+.map-item{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;cursor:pointer;transition:.2s;position:relative;overflow:hidden;}
+.map-item:hover{border-color:rgba(76,201,240,.5);transform:translateY(-2px);background:var(--bg-surface-2);}
+.map-item .num{font-family:var(--mono);color:var(--cyan);font-size:12px;}
+.map-item .lbl{font-weight:600;font-size:14.5px;margin-top:6px;line-height:1.35;}
+
+/* ---------- definisi slide ---------- */
+.define-box{display:flex;gap:22px;align-items:flex-start;}
+.define-visual{flex:0 0 200px;height:200px;border-radius:var(--radius);background:var(--bg-surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.define-text{flex:1;font-size:16px;line-height:1.75;color:#d7deef;}
+.define-text b{color:var(--cyan);font-weight:600;}
+@media(max-width:720px){.define-box{flex-direction:column;}.define-visual{width:100%;flex-basis:auto;}}
+.compare-row{display:flex;gap:18px;margin-top:20px;}
+.compare-col{flex:1;background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:16px;}
+.compare-col h4{font-size:14px;color:var(--amber);margin-bottom:8px;font-family:var(--disp);}
+@media(max-width:720px){.compare-row{flex-direction:column;}}
+
+/* ---------- bitmap vs vektor ---------- */
+.zoom-panels{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:780px){.zoom-panels{grid-template-columns:1fr;}}
+.zoom-panel{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+.zoom-stage{height:180px;background:#050912;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border:1px solid var(--line-soft);}
+.zoom-panel h4{font-size:14.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.tag-small{font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:100px;}
+.tag-r{background:var(--r-dim);color:var(--r);}
+.tag-b{background:var(--b-dim);color:var(--b);}
+.zoom-controls{display:flex;align-items:center;gap:10px;margin-top:12px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:10px;background:var(--bg-surface-3);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 0 4px rgba(76,201,240,.2);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+.zoom-val{font-family:var(--mono);font-size:12px;color:var(--text-muted);min-width:44px;text-align:right;}
+.zoom-note{font-size:12.5px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+
+/* raster canvas rendering */
+#rasterCanvas{image-rendering:pixelated;image-rendering:crisp-edges;}
+
+/* ---------- piksel draw ---------- */
+.pixel-lab{display:flex;gap:22px;flex-wrap:wrap;justify-content:center;}
+.pixel-grid{display:grid;grid-template-columns:repeat(14,1fr);gap:2px;width:min(72vw,340px);height:min(72vw,340px);background:#050912;padding:6px;border-radius:12px;border:1px solid var(--line);}
+.pixel-grid div{background:var(--bg-surface-2);border-radius:2px;cursor:pointer;transition:transform .08s;}
+.pixel-grid div:hover{transform:scale(1.12);}
+.pixel-palette{display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;}
+.pal-row{display:flex;gap:8px;flex-wrap:wrap;max-width:180px;justify-content:center;}
+.pal-swatch{width:30px;height:30px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:.15s;}
+.pal-swatch.active{border-color:#fff;transform:scale(1.1);}
+.pixel-info{font-family:var(--mono);font-size:12px;color:var(--text-muted);text-align:center;line-height:1.7;}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 20px;border-radius:100px;font-weight:600;font-size:14px;
+  background:var(--bg-surface-2);border:1px solid var(--line);color:var(--text);transition:.2s;
+}
+.btn:hover{border-color:rgba(76,201,240,.5);background:var(--bg-surface-3);}
+.btn-primary{background:var(--cyan);color:#04121c;border-color:var(--cyan);}
+.btn-primary:hover{background:#6bd6f7;}
+.btn-amber{background:var(--amber);color:#241300;border-color:var(--amber);}
+.btn-amber:hover{background:#ffc472;}
+.btn-sm{padding:8px 15px;font-size:12.5px;}
+
+/* ---------- resolusi ---------- */
+.res-wrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.res-stage{width:260px;height:260px;background:#050912;border-radius:16px;border:1px solid var(--line);}
+.res-panel{flex:1;min-width:240px;}
+.res-readout{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;}
+.readout-box{background:var(--bg-surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:110px;}
+.readout-box .k{font-size:11px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;}
+.readout-box .v{font-family:var(--mono);font-size:16px;color:var(--cyan);margin-top:2px;}
+
+/* ---------- bit depth ---------- */
+.depth-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.depth-btn{padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg-surface);font-family:var(--mono);font-size:13px;color:var(--text-muted);transition:.15s;}
+.depth-btn.active{background:var(--cyan-dim);border-color:var(--cyan);color:var(--cyan);}
+.swatch-strip{display:flex;flex-wrap:wrap;gap:4px;min-height:64px;align-items:center;background:#050912;border-radius:12px;padding:10px;border:1px solid var(--line-soft);}
+.swatch-strip div{width:22px;height:22px;border-radius:4px;flex:0 0 auto;}
+.depth-formula{font-family:var(--mono);font-size:15px;color:var(--amber);margin-top:14px;text-align:center;background:var(--amber-dim);padding:10px;border-radius:10px;}
+
+/* ---------- ukuran file calc ---------- */
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+@media(max-width:780px){.calc-grid{grid-template-columns:1fr;}}
+.calc-row{margin-bottom:18px;}
+.calc-row label{display:flex;justify-content:space-between;font-size:13px;color:var(--text-muted);margin-bottom:8px;}
+.calc-row label b{color:var(--text);font-family:var(--mono);}
+.calc-result{display:flex;flex-direction:column;gap:10px;justify-content:center;}
+.result-bar-wrap{background:var(--bg-surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+.result-bar-wrap .k{font-size:11px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;}
+.result-bar-wrap .v{font-family:var(--mono);font-size:22px;color:var(--amber);margin-top:2px;}
+.result-formula{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);text-align:center;margin-top:6px;}
+
+/* ---------- format cards ---------- */
+.fmt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:820px){.fmt-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.fmt-grid{grid-template-columns:1fr;}}
+.flip-card{perspective:1200px;height:168px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.1,.3,1);transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius-sm);border:1px solid var(--line);padding:16px;display:flex;flex-direction:column;}
+.flip-front{background:var(--bg-surface);align-items:center;justify-content:center;text-align:center;gap:8px;}
+.flip-front .fmt-ext{font-family:var(--mono);font-weight:700;font-size:20px;letter-spacing:.03em;}
+.flip-front .fmt-name{font-size:12px;color:var(--text-muted);}
+.flip-front .tap-hint{font-size:10.5px;color:var(--text-dim);margin-top:auto;font-family:var(--mono);}
+.flip-back{background:var(--bg-surface-2);transform:rotateY(180deg);justify-content:center;}
+.flip-back .fmt-pt{font-size:12px;line-height:1.55;color:#d7deef;margin-bottom:5px;padding-left:14px;position:relative;}
+.flip-back .fmt-pt:before{content:"›";position:absolute;left:0;color:var(--cyan);}
+
+/* ---------- contoh soal ---------- */
+.soal-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 26px;}
+.soal-badge{font-family:var(--mono);font-size:11.5px;color:var(--bg-deep);background:var(--amber);padding:4px 10px;border-radius:100px;font-weight:700;display:inline-block;margin-bottom:14px;}
+.soal-text{font-size:16px;line-height:1.75;color:#e4e9f7;margin-bottom:18px;}
+.soal-text b{color:var(--amber);}
+.soal-answer{max-height:0;overflow:hidden;transition:max-height .5s ease;border-top:1px dashed var(--line);}
+.soal-answer.open{max-height:600px;padding-top:16px;}
+.soal-step{display:flex;gap:12px;margin-bottom:10px;font-size:14.5px;line-height:1.6;color:#cfd7ee;}
+.soal-step .n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--cyan-dim);color:var(--cyan);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;}
+.soal-final{margin-top:12px;font-family:var(--mono);color:var(--g);background:var(--g-dim);padding:10px 14px;border-radius:10px;font-size:14px;}
+
+/* ---------- kuis ---------- */
+.quiz-shell{width:100%;max-width:640px;}
+.quiz-progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;font-family:var(--mono);font-size:12.5px;color:var(--text-muted);}
+.quiz-score-pill{background:var(--amber-dim);color:var(--amber);padding:4px 12px;border-radius:100px;}
+.quiz-q-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+.quiz-q-text{font-size:17px;font-weight:600;margin-bottom:18px;line-height:1.5;}
+.quiz-opt{display:block;width:100%;text-align:left;padding:13px 16px;border-radius:12px;border:1px solid var(--line);background:var(--bg-surface-2);margin-bottom:10px;font-size:14.5px;transition:.15s;}
+.quiz-opt:hover{border-color:rgba(76,201,240,.5);}
+.quiz-opt.correct{background:var(--g-dim);border-color:var(--g);color:var(--g);}
+.quiz-opt.wrong{background:var(--r-dim);border-color:var(--r);color:var(--r);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-explain{margin-top:14px;padding:12px 14px;background:var(--bg-surface-2);border-radius:10px;font-size:13.5px;color:var(--text-muted);line-height:1.6;display:none;}
+.quiz-explain.show{display:block;}
+.quiz-next-row{margin-top:18px;text-align:right;}
+.quiz-summary{text-align:center;padding:20px 0;}
+.quiz-summary .big-score{font-family:var(--disp);font-size:52px;color:var(--cyan);}
+.quiz-summary .msg{color:var(--text-muted);margin-top:10px;font-size:14.5px;}
+
+/* ---------- rangkuman ---------- */
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:820px){.sum-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.sum-grid{grid-template-columns:1fr;}}
+.sum-chip{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px;cursor:pointer;transition:.2s;}
+.sum-chip:hover{border-color:rgba(76,201,240,.5);background:var(--bg-surface-2);}
+.sum-chip .t{font-weight:700;font-size:14px;color:var(--cyan);margin-bottom:6px;}
+.sum-chip .d{font-size:12.5px;color:var(--text-muted);line-height:1.5;max-height:0;overflow:hidden;transition:max-height .35s;}
+.sum-chip.open .d{max-height:200px;margin-top:4px;}
+
+/* ---------- penutup ---------- */
+#slide-15 .slide-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.done-ring{width:110px;height:110px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;margin-bottom:24px;box-shadow:0 0 30px rgba(76,230,138,.25);}
+.done-ring svg{width:46px;height:46px;}
+
+/* ---------- bottom nav ---------- */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;width:100%;height:var(--nav-h);
+  background:rgba(8,12,23,.9);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;z-index:50;gap:14px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:100px;
+  background:var(--bg-surface);border:1px solid var(--line);font-weight:600;font-size:14px;
+  min-height:46px;transition:.15s;
+}
+.nav-btn:hover:not(:disabled){border-color:rgba(76,201,240,.5);background:var(--bg-surface-2);}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.nav-center{display:flex;align-items:center;gap:14px;}
+.slide-counter{font-family:var(--mono);font-size:13px;color:var(--text-muted);min-width:56px;text-align:center;}
+.menu-btn{
+  display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;
+  background:var(--bg-surface);border:1px solid var(--line);
+}
+.menu-btn:hover{border-color:rgba(76,201,240,.5);}
+@media(max-width:600px){.nav-btn span.lbl{display:none;}.nav-btn{padding:12px;}}
+
+/* ---------- slide menu overlay ---------- */
+.menu-overlay{position:fixed;inset:0;background:rgba(4,7,15,.85);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px;}
+.menu-overlay.show{display:flex;}
+.menu-panel{background:var(--bg-surface);border:1px solid var(--line);border-radius:20px;padding:22px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;}
+.menu-panel h3{font-size:18px;margin-bottom:16px;}
+.menu-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:560px){.menu-list{grid-template-columns:1fr;}}
+.menu-list button{
+  text-align:left;padding:11px 14px;border-radius:10px;background:var(--bg-surface-2);border:1px solid transparent;font-size:13.5px;display:flex;gap:10px;align-items:center;
+}
+.menu-list button:hover{border-color:rgba(76,201,240,.5);}
+.menu-list button.current{border-color:var(--cyan);color:var(--cyan);}
+.menu-list .idx{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+.menu-close{position:absolute;top:20px;right:20px;}
+
+/* scrollbar */
+.slide::-webkit-scrollbar{width:7px;}
+.slide::-webkit-scrollbar-thumb{background:var(--bg-surface-3);border-radius:10px;}
+.menu-panel::-webkit-scrollbar{width:7px;}
+.menu-panel::-webkit-scrollbar-thumb{background:var(--bg-surface-3);border-radius:10px;}
+
+@media(max-width:600px){
+  :root{--nav-h:76px;}
+  .slide{padding:26px 5vw 24px;}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="slide-deck" id="slideDeck">
+
+<!-- SLIDE 0 — COVER -->
+<section class="slide" id="slide-0">
+  <div class="slide-inner">
+    <div class="pixel-hero" id="pixelHero"></div>
+    <div class="cover-kicker">Informatika · SMP</div>
+    <h1 class="cover-title">Bab 3 — Sistem Pengolahan<br>dan Pengubahan <span>Citra</span></h1>
+    <p class="cover-desc">Topik: Konsep Dasar Citra Digital. Pengertian citra digital, jenis citra, piksel, resolusi, ukuran file, dan format gambar — lengkap dengan simulasi interaktif, contoh soal, dan kuis.</p>
+    <div class="cover-chips">
+      <div class="chip">🖱️ Klik &amp; Interaksi</div>
+      <div class="chip">📝 Contoh Soal</div>
+      <div class="chip">🎯 Kuis Latihan</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 1 — PETA MATERI -->
+<section class="slide" id="slide-1">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Peta Materi</div>
+    <h2 class="slide-title">Yuk, lihat apa saja yang akan kita pelajari</h2>
+    <p class="slide-sub">Klik salah satu topik untuk langsung meloncat ke sana, atau lanjutkan urut dengan tombol navigasi di bawah.</p>
+    <div class="map-grid" id="mapGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 2 — PENGERTIAN -->
+<section class="slide" id="slide-2">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.1 Pengertian</div>
+    <h2 class="slide-title">Apa itu <span class="accent">Citra Digital</span>?</h2>
+    <div class="define-box">
+      <div class="define-visual">
+        <div id="analogDigitalCanvas"></div>
+      </div>
+      <div class="define-text">
+        <p><b>Citra digital</b> adalah representasi visual dari suatu objek (foto, gambar, ilustrasi) yang disimpan dan diolah oleh komputer dalam bentuk data digital berupa deretan angka biner (0 dan 1).</p>
+        <p style="margin-top:10px;">Berbeda dengan citra analog (misalnya lukisan di kanvas atau foto cetak) yang bersifat kontinu, citra digital bersifat <b>diskrit</b> — artinya tersusun dari satuan-satuan kecil yang jumlahnya terbatas dan bisa dihitung.</p>
+      </div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-col">
+        <h4>🖼️ Citra Analog</h4>
+        <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6;">Kontinu, tidak tersusun dari satuan terpisah. Contoh: lukisan cat minyak, foto hasil cuci-cetak film.</p>
+      </div>
+      <div class="compare-col">
+        <h4>💻 Citra Digital</h4>
+        <p style="font-size:13.5px;color:var(--text-muted);line-height:1.6;">Diskrit, tersusun dari kumpulan piksel dengan nilai warna tertentu. Contoh: foto dari kamera HP, gambar di layar komputer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3 — BITMAP VS VEKTOR -->
+<section class="slide" id="slide-3">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.2 Jenis Citra</div>
+    <h2 class="slide-title">Citra <span class="accent">Bitmap</span> vs Citra <span class="accent2">Vektor</span></h2>
+    <p class="slide-sub">Geser slider zoom pada kedua panel untuk melihat apa yang terjadi saat gambar diperbesar.</p>
+    <div class="zoom-panels">
+      <div class="zoom-panel">
+        <h4>🔳 Bitmap / Raster <span class="tag-small tag-r">JPG · PNG · BMP</span></h4>
+        <div class="zoom-stage"><canvas id="rasterCanvas" width="140" height="140" style="width:140px;height:140px;"></canvas></div>
+        <div class="zoom-controls"><input type="range" id="rasterZoom" min="1" max="6" step="1" value="1"><span class="zoom-val" id="rasterZoomVal">1×</span></div>
+        <p class="zoom-note">Tersusun dari grid piksel. Saat diperbesar, kotak-kotak pikselnya mulai terlihat jelas dan tepi gambar menjadi kasar (pecah).</p>
+      </div>
+      <div class="zoom-panel">
+        <h4>🔺 Vektor <span class="tag-small tag-b">SVG · AI · EPS</span></h4>
+        <div class="zoom-stage"><svg id="vectorSvg" width="140" height="140" viewBox="0 0 140 140"><polygon points="70,20 115,110 25,110" fill="#5d9dff" style="transform-origin:70px 70px;transition:transform .2s;"></polygon><circle cx="70" cy="70" r="8" fill="#4cc9f0" style="transform-origin:70px 70px;transition:transform .2s;"></circle></svg></div>
+        <div class="zoom-controls"><input type="range" id="vectorZoom" min="1" max="6" step="1" value="1"><span class="zoom-val" id="vectorZoomVal">1×</span></div>
+        <p class="zoom-note">Tersusun dari rumus matematis (titik, garis, kurva). Saat diperbesar, bentuknya tetap halus dan tajam — tidak pecah.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 4 — PIKSEL -->
+<section class="slide" id="slide-4">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.3 Piksel</div>
+    <h2 class="slide-title">Apa itu <span class="accent">Piksel</span>?</h2>
+    <p class="slide-sub"><b style="color:var(--text);">Piksel (picture element)</b> adalah satuan terkecil pembentuk citra digital, berbentuk kotak kecil yang memiliki satu nilai warna. Ribuan hingga jutaan piksel tersusun dalam grid membentuk sebuah gambar utuh. Coba gambar sesuatu di grid piksel berikut!</p>
+    <div class="pixel-lab">
+      <div class="pixel-grid" id="pixelGrid"></div>
+      <div class="pixel-palette">
+        <div class="pal-row" id="palRow"></div>
+        <button class="btn btn-sm" id="clearPixels">🗑️ Bersihkan</button>
+        <div class="pixel-info" id="pixelInfo">Grid 14 × 14 = 196 piksel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5 — RESOLUSI -->
+<section class="slide" id="slide-5">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.4 Resolusi</div>
+    <h2 class="slide-title">Semakin Tinggi <span class="accent">Resolusi</span>, Semakin Detail</h2>
+    <p class="slide-sub"><b style="color:var(--text);">Resolusi</b> adalah jumlah piksel yang menyusun sebuah citra, biasanya ditulis lebar × tinggi (misalnya 1920 × 1080). Geser slider untuk melihat pengaruh jumlah piksel terhadap ketajaman gambar.</p>
+    <div class="res-wrap">
+      <canvas id="resCanvas" class="res-stage" width="260" height="260"></canvas>
+      <div class="res-panel">
+        <input type="range" id="resSlider" min="4" max="48" step="1" value="6" style="width:100%;">
+        <div class="res-readout">
+          <div class="readout-box"><div class="k">Grid</div><div class="v" id="resGridVal">6 × 6</div></div>
+          <div class="readout-box"><div class="k">Total Piksel</div><div class="v" id="resPixelVal">36</div></div>
+        </div>
+        <p style="font-size:12.5px;color:var(--text-dim);margin-top:14px;line-height:1.6;">Untuk kebutuhan cetak, ketajaman citra biasa diukur dalam <b class="mono" style="color:var(--amber);">PPI</b> (pixel per inch) atau <b class="mono" style="color:var(--amber);">DPI</b> (dots per inch) — semakin besar nilainya, semakin tajam hasil cetakan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6 — BIT DEPTH -->
+<section class="slide" id="slide-6">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.5 Kedalaman Warna</div>
+    <h2 class="slide-title">Kedalaman Warna <span class="accent2">(Bit Depth)</span></h2>
+    <p class="slide-sub"><b style="color:var(--text);">Kedalaman warna</b> adalah jumlah bit yang dipakai untuk menyimpan nilai warna tiap piksel. Semakin banyak bit, semakin banyak variasi warna yang bisa ditampilkan. Klik salah satu opsi:</p>
+    <div class="depth-btns" id="depthBtns"></div>
+    <div class="swatch-strip" id="swatchStrip"></div>
+    <div class="depth-formula" id="depthFormula">2⁸ = 256 warna</div>
+  </div>
+</section>
+
+<!-- SLIDE 7 — UKURAN FILE -->
+<section class="slide" id="slide-7">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.6 Ukuran File</div>
+    <h2 class="slide-title">Menghitung <span class="accent">Ukuran File</span> Citra</h2>
+    <p class="slide-sub">Ukuran file citra (tanpa kompresi) dipengaruhi oleh resolusi dan kedalaman warna. Coba ubah nilainya:</p>
+    <div class="calc-grid">
+      <div class="card">
+        <div class="calc-row">
+          <label>Lebar (piksel) <b id="calcWVal">640</b></label>
+          <input type="range" id="calcW" min="100" max="1920" step="10" value="640">
+        </div>
+        <div class="calc-row">
+          <label>Tinggi (piksel) <b id="calcHVal">480</b></label>
+          <input type="range" id="calcH" min="100" max="1080" step="10" value="480">
+        </div>
+        <div class="calc-row">
+          <label>Kedalaman Warna (bit) <b id="calcDVal">24</b></label>
+          <input type="range" id="calcD" min="1" max="32" step="1" value="24">
+        </div>
+      </div>
+      <div class="calc-result">
+        <div class="result-bar-wrap"><div class="k">Ukuran (bit)</div><div class="v" id="outBit">7.372.800 bit</div></div>
+        <div class="result-bar-wrap"><div class="k">Ukuran (byte)</div><div class="v" id="outByte">921.600 B</div></div>
+        <div class="result-bar-wrap"><div class="k">Ukuran (KB / MB)</div><div class="v" id="outKB">900 KB / 0.88 MB</div></div>
+        <p class="result-formula">Rumus: ukuran (bit) = lebar × tinggi × kedalaman warna</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8 — FORMAT FILE -->
+<section class="slide" id="slide-8">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.7 Format File</div>
+    <h2 class="slide-title">Mengenal <span class="accent">Format File Gambar</span></h2>
+    <p class="slide-sub">Klik tiap kartu untuk melihat karakteristiknya.</p>
+    <div class="fmt-grid" id="fmtGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 9 — CONTOH SOAL 1 -->
+<section class="slide" id="slide-9">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 1 dari 4</div>
+    <h2 class="slide-title">Menghitung Total Piksel</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL</div>
+      <p class="soal-text">Sebuah foto memiliki resolusi <b>800 × 600 piksel</b>. Berapa jumlah total piksel yang menyusun foto tersebut?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Resolusi ditulis sebagai lebar × tinggi, artinya lebar = 800 piksel dan tinggi = 600 piksel.</div>
+        <div class="soal-step"><span class="n">2</span>Total piksel = lebar × tinggi = 800 × 600.</div>
+        <div class="soal-final">Jawaban: 800 × 600 = 480.000 piksel</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10 — CONTOH SOAL 2 -->
+<section class="slide" id="slide-10">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 2 dari 4</div>
+    <h2 class="slide-title">Menghitung Ukuran File</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL</div>
+      <p class="soal-text">Sebuah citra berukuran <b>640 × 480 piksel</b> dengan kedalaman warna <b>24-bit (true color)</b>. Berapa perkiraan ukuran file citra tersebut dalam KB (tanpa kompresi)?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Ukuran (bit) = lebar × tinggi × kedalaman warna = 640 × 480 × 24 = 7.372.800 bit.</div>
+        <div class="soal-step"><span class="n">2</span>Ubah ke byte (1 byte = 8 bit): 7.372.800 ÷ 8 = 921.600 byte.</div>
+        <div class="soal-step"><span class="n">3</span>Ubah ke kilobyte (1 KB = 1024 byte): 921.600 ÷ 1024 ≈ 900 KB.</div>
+        <div class="soal-final">Jawaban: kurang lebih 900 KB</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11 — CONTOH SOAL 3 -->
+<section class="slide" id="slide-11">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 3 dari 4</div>
+    <h2 class="slide-title">Jumlah Variasi Warna</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL</div>
+      <p class="soal-text">Sebuah gambar disimpan dengan kedalaman warna <b>8-bit</b>. Berapa banyak variasi warna yang dapat ditampilkan oleh gambar tersebut?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Jumlah variasi warna dihitung dengan rumus 2 pangkat kedalaman warna (2ⁿ).</div>
+        <div class="soal-step"><span class="n">2</span>Kedalaman warna n = 8, maka jumlah warna = 2⁸.</div>
+        <div class="soal-step"><span class="n">3</span>2⁸ = 2×2×2×2×2×2×2×2 = 256.</div>
+        <div class="soal-final">Jawaban: 256 variasi warna</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12 — CONTOH SOAL 4 -->
+<section class="slide" id="slide-12">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 4 dari 4</div>
+    <h2 class="slide-title">Memilih Format yang Tepat</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL — STUDI KASUS</div>
+      <p class="soal-text">Dita ingin membuat <b>logo sekolah</b> yang nantinya akan dicetak dalam berbagai ukuran, mulai dari kartu nama sampai spanduk besar, tanpa gambar pecah atau buram. Format file apa yang paling tepat digunakan Dita, dan mengapa?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Logo akan digunakan pada berbagai ukuran, dari sangat kecil hingga sangat besar.</div>
+        <div class="soal-step"><span class="n">2</span>Citra bitmap (JPG/PNG) akan pecah dan buram jika diperbesar jauh melebihi resolusi aslinya.</div>
+        <div class="soal-step"><span class="n">3</span>Citra vektor (seperti SVG) tersusun dari rumus matematis sehingga tetap tajam pada ukuran berapa pun (scalable).</div>
+        <div class="soal-final">Jawaban: format vektor, misalnya SVG — karena sifatnya scalable dan tidak kehilangan kualitas saat diperbesar.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 13 — KUIS -->
+<section class="slide" id="slide-13">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Kuis Interaktif</div>
+    <h2 class="slide-title">Uji Pemahamanmu 🎯</h2>
+    <div class="quiz-shell">
+      <div class="quiz-progress-row">
+        <span id="quizProgress">Soal 1 dari 8</span>
+        <span class="quiz-score-pill" id="quizScorePill">Skor: 0</span>
+      </div>
+      <div class="quiz-q-card" id="quizCard"></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 14 — RANGKUMAN -->
+<section class="slide" id="slide-14">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+    <h2 class="slide-title">Poin-Poin Penting</h2>
+    <p class="slide-sub">Klik tiap kartu untuk membuka kembali penjelasan singkatnya.</p>
+    <div class="sum-grid" id="sumGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 15 — PENUTUP -->
+<section class="slide" id="slide-15">
+  <div class="slide-inner">
+    <div class="done-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#4ce68a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="cover-kicker">Selesai</div>
+    <h2 class="slide-title">Materi Konsep Dasar Citra Digital<br>Sudah Kamu Pelajari!</h2>
+    <p class="cover-desc">Kamu sudah mempelajari pengertian citra digital, jenis citra, piksel, resolusi, kedalaman warna, ukuran file, dan format gambar. Lanjutkan ke topik berikutnya di halaman Bab 3.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:26px;">
+      <button class="btn" onclick="goTo(0)">↺ Ulangi Presentasi</button>
+      <a class="btn btn-primary" href="info-bab3.html">✅ Selesai — Kembali ke Bab 3</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹ <span class="lbl">Sebelumnya</span></button>
+  <div class="nav-center">
+    <button class="menu-btn" onclick="openMenu()" title="Daftar Slide">☰</button>
+    <span class="slide-counter" id="slideCounter">01 / 16</span>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()"><span class="lbl">Berikutnya</span> ›</button>
+</nav>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h3>📑 Daftar Slide</h3>
+    <div class="menu-list" id="menuList"></div>
+    <button class="btn" style="margin-top:16px;width:100%;justify-content:center;" onclick="closeMenu()">Tutup</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+var slideTitles = [
+  "Cover","Peta Materi","Pengertian Citra Digital","Bitmap vs Vektor","Piksel",
+  "Resolusi Citra","Kedalaman Warna","Ukuran File Citra","Format File Gambar",
+  "Contoh Soal 1","Contoh Soal 2","Contoh Soal 3","Contoh Soal 4",
+  "Kuis Interaktif","Rangkuman","Penutup"
+];
+var total = slideTitles.length;
+var current = 0;
+
+/* ===================== NAVIGATION ===================== */
+function render(){
+  var slides = document.querySelectorAll('.slide');
+  slides.forEach(function(s,i){
+    s.classList.remove('active');
+    if(i===current) s.classList.add('active');
+  });
+  document.getElementById('progressFill').style.width = ((current+1)/total*100)+'%';
+  document.getElementById('slideCounter').textContent = String(current+1).padStart(2,'0')+' / '+total;
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  updateMenuHighlight();
+  if(current===13) initQuizIfNeeded();
+}
+function goTo(n){
+  if(n<0||n>=total) return;
+  current = n;
+  render();
+  closeMenu();
+}
+function nextSlide(){ if(current<total-1){ current++; render(); } }
+function prevSlide(){ if(current>0){ current--; render(); } }
+
+document.addEventListener('keydown', function(e){
+  if(document.getElementById('menuOverlay').classList.contains('show')){
+    if(e.key==='Escape') closeMenu();
+    return;
+  }
+  if(e.key==='ArrowRight' || e.key===' ') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+/* touch swipe */
+var touchStartX=0;
+document.getElementById('slideDeck').addEventListener('touchstart', function(e){ touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+document.getElementById('slideDeck').addEventListener('touchend', function(e){
+  var dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 60){ dx < 0 ? nextSlide() : prevSlide(); }
+}, {passive:true});
+
+/* ===================== MENU OVERLAY ===================== */
+function buildMenu(){
+  var list = document.getElementById('menuList');
+  list.innerHTML = '';
+  slideTitles.forEach(function(t,i){
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="idx">'+String(i+1).padStart(2,'0')+'</span> '+t;
+    b.onclick = function(){ goTo(i); };
+    b.dataset.idx = i;
+    list.appendChild(b);
+  });
+}
+function updateMenuHighlight(){
+  document.querySelectorAll('#menuList button').forEach(function(b){
+    b.classList.toggle('current', parseInt(b.dataset.idx)===current);
+  });
+}
+function openMenu(){ document.getElementById('menuOverlay').classList.add('show'); }
+function closeMenu(){ document.getElementById('menuOverlay').classList.remove('show'); }
+document.getElementById('menuOverlay').addEventListener('click', function(e){
+  if(e.target===this) closeMenu();
+});
+
+/* ===================== SLIDE 0 : PIXEL HERO ===================== */
+(function(){
+  var hero = document.getElementById('pixelHero');
+  var colors = ['#4cc9f0','#ffb454','#5d9dff','#4ce68a','#182543','#182543','#182543','#1f2f54'];
+  for(var i=0;i<100;i++){
+    var d = document.createElement('div');
+    var c = colors[Math.floor(Math.random()*colors.length)];
+    d.style.background = c;
+    d.style.animationDelay = (Math.random()*0.9)+'s';
+    hero.appendChild(d);
+  }
+})();
+
+/* ===================== SLIDE 1 : PETA MATERI ===================== */
+(function(){
+  var grid = document.getElementById('mapGrid');
+  var items = [
+    ["3.1","Pengertian Citra Digital",2],["3.2","Bitmap vs Vektor",3],["3.3","Piksel (interaktif)",4],
+    ["3.4","Resolusi Citra",5],["3.5","Kedalaman Warna",6],["3.6","Ukuran File Citra",7],
+    ["3.7","Format File Gambar",8],["📝","Contoh Soal",9],["🎯","Kuis Interaktif",13]
+  ];
+  items.forEach(function(it){
+    var el = document.createElement('div');
+    el.className = 'map-item';
+    el.innerHTML = '<div class="num">'+it[0]+'</div><div class="lbl">'+it[1]+'</div>';
+    el.onclick = function(){ goTo(it[2]); };
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== SLIDE 2 : ANALOG/DIGITAL MINI VISUAL ===================== */
+(function(){
+  var host = document.getElementById('analogDigitalCanvas');
+  var c = document.createElement('canvas');
+  c.width = 120; c.height = 120; c.style.width='120px'; c.style.height='120px'; c.style.imageRendering='pixelated';
+  host.appendChild(c);
+  var ctx = c.getContext('2d');
+  var n = 8, cell = 120/n;
+  for(var y=0;y<n;y++){
+    for(var x=0;x<n;x++){
+      var dx=x-n/2+0.5, dy=y-n/2+0.5;
+      var dist = Math.sqrt(dx*dx+dy*dy);
+      ctx.fillStyle = dist < n/2-0.6 ? '#4cc9f0' : '#111a2e';
+      ctx.fillRect(x*cell,y*cell,cell-1,cell-1);
+    }
+  }
+})();
+
+/* ===================== SLIDE 3 : BITMAP VS VEKTOR ZOOM ===================== */
+(function(){
+  var ctx = document.getElementById('rasterCanvas').getContext('2d');
+  function drawRaster(){
+    var n = 10, cell = 140/n;
+    ctx.clearRect(0,0,140,140);
+    for(var y=0;y<n;y++){
+      for(var x=0;x<n;x++){
+        var dx=x-n/2+0.5, dy=y-n/2+0.5;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        ctx.fillStyle = dist < n/2-0.8 ? '#ff5d6c' : '#0a0f1c';
+        ctx.fillRect(x*cell,y*cell,cell,cell);
+      }
+    }
+  }
+  drawRaster();
+  var rz = document.getElementById('rasterZoom');
+  var rzv = document.getElementById('rasterZoomVal');
+  rz.addEventListener('input', function(){
+    document.getElementById('rasterCanvas').style.transform = 'scale('+rz.value+')';
+    rzv.textContent = rz.value+'×';
+  });
+  var vz = document.getElementById('vectorZoom');
+  var vzv = document.getElementById('vectorZoomVal');
+  var svgShapes = document.querySelectorAll('#vectorSvg polygon, #vectorSvg circle');
+  vz.addEventListener('input', function(){
+    svgShapes.forEach(function(s){ s.style.transform = 'scale('+vz.value+')'; });
+    vzv.textContent = vz.value+'×';
+  });
+})();
+
+/* ===================== SLIDE 4 : PIXEL DRAW LAB ===================== */
+(function(){
+  var grid = document.getElementById('pixelGrid');
+  var palette = ['#4cc9f0','#ffb454','#ff5d6c','#4ce68a','#5d9dff','#ffffff','#8b5cf6','#182543'];
+  var current = palette[0];
+  var painted = 0;
+  var cells = [];
+  for(var i=0;i<196;i++){
+    var d = document.createElement('div');
+    d.addEventListener('click', function(){
+      if(this.style.background===current) return;
+      if(this.dataset.on!=='1'){ painted++; this.dataset.on='1'; }
+      this.style.background = current;
+      document.getElementById('pixelInfo').textContent = painted+' dari 196 piksel diwarnai';
+    });
+    grid.appendChild(d);
+    cells.push(d);
+  }
+  var palRow = document.getElementById('palRow');
+  palette.forEach(function(c,idx){
+    var s = document.createElement('div');
+    s.className = 'pal-swatch'+(idx===0?' active':'');
+    s.style.background = c;
+    s.onclick = function(){
+      document.querySelectorAll('.pal-swatch').forEach(function(x){x.classList.remove('active');});
+      s.classList.add('active');
+      current = c;
+    };
+    palRow.appendChild(s);
+  });
+  document.getElementById('clearPixels').onclick = function(){
+    cells.forEach(function(c){ c.style.background=''; c.dataset.on='0'; });
+    painted = 0;
+    document.getElementById('pixelInfo').textContent = 'Grid 14 × 14 = 196 piksel';
+  };
+})();
+
+/* ===================== SLIDE 5 : RESOLUSI ===================== */
+(function(){
+  var canvas = document.getElementById('resCanvas');
+  var ctx = canvas.getContext('2d');
+  function draw(n){
+    var cell = 260/n;
+    ctx.clearRect(0,0,260,260);
+    ctx.fillStyle = '#050912';
+    ctx.fillRect(0,0,260,260);
+    for(var y=0;y<n;y++){
+      for(var x=0;x<n;x++){
+        var dx=x-n/2+0.5, dy=y-n/2+0.5;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist < n/2-0.5){
+          ctx.fillStyle = dist < n/3 ? '#ffb454' : '#4cc9f0';
+          ctx.fillRect(x*cell,y*cell,cell-1,cell-1);
+        }
+      }
+    }
+  }
+  draw(6);
+  var slider = document.getElementById('resSlider');
+  slider.addEventListener('input', function(){
+    var n = parseInt(slider.value);
+    draw(n);
+    document.getElementById('resGridVal').textContent = n+' × '+n;
+    document.getElementById('resPixelVal').textContent = (n*n).toLocaleString('id-ID');
+  });
+})();
+
+/* ===================== SLIDE 6 : BIT DEPTH ===================== */
+(function(){
+  var depths = [1,2,4,8];
+  var btnHost = document.getElementById('depthBtns');
+  var strip = document.getElementById('swatchStrip');
+  var formula = document.getElementById('depthFormula');
+  function colorFor(i,total){
+    var hue = Math.round((i/total)*300);
+    return 'hsl('+hue+',70%,58%)';
+  }
+  function render(n){
+    var total = Math.pow(2,n);
+    var show = Math.min(total,120);
+    strip.innerHTML='';
+    for(var i=0;i<show;i++){
+      var d = document.createElement('div');
+      d.style.background = total<=2 ? (i===0?'#050912':'#ffffff') : colorFor(i,show);
+      strip.appendChild(d);
+    }
+    formula.textContent = '2^'+n+' = '+total.toLocaleString('id-ID')+' warna' + (total>show?' (ditampilkan sebagian)':'');
+  }
+  depths.forEach(function(n,idx){
+    var b = document.createElement('button');
+    b.className = 'depth-btn'+(idx===3?' active':'');
+    b.textContent = n+'-bit';
+    b.onclick = function(){
+      document.querySelectorAll('.depth-btn').forEach(function(x){x.classList.remove('active');});
+      b.classList.add('active');
+      render(n);
+    };
+    btnHost.appendChild(b);
+  });
+  render(8);
+})();
+
+/* ===================== SLIDE 7 : UKURAN FILE CALC ===================== */
+(function(){
+  var w = document.getElementById('calcW'), h = document.getElementById('calcH'), d = document.getElementById('calcD');
+  function update(){
+    var W = parseInt(w.value), H = parseInt(h.value), D = parseInt(d.value);
+    document.getElementById('calcWVal').textContent = W;
+    document.getElementById('calcHVal').textContent = H;
+    document.getElementById('calcDVal').textContent = D;
+    var bits = W*H*D;
+    var bytes = bits/8;
+    var kb = bytes/1024;
+    var mb = kb/1024;
+    document.getElementById('outBit').textContent = Math.round(bits).toLocaleString('id-ID')+' bit';
+    document.getElementById('outByte').textContent = Math.round(bytes).toLocaleString('id-ID')+' B';
+    document.getElementById('outKB').textContent = kb.toLocaleString('id-ID',{maximumFractionDigits:1})+' KB / '+mb.toLocaleString('id-ID',{maximumFractionDigits:2})+' MB';
+  }
+  [w,h,d].forEach(function(el){ el.addEventListener('input', update); });
+  update();
+})();
+
+/* ===================== SLIDE 8 : FORMAT FILE CARDS ===================== */
+(function(){
+  var formats = [
+    {ext:'.JPG', name:'JPEG', color:'#ff5d6c', pts:['Kompresi lossy (kualitas sedikit berkurang)','Ukuran file kecil, cocok untuk foto','Tidak mendukung transparansi']},
+    {ext:'.PNG', name:'PNG', color:'#4ce68a', pts:['Kompresi lossless (kualitas tetap)','Mendukung latar belakang transparan','Cocok untuk logo & grafis']},
+    {ext:'.GIF', name:'GIF', color:'#ffb454', pts:['Mendukung animasi sederhana','Terbatas 256 warna (8-bit)','Cocok untuk ikon & animasi ringan']},
+    {ext:'.BMP', name:'Bitmap', color:'#5d9dff', pts:['Hampir tanpa kompresi','Kualitas tinggi, ukuran file sangat besar','Jarang dipakai untuk web']},
+    {ext:'.SVG', name:'Vektor', color:'#8b5cf6', pts:['Berbasis vektor (rumus matematis)','Bisa diperbesar tanpa pecah (scalable)','Cocok untuk logo & ikon web']},
+    {ext:'.WEBP', name:'WebP', color:'#4cc9f0', pts:['Format modern dari Google','Kompresi lebih efisien dari JPG/PNG','Mendukung transparansi & animasi']}
+  ];
+  var grid = document.getElementById('fmtGrid');
+  formats.forEach(function(f){
+    var card = document.createElement('div');
+    card.className = 'flip-card';
+    var ptsHtml = f.pts.map(function(p){ return '<div class="fmt-pt">'+p+'</div>'; }).join('');
+    card.innerHTML =
+      '<div class="flip-inner">'+
+        '<div class="flip-face flip-front"><div class="fmt-ext" style="color:'+f.color+'">'+f.ext+'</div><div class="fmt-name">'+f.name+'</div><div class="tap-hint">tap untuk lihat detail</div></div>'+
+        '<div class="flip-face flip-back">'+ptsHtml+'</div>'+
+      '</div>';
+    card.onclick = function(){ card.classList.toggle('flipped'); };
+    grid.appendChild(card);
+  });
+})();
+
+/* ===================== SLIDE 9-12 : CONTOH SOAL TOGGLE ===================== */
+function toggleSoal(btn){
+  var ans = btn.nextElementSibling;
+  ans.classList.toggle('open');
+  btn.textContent = ans.classList.contains('open') ? 'Sembunyikan Pembahasan' : 'Lihat Pembahasan';
+}
+
+/* ===================== SLIDE 13 : QUIZ ===================== */
+var quizData = [
+  {q:"Citra digital tersusun dari kumpulan satuan kecil yang disebut...", opts:["Vektor","Piksel","Resolusi","Format"], correct:1, exp:"Piksel adalah satuan terkecil pembentuk citra digital."},
+  {q:"Citra yang tersusun dari rumus matematis (titik, garis, kurva) dan tidak pecah saat diperbesar disebut citra...", opts:["Bitmap","Raster","Vektor","Analog"], correct:2, exp:"Citra vektor bersifat scalable karena berbasis rumus matematis, bukan grid piksel."},
+  {q:"Sebuah gambar memiliki resolusi 1000 × 800 piksel. Berapa total pikselnya?", opts:["1.800 piksel","80.000 piksel","800.000 piksel","8.000.000 piksel"], correct:2, exp:"Total piksel = lebar × tinggi = 1000 × 800 = 800.000 piksel."},
+  {q:"Jika kedalaman warna sebuah citra adalah 4-bit, berapa jumlah variasi warna yang bisa ditampilkan?", opts:["4 warna","8 warna","16 warna","32 warna"], correct:2, exp:"Jumlah warna = 2ⁿ = 2⁴ = 16 warna."},
+  {q:"Format gambar yang mendukung latar belakang transparan dan bersifat lossless adalah...", opts:["JPG","PNG","BMP","GIF"], correct:1, exp:"PNG mendukung transparansi dan tidak mengurangi kualitas gambar (lossless)."},
+  {q:"Format gambar yang paling cocok untuk animasi sederhana adalah...", opts:["JPG","SVG","GIF","BMP"], correct:2, exp:"GIF mendukung animasi meski terbatas pada 256 warna."},
+  {q:"Semakin tinggi resolusi sebuah citra bitmap, maka...", opts:["Gambar makin buram","Jumlah piksel makin sedikit","Detail gambar makin tajam, ukuran file makin besar","Ukuran file selalu tetap"], correct:2, exp:"Resolusi tinggi berarti lebih banyak piksel, sehingga gambar lebih detail namun ukuran filenya membesar."},
+  {q:"Logo yang akan dicetak dari ukuran kartu nama hingga baliho besar sebaiknya menggunakan format...", opts:["JPG (bitmap)","BMP (bitmap)","SVG (vektor)","GIF (bitmap)"], correct:2, exp:"Format vektor seperti SVG scalable sehingga tetap tajam di ukuran berapa pun."}
+];
+var quizIdx = 0, quizScore = 0, quizInit = false;
+
+function initQuizIfNeeded(){
+  if(quizInit) return;
+  quizInit = true;
+  renderQuizQuestion();
+}
+function renderQuizQuestion(){
+  var card = document.getElementById('quizCard');
+  if(quizIdx >= quizData.length){
+    var pct = Math.round((quizScore/quizData.length)*100);
+    var msg = pct>=80 ? "Keren, pemahamanmu sudah sangat baik! 🎉" : pct>=50 ? "Lumayan! Coba ulangi lagi materinya sedikit ya." : "Yuk pelajari lagi materinya, lalu coba kuis ini sekali lagi.";
+    card.innerHTML =
+      '<div class="quiz-summary">'+
+        '<div class="big-score">'+quizScore+' / '+quizData.length+'</div>'+
+        '<div class="msg">'+msg+'</div>'+
+        '<button class="btn btn-primary" style="margin-top:18px;" onclick="restartQuiz()">↺ Ulangi Kuis</button>'+
+      '</div>';
+    document.getElementById('quizProgress').textContent = 'Selesai';
+    return;
+  }
+  document.getElementById('quizProgress').textContent = 'Soal '+(quizIdx+1)+' dari '+quizData.length;
+  document.getElementById('quizScorePill').textContent = 'Skor: '+quizScore;
+  var q = quizData[quizIdx];
+  var optsHtml = q.opts.map(function(o,i){
+    return '<button class="quiz-opt" data-i="'+i+'" onclick="answerQuiz('+i+')">'+o+'</button>';
+  }).join('');
+  card.innerHTML =
+    '<div class="quiz-q-text">'+q.q+'</div>'+
+    '<div id="quizOpts">'+optsHtml+'</div>'+
+    '<div class="quiz-explain" id="quizExplain"></div>'+
+    '<div class="quiz-next-row" id="quizNextRow"></div>';
+}
+function answerQuiz(i){
+  var q = quizData[quizIdx];
+  var btns = document.querySelectorAll('#quizOpts .quiz-opt');
+  btns.forEach(function(b){ b.disabled = true; });
+  btns[q.correct].classList.add('correct');
+  if(i!==q.correct) btns[i].classList.add('wrong');
+  else quizScore++;
+  document.getElementById('quizScorePill').textContent = 'Skor: '+quizScore;
+  var exp = document.getElementById('quizExplain');
+  exp.textContent = '💡 '+q.exp;
+  exp.classList.add('show');
+  document.getElementById('quizNextRow').innerHTML = '<button class="btn btn-primary" onclick="nextQuiz()">'+(quizIdx<quizData.length-1?'Soal Berikutnya ›':'Lihat Hasil ›')+'</button>';
+}
+function nextQuiz(){ quizIdx++; renderQuizQuestion(); }
+function restartQuiz(){ quizIdx=0; quizScore=0; renderQuizQuestion(); }
+
+/* ===================== SLIDE 14 : RANGKUMAN ===================== */
+(function(){
+  var items = [
+    ["Citra Digital","Representasi visual objek yang disimpan komputer dalam bentuk data biner, bersifat diskrit."],
+    ["Bitmap","Citra berbasis grid piksel; pecah saat diperbesar. Contoh: JPG, PNG, BMP."],
+    ["Vektor","Citra berbasis rumus matematis; tetap tajam saat diperbesar. Contoh: SVG."],
+    ["Piksel","Satuan terkecil pembentuk citra digital, tiap piksel punya satu nilai warna."],
+    ["Resolusi","Jumlah piksel penyusun citra (lebar × tinggi); makin tinggi makin detail."],
+    ["Kedalaman Warna","Jumlah bit tiap piksel; jumlah warna = 2ⁿ."],
+    ["Ukuran File","Dipengaruhi resolusi & kedalaman warna: lebar × tinggi × bit."],
+    ["Format File","JPG untuk foto, PNG untuk transparansi, GIF untuk animasi, SVG untuk logo scalable."],
+    ["PPI / DPI","Satuan ketajaman cetak; makin tinggi nilainya, makin tajam hasil cetak."]
+  ];
+  var grid = document.getElementById('sumGrid');
+  items.forEach(function(it){
+    var el = document.createElement('div');
+    el.className = 'sum-chip';
+    el.innerHTML = '<div class="t">'+it[0]+'</div><div class="d">'+it[1]+'</div>';
+    el.onclick = function(){ el.classList.toggle('open'); };
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== INIT ===================== */
+buildMenu();
+render();
+</script>
+</body>
+</html>

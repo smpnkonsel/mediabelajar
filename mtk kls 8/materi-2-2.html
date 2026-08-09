@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 2: Teorema Pythagoras — Presentasi Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#111a30;
+  --bg-deep:#0c1322;
+  --panel:#1b2747;
+  --panel-light:#233257;
+  --line: rgba(148,163,196,0.18);
+  --text:#f4f1ea;
+  --text-dim:#9aa8c9;
+  --a-color:#2dd4bf;
+  --a-color-dim: rgba(45,212,191,0.18);
+  --b-color:#fbbf24;
+  --b-color-dim: rgba(251,191,36,0.18);
+  --c-color:#fb7185;
+  --c-color-dim: rgba(251,113,133,0.2);
+  --accent:#7c9eff;
+  --accent-dim: rgba(124,158,255,0.16);
+  --good:#34d399;
+  --bad:#fb7185;
+  --radius:18px;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0; padding:0; height:100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow:hidden;
+}
+body{
+  background-image:
+    radial-gradient(circle at 12% 8%, rgba(124,158,255,0.10), transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(251,113,133,0.08), transparent 45%),
+    linear-gradient(var(--bg), var(--bg-deep));
+}
+::selection{ background: var(--accent); color:#0c1322; }
+
+/* faint grid paper texture */
+.grid-bg{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(148,163,196,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,196,0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+  mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 78%);
+}
+
+/* ===== App shell ===== */
+.app{
+  position:relative; z-index:1;
+  height:100vh; height:100dvh;
+  display:flex; flex-direction:column;
+}
+.progress-track{
+  height:4px; width:100%; background:rgba(148,163,196,0.12); flex-shrink:0;
+}
+.progress-fill{
+  height:100%; width:0%;
+  background: linear-gradient(90deg, var(--a-color), var(--accent), var(--c-color));
+  transition: width .5s cubic-bezier(.4,0,.2,1);
+}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 28px; flex-shrink:0;
+  border-bottom:1px solid var(--line);
+}
+.topbar .brand{
+  font-family:var(--font-display); font-weight:600; letter-spacing:.02em;
+  font-size:15px; color:var(--text-dim); display:flex; align-items:center; gap:10px;
+}
+.topbar .brand .mark{
+  width:22px;height:22px; display:inline-flex; align-items:center; justify-content:center;
+  border:1.5px solid var(--accent); border-radius:6px; color:var(--accent); font-size:11px; font-family:var(--font-mono);
+}
+.topbar .slide-counter{
+  font-family:var(--font-mono); font-size:13px; color:var(--text-dim);
+}
+
+.slides-viewport{
+  flex:1; min-height:0; position:relative;
+}
+.slide{
+  position:absolute; inset:0;
+  display:none;
+  overflow-y:auto;
+  padding: 40px 8vw 140px;
+  animation: slideIn .45s cubic-bezier(.4,0,.2,1);
+}
+.slide.active{ display:block; }
+@keyframes slideIn{
+  from{ opacity:0; transform: translateY(14px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+.slide-inner{ max-width:1080px; margin:0 auto; }
+
+.eyebrow{
+  font-family:var(--font-mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+  color: var(--accent); margin:0 0 10px; display:flex; align-items:center; gap:10px;
+}
+.eyebrow .dash{ width:22px; height:1.5px; background:var(--accent); display:inline-block; }
+h1.slide-title{
+  font-family:var(--font-display); font-weight:700;
+  font-size: clamp(28px, 4.6vw, 52px); line-height:1.08; margin:0 0 16px; letter-spacing:-.01em;
+}
+h2.sub{
+  font-family:var(--font-display); font-weight:600;
+  font-size: clamp(19px, 2.2vw, 25px); margin: 34px 0 14px; color:var(--text);
+}
+p.lead{ font-size: clamp(15px,1.6vw,18px); color:var(--text-dim); line-height:1.65; max-width:64ch; }
+.panel{
+  background: var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+  padding: 24px 26px;
+}
+
+/* ===== Hero slide ===== */
+.hero-slide{ display:flex; flex-direction:column; justify-content:center; min-height:calc(100vh - 160px); }
+.hero-grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap:48px; align-items:center; }
+@media(max-width:860px){ .hero-grid{ grid-template-columns:1fr; } }
+.hero-eyebrow{ font-family:var(--font-mono); color:var(--text-dim); font-size:13px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:18px;}
+.hero-title{
+  font-family:var(--font-display); font-weight:700; letter-spacing:-.02em;
+  font-size: clamp(36px, 6vw, 68px); line-height:1.03; margin:0 0 20px;
+}
+.hero-title .accentword{ color:var(--accent); }
+.hero-formula-inline{
+  font-family:var(--font-mono); background:var(--panel-light); border:1px solid var(--line);
+  padding:2px 10px; border-radius:8px; color:var(--c-color); font-weight:700;
+}
+.hero-desc{ color:var(--text-dim); font-size:17px; line-height:1.7; max-width:52ch; margin-bottom:28px;}
+.btn{
+  font-family:var(--font-body); font-weight:600; font-size:15px;
+  padding:13px 26px; border-radius:100px; border:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:8px;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:active{ transform: scale(.97); }
+.btn-primary{ background: linear-gradient(120deg, var(--accent), #5f7fe0); color:#0c1322; box-shadow: 0 8px 22px -8px rgba(124,158,255,0.6);}
+.btn-primary:hover{ box-shadow: 0 10px 26px -6px rgba(124,158,255,0.75); }
+.btn-ghost{ background: var(--panel-light); color:var(--text); border:1px solid var(--line); }
+.btn-ghost:hover{ background: #2a3a66; }
+.btn-outline{ background:transparent; color:var(--accent); border:1.5px solid var(--accent); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+
+.hero-svg-wrap{ display:flex; justify-content:center; align-items:center; }
+.hero-svg-wrap svg{ width:100%; max-width:380px; height:auto; }
+
+/* ===== Triangle / squares SVG shared ===== */
+.diagram-card{
+  background:var(--panel); border:1px solid var(--line); border-radius: var(--radius);
+  padding:20px; display:flex; flex-direction:column; align-items:center; gap:14px;
+}
+.diagram-card svg{ width:100%; max-width:420px; height:auto; }
+.legend{ display:flex; flex-wrap:wrap; gap:14px; justify-content:center; font-size:13.5px; color:var(--text-dim); font-family:var(--font-mono);}
+.legend span{ display:inline-flex; align-items:center; gap:7px; }
+.swatch{ width:12px;height:12px;border-radius:3px; display:inline-block; }
+
+/* clickable hotspots */
+.hotspot{ cursor:pointer; transition: opacity .2s ease; }
+.hotspot:hover{ opacity:.75; }
+.tooltip-box{
+  margin-top:6px; min-height:52px; background:var(--panel-light); border:1px solid var(--line);
+  border-radius:12px; padding:14px 16px; font-size:14.5px; color:var(--text); line-height:1.55;
+  transition: opacity .2s ease;
+}
+.tooltip-box.empty{ color:var(--text-dim); font-style:italic; }
+
+/* ===== two column layout ===== */
+.two-col{ display:grid; grid-template-columns: 1fr 1fr; gap:32px; align-items:start; }
+@media(max-width:860px){ .two-col{ grid-template-columns:1fr; } }
+
+/* ===== formula highlight ===== */
+.formula-hero{
+  display:flex; align-items:center; justify-content:center; gap:18px;
+  background: linear-gradient(135deg, var(--panel-light), var(--panel));
+  border:1px solid var(--line); border-radius:20px; padding: 30px 20px; margin: 22px 0;
+  flex-wrap:wrap;
+}
+.formula-hero .term{
+  font-family:var(--font-mono); font-weight:700; font-size: clamp(30px,5vw,48px);
+  padding: 6px 14px; border-radius:12px;
+}
+.formula-hero .term.a{ color:var(--a-color); background:var(--a-color-dim); }
+.formula-hero .term.b{ color:var(--b-color); background:var(--b-color-dim); }
+.formula-hero .term.c{ color:var(--c-color); background:var(--c-color-dim); }
+.formula-hero .op{ font-family:var(--font-mono); font-size: clamp(22px,3.4vw,32px); color:var(--text-dim); }
+
+.variant-cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:18px;}
+@media(max-width:760px){ .variant-cards{ grid-template-columns:1fr; } }
+.variant-card{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px;
+  text-align:center;
+}
+.variant-card .label{ font-size:12.5px; color:var(--text-dim); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px;}
+.variant-card .formula{ font-family:var(--font-mono); font-weight:700; font-size:19px; color:var(--text); }
+
+/* ===== interactive slider demo ===== */
+.slider-panel{ display:grid; grid-template-columns: 1fr 1fr; gap:34px; align-items:center; }
+@media(max-width:860px){ .slider-panel{ grid-template-columns:1fr; } }
+.slider-controls .ctrl{ margin-bottom:26px; }
+.slider-controls label{ display:flex; justify-content:space-between; font-family:var(--font-mono); font-size:14px; margin-bottom:10px; }
+.slider-controls label .val{ font-weight:700; }
+.slider-controls label.a-lab .val{ color:var(--a-color); }
+.slider-controls label.b-lab .val{ color:var(--b-color); }
+input[type=range]{
+  width:100%; -webkit-appearance:none; appearance:none; height:6px; border-radius:6px;
+  background: var(--panel-light); outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background: var(--accent); cursor:pointer; border:3px solid #0c1322;
+}
+input[type=range]#slider-a::-webkit-slider-thumb{ background: var(--a-color); }
+input[type=range]#slider-b::-webkit-slider-thumb{ background: var(--b-color); }
+input[type=range]::-moz-range-thumb{ width:16px;height:16px;border-radius:50%; background:var(--accent); border:3px solid #0c1322; cursor:pointer; }
+
+.result-line{ font-family:var(--font-mono); font-size:15px; color:var(--text-dim); margin-top:6px; }
+.result-line .big{ font-size:22px; color:var(--c-color); font-weight:700; }
+
+/* ===== triple cards ===== */
+.triple-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:14px; margin-top:20px; }
+.triple-card{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 14px;
+  text-align:center; cursor:pointer; transition: border-color .2s ease, transform .15s ease;
+}
+.triple-card:hover{ transform: translateY(-3px); border-color: var(--accent); }
+.triple-card .nums{ font-family:var(--font-mono); font-size:20px; font-weight:700; }
+.triple-card .hint{ font-size:12px; color:var(--text-dim); margin-top:6px; }
+.triple-detail{
+  margin-top:18px; min-height:30px; font-family:var(--font-mono); font-size:14.5px; color:var(--text); text-align:center;
+}
+
+/* ===== example / step reveal ===== */
+.example-box{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px 28px;
+}
+.example-question{ font-size:16px; line-height:1.6; margin-bottom:18px; color:var(--text); }
+.example-question b{ color:var(--accent); }
+.step{
+  display:none; padding:12px 16px; border-left:3px solid var(--accent);
+  background: var(--panel-light); border-radius: 0 10px 10px 0; margin-bottom:10px;
+  font-size:14.5px; line-height:1.6;
+}
+.step.shown{ display:block; animation: stepIn .3s ease; }
+.step .step-formula{ font-family:var(--font-mono); color:var(--c-color); font-weight:600; }
+@keyframes stepIn{ from{opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+.step.final{ border-left-color: var(--good); }
+.step.final .step-formula{ color: var(--good); }
+.example-actions{ display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+
+/* ===== practice / latihan ===== */
+.practice-item{
+  background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 22px; margin-bottom:18px;
+}
+.practice-item .q{ font-size:15px; margin-bottom:14px; }
+.practice-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.practice-row input[type=number]{
+  width:110px; padding:10px 12px; border-radius:10px; border:1px solid var(--line);
+  background: var(--bg-deep); color:var(--text); font-family:var(--font-mono); font-size:15px;
+}
+.practice-row input::placeholder{ color:var(--text-dim); }
+.feedback{ font-size:14px; font-family:var(--font-mono); margin-left:6px; }
+.feedback.ok{ color: var(--good); }
+.feedback.no{ color: var(--bad); }
+
+/* ===== quiz ===== */
+.quiz-wrap{ max-width:720px; margin:0 auto; }
+.quiz-progress{ display:flex; gap:6px; margin-bottom:22px; }
+.quiz-progress .dot{ flex:1; height:5px; border-radius:4px; background: var(--panel-light); }
+.quiz-progress .dot.done{ background: var(--accent); }
+.quiz-question{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:26px 28px;
+}
+.quiz-question .qtext{ font-size:17px; margin-bottom:20px; line-height:1.5; }
+.qoptions{ display:flex; flex-direction:column; gap:10px; }
+.qoption{
+  text-align:left; padding:14px 16px; border-radius:12px; border:1px solid var(--line);
+  background: var(--panel-light); color:var(--text); font-size:14.5px; cursor:pointer; font-family:var(--font-body);
+  transition: border-color .15s ease, background .15s ease;
+}
+.qoption:hover{ border-color: var(--accent); }
+.qoption.correct{ border-color: var(--good); background: rgba(52,211,153,0.14); }
+.qoption.wrong{ border-color: var(--bad); background: rgba(251,113,133,0.14); }
+.qoption[disabled]{ cursor:default; }
+.quiz-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:18px; }
+.quiz-score-badge{ font-family:var(--font-mono); font-size:13px; color:var(--text-dim); }
+.quiz-result{ text-align:center; padding:40px 20px; }
+.quiz-result .score-num{ font-family:var(--font-display); font-size:64px; font-weight:700; color:var(--accent); }
+.quiz-result .score-msg{ font-size:18px; margin:12px 0 24px; color:var(--text-dim); }
+
+/* ===== summary / final ===== */
+.summary-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin: 24px 0 8px; }
+@media(max-width:700px){ .summary-grid{ grid-template-columns:1fr; } }
+.summary-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; font-size:14.5px; line-height:1.55; }
+.summary-card .sf{ font-family:var(--font-mono); color:var(--accent); font-weight:700; display:block; margin-bottom:6px; font-size:13px; letter-spacing:.06em; }
+.final-actions{ display:flex; gap:14px; flex-wrap:wrap; margin-top:30px; }
+
+/* ===== bottom nav ===== */
+.bottom-nav{
+  position:fixed; left:0; right:0; bottom:0; z-index:5;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding: 14px 22px; background: rgba(17,26,48,0.88); backdrop-filter: blur(10px);
+  border-top:1px solid var(--line);
+}
+.nav-btn{
+  width:44px;height:44px; border-radius:50%; border:1px solid var(--line); background:var(--panel-light);
+  color:var(--text); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;
+  font-size:18px; transition: background .15s ease, opacity .15s ease;
+}
+.nav-btn:hover{ background:#2a3a66; }
+.nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+.dots{ display:flex; gap:7px; flex-wrap:wrap; justify-content:center; max-width:56vw; }
+.dot-item{
+  width:9px; height:9px; border-radius:50%; background: var(--panel-light); border:1px solid var(--line);
+  cursor:pointer; transition: all .2s ease; flex-shrink:0;
+}
+.dot-item.active{ background: var(--accent); width:22px; border-radius:5px; border-color:var(--accent); }
+.dot-item.done{ background: var(--text-dim); }
+@media(max-width:700px){
+  .dots{ display:none; }
+  .bottom-nav{ justify-content:space-between; }
+  .slide{ padding: 28px 6vw 130px; }
+}
+.slide-name-mobile{ display:none; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); }
+@media(max-width:700px){ .slide-name-mobile{ display:block; } }
+
+/* misc */
+.tag{ display:inline-block; font-family:var(--font-mono); font-size:11.5px; padding:3px 9px; border-radius:100px; border:1px solid var(--line); color:var(--text-dim); margin-right:8px;}
+.center{ text-align:center; }
+kbd{ font-family:var(--font-mono); background:var(--panel-light); border:1px solid var(--line); border-radius:5px; padding:1px 6px; font-size:12px;}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="app">
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="topbar">
+    <div class="brand"><span class="mark">π</span> Matematika · Bab 2</div>
+    <div class="slide-counter"><span id="slideCurrent">01</span> / <span id="slideTotal">14</span></div>
+  </div>
+
+  <div class="slides-viewport" id="viewport">
+
+    <!-- SLIDE 1: HERO -->
+    <section class="slide active" data-title="Pembuka">
+      <div class="slide-inner hero-slide">
+        <div class="hero-grid">
+          <div>
+            <div class="hero-eyebrow">Bab 2 · Geometri SMP</div>
+            <h1 class="hero-title">Teorema <span class="accentword">Pythagoras</span></h1>
+            <p class="hero-desc">Satu rumus sederhana yang menghubungkan tiga sisi segitiga siku-siku: <span class="hero-formula-inline">a² + b² = c²</span>. Yuk pahami rumusnya, lihat pembuktiannya dengan persegi, coba visualisasi interaktif, lalu uji pemahamanmu lewat kuis.</p>
+            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="goToSlide(1)">Mulai Belajar →</button>
+              <button class="btn btn-ghost" onclick="goToSlide(12)">Langsung ke Kuis</button>
+            </div>
+          </div>
+          <div class="hero-svg-wrap">
+            <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="30,220 30,60 190,220" fill="var(--panel-light)" stroke="var(--accent)" stroke-width="2.5"/>
+              <rect x="-50" y="-50" width="50" height="50" fill="var(--a-color)" opacity="0.75" transform="translate(30,60) rotate(180)"/>
+              <rect x="190" y="220" width="130" height="35" fill="var(--b-color)" opacity="0.55" transform="translate(-130,-35) translate(-30,0) rotate(0)"/>
+              <rect x="0" y="185" width="160" height="35" fill="var(--b-color)" opacity="0.75"/>
+              <rect x="-35" y="0" width="35" height="160" fill="var(--a-color)" opacity="0.75" transform="translate(30,60)"/>
+              <polygon points="30,60 30,220 190,220" fill="none"/>
+              <rect x="30" y="10" width="1" height="1" fill="none"/>
+              <text x="8" y="145" fill="var(--a-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">a</text>
+              <text x="105" y="242" fill="var(--b-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">b</text>
+              <text x="95" y="132" fill="var(--c-color)" font-family="JetBrains Mono" font-size="15" font-weight="700">c</text>
+              <line x1="30" y1="60" x2="190" y2="220" stroke="var(--c-color)" stroke-width="3"/>
+              <rect x="30" y="200" width="16" height="16" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+            </svg>
+            <div style="text-align:center; font-family:var(--font-mono); font-size:12.5px; color:var(--text-dim); margin-top:-6px;">segitiga siku-siku · sisi a, b, dan sisi miring c</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: DEFINISI -->
+    <section class="slide" data-title="Apa itu Segitiga Siku-Siku">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>02 · Konsep Dasar</p>
+        <h1 class="slide-title">Mengenal Segitiga Siku-Siku</h1>
+        <p class="lead">Teorema Pythagoras hanya berlaku pada <b>segitiga siku-siku</b> — segitiga yang punya satu sudut tepat 90°. Klik tiap bagian pada gambar untuk mempelajari istilahnya.</p>
+        <div class="two-col" style="margin-top:26px;">
+          <div class="diagram-card">
+            <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+              <polygon points="40,220 40,50 260,220" fill="var(--panel-light)" stroke="var(--line)" stroke-width="1.5"/>
+              <rect x="40" y="200" width="20" height="20" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+              <line class="hotspot" id="hs-a" x1="40" y1="50" x2="40" y2="220" stroke="var(--a-color)" stroke-width="6" stroke-linecap="round" onclick="showTip('a')"/>
+              <line class="hotspot" id="hs-b" x1="40" y1="220" x2="260" y2="220" stroke="var(--b-color)" stroke-width="6" stroke-linecap="round" onclick="showTip('b')"/>
+              <line class="hotspot" id="hs-c" x1="40" y1="50" x2="260" y2="220" stroke="var(--c-color)" stroke-width="6" stroke-linecap="round" onclick="showTip('c')"/>
+              <circle class="hotspot" cx="40" cy="220" r="16" fill="var(--accent)" opacity="0.85" onclick="showTip('siku')"/>
+              <text x="14" y="140" fill="var(--a-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">a</text>
+              <text x="145" y="240" fill="var(--b-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">b</text>
+              <text x="130" y="120" fill="var(--c-color)" font-family="JetBrains Mono" font-weight="700" font-size="15">c</text>
+            </svg>
+            <div class="legend">
+              <span><span class="swatch" style="background:var(--a-color)"></span>sisi tegak (a)</span>
+              <span><span class="swatch" style="background:var(--b-color)"></span>alas / sisi datar (b)</span>
+              <span><span class="swatch" style="background:var(--c-color)"></span>sisi miring (c)</span>
+              <span><span class="swatch" style="background:var(--accent)"></span>sudut siku-siku</span>
+            </div>
+          </div>
+          <div>
+            <div class="tooltip-box empty" id="tipBox">👆 Klik salah satu sisi atau sudut pada gambar di sebelah untuk melihat penjelasannya di sini.</div>
+            <div class="panel" style="margin-top:18px;">
+              <h2 class="sub" style="margin-top:0;">Tiga istilah penting</h2>
+              <p class="lead" style="margin:0 0 10px;"><b style="color:var(--a-color)">Sisi siku-siku (a dan b)</b> — dua sisi yang membentuk sudut 90°, sering disebut kaki segitiga.</p>
+              <p class="lead" style="margin:0 0 10px;"><b style="color:var(--c-color)">Hipotenusa / sisi miring (c)</b> — sisi terpanjang, selalu berhadapan langsung dengan sudut siku-siku.</p>
+              <p class="lead" style="margin:0;"><b style="color:var(--accent)">Sudut siku-siku</b> — sudut yang besarnya tepat 90°, ditandai kotak kecil pada gambar.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: RUMUS DASAR -->
+    <section class="slide" data-title="Rumus Dasar">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>03 · Rumus</p>
+        <h1 class="slide-title">Rumus Dasar Pythagoras</h1>
+        <p class="lead">Pada segitiga siku-siku, kuadrat sisi miring selalu sama dengan jumlah kuadrat dua sisi siku-sikunya.</p>
+        <div class="formula-hero">
+          <span class="term a">a²</span><span class="op">+</span><span class="term b">b²</span><span class="op">=</span><span class="term c">c²</span>
+        </div>
+        <p class="lead center" style="margin:0 auto;">Karena bentuknya persamaan, rumus ini bisa dibalik untuk mencari sisi mana pun yang belum diketahui — asalkan dua sisi lainnya sudah diketahui.</p>
+        <div class="variant-cards">
+          <div class="variant-card">
+            <div class="label">Mencari sisi miring</div>
+            <div class="formula">c = √(a² + b²)</div>
+          </div>
+          <div class="variant-card">
+            <div class="label">Mencari sisi tegak</div>
+            <div class="formula">a = √(c² − b²)</div>
+          </div>
+          <div class="variant-card">
+            <div class="label">Mencari sisi alas</div>
+            <div class="formula">b = √(c² − a²)</div>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:26px;">
+          <h2 class="sub" style="margin-top:0;">Ingat</h2>
+          <p class="lead" style="margin:0;">Karena <b>c</b> adalah sisi terpanjang, hasil <b>c²</b> harus selalu lebih besar dari <b>a²</b> maupun <b>b²</b> secara terpisah. Ini cara cepat mengecek apakah jawabanmu masuk akal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: INTERAKTIF SLIDER -->
+    <section class="slide" data-title="Coba Sendiri">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>04 · Coba Sendiri</p>
+        <h1 class="slide-title">Geser dan Lihat Perubahannya</h1>
+        <p class="lead">Ubah panjang sisi <b style="color:var(--a-color)">a</b> dan <b style="color:var(--b-color)">b</b> dengan slider di bawah. Perhatikan bagaimana persegi dan panjang sisi miring <b style="color:var(--c-color)">c</b> berubah mengikuti rumus Pythagoras secara langsung.</p>
+        <div class="slider-panel panel" style="margin-top:22px;">
+          <div class="slider-controls">
+            <div class="ctrl">
+              <label class="a-lab">Sisi a <span class="val" id="labelA">6</span> cm</label>
+              <input type="range" id="slider-a" min="2" max="12" value="6" oninput="updateTriangleDemo()">
+            </div>
+            <div class="ctrl">
+              <label class="b-lab">Sisi b <span class="val" id="labelB">8</span> cm</label>
+              <input type="range" id="slider-b" min="2" max="12" value="8" oninput="updateTriangleDemo()">
+            </div>
+            <div class="result-line">a² = <span id="calcA2">36</span>, b² = <span id="calcB2">64</span>, a² + b² = <span id="calcSum">100</span></div>
+            <div class="result-line">Maka c = √<span id="calcSum2">100</span> = <span class="big" id="calcC">10</span> cm</div>
+          </div>
+          <div class="diagram-card" style="background:transparent; border:none; padding:0;">
+            <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" id="triDemoSvg">
+              <g id="triDemoGroup"></g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: PEMBUKTIAN 1 -->
+    <section class="slide" data-title="Pembuktian Persegi 1">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>05 · Pembuktian dengan Persegi (Bagian 1)</p>
+        <h1 class="slide-title">Menyusun Empat Segitiga Siku-Siku</h1>
+        <p class="lead">Ambil 4 segitiga siku-siku yang sama persis (sisi a, b, c) lalu susun berputar (pinwheel) di dalam sebuah persegi besar berukuran (a+b) × (a+b). Klik area di tengah untuk melihat luasnya.</p>
+        <div class="two-col" style="margin-top:22px;">
+          <div class="diagram-card">
+            <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="280" height="280" fill="none" stroke="var(--line)" stroke-width="2"/>
+              <polygon points="0,0 120,0 0,160" fill="var(--accent)" opacity="0.28" stroke="var(--panel)" stroke-width="1"/>
+              <polygon points="120,0 280,0 280,120" fill="var(--accent)" opacity="0.28" stroke="var(--panel)" stroke-width="1"/>
+              <polygon points="280,120 280,280 160,280" fill="var(--accent)" opacity="0.28" stroke="var(--panel)" stroke-width="1"/>
+              <polygon points="160,280 0,280 0,160" fill="var(--accent)" opacity="0.28" stroke="var(--panel)" stroke-width="1"/>
+              <polygon class="hotspot" points="120,0 280,120 160,280 0,160" fill="var(--c-color)" opacity="0.55" stroke="var(--c-color)" stroke-width="2" onclick="showProof1()"/>
+              <text x="128" y="145" fill="#fff" font-family="JetBrains Mono" font-weight="700" font-size="17">c²</text>
+              <text x="45" y="35" fill="var(--text-dim)" font-family="JetBrains Mono" font-size="12">a,b</text>
+            </svg>
+            <div class="legend">
+              <span><span class="swatch" style="background:var(--accent)"></span>4 segitiga kongruen (a, b, c)</span>
+              <span><span class="swatch" style="background:var(--c-color)"></span>persegi miring di tengah = c²</span>
+            </div>
+          </div>
+          <div>
+            <div class="tooltip-box empty" id="proof1Box">👆 Klik persegi merah muda di tengah gambar untuk melihat penjabaran luasnya.</div>
+            <div class="panel" style="margin-top:18px;">
+              <p class="lead" style="margin:0;">Luas persegi besar = (a+b)². Luas itu juga sama dengan luas 4 segitiga ditambah luas persegi tengah (c²). Lanjut ke slide berikutnya untuk melihat cara menyusun ulang keempat segitiga ini menjadi dua persegi terpisah: a² dan b².</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: PEMBUKTIAN 2 -->
+    <section class="slide" data-title="Pembuktian Persegi 2">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>06 · Pembuktian dengan Persegi (Bagian 2)</p>
+        <h1 class="slide-title">Susun Ulang Jadi Dua Persegi</h1>
+        <p class="lead">Empat segitiga yang sama, kita geser posisinya di dalam persegi (a+b) × (a+b) yang sama besar. Hasilnya: ruang kosong membentuk dua persegi terpisah, a² dan b².</p>
+        <div class="center" style="margin:22px 0 10px;">
+          <button class="btn btn-outline" onclick="toggleProofView()" id="proofToggleBtn">🔄 Tampilkan Susunan Ulang (a² + b²)</button>
+        </div>
+        <div class="diagram-card" style="margin:0 auto;">
+          <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" id="proofSvg">
+            <rect x="0" y="0" width="280" height="280" fill="none" stroke="var(--line)" stroke-width="2"/>
+            <!-- state A: pinwheel with c^2 -->
+            <g id="stateA">
+              <polygon points="0,0 120,0 0,160" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="120,0 280,0 280,120" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="280,120 280,280 160,280" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="160,280 0,280 0,160" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="120,0 280,120 160,280 0,160" fill="var(--c-color)" opacity="0.55" stroke="var(--c-color)" stroke-width="2"/>
+              <text x="128" y="145" fill="#fff" font-family="JetBrains Mono" font-weight="700" font-size="18">c²</text>
+            </g>
+            <!-- state B: two squares a^2 b^2 -->
+            <g id="stateB" style="display:none;">
+              <rect x="0" y="0" width="120" height="120" fill="var(--a-color)" opacity="0.55" stroke="var(--a-color)" stroke-width="2"/>
+              <rect x="120" y="120" width="160" height="160" fill="var(--b-color)" opacity="0.55" stroke="var(--b-color)" stroke-width="2"/>
+              <polygon points="120,0 280,0 120,120" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="280,0 280,120 120,120" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="0,120 120,120 0,280" fill="var(--accent)" opacity="0.28"/>
+              <polygon points="120,120 120,280 0,280" fill="var(--accent)" opacity="0.28"/>
+              <text x="50" y="65" fill="#12291f" font-family="JetBrains Mono" font-weight="700" font-size="18">a²</text>
+              <text x="185" y="205" fill="#3a2a05" font-family="JetBrains Mono" font-weight="700" font-size="18">b²</text>
+            </g>
+          </svg>
+        </div>
+        <div class="panel" style="margin-top:22px;">
+          <h2 class="sub" style="margin-top:0;">Kesimpulan pembuktian</h2>
+          <p class="lead" style="margin:0 0 8px;">Kedua susunan memakai persegi besar yang <b>ukurannya sama</b> dan <b>4 segitiga yang sama</b>. Karena luas persegi besar tidak berubah:</p>
+          <div class="formula-hero" style="margin:14px 0 4px; padding:18px;">
+            <span class="term a" style="font-size:22px;">a²</span><span class="op" style="font-size:18px;">+</span><span class="term b" style="font-size:22px;">b²</span><span class="op" style="font-size:18px;">=</span><span class="term c" style="font-size:22px;">c²</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: TRIPEL PYTHAGORAS -->
+    <section class="slide" data-title="Tripel Pythagoras">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>07 · Materi Tambahan</p>
+        <h1 class="slide-title">Tripel Pythagoras</h1>
+        <p class="lead">Tripel Pythagoras adalah tiga bilangan bulat (a, b, c) yang memenuhi a² + b² = c². Kelipatannya juga tetap berlaku. Klik salah satu kartu untuk melihat pembuktian angkanya.</p>
+        <div class="triple-grid" id="tripleGrid"></div>
+        <div class="triple-detail panel" id="tripleDetail">👆 Klik salah satu tripel di atas untuk melihat perhitungannya.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: CONTOH SOAL 1 -->
+    <section class="slide" data-title="Contoh Soal — Sisi Miring">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>08 · Contoh Soal 1</p>
+        <h1 class="slide-title">Mencari Panjang Sisi Miring</h1>
+        <div class="example-box" id="ex1">
+          <div class="example-question">Sebuah segitiga siku-siku memiliki sisi tegak <b>a = 6 cm</b> dan sisi alas <b>b = 8 cm</b>. Berapa panjang sisi miring (c)?</div>
+          <div class="step">1. Tuliskan rumus dasar: <span class="step-formula">c = √(a² + b²)</span></div>
+          <div class="step">2. Masukkan nilai a dan b: <span class="step-formula">c = √(6² + 8²)</span></div>
+          <div class="step">3. Hitung kuadratnya: <span class="step-formula">c = √(36 + 64) = √100</span></div>
+          <div class="step final">4. Hasil akhir: <span class="step-formula">c = 10 cm</span> ✅</div>
+          <div class="example-actions">
+            <button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: CONTOH SOAL 2 -->
+    <section class="slide" data-title="Contoh Soal — Sisi Siku-Siku">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>09 · Contoh Soal 2</p>
+        <h1 class="slide-title">Mencari Panjang Sisi Siku-Siku</h1>
+        <div class="example-box" id="ex2">
+          <div class="example-question">Sebuah segitiga siku-siku memiliki sisi miring <b>c = 13 cm</b> dan salah satu sisi tegak <b>a = 5 cm</b>. Berapa panjang sisi b?</div>
+          <div class="step">1. Tuliskan rumus untuk mencari sisi tegak: <span class="step-formula">b = √(c² − a²)</span></div>
+          <div class="step">2. Masukkan nilai c dan a: <span class="step-formula">b = √(13² − 5²)</span></div>
+          <div class="step">3. Hitung kuadratnya: <span class="step-formula">b = √(169 − 25) = √144</span></div>
+          <div class="step final">4. Hasil akhir: <span class="step-formula">b = 12 cm</span> ✅</div>
+          <div class="example-actions">
+            <button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: CONTOH SOAL 3 - CERITA TANGGA -->
+    <section class="slide" data-title="Contoh Soal — Tangga">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>10 · Contoh Soal 3 (Soal Cerita)</p>
+        <h1 class="slide-title">Tangga Bersandar di Tembok</h1>
+        <div class="two-col">
+          <div class="diagram-card">
+            <svg viewBox="0 0 260 240" xmlns="http://www.w3.org/2000/svg">
+              <line x1="40" y1="220" x2="40" y2="20" stroke="var(--text-dim)" stroke-width="4"/>
+              <line x1="40" y1="220" x2="220" y2="220" stroke="var(--text-dim)" stroke-width="4"/>
+              <line x1="40" y1="70" x2="220" y2="220" stroke="var(--c-color)" stroke-width="6" stroke-linecap="round"/>
+              <text x="52" y="150" fill="var(--a-color)" font-family="JetBrains Mono" font-size="14" font-weight="700">tinggi?</text>
+              <text x="110" y="238" fill="var(--b-color)" font-family="JetBrains Mono" font-size="14" font-weight="700">3 m</text>
+              <text x="90" y="140" fill="var(--c-color)" font-family="JetBrains Mono" font-size="14" font-weight="700">5 m</text>
+              <rect x="40" y="205" width="15" height="15" fill="none" stroke="var(--text-dim)"/>
+            </svg>
+          </div>
+          <div class="example-box" id="ex3" style="margin:0;">
+            <div class="example-question">Sebuah tangga sepanjang <b>5 m</b> disandarkan ke tembok. Jarak kaki tangga ke tembok adalah <b>3 m</b>. Berapa tinggi tangga menyentuh tembok?</div>
+            <div class="step">1. Tangga = sisi miring (c = 5 m), jarak ke tembok = sisi alas (b = 3 m). Rumus: <span class="step-formula">a = √(c² − b²)</span></div>
+            <div class="step">2. Masukkan nilai: <span class="step-formula">a = √(5² − 3²)</span></div>
+            <div class="step">3. Hitung: <span class="step-formula">a = √(25 − 9) = √16</span></div>
+            <div class="step final">4. Tinggi tangga = <span class="step-formula">4 meter</span> ✅</div>
+            <div class="example-actions">
+              <button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: CONTOH SOAL 4 - LAPANGAN -->
+    <section class="slide" data-title="Contoh Soal — Diagonal Lapangan">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>11 · Contoh Soal 4 (Soal Cerita)</p>
+        <h1 class="slide-title">Diagonal Lapangan</h1>
+        <div class="two-col">
+          <div class="diagram-card">
+            <svg viewBox="0 0 260 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="30" y="30" width="200" height="140" fill="none" stroke="var(--text-dim)" stroke-width="3"/>
+              <line x1="30" y1="30" x2="230" y2="170" stroke="var(--c-color)" stroke-width="5"/>
+              <text x="105" y="20" fill="var(--b-color)" font-family="JetBrains Mono" font-size="13" font-weight="700">30 m</text>
+              <text x="235" y="105" fill="var(--a-color)" font-family="JetBrains Mono" font-size="13" font-weight="700">40 m</text>
+              <text x="95" y="95" fill="var(--c-color)" font-family="JetBrains Mono" font-size="13" font-weight="700">diagonal?</text>
+            </svg>
+          </div>
+          <div class="example-box" id="ex4" style="margin:0;">
+            <div class="example-question">Sebuah lapangan berbentuk persegi panjang berukuran <b>30 m × 40 m</b>. Berapa panjang diagonal lapangan tersebut?</div>
+            <div class="step">1. Diagonal adalah sisi miring dari segitiga siku-siku yang dibentuk oleh panjang dan lebar. Rumus: <span class="step-formula">c = √(a² + b²)</span></div>
+            <div class="step">2. Masukkan nilai: <span class="step-formula">c = √(30² + 40²)</span></div>
+            <div class="step">3. Hitung: <span class="step-formula">c = √(900 + 1600) = √2500</span></div>
+            <div class="step final">4. Panjang diagonal = <span class="step-formula">50 meter</span> ✅</div>
+            <div class="example-actions">
+              <button class="btn btn-primary" onclick="stepReveal(this)">Tampilkan Langkah →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: LATIHAN MANDIRI -->
+    <section class="slide" data-title="Latihan Mandiri">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>12 · Latihan Mandiri</p>
+        <h1 class="slide-title">Sekarang Coba Kamu Hitung</h1>
+        <p class="lead">Isi jawabanmu pada kotak, lalu klik "Cek Jawaban".</p>
+
+        <div class="practice-item">
+          <div class="q">1. Segitiga siku-siku dengan a = 9 cm dan b = 12 cm. Berapa panjang c?</div>
+          <div class="practice-row">
+            <input type="number" id="p1-input" placeholder="cm">
+            <button class="btn btn-ghost" onclick="checkPractice('p1', 15)">Cek Jawaban</button>
+            <span class="feedback" id="p1-fb"></span>
+          </div>
+        </div>
+
+        <div class="practice-item">
+          <div class="q">2. Segitiga siku-siku dengan c = 25 cm dan a = 7 cm. Berapa panjang b?</div>
+          <div class="practice-row">
+            <input type="number" id="p2-input" placeholder="cm">
+            <button class="btn btn-ghost" onclick="checkPractice('p2', 24)">Cek Jawaban</button>
+            <span class="feedback" id="p2-fb"></span>
+          </div>
+        </div>
+
+        <div class="practice-item">
+          <div class="q">3. Sebuah layar televisi berbentuk persegi panjang lebar 24 inci dan tinggi 10 inci. Berapa ukuran diagonal layar (dalam inci)?</div>
+          <div class="practice-row">
+            <input type="number" id="p3-input" placeholder="inci">
+            <button class="btn btn-ghost" onclick="checkPractice('p3', 26)">Cek Jawaban</button>
+            <span class="feedback" id="p3-fb"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>13 · Kuis Interaktif</p>
+        <h1 class="slide-title">Uji Pemahamanmu</h1>
+        <div class="quiz-wrap">
+          <div class="quiz-progress" id="quizProgress"></div>
+          <div id="quizArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: RINGKASAN & SELESAI -->
+    <section class="slide" data-title="Selesai">
+      <div class="slide-inner">
+        <p class="eyebrow"><span class="dash"></span>14 · Penutup</p>
+        <h1 class="slide-title">Ringkasan Bab 2</h1>
+        <div class="summary-grid">
+          <div class="summary-card"><span class="sf">RUMUS</span>Pada segitiga siku-siku berlaku a² + b² = c², di mana c adalah sisi miring (hipotenusa).</div>
+          <div class="summary-card"><span class="sf">PEMBUKTIAN</span>Rumus ini bisa dibuktikan dengan menyusun 4 segitiga siku-siku kongruen di dalam sebuah persegi.</div>
+          <div class="summary-card"><span class="sf">TRIPEL</span>3-4-5, 6-8-10, 5-12-13, 8-15-17, dan 7-24-25 adalah contoh tripel Pythagoras yang sering dipakai.</div>
+          <div class="summary-card"><span class="sf">PENERAPAN</span>Teorema ini dipakai untuk mencari tinggi tangga, panjang diagonal lapangan, layar, dan banyak soal cerita lainnya.</div>
+        </div>
+        <div class="panel center" style="margin-top:8px;">
+          <p class="lead" style="margin:0;">Terima kasih sudah belajar Bab 2: Teorema Pythagoras! Semoga rumus a² + b² = c² makin melekat di ingatanmu. 🎉</p>
+        </div>
+        <div class="final-actions">
+          <button class="btn btn-ghost" onclick="goToSlide(0)">↺ Ulangi dari Awal</button>
+          <button class="btn btn-primary" id="btnSelesai" onclick="window.location.href='matb-bab2.html'">✓ Selesai — Kembali ke Bab 2</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+    <div class="slide-name-mobile" id="slideNameMobile">Pembuka</div>
+    <div class="dots" id="dotsWrap"></div>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+  </div>
+
+</div>
+
+<script>
+/* ============ NAVIGATION ============ */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+
+const dotsWrap = document.getElementById('dotsWrap');
+slides.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-item';
+  d.title = s.dataset.title || ('Slide ' + (i+1));
+  d.onclick = () => goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+
+document.getElementById('slideTotal').textContent = String(total).padStart(2,'0');
+
+function render(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.querySelectorAll('.dot-item').forEach((d,i)=>{
+    d.classList.toggle('active', i===current);
+    d.classList.toggle('done', i<current);
+  });
+  document.getElementById('slideCurrent').textContent = String(current+1).padStart(2,'0');
+  document.getElementById('progressFill').style.width = (((current)/(total-1))*100) + '%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  document.getElementById('slideNameMobile').textContent = slides[current].dataset.title || '';
+  document.getElementById('viewport').scrollTop = 0;
+  slides[current].scrollTop = 0;
+  if(current === 3) updateTriangleDemo();
+  if(current === 6) renderTriples();
+  if(current === 12) initQuiz();
+}
+function goToSlide(i){ if(i<0||i>=total) return; current=i; render(); }
+function nextSlide(){ if(current<total-1){ current++; render(); } }
+function prevSlide(){ if(current>0){ current--; render(); } }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* ============ SLIDE 2: tooltips ============ */
+const tips = {
+  a: '<b style="color:var(--a-color)">Sisi a (sisi tegak)</b> — salah satu dari dua sisi yang membentuk sudut siku-siku. Panjangnya bisa berbeda dengan sisi b.',
+  b: '<b style="color:var(--b-color)">Sisi b (alas)</b> — sisi kedua yang membentuk sudut siku-siku, biasanya digambar mendatar.',
+  c: '<b style="color:var(--c-color)">Sisi c (hipotenusa / sisi miring)</b> — sisi terpanjang pada segitiga siku-siku, selalu berada tepat di depan sudut 90°.',
+  siku: '<b style="color:var(--accent)">Sudut siku-siku (90°)</b> — sudut yang dibentuk oleh sisi a dan b. Tanda kotak kecil menunjukkan besar sudutnya tepat 90°.'
+};
+function showTip(key){
+  const box = document.getElementById('tipBox');
+  box.classList.remove('empty');
+  box.innerHTML = tips[key];
+}
+
+/* ============ SLIDE 4: interactive triangle demo ============ */
+function updateTriangleDemo(){
+  const a = parseInt(document.getElementById('slider-a').value);
+  const b = parseInt(document.getElementById('slider-b').value);
+  const c = Math.sqrt(a*a + b*b);
+  document.getElementById('labelA').textContent = a;
+  document.getElementById('labelB').textContent = b;
+  document.getElementById('calcA2').textContent = a*a;
+  document.getElementById('calcB2').textContent = b*b;
+  document.getElementById('calcSum').textContent = a*a + b*b;
+  document.getElementById('calcSum2').textContent = a*a + b*b;
+  document.getElementById('calcC').textContent = c.toFixed(2);
+
+  // scale into a fixed drawing box
+  const scale = 14;
+  const ox = 40, oy = 260;
+  const ax = a*scale, bx = b*scale;
+  const p0 = [ox, oy], p1 = [ox, oy-ax], p2 = [ox+bx, oy];
+
+  const g = document.getElementById('triDemoGroup');
+  g.innerHTML = `
+    <rect x="${ox-ax}" y="${oy-ax}" width="${ax}" height="${ax}" fill="var(--a-color)" opacity="0.45" stroke="var(--a-color)" stroke-width="2"/>
+    <rect x="${ox}" y="${oy}" width="${bx}" height="${bx}" fill="var(--b-color)" opacity="0.45" stroke="var(--b-color)" stroke-width="2"/>
+    <polygon points="${p1[0]},${p1[1]} ${p0[0]},${p0[1]} ${p2[0]},${p2[1]}" fill="var(--panel-light)" stroke="var(--line)" stroke-width="1.5"/>
+    <rect x="${ox}" y="${oy-14}" width="14" height="14" fill="none" stroke="var(--text-dim)" stroke-width="1.5"/>
+    <line x1="${p1[0]}" y1="${p1[1]}" x2="${p2[0]}" y2="${p2[1]}" stroke="var(--c-color)" stroke-width="4"/>
+    <text x="${ox-ax-6}" y="${oy-ax/2}" fill="var(--a-color)" font-family="JetBrains Mono" font-weight="700" font-size="13" text-anchor="end">a²</text>
+    <text x="${ox+bx/2}" y="${oy+bx+16}" fill="var(--b-color)" font-family="JetBrains Mono" font-weight="700" font-size="13" text-anchor="middle">b²</text>
+    <text x="${(p1[0]+p2[0])/2 + 10}" y="${(p1[1]+p2[1])/2}" fill="var(--c-color)" font-family="JetBrains Mono" font-weight="700" font-size="13">c</text>
+  `;
+}
+
+/* ============ SLIDE 5: proof 1 click ============ */
+function showProof1(){
+  const box = document.getElementById('proof1Box');
+  box.classList.remove('empty');
+  box.innerHTML = 'Luas persegi tengah (miring) = <b style="color:var(--c-color)">c²</b>. Sisi persegi ini adalah sisi miring dari tiap segitiga di sekelilingnya — jadi luasnya persis c × c.';
+}
+
+/* ============ SLIDE 6: toggle proof view ============ */
+let proofState = 'A';
+function toggleProofView(){
+  const stateA = document.getElementById('stateA');
+  const stateB = document.getElementById('stateB');
+  const btn = document.getElementById('proofToggleBtn');
+  if(proofState==='A'){
+    stateA.style.display='none'; stateB.style.display='block';
+    proofState='B';
+    btn.textContent = '🔄 Kembali ke Susunan Awal (c²)';
+  } else {
+    stateA.style.display='block'; stateB.style.display='none';
+    proofState='A';
+    btn.textContent = '🔄 Tampilkan Susunan Ulang (a² + b²)';
+  }
+}
+
+/* ============ SLIDE 7: triples ============ */
+const triples = [
+  {a:3,b:4,c:5},
+  {a:6,b:8,c:10},
+  {a:5,b:12,c:13},
+  {a:8,b:15,c:17},
+  {a:7,b:24,c:25},
+  {a:9,b:12,c:15},
+];
+let triplesRendered = false;
+function renderTriples(){
+  if(triplesRendered) return;
+  triplesRendered = true;
+  const grid = document.getElementById('tripleGrid');
+  triples.forEach(t=>{
+    const card = document.createElement('div');
+    card.className='triple-card';
+    card.innerHTML = `<div class="nums">${t.a}-${t.b}-${t.c}</div><div class="hint">klik untuk cek</div>`;
+    card.onclick = ()=>{
+      document.getElementById('tripleDetail').innerHTML =
+        `<b style="color:var(--a-color)">${t.a}²</b> + <b style="color:var(--b-color)">${t.b}²</b> = ${t.a*t.a} + ${t.b*t.b} = ${t.a*t.a+t.b*t.b} &nbsp;=&nbsp; <b style="color:var(--c-color)">${t.c}²</b> = ${t.c*t.c} ✅ Terbukti tripel Pythagoras!`;
+    };
+    grid.appendChild(card);
+  });
+}
+
+/* ============ Example step reveal (slides 8-11) ============ */
+function stepReveal(btn){
+  const box = btn.closest('.example-box');
+  const steps = Array.from(box.querySelectorAll('.step'));
+  const nextHidden = steps.find(s=>!s.classList.contains('shown'));
+  if(nextHidden){
+    nextHidden.classList.add('shown');
+  }
+  const remaining = steps.filter(s=>!s.classList.contains('shown'));
+  if(remaining.length===0){
+    btn.textContent = '↺ Ulangi';
+    btn.onclick = ()=>{ steps.forEach(s=>s.classList.remove('shown')); btn.textContent='Tampilkan Langkah →'; btn.onclick=()=>stepReveal(btn); };
+  } else {
+    btn.textContent = 'Tampilkan Langkah →';
+  }
+}
+
+/* ============ Practice check (slide 12) ============ */
+function checkPractice(id, answer){
+  const input = document.getElementById(id+'-input');
+  const fb = document.getElementById(id+'-fb');
+  const val = parseFloat(input.value);
+  if(isNaN(val)){ fb.textContent = 'Isi jawabanmu dulu ya'; fb.className='feedback no'; return; }
+  if(Math.abs(val-answer) < 0.001){
+    fb.textContent = '✅ Benar! Kerja bagus.';
+    fb.className='feedback ok';
+  } else {
+    fb.textContent = `❌ Belum tepat. Jawaban: ${answer}`;
+    fb.className='feedback no';
+  }
+}
+
+/* ============ Quiz (slide 13) ============ */
+const quizData = [
+  { q:'Rumus Teorema Pythagoras yang benar adalah…', opts:['a + b = c','a² + b² = c²','a² − b² = c²','a × b = c²'], correct:1 },
+  { q:'Pada segitiga siku-siku, sisi terpanjang yang berhadapan dengan sudut 90° disebut…', opts:['Alas','Sisi tegak','Hipotenusa','Tinggi'], correct:2 },
+  { q:'Jika a = 6 cm dan b = 8 cm, berapa panjang sisi miring c?', opts:['12 cm','14 cm','10 cm','16 cm'], correct:2 },
+  { q:'Jika c = 17 cm dan a = 8 cm, berapa panjang sisi b?', opts:['9 cm','15 cm','12 cm','13 cm'], correct:1 },
+  { q:'Manakah dari berikut ini yang merupakan tripel Pythagoras?', opts:['2, 3, 4','5, 6, 7','3, 4, 5','1, 2, 3'], correct:2 },
+];
+let quizIndex = 0, quizScore = 0, quizAnswered = [];
+
+function initQuiz(){
+  quizIndex = 0; quizScore = 0; quizAnswered = new Array(quizData.length).fill(null);
+  renderQuizProgress();
+  renderQuizQuestion();
+}
+function renderQuizProgress(){
+  const wrap = document.getElementById('quizProgress');
+  wrap.innerHTML='';
+  quizData.forEach((_,i)=>{
+    const d = document.createElement('div');
+    d.className = 'dot' + (quizAnswered[i]!==null ? ' done' : '');
+    wrap.appendChild(d);
+  });
+}
+function renderQuizQuestion(){
+  const area = document.getElementById('quizArea');
+  if(quizIndex >= quizData.length){
+    let msg = 'Yuk pelajari lagi materinya, kamu pasti bisa!';
+    if(quizScore===5) msg = 'Sempurna! Kamu benar-benar menguasai Teorema Pythagoras! 🏆';
+    else if(quizScore===4) msg = 'Hebat! Tinggal sedikit lagi sempurna. 🎯';
+    else if(quizScore===3) msg = 'Bagus! Terus berlatih soal-soalnya ya. 💪';
+    area.innerHTML = `
+      <div class="quiz-question quiz-result">
+        <div class="score-num">${quizScore}/${quizData.length}</div>
+        <div class="score-msg">${msg}</div>
+        <button class="btn btn-primary" onclick="initQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const item = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="quiz-question">
+      <div class="qtext">Soal ${quizIndex+1}. ${item.q}</div>
+      <div class="qoptions" id="qopts"></div>
+      <div class="quiz-footer">
+        <span class="quiz-score-badge">Skor sementara: ${quizScore}/${quizData.length}</span>
+        <button class="btn btn-ghost" id="quizNextBtn" style="display:none;" onclick="quizNext()">Lanjut →</button>
+      </div>
+    </div>`;
+  const optsWrap = document.getElementById('qopts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'qoption';
+    b.textContent = opt;
+    b.onclick = ()=> selectQuizOption(i);
+    optsWrap.appendChild(b);
+  });
+}
+function selectQuizOption(i){
+  const item = quizData[quizIndex];
+  const opts = document.querySelectorAll('#qopts .qoption');
+  opts.forEach(o=>o.disabled = true);
+  if(i===item.correct){
+    opts[i].classList.add('correct');
+    quizScore++;
+  } else {
+    opts[i].classList.add('wrong');
+    opts[item.correct].classList.add('correct');
+  }
+  quizAnswered[quizIndex] = i;
+  renderQuizProgress();
+  document.getElementById('quizNextBtn').style.display='inline-flex';
+  document.querySelector('.quiz-score-badge').textContent = `Skor sementara: ${quizScore}/${quizData.length}`;
+}
+function quizNext(){
+  quizIndex++;
+  renderQuizQuestion();
+}
+</script>
+</body>
+</html>

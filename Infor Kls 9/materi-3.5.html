@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Bab 3 — Praktik Pengolahan dan Pengubahan Citra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#080c17;
+  --bg-surface:#111a2e;
+  --bg-surface-2:#182543;
+  --bg-surface-3:#1f2f54;
+  --line:rgba(255,255,255,.09);
+  --line-soft:rgba(255,255,255,.05);
+  --text:#eaf0fb;
+  --text-muted:#8b9ac2;
+  --text-dim:#5c6a90;
+  --cyan:#4cc9f0;
+  --cyan-dim:rgba(76,201,240,.14);
+  --amber:#ffb454;
+  --amber-dim:rgba(255,180,84,.14);
+  --r:#ff5d6c;
+  --g:#4ce68a;
+  --b:#5d9dff;
+  --r-dim:rgba(255,93,108,.14);
+  --g-dim:rgba(76,230,138,.14);
+  --b-dim:rgba(93,157,255,.14);
+  --radius:18px;
+  --radius-sm:12px;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Plus Jakarta Sans',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --nav-h:84px;
+  --progress-h:5px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg-deep);}
+body{
+  font-family:var(--body);
+  color:var(--text);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(76,201,240,.07), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(255,180,84,.06), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 34px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0px, rgba(255,255,255,.025) 1px, transparent 1px, transparent 34px);
+}
+::selection{background:var(--cyan);color:#04121c;}
+h1,h2,h3{font-family:var(--disp);margin:0;letter-spacing:-.01em;}
+p{margin:0;}
+button{font-family:var(--body);cursor:pointer;border:none;background:none;color:inherit;}
+.mono{font-family:var(--mono);}
+
+.progress-bar{position:fixed;top:0;left:0;width:100%;height:var(--progress-h);background:rgba(255,255,255,.06);z-index:60;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .45s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(76,201,240,.6);}
+
+.slide-deck{position:fixed;top:0;left:0;width:100%;height:calc(100% - var(--nav-h));padding-top:var(--progress-h);overflow:hidden;}
+.slide{
+  position:absolute;inset:0;top:var(--progress-h);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 6vw 24px;
+  opacity:0;visibility:hidden;
+  transform:translateX(40px) scale(.98);
+  transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1), visibility 0s linear .5s;
+  overflow-y:auto;
+}
+.slide.active{opacity:1;visibility:visible;transform:translateX(0) scale(1);transition:opacity .5s cubic-bezier(.4,0,.2,1), transform .5s cubic-bezier(.4,0,.2,1), visibility 0s;}
+.slide-inner{width:100%;max-width:1080px;margin:0 auto;}
+.slide-inner.wide{max-width:1180px;}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(76,201,240,.3);
+  padding:6px 14px;border-radius:100px;margin-bottom:14px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.slide-title{font-size:clamp(23px,3.6vw,38px);font-weight:700;line-height:1.14;margin-bottom:8px;}
+.slide-title .accent{color:var(--cyan);}
+.slide-title .accent2{color:var(--amber);}
+.slide-sub{font-size:clamp(13px,1.4vw,16px);color:var(--text-muted);max-width:720px;line-height:1.6;margin-bottom:18px;}
+
+.card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:820px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 18px;border-radius:100px;font-weight:600;font-size:13.5px;
+  background:var(--bg-surface-2);border:1px solid var(--line);color:var(--text);transition:.2s;
+}
+.btn:hover{border-color:rgba(76,201,240,.5);background:var(--bg-surface-3);}
+.btn-primary{background:var(--cyan);color:#04121c;border-color:var(--cyan);}
+.btn-primary:hover{background:#6bd6f7;}
+.btn-amber{background:var(--amber);color:#241300;border-color:var(--amber);}
+.btn-amber:hover{background:#ffc472;}
+.btn-sm{padding:8px 14px;font-size:12.5px;}
+.btn.active{background:var(--cyan-dim);border-color:var(--cyan);color:var(--cyan);}
+input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:10px;background:var(--bg-surface-3);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 0 4px rgba(76,201,240,.2);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--cyan);border:none;cursor:pointer;}
+
+/* ---------- cover ---------- */
+#slide-0 .slide-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.pixel-hero{width:min(74vw,280px);height:min(74vw,280px);display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:3px;margin:0 auto 24px;}
+.pixel-hero div{border-radius:3px;background:var(--bg-surface-2);opacity:0;transform:scale(.3);animation:pxin .5s cubic-bezier(.2,1.4,.4,1) forwards;}
+@keyframes pxin{to{opacity:1;transform:scale(1);}}
+.cover-kicker{font-family:var(--mono);font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);margin-bottom:12px;}
+.cover-title{font-size:clamp(26px,4.8vw,50px);font-weight:700;line-height:1.1;margin-bottom:12px;}
+.cover-title span{background:linear-gradient(90deg,var(--cyan),#8de8ff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.cover-desc{color:var(--text-muted);max-width:580px;font-size:15px;line-height:1.7;}
+.cover-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px;}
+.chip{font-family:var(--mono);font-size:12px;padding:7px 13px;border-radius:100px;border:1px solid var(--line);color:var(--text-muted);}
+
+/* ---------- peta materi ---------- */
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:820px){.map-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.map-grid{grid-template-columns:1fr;}}
+.map-item{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px;cursor:pointer;transition:.2s;}
+.map-item:hover{border-color:rgba(76,201,240,.5);transform:translateY(-2px);background:var(--bg-surface-2);}
+.map-item .num{font-family:var(--mono);color:var(--cyan);font-size:12px;}
+.map-item .lbl{font-weight:600;font-size:13.5px;margin-top:6px;line-height:1.35;}
+
+/* ---------- software cards ---------- */
+.soft-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:780px){.soft-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.soft-grid{grid-template-columns:1fr;}}
+.soft-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px;}
+.soft-card .name{font-weight:700;font-size:14px;color:var(--cyan);margin-bottom:4px;}
+.soft-card .tag{font-family:var(--mono);font-size:10.5px;color:var(--amber);background:var(--amber-dim);display:inline-block;padding:2px 8px;border-radius:100px;margin-bottom:8px;}
+.soft-card .d{font-size:12.5px;color:var(--text-muted);line-height:1.55;}
+
+/* ---------- tool glossary flip cards ---------- */
+.fmt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+@media(max-width:900px){.fmt-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:640px){.fmt-grid{grid-template-columns:1fr 1fr;}}
+.flip-card{perspective:1200px;height:140px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.4,.1,.3,1);transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--radius-sm);border:1px solid var(--line);padding:12px;display:flex;flex-direction:column;}
+.flip-front{background:var(--bg-surface);align-items:center;justify-content:center;text-align:center;gap:6px;}
+.flip-front .ic{font-size:26px;}
+.flip-front .nm{font-size:12.5px;font-weight:700;}
+.flip-front .hint{font-size:9.5px;color:var(--text-dim);margin-top:auto;font-family:var(--mono);}
+.flip-back{background:var(--bg-surface-2);justify-content:center;transform:rotateY(180deg);}
+.flip-back p{font-size:11.5px;line-height:1.5;color:#d7deef;}
+
+/* ---------- EDITOR PRAKTIK ---------- */
+.editor-shell{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;justify-content:center;width:100%;}
+.editor-toolbar{display:flex;flex-direction:column;gap:8px;background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px;}
+.tool-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 10px;border-radius:10px;background:var(--bg-surface-2);border:1px solid transparent;font-size:9.5px;min-width:56px;}
+.tool-btn .ic{font-size:17px;}
+.tool-btn.active{border-color:var(--cyan);background:var(--cyan-dim);color:var(--cyan);}
+.editor-canvas-wrap{background:#e9edf5;border-radius:12px;border:1px solid var(--line);overflow:hidden;line-height:0;}
+#drawCanvas{width:100%;max-width:520px;height:auto;display:block;touch-action:none;cursor:crosshair;}
+.editor-side{display:flex;flex-direction:column;gap:14px;width:190px;}
+.pal-row{display:flex;gap:6px;flex-wrap:wrap;}
+.pal-swatch{width:24px;height:24px;border-radius:7px;cursor:pointer;border:2px solid transparent;}
+.pal-swatch.active{border-color:#fff;}
+.editor-actions{display:flex;flex-direction:column;gap:8px;}
+.brush-row label{font-size:12px;color:var(--text-muted);display:flex;justify-content:space-between;margin-bottom:6px;}
+.brush-row label b{color:var(--cyan);font-family:var(--mono);}
+input[type=color]{-webkit-appearance:none;width:44px;height:34px;border:none;border-radius:8px;overflow:hidden;background:none;cursor:pointer;padding:0;}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+input[type=color]::-webkit-color-swatch{border:1px solid var(--line);border-radius:8px;}
+.color-row{display:flex;align-items:center;gap:10px;}
+@media(max-width:640px){.editor-side{width:100%;flex-direction:row;flex-wrap:wrap;}.editor-toolbar{flex-direction:row;flex-wrap:wrap;justify-content:center;width:100%;}}
+
+/* ---------- steps mini ---------- */
+.mini-steps{display:flex;flex-direction:column;gap:10px;max-width:560px;margin:0 auto;}
+.mini-step{display:flex;gap:14px;align-items:flex-start;background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:13px 16px;}
+.mini-step .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--cyan-dim);color:var(--cyan);font-family:var(--mono);font-size:13px;display:flex;align-items:center;justify-content:center;}
+.mini-step .t{font-size:14px;font-weight:600;margin-bottom:2px;}
+.mini-step .d{font-size:12.5px;color:var(--text-muted);line-height:1.5;}
+
+/* ---------- tips grid ---------- */
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:820px){.tips-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.tips-grid{grid-template-columns:1fr;}}
+.tip-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:15px;}
+.tip-card .ic{font-size:20px;margin-bottom:6px;}
+.tip-card .t{font-weight:700;font-size:13.5px;margin-bottom:4px;color:var(--amber);}
+.tip-card .d{font-size:12px;color:var(--text-muted);line-height:1.5;}
+
+/* ---------- contoh soal ---------- */
+.soal-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;}
+.soal-badge{font-family:var(--mono);font-size:11px;color:var(--bg-deep);background:var(--amber);padding:4px 10px;border-radius:100px;font-weight:700;display:inline-block;margin-bottom:12px;}
+.soal-text{font-size:15px;line-height:1.75;color:#e4e9f7;margin-bottom:16px;}
+.soal-text b{color:var(--amber);}
+.soal-answer{max-height:0;overflow:hidden;transition:max-height .5s ease;border-top:1px dashed var(--line);}
+.soal-answer.open{max-height:600px;padding-top:14px;}
+.soal-step{display:flex;gap:12px;margin-bottom:10px;font-size:13.5px;line-height:1.6;color:#cfd7ee;}
+.soal-step .n{flex:0 0 24px;height:24px;border-radius:50%;background:var(--cyan-dim);color:var(--cyan);font-family:var(--mono);font-size:12px;display:flex;align-items:center;justify-content:center;}
+.soal-final{margin-top:10px;font-family:var(--mono);color:var(--g);background:var(--g-dim);padding:10px 14px;border-radius:10px;font-size:13px;}
+.soal-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.soal-opt-line{font-size:13px;color:var(--text-muted);background:var(--bg-surface-2);padding:8px 12px;border-radius:8px;}
+
+/* ---------- kuis ---------- */
+.quiz-shell{width:100%;max-width:620px;}
+.quiz-progress-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:12px;color:var(--text-muted);}
+.quiz-score-pill{background:var(--amber-dim);color:var(--amber);padding:4px 12px;border-radius:100px;}
+.quiz-q-card{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;}
+.quiz-q-text{font-size:15.5px;font-weight:600;margin-bottom:14px;line-height:1.5;}
+.quiz-opt{display:block;width:100%;text-align:left;padding:12px 15px;border-radius:12px;border:1px solid var(--line);background:var(--bg-surface-2);margin-bottom:8px;font-size:13.5px;transition:.15s;}
+.quiz-opt:hover{border-color:rgba(76,201,240,.5);}
+.quiz-opt.correct{background:var(--g-dim);border-color:var(--g);color:var(--g);}
+.quiz-opt.wrong{background:var(--r-dim);border-color:var(--r);color:var(--r);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-explain{margin-top:12px;padding:12px 14px;background:var(--bg-surface-2);border-radius:10px;font-size:13px;color:var(--text-muted);line-height:1.6;display:none;}
+.quiz-explain.show{display:block;}
+.quiz-next-row{margin-top:14px;text-align:right;}
+.quiz-summary{text-align:center;padding:14px 0;}
+.quiz-summary .big-score{font-family:var(--disp);font-size:46px;color:var(--cyan);}
+.quiz-summary .msg{color:var(--text-muted);margin-top:8px;font-size:13.5px;}
+
+/* ---------- rangkuman ---------- */
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:820px){.sum-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.sum-grid{grid-template-columns:1fr;}}
+.sum-chip{background:var(--bg-surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px;cursor:pointer;transition:.2s;}
+.sum-chip:hover{border-color:rgba(76,201,240,.5);background:var(--bg-surface-2);}
+.sum-chip .t{font-weight:700;font-size:13.5px;color:var(--cyan);margin-bottom:5px;}
+.sum-chip .d{font-size:12px;color:var(--text-muted);line-height:1.5;max-height:0;overflow:hidden;transition:max-height .35s;}
+.sum-chip.open .d{max-height:200px;margin-top:4px;}
+
+/* ---------- penutup ---------- */
+#slide-14 .slide-inner{text-align:center;display:flex;flex-direction:column;align-items:center;}
+.done-ring{width:104px;height:104px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;margin-bottom:22px;box-shadow:0 0 30px rgba(76,230,138,.25);}
+.done-ring svg{width:44px;height:44px;}
+
+/* ---------- bottom nav ---------- */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;width:100%;height:var(--nav-h);
+  background:rgba(8,12,23,.9);backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;z-index:50;gap:14px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:100px;
+  background:var(--bg-surface);border:1px solid var(--line);font-weight:600;font-size:14px;
+  min-height:46px;transition:.15s;
+}
+.nav-btn:hover:not(:disabled){border-color:rgba(76,201,240,.5);background:var(--bg-surface-2);}
+.nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.nav-center{display:flex;align-items:center;gap:14px;}
+.slide-counter{font-family:var(--mono);font-size:13px;color:var(--text-muted);min-width:56px;text-align:center;}
+.menu-btn{
+  display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;
+  background:var(--bg-surface);border:1px solid var(--line);
+}
+.menu-btn:hover{border-color:rgba(76,201,240,.5);}
+@media(max-width:600px){.nav-btn span.lbl{display:none;}.nav-btn{padding:12px;}}
+
+/* ---------- slide menu overlay ---------- */
+.menu-overlay{position:fixed;inset:0;background:rgba(4,7,15,.85);backdrop-filter:blur(6px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px;}
+.menu-overlay.show{display:flex;}
+.menu-panel{background:var(--bg-surface);border:1px solid var(--line);border-radius:20px;padding:22px;max-width:640px;width:100%;max-height:80vh;overflow-y:auto;}
+.menu-panel h3{font-size:18px;margin-bottom:16px;}
+.menu-list{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+@media(max-width:560px){.menu-list{grid-template-columns:1fr;}}
+.menu-list button{
+  text-align:left;padding:11px 14px;border-radius:10px;background:var(--bg-surface-2);border:1px solid transparent;font-size:13.5px;display:flex;gap:10px;align-items:center;
+}
+.menu-list button:hover{border-color:rgba(76,201,240,.5);}
+.menu-list button.current{border-color:var(--cyan);color:var(--cyan);}
+.menu-list .idx{font-family:var(--mono);font-size:11px;color:var(--text-dim);}
+
+.slide::-webkit-scrollbar{width:7px;}
+.slide::-webkit-scrollbar-thumb{background:var(--bg-surface-3);border-radius:10px;}
+.menu-panel::-webkit-scrollbar{width:7px;}
+.menu-panel::-webkit-scrollbar-thumb{background:var(--bg-surface-3);border-radius:10px;}
+
+@media(max-width:600px){
+  :root{--nav-h:76px;}
+  .slide{padding:20px 5vw 20px;}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<div class="slide-deck" id="slideDeck">
+
+<!-- SLIDE 0 — COVER -->
+<section class="slide" id="slide-0">
+  <div class="slide-inner">
+    <div class="pixel-hero" id="pixelHero"></div>
+    <div class="cover-kicker">Informatika · SMP</div>
+    <h1 class="cover-title">Bab 3 — Sistem Pengolahan<br>dan Pengubahan <span>Citra</span></h1>
+    <p class="cover-desc">Topik: Praktik Pengolahan dan Pengubahan Citra. Yuk praktik langsung mengedit gambar, menyimpan hasilnya, dan membuat karya citra digital sederhana!</p>
+    <div class="cover-chips">
+      <div class="chip">🖌️ Editor Gambar Mini</div>
+      <div class="chip">💾 Simpan Hasil</div>
+      <div class="chip">🎁 Proyek Kartu Ucapan</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 1 — PETA MATERI -->
+<section class="slide" id="slide-1">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Peta Materi</div>
+    <h2 class="slide-title">Apa saja yang akan kita praktikkan?</h2>
+    <p class="slide-sub">Klik salah satu topik untuk langsung meloncat ke sana, atau lanjutkan urut dengan tombol navigasi di bawah.</p>
+    <div class="map-grid" id="mapGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 2 — PENGANTAR & SOFTWARE -->
+<section class="slide" id="slide-2">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.15 Pengantar Praktik</div>
+    <h2 class="slide-title">Aplikasi untuk <span class="accent">Mengedit Citra</span></h2>
+    <p class="slide-sub">Ada banyak aplikasi yang bisa dipakai untuk mengedit citra digital, dari yang sederhana sampai profesional. Beberapa contohnya:</p>
+    <div class="soft-grid" id="softGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 3 — ALAT DASAR -->
+<section class="slide" id="slide-3">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.16 Alat Dasar Editor</div>
+    <h2 class="slide-title">Mengenal <span class="accent">Alat-Alat Dasar</span> Editor Gambar</h2>
+    <p class="slide-sub">Hampir semua editor gambar punya alat-alat dasar yang mirip. Klik tiap kartu untuk melihat fungsinya — nanti kita pakai semuanya di praktik!</p>
+    <div class="fmt-grid" id="toolGlossaryGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 4 — PRAKTIK EDITOR -->
+<section class="slide" id="slide-4">
+  <div class="slide-inner wide">
+    <div class="eyebrow"><span class="dot"></span>3.17 Praktik</div>
+    <h2 class="slide-title">🎨 Praktik: <span class="accent">Editor Gambar Mini</span></h2>
+    <p class="slide-sub">Coba gambar apa saja di kanvas berikut menggunakan alat-alat di sebelah kiri, lalu unduh hasilnya sebagai file gambar sungguhan!</p>
+    <div class="editor-shell">
+      <div class="editor-toolbar" id="editorToolbar"></div>
+      <div class="editor-canvas-wrap"><canvas id="drawCanvas" width="560" height="360"></canvas></div>
+      <div class="editor-side">
+        <div>
+          <div class="color-row">
+            <input type="color" id="colorPicker" value="#182543">
+            <span style="font-size:12px;color:var(--text-muted);">Pilih warna</span>
+          </div>
+          <div class="pal-row" id="palRow" style="margin-top:10px;"></div>
+        </div>
+        <div class="brush-row">
+          <label>Ukuran Kuas <b id="brushVal">5</b></label>
+          <input type="range" id="brushSize" min="1" max="30" value="5">
+        </div>
+        <div class="editor-actions">
+          <button class="btn btn-sm" id="undoBtn">↺ Undo</button>
+          <button class="btn btn-sm" id="clearBtn">🗑️ Bersihkan</button>
+          <button class="btn btn-amber" id="downloadBtn">⬇️ Unduh PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 5 — MENYIMPAN HASIL -->
+<section class="slide" id="slide-5">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.18 Menyimpan Hasil</div>
+    <h2 class="slide-title">Cara <span class="accent">Menyimpan Hasil</span> Karya</h2>
+    <p class="slide-sub">Saat mengedit gambar, kita perlu tahu cara menyimpannya agar bisa dibuka lagi atau dibagikan. Langkah umum menyimpan (Save As / Export):</p>
+    <div class="mini-steps" id="saveSteps"></div>
+    <div style="text-align:center;margin-top:18px;">
+      <button class="btn" onclick="goTo(4)">🔁 Kembali ke Editor untuk Coba Unduh</button>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 6 — PROYEK LATIHAN -->
+<section class="slide" id="slide-6">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.19 Proyek Latihan</div>
+    <h2 class="slide-title">🎁 Proyek: Membuat <span class="accent2">Kartu Ucapan</span> Sederhana</h2>
+    <p class="slide-sub">Sekarang giliranmu berkarya! Gunakan editor mini di slide sebelumnya untuk membuat kartu ucapan sederhana dengan mengikuti langkah berikut.</p>
+    <div class="mini-steps" id="projectSteps"></div>
+    <div style="text-align:center;margin-top:18px;">
+      <button class="btn btn-primary" onclick="goTo(4)">🎨 Buka Editor &amp; Mulai Berkarya</button>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 7 — TIPS -->
+<section class="slide" id="slide-7">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>3.20 Tips</div>
+    <h2 class="slide-title">Tips Membuat <span class="accent">Karya Citra Digital</span> yang Baik</h2>
+    <div class="tips-grid" id="tipsGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 8 — CONTOH SOAL 1 -->
+<section class="slide" id="slide-8">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 1 dari 4</div>
+    <h2 class="slide-title">Memilih Format saat Menyimpan</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL</div>
+      <p class="soal-text">Rian membuat logo untuk klub robotik sekolahnya. Logo tersebut nantinya akan ditempel di berbagai warna latar belakang (poster, baju, banner), sehingga perlu memiliki <b>latar transparan</b>. Format apa yang sebaiknya dipilih Rian saat menyimpan (export) logo tersebut?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Logo membutuhkan latar belakang transparan agar bisa menyatu dengan warna apa pun di belakangnya.</div>
+        <div class="soal-step"><span class="n">2</span>Format PNG mendukung transparansi, sedangkan JPG tidak.</div>
+        <div class="soal-final">Jawaban: PNG — karena mendukung transparansi latar belakang.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9 — CONTOH SOAL 2 -->
+<section class="slide" id="slide-9">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 2 dari 4</div>
+    <h2 class="slide-title">Membagikan Hasil Edit</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL</div>
+      <p class="soal-text">Sinta mengedit foto liburannya memakai sebuah aplikasi editor, dan hasilnya masih tersimpan dalam <b>format kerja aplikasi tersebut</b> (belum diekspor). Apa yang perlu dilakukan Sinta agar fotonya bisa dibuka dan dilihat di HP temannya yang tidak memakai aplikasi yang sama?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Format kerja aplikasi biasanya hanya bisa dibuka oleh aplikasi itu sendiri.</div>
+        <div class="soal-step"><span class="n">2</span>Sinta perlu memakai menu "Save As" atau "Export" untuk mengubahnya ke format gambar umum.</div>
+        <div class="soal-final">Jawaban: Ekspor (Save As / Export) foto ke format umum seperti JPG atau PNG.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10 — CONTOH SOAL 3 -->
+<section class="slide" id="slide-10">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 3 dari 4</div>
+    <h2 class="slide-title">Urutan Langkah Menyimpan</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL — PILIHAN GANDA</div>
+      <p class="soal-text">Manakah urutan langkah menyimpan hasil edit gambar yang paling tepat?</p>
+      <div class="soal-opts">
+        <div class="soal-opt-line">A. Beri nama file → Klik File → Pilih format → Klik Save</div>
+        <div class="soal-opt-line">B. Klik File → Pilih Save As/Export → Pilih format → Beri nama &amp; folder → Klik Save</div>
+        <div class="soal-opt-line">C. Pilih format → Klik Save → Klik File → Beri nama file</div>
+        <div class="soal-opt-line">D. Klik Save → Klik File → Pilih format → Beri nama file</div>
+      </div>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Langkah selalu dimulai dari membuka menu File terlebih dahulu.</div>
+        <div class="soal-step"><span class="n">2</span>Kemudian pilih "Save As" atau "Export", lalu tentukan format file (PNG/JPG).</div>
+        <div class="soal-step"><span class="n">3</span>Setelah itu beri nama file dan pilih folder, baru terakhir klik Save/Export.</div>
+        <div class="soal-final">Jawaban: B</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11 — CONTOH SOAL 4 -->
+<section class="slide" id="slide-11">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Contoh Soal 4 dari 4</div>
+    <h2 class="slide-title">Etika dalam Berkarya Digital</h2>
+    <div class="soal-card">
+      <div class="soal-badge">SOAL — STUDI KASUS</div>
+      <p class="soal-text">Andi mengambil gambar dari internet untuk poster tugas sekolahnya, lalu langsung menggunakannya tanpa mencantumkan sumber atau memeriksa izin penggunaannya. Hal penting apa yang diabaikan Andi?</p>
+      <button class="btn btn-amber" onclick="toggleSoal(this)">Lihat Pembahasan</button>
+      <div class="soal-answer">
+        <div class="soal-step"><span class="n">1</span>Gambar buatan orang lain di internet umumnya tetap memiliki hak cipta / lisensi tertentu.</div>
+        <div class="soal-step"><span class="n">2</span>Menggunakannya tanpa izin atau tanpa mencantumkan sumber melanggar etika dan bisa melanggar hukum hak cipta.</div>
+        <div class="soal-final">Jawaban: Andi mengabaikan hak cipta — sebaiknya ia mencantumkan sumber, meminta izin, atau memakai gambar berlisensi bebas/karya sendiri.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12 — KUIS -->
+<section class="slide" id="slide-12">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Kuis Interaktif</div>
+    <h2 class="slide-title">Uji Pemahamanmu 🎯</h2>
+    <div class="quiz-shell">
+      <div class="quiz-progress-row">
+        <span id="quizProgress">Soal 1 dari 8</span>
+        <span class="quiz-score-pill" id="quizScorePill">Skor: 0</span>
+      </div>
+      <div class="quiz-q-card" id="quizCard"></div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 13 — RANGKUMAN -->
+<section class="slide" id="slide-13">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+    <h2 class="slide-title">Poin-Poin Penting</h2>
+    <p class="slide-sub">Klik tiap kartu untuk membuka kembali penjelasan singkatnya.</p>
+    <div class="sum-grid" id="sumGrid"></div>
+  </div>
+</section>
+
+<!-- SLIDE 14 — PENUTUP -->
+<section class="slide" id="slide-14">
+  <div class="slide-inner">
+    <div class="done-ring">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#4ce68a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <div class="cover-kicker">Selesai</div>
+    <h2 class="slide-title">Praktik Pengolahan dan Pengubahan Citra<br>Sudah Kamu Selesaikan!</h2>
+    <p class="cover-desc">Kamu sudah mencoba mengedit gambar dengan editor mini, mempelajari cara menyimpan hasil karya, dan membuat karya citra digital sederhana. Lanjutkan ke topik berikutnya di halaman Bab 3.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:24px;">
+      <button class="btn" onclick="goTo(0)">↺ Ulangi Presentasi</button>
+      <a class="btn btn-primary" href="info-bab3.html">✅ Selesai — Kembali ke Bab 3</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹ <span class="lbl">Sebelumnya</span></button>
+  <div class="nav-center">
+    <button class="menu-btn" onclick="openMenu()" title="Daftar Slide">☰</button>
+    <span class="slide-counter" id="slideCounter">01 / 15</span>
+  </div>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()"><span class="lbl">Berikutnya</span> ›</button>
+</nav>
+
+<div class="menu-overlay" id="menuOverlay">
+  <div class="menu-panel">
+    <h3>📑 Daftar Slide</h3>
+    <div class="menu-list" id="menuList"></div>
+    <button class="btn" style="margin-top:16px;width:100%;justify-content:center;" onclick="closeMenu()">Tutup</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+var slideTitles = [
+  "Cover","Peta Materi","Aplikasi Edit Citra","Alat Dasar Editor","Praktik: Editor Mini",
+  "Menyimpan Hasil","Proyek: Kartu Ucapan","Tips Berkarya",
+  "Contoh Soal 1","Contoh Soal 2","Contoh Soal 3","Contoh Soal 4",
+  "Kuis Interaktif","Rangkuman","Penutup"
+];
+var total = slideTitles.length;
+var current = 0;
+
+/* ===================== NAVIGATION ===================== */
+function render(){
+  var slides = document.querySelectorAll('.slide');
+  slides.forEach(function(s,i){
+    s.classList.remove('active');
+    if(i===current) s.classList.add('active');
+  });
+  document.getElementById('progressFill').style.width = ((current+1)/total*100)+'%';
+  document.getElementById('slideCounter').textContent = String(current+1).padStart(2,'0')+' / '+total;
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  updateMenuHighlight();
+  if(current===12) initQuizIfNeeded();
+}
+function goTo(n){
+  if(n<0||n>=total) return;
+  current = n;
+  render();
+  closeMenu();
+}
+function nextSlide(){ if(current<total-1){ current++; render(); } }
+function prevSlide(){ if(current>0){ current--; render(); } }
+
+document.addEventListener('keydown', function(e){
+  if(document.getElementById('menuOverlay').classList.contains('show')){
+    if(e.key==='Escape') closeMenu();
+    return;
+  }
+  if(e.target && (e.target.tagName==='INPUT')) return;
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+var touchStartX=0, touchStartOnCanvas=false;
+document.getElementById('slideDeck').addEventListener('touchstart', function(e){
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartOnCanvas = e.target && e.target.id==='drawCanvas';
+}, {passive:true});
+document.getElementById('slideDeck').addEventListener('touchend', function(e){
+  if(touchStartOnCanvas) return;
+  var dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 60){ dx < 0 ? nextSlide() : prevSlide(); }
+}, {passive:true});
+
+/* ===================== MENU OVERLAY ===================== */
+function buildMenu(){
+  var list = document.getElementById('menuList');
+  list.innerHTML = '';
+  slideTitles.forEach(function(t,i){
+    var b = document.createElement('button');
+    b.innerHTML = '<span class="idx">'+String(i+1).padStart(2,'0')+'</span> '+t;
+    b.onclick = function(){ goTo(i); };
+    b.dataset.idx = i;
+    list.appendChild(b);
+  });
+}
+function updateMenuHighlight(){
+  document.querySelectorAll('#menuList button').forEach(function(b){
+    b.classList.toggle('current', parseInt(b.dataset.idx)===current);
+  });
+}
+function openMenu(){ document.getElementById('menuOverlay').classList.add('show'); }
+function closeMenu(){ document.getElementById('menuOverlay').classList.remove('show'); }
+document.getElementById('menuOverlay').addEventListener('click', function(e){ if(e.target===this) closeMenu(); });
+
+/* ===================== SLIDE 0 : PIXEL HERO ===================== */
+(function(){
+  var hero = document.getElementById('pixelHero');
+  var colors = ['#4cc9f0','#ffb454','#5d9dff','#4ce68a','#182543','#182543','#182543','#1f2f54'];
+  for(var i=0;i<100;i++){
+    var d = document.createElement('div');
+    d.style.background = colors[Math.floor(Math.random()*colors.length)];
+    d.style.animationDelay = (Math.random()*0.9)+'s';
+    hero.appendChild(d);
+  }
+})();
+
+/* ===================== SLIDE 1 : PETA MATERI ===================== */
+(function(){
+  var grid = document.getElementById('mapGrid');
+  var items = [
+    ["3.15","Aplikasi Edit Citra",2],["3.16","Alat Dasar Editor",3],["🎨","Praktik: Editor Mini",4],
+    ["3.18","Menyimpan Hasil",5],["🎁","Proyek: Kartu Ucapan",6],["3.20","Tips Berkarya",7],
+    ["📝","Contoh Soal",8],["🎯","Kuis Interaktif",12],["📋","Rangkuman",13]
+  ];
+  items.forEach(function(it){
+    var el = document.createElement('div');
+    el.className = 'map-item';
+    el.innerHTML = '<div class="num">'+it[0]+'</div><div class="lbl">'+it[1]+'</div>';
+    el.onclick = function(){ goTo(it[2]); };
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== SLIDE 2 : SOFTWARE CARDS ===================== */
+(function(){
+  var softwares = [
+    ["Paint","Bawaan Windows",["Sudah tersedia di Windows, gratis.","Cocok untuk edit dasar & menggambar sederhana."]],
+    ["GIMP","Gratis · Open Source",["Fitur lengkap mirip Photoshop.","Bisa dipakai untuk edit foto tingkat lanjut."]],
+    ["Photopea","Online · Gratis",["Dibuka lewat browser, tanpa install.","Antarmuka mirip Photoshop."]],
+    ["Canva","Online · Freemium",["Banyak template siap pakai.","Cocok untuk poster, kartu ucapan, presentasi."]],
+    ["Adobe Photoshop","Profesional · Berbayar",["Standar industri desain grafis.","Fitur sangat lengkap dan canggih."]],
+    ["Snapseed / PicsArt","Aplikasi HP",["Mudah dipakai langsung dari ponsel.","Cocok untuk edit foto sehari-hari."]]
+  ];
+  var grid = document.getElementById('softGrid');
+  softwares.forEach(function(s){
+    var el = document.createElement('div');
+    el.className = 'soft-card';
+    el.innerHTML = '<div class="name">'+s[0]+'</div><div class="tag">'+s[1]+'</div><div class="d">'+s[2].join(' ')+'</div>';
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== SLIDE 3 : TOOL GLOSSARY FLIP CARDS ===================== */
+(function(){
+  var tools = [
+    ["👆","Pilih (Select)","Memilih area atau objek tertentu untuk diedit."],
+    ["✂️","Crop","Memotong bagian gambar yang tidak diperlukan."],
+    ["✏️","Pensil / Brush","Menggambar bebas di atas kanvas."],
+    ["⬛","Bentuk (Shape)","Membuat bentuk seperti kotak, lingkaran, garis."],
+    ["🧽","Penghapus","Menghapus bagian gambar yang sudah dibuat."],
+    ["🪣","Ember Cat (Fill)","Mewarnai area tertutup dengan satu warna sekaligus."],
+    ["🔤","Teks","Menambahkan tulisan pada gambar."],
+    ["🎨","Color Picker","Mengambil sampel warna dari gambar yang ada."]
+  ];
+  var grid = document.getElementById('toolGlossaryGrid');
+  tools.forEach(function(t){
+    var card = document.createElement('div');
+    card.className = 'flip-card';
+    card.innerHTML =
+      '<div class="flip-inner">'+
+        '<div class="flip-face flip-front"><div class="ic">'+t[0]+'</div><div class="nm">'+t[1]+'</div><div class="hint">tap untuk lihat fungsi</div></div>'+
+        '<div class="flip-face flip-back"><p>'+t[2]+'</p></div>'+
+      '</div>';
+    card.onclick = function(){ card.classList.toggle('flipped'); };
+    grid.appendChild(card);
+  });
+})();
+
+/* ===================== SLIDE 4 : PRAKTIK EDITOR MINI ===================== */
+(function(){
+  var canvas = document.getElementById('drawCanvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.width, H = canvas.height;
+  var currentTool = 'pen';
+  var currentColor = '#182543';
+  var brushSize = 5;
+  var history = [];
+  var drawing = false;
+  var startX=0, startY=0, preSnapshot=null;
+
+  function fillWhite(){ ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H); }
+  function pushHistory(){
+    history.push(ctx.getImageData(0,0,W,H));
+    if(history.length>25) history.shift();
+  }
+  fillWhite(); pushHistory();
+
+  function getPos(e){
+    var rect = canvas.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX);
+    var cy = (e.touches ? e.touches[0].clientY : e.clientY);
+    return { x:(cx-rect.left)*(W/rect.width), y:(cy-rect.top)*(H/rect.height) };
+  }
+  function hexToRgb(hex){
+    hex = hex.replace('#','');
+    var v = parseInt(hex,16);
+    return {r:(v>>16)&255, g:(v>>8)&255, b:v&255};
+  }
+  function floodFill(x,y,fillColor){
+    x = Math.floor(x); y = Math.floor(y);
+    if(x<0||x>=W||y<0||y>=H) return;
+    var imgData = ctx.getImageData(0,0,W,H);
+    var data = imgData.data;
+    function idx(px,py){ return (py*W+px)*4; }
+    var s = idx(x,y);
+    var sr=data[s], sg=data[s+1], sb=data[s+2], sa=data[s+3];
+    var fc = hexToRgb(fillColor);
+    if(sr===fc.r && sg===fc.g && sb===fc.b) return;
+    var stack = [[x,y]];
+    var guard = 0, maxGuard = W*H*4;
+    while(stack.length && guard<maxGuard){
+      guard++;
+      var p = stack.pop();
+      var px=p[0], py=p[1];
+      if(px<0||px>=W||py<0||py>=H) continue;
+      var i = idx(px,py);
+      if(data[i]!==sr||data[i+1]!==sg||data[i+2]!==sb||data[i+3]!==sa) continue;
+      data[i]=fc.r; data[i+1]=fc.g; data[i+2]=fc.b; data[i+3]=255;
+      stack.push([px+1,py]); stack.push([px-1,py]); stack.push([px,py+1]); stack.push([px,py-1]);
+    }
+    ctx.putImageData(imgData,0,0);
+  }
+
+  function pointerDown(e){
+    e.preventDefault();
+    var pos = getPos(e);
+    startX = pos.x; startY = pos.y;
+    if(currentTool==='pen' || currentTool==='eraser'){
+      drawing = true;
+      ctx.strokeStyle = currentTool==='eraser' ? '#ffffff' : currentColor;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round'; ctx.lineJoin='round';
+      ctx.beginPath();
+      ctx.moveTo(pos.x,pos.y);
+    } else if(currentTool==='line' || currentTool==='rect' || currentTool==='circle'){
+      drawing = true;
+      preSnapshot = ctx.getImageData(0,0,W,H);
+    } else if(currentTool==='fill'){
+      floodFill(pos.x,pos.y,currentColor);
+      pushHistory();
+    } else if(currentTool==='text'){
+      var txt = window.prompt('Tulis teks:', 'Halo!');
+      if(txt){
+        ctx.fillStyle = currentColor;
+        ctx.font = (16+brushSize*2)+'px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(txt, pos.x, pos.y);
+        pushHistory();
+      }
+    }
+  }
+  function pointerMove(e){
+    if(!drawing) return;
+    e.preventDefault();
+    var pos = getPos(e);
+    if(currentTool==='pen' || currentTool==='eraser'){
+      ctx.lineTo(pos.x,pos.y);
+      ctx.stroke();
+    } else if(currentTool==='line'){
+      ctx.putImageData(preSnapshot,0,0);
+      ctx.strokeStyle=currentColor; ctx.lineWidth=brushSize; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(startX,startY); ctx.lineTo(pos.x,pos.y); ctx.stroke();
+    } else if(currentTool==='rect'){
+      ctx.putImageData(preSnapshot,0,0);
+      ctx.fillStyle=currentColor;
+      ctx.fillRect(Math.min(startX,pos.x), Math.min(startY,pos.y), Math.abs(pos.x-startX), Math.abs(pos.y-startY));
+    } else if(currentTool==='circle'){
+      ctx.putImageData(preSnapshot,0,0);
+      ctx.fillStyle=currentColor;
+      var rx=Math.abs(pos.x-startX)/2, ry=Math.abs(pos.y-startY)/2;
+      var cx=(startX+pos.x)/2, cy=(startY+pos.y)/2;
+      ctx.beginPath(); ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2); ctx.fill();
+    }
+  }
+  function pointerUp(e){
+    if(!drawing) return;
+    drawing = false;
+    pushHistory();
+  }
+  canvas.addEventListener('mousedown', pointerDown);
+  canvas.addEventListener('mousemove', pointerMove);
+  window.addEventListener('mouseup', pointerUp);
+  canvas.addEventListener('touchstart', pointerDown, {passive:false});
+  canvas.addEventListener('touchmove', pointerMove, {passive:false});
+  canvas.addEventListener('touchend', pointerUp);
+
+  var toolbar = document.getElementById('editorToolbar');
+  var tools = [
+    ['pen','✏️','Pensil'],['eraser','🧽','Hapus'],['line','📏','Garis'],
+    ['rect','⬛','Persegi'],['circle','⚪','Lingkaran'],['fill','🪣','Ember'],['text','🔤','Teks']
+  ];
+  tools.forEach(function(t,i){
+    var b = document.createElement('button');
+    b.className = 'tool-btn'+(i===0?' active':'');
+    b.innerHTML = '<span class="ic">'+t[1]+'</span><span>'+t[2]+'</span>';
+    b.onclick = function(){
+      document.querySelectorAll('.tool-btn').forEach(function(x){x.classList.remove('active');});
+      b.classList.add('active');
+      currentTool = t[0];
+    };
+    toolbar.appendChild(b);
+  });
+
+  var colorPicker = document.getElementById('colorPicker');
+  colorPicker.addEventListener('input', function(){ currentColor = colorPicker.value; });
+  var palette = ['#182543','#ffffff','#4cc9f0','#ffb454','#ff5d6c','#4ce68a','#5d9dff','#8b5cf6'];
+  var palRow = document.getElementById('palRow');
+  palette.forEach(function(c,idx){
+    var s = document.createElement('div');
+    s.className = 'pal-swatch'+(idx===0?' active':'');
+    s.style.background = c;
+    s.style.border = c==='#ffffff' ? '2px solid rgba(255,255,255,.3)' : '2px solid transparent';
+    s.onclick = function(){
+      document.querySelectorAll('.pal-swatch').forEach(function(x){x.classList.remove('active');});
+      s.classList.add('active');
+      currentColor = c;
+      colorPicker.value = c;
+    };
+    palRow.appendChild(s);
+  });
+
+  var brushSlider = document.getElementById('brushSize');
+  brushSlider.addEventListener('input', function(){
+    brushSize = parseInt(brushSlider.value);
+    document.getElementById('brushVal').textContent = brushSize;
+  });
+
+  document.getElementById('undoBtn').onclick = function(){
+    if(history.length>1){
+      history.pop();
+      ctx.putImageData(history[history.length-1],0,0);
+    }
+  };
+  document.getElementById('clearBtn').onclick = function(){
+    fillWhite();
+    pushHistory();
+  };
+  document.getElementById('downloadBtn').onclick = function(){
+    var link = document.createElement('a');
+    link.download = 'karya-citra-digital.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+})();
+
+/* ===================== SLIDE 5 : SAVE STEPS ===================== */
+(function(){
+  var steps = [
+    ["Klik menu File","Buka menu \"File\" pada aplikasi editor yang sedang dipakai."],
+    ["Pilih \"Save As\" atau \"Export\"","Gunakan opsi ini untuk menyimpan ke format gambar umum."],
+    ["Pilih format file","Pilih PNG jika butuh transparansi/kualitas tinggi, atau JPG untuk ukuran file kecil."],
+    ["Beri nama & pilih folder","Beri nama file yang jelas dan simpan di folder yang mudah ditemukan."],
+    ["Klik Save / Export","File gambar siap dibuka kembali atau dibagikan ke orang lain."]
+  ];
+  var host = document.getElementById('saveSteps');
+  steps.forEach(function(s,i){
+    var el = document.createElement('div');
+    el.className = 'mini-step';
+    el.innerHTML = '<div class="n">'+(i+1)+'</div><div><div class="t">'+s[0]+'</div><div class="d">'+s[1]+'</div></div>';
+    host.appendChild(el);
+  });
+})();
+
+/* ===================== SLIDE 6 : PROJECT STEPS ===================== */
+(function(){
+  var steps = [
+    ["Warnai latar belakang","Pilih alat Ember Cat (Fill) dan warna favoritmu untuk mewarnai latar kartu."],
+    ["Tambahkan bentuk dekoratif","Gunakan alat Persegi atau Lingkaran untuk membuat hiasan seperti balon atau confetti."],
+    ["Tulis ucapan","Gunakan alat Teks untuk menuliskan ucapan, misalnya \"Selamat Ulang Tahun!\"."],
+    ["Rapikan & simpan","Periksa kembali komposisinya, lalu klik \"Unduh PNG\" untuk menyimpan karyamu."]
+  ];
+  var host = document.getElementById('projectSteps');
+  steps.forEach(function(s,i){
+    var el = document.createElement('div');
+    el.className = 'mini-step';
+    el.innerHTML = '<div class="n">'+(i+1)+'</div><div><div class="t">'+s[0]+'</div><div class="d">'+s[1]+'</div></div>';
+    host.appendChild(el);
+  });
+})();
+
+/* ===================== SLIDE 7 : TIPS ===================== */
+(function(){
+  var tips = [
+    ["🖼️","Perhatikan Komposisi","Atur tata letak elemen agar tidak terlalu penuh atau terlalu kosong."],
+    ["🎨","Padukan Warna dengan Serasi","Gunakan kombinasi warna yang enak dilihat dan pastikan teks tetap mudah dibaca."],
+    ["📏","Jaga Resolusi","Simpan dengan resolusi cukup agar tidak pecah saat dicetak atau dibagikan."],
+    ["©️","Hormati Hak Cipta","Gunakan karya sendiri atau gambar berlisensi bebas, dan cantumkan sumber jika perlu."],
+    ["💾","Simpan Cadangan","Simpan file asli sebelum diedit besar-besaran, agar bisa kembali jika diperlukan."],
+    ["🔍","Periksa Sebelum Membagikan","Cek kembali hasil karya sebelum diunggah atau dicetak."]
+  ];
+  var grid = document.getElementById('tipsGrid');
+  tips.forEach(function(t){
+    var el = document.createElement('div');
+    el.className = 'tip-card';
+    el.innerHTML = '<div class="ic">'+t[0]+'</div><div class="t">'+t[1]+'</div><div class="d">'+t[2]+'</div>';
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== CONTOH SOAL TOGGLE ===================== */
+function toggleSoal(btn){
+  var ans = btn.nextElementSibling;
+  ans.classList.toggle('open');
+  btn.textContent = ans.classList.contains('open') ? 'Sembunyikan Pembahasan' : 'Lihat Pembahasan';
+}
+
+/* ===================== QUIZ ===================== */
+var quizData = [
+  {q:"Aplikasi editor gambar online yang gratis dan mirip Photoshop, bisa dibuka langsung lewat browser adalah...", opts:["Paint","Photopea","Adobe Photoshop","GIMP"], correct:1, exp:"Photopea adalah editor gambar online gratis yang bisa diakses lewat browser tanpa instalasi."},
+  {q:"Alat untuk mewarnai area tertutup dengan satu warna sekaligus disebut...", opts:["Eraser","Text tool","Ember Cat (Fill/Bucket)","Crop"], correct:2, exp:"Ember Cat (Fill/Bucket tool) mewarnai seluruh area tertutup dengan satu warna sekaligus."},
+  {q:"Alat untuk mengambil sampel warna dari bagian gambar yang sudah ada disebut...", opts:["Color picker","Brush","Shape tool","Zoom"], correct:0, exp:"Color picker (eyedropper) digunakan untuk mengambil sampel warna dari gambar."},
+  {q:"Format file yang paling tepat untuk gambar yang membutuhkan latar belakang transparan adalah...", opts:["JPG","BMP","PNG","GIF"], correct:2, exp:"PNG mendukung transparansi, sehingga cocok untuk logo atau gambar dengan latar transparan."},
+  {q:"Menu yang digunakan untuk menyimpan gambar ke format lain seperti PNG atau JPG disebut...", opts:["Undo","Save As / Export","Zoom In","Crop"], correct:1, exp:"Save As / Export digunakan untuk menyimpan hasil edit ke format gambar umum."},
+  {q:"Alat untuk menghapus bagian gambar yang sudah digambar disebut...", opts:["Eraser (Penghapus)","Fill","Text","Line"], correct:0, exp:"Eraser digunakan untuk menghapus bagian gambar yang sudah dibuat."},
+  {q:"Saat membuat karya digital menggunakan gambar milik orang lain, hal penting yang perlu diperhatikan adalah...", opts:["Ukuran layar","Hak cipta / izin penggunaan","Jenis font","Kecepatan internet"], correct:1, exp:"Kita perlu menghormati hak cipta — mencantumkan sumber atau memastikan izin penggunaan gambar."},
+  {q:"Software bawaan Windows yang bisa dipakai untuk mengedit gambar secara sederhana adalah...", opts:["Canva","Paint","Photopea","Lightroom"], correct:1, exp:"Paint adalah aplikasi edit gambar sederhana yang sudah tersedia bawaan di Windows."}
+];
+var quizIdx = 0, quizScore = 0, quizInit = false;
+
+function initQuizIfNeeded(){
+  if(quizInit) return;
+  quizInit = true;
+  renderQuizQuestion();
+}
+function renderQuizQuestion(){
+  var card = document.getElementById('quizCard');
+  if(quizIdx >= quizData.length){
+    var pct = Math.round((quizScore/quizData.length)*100);
+    var msg = pct>=80 ? "Keren, pemahamanmu sudah sangat baik! 🎉" : pct>=50 ? "Lumayan! Coba ulangi lagi materinya sedikit ya." : "Yuk pelajari lagi materinya, lalu coba kuis ini sekali lagi.";
+    card.innerHTML =
+      '<div class="quiz-summary">'+
+        '<div class="big-score">'+quizScore+' / '+quizData.length+'</div>'+
+        '<div class="msg">'+msg+'</div>'+
+        '<button class="btn btn-primary" style="margin-top:16px;" onclick="restartQuiz()">↺ Ulangi Kuis</button>'+
+      '</div>';
+    document.getElementById('quizProgress').textContent = 'Selesai';
+    return;
+  }
+  document.getElementById('quizProgress').textContent = 'Soal '+(quizIdx+1)+' dari '+quizData.length;
+  document.getElementById('quizScorePill').textContent = 'Skor: '+quizScore;
+  var q = quizData[quizIdx];
+  var optsHtml = q.opts.map(function(o,i){
+    return '<button class="quiz-opt" data-i="'+i+'" onclick="answerQuiz('+i+')">'+o+'</button>';
+  }).join('');
+  card.innerHTML =
+    '<div class="quiz-q-text">'+q.q+'</div>'+
+    '<div id="quizOpts">'+optsHtml+'</div>'+
+    '<div class="quiz-explain" id="quizExplain"></div>'+
+    '<div class="quiz-next-row" id="quizNextRow"></div>';
+}
+function answerQuiz(i){
+  var q = quizData[quizIdx];
+  var btns = document.querySelectorAll('#quizOpts .quiz-opt');
+  btns.forEach(function(b){ b.disabled = true; });
+  btns[q.correct].classList.add('correct');
+  if(i!==q.correct) btns[i].classList.add('wrong');
+  else quizScore++;
+  document.getElementById('quizScorePill').textContent = 'Skor: '+quizScore;
+  var exp = document.getElementById('quizExplain');
+  exp.textContent = '💡 '+q.exp;
+  exp.classList.add('show');
+  document.getElementById('quizNextRow').innerHTML = '<button class="btn btn-primary" onclick="nextQuiz()">'+(quizIdx<quizData.length-1?'Soal Berikutnya ›':'Lihat Hasil ›')+'</button>';
+}
+function nextQuiz(){ quizIdx++; renderQuizQuestion(); }
+function restartQuiz(){ quizIdx=0; quizScore=0; renderQuizQuestion(); }
+
+/* ===================== RANGKUMAN ===================== */
+(function(){
+  var items = [
+    ["Editor Gambar","Aplikasi untuk mengedit citra, dari Paint sederhana sampai Photoshop profesional."],
+    ["Alat Dasar","Pensil, penghapus, shape, fill, teks, dan color picker adalah alat umum di editor gambar."],
+    ["Menyimpan (Save As/Export)","Cara menyimpan hasil edit ke format gambar umum seperti PNG atau JPG."],
+    ["PNG vs JPG","PNG mendukung transparansi & lossless, JPG lebih kecil ukurannya untuk foto."],
+    ["Proyek Karya","Karya citra digital sederhana bisa dibuat dengan menggabungkan warna, bentuk, dan teks."],
+    ["Komposisi & Warna","Tata letak dan warna yang serasi membuat karya lebih enak dilihat."],
+    ["Hak Cipta","Hormati karya orang lain — cantumkan sumber atau gunakan gambar berlisensi bebas."],
+    ["Backup File","Simpan file asli sebelum diedit besar-besaran sebagai cadangan."]
+  ];
+  var grid = document.getElementById('sumGrid');
+  items.forEach(function(it){
+    var el = document.createElement('div');
+    el.className = 'sum-chip';
+    el.innerHTML = '<div class="t">'+it[0]+'</div><div class="d">'+it[1]+'</div>';
+    el.onclick = function(){ el.classList.toggle('open'); };
+    grid.appendChild(el);
+  });
+})();
+
+/* ===================== INIT ===================== */
+buildMenu();
+render();
+</script>
+</body>
+</html>

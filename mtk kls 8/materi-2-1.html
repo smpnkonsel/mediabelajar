@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bab 2 — Teorema Pythagoras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#0A0F24;
+    --paper-line: rgba(255,255,255,0.045);
+    --paper-line-strong: rgba(255,255,255,0.14);
+    --ink:#F3F5FC;
+    --ink-soft:#8D96B8;
+    --white:#151B36;
+    --white-2:#1C2444;
+    --coral:#FB923C;
+    --coral-soft: rgba(251,146,60,0.14);
+    --amber:#A78BFA;
+    --amber-soft: rgba(167,139,250,0.14);
+    --teal:#2DD4BF;
+    --teal-soft: rgba(45,212,191,0.14);
+    --rose:#F472B6;
+    --rose-soft: rgba(244,114,182,0.14);
+    --shadow: 0 18px 40px -18px rgba(0,0,0,0.65);
+    --vh: 1vh;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    overflow:hidden;
+    height:calc(var(--vh, 1vh) * 100);
+    display:flex;
+    flex-direction:column;
+  }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+
+  /* ---------- HEADER ---------- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 20px 10px; flex-shrink:0; }
+  .brand{ display:flex; align-items:center; gap:9px; min-width:0; }
+  .brand-mark{ width:26px;height:26px; border:2px solid var(--ink); position:relative; flex-shrink:0; transform:rotate(10deg); }
+  .brand-mark::after{ content:""; position:absolute; inset:5px; border:2px solid var(--coral); }
+  .brand-text{ font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text b{ color:var(--ink); }
+  .progress-track{ flex:1; max-width:340px; height:5px; background:var(--paper-line-strong); border-radius:3px; overflow:hidden; display:none; }
+  .progress-fill{ height:100%; background:var(--coral); width:0%; transition:width .4s ease; border-radius:3px; }
+  .dots{ display:flex; gap:5px; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:44vw; }
+  .dots::-webkit-scrollbar{ display:none; }
+  .dot{ width:14px; height:6px; flex-shrink:0; background:transparent; border:1.5px solid var(--paper-line-strong); border-radius:3px; cursor:pointer; transition:all .25s ease; padding:0; }
+  .dot.active{ background:var(--coral); border-color:var(--coral); width:22px; }
+  .dot.done{ background:var(--ink-soft); border-color:var(--ink-soft); }
+  .slide-count{ font-size:10.5px; color:var(--ink-soft); min-width:52px; text-align:right; flex-shrink:0; }
+
+  /* ---------- SLIDES ---------- */
+  main{ flex:1; position:relative; overflow:hidden; }
+  .slide{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 7% 24px; opacity:0; transform:translateX(30px); pointer-events:none; transition:opacity .4s ease, transform .4s ease; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.prevslide{ transform:translateX(-30px); }
+  .slide-inner{ width:100%; max-width:980px; margin:auto; padding-block:6px; }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:10.5px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--coral); margin-bottom:12px; }
+  .eyebrow::before{ content:""; width:14px; height:1.5px; background:var(--coral); }
+  h1.big{ font-size:clamp(26px, 5.6vw, 48px); line-height:1.08; font-weight:700; letter-spacing:-0.01em; font-family:'Space Grotesk'; }
+  h2.slide-title{ font-size:clamp(20px, 3.6vw, 29px); font-weight:700; line-height:1.18; margin-bottom:6px; font-family:'Space Grotesk'; }
+  .slide-sub{ font-size:clamp(12.5px,2vw,14.5px); color:var(--ink-soft); margin-bottom:18px; max-width:680px; line-height:1.55; }
+
+  .dim{ display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:600; color:var(--ink); background:var(--white); border:1.5px dashed var(--paper-line-strong); padding:5px 10px 5px 6px; border-radius:100px; }
+  .dim .arrow{ color:var(--coral); font-size:13px; }
+
+  /* ---------- BUTTONS ---------- */
+  .btn{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease; min-height:44px; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-primary{ background:var(--ink); color:var(--white); box-shadow:var(--shadow); }
+  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--paper-line-strong); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .btn-coral{ background:var(--coral); color:#12121a; box-shadow:0 14px 30px -14px rgba(251,146,60,.5); }
+
+  /* ---------- COVER ---------- */
+  #s0 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .cover-tri{ margin-bottom:18px; }
+  .cover-tri svg{ width:150px; height:auto; }
+  .cover-cta{ margin-top:24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .cp-line{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:600px; line-height:1.6; border-left:2px solid var(--coral); padding-left:14px; text-align:left; }
+
+  /* ---------- TP SLIDE ---------- */
+  .tp-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+  .pill{ font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:100px; border:1.5px solid; }
+  .pill-teal{ color:var(--teal); border-color:var(--teal); background:var(--teal-soft); }
+  .pill-purple{ color:var(--amber); border-color:var(--amber); background:var(--amber-soft); }
+  .cp-box{ background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); margin-bottom:18px; border-left:3px solid var(--teal); }
+  .cp-box b{ color:var(--teal); font-size:11px; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:6px; font-family:'Space Grotesk';}
+  .cp-box p{ font-size:14px; line-height:1.55; color:var(--ink); }
+  .tp-list{ display:flex; flex-direction:column; gap:10px; }
+  .tp-item{ background:var(--white); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start; }
+  .tp-num{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--coral); flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--coral-soft); display:flex; align-items:center; justify-content:center; }
+  .tp-item p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; padding-top:3px; }
+
+  /* ---------- TRIANGLE DIAGRAM ---------- */
+  .tri-layout{ display:grid; grid-template-columns:280px 1fr; gap:26px; align-items:center; }
+  .tri-wrap{ background:var(--white); border-radius:20px; box-shadow:var(--shadow); padding:14px; display:flex; align-items:center; justify-content:center; }
+  svg.trisvg{ width:100%; height:auto; display:block; }
+  svg.trisvg .tri-fill{ fill:rgba(255,255,255,0.035); stroke:none; }
+  svg.trisvg .edge-hit{ fill:none; stroke:transparent; stroke-width:26; cursor:pointer; }
+  svg.trisvg .edge-line{ stroke:var(--ink-soft); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; transition:stroke .25s ease, stroke-width .25s ease; pointer-events:none; }
+  svg.trisvg .rightangle{ fill:none; stroke:var(--ink-soft); stroke-width:2; pointer-events:none; }
+  svg.trisvg .elabel{ font-family:'JetBrains Mono'; font-size:15px; font-weight:700; fill:var(--ink-soft); transition:fill .25s ease; pointer-events:none; }
+  svg.trisvg .elabel.on-a{ fill:var(--coral); }
+  svg.trisvg .elabel.on-b{ fill:var(--amber); }
+  svg.trisvg .elabel.on-c{ fill:var(--teal); }
+  #triSvg.mode-a .edge-line.edge-a{ stroke:var(--coral); stroke-width:6; }
+  #triSvg.mode-b .edge-line.edge-b{ stroke:var(--amber); stroke-width:6; }
+  #triSvg.mode-c .edge-line.edge-c{ stroke:var(--teal); stroke-width:6; }
+
+  .unsur-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .utab{ font-family:'Space Grotesk'; font-size:12.5px; font-weight:600; padding:10px 14px; border-radius:10px; border:1.5px solid var(--paper-line-strong); background:var(--white); cursor:pointer; transition:all .2s ease; min-height:40px; }
+  .utab[data-mode="a"].active{ background:var(--coral); border-color:var(--coral); color:#12121a; }
+  .utab[data-mode="b"].active{ background:var(--amber); border-color:var(--amber); color:#12121a; }
+  .utab[data-mode="c"].active{ background:var(--teal); border-color:var(--teal); color:#12121a; }
+  .unsur-desc{ background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); min-height:130px; }
+  .unsur-desc h4{ font-family:'Space Grotesk'; font-size:16px; margin-bottom:7px; }
+  .unsur-desc p{ font-size:13px; color:var(--ink-soft); line-height:1.6; }
+  .unsur-desc .dim{ margin-top:12px; }
+  .hint{ font-size:11px; color:var(--ink-soft); margin-top:10px; font-style:italic; }
+
+  /* ---------- KONSEP DASAR (static squares diagram) ---------- */
+  .concept-layout{ display:grid; grid-template-columns:1fr 300px; gap:24px; align-items:center; }
+  .concept-text .cp-box{ margin-bottom:12px; }
+  .sq-wrap{ background:var(--white); border-radius:20px; box-shadow:var(--shadow); padding:14px; display:flex; align-items:center; justify-content:center; }
+  svg.sqsvg{ width:100%; height:auto; display:block; }
+  svg.sqsvg polygon.sq-tri{ fill:rgba(255,255,255,0.05); stroke:var(--ink); stroke-width:2.5; }
+  svg.sqsvg polygon.sq-a{ fill:var(--coral-soft); stroke:var(--coral); stroke-width:2; }
+  svg.sqsvg polygon.sq-b{ fill:var(--amber-soft); stroke:var(--amber); stroke-width:2; }
+  svg.sqsvg polygon.sq-c{ fill:var(--teal-soft); stroke:var(--teal); stroke-width:2; }
+  svg.sqsvg text{ font-family:'JetBrains Mono'; font-weight:700; font-size:19px; }
+
+  /* ---------- PEMBUKTIAN interactive ---------- */
+  #proveSvg polygon.sq-a, #proveSvg polygon.sq-b, #proveSvg polygon.sq-c{ cursor:pointer; opacity:.35; transition:opacity .25s ease; }
+  #proveSvg.mode-a polygon.sq-a{ opacity:1; }
+  #proveSvg.mode-b polygon.sq-b{ opacity:1; }
+  #proveSvg.mode-c polygon.sq-c{ opacity:1; }
+  .verify-box{ margin-top:14px; background:var(--white-2); border-radius:12px; padding:12px 16px; font-family:'JetBrains Mono'; font-size:14px; text-align:center; color:var(--ink); }
+  .verify-box b{ color:var(--teal); }
+
+  /* ---------- TRIPLE GALLERY ---------- */
+  .gallery{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .card{ perspective:1200px; height:150px; cursor:pointer; }
+  .card-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.2,.2,1); }
+  .card.flipped .card-inner{ transform:rotateY(180deg); }
+  .card-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; padding:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow); text-align:center; }
+  .card-front{ background:var(--white); gap:6px; }
+  .card-front .tnum{ font-family:'JetBrains Mono'; font-weight:700; font-size:22px; }
+  .card-front .ctap{ font-size:10px; color:var(--ink-soft); }
+  .card-back{ transform:rotateY(180deg); background:var(--teal); color:#12121a; }
+  .card-back .veq{ font-family:'JetBrains Mono'; font-size:12.5px; line-height:1.6; font-weight:600; }
+
+  /* ---------- FORMULA CARDS (rumus slide) ---------- */
+  .formula-big{ text-align:center; margin-bottom:18px; }
+  .formula-big .eq{ font-family:'JetBrains Mono'; font-weight:700; font-size:clamp(28px,5vw,40px); background:var(--white); display:inline-block; padding:16px 28px; border-radius:16px; box-shadow:var(--shadow); }
+  .formula-big .eq b{ color:var(--coral); }
+
+  /* ---------- CASE STUDY (accordion) ---------- */
+  .case-context{ background:var(--white); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow); margin-bottom:14px; border-left:3px solid var(--coral); }
+  .case-context p{ font-size:13px; line-height:1.6; color:var(--ink); }
+  .case-context .ctitle{ font-family:'Space Grotesk'; font-weight:700; font-size:13.5px; color:var(--coral); margin-bottom:5px; }
+  .step-acc{ background:var(--white); border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:var(--shadow); }
+  .step-acc-head{ display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; min-height:44px; }
+  .step-acc-num{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--teal); flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--teal-soft); display:flex; align-items:center; justify-content:center; }
+  .step-acc-title{ font-family:'Space Grotesk'; font-weight:600; font-size:13px; flex:1; }
+  .step-acc-icon{ transition:transform .25s ease; color:var(--ink-soft); flex-shrink:0; }
+  .step-acc.open .step-acc-icon{ transform:rotate(180deg); }
+  .step-acc-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .step-acc.open .step-acc-body{ max-height:220px; }
+  .step-acc-body-inner{ padding:0 16px 14px 54px; font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
+  .step-acc-body-inner b{ color:var(--ink); font-family:'JetBrains Mono'; }
+  .extra-example{ background:var(--white-2); border-radius:12px; padding:12px 16px; font-size:12px; color:var(--ink-soft); margin-top:6px; }
+  .extra-example b{ color:var(--ink); font-family:'Space Grotesk'; }
+
+  /* ---------- CALCULATOR / CHECKER ---------- */
+  .calc-wrap{ background:var(--white); border-radius:18px; padding:22px 24px; box-shadow:var(--shadow); }
+  .calc-select{ width:100%; padding:12px 14px; border-radius:10px; background:var(--white-2); border:1.5px solid var(--paper-line-strong); color:var(--ink); font-family:'Space Grotesk'; font-size:13.5px; font-weight:600; margin-bottom:16px; min-height:44px; }
+  .calc-fields{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:18px; }
+  .calc-field label{ font-size:11.5px; color:var(--ink-soft); display:block; margin-bottom:5px; }
+  .calc-field input{ width:100%; padding:10px 12px; border-radius:8px; background:var(--paper); border:1.5px solid var(--paper-line-strong); color:var(--ink); font-family:'JetBrains Mono'; font-size:13.5px; min-height:42px; }
+  .calc-result-card{ background:var(--white-2); border-radius:14px; padding:18px; text-align:center; }
+  .calc-result-card h5{ font-family:'Space Grotesk'; font-size:12.5px; margin-bottom:6px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+  .calc-result-card .val{ font-family:'JetBrains Mono'; font-size:28px; font-weight:700; color:var(--coral); }
+  .calc-result-card .formula{ font-size:11px; color:var(--ink-soft); margin-top:8px; font-family:'JetBrains Mono'; }
+  .verdict{ margin-top:14px; padding:14px 16px; border-radius:12px; font-family:'Space Grotesk'; font-weight:600; font-size:14px; text-align:center; }
+  .verdict.yes{ background:var(--teal-soft); color:var(--teal); }
+  .verdict.no{ background:var(--coral-soft); color:var(--coral); }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-box{ background:var(--white); border-radius:20px; box-shadow:var(--shadow); padding:24px 26px; min-height:320px; display:flex; flex-direction:column; }
+  .quiz-progress{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:10px; }
+  .qbar{ flex:1; height:5px; background:var(--paper-line); border-radius:3px; margin:0 10px; overflow:hidden; }
+  .qbar-fill{ height:100%; background:var(--coral); width:0%; transition:width .4s ease; border-radius:3px; }
+  .qnum{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; }
+  .qscore{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--teal); font-weight:600; white-space:nowrap; }
+  .q-text{ font-family:'Space Grotesk'; font-size:16.5px; font-weight:600; margin-bottom:18px; line-height:1.45; }
+  .options{ display:flex; flex-direction:column; gap:9px; flex:1; }
+  .opt{ text-align:left; padding:12px 15px; border-radius:12px; border:1.5px solid var(--paper-line-strong); background:var(--paper); font-family:'Inter'; font-size:13.5px; font-weight:500; cursor:pointer; transition:all .18s ease; display:flex; align-items:center; gap:10px; min-height:46px; }
+  .opt:hover{ border-color:var(--ink-soft); }
+  .opt .letter{ font-family:'JetBrains Mono'; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; background:var(--white-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--paper-line-strong); }
+  .opt.correct{ background:var(--teal-soft); border-color:var(--teal); }
+  .opt.correct .letter{ background:var(--teal); color:#12121a; border-color:var(--teal); }
+  .opt.wrong{ background:var(--coral-soft); border-color:var(--coral); }
+  .opt.wrong .letter{ background:var(--coral); color:#12121a; border-color:var(--coral); }
+  .opt.disabled{ pointer-events:none; }
+  .feedback{ margin-top:14px; font-size:12.5px; color:var(--ink-soft); background:var(--paper); border-left:3px solid var(--amber); padding:10px 14px; border-radius:8px; display:none; line-height:1.5; }
+  .feedback.show{ display:block; }
+  .quiz-nav{ margin-top:18px; display:flex; justify-content:flex-end; }
+  .quiz-result{ text-align:center; display:none; flex-direction:column; align-items:center; justify-content:center; flex:1; }
+  .quiz-result.show{ display:flex; }
+  .result-score{ font-family:'Space Grotesk'; font-size:46px; font-weight:700; }
+  .result-score span{ font-size:19px; color:var(--ink-soft); font-weight:500; }
+  .result-msg{ font-size:13px; color:var(--ink-soft); margin:10px 0 20px; max-width:380px; }
+  .result-btns{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+  /* ---------- PENUTUP ---------- */
+  #s14 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .recap-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:22px 0 26px; width:100%; max-width:600px; }
+  .recap-item{ background:var(--white); border-radius:14px; padding:14px 8px; box-shadow:var(--shadow); }
+  .recap-item .n{ font-family:'JetBrains Mono'; font-weight:700; font-size:17px; }
+  .recap-item .l{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottombar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 20px 16px; flex-shrink:0; }
+  .navbtn{ display:flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--paper-line-strong); border-radius:10px; padding:10px 16px; font-family:'Space Grotesk'; font-weight:600; font-size:13px; cursor:pointer; transition:all .18s ease; min-height:44px; flex-shrink:0; }
+  .navbtn:hover{ border-color:var(--ink); }
+  .navbtn:disabled{ opacity:.35; pointer-events:none; }
+  .navbtn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .step-label{ font-size:10.5px; color:var(--ink-soft); text-align:center; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 6px; }
+  .step-label b{ color:var(--ink); }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--paper-line-strong); border-radius:3px; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 900px){
+    .tri-layout{ grid-template-columns:1fr; }
+    .tri-wrap{ max-width:240px; margin:0 auto; }
+    .concept-layout{ grid-template-columns:1fr; }
+    .sq-wrap{ max-width:280px; margin:0 auto; }
+    .gallery{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width: 680px){
+    .topbar{ padding:12px 14px 8px; }
+    .brand-text{ display:none; }
+    .dots{ display:none; }
+    .progress-track{ display:block; }
+    .slide{ padding:10px 5.5% 18px; }
+    .slide-sub{ margin-bottom:14px; }
+    .gallery{ grid-template-columns:repeat(2,1fr); }
+    .card{ height:140px; }
+    .recap-grid{ grid-template-columns:1fr 1fr; gap:8px; }
+    .recap-item{ padding:10px 6px; }
+    .recap-item .n{ font-size:15px; }
+    .recap-item .l{ font-size:9px; }
+    .bottombar{ padding:10px 12px 14px; }
+    .navbtn{ padding:10px 12px; font-size:12px; }
+    .navbtn span.lbl{ display:none; }
+    .step-label{ font-size:9.5px; }
+    .quiz-box{ padding:18px 16px; }
+    .q-text{ font-size:15px; }
+    h1.big{ font-size:clamp(24px,7.5vw,36px); }
+    .formula-big .eq{ padding:12px 18px; }
+    .step-acc-body-inner{ padding-left:16px; }
+    .cover-tri svg{ width:110px; }
+  }
+  @media (max-width: 400px){
+    .gallery{ grid-template-columns:1fr 1fr; }
+    .recap-grid{ grid-template-columns:1fr; }
+    .calc-fields{ grid-template-columns:1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text"><b>Matematika</b> · Bab 2 Teorema Pythagoras</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="dots" id="dots"></div>
+  <div class="slide-count mono" id="slideCount">01/15</div>
+</div>
+
+<main id="main">
+
+  <!-- 0 COVER -->
+  <section class="slide" id="s0">
+    <div class="slide-inner">
+      <div class="cover-tri">
+        <svg viewBox="0 0 240 200"><polygon points="40,170 210,170 40,30" fill="rgba(255,255,255,0.04)" stroke="#F3F5FC" stroke-width="3"/><rect x="40" y="150" width="20" height="20" fill="none" stroke="#8D96B8" stroke-width="2"/><text x="118" y="188" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#FB923C">a</text><text x="18" y="105" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#A78BFA">b</text><text x="130" y="92" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#2DD4BF">c</text></svg>
+      </div>
+      <div class="eyebrow" style="justify-content:center;display:flex">Bab 2 · Fase D</div>
+      <h1 class="big">Teorema Pythagoras</h1>
+      <p class="slide-sub" style="margin:14px auto 0;">Mengenal konsep dasar teorema Pythagoras lewat visual, contoh soal, dan latihan interaktif.</p>
+      <div class="cp-line">
+        <b>Topik:</b> Konsep Teorema Pythagoras — segitiga siku-siku, sisi siku-siku, sisi miring/hipotenusa, dan konsep dasar Pythagoras.
+      </div>
+      <div class="cover-cta">
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
+        <span class="dim"><span class="arrow">↔</span> 15 slide</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 TUJUAN PEMBELAJARAN -->
+  <section class="slide" id="s1">
+    <div class="slide-inner">
+      <div class="eyebrow">Konsep Teorema Pythagoras</div>
+      <div class="tp-head">
+        <h2 class="slide-title" style="margin:0;">Tujuan Pembelajaran</h2>
+        <span class="pill pill-teal">Bab 2</span>
+      </div>
+      <div class="cp-box">
+        <b>Capaian Pembelajaran</b>
+        <p>Peserta didik mampu memahami dan membuktikan teorema Pythagoras, serta menggunakannya untuk menyelesaikan masalah.</p>
+      </div>
+      <div class="tp-list">
+        <div class="tp-item"><div class="tp-num">1</div><p>Mengenali segitiga siku-siku beserta unsur-unsurnya: sisi siku-siku dan hipotenusa.</p></div>
+        <div class="tp-item"><div class="tp-num">2</div><p>Memahami konsep dasar dan bunyi teorema Pythagoras (a² + b² = c²).</p></div>
+        <div class="tp-item"><div class="tp-num">3</div><p>Menghitung panjang sisi segitiga siku-siku menggunakan teorema Pythagoras.</p></div>
+        <div class="tp-item"><div class="tp-num">4</div><p>Menerapkan teorema Pythagoras pada soal kontekstual dan memeriksa apakah suatu segitiga siku-siku.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 APERSEPSI: SEGITIGA SIKU-SIKU -->
+  <section class="slide" id="s2">
+    <div class="slide-inner">
+      <div class="eyebrow">Apersepsi</div>
+      <h2 class="slide-title">Mengenal Segitiga Siku-siku</h2>
+      <p class="slide-sub">Segitiga siku-siku adalah segitiga yang salah satu sudutnya besarnya tepat 90° (sudut siku-siku).</p>
+      <div class="tri-layout">
+        <div class="tri-wrap">
+          <svg class="trisvg" viewBox="0 0 320 260">
+            <polygon class="tri-fill" points="60,220 260,220 60,60"></polygon>
+            <polyline class="rightangle" points="60,200 80,200 80,220"></polyline>
+            <path d="M 105 220 A 22 22 0 0 0 88 200" fill="none" stroke="#FB923C" stroke-width="2"></path>
+            <path d="M 80 90 A 30 30 0 0 0 100 118" fill="none" stroke="#A78BFA" stroke-width="2"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="unsur-desc">
+            <h4>Ciri-ciri Segitiga Siku-siku</h4>
+            <p>① Memiliki tepat satu sudut siku-siku (90°) — ditandai kotak kecil pada sudutnya.<br>
+            ② Dua sudut lainnya adalah sudut lancip (kurang dari 90°).<br>
+            ③ Jumlah ketiga sudutnya tetap 180°, seperti segitiga pada umumnya.<br>
+            ④ Sisi terpanjang selalu berhadapan dengan sudut siku-siku.</p>
+          </div>
+          <div class="hint">💡 Contoh benda dengan bentuk segitiga siku-siku: penggaris siku, ujung atap rumah, potongan diagonal kertas persegi panjang.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 UNSUR: SISI SIKU-SIKU & HIPOTENUSA -->
+  <section class="slide" id="s3">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Klik untuk mencoba</div>
+      <h2 class="slide-title">Sisi Siku-siku & Hipotenusa</h2>
+      <p class="slide-sub">Segitiga siku-siku memiliki tiga sisi dengan nama dan peran berbeda. Klik tombol atau langsung klik sisi segitiganya.</p>
+      <div class="tri-layout">
+        <div class="tri-wrap">
+          <svg class="trisvg" id="triSvg" viewBox="0 0 320 260">
+            <polygon class="tri-fill" points="60,220 260,220 60,60"></polygon>
+            <polyline class="rightangle" points="60,200 80,200 80,220"></polyline>
+            <line class="edge-line edge-a" x1="60" y1="220" x2="260" y2="220"></line>
+            <line class="edge-line edge-b" x1="60" y1="220" x2="60" y2="60"></line>
+            <line class="edge-line edge-c" x1="60" y1="60" x2="260" y2="220"></line>
+            <line class="edge-hit" data-mode="a" x1="60" y1="220" x2="260" y2="220"></line>
+            <line class="edge-hit" data-mode="b" x1="60" y1="220" x2="60" y2="60"></line>
+            <line class="edge-hit" data-mode="c" x1="60" y1="60" x2="260" y2="220"></line>
+            <text class="elabel" id="labA" x="150" y="240">a</text>
+            <text class="elabel" id="labB" x="30" y="145">b</text>
+            <text class="elabel" id="labC" x="170" y="130">c</text>
+          </svg>
+        </div>
+        <div>
+          <div class="unsur-tabs">
+            <button class="utab" data-mode="a" onclick="setTri('a')">🟧 Sisi Siku-siku a</button>
+            <button class="utab" data-mode="b" onclick="setTri('b')">🟪 Sisi Siku-siku b</button>
+            <button class="utab" data-mode="c" onclick="setTri('c')">🟢 Hipotenusa c</button>
+          </div>
+          <div class="unsur-desc" id="triDesc"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 KONSEP DASAR -->
+  <section class="slide" id="s4">
+    <div class="slide-inner">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h2 class="slide-title">Dari Mana Asalnya Teorema Ini?</h2>
+      <p class="slide-sub">Ide teorema Pythagoras ditemukan sejak zaman Yunani Kuno, dinamai dari matematikawan Pythagoras.</p>
+      <div class="concept-layout">
+        <div class="concept-text">
+          <div class="cp-box">
+            <b>Ide Dasarnya</b>
+            <p>Jika kita gambar sebuah persegi pada setiap sisi segitiga siku-siku, maka <b>luas persegi pada sisi hipotenusa</b> akan selalu sama dengan <b>jumlah luas dua persegi pada sisi siku-sikunya</b>.</p>
+          </div>
+          <div class="cp-box" style="border-left-color:var(--coral)">
+            <b style="color:var(--coral)">Contoh pada segitiga 3-4-5</b>
+            <p>Sisi siku-siku 3 cm dan 4 cm, hipotenusa 5 cm. Luas persegi: 3²=9, 4²=16, 5²=25. Perhatikan: 9 + 16 = 25! ✓</p>
+          </div>
+        </div>
+        <div class="sq-wrap">
+          <svg class="sqsvg" viewBox="0 0 560 480">
+            <polygon class="sq-tri" points="240,300 240,180 400,300"></polygon>
+            <polygon class="sq-a" points="240,300 400,300 400,460 240,460"></polygon>
+            <polygon class="sq-b" points="240,300 240,180 120,180 120,300"></polygon>
+            <polygon class="sq-c" points="240,180 400,300 520,140 360,20"></polygon>
+            <text x="300" y="385" fill="var(--coral)" text-anchor="middle">a² = 16</text>
+            <text x="170" y="245" fill="var(--amber)" text-anchor="middle">b² = 9</text>
+            <text x="390" y="165" fill="var(--teal)" text-anchor="middle">c² = 25</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 RUMUS -->
+  <section class="slide" id="s5">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Klik untuk mencoba</div>
+      <h2 class="slide-title">Rumus Teorema Pythagoras</h2>
+      <div class="formula-big"><div class="eq"><b>a²</b> + <b>b²</b> = <b>c²</b></div></div>
+      <p class="slide-sub" style="text-align:center;margin-left:auto;margin-right:auto;">Rumus ini bisa diubah bentuknya tergantung sisi mana yang ingin kita cari. Klik tombol di bawah.</p>
+      <div class="unsur-tabs" style="justify-content:center;display:flex;">
+        <button class="utab active" data-mode="fc" onclick="setFormula('fc')" style="background:var(--teal);border-color:var(--teal);color:#12121a;">🟢 Mencari c</button>
+        <button class="utab" data-mode="fa" onclick="setFormula('fa')">🟧 Mencari a</button>
+        <button class="utab" data-mode="fb" onclick="setFormula('fb')">🟪 Mencari b</button>
+      </div>
+      <div class="unsur-desc" id="formulaDesc" style="max-width:640px;margin:0 auto;"></div>
+    </div>
+  </section>
+
+  <!-- 6 PEMBUKTIAN VISUAL -->
+  <section class="slide" id="s6">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Klik tiap persegi</div>
+      <h2 class="slide-title">Pembuktian Visual (3-4-5)</h2>
+      <p class="slide-sub">Klik tiap persegi pada gambar untuk melihat luasnya, lalu perhatikan hasil penjumlahannya.</p>
+      <div class="concept-layout">
+        <div>
+          <div class="unsur-tabs">
+            <button class="utab" data-mode="a" onclick="setProve('a')">🟧 Persegi a (sisi 4)</button>
+            <button class="utab" data-mode="b" onclick="setProve('b')">🟪 Persegi b (sisi 3)</button>
+            <button class="utab" data-mode="c" onclick="setProve('c')">🟢 Persegi c (sisi 5)</button>
+          </div>
+          <div class="unsur-desc" id="proveDesc"></div>
+          <div class="verify-box">4² + 3² = 5²  →  16 + 9 = <b>25</b>  →  Terbukti! ✓</div>
+        </div>
+        <div class="sq-wrap">
+          <svg class="sqsvg" id="proveSvg" viewBox="0 0 560 480">
+            <polygon class="sq-tri" points="240,300 240,180 400,300"></polygon>
+            <polygon class="sq-a" points="240,300 400,300 400,460 240,460" onclick="setProve('a')"></polygon>
+            <polygon class="sq-b" points="240,300 240,180 120,180 120,300" onclick="setProve('b')"></polygon>
+            <polygon class="sq-c" points="240,180 400,300 520,140 360,20" onclick="setProve('c')"></polygon>
+            <text x="300" y="385" fill="var(--coral)" text-anchor="middle">16</text>
+            <text x="170" y="245" fill="var(--amber)" text-anchor="middle">9</text>
+            <text x="390" y="165" fill="var(--teal)" text-anchor="middle">25</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 TRIPLE PYTHAGORAS -->
+  <section class="slide" id="s7">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Klik kartu untuk membalik</div>
+      <h2 class="slide-title">Triple Pythagoras Terkenal</h2>
+      <p class="slide-sub">Beberapa kombinasi tiga bilangan bulat ini selalu memenuhi a² + b² = c². Hafalkan agar hitunganmu lebih cepat!</p>
+      <div class="gallery" id="tripleGallery"></div>
+    </div>
+  </section>
+
+  <!-- 8 CONTOH SOAL: MENCARI HIPOTENUSA -->
+  <section class="slide" id="s8">
+    <div class="slide-inner">
+      <div class="eyebrow">Contoh Soal · Interaktif</div>
+      <h2 class="slide-title">Mencari Sisi Miring (c)</h2>
+      <p class="slide-sub">Klik tiap langkah untuk mengikuti proses penyelesaiannya.</p>
+      <div class="case-context"><div class="ctitle">Contoh 1</div><p>Sebuah segitiga siku-siku memiliki sisi siku-siku 6 cm dan 8 cm. Berapa panjang hipotenusanya?</p></div>
+      <div id="case1"></div>
+      <div class="extra-example"><b>Contoh 2 (latihan mandiri):</b> Sisi siku-siku 9 cm dan 12 cm. c = √(9²+12²) = √(81+144) = √225 = <b>15 cm</b>.</div>
+    </div>
+  </section>
+
+  <!-- 9 CONTOH SOAL: MENCARI SISI SIKU-SIKU -->
+  <section class="slide" id="s9">
+    <div class="slide-inner">
+      <div class="eyebrow">Contoh Soal · Interaktif</div>
+      <h2 class="slide-title">Mencari Sisi Siku-siku</h2>
+      <p class="slide-sub">Klik tiap langkah untuk mengikuti proses penyelesaiannya.</p>
+      <div class="case-context"><div class="ctitle">Contoh 1</div><p>Sebuah segitiga siku-siku memiliki hipotenusa 13 cm dan salah satu sisi siku-siku 5 cm. Berapa panjang sisi siku-siku lainnya?</p></div>
+      <div id="case2"></div>
+      <div class="extra-example"><b>Contoh 2 (latihan mandiri):</b> Hipotenusa 17 cm, salah satu sisi siku-siku 8 cm. Sisi lain = √(17²−8²) = √(289−64) = √225 = <b>15 cm</b>.</div>
+    </div>
+  </section>
+
+  <!-- 10 SOAL KONTEKSTUAL -->
+  <section class="slide" id="s10">
+    <div class="slide-inner">
+      <div class="eyebrow">Soal Kontekstual · Interaktif</div>
+      <h2 class="slide-title">Penerapan dalam Kehidupan Sehari-hari</h2>
+      <p class="slide-sub">Klik tiap kasus untuk melihat cara penyelesaiannya.</p>
+      <div class="case-context"><div class="ctitle">🪜 Kasus 1 — Tangga Bersandar</div><p>Tangga sepanjang 10 m disandarkan ke tembok. Jarak kaki tangga ke tembok 6 m. Berapa tinggi tangga menyentuh tembok?</p></div>
+      <div id="case3"></div>
+      <div class="case-context" style="margin-top:16px;"><div class="ctitle">🏊 Kasus 2 — Diagonal Lapangan</div><p>Sebuah lapangan berbentuk persegi panjang berukuran 30 m × 40 m. Berapa panjang diagonal lapangan tersebut?</p></div>
+      <div id="case4"></div>
+    </div>
+  </section>
+
+  <!-- 11 KALKULATOR -->
+  <section class="slide" id="s11">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Coba sendiri</div>
+      <h2 class="slide-title">Kalkulator Teorema Pythagoras</h2>
+      <p class="slide-sub">Pilih sisi yang ingin dicari, masukkan dua sisi lainnya, dan lihat hasilnya secara langsung.</p>
+      <div class="calc-wrap">
+        <select class="calc-select" id="pytSelect" onchange="renderPytFields()">
+          <option value="c">Cari Hipotenusa (c)</option>
+          <option value="a">Cari Sisi Siku-siku (a)</option>
+          <option value="b">Cari Sisi Siku-siku (b)</option>
+        </select>
+        <div class="calc-fields" id="pytFields"></div>
+        <div class="calc-result-card">
+          <h5 id="pytLabel">Hipotenusa (c)</h5>
+          <div class="val" id="pytVal">–</div>
+          <div class="formula" id="pytFormula"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 CEK SEGITIGA SIKU-SIKU -->
+  <section class="slide" id="s12">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Coba sendiri</div>
+      <h2 class="slide-title">Cek: Segitiga Siku-siku atau Bukan?</h2>
+      <p class="slide-sub">Masukkan tiga panjang sisi segitiga, aplikasi akan memeriksa apakah memenuhi teorema Pythagoras (kebalikan teorema Pythagoras).</p>
+      <div class="calc-wrap">
+        <div class="calc-fields">
+          <div class="calc-field"><label>Sisi 1</label><input type="number" min="0.1" step="0.1" value="5" id="chk1" oninput="checkTriangle()"></div>
+          <div class="calc-field"><label>Sisi 2</label><input type="number" min="0.1" step="0.1" value="12" id="chk2" oninput="checkTriangle()"></div>
+          <div class="calc-field"><label>Sisi 3</label><input type="number" min="0.1" step="0.1" value="13" id="chk3" oninput="checkTriangle()"></div>
+        </div>
+        <div id="chkVerdict"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 QUIZ -->
+  <section class="slide" id="s13">
+    <div class="slide-inner">
+      <div class="eyebrow">Latihan</div>
+      <h2 class="slide-title">Uji Pemahamanmu</h2>
+      <p class="slide-sub">10 soal pilihan ganda seputar konsep dan penerapan teorema Pythagoras.</p>
+      <div class="quiz-box">
+        <div id="quizPlay">
+          <div class="quiz-progress">
+            <span class="qnum" id="qnum">Soal 1/10</span>
+            <div class="qbar"><div class="qbar-fill" id="qbarFill"></div></div>
+            <span class="qscore" id="qscore">Skor: 0</span>
+          </div>
+          <div class="q-text" id="qtext"></div>
+          <div class="options" id="qoptions"></div>
+          <div class="feedback" id="qfeedback"></div>
+          <div class="quiz-nav">
+            <button class="btn btn-primary" id="qnextBtn" onclick="nextQuestion()" style="display:none;">Lanjut →</button>
+          </div>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <div class="result-score"><span id="resultScore">0</span><span>/10 benar</span></div>
+          <div class="result-msg" id="resultMsg"></div>
+          <div class="result-btns">
+            <button class="btn btn-ghost" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+            <button class="btn btn-coral" onclick="goTo(14)">Lanjut ke Penutup →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PENUTUP -->
+  <section class="slide" id="s14">
+    <div class="slide-inner">
+      <div class="eyebrow" style="justify-content:center;display:flex">Ringkasan</div>
+      <h2 class="slide-title">Kerja Bagus! 🎉</h2>
+      <p class="slide-sub" style="margin:0 auto;">Kamu sudah memahami konsep dasar teorema Pythagoras. Ini ringkasannya:</p>
+      <div class="recap-grid">
+        <div class="recap-item"><div class="n" style="color:var(--coral)">a² + b² = c²</div><div class="l">Rumus utama</div></div>
+        <div class="recap-item"><div class="n" style="color:var(--amber)">Sisi Siku-siku</div><div class="l">Mengapit sudut 90°</div></div>
+        <div class="recap-item"><div class="n" style="color:var(--teal)">Hipotenusa</div><div class="l">Sisi terpanjang</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="finish()">✓ Selesai — Kembali ke Bab 2</button>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:14px;">Tombol ini akan membuka <span class="mono">matb-bab2.html</span></p>
+    </div>
+  </section>
+
+</main>
+
+<div class="bottombar">
+  <button class="navbtn" id="prevBtn" onclick="goTo(current-1)">← <span class="lbl">Sebelumnya</span></button>
+  <div class="step-label" id="stepLabel"></div>
+  <button class="navbtn primary" id="nextBtn" onclick="goTo(current+1)"><span class="lbl">Selanjutnya</span> →</button>
+</div>
+
+<script>
+/* ================= viewport height fix (mobile) ================= */
+function setVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+
+/* ================= DATA ================= */
+const slideNames = ["Sampul","Tujuan","Segitiga Siku-siku","Sisi & Hipotenusa","Konsep Dasar","Rumus","Pembuktian","Triple","Cari c","Cari Sisi Siku","Kontekstual","Kalkulator","Cek Segitiga","Kuis","Penutup"];
+const totalSlides = slideNames.length;
+let current = 0;
+
+/* ================= SLIDE NAV ================= */
+function buildDots(){
+  const wrap = document.getElementById('dots');
+  wrap.innerHTML = '';
+  for(let i=0;i<totalSlides;i++){
+    const d = document.createElement('button');
+    d.className = 'dot'; d.title = slideNames[i]; d.onclick = () => goTo(i);
+    wrap.appendChild(d);
+  }
+}
+function goTo(i){
+  if(i<0 || i>=totalSlides) return;
+  const dir = i > current ? 1 : -1;
+  document.getElementById('s'+current).classList.remove('active');
+  if(dir>0) document.getElementById('s'+current).classList.add('prevslide');
+  current = i;
+  const el = document.getElementById('s'+current);
+  el.classList.remove('prevslide'); el.classList.add('active');
+  setTimeout(()=>{ document.querySelectorAll('.slide').forEach(s=>{ if(!s.classList.contains('active')) s.classList.remove('prevslide'); }); }, 420);
+  document.querySelectorAll('.dot').forEach((d,idx)=>{ d.classList.toggle('active', idx===current); d.classList.toggle('done', idx<current); });
+  document.getElementById('slideCount').textContent = String(current+1).padStart(2,'0') + '/' + String(totalSlides).padStart(2,'0');
+  document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100) + '%';
+  document.getElementById('stepLabel').innerHTML = (current+1) + '/' + totalSlides + ' · <b>' + slideNames[current] + '</b>';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===totalSlides-1;
+}
+
+/* ================= UNSUR SEGITIGA (slide 3) ================= */
+const triInfo = {
+  a: { title:"Sisi Siku-siku a", text:"Sisi siku-siku adalah salah satu dari dua sisi yang mengapit (membentuk) sudut siku-siku. Sisi a biasanya digambar mendatar (alas)." },
+  b: { title:"Sisi Siku-siku b", text:"Sisi siku-siku kedua yang juga mengapit sudut siku-siku, biasanya digambar tegak (tinggi). Sisi a dan b disebut juga kaki-kaki segitiga." },
+  c: { title:"Hipotenusa (Sisi Miring)", text:"Hipotenusa adalah sisi terpanjang pada segitiga siku-siku, terletak berhadapan langsung dengan sudut siku-siku. Inilah sisi yang dicari dengan a² + b² = c²." },
+};
+function setTri(mode){
+  document.querySelectorAll('#s3 .utab').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
+  const svg = document.getElementById('triSvg');
+  svg.classList.remove('mode-a','mode-b','mode-c');
+  svg.classList.add('mode-'+mode);
+  ['A','B','C'].forEach(L=> document.getElementById('lab'+L).classList.remove('on-a','on-b','on-c'));
+  document.getElementById('lab'+mode.toUpperCase()).classList.add('on-'+mode);
+  const info = triInfo[mode];
+  document.getElementById('triDesc').innerHTML = `<h4>${info.title}</h4><p>${info.text}</p>`;
+}
+document.querySelectorAll('#triSvg .edge-hit').forEach(el=> el.addEventListener('click', ()=> setTri(el.dataset.mode)));
+setTri('a');
+
+/* ================= RUMUS (slide 5) ================= */
+const formulaInfo = {
+  fc: { title:"Mencari Hipotenusa (c)", text:"c = √(a² + b²) — dipakai saat kita sudah tahu kedua sisi siku-siku.", ex:"Contoh: a = 6, b = 8 → c = √(36+64) = √100 = 10" },
+  fa: { title:"Mencari Sisi Siku-siku (a)", text:"a = √(c² − b²) — dipakai saat kita sudah tahu hipotenusa dan salah satu sisi siku-siku.", ex:"Contoh: c = 10, b = 8 → a = √(100−64) = √36 = 6" },
+  fb: { title:"Mencari Sisi Siku-siku (b)", text:"b = √(c² − a²) — mirip dengan mencari a, tinggal tukar posisi sisi yang diketahui.", ex:"Contoh: c = 10, a = 6 → b = √(100−36) = √64 = 8" },
+};
+function setFormula(mode){
+  document.querySelectorAll('#s5 .utab').forEach(b=>{
+    const active = b.dataset.mode===mode;
+    b.classList.toggle('active', active);
+    if(!active){ b.style.background=''; b.style.borderColor=''; b.style.color=''; }
+    else{
+      const c = mode==='fc' ? 'var(--teal)' : mode==='fa' ? 'var(--coral)' : 'var(--amber)';
+      b.style.background=c; b.style.borderColor=c; b.style.color='#12121a';
+    }
+  });
+  const info = formulaInfo[mode];
+  document.getElementById('formulaDesc').innerHTML = `<h4>${info.title}</h4><p>${info.text}</p><div class="dim" style="margin-top:12px;"><span class="arrow">↔</span>${info.ex}</div>`;
+}
+setFormula('fc');
+
+/* ================= PEMBUKTIAN (slide 6) ================= */
+const proveInfo = {
+  a: { title:"Persegi pada Sisi a", text:"Sisi a = 4, maka luas persegi = 4×4 = 16 satuan luas." },
+  b: { title:"Persegi pada Sisi b", text:"Sisi b = 3, maka luas persegi = 3×3 = 9 satuan luas." },
+  c: { title:"Persegi pada Hipotenusa c", text:"Sisi c = 5, maka luas persegi = 5×5 = 25 satuan luas — persis sama dengan 16 + 9!" },
+};
+function setProve(mode){
+  document.querySelectorAll('#s6 .utab').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
+  const svg = document.getElementById('proveSvg');
+  svg.classList.remove('mode-a','mode-b','mode-c');
+  svg.classList.add('mode-'+mode);
+  const info = proveInfo[mode];
+  document.getElementById('proveDesc').innerHTML = `<h4>${info.title}</h4><p>${info.text}</p>`;
+}
+setProve('c');
+
+/* ================= TRIPLE GALLERY (slide 7) ================= */
+const triples = [
+  {a:3,b:4,c:5}, {a:6,b:8,c:10}, {a:5,b:12,c:13}, {a:8,b:15,c:17}, {a:7,b:24,c:25}, {a:9,b:12,c:15}
+];
+const galWrap = document.getElementById('tripleGallery');
+triples.forEach(t=>{
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-inner">
+      <div class="card-face card-front">
+        <div class="tnum">${t.a} - ${t.b} - ${t.c}</div>
+        <div class="ctap">klik untuk verifikasi</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="veq">${t.a}² + ${t.b}² = ${t.c}²<br>${t.a*t.a} + ${t.b*t.b} = ${t.c*t.c}<br>✓ Benar!</div>
+      </div>
+    </div>`;
+  card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+  galWrap.appendChild(card);
+});
+
+/* ================= CASE STUDIES (accordion) ================= */
+const cases = {
+  case1: [
+    { t:"Pahami Masalah", b:"Segitiga siku-siku dengan sisi siku-siku <b>a = 6 cm</b> dan <b>b = 8 cm</b>. Ditanya: panjang hipotenusa (c)." },
+    { t:"Pilih Rumus", b:"Karena mencari hipotenusa, gunakan: <b>c = √(a² + b²)</b>" },
+    { t:"Hitung", b:"c = √(6² + 8²) = √(36 + 64) = √100 = <b>10 cm</b>" },
+    { t:"Kesimpulan", b:"Panjang hipotenusa segitiga tersebut adalah <b>10 cm</b>." },
+  ],
+  case2: [
+    { t:"Pahami Masalah", b:"Segitiga siku-siku dengan hipotenusa <b>c = 13 cm</b> dan salah satu sisi siku-siku <b>a = 5 cm</b>. Ditanya: sisi siku-siku lainnya (b)." },
+    { t:"Pilih Rumus", b:"Karena mencari sisi siku-siku, gunakan: <b>b = √(c² − a²)</b>" },
+    { t:"Hitung", b:"b = √(13² − 5²) = √(169 − 25) = √144 = <b>12 cm</b>" },
+    { t:"Kesimpulan", b:"Panjang sisi siku-siku lainnya adalah <b>12 cm</b>." },
+  ],
+  case3: [
+    { t:"Pahami Masalah", b:"Tangga sepanjang <b>10 m</b> (hipotenusa) disandarkan ke tembok. Jarak kaki tangga ke tembok <b>6 m</b> (sisi siku-siku). Ditanya: tinggi tangga di tembok." },
+    { t:"Pilih Rumus", b:"Karena mencari sisi siku-siku, gunakan: <b>tinggi = √(10² − 6²)</b>" },
+    { t:"Hitung", b:"tinggi = √(100 − 36) = √64 = <b>8 m</b>" },
+    { t:"Kesimpulan", b:"Tangga mencapai ketinggian <b>8 meter</b> di tembok." },
+  ],
+  case4: [
+    { t:"Pahami Masalah", b:"Lapangan persegi panjang berukuran <b>30 m × 40 m</b>. Ditanya: panjang diagonal lapangan." },
+    { t:"Pilih Rumus", b:"Diagonal adalah hipotenusa dari segitiga siku-siku dengan sisi 30 m dan 40 m: <b>d = √(30² + 40²)</b>" },
+    { t:"Hitung", b:"d = √(900 + 1600) = √2500 = <b>50 m</b>" },
+    { t:"Kesimpulan", b:"Panjang diagonal lapangan adalah <b>50 meter</b>." },
+  ],
+};
+function buildCase(containerId, steps){
+  const wrap = document.getElementById(containerId);
+  steps.forEach((s, i)=>{
+    const acc = document.createElement('div');
+    acc.className = 'step-acc' + (i===0 ? ' open' : '');
+    acc.innerHTML = `
+      <div class="step-acc-head">
+        <div class="step-acc-num">${i+1}</div>
+        <div class="step-acc-title">${s.t}</div>
+        <div class="step-acc-icon">▾</div>
+      </div>
+      <div class="step-acc-body"><div class="step-acc-body-inner">${s.b}</div></div>`;
+    acc.querySelector('.step-acc-head').addEventListener('click', ()=> acc.classList.toggle('open'));
+    wrap.appendChild(acc);
+  });
+}
+buildCase('case1', cases.case1);
+buildCase('case2', cases.case2);
+buildCase('case3', cases.case3);
+buildCase('case4', cases.case4);
+
+/* ================= KALKULATOR PYTHAGORAS (slide 11) ================= */
+const pytModes = {
+  c: { label:"Hipotenusa (c)", fields:[{id:'a',label:'Sisi siku-siku a',def:6},{id:'b',label:'Sisi siku-siku b',def:8}],
+    calc:(v)=>{ const val = Math.sqrt(v.a*v.a+v.b*v.b); return { val, formula:`√(${v.a}² + ${v.b}²) = √${(v.a*v.a+v.b*v.b)}` }; } },
+  a: { label:"Sisi Siku-siku (a)", fields:[{id:'c',label:'Hipotenusa c',def:10},{id:'b',label:'Sisi siku-siku b',def:8}],
+    calc:(v)=>{ const diff=v.c*v.c-v.b*v.b; if(diff<0) return {val:NaN, formula:'Hipotenusa harus lebih besar dari sisi siku-siku!'}; const val=Math.sqrt(diff); return { val, formula:`√(${v.c}² − ${v.b}²) = √${diff}` }; } },
+  b: { label:"Sisi Siku-siku (b)", fields:[{id:'c',label:'Hipotenusa c',def:10},{id:'a',label:'Sisi siku-siku a',def:6}],
+    calc:(v)=>{ const diff=v.c*v.c-v.a*v.a; if(diff<0) return {val:NaN, formula:'Hipotenusa harus lebih besar dari sisi siku-siku!'}; const val=Math.sqrt(diff); return { val, formula:`√(${v.c}² − ${v.a}²) = √${diff}` }; } },
+};
+function renderPytFields(){
+  const mode = document.getElementById('pytSelect').value;
+  const cfg = pytModes[mode];
+  const wrap = document.getElementById('pytFields');
+  wrap.innerHTML = '';
+  cfg.fields.forEach(f=>{
+    const div = document.createElement('div');
+    div.className = 'calc-field';
+    div.innerHTML = `<label>${f.label} (cm)</label><input type="number" min="0.1" step="0.1" value="${f.def}" data-id="${f.id}" oninput="computePyt()">`;
+    wrap.appendChild(div);
+  });
+  document.getElementById('pytLabel').textContent = cfg.label;
+  computePyt();
+}
+function computePyt(){
+  const mode = document.getElementById('pytSelect').value;
+  const cfg = pytModes[mode];
+  const values = {};
+  document.querySelectorAll('#pytFields input').forEach(inp=>{ values[inp.dataset.id] = parseFloat(inp.value) || 0; });
+  const r = cfg.calc(values);
+  document.getElementById('pytVal').textContent = isNaN(r.val) ? '–' : r.val.toFixed(2) + ' cm';
+  document.getElementById('pytFormula').textContent = r.formula;
+}
+renderPytFields();
+
+/* ================= CEK SEGITIGA SIKU-SIKU (slide 12) ================= */
+function checkTriangle(){
+  let s = [parseFloat(document.getElementById('chk1').value)||0, parseFloat(document.getElementById('chk2').value)||0, parseFloat(document.getElementById('chk3').value)||0];
+  s.sort((x,y)=>x-y);
+  const [p,q,r] = s;
+  const lhs = p*p+q*q, rhs = r*r;
+  const isRight = Math.abs(lhs-rhs) < 0.01;
+  const el = document.getElementById('chkVerdict');
+  el.innerHTML = `
+    <div class="verdict ${isRight?'yes':'no'}">
+      ${isRight ? '✅ Ya, ini segitiga siku-siku!' : '❌ Bukan segitiga siku-siku'}
+    </div>
+    <div style="text-align:center;margin-top:10px;font-family:'JetBrains Mono';font-size:12.5px;color:var(--ink-soft);">
+      ${p}² + ${q}² ${isRight?'=':'≠'} ${r}²  →  ${(p*p).toFixed(1)} + ${(q*q).toFixed(1)} = ${lhs.toFixed(1)}, sedangkan ${r}² = ${rhs.toFixed(1)}
+    </div>`;
+}
+checkTriangle();
+
+/* ================= QUIZ ================= */
+const quiz = [
+  { q:"Dalam segitiga siku-siku, sisi yang berhadapan dengan sudut siku-siku disebut...", opts:["Sisi siku-siku","Hipotenusa","Alas","Tinggi"], correct:1, exp:"Sisi yang berhadapan dengan sudut siku-siku disebut hipotenusa (sisi miring)." },
+  { q:"Manakah bunyi rumus Teorema Pythagoras yang benar?", opts:["a + b = c","a² + b² = c²","a² − b² = c²","a × b = c"], correct:1, exp:"Teorema Pythagoras: kuadrat hipotenusa sama dengan jumlah kuadrat kedua sisi siku-siku." },
+  { q:"Segitiga siku-siku memiliki sisi siku-siku 6 cm dan 8 cm. Berapa panjang hipotenusanya?", opts:["10 cm","12 cm","14 cm","16 cm"], correct:0, exp:"c = √(6²+8²) = √100 = 10 cm." },
+  { q:"Segitiga siku-siku memiliki hipotenusa 13 cm dan sisi siku-siku 5 cm. Berapa sisi siku-siku lainnya?", opts:["10 cm","11 cm","12 cm","13 cm"], correct:2, exp:"b = √(13²−5²) = √144 = 12 cm." },
+  { q:"Manakah yang termasuk triple Pythagoras?", opts:["2, 3, 4","3, 4, 5","4, 5, 6","5, 6, 7"], correct:1, exp:"3² + 4² = 9+16 = 25 = 5² — memenuhi Teorema Pythagoras." },
+  { q:"Tangga sepanjang 10 m disandarkan ke tembok. Jarak kaki tangga ke tembok 6 m. Berapa tinggi tangga menyentuh tembok?", opts:["6 m","7 m","8 m","9 m"], correct:2, exp:"tinggi = √(10²−6²) = √64 = 8 m." },
+  { q:"Rumus untuk mencari sisi siku-siku a jika c dan b diketahui adalah...", opts:["a = √(c² + b²)","a = √(c² − b²)","a = c² − b²","a = √c² × b²"], correct:1, exp:"a = √(c² − b²), kebalikan dari mencari hipotenusa." },
+  { q:"Untuk memeriksa apakah segitiga dengan sisi 5, 12, 13 adalah segitiga siku-siku, kita periksa...", opts:["5 + 12 = 13?","5² + 12² = 13²?","5 × 12 = 13?","5² − 12² = 13²?"], correct:1, exp:"Gunakan kebalikan Teorema Pythagoras: jumlah kuadrat dua sisi terpendek = kuadrat sisi terpanjang." },
+  { q:"Sebuah lapangan berbentuk persegi panjang berukuran 30 m × 40 m. Berapa panjang diagonalnya?", opts:["45 m","50 m","55 m","60 m"], correct:1, exp:"d = √(30²+40²) = √2500 = 50 m." },
+  { q:"Segitiga dengan sisi 7, 24, 25 — berapa hasil dari 7² + 24²?", opts:["600","625","650","675"], correct:1, exp:"7²+24² = 49+576 = 625 = 25², sehingga 7-24-25 adalah triple Pythagoras." },
+];
+let qIndex = 0, qScore = 0, answered = false;
+function renderQuestion(){
+  answered = false;
+  const item = quiz[qIndex];
+  document.getElementById('qnum').textContent = `Soal ${qIndex+1}/${quiz.length}`;
+  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
+  document.getElementById('qbarFill').style.width = (qIndex/quiz.length*100) + '%';
+  document.getElementById('qtext').textContent = item.q;
+  document.getElementById('qfeedback').classList.remove('show');
+  document.getElementById('qnextBtn').style.display = 'none';
+  const optWrap = document.getElementById('qoptions');
+  optWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  item.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    b.onclick = () => selectAnswer(i, b);
+    optWrap.appendChild(b);
+  });
+}
+function selectAnswer(i, btn){
+  if(answered) return;
+  answered = true;
+  const item = quiz[qIndex];
+  const correct = i === item.correct;
+  if(correct) qScore++;
+  document.querySelectorAll('#qoptions .opt').forEach((el, idx)=>{
+    el.classList.add('disabled');
+    if(idx === item.correct) el.classList.add('correct');
+    else if(idx === i) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('qfeedback');
+  fb.innerHTML = (correct ? '✅ Benar! ' : '❌ Belum tepat. ') + item.exp;
+  fb.classList.add('show');
+  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
+  document.getElementById('qnextBtn').textContent = qIndex < quiz.length-1 ? 'Lanjut →' : 'Lihat Hasil →';
+  document.getElementById('qnextBtn').style.display = 'inline-flex';
+}
+function nextQuestion(){
+  if(qIndex < quiz.length-1){ qIndex++; renderQuestion(); }
+  else { document.getElementById('qbarFill').style.width = '100%'; showResult(); }
+}
+function showResult(){
+  document.getElementById('quizPlay').style.display = 'none';
+  const rEl = document.getElementById('quizResult');
+  rEl.classList.add('show');
+  document.getElementById('resultScore').textContent = qScore;
+  let msg;
+  if(qScore === quiz.length) msg = "Sempurna! Kamu sudah menguasai konsep Teorema Pythagoras dengan sangat baik.";
+  else if(qScore >= quiz.length*0.6) msg = "Bagus! Sedikit lagi kamu akan menguasai materi ini sepenuhnya.";
+  else msg = "Ayo coba lagi! Cek kembali materi rumus dan contoh soal sebelumnya.";
+  document.getElementById('resultMsg').textContent = msg;
+}
+function restartQuiz(){
+  qIndex = 0; qScore = 0;
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizPlay').style.display = 'block';
+  renderQuestion();
+}
+renderQuestion();
+
+/* ================= FINISH ================= */
+function finish(){ window.location.href = 'matb-bab2.html'; }
+
+/* ================= KEYBOARD NAV ================= */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
+});
+
+/* ================= TOUCH SWIPE NAV ================= */
+let touchStartX = 0, touchStartY = 0;
+main.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive:true});
+main.addEventListener('touchend', (e)=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ if(dx < 0) goTo(current+1); else goTo(current-1); }
+}, {passive:true});
+
+/* ================= INIT ================= */
+buildDots();
+goTo(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Evaluasi Bab 3 · Persamaan &amp; Pertidaksamaan Linear Satu Variabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F0;
+  --paper-line: rgba(34,49,92,0.07);
+  --ink:#20263F;
+  --ink-soft:#535A75;
+  --navy:#22315C;
+  --navy-deep:#161F3B;
+  --teal:#149C8D; --teal-soft:#DCF3EF;
+  --amber:#E8971F; --amber-soft:#FCEBCE;
+  --coral:#E15C56; --coral-soft:#FCE1DF;
+  --purple:#6E62D9; --purple-soft:#E9E7FB;
+  --green:#2E9E5B; --green-soft:#DFF3E6;
+  --red:#D14444; --red-soft:#FBE1E0;
+  --radius:18px;
+  --shadow: 0 10px 30px rgba(22,31,59,0.10);
+  --font-display:'Baloo 2', system-ui, sans-serif;
+  --font-body:'Inter', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{ margin:0; font-family:var(--font-body); color:var(--ink);
+  background: linear-gradient(var(--paper-line) 1px, transparent 1px), linear-gradient(90deg, var(--paper-line) 1px, transparent 1px), var(--paper);
+  background-size:28px 28px, 28px 28px, auto; overflow:hidden; }
+@media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+#app{ position:relative; width:100vw; height:100vh; height:100dvh; overflow:hidden; }
+.progressbar{ position:fixed; top:0; left:0; right:0; height:5px; background:rgba(34,49,92,0.08); z-index:50; }
+.progressbar-fill{ height:100%; background:linear-gradient(90deg, var(--navy), var(--teal), var(--amber), var(--coral), var(--purple)); width:5%; transition:width .4s cubic-bezier(.65,0,.35,1); }
+
+.slide{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  padding: 60px clamp(20px,6vw,80px) 110px; opacity:0; visibility:hidden; transform:translateY(18px) scale(.99);
+  transition:opacity .5s ease, transform .5s ease, visibility 0s linear .5s; overflow-y:auto; }
+.slide.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); transition:opacity .5s ease, transform .5s ease, visibility 0s linear 0s; }
+.slide-inner{ width:100%; max-width:900px; margin:0 auto; }
+
+.eyebrow{ font-family:var(--font-mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--navy); opacity:.65; font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--navy);display:inline-block;}
+h1.slide-title{ font-family:var(--font-display); font-weight:700; font-size:clamp(24px, 3.6vw, 38px); line-height:1.15; margin:0 0 14px; color:var(--navy-deep); }
+p.lede{ font-size:clamp(15px,1.6vw,17px); color:var(--ink-soft); line-height:1.6; max-width:70ch; margin:0 0 22px; }
+
+.nav-bar{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); border:1px solid rgba(34,49,92,0.10); padding:9px 12px; border-radius:999px; box-shadow:var(--shadow); z-index:60; }
+.nav-btn{ width:42px; height:42px; border-radius:50%; border:none; cursor:pointer; background:var(--navy); color:#fff; font-size:18px; display:flex; align-items:center; justify-content:center; transition:transform .15s, background .15s; }
+.nav-btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.nav-btn:disabled{ opacity:.3; cursor:not-allowed; transform:none; }
+.nav-count{ font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); min-width:56px; text-align:center; }
+.nav-title{ display:none; }
+@media (min-width:720px){ .nav-title{ display:block; font-size:13px; color:var(--ink-soft); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-left:1px solid rgba(34,49,92,.12); padding-left:14px; margin-left:2px;} }
+
+.card{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid rgba(34,49,92,0.06); padding:clamp(16px,2.6vw,28px); }
+.pill{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:999px; letter-spacing:.02em; }
+.pill-teal{ background:var(--teal-soft); color:var(--teal); }
+.pill-amber{ background:var(--amber-soft); color:#8a5c0d; }
+.pill-coral{ background:var(--coral-soft); color:var(--coral); }
+.pill-purple{ background:var(--purple-soft); color:var(--purple); }
+.pill-green{ background:var(--green-soft); color:var(--green); }
+
+.btn{ font-family:var(--font-body); font-weight:700; font-size:14.5px; border:none; cursor:pointer; border-radius:12px; padding:11px 20px; background:var(--navy); color:#fff; transition:transform .15s,background .15s; display:inline-flex; align-items:center; gap:8px; }
+.btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.btn-ghost{ background:#fff; color:var(--navy); border:2px solid var(--navy); }
+
+/* ===== COVER ===== */
+.title-slide{ justify-content:center; text-align:center; }
+.title-badge{ font-family:var(--font-mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; background:var(--navy); color:#fff; padding:8px 18px; border-radius:999px; margin-bottom:22px; display:inline-block; }
+.title-main{ font-family:var(--font-display); font-weight:800; color:var(--navy-deep); font-size:clamp(28px,5vw,46px); line-height:1.12; margin:0 0 18px; }
+.title-sub{ font-size:clamp(15px,1.8vw,18px); color:var(--ink-soft); max-width:600px; margin:0 auto 26px; line-height:1.6;}
+.info-grid{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-bottom:26px; }
+.info-chip{ background:#fff; box-shadow:var(--shadow); border-radius:14px; padding:14px 22px; min-width:130px; }
+.info-chip b{ display:block; font-family:var(--font-display); font-size:22px; color:var(--navy-deep); }
+.info-chip span{ font-size:12px; color:var(--ink-soft); font-weight:600; }
+.petunjuk{ text-align:left; max-width:560px; margin:0 auto; background:#fff; border-radius:16px; padding:18px 22px; box-shadow:var(--shadow); }
+.petunjuk h4{ margin:0 0 8px; font-family:var(--font-display); font-size:16px; color:var(--navy-deep); }
+.petunjuk ul{ margin:0; padding-left:20px; font-size:13.5px; color:var(--ink-soft); line-height:1.7; }
+
+/* ===== PG SOAL ===== */
+.pg-number{ font-family:var(--font-display); font-weight:800; font-size:15px; color:#fff; background:var(--navy); width:34px; height:34px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; margin-right:10px; vertical-align:middle;}
+.pg-q{ font-size:clamp(17px,2.2vw,21px); font-weight:600; color:var(--navy-deep); line-height:1.5; margin:14px 0 22px; }
+.pg-opts{ display:flex; flex-direction:column; gap:12px; }
+.pg-opt{ display:flex; align-items:center; gap:14px; background:#fff; border:2px solid rgba(34,49,92,.14); border-radius:14px; padding:14px 18px; cursor:pointer; transition:all .15s; box-shadow:var(--shadow); }
+.pg-opt:hover{ border-color:var(--navy); transform:translateX(3px); }
+.pg-opt.selected{ border-color:var(--navy); background:var(--paper); }
+.pg-opt.selected .pg-letter{ background:var(--navy); color:#fff; }
+.pg-letter{ font-family:var(--font-mono); font-weight:700; font-size:14px; width:30px; height:30px; border-radius:50%; background:rgba(34,49,92,.08); color:var(--navy); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .15s; }
+.pg-opt-text{ font-size:15px; color:var(--ink); font-family:var(--font-mono); font-weight:600;}
+
+/* ===== ESSAY ===== */
+.essay-item{ background:#fff; border-radius:16px; padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); }
+.essay-num{ font-family:var(--font-display); font-weight:700; font-size:14px; color:#fff; background:var(--purple); width:28px; height:28px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; margin-right:10px; }
+.essay-text{ font-size:14.5px; line-height:1.6; color:var(--ink); display:inline; }
+
+/* ===== KUNCI JAWABAN ===== */
+.key-hidden-wrap{ position:relative; }
+.key-blur{ filter:blur(9px); pointer-events:none; user-select:none; transition:filter .3s; }
+.key-blur.revealed{ filter:blur(0); pointer-events:auto; }
+.key-overlay{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:14px; z-index:5; }
+.key-overlay.hidden{ display:none; }
+.pg-answer-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:24px; }
+@media(max-width:700px){ .pg-answer-grid{ grid-template-columns:repeat(3,1fr); } }
+.pg-answer-chip{ background:var(--green-soft); border-radius:12px; padding:10px; text-align:center; }
+.pg-answer-chip .num{ font-size:11.5px; color:var(--ink-soft); font-weight:700; }
+.pg-answer-chip .letter{ font-family:var(--font-display); font-weight:800; font-size:20px; color:var(--green); }
+.essay-key-item{ background:var(--purple-soft); border-radius:14px; padding:14px 18px; margin-bottom:12px; }
+.essay-key-item .k-num{ font-family:var(--font-display); font-weight:700; color:var(--purple); font-size:14px; }
+.essay-key-item p{ margin:6px 0 0; font-size:13.5px; color:#3a3272; line-height:1.6; }
+
+/* ===== PENILAIAN ===== */
+.score-formula{ background:var(--navy); color:#fff; border-radius:16px; padding:20px 24px; font-family:var(--font-mono); font-size:15px; text-align:center; margin:18px 0; font-weight:700; }
+.score-split{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+@media(max-width:640px){ .score-split{ grid-template-columns:1fr; } }
+.score-box{ border-radius:16px; padding:18px 20px; text-align:center; }
+.score-box .big{ font-family:var(--font-display); font-weight:800; font-size:30px; }
+.score-box p{ margin:4px 0 0; font-size:13px; }
+.rubric-table{ width:100%; border-collapse:collapse; margin-top:10px; font-size:13.5px; }
+.rubric-table th, .rubric-table td{ text-align:left; padding:9px 12px; border-bottom:1px solid rgba(34,49,92,.1); }
+.rubric-table th{ font-family:var(--font-display); color:var(--navy-deep); font-size:13px; }
+.rubric-score{ font-family:var(--font-mono); font-weight:700; color:var(--purple); }
+
+.center{ text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="progressbar"><div class="progressbar-fill" id="progressFill"></div></div>
+<div id="app">
+
+  <!-- SLIDE 0 : COVER -->
+  <section class="slide title-slide active" data-title="Sampul Evaluasi">
+    <div class="slide-inner">
+      <span class="title-badge">Evaluasi · Bab 3</span>
+      <h1 class="title-main">Evaluasi Bab 3<br>Persamaan &amp; Pertidaksamaan Linear Satu Variabel</h1>
+      <p class="title-sub">Kerjakan seluruh soal berikut dengan teliti. Gunakan navigasi di bagian bawah untuk berpindah antar soal.</p>
+      <div class="info-grid">
+        <div class="info-chip"><b>15</b><span>Soal Pilihan Ganda</span></div>
+        <div class="info-chip"><b>5</b><span>Soal Essay</span></div>
+        <div class="info-chip"><b>100</b><span>Skor Maksimal</span></div>
+      </div>
+      <div class="petunjuk">
+        <h4>📋 Petunjuk Pengerjaan</h4>
+        <ul>
+          <li>Bagian I: 15 soal pilihan ganda, satu soal tiap slide. Pilih satu jawaban yang paling tepat.</li>
+          <li>Bagian II: 5 soal essay ditampilkan dalam satu slide. Jawab pada lembar jawaban terpisah.</li>
+          <li>Kunci jawaban tersedia di slide sebelum terakhir (tersembunyi, klik untuk menampilkan).</li>
+          <li>Pedoman penilaian dijelaskan pada slide terakhir.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div id="pgSlidesContainer"></div>
+
+  <!-- ESSAY SLIDE -->
+  <section class="slide" data-title="Soal Essay">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Bagian II · Essay</div>
+      <h1 class="slide-title">Soal Essay (5 Soal)</h1>
+      <p class="lede">Jawablah kelima soal berikut secara lengkap pada lembar jawaban terpisah.</p>
+      <div id="essayList"></div>
+    </div>
+  </section>
+
+  <!-- KUNCI JAWABAN SLIDE -->
+  <section class="slide" data-title="Kunci Jawaban">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Untuk Guru / Pemeriksa</div>
+      <h1 class="slide-title">Kunci Jawaban</h1>
+      <p class="lede">Kunci jawaban disembunyikan agar tidak terlihat siswa secara tidak sengaja. Klik tombol di bawah untuk menampilkan.</p>
+      <div class="key-hidden-wrap">
+        <div class="key-overlay" id="keyOverlay">
+          <button class="btn" id="revealKeyBtn">🔒 Tampilkan Kunci Jawaban</button>
+        </div>
+        <div class="key-blur" id="keyContent">
+          <h4 style="font-family:var(--font-display); color:var(--navy-deep); margin-bottom:10px;">Bagian I — Pilihan Ganda</h4>
+          <div class="pg-answer-grid" id="pgAnswerGrid"></div>
+          <h4 style="font-family:var(--font-display); color:var(--navy-deep); margin-bottom:10px;">Bagian II — Essay (Poin-poin Kunci)</h4>
+          <div id="essayKeyList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PEDOMAN PENILAIAN SLIDE -->
+  <section class="slide" data-title="Pedoman Penilaian">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Untuk Guru / Pemeriksa</div>
+      <h1 class="slide-title">Pedoman Penilaian</h1>
+      <p class="lede">Skor maksimal evaluasi ini adalah <b>100</b>, gabungan dari Pilihan Ganda dan Essay.</p>
+      <div class="score-split">
+        <div class="score-box" style="background:var(--teal-soft);">
+          <div class="big" style="color:var(--teal);">60</div>
+          <p style="color:#0e5b52;">Pilihan Ganda<br>15 soal × 4 poin</p>
+        </div>
+        <div class="score-box" style="background:var(--purple-soft);">
+          <div class="big" style="color:var(--purple);">40</div>
+          <p style="color:#3a3272;">Essay<br>5 soal × maks. 8 poin</p>
+        </div>
+      </div>
+      <div class="score-formula">Nilai Akhir = (Jumlah Benar PG × 4) + (Total Skor Essay) &nbsp;=&nbsp; maks. 100</div>
+      <div class="card">
+        <h4 style="font-family:var(--font-display); margin:0 0 4px; color:var(--navy-deep);">Rubrik Penilaian Essay (per soal, maks. 8 poin)</h4>
+        <table class="rubric-table">
+          <tr><th>Kriteria</th><th>Skor</th></tr>
+          <tr><td>Jawaban lengkap, langkah benar semua, dan hasil akhir tepat</td><td class="rubric-score">8</td></tr>
+          <tr><td>Jawaban benar tetapi ada langkah yang kurang lengkap</td><td class="rubric-score">6 – 7</td></tr>
+          <tr><td>Sebagian besar konsep dipahami, namun hasil akhir salah</td><td class="rubric-score">3 – 5</td></tr>
+          <tr><td>Ada usaha menjawab tetapi konsep yang digunakan salah</td><td class="rubric-score">1 – 2</td></tr>
+          <tr><td>Tidak dijawab atau jawaban tidak relevan</td><td class="rubric-score">0</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+  <span class="nav-count" id="navCount">1 / 19</span>
+  <span class="nav-title" id="navTitle">Sampul</span>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+</div>
+
+<script>
+/* ================= DATA SOAL PG ================= */
+const pgData = [
+  {topic:'Konsep PLSV', color:'teal', q:'Variabel pada persamaan 4x + 7 = 19 adalah…', opts:['x','4','7','19'], ans:0},
+  {topic:'Konsep PLSV', color:'teal', q:'Koefisien x pada persamaan 5x − 3 = 12 adalah…', opts:['5','−3','12','x'], ans:0},
+  {topic:'Konsep PLSV', color:'teal', q:'Manakah kalimat berikut yang merupakan kalimat terbuka?', opts:['5 + 2 = 7','2x − 1 = 9','10 > 3','Bandung terletak di Jawa Barat'], ans:1},
+  {topic:'Penyelesaian PLSV', color:'amber', q:'Penyelesaian dari x + 8 = 15 adalah…', opts:['x = 23','x = 7','x = −7','x = −23'], ans:1},
+  {topic:'Penyelesaian PLSV', color:'amber', q:'Penyelesaian dari 6x = 42 adalah…', opts:['x = 6','x = 7','x = 8','x = 36'], ans:1},
+  {topic:'Penyelesaian PLSV', color:'amber', q:'Penyelesaian dari 3x − 5 = 16 adalah…', opts:['x = 7','x = 8','x = 6','x = 21'], ans:0},
+  {topic:'Konsep PtLSV', color:'purple', q:'Tanda "≥" dibaca sebagai…', opts:['Kurang dari','Lebih dari','Kurang dari atau sama dengan','Lebih dari atau sama dengan'], ans:3},
+  {topic:'Konsep PtLSV', color:'purple', q:'Pada garis bilangan, pertidaksamaan dengan tanda "≤" digambarkan dengan bulatan…', opts:['Terbuka','Tertutup','Kotak','Segitiga'], ans:1},
+  {topic:'Konsep PtLSV', color:'purple', q:'Notasi {x | x > 4, x ∈ R} menyatakan himpunan semua x yang…', opts:['Kurang dari 4','Lebih dari 4','Sama dengan 4','Kurang dari atau sama dengan 4'], ans:1},
+  {topic:'Penyelesaian PtLSV', color:'coral', q:'Penyelesaian dari x − 6 > 9 adalah…', opts:['x > 15','x > 3','x < 15','x < 3'], ans:0},
+  {topic:'Penyelesaian PtLSV', color:'coral', q:'Penyelesaian dari 5x ≤ 30 adalah…', opts:['x ≤ 6','x ≥ 6','x ≤ 150','x ≥ 150'], ans:0},
+  {topic:'Penyelesaian PtLSV', color:'coral', q:'Penyelesaian dari −4x > 20 adalah…', opts:['x > −5','x < −5','x > 5','x < 5'], ans:1},
+  {topic:'Penerapan', color:'green', q:'Harga sebuah buku adalah Rp x. Jika membeli 3 buku dengan tambahan biaya kirim Rp5.000 dan totalnya Rp35.000, model matematikanya adalah…', opts:['3x + 5000 = 35000','3x − 5000 = 35000','x + 5000 = 35000','3(x + 5000) = 35000'], ans:0},
+  {topic:'Penerapan', color:'green', q:'Sebuah persegi panjang memiliki panjang (2x+3) cm dan lebar 5 cm. Jika kelilingnya tidak lebih dari 46 cm, pertidaksamaan yang tepat adalah…', opts:['2((2x+3)+5) ≤ 46','2((2x+3)+5) ≥ 46','2(2x+3)+5 ≤ 46','(2x+3)+5 ≤ 46'], ans:0},
+  {topic:'Penerapan', color:'green', q:'Sebuah toko memberi syarat pembelian minimal Rp100.000 agar mendapat gratis ongkir. Jika Rani membeli barang seharga Rp25.000 per item sebanyak n item, pertidaksamaan yang menyatakan syarat tersebut adalah…', opts:['25000n ≥ 100000','25000n ≤ 100000','25000n > 100000','25000n < 100000'], ans:0},
+];
+const LETTERS = ['A','B','C','D'];
+
+/* ================= GENERATE PG SLIDES ================= */
+const pgContainer = document.getElementById('pgSlidesContainer');
+let pgHTML = '';
+pgData.forEach((item,i)=>{
+  pgHTML += `
+  <section class="slide" data-title="Soal PG ${i+1}">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Bagian I · Pilihan Ganda &nbsp;•&nbsp; Soal ${i+1} dari ${pgData.length}</div>
+      <span class="pill pill-${item.color}">${item.topic}</span>
+      <div class="pg-q"><span class="pg-number">${i+1}</span>${item.q}</div>
+      <div class="pg-opts" data-qidx="${i}">
+        ${item.opts.map((o,oi)=>`
+          <div class="pg-opt" data-oidx="${oi}">
+            <span class="pg-letter">${LETTERS[oi]}</span>
+            <span class="pg-opt-text">${o}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  </section>`;
+});
+pgContainer.innerHTML = pgHTML;
+
+document.querySelectorAll('.pg-opts').forEach(group=>{
+  const opts = group.querySelectorAll('.pg-opt');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      opts.forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+});
+
+/* ================= NAVIGATION (init AFTER slides generated) ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+function renderNav(){
+  document.getElementById('navCount').textContent = (current+1)+' / '+total;
+  document.getElementById('navTitle').textContent = slides[current].dataset.title || '';
+  document.getElementById('progressFill').style.width = (((current+1)/total)*100)+'%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+}
+function goTo(i){
+  if(i<0||i>=total) return;
+  slides[current].classList.remove('active');
+  current = i;
+  slides[current].classList.add('active');
+  slides[current].scrollTop = 0;
+  renderNav();
+}
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+let touchX=null;
+document.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 55){ dx<0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+renderNav();
+
+/* ================= ESSAY SOAL ================= */
+const essayData = [
+  {color:'teal', text:'Diketahui persamaan <b>7x − 4 = 24</b>. Sebutkan manakah yang merupakan variabel, koefisien, dan konstanta pada persamaan tersebut, beserta alasannya!'},
+  {color:'amber', text:'Tentukan penyelesaian dari persamaan <b>2(x + 3) = 16</b>. Tuliskan langkah-langkah penyelesaiannya secara lengkap!'},
+  {color:'purple', text:'Gambarkan garis bilangan untuk himpunan penyelesaian dari <b>x ≤ −2</b>, kemudian jelaskan mengapa digunakan bulatan tertutup pada titik −2!'},
+  {color:'coral', text:'Tentukan penyelesaian dari pertidaksamaan <b>−3x + 5 ≥ 20</b>. Tuliskan langkah-langkahnya dan jelaskan apakah terjadi pembalikan tanda pertidaksamaan!'},
+  {color:'green', text:'Keliling suatu taman berbentuk persegi panjang tidak boleh melebihi 60 meter. Jika panjang taman adalah <b>(x + 4) meter</b> dan lebarnya <b>8 meter</b>, tentukan pertidaksamaan yang sesuai dan carilah batas nilai x yang memenuhi!'},
+];
+const essayListEl = document.getElementById('essayList');
+essayData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='essay-item';
+  div.innerHTML = `<span class="pill pill-${item.color}" style="margin-bottom:8px;">Soal ${i+1}</span><br>
+    <span class="essay-num">${i+1}</span><span class="essay-text">${item.text}</span>`;
+  essayListEl.appendChild(div);
+});
+
+/* ================= KUNCI JAWABAN ================= */
+const pgAnswerGridEl = document.getElementById('pgAnswerGrid');
+pgData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='pg-answer-chip';
+  div.innerHTML = `<div class="num">No. ${i+1}</div><div class="letter">${LETTERS[item.ans]}</div>`;
+  pgAnswerGridEl.appendChild(div);
+});
+const essayKeyData = [
+  'Variabel = x (huruf yang mewakili bilangan belum diketahui); Koefisien = 7 (bilangan di depan x); Konstanta = −4 dan 24 (bilangan tetap yang berdiri sendiri).',
+  '2(x+3) = 16 → 2x + 6 = 16 → 2x = 10 → x = 5.',
+  'Garis bilangan dengan bulatan tertutup (●) di titik −2 dan arsiran/panah mengarah ke kiri. Bulatan tertutup digunakan karena tanda ≤ mengandung "sama dengan", sehingga −2 termasuk dalam himpunan penyelesaian.',
+  '−3x + 5 ≥ 20 → −3x ≥ 15 → dibagi dengan −3 (bilangan negatif) sehingga tanda dibalik → x ≤ −5. Ya, terjadi pembalikan tanda karena membagi kedua ruas dengan bilangan negatif.',
+  'Keliling = 2((x+4)+8) = 2x + 24. Syarat: 2x + 24 ≤ 60 → 2x ≤ 36 → x ≤ 18. Jadi, nilai x yang memenuhi adalah x ≤ 18.',
+];
+const essayKeyListEl = document.getElementById('essayKeyList');
+essayKeyData.forEach((txt,i)=>{
+  const div = document.createElement('div');
+  div.className='essay-key-item';
+  div.innerHTML = `<span class="k-num">Kunci Soal Essay ${i+1}</span><p>${txt}</p>`;
+  essayKeyListEl.appendChild(div);
+});
+document.getElementById('revealKeyBtn').addEventListener('click', ()=>{
+  document.getElementById('keyContent').classList.add('revealed');
+  document.getElementById('keyOverlay').classList.add('hidden');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 3 · Konsep Pertidaksamaan Linear Satu Variabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAF7F0;
+  --paper-line: rgba(34,49,92,0.07);
+  --ink:#20263F;
+  --ink-soft:#535A75;
+  --navy:#22315C;
+  --navy-deep:#161F3B;
+  --teal:#149C8D;
+  --teal-soft:#DCF3EF;
+  --amber:#E8971F;
+  --amber-soft:#FCEBCE;
+  --coral:#E15C56;
+  --coral-soft:#FCE1DF;
+  --purple:#6E62D9;
+  --purple-soft:#E9E7FB;
+  --green:#2E9E5B;
+  --green-soft:#DFF3E6;
+  --red:#D14444;
+  --red-soft:#FBE1E0;
+  --radius:18px;
+  --shadow: 0 10px 30px rgba(22,31,59,0.10);
+  --font-display:'Baloo 2', system-ui, sans-serif;
+  --font-body:'Inter', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:
+    linear-gradient(var(--paper-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-line) 1px, transparent 1px),
+    var(--paper);
+  background-size:28px 28px, 28px 28px, auto;
+  overflow:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+/* ===== APP SHELL ===== */
+#app{ position:relative; width:100vw; height:100vh; height:100dvh; overflow:hidden; }
+.progressbar{ position:fixed; top:0; left:0; right:0; height:5px; background:rgba(34,49,92,0.08); z-index:50; }
+.progressbar-fill{ height:100%; background:linear-gradient(90deg, var(--purple), var(--teal), var(--coral)); width:6.66%; transition:width .45s cubic-bezier(.65,0,.35,1); }
+
+.slide{
+  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  padding: 64px clamp(20px,6vw,80px) 110px;
+  opacity:0; visibility:hidden; transform:translateY(18px) scale(.99);
+  transition:opacity .5s ease, transform .5s ease, visibility 0s linear .5s;
+  overflow-y:auto;
+}
+.slide.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); transition:opacity .5s ease, transform .5s ease, visibility 0s linear 0s; }
+.slide-inner{ width:100%; max-width:980px; margin:0 auto; }
+
+.eyebrow{ font-family:var(--font-mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--navy); opacity:.65; font-weight:600; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--purple);display:inline-block;}
+h1.slide-title{ font-family:var(--font-display); font-weight:700; font-size:clamp(28px, 4.4vw, 48px); line-height:1.08; margin:0 0 14px; color:var(--navy-deep); }
+p.lede{ font-size:clamp(15px,1.6vw,18px); color:var(--ink-soft); line-height:1.6; max-width:66ch; margin:0 0 26px; }
+
+/* ===== NAV ===== */
+.nav-bar{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); display:flex; align-items:center; gap:14px; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); border:1px solid rgba(34,49,92,0.10); padding:9px 12px; border-radius:999px; box-shadow:var(--shadow); z-index:60; }
+.nav-btn{ width:42px; height:42px; border-radius:50%; border:none; cursor:pointer; background:var(--navy); color:#fff; font-size:18px; display:flex; align-items:center; justify-content:center; transition:transform .15s, background .15s; }
+.nav-btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.nav-btn:disabled{ opacity:.3; cursor:not-allowed; transform:none; }
+.nav-count{ font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); min-width:56px; text-align:center; }
+.nav-title{ display:none; }
+@media (min-width:720px){ .nav-title{ display:block; font-size:13px; color:var(--ink-soft); max-width:230px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border-left:1px solid rgba(34,49,92,.12); padding-left:14px; margin-left:2px;} }
+
+/* ===== GENERIC ===== */
+.card{ background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); border:1px solid rgba(34,49,92,0.06); padding:clamp(16px,2.6vw,28px); }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+@media (max-width:760px){ .grid2, .grid3{ grid-template-columns:1fr; } .grid4{ grid-template-columns:1fr 1fr; } }
+
+.pill{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12px; font-weight:600; padding:5px 12px; border-radius:999px; }
+.pill-teal{ background:var(--teal-soft); color:var(--teal); }
+.pill-amber{ background:var(--amber-soft); color:#8a5c0d; }
+.pill-coral{ background:var(--coral-soft); color:var(--coral); }
+.pill-purple{ background:var(--purple-soft); color:var(--purple); }
+
+.eq-display{ font-family:var(--font-mono); font-weight:700; font-size:clamp(24px,3.4vw,34px); display:flex; flex-wrap:wrap; align-items:center; gap:2px; margin:6px 0 14px; }
+.tok{ font-family:inherit; font-size:inherit; font-weight:inherit; background:none; border:2px solid transparent; border-radius:10px; padding:3px 8px; cursor:pointer; color:var(--navy-deep); transition:transform .12s, background .18s, border-color .18s, color .18s; }
+.tok:hover{ background:rgba(34,49,92,0.06); transform:translateY(-2px); }
+.tok.c-teal{ background:var(--teal-soft); color:var(--teal); border-color:var(--teal); }
+.tok.c-amber{ background:var(--amber-soft); color:#8a5c0d; border-color:var(--amber); }
+.tok.c-coral{ background:var(--coral-soft); color:var(--coral); border-color:var(--coral); }
+.tok.c-purple{ background:var(--purple-soft); color:var(--purple); border-color:var(--purple); }
+.tok.c-navy{ background:rgba(34,49,92,0.08); color:var(--navy); border-color:var(--navy); }
+
+.btn{ font-family:var(--font-body); font-weight:700; font-size:14.5px; border:none; cursor:pointer; border-radius:12px; padding:11px 20px; background:var(--navy); color:#fff; transition:transform .15s,background .15s; display:inline-flex; align-items:center; gap:8px; }
+.btn:hover{ transform:translateY(-2px); background:var(--navy-deep); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; transform:none;}
+.btn-ghost{ background:#fff; color:var(--navy); border:2px solid var(--navy); }
+.btn-purple{ background:var(--purple); } .btn-purple:hover{ background:#5548c8; }
+.btn-teal{ background:var(--teal); } .btn-teal:hover{ background:#0f7a6e; }
+.btn-amber{ background:var(--amber); } .btn-amber:hover{ background:#c17e12; }
+.btn-coral{ background:var(--coral); } .btn-coral:hover{ background:#c8443e; }
+
+.hint{ font-size:13.5px; color:var(--ink-soft); margin-top:-6px; margin-bottom:10px;}
+.legend{ display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 4px; }
+.legend-chip{ display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; color:var(--ink-soft); }
+.legend-swatch{ width:14px; height:14px; border-radius:5px; }
+
+/* ===== SLIDE 0 : TITLE ===== */
+.title-slide{ justify-content:center; text-align:center; }
+.title-badge{ font-family:var(--font-mono); font-size:13px; letter-spacing:.12em; text-transform:uppercase; background:var(--purple); color:#fff; padding:8px 18px; border-radius:999px; margin-bottom:22px; display:inline-block; }
+.title-main{ font-family:var(--font-display); font-weight:800; color:var(--navy-deep); font-size:clamp(32px,6vw,60px); line-height:1.05; margin:0 0 16px; }
+.title-sub{ font-size:clamp(16px,2vw,20px); color:var(--ink-soft); max-width:640px; margin:0 auto 30px; line-height:1.55;}
+.hero-eq{ font-family:var(--font-mono); font-weight:700; font-size:clamp(28px,4.6vw,48px); display:inline-flex; align-items:center; gap:12px; margin-bottom:20px; }
+.hero-eq span{ padding:4px 12px; border-radius:12px; }
+.hero-eq .hv{ background:var(--teal-soft); color:var(--teal); }
+.hero-eq .hc{ background:var(--coral-soft); color:var(--coral); }
+.hero-eq .ho{ background:var(--purple-soft); color:var(--purple); }
+.start-btn{ font-size:16px; padding:14px 30px; border-radius:14px; background:var(--purple);}
+.start-btn:hover{ background:#5548c8; }
+
+/* ===== ROADMAP ===== */
+.roadmap{ display:flex; flex-direction:column; gap:12px; }
+.road-item{ display:flex; align-items:center; gap:16px; background:#fff; border-radius:14px; padding:14px 18px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); }
+.road-num{ font-family:var(--font-display); font-weight:700; font-size:18px; color:#fff; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.road-item p{ margin:2px 0 0; font-size:13.5px; color:var(--ink-soft); }
+.road-item h3{ margin:0; font-family:var(--font-display); font-size:16.5px; color:var(--navy-deep); }
+
+/* ===== symbol cards ===== */
+.sym-card{ background:#fff; border-radius:16px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); padding:18px; cursor:pointer; transition:transform .15s; }
+.sym-card:hover{ transform:translateY(-3px); }
+.sym-big{ font-family:var(--font-mono); font-weight:700; font-size:38px; text-align:center; margin-bottom:6px; }
+.sym-name{ text-align:center; font-weight:700; font-size:13.5px; color:var(--ink-soft); margin-bottom:10px; }
+.sym-detail{ display:none; font-size:13px; line-height:1.55; color:var(--ink-soft); border-top:1px dashed rgba(34,49,92,.15); padding-top:10px; margin-top:6px; }
+.sym-card.open .sym-detail{ display:block; }
+.sym-toggle-hint{ text-align:center; font-size:11.5px; color:var(--purple); font-weight:600; }
+
+/* ===== klasifikasi-style items (reused for uji titik & pilih tanda) ===== */
+.klas-item{ background:#fff; border-radius:14px; padding:16px 18px; box-shadow:var(--shadow); margin-bottom:12px; border:1px solid rgba(34,49,92,.06); }
+.klas-text{ font-family:var(--font-mono); font-size:17px; font-weight:600; margin-bottom:10px; color:var(--navy-deep); }
+.klas-btns{ display:flex; gap:10px; flex-wrap:wrap; }
+.klas-btn{ font-family:var(--font-body); font-weight:700; font-size:13.5px; border:2px solid var(--navy); background:#fff; color:var(--navy); padding:8px 16px; border-radius:10px; cursor:pointer; transition:all .15s; }
+.klas-btn:hover:not(:disabled){ background:var(--navy); color:#fff; }
+.klas-btn:disabled{ cursor:default; }
+.klas-btn.right{ background:var(--green); border-color:var(--green); color:#fff; }
+.klas-btn.wrongpick{ background:var(--red); border-color:var(--red); color:#fff; }
+.klas-fb{ font-size:13.5px; margin-top:10px; font-weight:600; display:none; }
+.score-chip{ display:inline-block; background:var(--navy); color:#fff; font-family:var(--font-mono); font-weight:600; font-size:13px; padding:7px 16px; border-radius:999px; margin-bottom:16px; }
+
+/* ===== number line ===== */
+.numline-wrap{ position:relative; padding:26px 10px 8px; margin:14px 0 4px; }
+.numline-base{ position:absolute; left:8px; right:8px; top:26px; height:4px; background:rgba(34,49,92,.15); border-radius:2px; }
+.numline-shade{ position:absolute; top:26px; height:4px; background:var(--purple); border-radius:2px; z-index:1; }
+.numline-shade.dir-right{ right:8px; }
+.numline-shade.dir-left{ left:8px; }
+.numline-arrow{ position:absolute; top:15px; font-size:18px; color:var(--purple); font-weight:700; z-index:1; }
+.numline-arrow.dir-right{ right:0px; }
+.numline-arrow.dir-left{ left:0px; }
+.numline-boundary{ position:absolute; top:20px; width:14px; height:14px; border-radius:50%; transform:translateX(-50%); border:3px solid var(--purple); background:#fff; z-index:2;}
+.numline-boundary.closed{ background:var(--purple); }
+.numline-ticks{ display:flex; justify-content:space-between; margin-top:30px; padding:0 2px; }
+.tick-num{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); }
+.tick-num.is-boundary{ font-weight:700; color:var(--purple); }
+
+/* ===== step log (contoh soal) ===== */
+.step-log{ list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.step-log li{ font-size:14px; background:var(--teal-soft); color:#0e5b52; border-radius:10px; padding:9px 13px; font-family:var(--font-mono); animation:slidein .35s ease; }
+.step-log li.flip{ background:var(--amber-soft); color:#8a5c0d; font-family:var(--font-body); font-weight:700; font-size:13.5px; }
+@keyframes slidein{ from{ opacity:0; transform:translateX(-8px);} to{opacity:1; transform:translateX(0);} }
+.final-box{ margin-top:16px; background:var(--purple-soft); border:2px dashed var(--purple); border-radius:14px; padding:14px 18px; font-family:var(--font-mono); font-weight:700; color:#4c40b8; display:none; }
+
+/* ===== token breakdown (notation) ===== */
+.notation-display{ font-family:var(--font-mono); font-weight:700; font-size:clamp(22px,3.2vw,30px); display:flex; flex-wrap:wrap; gap:2px; justify-content:center; margin:10px 0 16px; }
+
+/* ===== practice ===== */
+.practice-item{ background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:12px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; border:1px solid rgba(34,49,92,.06);}
+.practice-q{ font-family:var(--font-mono); font-weight:700; font-size:18px; color:var(--navy-deep); }
+.practice-a{ font-family:var(--font-mono); font-weight:700; color:var(--green); display:none; }
+
+/* ===== quiz ===== */
+.quiz-item{ background:#fff; border-radius:16px; padding:18px 20px; margin-bottom:16px; box-shadow:var(--shadow); border:1px solid rgba(34,49,92,.06); }
+.quiz-q{ font-weight:700; font-size:16px; margin-bottom:12px; color:var(--navy-deep); }
+.quiz-opts{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+@media(max-width:640px){ .quiz-opts{ grid-template-columns:1fr; } }
+.quiz-opt{ font-family:var(--font-body); font-size:14px; font-weight:600; text-align:left; border:2px solid rgba(34,49,92,.16); background:#fff; color:var(--ink); padding:10px 14px; border-radius:11px; cursor:pointer; transition:all .15s; }
+.quiz-opt:hover:not(:disabled){ border-color:var(--navy); }
+.quiz-opt:disabled{ cursor:default; }
+.quiz-opt.correct{ background:var(--green-soft); border-color:var(--green); color:#1f6b3d; }
+.quiz-opt.wrong{ background:var(--red-soft); border-color:var(--red); color:var(--red); }
+.quiz-score-bar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; justify-content:space-between; background:var(--navy); color:#fff; border-radius:999px; padding:10px 20px; margin-bottom:18px; font-family:var(--font-mono); font-size:14px; font-weight:600; }
+.result-panel{ display:none; text-align:center; padding:26px; border-radius:16px; margin-top:8px; }
+
+/* ===== finish ===== */
+.finish-wrap{ text-align:center; }
+.btn-finish{ display:inline-flex; align-items:center; gap:10px; text-decoration:none; font-family:var(--font-display); font-weight:700; font-size:18px; background:var(--navy); color:#fff; padding:16px 34px; border-radius:16px; box-shadow:var(--shadow); transition:transform .15s, background .15s; margin-top:18px; }
+.btn-finish:hover{ transform:translateY(-3px); background:var(--navy-deep); }
+.recap-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:22px 0; text-align:left;}
+@media(max-width:820px){ .recap-grid{ grid-template-columns:1fr 1fr; } }
+@media(max-width:520px){ .recap-grid{ grid-template-columns:1fr; } }
+.recap-card{ border-radius:14px; padding:16px; }
+.recap-card h4{ margin:0 0 6px; font-family:var(--font-display); font-size:15px; }
+.recap-card p{ margin:0; font-size:12.5px; line-height:1.5; }
+.final-score-chip{ display:inline-block; font-family:var(--font-mono); font-weight:700; font-size:15px; background:var(--navy); color:#fff; padding:9px 20px; border-radius:999px; margin-bottom:8px; }
+
+.center{ text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="progressbar"><div class="progressbar-fill" id="progressFill"></div></div>
+
+<div id="app">
+
+  <!-- SLIDE 0 : TITLE -->
+  <section class="slide title-slide active" data-title="Cover">
+    <div class="slide-inner">
+      <span class="title-badge">Bab 3 · Persamaan &amp; Pertidaksamaan Linear</span>
+      <h1 class="title-main">Konsep Pertidaksamaan<br>Linear Satu Variabel</h1>
+      <p class="title-sub">Kenalan sama tanda &lt;, &gt;, ≤, ≥, cara membaca garis bilangan, dan himpunan penyelesaian — lengkap dengan contoh yang bisa diklik, latihan soal, dan kuis di akhir!</p>
+      <div class="hero-eq">
+        <span class="hk">2</span><span class="hv">x</span><span> − </span><span class="hc">3</span><span> </span><span class="ho">&gt;</span><span> </span><span class="hc">7</span>
+      </div>
+      <div><button class="btn start-btn" onclick="goTo(1)">🚀 Mulai Belajar</button></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 1 : ROADMAP -->
+  <section class="slide" data-title="Peta Materi">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Peta Belajar</div>
+      <h1 class="slide-title">Apa yang Akan Kita Pelajari?</h1>
+      <p class="lede">Materi disusun berurutan supaya makin mudah dipahami.</p>
+      <div class="roadmap" id="roadmapList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 : APA ITU PtLSV -->
+  <section class="slide" data-title="Apa itu PtLSV?">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+      <h1 class="slide-title">Apa itu Pertidaksamaan Linear Satu Variabel?</h1>
+      <p class="lede"><b>Pertidaksamaan Linear Satu Variabel (PtLSV)</b> adalah kalimat terbuka yang memuat satu variabel berpangkat satu, dihubungkan dengan tanda <b>&lt;, &gt;, ≤,</b> atau <b>≥</b> — bukan tanda "=".</p>
+      <div class="grid2">
+        <div class="card">
+          <span class="pill pill-teal">Persamaan (Bab Sebelumnya)</span>
+          <div class="eq-display" style="font-size:26px; margin-top:12px;"><span class="tok c-teal" style="cursor:default;">x + 3 = 10</span></div>
+          <p style="font-size:13.5px; color:var(--ink-soft); margin:0;">Punya <b>satu</b> nilai penyelesaian yang pasti: x = 7.</p>
+        </div>
+        <div class="card">
+          <span class="pill pill-purple">Pertidaksamaan (Materi Ini)</span>
+          <div class="eq-display" style="font-size:26px; margin-top:12px;"><span class="tok c-purple" style="cursor:default;">x + 3 &gt; 10</span></div>
+          <p style="font-size:13.5px; color:var(--ink-soft); margin:0;">Punya <b>banyak</b> nilai penyelesaian sekaligus: x = 8, 9, 10, 10.5, dst (x &gt; 7).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 : TANDA PERTIDAKSAMAAN -->
+  <section class="slide" data-title="Tanda Pertidaksamaan">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+      <h1 class="slide-title">Mengenal 4 Tanda Pertidaksamaan</h1>
+      <p class="lede">Klik tiap kartu untuk melihat arti, contoh, dan jenis bulatan pada garis bilangan.</p>
+      <div class="grid4" id="symCards"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 : LATIHAN PILIH TANDA -->
+  <section class="slide" data-title="Latihan Pilih Tanda">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+      <h1 class="slide-title">Latihan: Pilih Tanda yang Tepat</h1>
+      <p class="lede">Baca situasi berikut, lalu pilih tanda pertidaksamaan yang paling sesuai.</p>
+      <div class="score-chip" id="symScoreChip">Skor: 0 / 5</div>
+      <div id="symQuizList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 : GARIS BILANGAN -->
+  <section class="slide" data-title="Garis Bilangan">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Visualisasi</div>
+      <h1 class="slide-title">Garis Bilangan: Bulatan Terbuka vs Tertutup</h1>
+      <p class="lede">Garis bilangan membantu kita "melihat" himpunan penyelesaian pertidaksamaan.</p>
+      <div class="grid2">
+        <div class="card">
+          <span class="pill pill-purple">x &gt; 3 &nbsp;(bulatan terbuka ○)</span>
+          <div id="nl-demo-1"></div>
+          <p class="hint" style="margin-top:8px;">Bulatan <b>kosong/terbuka</b> karena angka 3 sendiri <b>tidak termasuk</b> penyelesaian (bukan "sama dengan").</p>
+        </div>
+        <div class="card">
+          <span class="pill pill-purple">x ≤ 5 &nbsp;(bulatan tertutup ●)</span>
+          <div id="nl-demo-2"></div>
+          <p class="hint" style="margin-top:8px;">Bulatan <b>penuh/tertutup</b> karena angka 5 <b>ikut termasuk</b> penyelesaian (ada "sama dengan").</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 : LATIHAN UJI TITIK -->
+  <section class="slide" data-title="Latihan Uji Titik">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+      <h1 class="slide-title">Latihan: Uji Titik pada x &gt; 2</h1>
+      <p class="lede">Untuk tiap nilai x berikut, tentukan apakah nilai itu memenuhi pertidaksamaan <b>x &gt; 2</b>.</p>
+      <div class="score-chip" id="ujiScoreChip">Skor: 0 / 6</div>
+      <div id="ujiList"></div>
+      <div class="card" style="margin-top:6px;">
+        <button class="btn btn-purple" id="revealNLBtn">📍 Tampilkan Garis Bilangan Lengkap</button>
+        <div id="nl-reveal" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 : ATURAN MENYELESAIKAN -->
+  <section class="slide" data-title="Aturan Penting">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Kunci</div>
+      <h1 class="slide-title">Aturan Menyelesaikan PtLSV</h1>
+      <p class="lede">Caranya mirip seperti menyelesaikan persamaan — tapi ada <b>satu aturan penting</b> yang berbeda!</p>
+      <div class="grid2">
+        <div class="card">
+          <span class="pill pill-teal">Boleh bebas, tanda TETAP</span>
+          <p style="font-size:14px; margin:10px 0 4px;">✅ Menambah / mengurangi kedua ruas dengan bilangan yang sama</p>
+          <p style="font-size:14px; margin:4px 0 4px;">✅ Mengalikan / membagi kedua ruas dengan bilangan <b>positif</b></p>
+          <div class="eq-display" style="font-size:20px; margin-top:10px;"><span class="tok c-teal" style="cursor:default;">2x &gt; 6 &nbsp;→&nbsp; x &gt; 3</span></div>
+        </div>
+        <div class="card">
+          <span class="pill pill-coral">Tanda WAJIB DIBALIK ⚠️</span>
+          <p style="font-size:14px; margin:10px 0 4px;">🔁 Mengalikan / membagi kedua ruas dengan bilangan <b>negatif</b></p>
+          <div class="eq-display" style="font-size:20px; margin-top:10px;"><span class="tok c-coral" style="cursor:default;">−2x &gt; 6 &nbsp;→&nbsp; x &lt; −3</span></div>
+          <button class="btn btn-ghost" id="whyFlipBtn" style="margin-top:6px; font-size:12.5px; padding:8px 14px;">🤔 Kenapa harus dibalik?</button>
+          <p class="hint" id="whyFlipText" style="display:none; margin-top:10px;"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8 : CONTOH SOAL 1 -->
+  <section class="slide" data-title="Contoh Soal 1">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 1 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan x + 4 &gt; 9</h1>
+      <p class="lede">Soal ini hanya butuh operasi tambah/kurang — tanda pertidaksamaan tidak berubah.</p>
+      <div class="grid2">
+        <div class="card">
+          <button class="btn btn-purple" id="stepBtn-0">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-0"></ul>
+          <div class="final-box" id="finalBox-0"></div>
+        </div>
+        <div class="card center">
+          <p class="hint" style="margin-top:0;">Garis bilangan penyelesaian akan muncul setelah selesai:</p>
+          <div id="nl-ex-0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9 : CONTOH SOAL 2 -->
+  <section class="slide" data-title="Contoh Soal 2">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 2 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan 3x ≤ 15</h1>
+      <p class="lede">Kita membagi kedua ruas dengan koefisien x yang <b>positif</b> — tanda tetap.</p>
+      <div class="grid2">
+        <div class="card">
+          <button class="btn btn-teal" id="stepBtn-1">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-1"></ul>
+          <div class="final-box" id="finalBox-1"></div>
+        </div>
+        <div class="card center">
+          <p class="hint" style="margin-top:0;">Garis bilangan penyelesaian akan muncul setelah selesai:</p>
+          <div id="nl-ex-1"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10 : CONTOH SOAL 3 -->
+  <section class="slide" data-title="Contoh Soal 3">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Contoh Soal · 3 dari 3</div>
+      <h1 class="slide-title">Menyelesaikan −2x &lt; 8</h1>
+      <p class="lede">Perhatikan baik-baik — kita membagi dengan bilangan <b>negatif</b>, jadi tandanya harus dibalik!</p>
+      <div class="grid2">
+        <div class="card">
+          <button class="btn btn-coral" id="stepBtn-2">▶️ Tampilkan Langkah 1</button>
+          <ul class="step-log" id="stepLog-2"></ul>
+          <div class="final-box" id="finalBox-2"></div>
+        </div>
+        <div class="card center">
+          <p class="hint" style="margin-top:0;">Garis bilangan penyelesaian akan muncul setelah selesai:</p>
+          <div id="nl-ex-2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11 : HIMPUNAN PENYELESAIAN -->
+  <section class="slide" data-title="Himpunan Penyelesaian">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Konsep Penutup</div>
+      <h1 class="slide-title">Menuliskan Himpunan Penyelesaian</h1>
+      <p class="lede">Karena penyelesaiannya banyak, kita tuliskan sebagai <b>himpunan</b>. Klik tiap bagian notasi berikut untuk melihat artinya.</p>
+      <div class="card">
+        <div class="notation-display" id="notationDisplay"></div>
+        <p class="feedback-notation" id="notationFeedback" style="min-height:22px; font-weight:600; color:var(--purple); text-align:center; font-size:14px;"></p>
+      </div>
+      <p class="lede" style="margin:22px 0 10px;">Sekarang coba pasangkan pertidaksamaan dengan himpunan penyelesaian yang tepat:</p>
+      <div id="notationQuizList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 12 : LATIHAN MANDIRI -->
+  <section class="slide" data-title="Latihan Mandiri">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Latihan Soal</div>
+      <h1 class="slide-title">Sekarang Giliranmu!</h1>
+      <p class="lede">Selesaikan pertidaksamaan berikut di kertas, lalu klik "Lihat Jawaban". Hati-hati aturan pembalikan tanda!</p>
+      <div id="practiceList"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 13 : KUIS -->
+  <section class="slide" data-title="Kuis Akhir">
+    <div class="slide-inner">
+      <div class="eyebrow"><span class="dot"></span>Uji Pemahaman</div>
+      <h1 class="slide-title">Kuis Akhir</h1>
+      <p class="lede">Jawab 8 soal berikut untuk menguji pemahamanmu tentang PtLSV.</p>
+      <div class="quiz-score-bar"><span>📊 Progres Kuis</span><span id="quizScoreText">Skor: 0 / 8</span></div>
+      <div id="quizList"></div>
+      <div class="center">
+        <button class="btn" id="quizResultBtn" style="font-size:15px; padding:13px 26px;">🏁 Lihat Hasil Akhir</button>
+      </div>
+      <div class="result-panel" id="quizResult"></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 14 : RINGKASAN & SELESAI -->
+  <section class="slide finish-wrap" data-title="Selesai">
+    <div class="slide-inner">
+      <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>Ringkasan</div>
+      <h1 class="slide-title">Kerja Bagus! 🎉</h1>
+      <p class="lede" style="margin-left:auto; margin-right:auto;">Berikut ringkasan singkat yang sudah kamu pelajari hari ini.</p>
+      <div class="recap-grid">
+        <div class="recap-card" style="background:var(--purple-soft);">
+          <h4 style="color:var(--purple);">4 Tanda</h4>
+          <p>&lt;, &gt;, ≤, ≥ — kurang dari, lebih dari, dan versi "atau sama dengan"-nya.</p>
+        </div>
+        <div class="recap-card" style="background:var(--teal-soft);">
+          <h4 style="color:var(--teal);">Garis Bilangan</h4>
+          <p>Bulatan terbuka (○) untuk &lt; &gt;, bulatan tertutup (●) untuk ≤ ≥.</p>
+        </div>
+        <div class="recap-card" style="background:var(--coral-soft);">
+          <h4 style="color:var(--coral);">Tanda Dibalik!</h4>
+          <p>Kali/bagi kedua ruas dengan bilangan negatif → tanda pertidaksamaan dibalik.</p>
+        </div>
+        <div class="recap-card" style="background:var(--amber-soft);">
+          <h4 style="color:#8a5c0d;">Himpunan Penyelesaian</h4>
+          <p>Ditulis sebagai {x | x &gt; 3, x ∈ R} karena solusinya tak terhingga banyaknya.</p>
+        </div>
+      </div>
+      <div class="card" style="max-width:520px; margin:0 auto 10px;">
+        <div class="final-score-chip" id="finalScoreChip">Skor kuis kamu akan muncul di sini</div>
+      </div>
+      <div>
+        <a class="btn-finish" href="matb-bab3.html">✅ Selesai — Kembali ke Bab 3</a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+  <span class="nav-count" id="navCount">1 / 15</span>
+  <span class="nav-title" id="navTitle">Cover</span>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+function renderNav(){
+  document.getElementById('navCount').textContent = (current+1)+' / '+total;
+  document.getElementById('navTitle').textContent = slides[current].dataset.title || '';
+  document.getElementById('progressFill').style.width = (((current+1)/total)*100)+'%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+}
+function goTo(i){
+  if(i<0||i>=total) return;
+  slides[current].classList.remove('active');
+  current = i;
+  slides[current].classList.add('active');
+  slides[current].scrollTop = 0;
+  renderNav();
+}
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+let touchX=null;
+document.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+document.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 55){ dx<0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+renderNav();
+
+/* ================= ROADMAP ================= */
+const roadmapData = [
+  ['Tanda Pertidaksamaan','Mengenal &lt;, &gt;, ≤, ≥ dan artinya', 'var(--purple)'],
+  ['Garis Bilangan','Bulatan terbuka vs tertutup, uji titik', 'var(--teal)'],
+  ['Aturan Penyelesaian','Termasuk aturan penting: tanda dibalik!', 'var(--coral)'],
+  ['Contoh Soal & Himpunan Penyelesaian','Langkah demi langkah plus cara menulis notasinya', 'var(--amber)'],
+  ['Latihan & Kuis','Menguji pemahamanmu sendiri', 'var(--navy)'],
+];
+document.getElementById('roadmapList').innerHTML = roadmapData.map((r,i)=>`
+  <div class="road-item"><div class="road-num" style="background:${r[2]}">${i+1}</div><div><h3>${r[0]}</h3><p>${r[1]}</p></div></div>`).join('');
+
+/* ================= SYMBOL CARDS ================= */
+const symbolData = [
+  {sym:'&lt;', name:'Kurang dari', ex:'x &lt; 5', detail:'Nilai x lebih kecil dari 5 (5 tidak termasuk). Digambarkan dengan bulatan <b>terbuka (○)</b> di angka 5.'},
+  {sym:'&gt;', name:'Lebih dari', ex:'x &gt; 2', detail:'Nilai x lebih besar dari 2 (2 tidak termasuk). Digambarkan dengan bulatan <b>terbuka (○)</b> di angka 2.'},
+  {sym:'≤', name:'Kurang dari atau sama dengan', ex:'x ≤ 5', detail:'Nilai x lebih kecil dari 5, ATAU tepat sama dengan 5. Digambarkan dengan bulatan <b>tertutup (●)</b> di angka 5.'},
+  {sym:'≥', name:'Lebih dari atau sama dengan', ex:'x ≥ 2', detail:'Nilai x lebih besar dari 2, ATAU tepat sama dengan 2. Digambarkan dengan bulatan <b>tertutup (●)</b> di angka 2.'},
+];
+const symCardsEl = document.getElementById('symCards');
+symbolData.forEach(s=>{
+  const div = document.createElement('div');
+  div.className='sym-card';
+  div.innerHTML = `<div class="sym-big">${s.sym}</div><div class="sym-name">${s.name}</div>
+    <div class="sym-detail"><p style="margin:0 0 6px;"><b>Contoh:</b> <span style="font-family:var(--font-mono);">${s.ex}</span></p><p style="margin:0;">${s.detail}</p></div>
+    <div class="sym-toggle-hint">👆 Klik untuk lihat/tutup</div>`;
+  div.addEventListener('click', ()=> div.classList.toggle('open'));
+  symCardsEl.appendChild(div);
+});
+
+/* ================= LATIHAN PILIH TANDA ================= */
+const symbolQuizData = [
+  {text:"Kecepatan mobil tidak boleh lebih dari 80 km/jam → v ___ 80", answer:"≤", opts:["&lt;","&gt;","≤","≥"], explain:"'Tidak boleh lebih dari' berarti maksimal sama dengan 80, jadi pakai ≤."},
+  {text:"Nilai ujian minimal 75 untuk lulus → n ___ 75", answer:"≥", opts:["&lt;","&gt;","≤","≥"], explain:"'Minimal' berarti paling sedikit sama dengan 75, jadi pakai ≥."},
+  {text:"Suhu di kota itu kurang dari 10°C → t ___ 10", answer:"&lt;", opts:["&lt;","&gt;","≤","≥"], explain:"'Kurang dari' langsung menunjukkan tanda &lt;, tanpa kemungkinan sama dengan."},
+  {text:"Wahana ini hanya untuk usia lebih dari 12 tahun → u ___ 12", answer:"&gt;", opts:["&lt;","&gt;","≤","≥"], explain:"'Lebih dari' langsung menunjukkan tanda &gt;, 12 tahun sendiri tidak termasuk."},
+  {text:"Berat maksimal barang bawaan adalah 20 kg → b ___ 20", answer:"≤", opts:["&lt;","&gt;","≤","≥"], explain:"'Maksimal' berarti boleh sama dengan 20, jadi pakai ≤."},
+];
+let symScore=0;
+const symQuizListEl = document.getElementById('symQuizList');
+symbolQuizData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='klas-item';
+  div.innerHTML = `<div class="klas-text" style="font-family:var(--font-body); font-size:15px;">${i+1}. ${item.text}</div>
+    <div class="klas-btns">${item.opts.map(o=>`<button class="klas-btn" data-val="${o}">${o}</button>`).join('')}</div>
+    <div class="klas-fb"></div>`;
+  symQuizListEl.appendChild(div);
+  const btns = div.querySelectorAll('.klas-btn');
+  const fb = div.querySelector('.klas-fb');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.disabled=true);
+      if(b.dataset.val===item.answer){
+        b.classList.add('right'); symScore++;
+      } else {
+        b.classList.add('wrongpick');
+        div.querySelector(`[data-val="${item.answer}"]`).classList.add('right');
+      }
+      fb.style.display='block';
+      fb.textContent = (b.dataset.val===item.answer ? '✅ Tepat! ' : '❌ Belum tepat. ') + item.explain;
+      document.getElementById('symScoreChip').textContent = `Skor: ${symScore} / ${symbolQuizData.length}`;
+    });
+  });
+});
+
+/* ================= NUMBER LINE ENGINE ================= */
+function renderNumberLine(el, boundary, op){
+  const min = boundary-4, max = boundary+4;
+  const ticks = [];
+  for(let n=min;n<=max;n++) ticks.push(n);
+  const idx = boundary-min;
+  const pct = idx/(ticks.length-1)*100;
+  const openCircle = (op==='<'||op==='>');
+  const direction = (op==='>'||op==='≥') ? 'right':'left';
+  el.innerHTML = `
+    <div class="numline-wrap">
+      <div class="numline-base"></div>
+      <div class="numline-shade dir-${direction}" style="${direction==='right'?`left:${pct}%;`:`right:${100-pct}%;`}"></div>
+      <div class="numline-arrow dir-${direction}">${direction==='right'?'▶':'◀'}</div>
+      <div class="numline-boundary ${openCircle?'':'closed'}" style="left:${pct}%;"></div>
+      <div class="numline-ticks">
+        ${ticks.map(n=>`<div class="numline-tick"><span class="tick-num ${n===boundary?'is-boundary':''}">${n}</span></div>`).join('')}
+      </div>
+    </div>`;
+}
+renderNumberLine(document.getElementById('nl-demo-1'), 3, '>');
+renderNumberLine(document.getElementById('nl-demo-2'), 5, '≤');
+
+/* ================= LATIHAN UJI TITIK ================= */
+const ujiData = [-1,0,1,2,3,4].map(v=>({val:v, correct: v>2 ? 'termasuk':'tidak'}));
+let ujiScore=0;
+const ujiListEl = document.getElementById('ujiList');
+ujiData.forEach((item)=>{
+  const div = document.createElement('div');
+  div.className='klas-item';
+  div.innerHTML = `<div class="klas-text">Apakah x = ${item.val} memenuhi x &gt; 2?</div>
+    <div class="klas-btns">
+      <button class="klas-btn" data-val="termasuk">Ya, memenuhi</button>
+      <button class="klas-btn" data-val="tidak">Tidak memenuhi</button>
+    </div>
+    <div class="klas-fb"></div>`;
+  ujiListEl.appendChild(div);
+  const btns = div.querySelectorAll('.klas-btn');
+  const fb = div.querySelector('.klas-fb');
+  btns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      btns.forEach(x=>x.disabled=true);
+      if(b.dataset.val===item.correct){
+        b.classList.add('right'); ujiScore++;
+      } else {
+        b.classList.add('wrongpick');
+        div.querySelector(`[data-val="${item.correct}"]`).classList.add('right');
+      }
+      fb.style.display='block';
+      fb.textContent = item.correct==='termasuk' ? `✅ ${item.val} &gt; 2, jadi memenuhi.` : `❌ ${item.val} tidak lebih besar dari 2, jadi tidak memenuhi.`;
+      document.getElementById('ujiScoreChip').textContent = `Skor: ${ujiScore} / ${ujiData.length}`;
+    });
+  });
+});
+document.getElementById('revealNLBtn').addEventListener('click', ()=>{
+  renderNumberLine(document.getElementById('nl-reveal'), 2, '>');
+});
+
+/* ================= KENAPA TANDA DIBALIK ================= */
+document.getElementById('whyFlipBtn').addEventListener('click', ()=>{
+  const t = document.getElementById('whyFlipText');
+  t.style.display='block';
+  t.innerHTML = `Perhatikan: <b>2 &lt; 5</b> (ini benar). Sekarang kalikan kedua ruas dengan −1: hasilnya −2 dan −5.<br>
+  Kalau tandanya dibiarkan tetap "&lt;", jadi <b>−2 &lt; −5</b> — ini SALAH, karena −2 sebenarnya lebih besar dari −5!<br>
+  Supaya tetap benar, tandanya harus dibalik jadi <b>−2 &gt; −5</b>. Itulah sebabnya kali/bagi bilangan negatif membalik tanda pertidaksamaan.`;
+});
+
+/* ================= STEP SOLVER (contoh soal) ================= */
+const PROBLEMS = [
+  { steps:[
+      {text:'x + 4 − 4 &gt; 9 − 4', desc:'Langkah 1: Kurangi kedua ruas dengan 4', flip:false},
+      {text:'x &gt; 5', desc:'Langkah 2: Sederhanakan kedua ruas', flip:false},
+    ], boundary:5, op:'>', final:'x &gt; 5'
+  },
+  { steps:[
+      {text:'3x ÷ 3 ≤ 15 ÷ 3', desc:'Langkah 1: Bagi kedua ruas dengan 3 (positif, tanda tetap)', flip:false},
+      {text:'x ≤ 5', desc:'Langkah 2: Sederhanakan kedua ruas', flip:false},
+    ], boundary:5, op:'≤', final:'x ≤ 5'
+  },
+  { steps:[
+      {text:'−2x ÷ (−2) __FLIP__ 8 ÷ (−2)', desc:'Langkah 1: Bagi kedua ruas dengan −2 → TANDA DIBALIK dari &lt; menjadi &gt;', flip:true},
+      {text:'x &gt; −4', desc:'Langkah 2: Sederhanakan kedua ruas', flip:false},
+    ], boundary:-4, op:'>', final:'x &gt; −4'
+  },
+];
+PROBLEMS.forEach((p,idx)=>{
+  const btn = document.getElementById('stepBtn-'+idx);
+  const log = document.getElementById('stepLog-'+idx);
+  const finalBox = document.getElementById('finalBox-'+idx);
+  let stepIdx = 0;
+  btn.addEventListener('click', ()=>{
+    if(stepIdx < p.steps.length){
+      const s = p.steps[stepIdx];
+      const li = document.createElement('li');
+      if(s.flip){ li.className='flip'; li.innerHTML = '⚠️ '+s.desc; }
+      else { li.textContent = s.desc + ' → ' + s.text.replace(/&gt;/g,'>').replace(/&lt;/g,'<'); }
+      log.appendChild(li);
+      stepIdx++;
+      if(stepIdx < p.steps.length){
+        btn.textContent = `▶️ Tampilkan Langkah ${stepIdx+1}`;
+      } else {
+        btn.textContent = '✅ Selesai';
+        btn.disabled = true;
+        finalBox.style.display='block';
+        finalBox.innerHTML = `🎯 Penyelesaian: ${p.final}`;
+        renderNumberLine(document.getElementById('nl-ex-'+idx), p.boundary, p.op);
+      }
+    }
+  });
+});
+
+/* ================= NOTASI HIMPUNAN PENYELESAIAN ================= */
+const notationTokens = [
+  {t:'{', label:'Kurung kurawal', explain:'Menandakan bahwa ini adalah sebuah HIMPUNAN (kumpulan nilai).'},
+  {t:'x', label:'Variabel', explain:'Elemen yang sedang kita cari — dalam hal ini x.'},
+  {t:'|', label:'Garis tegak ("dengan syarat")', explain:'Dibaca "sedemikian sehingga" atau "dengan syarat".'},
+  {t:'x > 3,', label:'Syarat pertidaksamaan', explain:'Ini syarat yang harus dipenuhi nilai x, yaitu lebih dari 3.'},
+  {t:'x ∈ R', label:'Keanggotaan bilangan', explain:'x adalah anggota himpunan bilangan Real (semua bilangan, termasuk pecahan/desimal).'},
+  {t:'}', label:'Penutup himpunan', explain:'Menutup notasi himpunan.'},
+];
+const notationDisplayEl = document.getElementById('notationDisplay');
+notationTokens.forEach(nt=>{
+  const span = document.createElement('button');
+  span.type='button'; span.className='tok';
+  span.textContent = nt.t;
+  span.addEventListener('click', ()=>{
+    document.getElementById('notationFeedback').textContent = `${nt.label}: ${nt.explain}`;
+    notationDisplayEl.querySelectorAll('.tok').forEach(x=>x.classList.remove('c-purple'));
+    span.classList.add('c-purple');
+  });
+  notationDisplayEl.appendChild(span);
+});
+
+const notationQuizData = [
+  {q:"Himpunan penyelesaian dari x − 2 ≥ 4 adalah…", opts:["{x | x ≥ 6, x ∈ R}","{x | x ≥ 2, x ∈ R}","{x | x ≤ 6, x ∈ R}","{x | x = 6}"], ans:0},
+  {q:"Himpunan penyelesaian dari 2x &lt; 10 adalah…", opts:["{x | x &gt; 5, x ∈ R}","{x | x &lt; 5, x ∈ R}","{x | x &lt; 20, x ∈ R}","{x | x = 5}"], ans:1},
+];
+const notationQuizListEl = document.getElementById('notationQuizList');
+notationQuizData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='quiz-item';
+  div.innerHTML = `<div class="quiz-q">${i+1}. ${item.q}</div><div class="quiz-opts">${item.opts.map((o,oi)=>`<button class="quiz-opt" data-idx="${oi}">${o}</button>`).join('')}</div>`;
+  notationQuizListEl.appendChild(div);
+  const opts = div.querySelectorAll('.quiz-opt');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      opts.forEach(o=>o.disabled=true);
+      opts[item.ans].classList.add('correct');
+      if(parseInt(opt.dataset.idx)!==item.ans) opt.classList.add('wrong');
+    });
+  });
+});
+
+/* ================= LATIHAN MANDIRI ================= */
+const practiceData = [
+  {q:"x − 3 &gt; 5", a:"x &gt; 8"},
+  {q:"2x ≤ 10", a:"x ≤ 5"},
+  {q:"−3x &gt; 9", a:"x &lt; −3 (tanda dibalik!)"},
+  {q:"4x + 1 ≥ 13", a:"x ≥ 3"},
+  {q:"−x ≤ 6", a:"x ≥ −6 (tanda dibalik!)"},
+];
+const practiceListEl = document.getElementById('practiceList');
+practiceData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='practice-item';
+  div.innerHTML = `<span class="practice-q">${i+1}. ${item.q}</span>
+    <span><button class="btn btn-ghost reveal-btn" style="padding:8px 16px; font-size:13px;">Lihat Jawaban</button>
+    <span class="practice-a">${item.a}</span></span>`;
+  practiceListEl.appendChild(div);
+  const btn = div.querySelector('.reveal-btn');
+  const ans = div.querySelector('.practice-a');
+  btn.addEventListener('click', ()=>{ ans.style.display='inline'; btn.style.display='none'; });
+});
+
+/* ================= KUIS AKHIR ================= */
+const quizData = [
+  {q:"Tanda '≤' dibaca sebagai…", opts:["Kurang dari","Lebih dari","Kurang dari atau sama dengan","Lebih dari atau sama dengan"], ans:2},
+  {q:"Pada garis bilangan, pertidaksamaan dengan tanda '>' digambarkan dengan bulatan…", opts:["Terbuka","Tertutup","Kotak","Segitiga"], ans:0},
+  {q:"Penyelesaian dari x + 5 &gt; 12 adalah…", opts:["x &gt; 7","x &lt; 7","x &gt; 17","x &lt; 17"], ans:0},
+  {q:"Penyelesaian dari 4x ≤ 20 adalah…", opts:["x ≤ 5","x ≥ 5","x ≤ 80","x ≥ 80"], ans:0},
+  {q:"Penyelesaian dari −2x &gt; 10 adalah…", opts:["x &gt; −5","x &lt; −5","x &gt; 5","x &lt; 5"], ans:1},
+  {q:"Notasi {x | x &gt; 3, x ∈ R} dibaca…", opts:["Himpunan x dengan x lebih dari 3, x bilangan real","Himpunan x dengan x kurang dari 3","Himpunan 3 anggota x","x sama dengan 3"], ans:0},
+  {q:"Manakah aturan yang BENAR saat menyelesaikan pertidaksamaan?", opts:["Tanda selalu tetap apapun operasinya","Tanda dibalik jika dikali/dibagi bilangan negatif","Tanda dibalik jika ditambah bilangan positif","Tanda dibalik jika dikurangi bilangan positif"], ans:1},
+  {q:"Bentuk umum PtLSV adalah…", opts:["ax + b = c","ax + b &lt; c (atau &gt;, ≤, ≥)","ax + by = c","ax² + b = c"], ans:1},
+];
+let quizScore = 0;
+const quizListEl = document.getElementById('quizList');
+quizData.forEach((item,i)=>{
+  const div = document.createElement('div');
+  div.className='quiz-item';
+  div.innerHTML = `<div class="quiz-q">${i+1}. ${item.q}</div><div class="quiz-opts">${item.opts.map((o,oi)=>`<button class="quiz-opt" data-idx="${oi}">${o}</button>`).join('')}</div>`;
+  quizListEl.appendChild(div);
+  const opts = div.querySelectorAll('.quiz-opt');
+  opts.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const chosenIdx = parseInt(opt.dataset.idx);
+      opts.forEach(o=>o.disabled=true);
+      opts[item.ans].classList.add('correct');
+      if(chosenIdx===item.ans){ quizScore++; } else { opt.classList.add('wrong'); }
+      document.getElementById('quizScoreText').textContent = `Skor: ${quizScore} / ${quizData.length}`;
+    });
+  });
+});
+document.getElementById('quizResultBtn').addEventListener('click', ()=>{
+  const panel = document.getElementById('quizResult');
+  const pct = quizScore/quizData.length;
+  let msg, bg, col;
+  if(pct>=0.85){ msg='🌟 Luar Biasa! Kamu sudah sangat memahami PtLSV!'; bg='var(--green-soft)'; col='#1f6b3d'; }
+  else if(pct>=0.6){ msg='👍 Bagus! Sedikit lagi, terus berlatih ya.'; bg='var(--amber-soft)'; col='#8a5c0d'; }
+  else { msg='💪 Yuk pelajari lagi materinya, terutama aturan pembalikan tanda!'; bg='var(--coral-soft)'; col='var(--coral)'; }
+  panel.style.display='block';
+  panel.style.background=bg;
+  panel.innerHTML = `<div style="font-family:var(--font-display); font-size:26px; font-weight:700; color:${col};">Skor Akhir: ${quizScore} / ${quizData.length}</div><p style="margin:8px 0 0; color:${col}; font-size:15px;">${msg}</p>`;
+  document.getElementById('finalScoreChip').textContent = `🏆 Skor kuis kamu: ${quizScore} / ${quizData.length}`;
+});
+</script>
+</body>
+</html>

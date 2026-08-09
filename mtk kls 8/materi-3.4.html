@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 3 · Penyelesaian Pertidaksamaan Linear Satu Variabel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#16213E;
+    --navy-deep:#0B1226;
+    --paper:#EEF1F8;
+    --card:#FFFFFF;
+    --mint:#1FA99A;
+    --mint-soft:#E4F6F3;
+    --coral:#E85C4A;
+    --coral-soft:#FDE7E3;
+    --amber:#E8A23A;
+    --amber-soft:#FBEEDB;
+    --violet:#7B5FE0;
+    --violet-soft:#EEE9FB;
+    --ink:#1B2440;
+    --ink-soft:#5B6480;
+    --line: rgba(22,33,62,0.12);
+    --font-display:'Space Grotesk',sans-serif;
+    --font-body:'Inter',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --radius: 18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:
+      radial-gradient(circle at 15% 8%, rgba(123,95,224,0.08), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(31,169,154,0.10), transparent 45%),
+      var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding: 18px clamp(14px,4vw,32px) 24px;
+  }
+
+  /* ---------- Top bar & progress ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:600;
+    color:var(--navy);
+    font-size:clamp(13px,2.4vw,15px);
+  }
+  .brand .badge{
+    width:34px;height:34px;border-radius:10px;
+    background:linear-gradient(135deg,var(--navy),#2A3B66);
+    display:flex;align-items:center;justify-content:center;
+    color:#fff; font-size:16px; flex-shrink:0;
+  }
+  .slide-counter{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .progress-track{
+    width:100%;height:6px;border-radius:6px;
+    background:rgba(22,33,62,0.10);
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .progress-fill{
+    height:100%;
+    background:linear-gradient(90deg,var(--violet),var(--mint));
+    border-radius:6px;
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+    width:7.1%;
+  }
+
+  /* ---------- Slides shell ---------- */
+  #slides{ flex:1; position:relative; }
+  .slide{ display:none; animation: fadeSlide .5s cubic-bezier(.16,1,.3,1); }
+  .slide.active{ display:block; }
+  @keyframes fadeSlide{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--violet); background:var(--violet-soft);
+    padding:6px 12px; border-radius:999px; margin-bottom:14px;
+  }
+  h1.slide-title{
+    font-family:var(--font-display);
+    font-size:clamp(24px,4.4vw,38px);
+    line-height:1.15; margin:0 0 10px; color:var(--navy);
+  }
+  p.slide-sub{
+    font-size:clamp(14px,2vw,16px); color:var(--ink-soft);
+    max-width:740px; line-height:1.6; margin:0 0 26px;
+  }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:clamp(16px,3vw,26px); box-shadow:0 2px 18px rgba(22,33,62,0.05);
+  }
+
+  /* ---------- Cover slide ---------- */
+  .cover{
+    min-height:60vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:20px 0;
+  }
+  .cover .chapter-tag{
+    font-family:var(--font-mono); color:var(--mint); background:var(--mint-soft);
+    padding:7px 16px; border-radius:999px; font-size:13px; letter-spacing:.05em; margin-bottom:22px;
+  }
+  .cover h1{
+    font-family:var(--font-display); font-size:clamp(28px,6vw,50px); line-height:1.1;
+    color:var(--navy); margin:0 0 14px; max-width:820px;
+  }
+  .cover h1 .accent{ color:var(--violet); }
+  .cover p{ font-size:clamp(15px,2.4vw,18px); color:var(--ink-soft); max-width:580px; margin:0 0 30px; line-height:1.6; }
+  .cover-topics{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:32px; }
+  .cover-topics span{
+    font-family:var(--font-mono); font-size:12.5px; padding:7px 14px; border-radius:999px;
+    border:1px solid var(--line); color:var(--ink); background:#fff;
+  }
+  .hero-nl{ width:min(420px,86vw); height:auto; margin-bottom:14px; }
+  @keyframes floaty{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
+  .hero-nl{ animation: floaty 4.5s ease-in-out infinite; }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:14.5px; border-radius:12px; border:none;
+    cursor:pointer; padding:13px 22px; display:inline-flex; align-items:center; gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--navy); color:#fff; box-shadow:0 6px 18px rgba(22,33,62,0.22); }
+  .btn-primary:hover{ background:#22315A; }
+  .btn-outline{ background:#fff; color:var(--navy); border:1.5px solid var(--line); }
+  .btn-outline:hover{ border-color:var(--navy); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn-mint{ background:var(--mint); color:#fff; }
+  .btn-mint:hover{ background:#188E81; }
+  .btn-coral{ background:var(--coral); color:#fff; }
+  .btn-coral:hover{ background:#CE4B3A; }
+
+  /* ---------- Formula / chip ---------- */
+  .formula-box{
+    font-family:var(--font-mono); font-size:clamp(19px,3.6vw,27px);
+    background:var(--navy-deep); color:#EAF0FF; padding:22px 26px; border-radius:16px;
+    text-align:center; letter-spacing:.02em; margin:18px 0 22px;
+  }
+  .formula-box .lbl{
+    display:block; font-family:var(--font-body); font-size:12px; color:#9FB0DE; text-transform:uppercase;
+    letter-spacing:.08em; margin-bottom:8px; font-weight:600;
+  }
+  .chip-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .chip-card{
+    border:1.5px solid var(--line); border-radius:14px; padding:14px 16px; cursor:pointer;
+    background:#fff; transition:all .18s ease;
+  }
+  .chip-card:hover{ border-color:var(--violet); transform:translateY(-2px); }
+  .chip-card.open{ border-color:var(--violet); background:var(--violet-soft); }
+  .chip-card .chip-symbol{ font-family:var(--font-mono); font-weight:700; font-size:24px; color:var(--violet); }
+  .chip-card .chip-name{ font-weight:600; font-size:13.5px; margin-top:2px; color:var(--navy); }
+  .chip-card .chip-desc{ font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5; display:none; }
+  .chip-card.open .chip-desc{ display:block; }
+
+  /* ---------- op header ---------- */
+  .op-header{ display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  .op-icon{
+    width:48px;height:48px;border-radius:13px; display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-display); font-weight:700; font-size:20px; color:#fff; flex-shrink:0;
+  }
+  .op-rule{
+    font-family:var(--font-mono); font-size:14.5px; background:var(--paper); border-left:4px solid var(--navy);
+    padding:14px 16px; border-radius:8px; margin-bottom:6px; line-height:1.7;
+  }
+  .op-rule.warn{ border-left-color:var(--coral); background:var(--coral-soft); color:#7A2A1E; }
+
+  /* ---------- Stepper ---------- */
+  .stepper{ margin-top:16px; }
+  .stepper-story{
+    font-size:13.5px; color:var(--ink-soft); background:var(--paper); padding:12px 14px;
+    border-radius:10px; margin-bottom:14px; line-height:1.6;
+  }
+  .step-flip-badge{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12.5px;
+    font-weight:700; color:#fff; background:var(--coral); padding:6px 12px; border-radius:999px;
+    margin-bottom:14px; animation: pop .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pop{ from{ transform:scale(.7); opacity:0;} to{ transform:scale(1); opacity:1; } }
+  .step-eq{
+    font-family:var(--font-mono); font-size:clamp(18px,3.6vw,27px); color:var(--navy); font-weight:600;
+    margin-bottom:14px; line-height:1.4;
+  }
+  .step-eq .hl{ background:var(--amber-soft); color:#8A5A05; padding:1px 7px; border-radius:6px; }
+  .step-eq .hl-flip{ background:var(--coral-soft); color:#A13B2B; padding:1px 7px; border-radius:6px; }
+  .step-expl{ font-size:14px; color:var(--ink-soft); line-height:1.6; min-height:22px; margin-bottom:16px; }
+  .step-controls{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .step-dots{ display:flex; gap:6px; }
+  .step-dots .dot{ width:8px;height:8px;border-radius:50%; background:var(--line); }
+  .step-dots .dot.active{ background:var(--violet); width:20px; border-radius:5px; }
+  .step-btns{ display:flex; gap:8px; }
+  .frac{ display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; margin:0 5px; line-height:1.1; }
+  .frac .num{ border-bottom:2px solid currentColor; padding:0 8px 2px; }
+  .frac .den{ padding:2px 8px 0; }
+
+  /* ---------- Practice cards ---------- */
+  .practice-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; margin-top:16px; }
+  .practice-card{ border:1.5px solid var(--line); border-radius:14px; padding:16px; background:#fff; }
+  .practice-card .q-label{
+    font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); text-transform:uppercase;
+    letter-spacing:.06em; margin-bottom:6px;
+  }
+  .practice-card .q-eq{ font-family:var(--font-mono); font-size:18px; color:var(--navy); font-weight:600; margin-bottom:12px; }
+  .practice-card .q-answer{
+    display:none; font-size:13.5px; color:var(--ink-soft); background:var(--mint-soft); border-radius:8px;
+    padding:10px 12px; margin-top:10px; line-height:1.6;
+  }
+  .practice-card .q-answer.shown{ display:block; }
+  .practice-card .q-answer.flip-note{ background:var(--coral-soft); color:#7A2A1E; }
+  .practice-card .btn{ padding:9px 14px; font-size:13px; width:100%; justify-content:center; }
+
+  /* ---------- Number line ---------- */
+  .nl-wrap{ width:100%; overflow-x:auto; }
+  .nl-wrap svg{ display:block; margin:0 auto; max-width:480px; width:100%; height:auto; }
+  .nl-btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+  .nl-legend{
+    display:flex; gap:18px; flex-wrap:wrap; margin-top:14px; font-size:12.5px; color:var(--ink-soft);
+    align-items:center;
+  }
+  .nl-legend .dot-demo{ width:12px;height:12px;border-radius:50%; display:inline-block; margin-right:6px; vertical-align:-2px; }
+
+  /* ---------- Quiz (shared style) ---------- */
+  .quiz-shell{ max-width:640px; margin:0 auto; }
+  .quiz-progress{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); }
+  .quiz-score{ color:var(--mint); font-weight:700; }
+  .quiz-q{ font-family:var(--font-display); font-weight:600; font-size:clamp(16px,2.5vw,20px); color:var(--navy); margin-bottom:18px; line-height:1.4; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .quiz-opt{
+    text-align:left; border:1.5px solid var(--line); background:#fff; border-radius:12px; padding:13px 16px;
+    font-family:var(--font-mono); font-size:14.5px; color:var(--ink); cursor:pointer; transition:all .15s ease;
+    display:flex; align-items:center; gap:10px;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--violet); background:var(--violet-soft); }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-opt .opt-letter{
+    width:24px;height:24px;border-radius:7px;background:var(--paper); display:flex;align-items:center;justify-content:center;
+    font-size:12px; font-weight:700; color:var(--ink-soft); flex-shrink:0;
+  }
+  .quiz-opt.correct{ border-color:var(--mint); background:var(--mint-soft); }
+  .quiz-opt.correct .opt-letter{ background:var(--mint); color:#fff; }
+  .quiz-opt.wrong{ border-color:var(--coral); background:var(--coral-soft); }
+  .quiz-opt.wrong .opt-letter{ background:var(--coral); color:#fff; }
+  .quiz-feedback{ font-size:13.5px; line-height:1.6; padding:12px 14px; border-radius:10px; margin-bottom:16px; display:none; }
+  .quiz-feedback.show{ display:block; }
+  .quiz-feedback.ok{ background:var(--mint-soft); color:#0F6E62; }
+  .quiz-feedback.bad{ background:var(--coral-soft); color:#A13B2B; }
+  .quiz-result{ text-align:center; padding:20px 0; }
+  .quiz-result .score-big{ font-family:var(--font-display); font-weight:700; font-size:52px; color:var(--navy); }
+  .quiz-result .score-label{ color:var(--ink-soft); font-size:14px; margin-bottom:20px; }
+
+  /* ---------- Summary table ---------- */
+  .summary-table{ width:100%; border-collapse:collapse; margin-top:14px; }
+  .summary-table th{
+    text-align:left; font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--line);
+  }
+  .summary-table td{ padding:12px; border-bottom:1px solid var(--line); font-size:13.5px; vertical-align:top; }
+  .summary-table td.op-cell{ font-weight:600; color:var(--navy); white-space:nowrap; }
+  .summary-table td.rule-cell{ font-family:var(--font-mono); color:var(--ink); }
+  .summary-table tr.warn-row td{ background:var(--coral-soft); }
+  .summary-table tr.warn-row td.op-cell{ color:#A13B2B; }
+
+  /* ---------- Closing ---------- */
+  .closing{ min-height:56vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .closing .check-badge{
+    width:74px;height:74px;border-radius:50%; background:var(--mint); color:#fff; display:flex;align-items:center;justify-content:center;
+    font-size:34px; margin-bottom:22px;
+  }
+
+  /* ---------- Bottom nav ---------- */
+  .nav-controls{ display:flex; align-items:center; justify-content:space-between; gap:14px; margin-top:26px; padding-top:18px; border-top:1px solid var(--line); }
+  .nav-side{ display:flex; align-items:center; gap:10px; }
+  .nav-dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:320px; }
+  .nav-dots .ndot{ width:8px;height:8px;border-radius:50%; background:var(--line); cursor:pointer; border:none; padding:0; transition:all .18s ease; }
+  .nav-dots .ndot.active{ background:var(--navy); width:22px; border-radius:5px; }
+  .icon-btn{
+    width:44px;height:44px; border-radius:12px; border:1.5px solid var(--line); background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:17px; color:var(--navy); flex-shrink:0;
+  }
+  .icon-btn:hover:not(:disabled){ border-color:var(--navy); }
+  .icon-btn:disabled{ opacity:.3; cursor:not-allowed; }
+  .nav-label{ font-size:13px; color:var(--ink-soft); display:none; }
+  @media(min-width:640px){ .nav-label{ display:inline; } }
+  @media (max-width:640px){
+    .nav-dots{ display:none; }
+    .op-header{ flex-wrap:wrap; }
+  }
+  :focus-visible{ outline:3px solid var(--violet); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="badge">⋚</span> Bab 3 · Persamaan &amp; Pertidaksamaan Linear</div>
+    <div class="slide-counter"><span id="curNum">1</span> / <span id="totalNum">14</span></div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <main id="slides">
+
+    <!-- SLIDE 1 : COVER -->
+    <section class="slide active" id="s1">
+      <div class="cover">
+        <span class="chapter-tag">BAB 3 · MATEMATIKA SMP</span>
+        <svg class="hero-nl" viewBox="0 0 380 140" xmlns="http://www.w3.org/2000/svg">
+          <line x1="30" y1="70" x2="350" y2="70" stroke="#16213E" stroke-width="3"/>
+          <polygon points="350,70 336,63 336,77" fill="#16213E"/>
+          <g font-family="JetBrains Mono" font-size="13" fill="#5B6480" text-anchor="middle">
+            <line x1="70" y1="64" x2="70" y2="76" stroke="#16213E" stroke-width="2"/><text x="70" y="96">-4</text>
+            <line x1="150" y1="64" x2="150" y2="76" stroke="#16213E" stroke-width="2"/><text x="150" y="96">-2</text>
+            <line x1="230" y1="64" x2="230" y2="76" stroke="#16213E" stroke-width="2"/><text x="230" y="96">0</text>
+            <line x1="310" y1="64" x2="310" y2="76" stroke="#16213E" stroke-width="2"/><text x="310" y="96">2</text>
+          </g>
+          <rect x="150" y="66" width="160" height="8" rx="4" fill="#7B5FE0" opacity="0.85"/>
+          <circle cx="150" cy="70" r="9" fill="#fff" stroke="#7B5FE0" stroke-width="4"/>
+          <text x="150" y="40" font-family="JetBrains Mono" font-size="16" font-weight="700" fill="#7B5FE0" text-anchor="middle">x &gt; -2</text>
+        </svg>
+        <h1>Penyelesaian <span class="accent">Pertidaksamaan Linear</span><br>Satu Variabel (PtLSV)</h1>
+        <p>Belajar operasi pertidaksamaan dan aturan penting perubahan tanda — lengkap dengan visualisasi garis bilangan, contoh interaktif, dan kuis.</p>
+        <div class="cover-topics">
+          <span>➕ Penjumlahan</span><span>➖ Pengurangan</span><span>✖️➗ Kali &amp; Bagi</span><span>⚠️ Perubahan Tanda</span><span>📏 Garis Bilangan</span>
+        </div>
+        <button class="btn btn-primary" id="startBtn">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : APA ITU PtLSV -->
+    <section class="slide" id="s2">
+      <span class="eyebrow">01 · Dasar-dasar</span>
+      <h1 class="slide-title">Apa itu Pertidaksamaan Linear?</h1>
+      <p class="slide-sub">Pertidaksamaan Linear Satu Variabel (PtLSV) adalah kalimat matematika terbuka yang memuat tanda ketidaksamaan (<, >, ≤, atau ≥) dan hanya memiliki satu variabel berpangkat satu. Klik setiap simbol untuk melihat artinya.</p>
+      <div class="formula-box">
+        <span class="lbl">Bentuk umum PtLSV</span>
+        a x + b &nbsp;⋚&nbsp; c &nbsp;&nbsp;(dengan a ≠ 0, ⋚ mewakili &lt;, &gt;, ≤, atau ≥)
+      </div>
+      <div class="chip-grid" id="chipGrid">
+        <div class="chip-card" data-chip="lt">
+          <div class="chip-symbol">&lt;</div>
+          <div class="chip-name">Kurang dari</div>
+          <div class="chip-desc">Contoh: x &lt; 5 artinya semua nilai x yang lebih kecil dari 5. Angka 5 sendiri TIDAK termasuk penyelesaian.</div>
+        </div>
+        <div class="chip-card" data-chip="gt">
+          <div class="chip-symbol">&gt;</div>
+          <div class="chip-name">Lebih dari</div>
+          <div class="chip-desc">Contoh: x &gt; 5 artinya semua nilai x yang lebih besar dari 5. Angka 5 TIDAK termasuk penyelesaian.</div>
+        </div>
+        <div class="chip-card" data-chip="le">
+          <div class="chip-symbol">≤</div>
+          <div class="chip-name">Kurang dari sama dengan</div>
+          <div class="chip-desc">Contoh: x ≤ 5 artinya x lebih kecil dari 5, ATAU tepat sama dengan 5. Angka 5 termasuk penyelesaian.</div>
+        </div>
+        <div class="chip-card" data-chip="ge">
+          <div class="chip-symbol">≥</div>
+          <div class="chip-name">Lebih dari sama dengan</div>
+          <div class="chip-desc">Contoh: x ≥ 5 artinya x lebih besar dari 5, ATAU tepat sama dengan 5. Angka 5 termasuk penyelesaian.</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <div style="font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); margin-bottom:8px; text-transform:uppercase; letter-spacing:.05em;">Contoh PtLSV</div>
+        <div style="font-family:var(--font-mono); font-size:17px; color:var(--navy); display:flex; flex-wrap:wrap; gap:18px;">
+          <span>2x + 3 &lt; 11</span><span>x − 4 ≥ 6</span><span>−3x &gt; 9</span><span>5 ≤ x + 1</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : PRINSIP DASAR -->
+    <section class="slide" id="s3">
+      <span class="eyebrow">02 · Konsep Kunci</span>
+      <h1 class="slide-title">Prinsip Dasar Menyelesaikan PtLSV</h1>
+      <p class="slide-sub">Sama seperti persamaan, kita boleh menambah atau mengurangi kedua ruas dengan bilangan yang sama — tanda pertidaksamaan tidak berubah. Coba klik tombol di bawah.</p>
+      <div class="card">
+        <div class="step-eq" id="demoEq" style="font-size:clamp(20px,4vw,28px);">5 &lt; 9</div>
+        <div class="step-expl" id="demoExpl">Pertidaksamaan awal: 5 lebih kecil dari 9.</div>
+        <div class="step-btns" style="flex-wrap:wrap; margin-bottom:6px;">
+          <button class="btn btn-outline" data-op="+3">+ 3</button>
+          <button class="btn btn-outline" data-op="-2">− 2</button>
+          <button class="btn btn-outline" data-op="×2">× 2</button>
+          <button class="btn btn-coral" data-op="×-1">× (−1) ⚠️</button>
+          <button class="btn btn-outline" id="demoReset">↺ Ulangi</button>
+        </div>
+        <div id="demoNote" style="font-size:13px; color:var(--ink-soft); margin-top:10px;"></div>
+      </div>
+      <div class="card op-rule warn" style="margin-top:16px;">
+        ⚠️ Perhatikan: saat kamu klik <strong>"× (−1)"</strong>, tanda pertidaksamaan ikut <strong>terbalik</strong> supaya pernyataannya tetap benar! Aturan ini akan kita bahas tuntas beberapa slide lagi.
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : PENJUMLAHAN -->
+    <section class="slide" id="s4">
+      <span class="eyebrow">03 · Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--mint);">+</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Penjumlahan</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Tanda pertidaksamaan TETAP saat kedua ruas ditambah bilangan yang sama.</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;x − b &lt; c&nbsp;, maka kedua ruas ditambah b: &nbsp;x − b + b &lt; c + b &nbsp;→&nbsp; x &lt; c + b &nbsp;(tanda tetap)</div>
+
+      <div class="card stepper" id="stepAdd">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-mint" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceAdd"></div>
+    </section>
+
+    <!-- SLIDE 5 : PENGURANGAN -->
+    <section class="slide" id="s5">
+      <span class="eyebrow">03 · Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--coral);">−</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Operasi Pengurangan</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Tanda pertidaksamaan TETAP saat kedua ruas dikurangi bilangan yang sama.</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;x + b ≥ c&nbsp;, maka kedua ruas dikurangi b: &nbsp;x + b − b ≥ c − b &nbsp;→&nbsp; x ≥ c − b &nbsp;(tanda tetap)</div>
+
+      <div class="card stepper" id="stepSub">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn" style="background:var(--coral); color:#fff;" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceSub"></div>
+    </section>
+
+    <!-- SLIDE 6 : KALI/BAGI POSITIF -->
+    <section class="slide" id="s6">
+      <span class="eyebrow">03 · Operasi Dasar</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--amber);">×÷</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Kali &amp; Bagi Bilangan Positif</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Tanda pertidaksamaan TETAP saat kedua ruas dikali/dibagi bilangan POSITIF.</p>
+        </div>
+      </div>
+      <div class="op-rule">Jika &nbsp;a x ≤ c &nbsp;(a &gt; 0)&nbsp;, maka kedua ruas dibagi a: &nbsp;x ≤ c ÷ a &nbsp;(tanda tetap, karena a positif)</div>
+
+      <div class="card stepper" id="stepMul">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn" style="background:var(--amber); color:#fff;" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceMul"></div>
+    </section>
+
+    <!-- SLIDE 7 : ATURAN PERUBAHAN TANDA (KEY) -->
+    <section class="slide" id="s7">
+      <span class="eyebrow">⚠️ 04 · Aturan Penting</span>
+      <div class="op-header">
+        <div class="op-icon" style="background:var(--coral);">±</div>
+        <div>
+          <h1 class="slide-title" style="margin-bottom:2px;">Kali &amp; Bagi Bilangan Negatif</h1>
+          <p class="slide-sub" style="margin-bottom:0;">Tanda pertidaksamaan HARUS DIBALIK saat kedua ruas dikali/dibagi bilangan NEGATIF.</p>
+        </div>
+      </div>
+      <div class="op-rule warn">🔄 Jika &nbsp;a x &gt; c &nbsp;(a &lt; 0)&nbsp;, maka saat dibagi a: &nbsp;x &lt; c ÷ a &nbsp;— tanda "&gt;" berubah menjadi "&lt;" !</div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <div style="font-family:var(--font-display); font-weight:600; color:var(--navy); margin-bottom:12px;">🤔 Kenapa tandanya harus dibalik?</div>
+        <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.7; margin:0 0 16px;">Perhatikan posisi 2 dan 5 pada garis bilangan. Kita tahu 2 &lt; 5 (2 di sebelah kiri 5). Sekarang, kalikan KEDUA angka dengan −1:</p>
+        <div class="nl-wrap"><svg viewBox="0 0 380 70" xmlns="http://www.w3.org/2000/svg">
+          <line x1="30" y1="35" x2="350" y2="35" stroke="#16213E" stroke-width="2.5"/>
+          <polygon points="350,35 338,29 338,41" fill="#16213E"/>
+          <circle cx="150" cy="35" r="7" fill="#1FA99A"/><text x="150" y="20" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#0F6E62" text-anchor="middle">2</text>
+          <circle cx="270" cy="35" r="7" fill="#E8A23A"/><text x="270" y="20" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#8A5A05" text-anchor="middle">5</text>
+          <text x="190" y="60" font-family="JetBrains Mono" font-size="12" fill="#5B6480" text-anchor="middle">2 lebih kecil dari 5 → 2 &lt; 5</text>
+        </svg></div>
+        <div style="text-align:center; font-family:var(--font-mono); font-size:13px; color:var(--coral); font-weight:700; margin:10px 0;">↓ dikalikan −1 ↓</div>
+        <div class="nl-wrap"><svg viewBox="0 0 380 70" xmlns="http://www.w3.org/2000/svg">
+          <line x1="30" y1="35" x2="350" y2="35" stroke="#16213E" stroke-width="2.5"/>
+          <polygon points="350,35 338,29 338,41" fill="#16213E"/>
+          <circle cx="110" cy="35" r="7" fill="#E8A23A"/><text x="110" y="20" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#8A5A05" text-anchor="middle">−5</text>
+          <circle cx="230" cy="35" r="7" fill="#1FA99A"/><text x="230" y="20" font-family="JetBrains Mono" font-size="13" font-weight="700" fill="#0F6E62" text-anchor="middle">−2</text>
+          <text x="190" y="60" font-family="JetBrains Mono" font-size="12" fill="#5B6480" text-anchor="middle">posisinya kini TERBALIK: −5 di kiri, −2 di kanan → −5 &lt; −2</text>
+        </svg></div>
+        <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.7; margin:14px 0 0;">Karena posisi kedua bilangan bertukar di garis bilangan, pernyataan <strong>"2 &lt; 5"</strong> tidak bisa langsung ditulis <strong>"−2 &lt; −5"</strong> (itu salah!). Yang benar adalah <strong>−2 &gt; −5</strong>. Itulah kenapa tanda pertidaksamaan harus dibalik setiap kali kita kalikan/bagi dengan bilangan negatif.</p>
+      </div>
+
+      <div class="card stepper" id="stepNeg" style="margin-bottom:18px;">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-coral" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stepper" id="stepNeg2">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-coral" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="practice-grid" id="practiceNeg"></div>
+    </section>
+
+    <!-- SLIDE 8 : GARIS BILANGAN -->
+    <section class="slide" id="s8">
+      <span class="eyebrow">05 · Visualisasi</span>
+      <h1 class="slide-title">Menggambar Penyelesaian pada Garis Bilangan</h1>
+      <p class="slide-sub">Lingkaran <strong>terbuka (kosong)</strong> dipakai untuk &lt; dan &gt; (nilai batas TIDAK termasuk). Lingkaran <strong>tertutup (penuh)</strong> dipakai untuk ≤ dan ≥ (nilai batas termasuk). Klik contoh untuk melihat grafiknya.</p>
+      <div class="card">
+        <div class="nl-wrap"><svg id="nlMainSvg" viewBox="0 0 380 90" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <div class="nl-legend">
+          <span><span class="dot-demo" style="background:#fff; border:3px solid #7B5FE0;"></span>Terbuka → batas TIDAK termasuk (&lt; atau &gt;)</span>
+          <span><span class="dot-demo" style="background:#7B5FE0;"></span>Tertutup → batas termasuk (≤ atau ≥)</span>
+        </div>
+        <div class="nl-btns" id="nlBtns"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : GABUNGAN OPERASI -->
+    <section class="slide" id="s9">
+      <span class="eyebrow">06 · Level Lanjutan</span>
+      <h1 class="slide-title">Menggabungkan Beberapa Operasi</h1>
+      <p class="slide-sub">Sama seperti PLSV, banyak soal PtLSV membutuhkan lebih dari satu langkah. Perhatikan baik-baik saat pembagian dengan bilangan negatif muncul!</p>
+
+      <div class="card stepper" id="stepCombo1" style="margin-bottom:18px;">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stepper" id="stepCombo2">
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : PENERAPAN -->
+    <section class="slide" id="s10">
+      <span class="eyebrow">07 · Penerapan</span>
+      <h1 class="slide-title">Penerapan PtLSV dalam Kehidupan Sehari-hari</h1>
+      <p class="slide-sub">Pertidaksamaan sering muncul saat ada kata "maksimal", "minimal", "tidak lebih dari", atau "paling sedikit".</p>
+
+      <div class="card stepper" id="stepWord1" style="margin-bottom:18px;">
+        <div class="stepper-story" data-story></div>
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stepper" id="stepWord2">
+        <div class="stepper-story" data-story></div>
+        <div class="step-flip-badge" data-flipbadge style="display:none;">🔄 Tanda dibalik!</div>
+        <div class="step-eq" data-eq></div>
+        <div class="step-expl" data-expl></div>
+        <div class="step-controls">
+          <div class="step-dots" data-dots></div>
+          <div class="step-btns">
+            <button class="btn btn-outline" data-prev>← Sebelumnya</button>
+            <button class="btn btn-primary" data-next>Langkah Berikutnya →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11 : LATIHAN TAMBAHAN -->
+    <section class="slide" id="s11">
+      <span class="eyebrow">08 · Latihan Mandiri</span>
+      <h1 class="slide-title">Latihan Soal Tambahan</h1>
+      <p class="slide-sub">Coba selesaikan sendiri di kertas, lalu klik "Lihat Penyelesaian" untuk mencocokkan jawabanmu. Perhatikan tanda pertidaksamaannya!</p>
+      <div class="practice-grid" id="practiceExtra"></div>
+    </section>
+
+    <!-- SLIDE 12 : KUIS -->
+    <section class="slide" id="s12">
+      <span class="eyebrow">09 · Uji Pemahaman</span>
+      <h1 class="slide-title">Kuis Pertidaksamaan Linear</h1>
+      <p class="slide-sub">8 soal pilihan ganda — perhatikan baik-baik kapan tanda pertidaksamaan harus dibalik!</p>
+
+      <div class="card quiz-shell" id="quizArea">
+        <div class="quiz-progress">
+          <span id="quizPos">Soal 1 / 8</span>
+          <span class="quiz-score">Skor: <span id="quizScore">0</span></span>
+        </div>
+        <div class="quiz-q" id="quizQ"></div>
+        <div class="quiz-options" id="quizOpts"></div>
+        <div class="quiz-feedback" id="quizFeedback"></div>
+        <div style="display:flex; justify-content:flex-end;">
+          <button class="btn btn-primary" id="quizNextBtn" disabled>Soal Berikutnya →</button>
+        </div>
+      </div>
+
+      <div class="card quiz-shell quiz-result" id="quizResult" style="display:none;">
+        <div class="score-big" id="finalScore">0/8</div>
+        <div class="score-label" id="finalLabel">Terus berlatih ya!</div>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn btn-outline" id="quizRestart">↺ Ulangi Kuis</button>
+          <button class="btn btn-primary" id="quizContinue">Lihat Rangkuman →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : RANGKUMAN -->
+    <section class="slide" id="s13">
+      <span class="eyebrow">10 · Rangkuman</span>
+      <h1 class="slide-title">Rangkuman Materi</h1>
+      <p class="slide-sub">Aturan-aturan utama untuk menyelesaikan PtLSV. Ingat baik-baik baris yang ditandai — itu jebakan paling umum!</p>
+
+      <div class="card">
+        <table class="summary-table">
+          <thead><tr><th>Operasi</th><th>Kapan digunakan</th><th>Tanda pertidaksamaan</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="op-cell" style="color:var(--mint);">➕ Penjumlahan</td>
+              <td>Kedua ruas ditambah bilangan sama</td>
+              <td class="rule-cell">Tetap</td>
+            </tr>
+            <tr>
+              <td class="op-cell" style="color:var(--coral);">➖ Pengurangan</td>
+              <td>Kedua ruas dikurangi bilangan sama</td>
+              <td class="rule-cell">Tetap</td>
+            </tr>
+            <tr>
+              <td class="op-cell" style="color:#8A5A05;">✖️➗ Kali/Bagi Positif</td>
+              <td>Kedua ruas dikali/dibagi bilangan &gt; 0</td>
+              <td class="rule-cell">Tetap</td>
+            </tr>
+            <tr class="warn-row">
+              <td class="op-cell">⚠️ Kali/Bagi Negatif</td>
+              <td>Kedua ruas dikali/dibagi bilangan &lt; 0</td>
+              <td class="rule-cell">DIBALIK (&lt;↔&gt;, ≤↔≥)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <div style="font-family:var(--font-display); font-weight:600; color:var(--navy); margin-bottom:10px;">💡 Skor kuismu</div>
+        <div style="font-size:15px; color:var(--ink-soft);" id="summaryScoreText">Kamu belum mengerjakan kuis.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14 : PENUTUP -->
+    <section class="slide" id="s14">
+      <div class="closing">
+        <div class="check-badge">✓</div>
+        <h1 class="slide-title" style="text-align:center;">Selamat, Kamu Sudah Menyelesaikan Materi Ini!</h1>
+        <p class="slide-sub" style="text-align:center; margin-left:auto; margin-right:auto;">Kamu telah mempelajari cara menyelesaikan Pertidaksamaan Linear Satu Variabel — termasuk aturan penting: tanda pertidaksamaan harus dibalik saat kedua ruas dikali atau dibagi bilangan negatif.</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="btn btn-outline" id="restartAll">↺ Ulangi Presentasi</button>
+          <a class="btn btn-primary" href="matb-bab3.html" id="finishBtn">Selesai — Kembali ke Menu Bab 3 ✓</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="nav-controls">
+    <div class="nav-side"><button class="icon-btn" id="prevBtn" aria-label="Sebelumnya">←</button><span class="nav-label">Sebelumnya</span></div>
+    <div class="nav-dots" id="navDots"></div>
+    <div class="nav-side"><span class="nav-label">Berikutnya</span><button class="icon-btn" id="nextBtn" aria-label="Berikutnya">→</button></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= NAVIGATION ================= */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var current = 0;
+
+  var navDots = document.getElementById('navDots');
+  slides.forEach(function(_, i){
+    var b = document.createElement('button');
+    b.className = 'ndot';
+    b.setAttribute('aria-label', 'Ke slide ' + (i+1));
+    b.addEventListener('click', function(){ goTo(i); });
+    navDots.appendChild(b);
+  });
+  var dotEls = Array.prototype.slice.call(navDots.children);
+
+  var curNum = document.getElementById('curNum');
+  var totalNum = document.getElementById('totalNum');
+  totalNum.textContent = total;
+  var progressFill = document.getElementById('progressFill');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  function goTo(i){
+    if(i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    curNum.textContent = current + 1;
+    progressFill.style.width = (((current+1)/total)*100) + '%';
+    dotEls.forEach(function(d, idx){ d.classList.toggle('active', idx === current); });
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  prevBtn.addEventListener('click', function(){ goTo(current - 1); });
+  nextBtn.addEventListener('click', function(){ goTo(current + 1); });
+  document.getElementById('startBtn').addEventListener('click', function(){ goTo(current + 1); });
+  document.getElementById('restartAll').addEventListener('click', function(){ goTo(0); });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  var touchX = null;
+  var slidesEl = document.getElementById('slides');
+  slidesEl.addEventListener('touchstart', function(e){ touchX = e.changedTouches[0].clientX; }, {passive:true});
+  slidesEl.addEventListener('touchend', function(e){
+    if(touchX === null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 60){ dx < 0 ? goTo(current+1) : goTo(current-1); }
+    touchX = null;
+  }, {passive:true});
+
+  goTo(0);
+
+  /* ================= SLIDE 2 : CHIP TOGGLE ================= */
+  document.querySelectorAll('#chipGrid .chip-card').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var wasOpen = chip.classList.contains('open');
+      document.querySelectorAll('#chipGrid .chip-card').forEach(function(c){ c.classList.remove('open'); });
+      if(!wasOpen) chip.classList.add('open');
+    });
+  });
+
+  /* ================= SLIDE 3 : INTRO DEMO (with flip preview) ================= */
+  (function(){
+    var left = 5, right = 9, sign = '<';
+    var demoEq = document.getElementById('demoEq');
+    var demoExpl = document.getElementById('demoExpl');
+    var demoNote = document.getElementById('demoNote');
+
+    function flipSign(s){
+      if(s === '<') return '>';
+      if(s === '>') return '<';
+      if(s === '≤') return '≥';
+      if(s === '≥') return '≤';
+      return s;
+    }
+
+    function render(msg, flipped){
+      demoEq.innerHTML = left + ' ' + sign + ' ' + right;
+      demoEq.style.color = flipped ? 'var(--coral)' : 'var(--navy)';
+      demoExpl.textContent = msg;
+      demoNote.textContent = flipped ? '🔄 Tanda dibalik karena dikalikan bilangan negatif!' : '';
+      demoNote.style.color = 'var(--coral)';
+      demoNote.style.fontWeight = flipped ? '700' : '400';
+    }
+
+    document.querySelectorAll('#s3 [data-op]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var op = btn.getAttribute('data-op');
+        if(op === '+3'){ left += 3; right += 3; render('Kedua ruas ditambah 3 → tanda tetap.', false); }
+        else if(op === '-2'){ left -= 2; right -= 2; render('Kedua ruas dikurangi 2 → tanda tetap.', false); }
+        else if(op === '×2'){ left *= 2; right *= 2; render('Kedua ruas dikali 2 (positif) → tanda tetap.', false); }
+        else if(op === '×-1'){
+          left *= -1; right *= -1;
+          var tmp = left; left = right; right = tmp;
+          sign = flipSign(sign);
+          render('Kedua ruas dikali −1 (negatif) → tanda WAJIB dibalik!', true);
+        }
+      });
+    });
+
+    document.getElementById('demoReset').addEventListener('click', function(){
+      left = 5; right = 9; sign = '<';
+      render('Pertidaksamaan awal: 5 lebih kecil dari 9.', false);
+    });
+
+    render('Pertidaksamaan awal: 5 lebih kecil dari 9.', false);
+  })();
+
+  /* ================= GENERIC STEPPER ENGINE ================= */
+  function initStepper(rootId, steps){
+    var root = document.getElementById(rootId);
+    if(!root) return;
+    var eqEl = root.querySelector('[data-eq]');
+    var explEl = root.querySelector('[data-expl]');
+    var dotsEl = root.querySelector('[data-dots]');
+    var storyEl = root.querySelector('[data-story]');
+    var flipBadge = root.querySelector('[data-flipbadge]');
+    var prevBtn = root.querySelector('[data-prev]');
+    var nextBtn = root.querySelector('[data-next]');
+    var idx = 0;
+
+    if(storyEl && steps.story) storyEl.innerHTML = steps.story;
+    var list = steps.list;
+
+    function render(){
+      eqEl.innerHTML = list[idx].eq;
+      explEl.textContent = list[idx].expl;
+      dotsEl.innerHTML = list.map(function(_, i){
+        return '<span class="dot' + (i === idx ? ' active' : '') + '"></span>';
+      }).join('');
+      flipBadge.style.display = list[idx].flip ? 'inline-flex' : 'none';
+      var isLast = idx === list.length - 1;
+      prevBtn.disabled = idx === 0;
+      nextBtn.textContent = isLast ? 'Selesai — Ulangi ↺' : 'Langkah Berikutnya →';
+    }
+
+    prevBtn.addEventListener('click', function(){ if(idx > 0){ idx--; render(); } });
+    nextBtn.addEventListener('click', function(){
+      if(idx < list.length - 1){ idx++; render(); }
+      else { idx = 0; render(); }
+    });
+
+    render();
+  }
+
+  var fx = function(a,b){ return '<span class="frac"><span class="num">'+a+'</span><span class="den">'+b+'</span></span>'; };
+
+  /* ---- Penjumlahan ---- */
+  initStepper('stepAdd', { list: [
+    { eq: 'x − <span class="hl">6</span> &lt; 8', expl: 'Soal: cari nilai x. Variabel x dikurangi 6.' },
+    { eq: 'x − 6 <span class="hl">+ 6</span> &lt; 8 <span class="hl">+ 6</span>', expl: 'Tambahkan 6 di KEDUA ruas. Tanda "<" tidak berubah.' },
+    { eq: 'x &lt; 14', expl: 'Selesai! Penyelesaiannya adalah semua x yang lebih kecil dari 14.' }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceAdd');
+    var items = [
+      { eq: 'x − 4 ≤ 9', ans: 'x ≤ 9 + 4 → x ≤ 13' },
+      { eq: 'x − 10 &gt; 3', ans: 'x &gt; 3 + 10 → x &gt; 13' },
+      { eq: 'x − 7 ≥ −2', ans: 'x ≥ −2 + 7 → x ≥ 5' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans, false)); });
+  })();
+
+  /* ---- Pengurangan ---- */
+  initStepper('stepSub', { list: [
+    { eq: 'x + <span class="hl">5</span> ≥ 12', expl: 'Soal: cari nilai x. Variabel x ditambah 5.' },
+    { eq: 'x + 5 <span class="hl">− 5</span> ≥ 12 <span class="hl">− 5</span>', expl: 'Kurangkan 5 di KEDUA ruas. Tanda "≥" tidak berubah.' },
+    { eq: 'x ≥ 7', expl: 'Selesai! Penyelesaiannya adalah semua x yang lebih besar atau sama dengan 7.' }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceSub');
+    var items = [
+      { eq: 'x + 8 &lt; 15', ans: 'x &lt; 15 − 8 → x &lt; 7' },
+      { eq: 'x + 3 ≤ 1', ans: 'x ≤ 1 − 3 → x ≤ −2' },
+      { eq: 'x + 20 &gt; 6', ans: 'x &gt; 6 − 20 → x &gt; −14' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans, false)); });
+  })();
+
+  /* ---- Kali/Bagi Positif ---- */
+  initStepper('stepMul', { list: [
+    { eq: fx('x','3') + ' &gt; 4', expl: 'Soal: cari nilai x. Variabel x dibagi 3.' },
+    { eq: fx('x','3') + ' <span class="hl">× 3</span> &gt; 4 <span class="hl">× 3</span>', expl: 'Kalikan KEDUA ruas dengan 3 (positif). Tanda ">" tidak berubah.' },
+    { eq: 'x &gt; 12', expl: 'Selesai! Penyelesaiannya adalah semua x yang lebih besar dari 12.' }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceMul');
+    var items = [
+      { eq: '5x ≤ 35', ans: 'x ≤ 35 ÷ 5 → x ≤ 7 (tanda tetap)' },
+      { eq: fx('x','2') + ' ≥ 6', ans: 'x ≥ 6 × 2 → x ≥ 12 (tanda tetap)' },
+      { eq: '4x &lt; 28', ans: 'x &lt; 28 ÷ 4 → x &lt; 7 (tanda tetap)' }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans, false)); });
+  })();
+
+  /* ---- Kali/Bagi Negatif (KEY) ---- */
+  initStepper('stepNeg', { list: [
+    { eq: '<span class="hl-flip">−2</span>x &gt; 8', expl: 'Soal: koefisien x adalah −2 (negatif). Kita perlu membagi kedua ruas dengan −2.' },
+    { eq: fx('−2x','−2') + ' &lt; ' + fx('8','−2'), expl: 'Bagi KEDUA ruas dengan −2. Karena membagi bilangan negatif, tanda ">" DIBALIK menjadi "<".', flip: true },
+    { eq: 'x &lt; −4', expl: 'Selesai! Penyelesaiannya adalah semua x yang lebih kecil dari −4.' }
+  ]});
+  initStepper('stepNeg2', { list: [
+    { eq: '3 − x ≥ 7', expl: 'Soal: variabel x memiliki koefisien negatif secara tersembunyi (−x). Kurangi 3 dari kedua ruas dulu.' },
+    { eq: '3 − x <span class="hl">− 3</span> ≥ 7 <span class="hl">− 3</span>', expl: 'Kurangi kedua ruas dengan 3.' },
+    { eq: '<span class="hl-flip">−x</span> ≥ 4', expl: 'Sekarang bentuknya −x ≥ 4. Koefisien x adalah −1 (negatif).' },
+    { eq: fx('−x','−1') + ' ≤ ' + fx('4','−1'), expl: 'Bagi KEDUA ruas dengan −1. Tanda "≥" DIBALIK menjadi "≤".', flip: true },
+    { eq: 'x ≤ −4', expl: 'Selesai! Penyelesaiannya adalah semua x yang lebih kecil atau sama dengan −4.' }
+  ]});
+  (function(){
+    var wrap = document.getElementById('practiceNeg');
+    var items = [
+      { eq: '−4x &lt; 20', ans: 'Bagi −4 (dibalik): x &gt; 20 ÷ (−4) → x &gt; −5', flip:true },
+      { eq: '−x ≥ −9', ans: 'Bagi −1 (dibalik): x ≤ −9 ÷ (−1) → x ≤ 9', flip:true },
+      { eq: '−5x ≤ 15', ans: 'Bagi −5 (dibalik): x ≥ 15 ÷ (−5) → x ≥ −3', flip:true }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Soal ' + (i+1), it.eq, it.ans, it.flip)); });
+  })();
+
+  /* ---- Gabungan operasi ---- */
+  initStepper('stepCombo1', { list: [
+    { eq: '2x + 5 &lt; 17', expl: 'Soal gabungan: ada perkalian (2x) dan penjumlahan (+5). Kurangi dulu kedua ruas dengan 5.' },
+    { eq: '2x + 5 <span class="hl">− 5</span> &lt; 17 <span class="hl">− 5</span>', expl: 'Kurangi kedua ruas dengan 5. Tanda tetap.' },
+    { eq: '2x &lt; 12', expl: 'Bentuknya sekarang tinggal perkalian dengan koefisien positif (2).' },
+    { eq: fx('2x','2') + ' &lt; ' + fx('12','2'), expl: 'Bagi kedua ruas dengan 2 (positif). Tanda tetap.' },
+    { eq: 'x &lt; 6', expl: 'Selesai! Penyelesaiannya x &lt; 6.' }
+  ]});
+  initStepper('stepCombo2', { list: [
+    { eq: '−3x + 4 ≥ −11', expl: 'Soal ini punya koefisien x negatif (−3). Kurangi dulu kedua ruas dengan 4.' },
+    { eq: '−3x + 4 <span class="hl">− 4</span> ≥ −11 <span class="hl">− 4</span>', expl: 'Kurangi kedua ruas dengan 4. Tanda tetap (baru penjumlahan/pengurangan).' },
+    { eq: '<span class="hl-flip">−3x</span> ≥ −15', expl: 'Sekarang koefisien x adalah −3 (negatif) — bersiap membagi dengan bilangan negatif!' },
+    { eq: fx('−3x','−3') + ' ≤ ' + fx('−15','−3'), expl: 'Bagi kedua ruas dengan −3. Karena negatif, tanda "≥" DIBALIK menjadi "≤".', flip: true },
+    { eq: 'x ≤ 5', expl: 'Selesai! Penyelesaiannya x ≤ 5.' }
+  ]});
+
+  /* ---- Soal cerita ---- */
+  initStepper('stepWord1', {
+    story: '📖 <strong>Cerita:</strong> Rina memiliki uang Rp50.000. Ia ingin membeli beberapa buku seharga Rp12.000 per buah, dan ingin sisa uangnya minimal Rp8.000. Berapa buku maksimal yang bisa ia beli?',
+    list: [
+      { eq: 'Misal banyak buku = x', expl: 'Tentukan variabel yang mewakili hal yang ditanyakan.' },
+      { eq: '50000 − 12000x ≥ 8000', expl: 'Sisa uang (uang awal dikurangi total belanja) harus minimal 8000.' },
+      { eq: '50000 − 12000x <span class="hl">− 50000</span> ≥ 8000 <span class="hl">− 50000</span>', expl: 'Kurangi kedua ruas dengan 50000.' },
+      { eq: '<span class="hl-flip">−12000x</span> ≥ −42000', expl: 'Sekarang koefisien x adalah −12000 (negatif).' },
+      { eq: fx('−12000x','−12000') + ' ≤ ' + fx('−42000','−12000'), expl: 'Bagi kedua ruas dengan −12000. Tanda "≥" DIBALIK menjadi "≤".', flip: true },
+      { eq: 'x ≤ 3,5 &nbsp;→&nbsp; maksimal 3 buku', expl: 'Karena banyak buku harus bilangan bulat, x maksimal adalah 3.' }
+    ]
+  });
+  initStepper('stepWord2', {
+    story: '📖 <strong>Cerita:</strong> Sebuah lift memiliki kapasitas beban maksimal 480 kg. Jika rata-rata berat satu orang adalah 60 kg, berapa jumlah orang maksimal yang boleh naik?',
+    list: [
+      { eq: 'Misal banyak orang = x', expl: 'Tentukan variabel yang mewakili hal yang ditanyakan.' },
+      { eq: '60x ≤ 480', expl: 'Total berat (60 kg dikali jumlah orang) tidak boleh lebih dari 480 kg.' },
+      { eq: fx('60x','60') + ' ≤ ' + fx('480','60'), expl: 'Bagi kedua ruas dengan 60 (positif). Tanda tetap.' },
+      { eq: 'x ≤ 8 &nbsp;→&nbsp; maksimal 8 orang', expl: 'Selesai! Lift boleh dinaiki paling banyak 8 orang sekaligus.' }
+    ]
+  });
+
+  /* ================= PRACTICE CARD FACTORY ================= */
+  function makePracticeCard(label, eqHtml, ansText, flip){
+    var card = document.createElement('div');
+    card.className = 'practice-card';
+    card.innerHTML =
+      '<div class="q-label">' + label + '</div>' +
+      '<div class="q-eq">' + eqHtml + '</div>' +
+      '<button class="btn btn-outline">Lihat Penyelesaian</button>' +
+      '<div class="q-answer' + (flip ? ' flip-note' : '') + '">' + ansText + '</div>';
+    var btn = card.querySelector('button');
+    var ans = card.querySelector('.q-answer');
+    btn.addEventListener('click', function(){
+      var showing = ans.classList.toggle('shown');
+      btn.textContent = showing ? 'Sembunyikan' : 'Lihat Penyelesaian';
+    });
+    return card;
+  }
+
+  /* ================= SLIDE 11 : EXTRA PRACTICE ================= */
+  (function(){
+    var wrap = document.getElementById('practiceExtra');
+    var items = [
+      { eq: 'x − 5 &gt; 9', ans: 'Penjumlahan: x &gt; 9 + 5 = 14', flip:false },
+      { eq: 'x + 11 ≤ 6', ans: 'Pengurangan: x ≤ 6 − 11 = −5', flip:false },
+      { eq: fx('x','4') + ' &lt; 5', ans: 'Perkalian positif: x &lt; 5 × 4 = 20 (tanda tetap)', flip:false },
+      { eq: '−6x ≥ 24', ans: 'Bagi −6 (dibalik!): x ≤ 24 ÷ (−6) = −4', flip:true },
+      { eq: '2x − 3 ≤ 9', ans: '2x ≤ 12 → x ≤ 6 (tanda tetap, koefisien positif)', flip:false },
+      { eq: '−4x + 1 &gt; 13', ans: '−4x &gt; 12 → dibagi −4 (dibalik!) → x &lt; −3', flip:true }
+    ];
+    items.forEach(function(it, i){ wrap.appendChild(makePracticeCard('Latihan ' + (i+1), it.eq, it.ans, it.flip)); });
+  })();
+
+  /* ================= SLIDE 8 : NUMBER LINE VISUALIZER ================= */
+  (function(){
+    var svgEl = document.getElementById('nlMainSvg');
+    var btnsWrap = document.getElementById('nlBtns');
+    var examples = [
+      { label: 'x > 3', value: 3, closed: false, dir: 'right' },
+      { label: 'x ≤ −2', value: -2, closed: true, dir: 'left' },
+      { label: 'x ≥ 0', value: 0, closed: true, dir: 'right' },
+      { label: 'x < 5', value: 5, closed: false, dir: 'left' }
+    ];
+
+    function renderNL(ex){
+      var minV = -8, maxV = 8;
+      var leftPad = 30, rightPad = 30, width = 380;
+      var usable = width - leftPad - rightPad;
+      var step = usable / (maxV - minV);
+      function X(v){ return leftPad + (v - minV) * step; }
+
+      var svg = '';
+      svg += '<line x1="'+leftPad+'" y1="45" x2="'+X(maxV)+'" y2="45" stroke="#16213E" stroke-width="2.5"/>';
+      svg += '<polygon points="'+X(maxV)+',45 '+(X(maxV)-12)+',39 '+(X(maxV)-12)+',51" fill="#16213E"/>';
+      svg += '<polygon points="'+leftPad+',45 '+(leftPad+12)+',39 '+(leftPad+12)+',51" fill="#16213E"/>';
+
+      for(var v = minV; v <= maxV; v += 2){
+        svg += '<line x1="'+X(v)+'" y1="39" x2="'+X(v)+'" y2="51" stroke="#16213E" stroke-width="2"/>';
+        svg += '<text x="'+X(v)+'" y="68" font-family="JetBrains Mono" font-size="12" fill="#5B6480" text-anchor="middle">'+v+'</text>';
+      }
+
+      var vx = X(ex.value);
+      var rayStart, rayEnd;
+      if(ex.dir === 'right'){ rayStart = vx; rayEnd = X(maxV) - 8; }
+      else { rayStart = X(minV) + 8; rayEnd = vx; }
+      svg += '<rect x="'+Math.min(rayStart,rayEnd)+'" y="41" width="'+Math.abs(rayEnd-rayStart)+'" height="8" rx="4" fill="#7B5FE0" opacity="0.85"/>';
+
+      if(ex.closed){
+        svg += '<circle cx="'+vx+'" cy="45" r="9" fill="#7B5FE0"/>';
+      } else {
+        svg += '<circle cx="'+vx+'" cy="45" r="9" fill="#fff" stroke="#7B5FE0" stroke-width="4"/>';
+      }
+      svg += '<text x="'+vx+'" y="20" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#7B5FE0" text-anchor="middle">'+ex.label+'</text>';
+      svgEl.innerHTML = svg;
+    }
+
+    examples.forEach(function(ex, i){
+      var b = document.createElement('button');
+      b.className = 'btn ' + (i === 0 ? 'btn-primary' : 'btn-outline');
+      b.textContent = ex.label;
+      b.addEventListener('click', function(){
+        Array.prototype.slice.call(btnsWrap.children).forEach(function(bb){ bb.className = 'btn btn-outline'; });
+        b.className = 'btn btn-primary';
+        renderNL(ex);
+      });
+      btnsWrap.appendChild(b);
+    });
+
+    renderNL(examples[0]);
+  })();
+
+  /* ================= SLIDE 12 : QUIZ ================= */
+  (function(){
+    var questions = [
+      { q: 'Tentukan penyelesaian dari x − 5 < 12.', opts: ['x < 17','x < 7','x > 17','x > 7'], correct: 0, expl: 'Tambahkan 5 di kedua ruas (tanda tetap): x < 12 + 5 = 17.' },
+      { q: 'Tentukan penyelesaian dari x + 9 ≥ 3.', opts: ['x ≥ −6','x ≤ −6','x ≥ 12','x ≤ 12'], correct: 0, expl: 'Kurangi 9 di kedua ruas (tanda tetap): x ≥ 3 − 9 = −6.' },
+      { q: 'Tentukan penyelesaian dari x/4 > 5.', opts: ['x > 20','x < 20','x > 1,25','x < 1,25'], correct: 0, expl: 'Kalikan 4 di kedua ruas, karena 4 positif tanda tetap: x > 5 × 4 = 20.' },
+      { q: 'Tentukan penyelesaian dari 6x ≤ 42.', opts: ['x ≤ 7','x ≥ 7','x ≤ 48','x ≥ 48'], correct: 0, expl: 'Bagi 6 di kedua ruas, karena 6 positif tanda tetap: x ≤ 42 ÷ 6 = 7.' },
+      { q: 'Tentukan penyelesaian dari −2x > 8.', opts: ['x < −4','x > −4','x < 4','x > 4'], correct: 0, expl: 'Bagi −2 di kedua ruas. Karena −2 NEGATIF, tanda ">" dibalik jadi "<": x < 8 ÷ (−2) = −4.' },
+      { q: 'Tentukan penyelesaian dari 5 − x ≤ 9.', opts: ['x ≥ −4','x ≤ −4','x ≥ 4','x ≤ 4'], correct: 0, expl: 'Kurangi 5: −x ≤ 4. Bagi −1 (dibalik!): x ≥ −4.' },
+      { q: 'Sebuah lift maksimal menampung beban 480 kg. Jika satu orang rata-rata 60 kg, berapa jumlah maksimal orang yang boleh naik?', opts: ['8 orang','7 orang','9 orang','6 orang'], correct: 0, expl: '60x ≤ 480 → x ≤ 8. Jumlah maksimal adalah 8 orang.' },
+      { q: 'Manakah pernyataan berikut yang BENAR tentang pertidaksamaan?', opts: [
+          'Jika kedua ruas dikali bilangan negatif, tanda pertidaksamaan harus dibalik',
+          'Jika kedua ruas dikali bilangan negatif, tanda pertidaksamaan tetap sama',
+          'Tanda pertidaksamaan selalu berubah pada operasi penjumlahan',
+          'Tanda pertidaksamaan berubah jika dikali bilangan positif'
+        ], correct: 0, expl: 'Aturan kunci PtLSV: mengalikan/membagi kedua ruas dengan bilangan negatif membalik tanda pertidaksamaan.' }
+    ];
+    var qi = 0, score = 0, answered = false;
+
+    var quizQ = document.getElementById('quizQ');
+    var quizOpts = document.getElementById('quizOpts');
+    var quizFeedback = document.getElementById('quizFeedback');
+    var quizNextBtn = document.getElementById('quizNextBtn');
+    var quizPos = document.getElementById('quizPos');
+    var quizScoreEl = document.getElementById('quizScore');
+    var quizArea = document.getElementById('quizArea');
+    var quizResult = document.getElementById('quizResult');
+
+    var letters = ['A','B','C','D'];
+
+    function renderQ(){
+      answered = false;
+      quizFeedback.className = 'quiz-feedback';
+      quizFeedback.textContent = '';
+      quizNextBtn.disabled = true;
+      quizPos.textContent = 'Soal ' + (qi+1) + ' / ' + questions.length;
+      quizScoreEl.textContent = score;
+      var item = questions[qi];
+      quizQ.textContent = item.q;
+      quizOpts.innerHTML = '';
+      item.opts.forEach(function(optText, i){
+        var b = document.createElement('button');
+        b.className = 'quiz-opt';
+        b.innerHTML = '<span class="opt-letter">' + letters[i] + '</span><span>' + optText + '</span>';
+        b.addEventListener('click', function(){
+          if(answered) return;
+          answered = true;
+          var correctIdx = item.correct;
+          var allBtns = quizOpts.querySelectorAll('.quiz-opt');
+          allBtns.forEach(function(bb){ bb.disabled = true; });
+          if(i === correctIdx){
+            b.classList.add('correct');
+            score++;
+            quizFeedback.className = 'quiz-feedback show ok';
+            quizFeedback.textContent = '✓ Benar! ' + item.expl;
+          } else {
+            b.classList.add('wrong');
+            allBtns[correctIdx].classList.add('correct');
+            quizFeedback.className = 'quiz-feedback show bad';
+            quizFeedback.textContent = '✗ Belum tepat. ' + item.expl;
+          }
+          quizScoreEl.textContent = score;
+          quizNextBtn.disabled = false;
+          quizNextBtn.textContent = (qi === questions.length - 1) ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+        });
+        quizOpts.appendChild(b);
+      });
+    }
+
+    quizNextBtn.addEventListener('click', function(){
+      if(qi < questions.length - 1){ qi++; renderQ(); }
+      else { showResult(); }
+    });
+
+    function showResult(){
+      quizArea.style.display = 'none';
+      quizResult.style.display = 'block';
+      document.getElementById('finalScore').textContent = score + '/' + questions.length;
+      var label = document.getElementById('finalLabel');
+      var pct = score / questions.length;
+      if(pct === 1) label.textContent = 'Sempurna! Kamu benar-benar menguasai aturan tanda pertidaksamaan. 🎉';
+      else if(pct >= 0.75) label.textContent = 'Kerja bagus! Pemahamanmu sudah kuat.';
+      else if(pct >= 0.5) label.textContent = 'Lumayan! Coba ulas kembali aturan perubahan tanda.';
+      else label.textContent = 'Yuk ulas lagi materinya, terutama aturan bilangan negatif.';
+      document.getElementById('summaryScoreText').textContent = 'Kamu menjawab ' + score + ' dari ' + questions.length + ' soal dengan benar (' + Math.round(pct*100) + '%).';
+    }
+
+    document.getElementById('quizRestart').addEventListener('click', function(){
+      qi = 0; score = 0;
+      quizResult.style.display = 'none';
+      quizArea.style.display = 'block';
+      renderQ();
+    });
+    document.getElementById('quizContinue').addEventListener('click', function(){
+      goTo(current + 1);
+    });
+
+    renderQ();
+  })();
+
+})();
+</script>
+</body>
+</html>

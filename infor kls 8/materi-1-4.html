@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 1 — Analisis dan Visualisasi Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2F7F1;
+    --paper-line:#D6E3D8;
+    --ink:#152E2C;
+    --ink-soft:#4E6C67;
+    --white:#FFFFFF;
+    --amber:#F0A93B;
+    --amber-ink:#5C3B05;
+    --coral:#E5604B;
+    --violet:#8A6BC9;
+    --teal:#2E8B7A;
+    --teal-dark:#1F6357;
+    --red:#D2483A;
+    --green:#3E8C5C;
+    --blue:#3B7DC9;
+    --shadow: 0 2px 0 var(--ink), 4px 6px 0 rgba(21,46,44,0.12);
+    --radius: 14px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:var(--font-body); color:var(--ink);
+    background:
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    -webkit-font-smoothing:antialiased; overflow:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--teal-dark); outline-offset:2px;}
+  .app{height:100vh; display:flex; flex-direction:column;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; gap:14px; padding:14px clamp(14px,3vw,32px); border-bottom:2px solid var(--ink); background:var(--white); flex-shrink:0;}
+  .topbar .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; white-space:nowrap;}
+  .brand .mark{width:30px;height:30px;border-radius:7px; background:var(--violet); color:var(--white); display:flex;align-items:center;justify-content:center; font-family:var(--font-mono); font-size:13px;font-weight:700; border:2px solid var(--ink); flex-shrink:0;}
+  .brand .title{font-size:clamp(13px,2vw,16px); line-height:1.1;}
+  .brand .title small{display:block; font-family:var(--font-body); font-weight:500; color:var(--ink-soft); font-size:11px;}
+  .progress-wrap{flex:1; display:flex; align-items:center; gap:10px; min-width:0;}
+  .progress-track{flex:1; height:8px; background:var(--paper); border:2px solid var(--ink); border-radius:6px; overflow:hidden;}
+  .progress-fill{height:100%; background:repeating-linear-gradient(135deg, var(--violet), var(--violet) 8px, #6B4FA0 8px, #6B4FA0 16px); transition:width .35s ease;}
+  .progress-label{font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); white-space:nowrap;}
+
+  /* ---------- STAGE ---------- */
+  .stage{flex:1; min-height:0; overflow-y:auto; padding:clamp(18px,3.5vw,44px) clamp(14px,6vw,80px) 10px; scroll-behavior:smooth;}
+  .slide{display:none; max-width:1040px; margin:0 auto; animation:slideIn .4s ease;}
+  .slide.active{display:block;}
+  @keyframes slideIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; letter-spacing:.04em; color:var(--teal-dark); background:#E4F2EC; border:1.5px solid var(--teal-dark); padding:4px 10px; border-radius:20px; margin-bottom:14px;}
+  h1.slide-title{font-family:var(--font-display); font-size:clamp(22px,4.2vw,38px); line-height:1.08; margin:0 0 10px;}
+  p.slide-lead{font-size:clamp(14px,1.9vw,17px); color:var(--ink-soft); max-width:700px; line-height:1.55; margin:0 0 22px;}
+
+  .card{background:var(--white); border:2px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);}
+
+  .btn{font-family:var(--font-body); font-weight:600; font-size:14px; padding:10px 18px; border-radius:9px; border:2px solid var(--ink); background:var(--white); color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; transition:transform .12s ease, box-shadow .12s ease; box-shadow:2px 3px 0 var(--ink);}
+  .btn:hover{transform:translate(-1px,-1px); box-shadow:3px 4px 0 var(--ink);}
+  .btn:active{transform:translate(1px,1px); box-shadow:0 0 0 var(--ink);}
+  .btn-primary{background:var(--teal); color:var(--white);}
+  .btn-violet{background:var(--violet); color:var(--white);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:2px 3px 0 var(--ink);}
+
+  /* ---------- COVER ---------- */
+  .cover{display:grid; grid-template-columns:1.15fr 1fr; gap:30px; align-items:center;}
+  @media (max-width:760px){ .cover{grid-template-columns:1fr;} }
+  .cover-copy .kicker{font-family:var(--font-mono); color:var(--ink-soft); font-size:13px; margin-bottom:10px;}
+  .cover-copy h1{font-family:var(--font-display); font-size:clamp(28px,5.2vw,46px); line-height:1.03; margin:0 0 14px;}
+  .cover-copy h1 span{color:var(--violet);}
+  .cover-copy p{color:var(--ink-soft); font-size:clamp(14px,2vw,17px); max-width:540px; margin:0 0 22px; line-height:1.55;}
+  .cover-tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
+  .tag{font-family:var(--font-mono); font-size:11.5px; border:1.5px solid var(--ink); padding:4px 10px; border-radius:20px; background:var(--white);}
+  .formula-bar{font-family:var(--font-mono); font-size:13px; background:var(--white); border:2px solid var(--ink); border-radius:9px; padding:9px 12px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); max-width:480px;}
+  .formula-bar .fx{font-weight:700; color:var(--violet); flex-shrink:0;}
+  .cover-visual{background:var(--white); border:2px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px;}
+  .mini-bars{display:flex; align-items:flex-end; gap:10px; height:150px; margin-bottom:8px;}
+  .mini-bars .mb{flex:1; background:linear-gradient(180deg, var(--teal), var(--teal-dark)); border:2px solid var(--ink); border-radius:6px 6px 2px 2px;}
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); margin-top:6px;}
+  .flip-card{padding:18px; cursor:pointer; position:relative; min-height:110px;}
+  .flip-card .num{font-size:20px;}
+  .flip-card h3{font-family:var(--font-display); font-size:15.5px; margin:6px 0 8px;}
+  .flip-card p{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0; display:none;}
+  .flip-card.open p{display:block;}
+  .flip-card .toggle-hint{font-family:var(--font-mono); font-size:11px; color:var(--teal-dark); margin-top:8px; display:inline-block;}
+  .flip-card.open{background:#EFF8F3; border-color:var(--teal-dark);}
+
+  /* ---------- TABLE ---------- */
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table.datatable{border-collapse:collapse; width:100%; min-width:460px; font-family:var(--font-mono); font-size:13px; background:var(--white);}
+  table.datatable th, table.datatable td{border:1px solid var(--paper-line); padding:9px 12px; text-align:left;}
+  table.datatable thead th{background:var(--ink); color:var(--white); font-weight:700;}
+  table.datatable tbody tr:nth-child(odd){background:#F8FAF7;}
+  table.datatable tbody tr.hl-max{background:var(--green) !important; color:#fff;}
+  table.datatable tbody tr.hl-min{background:var(--red) !important; color:#fff;}
+  table.datatable tbody tr.hl-above{background:#E7F1FB !important;}
+
+  /* ---------- PERHITUNGAN PANEL ---------- */
+  .calc-wrap{display:grid; grid-template-columns:1.2fr .9fr; gap:20px; align-items:start;}
+  @media (max-width:760px){ .calc-wrap{grid-template-columns:1fr;} }
+  .calc-buttons{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;}
+  .calc-buttons .btn{font-size:13px; padding:8px 14px;}
+  .info-panel{padding:18px; min-height:210px; display:flex; flex-direction:column; gap:10px;}
+  .info-panel .badge{align-self:flex-start; font-family:var(--font-mono); font-size:11px; padding:3px 10px; border-radius:20px; border:1.5px solid var(--ink); background:var(--paper); color:var(--ink-soft);}
+  .info-panel .result-num{font-family:var(--font-display); font-size:38px; color:var(--violet); margin:2px 0;}
+  .info-panel h4{margin:0; font-family:var(--font-display); font-size:15px;}
+  .info-panel p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+  .info-panel .formula{font-family:var(--font-mono); font-size:12px; background:#F7F3FC; border:1px solid var(--violet); border-radius:7px; padding:8px 10px;}
+
+  /* ---------- BAR CHART ---------- */
+  .chart-card{padding:20px;}
+  .bars-wrap{position:relative; display:flex; align-items:flex-end; gap:clamp(6px,1.6vw,18px); height:240px; margin:30px 0 10px; padding:0 6px; border-bottom:2px solid var(--ink);}
+  .ref-line{position:absolute; left:0; right:0; border-top:2px dashed; font-family:var(--font-mono); font-size:10px; padding-left:4px;}
+  .ref-avg{border-color:var(--violet); color:var(--violet);}
+  .ref-kkm{border-color:var(--coral); color:var(--coral);}
+  .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; cursor:pointer; min-width:28px;}
+  .bar-track{width:100%; max-width:44px; height:100%; display:flex; align-items:flex-end; position:relative;}
+  .bar-fill{width:100%; background:var(--teal); border:2px solid var(--ink); border-radius:6px 6px 2px 2px; transition:height .4s ease, background .2s ease; position:relative;}
+  .bar-col.selected .bar-fill{background:var(--coral);}
+  .bar-col:hover .bar-fill{background:var(--teal-dark);}
+  .bar-col.selected:hover .bar-fill{background:var(--coral);}
+  .bar-value{font-family:var(--font-mono); font-size:10.5px; font-weight:700; margin-bottom:3px;}
+  .bar-labels{display:flex; gap:clamp(6px,1.6vw,18px); padding:0 6px;}
+  .bar-label{flex:1; text-align:center; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-soft); min-width:28px;}
+
+  /* ---------- LINE CHART ---------- */
+  .line-card{padding:20px;}
+  .line-svg{width:100%; height:auto; overflow:visible;}
+  .line-point{cursor:pointer;}
+  .line-point circle{transition:r .15s ease;}
+  .line-point:hover circle, .line-point.selected circle{r:8;}
+  .line-point.selected circle{fill:var(--coral);}
+
+  /* ---------- PIE CHART ---------- */
+  .pie-wrap{display:grid; grid-template-columns:auto 1fr; gap:26px; align-items:center;}
+  @media (max-width:600px){ .pie-wrap{grid-template-columns:1fr; justify-items:center;} }
+  .pie-slice{cursor:pointer; transition:opacity .2s ease;}
+  .pie-legend{display:flex; flex-direction:column; gap:10px;}
+  .legend-item{display:flex; align-items:center; gap:10px; padding:9px 12px; border:2px solid var(--ink); border-radius:9px; cursor:pointer; background:var(--white);}
+  .legend-item.selected{background:#F7F3FC; border-color:var(--violet);}
+  .legend-swatch{width:16px; height:16px; border-radius:4px; border:1.5px solid var(--ink); flex-shrink:0;}
+  .legend-item .lg-text{font-size:13px; flex:1;}
+  .legend-item .lg-pct{font-family:var(--font-mono); font-size:12.5px; font-weight:700;}
+
+  /* ---------- LATIHAN / TASKS ---------- */
+  .task-header{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+  .task-badge{font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);}
+  .task-prompt{font-weight:600; font-size:14.5px; margin:0 0 14px; padding:12px 14px; background:#FFF7E8; border:1.5px solid var(--amber); border-radius:9px;}
+  .task-data-note{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; padding:10px 12px; background:#F7FAF6; border:1px solid var(--paper-line); border-radius:8px;}
+  .number-input-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .number-input-row input{font-family:var(--font-mono); font-size:15px; padding:9px 12px; border:2px solid var(--ink); border-radius:8px; width:140px;}
+  .choice-list{display:flex; flex-direction:column; gap:10px;}
+  .choice-btn{display:flex; align-items:center; gap:12px; padding:13px 16px; border:2px solid var(--ink); border-radius:9px; cursor:pointer; background:var(--white); font-size:14px; text-align:left; transition:background .15s ease;}
+  .choice-btn:hover{background:#F1F7F5;}
+  .choice-btn.correct{background:#E9F6EE; border-color:var(--green);}
+  .choice-btn.wrong{background:#FBEAE7; border-color:var(--red);}
+  .choice-btn.disabled{cursor:default; pointer-events:none;}
+  .feedback{margin-top:14px; padding:12px 14px; border-radius:9px; font-size:13.5px; display:none; border:1.5px solid transparent;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#E9F6EE; border-color:var(--green); color:#215436;}
+  .feedback.bad{background:#FBEAE7; border-color:var(--red); color:#7a2c22;}
+
+  /* ---------- CONTOH SOAL ---------- */
+  .qa-item{margin-bottom:12px; overflow:hidden;}
+  .qa-q{width:100%; text-align:left; background:var(--white); border:none; cursor:pointer; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-weight:600; font-size:14.5px; font-family:var(--font-body); color:var(--ink);}
+  .qa-q .qnum{font-family:var(--font-mono); color:var(--violet); margin-right:8px;}
+  .qa-q .chevron{transition:transform .2s ease; flex-shrink:0; font-size:14px; color:var(--ink-soft);}
+  .qa-item.open .chevron{transform:rotate(45deg);}
+  .qa-a{max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; background:#F7FAF6;}
+  .qa-item.open .qa-a{padding:14px 18px 18px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-progress{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .quiz-dot{width:26px; height:26px; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; background:var(--white); color:var(--ink-soft);}
+  .quiz-dot.current{background:var(--ink); color:var(--white);}
+  .quiz-dot.correct{background:var(--green); border-color:var(--green); color:var(--white);}
+  .quiz-dot.wrong{background:var(--red); border-color:var(--red); color:var(--white);}
+  .quiz-card{padding:22px;}
+  .quiz-q{font-family:var(--font-display); font-size:clamp(16px,2.4vw,19px); margin:0 0 16px; line-height:1.4;}
+  .quiz-options{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opt{display:flex; align-items:center; gap:12px; padding:12px 14px; border:2px solid var(--ink); border-radius:9px; cursor:pointer; background:var(--white); font-size:14px; transition:background .15s ease;}
+  .quiz-opt:hover{background:#F1F7F5;}
+  .quiz-opt .letter{font-family:var(--font-mono); font-weight:700; width:24px; height:24px; border-radius:6px; background:var(--paper); border:1.5px solid var(--ink); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;}
+  .quiz-opt.selected{border-color:var(--violet); background:#F3EEFB;}
+  .quiz-opt.correct{background:#E9F6EE; border-color:var(--green);}
+  .quiz-opt.wrong{background:#FBEAE7; border-color:var(--red);}
+  .quiz-opt.disabled{cursor:default;}
+  .quiz-explain{margin-top:16px; padding:12px 14px; border-radius:9px; background:#FFF7E8; border:1.5px solid var(--amber); font-size:13.5px; display:none; line-height:1.55;}
+  .quiz-explain.show{display:block;}
+  .quiz-actions{margin-top:18px; display:flex; justify-content:flex-end;}
+  .quiz-result{padding:30px; text-align:center;}
+  .quiz-result .score-big{font-family:var(--font-display); font-size:clamp(40px,8vw,64px); color:var(--violet); margin:6px 0;}
+  .quiz-result .score-msg{font-size:15px; color:var(--ink-soft); max-width:420px; margin:0 auto 20px;}
+
+  /* ---------- SUMMARY / DONE ---------- */
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:26px;}
+  .summary-item{padding:14px 16px; display:flex; gap:10px; align-items:flex-start;}
+  .summary-item .ic{font-size:20px;}
+  .summary-item p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.5;}
+  .summary-item strong{display:block; font-size:13.5px; margin-bottom:2px;}
+  .done-box{padding:30px; text-align:center; background:var(--white);}
+  .done-box .big-emoji{font-size:44px; display:block; margin-bottom:10px;}
+  .done-box h3{font-family:var(--font-display); font-size:22px; margin:0 0 8px;}
+  .done-box p{color:var(--ink-soft); font-size:14px; margin:0 0 22px;}
+
+  /* ---------- FOOTER NAV / SHEET TABS ---------- */
+  .controls{flex-shrink:0; border-top:2px solid var(--ink); background:var(--white); display:flex; align-items:flex-end; gap:8px; padding:8px clamp(10px,3vw,26px) 0;}
+  .nav-arrow{flex-shrink:0; width:38px; height:38px; border-radius:8px; border:2px solid var(--ink); background:var(--white); cursor:pointer; font-size:16px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; box-shadow:2px 2px 0 var(--ink);}
+  .nav-arrow:disabled{opacity:.3; cursor:not-allowed;}
+  .nav-arrow:not(:disabled):hover{background:var(--violet); color:var(--white);}
+  .tabs{flex:1; display:flex; gap:4px; overflow-x:auto; scrollbar-width:thin; padding-bottom:0;}
+  .tabs::-webkit-scrollbar{height:5px;}
+  .tabs::-webkit-scrollbar-thumb{background:var(--paper-line); border-radius:4px;}
+  .tab{flex-shrink:0; font-family:var(--font-mono); font-size:11.5px; padding:9px 14px 8px; border:2px solid var(--ink); border-bottom:none; border-radius:8px 8px 0 0; background:var(--paper); color:var(--ink-soft); cursor:pointer; position:relative; top:2px; white-space:nowrap;}
+  .tab.active{background:var(--white); color:var(--ink); font-weight:700; top:0; padding-top:11px;}
+
+  @media (max-width:600px){
+    .brand .title{display:none;}
+    .tab{font-size:10.5px; padding:8px 10px 7px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">D4</div>
+      <div class="title">Bab 1 · Analisis dan Visualisasi Data<small>Mapel Informatika — SMP</small></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:9%"></div></div>
+      <div class="progress-label" id="progressLabel">1 / 11</div>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide active" data-title="Sampul">
+      <div class="cover">
+        <div class="cover-copy">
+          <div class="kicker">INFORMATIKA · KELAS VII–IX · BAB 1 (LANJUTAN)</div>
+          <h1>Analisis dan <span>Visualisasi Data</span></h1>
+          <p>Setelah data terkumpul dan terolah, saatnya menganalisis dan menyajikannya! Coba hitung sendiri jumlah dan rata-rata, temukan informasi menarik dari data, lalu lihat data berubah menjadi diagram batang, garis, dan lingkaran yang hidup di halaman ini.</p>
+          <div class="cover-tags">
+            <span class="tag">🧮 Kalkulasi Langsung</span>
+            <span class="tag">📊 Grafik Interaktif</span>
+            <span class="tag">📝 Ada Kuis</span>
+            <span class="tag">👦 Untuk SMP</span>
+          </div>
+          <div class="formula-bar"><span class="fx">fx</span> = ANALISIS(Data) → Tabel + Grafik</div>
+        </div>
+        <div class="cover-visual">
+          <div class="mini-bars">
+            <div class="mb" style="height:60%;"></div>
+            <div class="mb" style="height:85%;"></div>
+            <div class="mb" style="height:40%;"></div>
+            <div class="mb" style="height:95%;"></div>
+            <div class="mb" style="height:70%;"></div>
+          </div>
+          <p style="margin:0; font-family:var(--font-mono); font-size:11.5px; color:var(--ink-soft); text-align:center;">Nilai Ulangan Matematika — Kelas VII-A</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : PENGERTIAN -->
+    <section class="slide" data-title="Pengertian">
+      <div class="eyebrow">01 — Ikhtisar</div>
+      <h1 class="slide-title">Dari Data Mentah Menuju Informasi</h1>
+      <p class="slide-lead">Analisis data adalah kegiatan menghitung, membandingkan, dan menarik kesimpulan dari data. Visualisasi data adalah cara menyajikan data agar lebih mudah dipahami — biasanya lewat tabel atau grafik. Klik tiap tahap berikut untuk penjelasannya.</p>
+      <div class="grid" id="overviewGrid"></div>
+    </section>
+
+    <!-- SLIDE 2 : PERHITUNGAN SEDERHANA -->
+    <section class="slide" data-title="Perhitungan">
+      <div class="eyebrow">02 — Perhitungan Sederhana</div>
+      <h1 class="slide-title">Coba Hitung Sendiri Data Ini!</h1>
+      <p class="slide-lead">Berikut data nilai ulangan Matematika Kelas VII-A. Klik salah satu tombol perhitungan untuk melihat hasil dan baris mana yang berpengaruh pada tabel.</p>
+      <div class="calc-wrap">
+        <div class="card" style="padding:16px;">
+          <div class="calc-buttons">
+            <button class="btn btn-violet" data-calc="jumlah">Σ Jumlah</button>
+            <button class="btn" data-calc="rata">➗ Rata-rata</button>
+            <button class="btn" data-calc="max">⬆️ Tertinggi</button>
+            <button class="btn" data-calc="min">⬇️ Terendah</button>
+            <button class="btn" data-calc="count">🔢 Banyak Data</button>
+          </div>
+          <div class="table-scroll">
+            <table class="datatable" id="calcTable">
+              <thead><tr><th>No</th><th>Nama Siswa</th><th>Nilai</th></tr></thead>
+              <tbody id="calcBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card info-panel" id="calcInfo">
+          <span class="badge">Belum ada perhitungan dipilih</span>
+          <h4>Silakan klik salah satu tombol</h4>
+          <p>Hasil perhitungan dan penjelasannya akan muncul di sini, lengkap dengan baris data yang berpengaruh.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : MENCARI INFORMASI -->
+    <section class="slide" data-title="Cari Informasi">
+      <div class="eyebrow">03 — Mencari Informasi dari Data</div>
+      <h1 class="slide-title">Menemukan Informasi di Balik Angka</h1>
+      <p class="slide-lead">Angka hasil perhitungan perlu dimaknai agar berguna. Klik tiap pertanyaan untuk melihat jawaban dan cara menghitungnya.</p>
+      <div id="insightList"></div>
+    </section>
+
+    <!-- SLIDE 4 : DIAGRAM BATANG -->
+    <section class="slide" data-title="Diagram Batang">
+      <div class="eyebrow">04 — Menyajikan dalam Diagram Batang</div>
+      <h1 class="slide-title">Data Nilai dalam Diagram Batang</h1>
+      <p class="slide-lead">Diagram batang cocok untuk membandingkan nilai antar kategori (di sini: antar siswa). Klik salah satu batang untuk melihat detailnya. Garis putus-putus menunjukkan rata-rata dan nilai KKM.</p>
+      <div class="card chart-card">
+        <div class="bars-wrap" id="barsWrap"></div>
+        <div class="bar-labels" id="barLabels"></div>
+      </div>
+      <div class="card info-panel" id="barInfo" style="margin-top:16px; min-height:auto;">
+        <span class="badge">Belum ada batang dipilih</span>
+        <h4>Klik salah satu batang di atas</h4>
+        <p>Detail nilai siswa akan muncul di sini.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : DIAGRAM GARIS -->
+    <section class="slide" data-title="Diagram Garis">
+      <div class="eyebrow">05 — Menyajikan dalam Diagram Garis</div>
+      <h1 class="slide-title">Tren Pengunjung Perpustakaan Seminggu</h1>
+      <p class="slide-lead">Diagram garis cocok untuk menunjukkan tren atau perubahan data dari waktu ke waktu. Klik salah satu titik untuk melihat nilainya.</p>
+      <div class="card line-card">
+        <svg class="line-svg" id="lineChart" viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="card info-panel" id="lineInfo" style="margin-top:16px; min-height:auto;">
+        <span class="badge">Belum ada titik dipilih</span>
+        <h4>Klik salah satu titik pada grafik</h4>
+        <p>Jumlah pengunjung pada hari tersebut akan muncul di sini.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : DIAGRAM LINGKARAN -->
+    <section class="slide" data-title="Diagram Lingkaran">
+      <div class="eyebrow">06 — Menyajikan dalam Diagram Lingkaran</div>
+      <h1 class="slide-title">Proporsi Kategori Buku yang Dipinjam</h1>
+      <p class="slide-lead">Diagram lingkaran cocok untuk menunjukkan proporsi atau persentase bagian dari keseluruhan data. Klik salah satu bagian atau legenda di sampingnya.</p>
+      <div class="card" style="padding:22px;">
+        <div class="pie-wrap">
+          <svg width="200" height="200" viewBox="0 0 200 200" id="pieChart"></svg>
+          <div class="pie-legend" id="pieLegend"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : LATIHAN -->
+    <section class="slide" data-title="Latihan">
+      <div class="eyebrow">07 — Latihan Interaktif</div>
+      <h1 class="slide-title">Yuk, Uji Kemampuan Analisismu!</h1>
+      <p class="slide-lead">Gunakan data penjualan kantin berikut untuk menjawab tiap soal.</p>
+      <div class="card" style="padding:18px;">
+        <div class="task-header">
+          <span class="task-badge" id="taskBadge">Soal 1 dari 5</span>
+          <span class="task-badge" id="taskScore">Benar: 0</span>
+        </div>
+        <div class="task-data-note">📊 Data Penjualan Kantin (porsi terjual): Senin=45, Selasa=60, Rabu=38, Kamis=72, Jumat=90, Sabtu=25, Minggu=15</div>
+        <p class="task-prompt" id="taskPrompt"></p>
+        <div id="taskAnswerArea"></div>
+        <div class="feedback" id="taskFeedback"></div>
+        <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn btn-violet" id="taskCheckBtn">✅ Periksa Jawaban</button>
+          <button class="btn" id="taskNextBtn" style="display:none;">Lanjut Soal Berikutnya →</button>
+          <button class="btn" id="taskResetBtn" style="display:none;">🔁 Ulangi Latihan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 : CONTOH SOAL -->
+    <section class="slide" data-title="Contoh Soal">
+      <div class="eyebrow">08 — Latihan Pemahaman</div>
+      <h1 class="slide-title">Contoh Soal &amp; Pembahasan</h1>
+      <p class="slide-lead">Coba jawab dulu di dalam hati, lalu klik pertanyaannya untuk melihat kunci jawabannya.</p>
+      <div id="qaList"></div>
+    </section>
+
+    <!-- SLIDE 9 : KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="eyebrow">09 — Kuis Akhir</div>
+      <h1 class="slide-title">Kuis: Analisis dan Visualisasi Data</h1>
+      <p class="slide-lead">Jawab 6 soal pilihan ganda berikut. Skormu akan muncul di akhir.</p>
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizArea"></div>
+    </section>
+
+    <!-- SLIDE 10 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="eyebrow">10 — Penutup</div>
+      <h1 class="slide-title">Rangkuman Materi</h1>
+      <div class="summary-grid">
+        <div class="card summary-item"><span class="ic">Σ</span><div><strong>Jumlah &amp; Rata-rata</strong><p>Jumlah = total semua data. Rata-rata = jumlah data ÷ banyak data.</p></div></div>
+        <div class="card summary-item"><span class="ic">⬆️</span><div><strong>Tertinggi &amp; Terendah</strong><p>Nilai maksimum dan minimum dalam sekumpulan data, selisihnya disebut rentang.</p></div></div>
+        <div class="card summary-item"><span class="ic">🔍</span><div><strong>Mencari Informasi</strong><p>Memaknai angka hasil perhitungan agar bisa diambil kesimpulan.</p></div></div>
+        <div class="card summary-item"><span class="ic">📊</span><div><strong>Diagram Batang</strong><p>Cocok untuk membandingkan nilai antar kategori.</p></div></div>
+        <div class="card summary-item"><span class="ic">📈</span><div><strong>Diagram Garis</strong><p>Cocok untuk menunjukkan tren dari waktu ke waktu.</p></div></div>
+        <div class="card summary-item"><span class="ic">🥧</span><div><strong>Diagram Lingkaran</strong><p>Cocok untuk menunjukkan proporsi/persentase bagian dari keseluruhan.</p></div></div>
+      </div>
+      <div class="done-box card">
+        <span class="big-emoji">🎉</span>
+        <h3>Hebat, kamu sudah menyelesaikan materi ini!</h3>
+        <p>Lanjutkan ke halaman informasi bab untuk melihat materi lainnya.</p>
+        <a class="btn btn-primary" href="info-bab1.html" style="font-size:15px; padding:12px 26px;">✅ Selesai — Kembali ke Info Bab 1</a>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="controls">
+    <button class="nav-arrow" id="prevBtn" aria-label="Slide sebelumnya">←</button>
+    <div class="tabs" id="tabs"></div>
+    <button class="nav-arrow" id="nextBtn" aria-label="Slide berikutnya">→</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ NAVIGASI SLIDE ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tabsWrap = document.getElementById('tabs');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (i === 0 ? ' active' : '');
+    tab.textContent = (i+1) + '. ' + s.dataset.title;
+    tab.addEventListener('click', () => goTo(i));
+    tabsWrap.appendChild(tab);
+  });
+  const tabEls = Array.from(tabsWrap.children);
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length) return;
+    slides[current].classList.remove('active');
+    tabEls[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    tabEls[current].classList.add('active');
+    document.getElementById('stage').scrollTop = 0;
+    tabEls[current].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    progressFill.style.width = (((current+1)/slides.length)*100) + '%';
+    progressLabel.textContent = (current+1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+  prevBtn.addEventListener('click', () => goTo(current-1));
+  nextBtn.addEventListener('click', () => goTo(current+1));
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if(e.key === 'ArrowRight') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+  goTo(0);
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function idNum(n, decimals){
+    return n.toFixed(decimals !== undefined ? decimals : 0).replace('.', ',');
+  }
+
+  /* ============ SLIDE 1: OVERVIEW ============ */
+  const overview = [
+    {ic:'🗂️', t:'Data Mentah', d:'Kumpulan data yang baru dikumpulkan, misalnya daftar nilai ulangan siswa, belum diolah atau dimaknai.'},
+    {ic:'🧮', t:'Menghitung', d:'Melakukan perhitungan sederhana seperti jumlah, rata-rata, nilai tertinggi, dan nilai terendah.'},
+    {ic:'🔍', t:'Mencari Informasi', d:'Memaknai hasil perhitungan untuk menemukan fakta atau pola menarik, misalnya siapa yang perlu bimbingan tambahan.'},
+    {ic:'📊', t:'Menyajikan Data', d:'Menampilkan data dalam bentuk tabel atau grafik (batang, garis, lingkaran) agar mudah dipahami orang lain.'}
+  ];
+  const overviewGrid = document.getElementById('overviewGrid');
+  overview.forEach(o => {
+    const el = document.createElement('div');
+    el.className = 'card flip-card';
+    el.innerHTML = `<div class="num">${o.ic}</div><h3>${o.t}</h3><p>${o.d}</p><span class="toggle-hint">Klik untuk buka ▾</span>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    overviewGrid.appendChild(el);
+  });
+
+  /* ============ DATA NILAI SISWA (SLIDE 2–4) ============ */
+  const nilaiData = [
+    {nama:"Budi", nilai:85}, {nama:"Siti", nilai:78}, {nama:"Andi", nilai:92}, {nama:"Dewi", nilai:88},
+    {nama:"Fajar", nilai:65}, {nama:"Rina", nilai:90}, {nama:"Yusuf", nilai:72}, {nama:"Nabila", nilai:95}
+  ];
+  const KKM = 75;
+  const nilaiSum = nilaiData.reduce((a,b) => a+b.nilai, 0);
+  const nilaiAvg = nilaiSum / nilaiData.length;
+  const nilaiMax = Math.max(...nilaiData.map(d => d.nilai));
+  const nilaiMin = Math.min(...nilaiData.map(d => d.nilai));
+  const nilaiMaxItem = nilaiData.find(d => d.nilai === nilaiMax);
+  const nilaiMinItem = nilaiData.find(d => d.nilai === nilaiMin);
+
+  const calcBody = document.getElementById('calcBody');
+  calcBody.innerHTML = nilaiData.map((d,i) => `<tr data-nama="${d.nama}"><td>${i+1}</td><td>${d.nama}</td><td>${d.nilai}</td></tr>`).join('');
+
+  function clearCalcHighlight(){
+    document.querySelectorAll('#calcBody tr').forEach(tr => tr.classList.remove('hl-max','hl-min','hl-above'));
+  }
+  document.querySelectorAll('[data-calc]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-calc]').forEach(b => b.className = 'btn' + (b===btn?' btn-violet':''));
+      clearCalcHighlight();
+      const panel = document.getElementById('calcInfo');
+      const type = btn.dataset.calc;
+      if(type === 'jumlah'){
+        panel.innerHTML = `<span class="badge">Σ JUMLAH</span><div class="result-num">${nilaiSum}</div><h4>Total seluruh nilai</h4><div class="formula">Jumlah = ${nilaiData.map(d=>d.nilai).join(' + ')} = ${nilaiSum}</div><p>Jumlah didapat dengan menjumlahkan semua nilai dalam data.</p>`;
+      } else if(type === 'rata'){
+        panel.innerHTML = `<span class="badge">➗ RATA-RATA</span><div class="result-num">${idNum(nilaiAvg,2)}</div><h4>Rata-rata (mean) nilai</h4><div class="formula">Rata-rata = ${nilaiSum} ÷ ${nilaiData.length} = ${idNum(nilaiAvg,2)}</div><p>Rata-rata dihitung dengan membagi jumlah seluruh data dengan banyaknya data.</p>`;
+        document.querySelectorAll('#calcBody tr').forEach(tr => {
+          const nilai = nilaiData.find(d => d.nama === tr.dataset.nama).nilai;
+          if(nilai > nilaiAvg) tr.classList.add('hl-above');
+        });
+      } else if(type === 'max'){
+        panel.innerHTML = `<span class="badge">⬆️ TERTINGGI</span><div class="result-num">${nilaiMax}</div><h4>Nilai tertinggi: ${nilaiMaxItem.nama}</h4><p>Nilai tertinggi adalah nilai terbesar di antara semua data.</p>`;
+        document.querySelector(`#calcBody tr[data-nama="${nilaiMaxItem.nama}"]`).classList.add('hl-max');
+      } else if(type === 'min'){
+        panel.innerHTML = `<span class="badge">⬇️ TERENDAH</span><div class="result-num">${nilaiMin}</div><h4>Nilai terendah: ${nilaiMinItem.nama}</h4><p>Nilai terendah adalah nilai terkecil di antara semua data.</p>`;
+        document.querySelector(`#calcBody tr[data-nama="${nilaiMinItem.nama}"]`).classList.add('hl-min');
+      } else if(type === 'count'){
+        panel.innerHTML = `<span class="badge">🔢 BANYAK DATA</span><div class="result-num">${nilaiData.length}</div><h4>Jumlah siswa dalam data</h4><p>Banyak data dihitung dengan menghitung berapa baris/data yang ada dalam tabel.</p>`;
+      }
+    });
+  });
+
+  /* ============ SLIDE 3: MENCARI INFORMASI ============ */
+  const lulusCount = nilaiData.filter(d => d.nilai >= KKM).length;
+  const tidakLulusCount = nilaiData.length - lulusCount;
+  const aboveAvgCount = nilaiData.filter(d => d.nilai > nilaiAvg).length;
+  const range = nilaiMax - nilaiMin;
+  const insightData = [
+    {q:'Siapa yang mendapat nilai tertinggi, dan berapa nilainya?', a:`<strong>${nilaiMaxItem.nama}</strong> dengan nilai <strong>${nilaiMaxItem.nilai}</strong>, karena ${nilaiMaxItem.nilai} adalah nilai terbesar di antara semua data.`},
+    {q:'Siapa yang mendapat nilai terendah, dan berapa nilainya?', a:`<strong>${nilaiMinItem.nama}</strong> dengan nilai <strong>${nilaiMinItem.nilai}</strong>, karena ${nilaiMinItem.nilai} adalah nilai terkecil di antara semua data.`},
+    {q:`Berapa banyak siswa yang nilainya di atas rata-rata (${idNum(nilaiAvg,1)})?`, a:`Ada <strong>${aboveAvgCount} siswa</strong> yang nilainya di atas rata-rata, yaitu: ${nilaiData.filter(d=>d.nilai>nilaiAvg).map(d=>d.nama).join(', ')}.`},
+    {q:'Berapa selisih (rentang) antara nilai tertinggi dan nilai terendah?', a:`Rentang = ${nilaiMax} − ${nilaiMin} = <strong>${range}</strong>.`},
+    {q:`Berapa siswa yang mencapai nilai KKM (${KKM}) ke atas?`, a:`Ada <strong>${lulusCount} siswa</strong> yang mencapai KKM (${nilaiData.filter(d=>d.nilai>=KKM).map(d=>d.nama).join(', ')}), sedangkan <strong>${tidakLulusCount} siswa</strong> belum mencapai KKM (${nilaiData.filter(d=>d.nilai<KKM).map(d=>d.nama).join(', ')}).`}
+  ];
+  const insightList = document.getElementById('insightList');
+  insightData.forEach((item, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card qa-item';
+    wrap.innerHTML = `
+      <button class="qa-q"><span><span class="qnum">${i+1}.</span>${item.q}</span><span class="chevron">＋</span></button>
+      <div class="qa-a">${item.a}</div>
+    `;
+    const btn = wrap.querySelector('.qa-q');
+    const ans = wrap.querySelector('.qa-a');
+    btn.addEventListener('click', () => {
+      const isOpen = wrap.classList.toggle('open');
+      ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0';
+    });
+    insightList.appendChild(wrap);
+  });
+
+  /* ============ SLIDE 4: DIAGRAM BATANG ============ */
+  const barsWrap = document.getElementById('barsWrap');
+  const barLabels = document.getElementById('barLabels');
+  barsWrap.innerHTML = `
+    <div class="ref-line ref-avg" style="bottom:${nilaiAvg}%;">Rata-rata (${idNum(nilaiAvg,1)})</div>
+    <div class="ref-line ref-kkm" style="bottom:${KKM}%;">KKM (${KKM})</div>
+  ` + nilaiData.map(d => `
+    <div class="bar-col" data-nama="${d.nama}">
+      <span class="bar-value">${d.nilai}</span>
+      <div class="bar-track"><div class="bar-fill" style="height:${d.nilai}%;"></div></div>
+    </div>
+  `).join('');
+  barLabels.innerHTML = nilaiData.map(d => `<span class="bar-label">${d.nama}</span>`).join('');
+  document.querySelectorAll('.bar-col').forEach(col => {
+    col.addEventListener('click', () => {
+      document.querySelectorAll('.bar-col').forEach(c => c.classList.remove('selected'));
+      col.classList.add('selected');
+      const d = nilaiData.find(x => x.nama === col.dataset.nama);
+      const panel = document.getElementById('barInfo');
+      const status = d.nilai >= KKM ? 'sudah mencapai KKM ✅' : 'belum mencapai KKM ⚠️';
+      const vsAvg = d.nilai > nilaiAvg ? 'di atas rata-rata' : (d.nilai < nilaiAvg ? 'di bawah rata-rata' : 'tepat di rata-rata');
+      panel.innerHTML = `<span class="badge">${d.nama.toUpperCase()}</span><h4>Nilai: ${d.nilai}</h4><p>Nilai ini ${vsAvg} kelas (${idNum(nilaiAvg,1)}), dan ${status}.</p>`;
+    });
+  });
+
+  /* ============ SLIDE 5: DIAGRAM GARIS ============ */
+  const pengunjungData = [
+    {hari:"Sen", nilai:12}, {hari:"Sel", nilai:18}, {hari:"Rab", nilai:15}, {hari:"Kam", nilai:22},
+    {hari:"Jum", nilai:30}, {hari:"Sab", nilai:10}, {hari:"Min", nilai:8}
+  ];
+  const lineMax = 35, padX = 46, padY = 30, chartW = 680 - padX*2, chartH = 260 - padY*2 - 20;
+  function lineX(i){ return padX + (chartW/(pengunjungData.length-1)) * i; }
+  function lineY(v){ return padY + chartH - (v/lineMax*chartH); }
+  const lineSvg = document.getElementById('lineChart');
+  let svgParts = '';
+  // sumbu
+  svgParts += `<line x1="${padX}" y1="${padY}" x2="${padX}" y2="${padY+chartH}" stroke="var(--ink)" stroke-width="2"/>`;
+  svgParts += `<line x1="${padX}" y1="${padY+chartH}" x2="${padX+chartW}" y2="${padY+chartH}" stroke="var(--ink)" stroke-width="2"/>`;
+  // polyline
+  const pointsAttr = pengunjungData.map((d,i) => `${lineX(i)},${lineY(d.nilai)}`).join(' ');
+  svgParts += `<polyline points="${pointsAttr}" fill="none" stroke="var(--violet)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+  // titik + label
+  pengunjungData.forEach((d,i) => {
+    const x = lineX(i), y = lineY(d.nilai);
+    svgParts += `<g class="line-point" data-idx="${i}">
+      <circle cx="${x}" cy="${y}" r="6" fill="var(--white)" stroke="var(--violet)" stroke-width="3"/>
+      <text x="${x}" y="${padY+chartH+20}" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--ink-soft)">${d.hari}</text>
+    </g>`;
+  });
+  lineSvg.innerHTML = svgParts;
+  document.querySelectorAll('.line-point').forEach(pt => {
+    pt.addEventListener('click', () => {
+      document.querySelectorAll('.line-point').forEach(p => p.classList.remove('selected'));
+      pt.classList.add('selected');
+      const d = pengunjungData[parseInt(pt.dataset.idx,10)];
+      const panel = document.getElementById('lineInfo');
+      const namaHari = {Sen:'Senin',Sel:'Selasa',Rab:'Rabu',Kam:'Kamis',Jum:'Jumat',Sab:'Sabtu',Min:'Minggu'}[d.hari];
+      panel.innerHTML = `<span class="badge">${namaHari.toUpperCase()}</span><h4>${d.nilai} pengunjung</h4><p>Pada hari ${namaHari}, tercatat ${d.nilai} pengunjung datang ke perpustakaan.</p>`;
+    });
+  });
+
+  /* ============ SLIDE 6: DIAGRAM LINGKARAN ============ */
+  const pieData = [
+    {label:"Fiksi", value:40, color:"var(--teal)"},
+    {label:"Sains", value:25, color:"var(--blue)"},
+    {label:"Sejarah", value:20, color:"var(--amber)"},
+    {label:"Lainnya", value:15, color:"var(--violet)"}
+  ];
+  function polarToCartesian(cx,cy,r,angleDeg){
+    const a = (angleDeg-90) * Math.PI/180;
+    return {x: cx + r*Math.cos(a), y: cy + r*Math.sin(a)};
+  }
+  function arcPath(cx,cy,r,startAngle,endAngle){
+    const startPt = polarToCartesian(cx,cy,r,endAngle);
+    const endPt = polarToCartesian(cx,cy,r,startAngle);
+    const largeArc = (endAngle-startAngle) <= 180 ? 0 : 1;
+    return `M ${cx} ${cy} L ${startPt.x.toFixed(2)} ${startPt.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 0 ${endPt.x.toFixed(2)} ${endPt.y.toFixed(2)} Z`;
+  }
+  const pieSvg = document.getElementById('pieChart');
+  const pieLegend = document.getElementById('pieLegend');
+  let cumAngle = 0;
+  let pieHtml = '';
+  pieData.forEach((d,i) => {
+    const angle = d.value/100*360;
+    const path = arcPath(100,100,90,cumAngle,cumAngle+angle);
+    pieHtml += `<path class="pie-slice" data-i="${i}" d="${path}" fill="${d.color}" stroke="var(--white)" stroke-width="2"></path>`;
+    cumAngle += angle;
+  });
+  pieSvg.innerHTML = pieHtml;
+  pieLegend.innerHTML = pieData.map((d,i) => `
+    <div class="legend-item" data-i="${i}">
+      <span class="legend-swatch" style="background:${d.color};"></span>
+      <span class="lg-text">${d.label}</span>
+      <span class="lg-pct">${d.value}%</span>
+    </div>
+  `).join('');
+  function selectPie(i){
+    document.querySelectorAll('.pie-slice').forEach(s => s.style.opacity = (parseInt(s.dataset.i,10)===i) ? '1' : '0.35');
+    document.querySelectorAll('.legend-item').forEach(l => l.classList.toggle('selected', parseInt(l.dataset.i,10)===i));
+  }
+  document.querySelectorAll('.pie-slice').forEach(s => s.addEventListener('click', () => selectPie(parseInt(s.dataset.i,10))));
+  document.querySelectorAll('.legend-item').forEach(l => l.addEventListener('click', () => selectPie(parseInt(l.dataset.i,10))));
+
+  /* ============ SLIDE 7: LATIHAN ============ */
+  const kantinData = [45,60,38,72,90,25,15];
+  const kantinDays = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+  const kantinSum = kantinData.reduce((a,b)=>a+b,0);
+  const kantinAvg = kantinSum/kantinData.length;
+  const kantinMaxIdx = kantinData.indexOf(Math.max(...kantinData));
+
+  const tasks = [
+    {type:'number', prompt:'1️⃣ Berapa TOTAL penjualan kantin selama seminggu?', correct: kantinSum, tolerance:0, explain:`Jumlah = 45+60+38+72+90+25+15 = ${kantinSum}.`},
+    {type:'number', prompt:'2️⃣ Berapa RATA-RATA penjualan per hari? (bulatkan ke bilangan bulat terdekat)', correct: Math.round(kantinAvg), tolerance:0, explain:`Rata-rata = ${kantinSum} ÷ 7 = ${idNum(kantinAvg,2)}, dibulatkan menjadi ${Math.round(kantinAvg)}.`},
+    {type:'choice', prompt:'3️⃣ Hari apa penjualan kantin PALING TINGGI?', options: kantinDays, correct: kantinMaxIdx, explain:`Penjualan tertinggi terjadi hari ${kantinDays[kantinMaxIdx]} dengan ${kantinData[kantinMaxIdx]} porsi.`},
+    {type:'choice', prompt:'4️⃣ Grafik apa yang paling cocok untuk menunjukkan TREN penjualan kantin selama 7 hari?', options:['Diagram Batang','Diagram Garis','Diagram Lingkaran'], correct:1, explain:'Diagram garis paling cocok untuk menunjukkan tren/perubahan data dari waktu ke waktu, seperti penjualan harian.'},
+    {type:'choice', prompt:'5️⃣ Jika ingin menunjukkan PROPORSI jenis makanan terlaris di kantin, sebaiknya menggunakan diagram apa?', options:['Diagram Batang','Diagram Garis','Diagram Lingkaran'], correct:2, explain:'Diagram lingkaran paling cocok untuk menunjukkan proporsi/persentase bagian dari keseluruhan data.'}
+  ];
+  let taskIndex = 0, taskScore = 0;
+  const taskBadge = document.getElementById('taskBadge');
+  const taskScoreEl = document.getElementById('taskScore');
+  const taskPrompt = document.getElementById('taskPrompt');
+  const taskAnswerArea = document.getElementById('taskAnswerArea');
+  const taskFeedback = document.getElementById('taskFeedback');
+  const taskCheckBtn = document.getElementById('taskCheckBtn');
+  const taskNextBtn = document.getElementById('taskNextBtn');
+  const taskResetBtn = document.getElementById('taskResetBtn');
+  let selectedChoiceIdx = null;
+
+  function loadTask(){
+    taskFeedback.className = 'feedback';
+    taskFeedback.textContent = '';
+    taskNextBtn.style.display = 'none';
+    taskCheckBtn.style.display = 'inline-flex';
+    selectedChoiceIdx = null;
+    if(taskIndex >= tasks.length){
+      taskPrompt.textContent = '🎉 Kerja bagus! Kamu sudah menyelesaikan semua latihan.';
+      taskAnswerArea.innerHTML = '';
+      taskCheckBtn.style.display = 'none';
+      taskBadge.textContent = 'Selesai';
+      taskResetBtn.style.display = 'inline-flex';
+      return;
+    }
+    const task = tasks[taskIndex];
+    taskBadge.textContent = `Soal ${taskIndex+1} dari ${tasks.length}`;
+    taskScoreEl.textContent = `Benar: ${taskScore}`;
+    taskPrompt.textContent = task.prompt;
+    if(task.type === 'number'){
+      taskAnswerArea.innerHTML = `<div class="number-input-row"><input type="number" id="taskNumInput" placeholder="Jawabanmu"><span style="font-size:13px; color:var(--ink-soft);">porsi</span></div>`;
+    } else {
+      taskAnswerArea.innerHTML = `<div class="choice-list">${task.options.map((o,i) => `<button type="button" class="choice-btn" data-i="${i}">${o}</button>`).join('')}</div>`;
+      taskAnswerArea.querySelectorAll('.choice-btn').forEach(b => {
+        b.addEventListener('click', () => {
+          taskAnswerArea.querySelectorAll('.choice-btn').forEach(x => x.classList.remove('selected-choice'));
+          b.style.borderColor = 'var(--violet)';
+          b.style.background = '#F3EEFB';
+          selectedChoiceIdx = parseInt(b.dataset.i,10);
+        });
+      });
+    }
+  }
+  taskCheckBtn.addEventListener('click', () => {
+    const task = tasks[taskIndex];
+    let isCorrect = false;
+    if(task.type === 'number'){
+      const val = parseFloat(document.getElementById('taskNumInput').value);
+      if(!isNaN(val)) isCorrect = Math.abs(val - task.correct) <= task.tolerance;
+    } else {
+      isCorrect = selectedChoiceIdx === task.correct;
+    }
+    if(isCorrect){
+      taskFeedback.className = 'feedback show ok';
+      taskFeedback.textContent = '✅ Benar! ' + task.explain;
+      taskScore++;
+      taskScoreEl.textContent = `Benar: ${taskScore}`;
+    } else {
+      taskFeedback.className = 'feedback show bad';
+      taskFeedback.textContent = '❌ Belum tepat. ' + task.explain;
+    }
+    taskCheckBtn.style.display = 'none';
+    taskNextBtn.style.display = 'inline-flex';
+  });
+  taskNextBtn.addEventListener('click', () => { taskIndex++; loadTask(); });
+  taskResetBtn.addEventListener('click', () => {
+    taskIndex = 0; taskScore = 0;
+    taskResetBtn.style.display = 'none';
+    loadTask();
+  });
+  loadTask();
+
+  /* ============ SLIDE 8: CONTOH SOAL ============ */
+  const qaData = [
+    {q:'Diketahui data nilai 5 siswa: 80, 75, 90, 85, 70. Hitunglah jumlah dan rata-rata nilai tersebut!', a:'Jumlah = 80+75+90+85+70 = 400. Rata-rata = 400 ÷ 5 = 80.'},
+    {q:'Dari data pada soal nomor 1, tentukan nilai tertinggi, nilai terendah, dan rentangnya (range)!', a:'Nilai tertinggi = 90, nilai terendah = 70, rentang = 90 − 70 = 20.'},
+    {q:'Jelaskan perbedaan antara diagram batang dan diagram garis, beserta kapan sebaiknya masing-masing digunakan!', a:'Diagram batang cocok untuk membandingkan nilai antar kategori yang terpisah (misalnya nilai antar siswa), sedangkan diagram garis cocok untuk menunjukkan tren/perubahan data dari waktu ke waktu (misalnya jumlah pengunjung per hari).'},
+    {q:'Kapan sebaiknya kita menggunakan diagram lingkaran untuk menyajikan data?', a:'Diagram lingkaran sebaiknya digunakan saat kita ingin menunjukkan proporsi atau persentase setiap bagian terhadap keseluruhan data, misalnya persentase kategori buku yang dipinjam.'},
+    {q:'Mengapa "mencari informasi" dari data penting dilakukan, bukan hanya menghitung angkanya saja?', a:'Karena angka hasil perhitungan perlu dimaknai dan diinterpretasikan agar bisa diambil kesimpulan atau keputusan, misalnya mengetahui siapa yang perlu bimbingan tambahan berdasarkan nilai yang di bawah rata-rata.'}
+  ];
+  const qaList = document.getElementById('qaList');
+  qaData.forEach((item, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card qa-item';
+    wrap.innerHTML = `
+      <button class="qa-q"><span><span class="qnum">Soal ${i+1}.</span>${item.q}</span><span class="chevron">＋</span></button>
+      <div class="qa-a"><strong>Kunci Jawaban:</strong> ${item.a}</div>
+    `;
+    const btn = wrap.querySelector('.qa-q');
+    const ans = wrap.querySelector('.qa-a');
+    btn.addEventListener('click', () => {
+      const isOpen = wrap.classList.toggle('open');
+      ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0';
+    });
+    qaList.appendChild(wrap);
+  });
+
+  /* ============ SLIDE 9: KUIS ============ */
+  const quizData = [
+    {q:'Untuk mengetahui total keseluruhan nilai dalam sekumpulan data, kita menggunakan perhitungan…', opts:['Rata-rata','Jumlah (Total)','Nilai tertinggi','Banyak data'], correct:1, explain:'Jumlah (total) diperoleh dengan menjumlahkan seluruh data.'},
+    {q:'Rata-rata (mean) dihitung dengan cara…', opts:['Nilai tertinggi dikurangi nilai terendah','Jumlah seluruh data dibagi banyaknya data','Mengurutkan data dari kecil ke besar','Menghitung banyaknya data yang sama'], correct:1, explain:'Rata-rata = jumlah seluruh data ÷ banyaknya data.'},
+    {q:'Selisih antara nilai tertinggi dan nilai terendah dalam sekumpulan data disebut…', opts:['Rata-rata','Rentang (Range)','Median','Modus'], correct:1, explain:'Rentang (range) = nilai tertinggi − nilai terendah.'},
+    {q:'Diagram yang paling tepat digunakan untuk menunjukkan tren/perubahan data dari waktu ke waktu adalah…', opts:['Diagram Batang','Diagram Lingkaran','Diagram Garis','Tabel'], correct:2, explain:'Diagram garis menunjukkan perubahan data secara berurutan dari waktu ke waktu.'},
+    {q:'Diagram yang paling tepat digunakan untuk menunjukkan proporsi/persentase bagian dari keseluruhan data adalah…', opts:['Diagram Garis','Diagram Lingkaran','Diagram Batang','Tabel'], correct:1, explain:'Diagram lingkaran menunjukkan proporsi tiap bagian terhadap keseluruhan (100%).'},
+    {q:'Kegiatan membandingkan, menghitung, dan menarik kesimpulan dari sekumpulan data disebut…', opts:['Input data','Visualisasi data','Analisis data','Filter data'], correct:2, explain:'Analisis data adalah kegiatan menghitung, membandingkan, dan menarik kesimpulan dari data.'}
+  ];
+  let quizIndex = 0;
+  let quizAnswers = new Array(quizData.length).fill(null);
+  const quizProgress = document.getElementById('quizProgress');
+  const quizArea = document.getElementById('quizArea');
+
+  function renderQuizProgress(){
+    quizProgress.innerHTML = '';
+    quizData.forEach((_, i) => {
+      const dot = document.createElement('div');
+      let cls = 'quiz-dot';
+      if(i === quizIndex) cls += ' current';
+      else if(quizAnswers[i] !== null){ cls += quizAnswers[i] === quizData[i].correct ? ' correct' : ' wrong'; }
+      dot.className = cls;
+      dot.textContent = i+1;
+      quizProgress.appendChild(dot);
+    });
+  }
+  function renderQuizQuestion(){
+    if(quizIndex >= quizData.length){ renderQuizResult(); return; }
+    renderQuizProgress();
+    const item = quizData[quizIndex];
+    const answered = quizAnswers[quizIndex] !== null;
+    const letters = ['A','B','C','D'];
+    quizArea.innerHTML = `
+      <div class="card quiz-card">
+        <p class="quiz-q">Soal ${quizIndex+1}: ${item.q}</p>
+        <div class="quiz-options">
+          ${item.opts.map((o,i) => `<div class="quiz-opt${answered ? ' disabled' : ''}" data-i="${i}"><span class="letter">${letters[i]}</span><span>${o}</span></div>`).join('')}
+        </div>
+        <div class="quiz-explain" id="quizExplain">💡 <strong>Pembahasan:</strong> ${item.explain}</div>
+        <div class="quiz-actions">
+          <button class="btn btn-violet" id="quizNextBtn" ${answered ? '' : 'disabled'}>${quizIndex === quizData.length-1 ? 'Lihat Hasil →' : 'Soal Berikutnya →'}</button>
+        </div>
+      </div>
+    `;
+    if(answered) revealQuizAnswer();
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if(quizAnswers[quizIndex] !== null) return;
+        quizAnswers[quizIndex] = parseInt(opt.dataset.i, 10);
+        opt.classList.add('selected');
+        revealQuizAnswer();
+        renderQuizProgress();
+        document.getElementById('quizNextBtn').disabled = false;
+        quizArea.querySelectorAll('.quiz-opt').forEach(o => o.classList.add('disabled'));
+      });
+    });
+    document.getElementById('quizNextBtn').addEventListener('click', () => { quizIndex++; renderQuizQuestion(); });
+  }
+  function revealQuizAnswer(){
+    const item = quizData[quizIndex];
+    const chosen = quizAnswers[quizIndex];
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      const i = parseInt(opt.dataset.i, 10);
+      if(i === item.correct) opt.classList.add('correct');
+      else if(i === chosen) opt.classList.add('wrong');
+    });
+    document.getElementById('quizExplain').classList.add('show');
+  }
+  function renderQuizResult(){
+    renderQuizProgress();
+    const score = quizAnswers.reduce((acc, ans, i) => acc + (ans === quizData[i].correct ? 1 : 0), 0);
+    const total = quizData.length;
+    let msg = '';
+    if(score === total) msg = 'Sempurna! Kamu benar-benar menguasai analisis dan visualisasi data. 🌟';
+    else if(score >= total*0.6) msg = 'Bagus! Sedikit lagi untuk benar-benar menguasai materi ini. 💪';
+    else msg = 'Yuk, coba pelajari lagi bagian perhitungan dan jenis-jenis grafik, lalu ulangi kuisnya. 📖';
+    quizArea.innerHTML = `
+      <div class="card quiz-result">
+        <div style="font-size:36px;">${score===total ? '🏆' : score >= total*0.6 ? '🎯' : '📘'}</div>
+        <div class="score-big">${score} / ${total}</div>
+        <p class="score-msg">${msg}</p>
+        <button class="btn btn-violet" id="quizRetryBtn">🔁 Ulangi Kuis</button>
+      </div>
+    `;
+    document.getElementById('quizRetryBtn').addEventListener('click', () => {
+      quizIndex = 0;
+      quizAnswers = new Array(quizData.length).fill(null);
+      renderQuizQuestion();
+    });
+  }
+  renderQuizQuestion();
+
+})();
+</script>
+</body>
+</html>

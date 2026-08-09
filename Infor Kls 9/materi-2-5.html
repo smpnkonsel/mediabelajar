@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 2 · Menyampaikan Presentasi dan Praktik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1330;
+  --bg-alt:#151B3B;
+  --surface:#1C2448;
+  --surface-2:#232C55;
+  --surface-border: rgba(255,255,255,0.09);
+  --accent:#4FD1C5;
+  --accent-dim: rgba(79,209,197,0.14);
+  --accent-2:#FF6E6E;
+  --accent-2-dim: rgba(255,110,110,0.14);
+  --accent-3:#FFD166;
+  --accent-3-dim: rgba(255,209,102,0.14);
+  --text:#F5F7FF;
+  --muted:#98A2C7;
+  --muted-2:#6D77A3;
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Plus Jakarta Sans', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:
+    radial-gradient(1100px 600px at 85% -10%, rgba(79,209,197,0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(255,110,110,0.08), transparent 55%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent); color:#06231F;}
+button{font-family:inherit; cursor:pointer;}
+.app{ height:100vh; height:100dvh; display:flex; flex-direction:column; }
+
+/* ---------- TOPBAR ---------- */
+.topbar{ display:flex; align-items:center; gap:16px; padding:14px clamp(16px,4vw,40px) 10px; flex-shrink:0; }
+.brand{ display:flex; flex-direction:column; gap:2px; white-space:nowrap; }
+.brand .eyebrow{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--accent); text-transform:uppercase; }
+.brand .title{ font-family:var(--font-display); font-weight:600; font-size:14px; color:var(--text); }
+.progress-wrap{ flex:1; height:6px; background:var(--surface); border-radius:99px; overflow:hidden; position:relative; border:1px solid var(--surface-border); }
+.progress-bar{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent), #7BE3D8); border-radius:99px; transition:width .5s cubic-bezier(.65,0,.35,1); }
+.score-badge{ font-family:var(--font-mono); font-size:12px; color:var(--accent-3); background:var(--accent-3-dim); border:1px solid rgba(255,209,102,0.35); padding:6px 12px; border-radius:99px; white-space:nowrap; display:flex; align-items:center; gap:6px; }
+.slide-counter{ font-family:var(--font-mono); font-size:12px; color:var(--muted); white-space:nowrap; }
+
+/* ---------- DECK ---------- */
+.deck{ flex:1; position:relative; overflow:hidden; }
+.slide{ position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:16px clamp(20px,6vw,80px) 90px; opacity:0; transform:translateX(40px); pointer-events:none; transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1); overflow-y:auto; }
+.slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+.slide-inner{ max-width:1080px; margin:0 auto; width:100%; }
+.eyebrow-tag{ font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); display:inline-flex; align-items:center; gap:8px; margin-bottom:10px; }
+.eyebrow-tag::before{ content:''; width:7px; height:7px; border-radius:2px; background:var(--accent); display:inline-block; }
+h1.slide-title{ font-family:var(--font-display); font-weight:700; font-size:clamp(24px, 4.2vw, 42px); line-height:1.15; margin:0 0 10px; }
+p.slide-sub{ font-family:var(--font-body); font-size:clamp(14px,1.6vw,17px); color:var(--muted); max-width:660px; line-height:1.55; margin:0 0 22px; }
+
+/* ---------- COVER ---------- */
+.cover{ display:flex; flex-direction:column; align-items:flex-start; gap:18px; }
+.cover .kicker{ font-family:var(--font-mono); font-size:13px; color:var(--accent-3); background:var(--accent-3-dim); border:1px solid rgba(255,209,102,.3); padding:6px 14px; border-radius:99px; }
+.cover h1{ font-family:var(--font-display); font-size:clamp(30px,6vw,58px); line-height:1.06; margin:0; font-weight:700; }
+.cover h1 span{ color:var(--accent); }
+.cover .cover-sub{ font-family:var(--font-display); font-size:clamp(16px,2.4vw,22px); color:var(--muted); font-weight:500; }
+.searchbar{ margin-top:6px; width:100%; max-width:560px; background:var(--surface); border:1px solid var(--surface-border); border-radius:99px; padding:12px 20px; display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:14px; color:var(--muted); box-shadow:0 20px 50px -20px rgba(0,0,0,.6); }
+.searchbar .dot-group{ display:flex; gap:6px; margin-right:4px;}
+.searchbar .dot-group span{ width:8px; height:8px; border-radius:50%; display:inline-block;}
+.searchbar .dot-group span:nth-child(1){background:var(--accent-2);}
+.searchbar .dot-group span:nth-child(2){background:var(--accent-3);}
+.searchbar .dot-group span:nth-child(3){background:var(--accent);}
+#typewriter::after{ content:'|'; animation: blink 1s step-end infinite; color:var(--accent); }
+@keyframes blink{ 50%{opacity:0;} }
+.btn-primary{ margin-top:8px; background:var(--accent); color:#06231F; border:none; font-family:var(--font-display); font-weight:600; font-size:15px; padding:14px 26px; border-radius:99px; display:inline-flex; align-items:center; gap:8px; transition:transform .2s ease, box-shadow .2s ease; box-shadow:0 10px 30px -8px rgba(79,209,197,.5); }
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 34px -6px rgba(79,209,197,.65);}
+.btn-ghost{ background:transparent; color:var(--text); border:1px solid var(--surface-border); font-family:var(--font-display); font-weight:600; font-size:14px; padding:12px 22px; border-radius:99px; }
+.btn-ghost:hover{ border-color:var(--accent); color:var(--accent); }
+
+/* ---------- GENERIC ---------- */
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-auto{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+.card{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px 20px; }
+.obj-list{ display:flex; flex-direction:column; gap:12px; }
+.obj-item{ display:flex; align-items:flex-start; gap:14px; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:16px 18px; }
+.obj-item .ico{ flex-shrink:0; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:var(--accent-dim); color:var(--accent); font-family:var(--font-display); font-weight:700; font-size:15px; }
+.obj-item p{ margin:0; font-size:14.5px; color:var(--muted); line-height:1.5; }
+.obj-item strong{ color:var(--text); font-family:var(--font-display); font-size:15.5px; display:block; margin-bottom:3px;}
+
+/* flip cards */
+.flip-card{ perspective:1200px; height:210px; cursor:pointer; }
+.flip-inner{ position:relative; width:100%; height:100%; transition:transform .6s cubic-bezier(.65,0,.35,1); transform-style:preserve-3d; }
+.flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+.flip-front,.flip-back{ position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius-sm); border:1px solid var(--surface-border); padding:20px; display:flex; flex-direction:column; justify-content:center; }
+.flip-front{ background:var(--surface); }
+.flip-back{ background:var(--surface-2); transform:rotateY(180deg); }
+.flip-front .tag, .flip-back .tag{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-3); margin-bottom:8px; }
+.flip-front p, .flip-back p{ margin:0; font-size:13.5px; color:var(--muted); line-height:1.5;}
+.flip-hint{ font-family:var(--font-mono); font-size:11px; color:var(--muted-2); margin-top:10px;}
+
+/* quiz */
+.quiz-block{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:20px 22px; margin-bottom:16px; }
+.quiz-scenario{ font-size:14.5px; color:var(--text); margin:0 0 14px; line-height:1.55;}
+.quiz-scenario b{ color:var(--accent-3); }
+.quiz-options{ display:flex; flex-direction:column; gap:10px; }
+.quiz-option{ text-align:left; background:var(--bg-alt); border:1px solid var(--surface-border); color:var(--text); padding:12px 16px; border-radius:10px; font-size:14px; display:flex; align-items:center; gap:10px; transition:border-color .2s, background .2s; }
+.quiz-option:hover:not(:disabled){ border-color:var(--accent); }
+.quiz-option .letter{ font-family:var(--font-mono); font-size:12px; color:var(--muted); width:22px; height:22px; border-radius:6px; background:var(--surface); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.quiz-option.correct{ border-color:var(--accent); background:var(--accent-dim); }
+.quiz-option.correct .letter{ background:var(--accent); color:#06231F; }
+.quiz-option.wrong{ border-color:var(--accent-2); background:var(--accent-2-dim); }
+.quiz-option.wrong .letter{ background:var(--accent-2); color:#2A0808; }
+.quiz-option:disabled{ cursor:default; opacity:.85; }
+.quiz-feedback{ margin-top:12px; font-size:13.5px; line-height:1.55; padding:12px 14px; border-radius:8px; display:none; }
+.quiz-feedback.show{ display:block; }
+.quiz-feedback.ok{ background:var(--accent-dim); color:#BFF3EC; border:1px solid rgba(79,209,197,.35); }
+.quiz-feedback.bad{ background:var(--accent-2-dim); color:#FFD3D3; border:1px solid rgba(255,110,110,.35); }
+
+/* outline */
+.outline{ display:flex; flex-direction:column; gap:10px; }
+.outline-item{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:16px 18px; cursor:pointer; }
+.outline-head{ display:flex; align-items:center; justify-content:space-between; }
+.outline-head .num{ font-family:var(--font-mono); font-size:12px; color:var(--accent-3); margin-right:10px;}
+.outline-head strong{ font-family:var(--font-display); font-size:15px; font-weight:600;}
+.outline-head .chev{ color:var(--muted-2); transition:transform .3s; font-size:13px;}
+.outline-item.open .chev{ transform:rotate(90deg); color:var(--accent);}
+.outline-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; font-size:13.5px; color:var(--muted); line-height:1.6; }
+.outline-item.open .outline-body{ max-height:220px; margin-top:10px;}
+
+/* do/dont */
+.dodont-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+.dodont-card{ border-radius:var(--radius-sm); padding:16px 18px; cursor:pointer; border:1px solid var(--surface-border); background:var(--surface); }
+.dodont-card .label{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; display:inline-block; padding:3px 10px; border-radius:99px;}
+.dodont-card.do .label{ background:var(--accent-dim); color:var(--accent); }
+.dodont-card.dont .label{ background:var(--accent-2-dim); color:var(--accent-2); }
+.dodont-card p{ margin:8px 0 0; font-size:13.5px; color:var(--muted); line-height:1.5; display:none;}
+.dodont-card.open p{ display:block; }
+.dodont-card strong{ font-family:var(--font-display); font-size:14.5px; }
+
+/* mistake list */
+.mistake-list{ display:flex; flex-direction:column; gap:10px;}
+.mistake-item{ display:flex; gap:14px; align-items:flex-start; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:14px 18px; }
+.mistake-item .x{ flex-shrink:0; width:30px; height:30px; border-radius:8px; background:var(--accent-2-dim); color:var(--accent-2); display:flex; align-items:center; justify-content:center; font-weight:700; font-family:var(--font-display); }
+.mistake-item p{ margin:0; font-size:13.5px; color:var(--muted); line-height:1.5;}
+.mistake-item strong{ color:var(--text); font-family:var(--font-display); font-size:14px; display:block; margin-bottom:3px;}
+
+/* summary flow */
+.summary-flow{ display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; margin-top:10px;}
+.summary-step{ flex:1; min-width:190px; background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px; position:relative; }
+.summary-step .num{ font-family:var(--font-display); font-weight:700; font-size:26px; color:var(--accent); opacity:.5; margin-bottom:6px; }
+.summary-step strong{ font-family:var(--font-display); font-size:14px; display:block; margin-bottom:4px;}
+.summary-step p{ margin:0; font-size:12px; color:var(--muted); line-height:1.5;}
+
+/* final */
+.final-wrap{ text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.final-badge{ font-family:var(--font-mono); font-size:14px; color:var(--accent-3); background:var(--accent-3-dim); border:1px solid rgba(255,209,102,.3); padding:10px 22px; border-radius:99px; }
+.final-score{ font-family:var(--font-display); font-size:clamp(36px,6vw,56px); font-weight:700; }
+.final-score span{ color:var(--accent); }
+
+/* visual/technique cards */
+.visual-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+.visual-card{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:18px; cursor:pointer; transition:border-color .2s; }
+.visual-card:hover{ border-color:var(--muted-2); }
+.visual-card .vicon{ font-size:24px; margin-bottom:10px; }
+.visual-card strong{ font-family:var(--font-display); font-size:14.5px; display:block; margin-bottom:6px; }
+.visual-card p{ margin:0; font-size:12.5px; color:var(--muted); line-height:1.5; display:none;}
+.visual-card.open p{ display:block; }
+.visual-card .hint{ font-family:var(--font-mono); font-size:10px; color:var(--muted-2); }
+
+/* ---------- SIGNATURE: CHECKLIST ---------- */
+.checklist-wrap{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:20px 22px; }
+.checklist-progress{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.checklist-progress .track{ flex:1; height:8px; background:var(--bg-alt); border-radius:99px; overflow:hidden; }
+.checklist-progress .fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent),#7BE3D8); border-radius:99px; transition:width .4s ease; }
+.checklist-progress .count{ font-family:var(--font-mono); font-size:12.5px; color:var(--accent-3); white-space:nowrap; }
+.check-item{
+  display:flex; align-items:center; gap:12px;
+  padding:12px 14px; border-radius:10px; background:var(--bg-alt);
+  border:1px solid var(--surface-border); margin-bottom:9px;
+}
+.check-item .box{
+  width:22px; height:22px; border-radius:6px; border:1.5px solid var(--muted-2);
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:transparent; transition:all .2s;
+}
+.check-item.checked .box{ background:var(--accent); border-color:var(--accent); color:#06231F; }
+.check-item span.label-text{ font-size:13.5px; color:var(--text); }
+.check-item.checked span.label-text{ color:var(--muted); text-decoration:line-through; text-decoration-color:var(--muted-2); }
+.checklist-msg{ margin-top:10px; font-family:var(--font-mono); font-size:12.5px; color:var(--accent); min-height:16px; }
+
+/* ---------- SIGNATURE: CHAT Q&A SIMULATOR ---------- */
+.chat-sim{ background:var(--surface); border:1px solid var(--surface-border); border-radius:var(--radius-sm); padding:20px 22px; margin-bottom:16px; }
+.chat-bubble-q{
+  display:flex; gap:10px; align-items:flex-start; margin-bottom:16px;
+}
+.chat-avatar{
+  width:32px; height:32px; border-radius:50%; flex-shrink:0;
+  background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:15px;
+}
+.chat-text{
+  background:var(--bg-alt); border:1px solid var(--surface-border);
+  border-radius:4px 14px 14px 14px; padding:12px 16px; font-size:13.5px; color:var(--text); line-height:1.5; max-width:520px;
+}
+.chat-label{ font-family:var(--font-mono); font-size:10.5px; color:var(--muted-2); margin-bottom:4px; }
+.chat-options{ display:flex; flex-direction:column; gap:9px; margin-left:42px; }
+.chat-option{
+  text-align:left; background:var(--bg-alt); border:1px solid var(--surface-border); color:var(--text);
+  padding:11px 15px; border-radius:14px 4px 14px 14px; font-size:13.5px; line-height:1.5;
+  transition:border-color .2s, background .2s;
+}
+.chat-option:hover:not(:disabled){ border-color:var(--accent); }
+.chat-option.correct{ border-color:var(--accent); background:var(--accent-dim); }
+.chat-option.wrong{ border-color:var(--accent-2); background:var(--accent-2-dim); }
+.chat-option:disabled{ cursor:default; opacity:.85; }
+.chat-feedback{ margin-left:42px; margin-top:10px; font-size:13px; padding:10px 14px; border-radius:10px; display:none; line-height:1.5;}
+.chat-feedback.show{ display:block; }
+.chat-feedback.ok{ background:var(--accent-dim); color:#BFF3EC; border:1px solid rgba(79,209,197,.35); }
+.chat-feedback.bad{ background:var(--accent-2-dim); color:#FFD3D3; border:1px solid rgba(255,110,110,.35); }
+
+/* ---------- NAV ---------- */
+.navbar{ flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:18px; padding:14px clamp(16px,4vw,40px) calc(14px + env(safe-area-inset-bottom)); background:linear-gradient(0deg, var(--bg) 55%, transparent); }
+.nav-btn{ background:var(--surface); border:1px solid var(--surface-border); color:var(--text); width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; transition:border-color .2s, transform .15s; }
+.nav-btn:hover:not(:disabled){ border-color:var(--accent); color:var(--accent); }
+.nav-btn:active:not(:disabled){ transform:scale(.92); }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.dots{ display:flex; gap:7px; align-items:center; overflow-x:auto; max-width:min(60vw, 620px); padding:4px; scrollbar-width:none; }
+.dots::-webkit-scrollbar{ display:none; }
+.dot{ width:7px; height:7px; border-radius:50%; background:var(--surface-2); border:1px solid var(--surface-border); flex-shrink:0; transition:all .25s; }
+.dot.active{ background:var(--accent); width:22px; border-radius:99px; border-color:var(--accent); }
+.dot.done{ background:var(--muted-2); }
+.slide::-webkit-scrollbar{ width:6px; }
+.slide::-webkit-scrollbar-thumb{ background:var(--surface-2); border-radius:99px; }
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 820px){
+  .grid-2, .dodont-grid{ grid-template-columns:1fr; }
+  .brand .title{ display:none; }
+  .dots{ max-width:40vw; }
+  .summary-flow{ flex-direction:column; }
+  .chat-options, .chat-feedback{ margin-left:0; }
+}
+@media (max-width: 520px){
+  .topbar{ gap:10px; }
+  .score-badge{ padding:5px 9px; font-size:11px; }
+  .slide{ padding-bottom:100px; }
+  h1.slide-title{ font-size:22px; }
+  .navbar{ gap:10px; }
+  .nav-btn{ width:38px; height:38px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="eyebrow">Informatika · Bab 2</span>
+      <span class="title">Menyampaikan Presentasi dan Praktik</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="score-badge" id="scoreBadge">★ Skor: 0/0</div>
+    <div class="slide-counter" id="slideCounter">1 / 16</div>
+  </div>
+
+  <div class="deck" id="deck">
+
+    <!-- 1. COVER -->
+    <section class="slide">
+      <div class="slide-inner cover">
+        <span class="kicker">🎤 Bab 2 · Membuat Laporan dan Presentasi</span>
+        <h1>Menyampaikan <span>Presentasi</span><br>&amp; Praktik</h1>
+        <p class="cover-sub">Teknik presentasi, komunikasi, menjawab pertanyaan, dan praktik langsung.</p>
+        <div class="searchbar">
+          <span class="dot-group"><span></span><span></span><span></span></span>
+          <span id="typewriter"></span>
+        </div>
+        <button class="btn-primary" id="startBtn">Mulai Belajar <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- 2. TUJUAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Tujuan Pembelajaran</span>
+        <h1 class="slide-title">Setelah belajar bab ini, kamu bisa...</h1>
+        <p class="slide-sub">Lima kemampuan dasar untuk tampil percaya diri saat presentasi.</p>
+        <div class="obj-list">
+          <div class="obj-item"><div class="ico">01</div><div><strong>Menerapkan teknik presentasi</strong><p>Mengatur suara dan bahasa tubuh agar pesan tersampaikan dengan baik.</p></div></div>
+          <div class="obj-item"><div class="ico">02</div><div><strong>Berkomunikasi dengan jelas</strong><p>Menyampaikan isi presentasi dengan bahasa yang menarik dan mudah dipahami.</p></div></div>
+          <div class="obj-item"><div class="ico">03</div><div><strong>Menjawab pertanyaan</strong><p>Merespons pertanyaan audiens dengan tenang dan percaya diri.</p></div></div>
+          <div class="obj-item"><div class="ico">04</div><div><strong>Mengelola rasa gugup</strong><p>Menggunakan cara-cara sederhana untuk tetap tenang saat tampil.</p></div></div>
+          <div class="obj-item"><div class="ico">05</div><div><strong>Praktik menyeluruh</strong><p>Mempersiapkan dan menjalankan presentasi dari awal sampai akhir.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. KENAPA CARA MENYAMPAIKAN PENTING -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Kenapa Ini Penting</span>
+        <h1 class="slide-title">Isi Bagus Saja Tidak Cukup</h1>
+        <p class="slide-sub">Cara menyampaikan memengaruhi seberapa baik pesanmu dipahami. Ketuk kedua kartu untuk membandingkan.</p>
+        <div class="grid-2">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <span class="tag">Ketuk untuk lihat</span>
+                <strong style="font-family:var(--font-display);font-size:18px;">😐 Isi Bagus, Penyampaian Datar</strong>
+                <p style="margin-top:8px;">Laporan sudah lengkap, tapi dibacakan tanpa intonasi dan tanpa kontak mata.</p>
+              </div>
+              <div class="flip-back">
+                <span class="tag">Efeknya</span>
+                <p>Audiens mudah bosan dan sulit menangkap poin penting, meski datanya sebenarnya bagus.</p>
+                <p class="flip-hint">Ketuk lagi untuk kembali</p>
+              </div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <span class="tag">Ketuk untuk lihat</span>
+                <strong style="font-family:var(--font-display);font-size:18px;">🙂 Isi Bagus, Penyampaian Hidup</strong>
+                <p style="margin-top:8px;">Laporan yang sama, disampaikan dengan suara jelas, kontak mata, dan percaya diri.</p>
+              </div>
+              <div class="flip-back">
+                <span class="tag">Efeknya</span>
+                <p>Audiens lebih fokus, lebih mudah paham, dan pesan lebih lama diingat.</p>
+                <p class="flip-hint">Ketuk lagi untuk kembali</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TEKNIK PRESENTASI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Teknik Presentasi</span>
+        <h1 class="slide-title">Empat Hal yang Perlu Dilatih</h1>
+        <p class="slide-sub">Ketuk tiap kartu untuk membuka tipsnya.</p>
+        <div class="visual-grid">
+          <div class="visual-card" onclick="this.classList.toggle('open')"><div class="vicon">🗣️</div><strong>Suara</strong><span class="hint">ketuk</span><p>Atur volume agar terdengar sampai belakang, dan gunakan intonasi naik-turun agar tidak monoton.</p></div>
+          <div class="visual-card" onclick="this.classList.toggle('open')"><div class="vicon">🙌</div><strong>Bahasa Tubuh</strong><span class="hint">ketuk</span><p>Berdiri tegak, gunakan gestur tangan secukupnya untuk menegaskan poin penting.</p></div>
+          <div class="visual-card" onclick="this.classList.toggle('open')"><div class="vicon">👀</div><strong>Kontak Mata</strong><span class="hint">ketuk</span><p>Pandang audiens secara bergantian ke berbagai arah, jangan hanya menatap slide atau catatan.</p></div>
+          <div class="visual-card" onclick="this.classList.toggle('open')"><div class="vicon">⏱️</div><strong>Kecepatan Bicara</strong><span class="hint">ketuk</span><p>Bicara dengan tempo secukupnya, beri jeda sejenak setelah poin penting agar audiens sempat mencerna.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. QUIZ TEKNIK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Kuis · Teknik Presentasi</span>
+        <h1 class="slide-title">Sudah Paham Tekniknya?</h1>
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>1.</b> Saat presentasi, sebaiknya pandangan matamu diarahkan ke...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">Layar slide terus-menerus</button>
+            <button class="quiz-option" data-correct="true">Audiens secara bergantian</button>
+            <button class="quiz-option" data-correct="false">Lantai, supaya tidak gugup</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>2.</b> Berbicara terlalu cepat sepanjang presentasi dapat membuat...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="true">Audiens kesulitan mengikuti dan menangkap poin penting</button>
+            <button class="quiz-option" data-correct="false">Presentasi terasa lebih menarik</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. KOMUNIKASI EFEKTIF -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Komunikasi Efektif</span>
+        <h1 class="slide-title">Membuat Audiens Terus Menyimak</h1>
+        <p class="slide-sub">Beberapa cara sederhana agar presentasimu lebih menarik untuk diikuti.</p>
+        <div class="obj-list">
+          <div class="obj-item"><div class="ico">💬</div><div><strong>Mulai dengan hook</strong><p>Buka dengan pertanyaan, fakta menarik, atau cerita singkat yang relevan dengan topik.</p></div></div>
+          <div class="obj-item"><div class="ico">✏️</div><div><strong>Gunakan bahasa sederhana</strong><p>Hindari istilah rumit yang tidak perlu, jelaskan dengan kata-kata yang mudah dimengerti.</p></div></div>
+          <div class="obj-item"><div class="ico">📖</div><div><strong>Sisipkan contoh nyata</strong><p>Contoh atau cerita dari kehidupan sehari-hari membuat materi lebih mudah dibayangkan.</p></div></div>
+          <div class="obj-item"><div class="ico">🙋</div><div><strong>Ajak audiens berinteraksi</strong><p>Lontarkan pertanyaan ringan ke audiens agar mereka ikut terlibat, bukan hanya mendengarkan pasif.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. LATIHAN KALIMAT PEMBUKA -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Latihan · Kalimat Pembuka</span>
+        <h1 class="slide-title">Pilih Kalimat Pembuka Terbaik</h1>
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>1.</b> Kamu akan presentasi tentang sampah plastik. Kalimat pembuka terbaik adalah...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">"Baik, sekarang saya akan mempresentasikan tugas saya."</button>
+            <button class="quiz-option" data-correct="true">"Tahukah kalian, satu kantong plastik butuh ratusan tahun untuk terurai?"</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>2.</b> Manakah pembuka yang paling membuat audiens penasaran?</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">"Judul presentasi saya adalah 'Sampah Plastik'."</button>
+            <button class="quiz-option" data-correct="true">"Bayangkan jika sekolah kita tidak lagi menghasilkan sampah plastik sama sekali—mungkinkah itu terjadi?"</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. MENGELOLA RASA GUGUP -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Mengelola Rasa Gugup</span>
+        <h1 class="slide-title">Wajar Gugup, Begini Cara Mengatasinya</h1>
+        <p class="slide-sub">Ketuk tiap kartu untuk membuka penjelasannya.</p>
+        <div class="dodont-grid">
+          <div class="dodont-card do" onclick="this.classList.toggle('open')"><span class="label">Lakukan</span><br><strong>Tarik napas dalam sebelum mulai</strong><p>Menenangkan detak jantung dan membantu pikiran lebih fokus sebelum tampil.</p></div>
+          <div class="dodont-card dont" onclick="this.classList.toggle('open')"><span class="label">Hindari</span><br><strong>Menghafal kata demi kata</strong><p>Jika lupa satu kata saja, kamu bisa panik. Lebih baik kuasai poin-poin utamanya.</p></div>
+          <div class="dodont-card do" onclick="this.classList.toggle('open')"><span class="label">Lakukan</span><br><strong>Latihan berulang kali</strong><p>Semakin sering berlatih, semakin terbiasa dan percaya diri saat tampil sungguhan.</p></div>
+          <div class="dodont-card dont" onclick="this.classList.toggle('open')"><span class="label">Hindari</span><br><strong>Fokus pada penilaian orang lain</strong><p>Fokuslah pada pesan yang ingin disampaikan, bukan pada kekhawatiran akan dinilai.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. MENJAWAB PERTANYAAN: 4 LANGKAH -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Menjawab Pertanyaan</span>
+        <h1 class="slide-title">Empat Langkah Menjawab dengan Tenang</h1>
+        <p class="slide-sub">Ketuk tiap langkah untuk melihat penjelasannya.</p>
+        <div class="outline">
+          <div class="outline-item" onclick="this.classList.toggle('open')">
+            <div class="outline-head"><span><span class="num">01</span><strong>Dengarkan baik-baik</strong></span><span class="chev">▸</span></div>
+            <div class="outline-body">Simak pertanyaan sampai selesai, jangan memotong sebelum audiens selesai bicara.</div>
+          </div>
+          <div class="outline-item" onclick="this.classList.toggle('open')">
+            <div class="outline-head"><span><span class="num">02</span><strong>Pahami maksud pertanyaan</strong></span><span class="chev">▸</span></div>
+            <div class="outline-body">Jika kurang jelas, tidak apa-apa bertanya balik untuk memastikan, misalnya "Maksudnya soal bagian mana ya?"</div>
+          </div>
+          <div class="outline-item" onclick="this.classList.toggle('open')">
+            <div class="outline-head"><span><span class="num">03</span><strong>Jawab singkat dan jelas</strong></span><span class="chev">▸</span></div>
+            <div class="outline-body">Langsung ke inti jawaban, tidak perlu bertele-tele atau mengulang seluruh presentasi.</div>
+          </div>
+          <div class="outline-item" onclick="this.classList.toggle('open')">
+            <div class="outline-head"><span><span class="num">04</span><strong>Jujur jika belum tahu</strong></span><span class="chev">▸</span></div>
+            <div class="outline-body">Tidak apa-apa berkata "Saya belum punya jawaban pastinya, tapi saya akan cari tahu." Lebih baik jujur daripada mengarang.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. SIGNATURE: SIMULATOR TANYA JAWAB -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Latihan Interaktif</span>
+        <h1 class="slide-title">🎙️ Simulator Sesi Tanya Jawab</h1>
+        <p class="slide-sub">Bayangkan kamu sedang presentasi. Pilih respons terbaik untuk tiap pertanyaan dari audiens.</p>
+
+        <div class="chat-sim" data-chatsim>
+          <div class="chat-bubble-q">
+            <div class="chat-avatar">🙋</div>
+            <div>
+              <div class="chat-label">Audiens bertanya</div>
+              <div class="chat-text">"Kenapa data yang kamu pakai cuma dari tahun 2020? Sekarang kan sudah ada yang lebih baru."</div>
+            </div>
+          </div>
+          <div class="chat-options">
+            <button class="chat-option" data-correct="false">"Saya tidak tahu, maaf."</button>
+            <button class="chat-option" data-correct="true">"Terima kasih pertanyaannya! Itu data terbaru yang saya temukan dari sumber resmi saat riset. Saya akan coba cari data yang lebih baru lagi."</button>
+            <button class="chat-option" data-correct="false">"Itu bukan urusan saya, tanyakan saja ke sumbernya."</button>
+          </div>
+          <div class="chat-feedback"></div>
+        </div>
+
+        <div class="chat-sim" data-chatsim>
+          <div class="chat-bubble-q">
+            <div class="chat-avatar">🙋</div>
+            <div>
+              <div class="chat-label">Audiens bertanya</div>
+              <div class="chat-text">"Bisa dijelaskan lagi bagian kesimpulannya? Saya kurang paham tadi."</div>
+            </div>
+          </div>
+          <div class="chat-options">
+            <button class="chat-option" data-correct="false">"Kan sudah saya jelaskan tadi, coba dengarkan baik-baik."</button>
+            <button class="chat-option" data-correct="true">"Tentu, saya ulangi dengan kata yang lebih sederhana: intinya kita bisa mengurangi sampah plastik dengan membawa tumbler sendiri. Sudah lebih jelas?"</button>
+          </div>
+          <div class="chat-feedback"></div>
+        </div>
+
+        <div class="chat-sim" data-chatsim>
+          <div class="chat-bubble-q">
+            <div class="chat-avatar">🙋</div>
+            <div>
+              <div class="chat-label">Audiens bertanya</div>
+              <div class="chat-text">"Menurutmu, solusi ini beneran bisa diterapkan di sekolah kita?"</div>
+            </div>
+          </div>
+          <div class="chat-options">
+            <button class="chat-option" data-correct="true">"Menurut saya bisa, mulai dari langkah kecil seperti sediakan tempat sampah terpisah. Nanti bisa kita diskusikan lebih lanjut setelah sesi ini."</button>
+            <button class="chat-option" data-correct="false">"Entahlah, saya cuma buat presentasi ini karena tugas."</button>
+          </div>
+          <div class="chat-feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. ETIKA TANYA JAWAB -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Etika Sesi Tanya Jawab</span>
+        <h1 class="slide-title">Bersikap Baik Saat Ditanya</h1>
+        <p class="slide-sub">Ketuk tiap kartu untuk membuka penjelasannya.</p>
+        <div class="dodont-grid">
+          <div class="dodont-card do" onclick="this.classList.toggle('open')"><span class="label">Lakukan</span><br><strong>Ucapkan terima kasih atas pertanyaannya</strong><p>Membuat penanya merasa dihargai dan suasana tetap positif.</p></div>
+          <div class="dodont-card dont" onclick="this.classList.toggle('open')"><span class="label">Hindari</span><br><strong>Memotong pertanyaan orang lain</strong><p>Biarkan penanya selesai bicara dulu sebelum kamu mulai menjawab.</p></div>
+          <div class="dodont-card do" onclick="this.classList.toggle('open')"><span class="label">Lakukan</span><br><strong>Tetap tenang meski dikritik</strong><p>Anggap kritik sebagai masukan untuk memperbaiki, bukan serangan pribadi.</p></div>
+          <div class="dodont-card dont" onclick="this.classList.toggle('open')"><span class="label">Hindari</span><br><strong>Bersikap defensif atau emosi</strong><p>Menjawab dengan nada marah membuat suasana tidak nyaman bagi semua orang.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. PRAKTIK: CHECKLIST PERSIAPAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Praktik</span>
+        <h1 class="slide-title">Checklist Sebelum Presentasi</h1>
+        <p class="slide-sub">Centang tiap persiapan yang sudah kamu lakukan sebelum tampil.</p>
+        <div class="checklist-wrap">
+          <div class="checklist-progress">
+            <div class="track"><div class="fill" id="checkFill"></div></div>
+            <span class="count" id="checkCount">0/6 selesai</span>
+          </div>
+          <div id="checkList">
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Slide sudah dicek ulang, tidak ada typo</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Sudah latihan bicara minimal 2 kali</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Alat (laptop/proyektor) sudah dicoba dan berfungsi</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Waktu presentasi sudah pas dengan durasi yang diberikan</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Sudah menyiapkan jawaban untuk pertanyaan yang mungkin muncul</span></div>
+            <div class="check-item" onclick="toggleCheck(this)"><span class="box">✓</span><span class="label-text">Datang lebih awal untuk mengecek ruangan dan alat</span></div>
+          </div>
+          <p class="checklist-msg" id="checkMsg">Ketuk tiap item untuk menandainya selesai.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. KESALAHAN UMUM -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Perhatikan Ini</span>
+        <h1 class="slide-title">Kesalahan yang Sering Terjadi Saat Presentasi</h1>
+        <div class="mistake-list">
+          <div class="mistake-item"><div class="x">✕</div><div><strong>Membaca slide kata per kata</strong><p>Membuat audiens merasa kamu tidak menguasai materi sendiri.</p></div></div>
+          <div class="mistake-item"><div class="x">✕</div><div><strong>Suara terlalu pelan atau monoton</strong><p>Audiens di bangku belakang kesulitan mendengar dan mudah bosan.</p></div></div>
+          <div class="mistake-item"><div class="x">✕</div><div><strong>Menghindari kontak mata</strong><p>Terus menunduk atau menatap layar membuat presentasi terasa kurang percaya diri.</p></div></div>
+          <div class="mistake-item"><div class="x">✕</div><div><strong>Panik saat dapat pertanyaan sulit</strong><p>Lebih baik tenang, dengarkan baik-baik, lalu jawab sesuai kemampuan.</p></div></div>
+          <div class="mistake-item"><div class="x">✕</div><div><strong>Tidak berlatih waktu sebelumnya</strong><p>Presentasi jadi terlalu cepat atau malah melebihi waktu yang ditentukan.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. KUIS AKHIR -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Kuis Akhir</span>
+        <h1 class="slide-title">Uji Pemahamanmu</h1>
+        <p class="slide-sub">Jawab lima pertanyaan berikut untuk menguji semua materi bab ini.</p>
+
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>1.</b> Saat presentasi, kontak mata sebaiknya diarahkan ke...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="true">Audiens secara bergantian</button>
+            <button class="quiz-option" data-correct="false">Layar slide terus-menerus</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>2.</b> Cara terbaik membuka presentasi agar audiens tertarik adalah...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">Langsung membacakan judul tugas</button>
+            <button class="quiz-option" data-correct="true">Memberi pertanyaan atau fakta menarik di awal</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>3.</b> Jika mendapat pertanyaan yang belum kamu ketahui jawabannya, sebaiknya kamu...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">Mengarang jawaban asal-asalan</button>
+            <button class="quiz-option" data-correct="true">Jujur dan mengatakan akan mencari tahu lebih lanjut</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>4.</b> Cara yang tepat mengatasi rasa gugup sebelum presentasi adalah...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">Menghafal kata demi kata dari catatan</button>
+            <button class="quiz-option" data-correct="true">Tarik napas dalam dan berlatih berulang kali</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+
+        <div class="quiz-block" data-quiz>
+          <p class="quiz-scenario"><b>5.</b> Sikap yang tepat saat menerima kritik dari audiens adalah...</p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">Membalas dengan nada marah dan defensif</button>
+            <button class="quiz-option" data-correct="true">Tetap tenang dan menganggapnya sebagai masukan</button>
+          </div>
+          <div class="quiz-feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. RANGKUMAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow-tag">Rangkuman Bab 2</span>
+        <h1 class="slide-title">Lima Hal yang Sudah Kamu Pelajari</h1>
+        <div class="summary-flow">
+          <div class="summary-step"><div class="num">01</div><strong>Teknik</strong><p>Suara, bahasa tubuh, kontak mata, tempo bicara.</p></div>
+          <div class="summary-step"><div class="num">02</div><strong>Komunikasi</strong><p>Hook menarik, bahasa sederhana, contoh nyata.</p></div>
+          <div class="summary-step"><div class="num">03</div><strong>Tanya Jawab</strong><p>Dengarkan, pahami, jawab singkat, jujur.</p></div>
+          <div class="summary-step"><div class="num">04</div><strong>Rasa Gugup</strong><p>Tarik napas, latihan, fokus pada pesan.</p></div>
+          <div class="summary-step"><div class="num">05</div><strong>Praktik</strong><p>Persiapan matang sebelum tampil di depan kelas.</p></div>
+        </div>
+        <p style="font-size:13.5px;color:var(--muted);margin-top:22px;line-height:1.6;">Sekarang kamu sudah menguasai seluruh proses Bab 2: mengumpulkan informasi, mendesain slide, hingga menyampaikannya dengan percaya diri.</p>
+      </div>
+    </section>
+
+    <!-- 16. SELESAI -->
+    <section class="slide">
+      <div class="slide-inner final-wrap">
+        <span class="final-badge">🎉 Bab 2 Selesai</span>
+        <h1 class="slide-title" style="text-align:center;">Kerja Bagus!</h1>
+        <p class="slide-sub" style="text-align:center;max-width:480px;">Kamu sudah menyelesaikan materi "Menyampaikan Presentasi dan Praktik". Ini skor latihanmu:</p>
+        <div class="final-score" id="finalScore">0<span>/0</span></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:6px;">
+          <button class="btn-ghost" id="restartBtn">↺ Ulangi Materi</button>
+          <button class="btn-primary" id="finishBtn">Selesai · Kembali ke Daftar Bab</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="prevBtn" aria-label="Sebelumnya">←</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="nextBtn" aria-label="Berikutnya">→</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------- SLIDE ENGINE ---------- */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const dotsWrap = document.getElementById('dots');
+const progressBar = document.getElementById('progressBar');
+const slideCounter = document.getElementById('slideCounter');
+let current = 0;
+
+slides.forEach((s,i)=>{
+  const d = document.createElement('button');
+  d.className = 'dot';
+  d.setAttribute('aria-label', 'Ke slide '+(i+1));
+  d.addEventListener('click', ()=>goTo(i));
+  dotsWrap.appendChild(d);
+});
+const dotEls = Array.from(dotsWrap.children);
+
+function goTo(i){
+  if(i<0 || i>=slides.length) return;
+  slides[current].classList.remove('active');
+  current = i;
+  slides[current].classList.add('active');
+  slides[current].scrollTop = 0;
+  dotEls.forEach((d,idx)=>{
+    d.classList.toggle('active', idx===current);
+    d.classList.toggle('done', idx<current);
+  });
+  progressBar.style.width = ((current+1)/slides.length*100)+'%';
+  slideCounter.textContent = (current+1)+' / '+slides.length;
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===slides.length-1;
+}
+document.getElementById('prevBtn').addEventListener('click', ()=>goTo(current-1));
+document.getElementById('nextBtn').addEventListener('click', ()=>goTo(current+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
+});
+let touchX=null;
+const deck = document.getElementById('deck');
+deck.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+deck.addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 60){ dx<0 ? goTo(current+1) : goTo(current-1); }
+  touchX=null;
+}, {passive:true});
+
+goTo(0);
+
+document.getElementById('startBtn').addEventListener('click', ()=>goTo(1));
+document.getElementById('restartBtn').addEventListener('click', ()=>goTo(0));
+document.getElementById('finishBtn').addEventListener('click', ()=>{ window.location.href = 'info-bab2.html'; });
+
+/* ---------- TYPEWRITER ---------- */
+const tw = document.getElementById('typewriter');
+const twText = 'cara tampil percaya diri di depan kelas...';
+let twI = 0;
+function typeLoop(){
+  if(twI <= twText.length){
+    tw.textContent = twText.slice(0, twI);
+    twI++;
+    setTimeout(typeLoop, 55);
+  }
+}
+typeLoop();
+
+/* ---------- QUIZ ENGINE + SCORE (regular quiz blocks) ---------- */
+let totalCorrect = 0;
+let totalAnswered = 0;
+function updateScoreBadge(){
+  document.getElementById('scoreBadge').textContent = '★ Skor: '+totalCorrect+'/'+totalAnswered;
+  document.getElementById('finalScore').innerHTML = totalCorrect+'<span>/'+totalAnswered+'</span>';
+}
+document.querySelectorAll('[data-quiz]').forEach(block=>{
+  const options = Array.from(block.querySelectorAll('.quiz-option'));
+  const feedback = block.querySelector('.quiz-feedback');
+  let answered = false;
+  options.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered) return;
+      answered = true;
+      const isCorrect = opt.dataset.correct === 'true';
+      options.forEach(o=>{
+        o.disabled = true;
+        if(o.dataset.correct === 'true') o.classList.add('correct');
+      });
+      if(!isCorrect) opt.classList.add('wrong');
+      feedback.classList.add('show', isCorrect ? 'ok' : 'bad');
+      feedback.textContent = isCorrect ? '✓ Benar! Jawaban ini paling tepat.' : '✗ Belum tepat. Jawaban yang benar sudah ditandai hijau.';
+      totalAnswered++;
+      if(isCorrect) totalCorrect++;
+      updateScoreBadge();
+    });
+  });
+});
+
+/* ---------- CHAT Q&A SIMULATOR (counts toward score too) ---------- */
+document.querySelectorAll('[data-chatsim]').forEach(block=>{
+  const options = Array.from(block.querySelectorAll('.chat-option'));
+  const feedback = block.querySelector('.chat-feedback');
+  let answered = false;
+  options.forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(answered) return;
+      answered = true;
+      const isCorrect = opt.dataset.correct === 'true';
+      options.forEach(o=>{
+        o.disabled = true;
+        if(o.dataset.correct === 'true') o.classList.add('correct');
+      });
+      if(!isCorrect) opt.classList.add('wrong');
+      feedback.classList.add('show', isCorrect ? 'ok' : 'bad');
+      feedback.textContent = isCorrect ? '✓ Respons yang baik: tenang, jujur, dan sopan.' : '✗ Respons ini kurang tepat. Jawaban terbaik sudah ditandai hijau.';
+      totalAnswered++;
+      if(isCorrect) totalCorrect++;
+      updateScoreBadge();
+    });
+  });
+});
+updateScoreBadge();
+
+/* ---------- CHECKLIST ---------- */
+function toggleCheck(item){
+  item.classList.toggle('checked');
+  const all = document.querySelectorAll('#checkList .check-item');
+  const done = document.querySelectorAll('#checkList .check-item.checked').length;
+  document.getElementById('checkFill').style.width = (done/all.length*100)+'%';
+  document.getElementById('checkCount').textContent = done+'/'+all.length+' selesai';
+  const msg = document.getElementById('checkMsg');
+  msg.textContent = done===all.length ? '🎉 Semua siap! Kamu sudah siap tampil.' : 'Ketuk tiap item untuk menandainya selesai.';
+}
+</script>
+</body>
+</html>

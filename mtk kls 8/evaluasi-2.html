@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Evaluasi Bab 2 — Teorema Pythagoras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#0A0F24;
+    --paper-line: rgba(255,255,255,0.045);
+    --paper-line-strong: rgba(255,255,255,0.14);
+    --ink:#F3F5FC;
+    --ink-soft:#8D96B8;
+    --white:#151B36;
+    --white-2:#1C2444;
+    --coral:#FB923C;
+    --coral-soft: rgba(251,146,60,0.14);
+    --amber:#A78BFA;
+    --amber-soft: rgba(167,139,250,0.14);
+    --teal:#2DD4BF;
+    --teal-soft: rgba(45,212,191,0.14);
+    --shadow: 0 18px 40px -18px rgba(0,0,0,0.65);
+    --vh: 1vh;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--ink);
+    background:
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    overflow:hidden;
+    height:calc(var(--vh, 1vh) * 100);
+    display:flex;
+    flex-direction:column;
+  }
+  .display{ font-family:'Space Grotesk', sans-serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
+
+  /* ---------- HEADER ---------- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 20px 10px; flex-shrink:0; }
+  .brand{ display:flex; align-items:center; gap:9px; min-width:0; }
+  .brand-mark{ width:26px;height:26px; border:2px solid var(--ink); position:relative; flex-shrink:0; transform:rotate(10deg); }
+  .brand-mark::after{ content:""; position:absolute; inset:5px; border:2px solid var(--coral); }
+  .brand-text{ font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text b{ color:var(--ink); }
+  .progress-track{ flex:1; max-width:340px; height:5px; background:var(--paper-line-strong); border-radius:3px; overflow:hidden; display:none; }
+  .progress-fill{ height:100%; background:var(--coral); width:0%; transition:width .4s ease; border-radius:3px; }
+  .dots{ display:flex; gap:4px; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:44vw; }
+  .dots::-webkit-scrollbar{ display:none; }
+  .dot{ width:10px; height:6px; flex-shrink:0; background:transparent; border:1.5px solid var(--paper-line-strong); border-radius:3px; cursor:pointer; transition:all .25s ease; padding:0; }
+  .dot.active{ background:var(--coral); border-color:var(--coral); width:18px; }
+  .dot.done{ background:var(--ink-soft); border-color:var(--ink-soft); }
+  .slide-count{ font-size:10.5px; color:var(--ink-soft); min-width:52px; text-align:right; flex-shrink:0; }
+
+  /* ---------- SLIDES ---------- */
+  main{ flex:1; position:relative; overflow:hidden; }
+  .slide{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 7% 24px; opacity:0; transform:translateX(30px); pointer-events:none; transition:opacity .4s ease, transform .4s ease; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.prevslide{ transform:translateX(-30px); }
+  .slide-inner{ width:100%; max-width:900px; margin:auto; padding-block:6px; }
+
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:10.5px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--coral); margin-bottom:12px; }
+  .eyebrow::before{ content:""; width:14px; height:1.5px; background:var(--coral); }
+  h1.big{ font-size:clamp(24px, 5.2vw, 44px); line-height:1.1; font-weight:700; letter-spacing:-0.01em; font-family:'Space Grotesk'; }
+  h2.slide-title{ font-size:clamp(19px, 3.4vw, 27px); font-weight:700; line-height:1.2; margin-bottom:6px; font-family:'Space Grotesk'; }
+  .slide-sub{ font-size:clamp(12.5px,2vw,14px); color:var(--ink-soft); margin-bottom:18px; max-width:680px; line-height:1.55; }
+
+  .dim{ display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:600; color:var(--ink); background:var(--white); border:1.5px dashed var(--paper-line-strong); padding:5px 10px 5px 6px; border-radius:100px; }
+  .dim .arrow{ color:var(--coral); font-size:13px; }
+
+  /* ---------- BUTTONS ---------- */
+  .btn{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px; padding:12px 20px; border-radius:10px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease; min-height:44px; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-primary{ background:var(--ink); color:var(--white); box-shadow:var(--shadow); }
+  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--paper-line-strong); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .btn-coral{ background:var(--coral); color:#12121a; box-shadow:0 14px 30px -14px rgba(251,146,60,.5); }
+  .btn-teal{ background:var(--teal); color:#12121a; box-shadow:0 14px 30px -14px rgba(45,212,191,.5); }
+
+  /* ---------- COVER ---------- */
+  #s0 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .cover-tri svg{ width:130px; height:auto; }
+  .cover-cta{ margin-top:24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .cp-line{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:600px; line-height:1.6; border-left:2px solid var(--coral); padding-left:14px; text-align:left; }
+  .cover-stats{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:18px; }
+  .cover-stat{ background:var(--white); border-radius:12px; padding:10px 18px; box-shadow:var(--shadow); }
+  .cover-stat .n{ font-family:'JetBrains Mono'; font-weight:700; font-size:18px; color:var(--teal); }
+  .cover-stat .l{ font-size:10px; color:var(--ink-soft); }
+
+  /* ---------- PETUNJUK ---------- */
+  .petunjuk-box{ background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); margin-bottom:14px; border-left:3px solid var(--teal); }
+  .petunjuk-box b{ color:var(--teal); font-size:12px; letter-spacing:.05em; text-transform:uppercase; display:block; margin-bottom:8px; font-family:'Space Grotesk';}
+  .petunjuk-box ul{ padding-left:18px; }
+  .petunjuk-box li{ font-size:13px; color:var(--ink-soft); line-height:1.7; }
+  .petunjuk-box li b{ display:inline; text-transform:none; font-size:13px; letter-spacing:0; color:var(--ink); font-family:'Inter'; font-weight:600; margin:0; }
+
+  /* ---------- PG SLIDE ---------- */
+  .pg-tag{ display:inline-block; font-family:'JetBrains Mono'; font-size:10.5px; font-weight:700; color:var(--amber); background:var(--amber-soft); padding:5px 12px; border-radius:100px; margin-bottom:14px; }
+  .pg-qtext{ font-family:'Space Grotesk'; font-size:clamp(17px,2.6vw,21px); font-weight:600; line-height:1.5; margin-bottom:22px; }
+  .pg-options{ display:flex; flex-direction:column; gap:10px; }
+  .pg-opt{ text-align:left; padding:14px 16px; border-radius:12px; border:1.5px solid var(--paper-line-strong); background:var(--white); font-family:'Inter'; font-size:14px; font-weight:500; cursor:pointer; transition:all .18s ease; display:flex; align-items:center; gap:12px; min-height:48px; color:var(--ink); }
+  .pg-opt:hover{ border-color:var(--ink-soft); }
+  .pg-opt .letter{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; width:26px; height:26px; border-radius:7px; background:var(--white-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--paper-line-strong); }
+  .pg-opt.selected{ border-color:var(--ink); background:var(--white-2); }
+  .pg-opt.selected .letter{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+  /* ---------- ESSAY SLIDE ---------- */
+  .essay-list{ display:flex; flex-direction:column; gap:20px; }
+  .essay-item{ display:flex; gap:12px; align-items:flex-start; }
+  .essay-num{ font-family:'JetBrains Mono'; font-weight:700; font-size:14px; color:var(--coral); flex-shrink:0; min-width:24px; }
+  .essay-item div p{ font-size:13.5px; line-height:1.65; color:var(--ink); }
+  .essay-item div .etopic{ font-family:'JetBrains Mono'; font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; display:block; }
+
+  /* ---------- KUNCI JAWABAN ---------- */
+  .kunci-lock{ text-align:center; padding:40px 20px; }
+  .kunci-lock .lock-icon{ font-size:44px; margin-bottom:14px; }
+  .kunci-lock p{ font-size:13px; color:var(--ink-soft); max-width:420px; margin:0 auto 20px; line-height:1.6; }
+  .kunci-content{ display:none; }
+  .kunci-content.show{ display:block; }
+  .kunci-section-title{ font-family:'Space Grotesk'; font-weight:700; font-size:15px; margin:22px 0 10px; color:var(--teal); }
+  .kunci-section-title:first-child{ margin-top:0; }
+  .kunci-pg-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .kunci-pg-item{ background:var(--white); border-radius:10px; padding:10px 6px; text-align:center; box-shadow:var(--shadow); }
+  .kunci-pg-item .no{ font-size:9.5px; color:var(--ink-soft); }
+  .kunci-pg-item .ans{ font-family:'JetBrains Mono'; font-weight:700; font-size:16px; color:var(--teal); }
+  .kunci-pg-item .chk{ font-size:10px; margin-top:2px; }
+  .kunci-pg-item .chk.ok{ color:var(--teal); }
+  .kunci-pg-item .chk.no{ color:var(--coral); }
+  .kunci-essay-item{ background:var(--white); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); margin-bottom:10px; }
+  .kunci-essay-item .eq{ font-family:'Space Grotesk'; font-weight:600; font-size:12.5px; margin-bottom:6px; color:var(--ink); }
+  .kunci-essay-item .ea{ font-size:12px; color:var(--ink-soft); line-height:1.6; }
+  .kunci-essay-item .ea b{ color:var(--teal); font-family:'JetBrains Mono'; }
+  .pg-score-box{ margin-top:18px; background:var(--white-2); border-radius:12px; padding:14px 18px; text-align:center; font-family:'JetBrains Mono'; font-size:13px; color:var(--ink); }
+  .pg-score-box b{ color:var(--coral); font-size:16px; }
+
+  /* ---------- CARA PENILAIAN ---------- */
+  .grade-cards{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+  .grade-card{ background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); }
+  .grade-card h5{ font-family:'Space Grotesk'; font-size:14px; margin-bottom:8px; }
+  .grade-card .big-num{ font-family:'JetBrains Mono'; font-weight:700; font-size:26px; margin-bottom:4px; }
+  .grade-card p{ font-size:12px; color:var(--ink-soft); line-height:1.55; }
+  .rubric-table{ width:100%; border-collapse:collapse; background:var(--white); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+  .rubric-table th{ font-family:'Space Grotesk'; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); text-align:left; padding:10px 14px; border-bottom:1px solid var(--paper-line-strong); }
+  .rubric-table td{ padding:10px 14px; font-size:12.5px; border-bottom:1px solid var(--paper-line); color:var(--ink); }
+  .rubric-table tr:last-child td{ border-bottom:none; }
+  .rubric-table td.pts{ font-family:'JetBrains Mono'; font-weight:700; color:var(--coral); text-align:center; }
+  .formula-note{ margin-top:16px; background:var(--white-2); border-radius:12px; padding:14px 18px; font-family:'JetBrains Mono'; font-size:13px; text-align:center; color:var(--ink); }
+  .predikat-row{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .predikat-chip{ flex:1; min-width:110px; background:var(--white); border-radius:10px; padding:10px; text-align:center; box-shadow:var(--shadow); }
+  .predikat-chip .p{ font-family:'JetBrains Mono'; font-weight:700; font-size:15px; }
+  .predikat-chip .r{ font-size:10px; color:var(--ink-soft); margin-top:2px; }
+
+  /* ---------- PENUTUP ---------- */
+  #s20 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottombar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 20px 16px; flex-shrink:0; }
+  .navbtn{ display:flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--paper-line-strong); border-radius:10px; padding:10px 16px; font-family:'Space Grotesk'; font-weight:600; font-size:13px; cursor:pointer; transition:all .18s ease; min-height:44px; flex-shrink:0; }
+  .navbtn:hover{ border-color:var(--ink); }
+  .navbtn:disabled{ opacity:.35; pointer-events:none; }
+  .navbtn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
+  .step-label{ font-size:10.5px; color:var(--ink-soft); text-align:center; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 6px; }
+  .step-label b{ color:var(--ink); }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--paper-line-strong); border-radius:3px; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 680px){
+    .topbar{ padding:12px 14px 8px; }
+    .brand-text{ display:none; }
+    .dots{ display:none; }
+    .progress-track{ display:block; }
+    .slide{ padding:10px 5.5% 18px; }
+    .slide-sub{ margin-bottom:14px; }
+    .grade-cards{ grid-template-columns:1fr; }
+    .kunci-pg-grid{ grid-template-columns:repeat(5,1fr); }
+    .bottombar{ padding:10px 12px 14px; }
+    .navbtn{ padding:10px 12px; font-size:12px; }
+    .navbtn span.lbl{ display:none; }
+    .step-label{ font-size:9.5px; }
+    h1.big{ font-size:clamp(22px,7vw,32px); }
+    .pg-qtext{ font-size:16px; }
+    .cover-tri svg{ width:100px; }
+    .predikat-row{ flex-direction:column; }
+  }
+  @media (max-width: 420px){
+    .kunci-pg-grid{ grid-template-columns:repeat(5,1fr); gap:6px; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text"><b>Matematika</b> · Evaluasi Bab 2</div>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="dots" id="dots"></div>
+  <div class="slide-count mono" id="slideCount">01/21</div>
+</div>
+
+<main id="main">
+
+  <!-- 0 COVER -->
+  <section class="slide" id="s0">
+    <div class="slide-inner">
+      <div class="cover-tri">
+        <svg viewBox="0 0 240 200"><polygon points="40,170 210,170 40,30" fill="rgba(255,255,255,0.04)" stroke="#F3F5FC" stroke-width="3"/><rect x="40" y="150" width="20" height="20" fill="none" stroke="#8D96B8" stroke-width="2"/><text x="115" y="188" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#FB923C">a</text><text x="18" y="105" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#A78BFA">b</text><text x="130" y="92" font-family="JetBrains Mono" font-size="15" font-weight="700" fill="#2DD4BF">c</text></svg>
+      </div>
+      <div class="eyebrow" style="justify-content:center;display:flex">Bab 2 · Evaluasi</div>
+      <h1 class="big">Evaluasi Teorema Pythagoras</h1>
+      <p class="slide-sub" style="margin:14px auto 0;">Mencakup konsep dasar, rumus & pembuktian, menentukan panjang sisi, tripel Pythagoras, dan penerapannya.</p>
+      <div class="cover-stats">
+        <div class="cover-stat"><div class="n">15</div><div class="l">Pilihan Ganda</div></div>
+        <div class="cover-stat"><div class="n">5</div><div class="l">Esai</div></div>
+        <div class="cover-stat"><div class="n">100</div><div class="l">Skor Maksimal</div></div>
+      </div>
+      <div class="cover-cta">
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Evaluasi →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1 PETUNJUK -->
+  <section class="slide" id="s1">
+    <div class="slide-inner">
+      <div class="eyebrow">Sebelum Mengerjakan</div>
+      <h2 class="slide-title">Petunjuk Pengerjaan</h2>
+      <div class="petunjuk-box">
+        <b>Bagian A — Pilihan Ganda (15 soal)</b>
+        <ul>
+          <li>Setiap soal ditampilkan satu per satu, satu soal tiap slide.</li>
+          <li>Pilih <b>satu</b> jawaban yang paling tepat dengan menandai opsi A, B, C, atau D.</li>
+          <li>Gunakan tombol navigasi di bawah untuk berpindah antar soal.</li>
+        </ul>
+      </div>
+      <div class="petunjuk-box" style="border-left-color:var(--coral);">
+        <b style="color:var(--coral)">Bagian B — Esai (5 soal)</b>
+        <ul>
+          <li>Kelima soal esai ditampilkan sekaligus dalam satu slide.</li>
+          <li>Jawablah di kertas atau buku tugas dengan langkah penyelesaian yang lengkap.</li>
+        </ul>
+      </div>
+      <div class="petunjuk-box" style="border-left-color:var(--amber);">
+        <b style="color:var(--amber)">Kunci Jawaban & Penilaian</b>
+        <ul>
+          <li>Kunci jawaban tersedia di slide khusus dan <b>disembunyikan</b> secara default — tekan tombol untuk menampilkannya.</li>
+          <li>Skor maksimal keseluruhan adalah <b>100</b>, lihat rincian di slide "Cara Penilaian".</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2-16: PG SLIDES (diisi otomatis oleh JavaScript) -->
+  <section class="slide" id="s2"></section>
+  <section class="slide" id="s3"></section>
+  <section class="slide" id="s4"></section>
+  <section class="slide" id="s5"></section>
+  <section class="slide" id="s6"></section>
+  <section class="slide" id="s7"></section>
+  <section class="slide" id="s8"></section>
+  <section class="slide" id="s9"></section>
+  <section class="slide" id="s10"></section>
+  <section class="slide" id="s11"></section>
+  <section class="slide" id="s12"></section>
+  <section class="slide" id="s13"></section>
+  <section class="slide" id="s14"></section>
+  <section class="slide" id="s15"></section>
+  <section class="slide" id="s16"></section>
+
+  <!-- 17 ESSAY -->
+  <section class="slide" id="s17">
+    <div class="slide-inner">
+      <div class="eyebrow">Bagian B</div>
+      <h2 class="slide-title">Soal Esai</h2>
+      <p class="slide-sub">Jawablah kelima soal berikut dengan langkah penyelesaian yang lengkap di kertas atau buku tugasmu.</p>
+      <div class="essay-list" id="essayList"></div>
+    </div>
+  </section>
+
+  <!-- 18 KUNCI JAWABAN -->
+  <section class="slide" id="s18">
+    <div class="slide-inner">
+      <div class="eyebrow">Referensi Guru / Pengawas</div>
+      <h2 class="slide-title">Kunci Jawaban</h2>
+      <p class="slide-sub">Konten ini disembunyikan secara default. Tekan tombol untuk menampilkan.</p>
+      <div class="kunci-lock" id="kunciLock">
+        <div class="lock-icon">🔒</div>
+        <p>Kunci jawaban untuk 15 soal pilihan ganda dan 5 soal esai ada di balik tombol ini, agar tidak terlihat tidak sengaja saat evaluasi berlangsung.</p>
+        <button class="btn btn-teal" onclick="toggleKunci()">🔓 Tampilkan Kunci Jawaban</button>
+      </div>
+      <div class="kunci-content" id="kunciContent">
+        <div class="kunci-section-title">Kunci Pilihan Ganda</div>
+        <div class="kunci-pg-grid" id="kunciPgGrid"></div>
+        <div class="pg-score-box" id="pgScoreBox"></div>
+        <div class="kunci-section-title">Kunci &amp; Rubrik Esai (ringkas)</div>
+        <div id="kunciEssayList"></div>
+        <div style="text-align:center;margin-top:16px;">
+          <button class="btn btn-ghost" onclick="toggleKunci()">🔒 Sembunyikan Lagi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 19 CARA PENILAIAN -->
+  <section class="slide" id="s19">
+    <div class="slide-inner">
+      <div class="eyebrow">Panduan Guru</div>
+      <h2 class="slide-title">Cara Penilaian</h2>
+      <p class="slide-sub">Skor total evaluasi ini maksimal 100, digabung dari nilai pilihan ganda dan esai.</p>
+      <div class="grade-cards">
+        <div class="grade-card">
+          <h5 style="color:var(--teal)">Bagian A — Pilihan Ganda</h5>
+          <div class="big-num" style="color:var(--teal)">15 × 4 = 60</div>
+          <p>Setiap soal bernilai <b style="color:var(--ink)">4 poin</b> jika jawaban benar, dan 0 jika salah/kosong. Skor maksimal bagian ini adalah <b style="color:var(--ink)">60 poin</b>.</p>
+        </div>
+        <div class="grade-card">
+          <h5 style="color:var(--coral)">Bagian B — Esai</h5>
+          <div class="big-num" style="color:var(--coral)">5 × 8 = 40</div>
+          <p>Setiap soal esai bernilai maksimal <b style="color:var(--ink)">8 poin</b>, dinilai berdasarkan rubrik berikut. Skor maksimal bagian ini adalah <b style="color:var(--ink)">40 poin</b>.</p>
+        </div>
+      </div>
+      <table class="rubric-table">
+        <thead><tr><th>Komponen Penilaian Esai</th><th style="text-align:center;">Poin</th></tr></thead>
+        <tbody>
+          <tr><td>Pemahaman konsep &amp; rumus yang digunakan tepat</td><td class="pts">3</td></tr>
+          <tr><td>Langkah penyelesaian sistematis dan benar</td><td class="pts">3</td></tr>
+          <tr><td>Jawaban akhir tepat beserta satuan yang benar</td><td class="pts">2</td></tr>
+        </tbody>
+      </table>
+      <div class="formula-note">Nilai Akhir = Skor Pilihan Ganda (maks 60) + Skor Esai (maks 40) = <b style="color:var(--coral)">maks 100</b></div>
+      <div class="predikat-row">
+        <div class="predikat-chip"><div class="p" style="color:var(--teal)">90–100</div><div class="r">Sangat Baik</div></div>
+        <div class="predikat-chip"><div class="p" style="color:var(--amber)">75–89</div><div class="r">Baik</div></div>
+        <div class="predikat-chip"><div class="p" style="color:var(--coral)">60–74</div><div class="r">Cukup</div></div>
+        <div class="predikat-chip"><div class="p" style="color:var(--ink-soft)">&lt;60</div><div class="r">Perlu Bimbingan</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 PENUTUP -->
+  <section class="slide" id="s20">
+    <div class="slide-inner">
+      <div class="eyebrow" style="justify-content:center;display:flex">Selesai</div>
+      <h2 class="slide-title">Terima Kasih! 🎉</h2>
+      <p class="slide-sub" style="margin:0 auto;">Evaluasi Bab 2: Teorema Pythagoras telah selesai. Semoga hasilnya memuaskan!</p>
+      <button class="btn btn-primary" onclick="finish()">✓ Selesai — Kembali ke Bab 2</button>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:14px;">Tombol ini akan membuka <span class="mono">matb-bab2.html</span></p>
+    </div>
+  </section>
+
+</main>
+
+<div class="bottombar">
+  <button class="navbtn" id="prevBtn" onclick="goTo(current-1)">← <span class="lbl">Sebelumnya</span></button>
+  <div class="step-label" id="stepLabel"></div>
+  <button class="navbtn primary" id="nextBtn" onclick="goTo(current+1)"><span class="lbl">Selanjutnya</span> →</button>
+</div>
+
+<script>
+/* ================= viewport height fix (mobile) ================= */
+function setVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
+
+/* ================= DATA: PG ================= */
+const pgQuestions = [
+  { topic:"Konsep Teorema Pythagoras", q:"Sisi yang berhadapan dengan sudut siku-siku pada segitiga siku-siku disebut...", opts:["Sisi siku-siku","Hipotenusa","Alas","Tinggi"], correct:1 },
+  { topic:"Konsep Teorema Pythagoras", q:"Manakah pernyataan yang benar tentang segitiga siku-siku?", opts:["Memiliki dua sudut siku-siku","Memiliki tepat satu sudut 90°","Semua sisinya sama panjang","Tidak memiliki sudut siku-siku"], correct:1 },
+  { topic:"Konsep Teorema Pythagoras", q:"Dua sisi yang saling mengapit sudut siku-siku disebut...", opts:["Hipotenusa","Diagonal","Sisi siku-siku","Sisi miring"], correct:2 },
+  { topic:"Rumus & Pembuktian", q:"Bunyi Teorema Pythagoras yang benar adalah...", opts:["a + b = c","a² + b² = c²","a² − b² = c²","a × b = c"], correct:1 },
+  { topic:"Rumus & Pembuktian", q:"Sebuah segitiga siku-siku memiliki luas persegi pada sisi siku-siku 9 dan 16. Berapa luas persegi pada hipotenusanya?", opts:["20","23","25","27"], correct:2 },
+  { topic:"Rumus & Pembuktian", q:"Pembuktian visual Teorema Pythagoras biasanya dilakukan dengan menggambar...", opts:["Lingkaran pada tiap sisi","Persegi pada tiap sisi","Segitiga pada tiap sisi","Trapesium pada tiap sisi"], correct:1 },
+  { topic:"Menentukan Panjang Sisi", q:"Segitiga siku-siku memiliki sisi siku-siku 6 cm dan 8 cm. Berapa panjang hipotenusanya?", opts:["9 cm","10 cm","11 cm","12 cm"], correct:1 },
+  { topic:"Menentukan Panjang Sisi", q:"Hipotenusa suatu segitiga siku-siku 13 cm, salah satu sisi siku-siku 5 cm. Berapa sisi siku-siku lainnya?", opts:["10 cm","11 cm","12 cm","13 cm"], correct:2 },
+  { topic:"Menentukan Panjang Sisi", q:"Sisi siku-siku suatu segitiga masing-masing 5 cm. Berapa panjang hipotenusa dalam bentuk akar paling sederhana?", opts:["√10","√50","5√2","10"], correct:2 },
+  { topic:"Tripel Pythagoras", q:"Tripel Pythagoras adalah...", opts:["Tiga bilangan bulat positif yang memenuhi a²+b²=c²","Tiga bilangan yang jumlahnya sama","Tiga bilangan ganjil berurutan","Tiga bilangan genap berurutan"], correct:0 },
+  { topic:"Tripel Pythagoras", q:"Manakah yang merupakan Tripel Pythagoras?", opts:["6, 9, 12","8, 15, 17","5, 6, 8","4, 5, 7"], correct:1 },
+  { topic:"Tripel Pythagoras", q:"Manakah kelipatan dari tripel Pythagoras 3, 4, 5?", opts:["4, 5, 6","6, 8, 9","9, 12, 15","7, 8, 9"], correct:2 },
+  { topic:"Penerapan Pythagoras", q:"Tangga sepanjang 10 m disandarkan ke tembok, jarak kaki tangga ke tembok 6 m. Berapa tinggi tangga menyentuh tembok?", opts:["6 m","7 m","8 m","9 m"], correct:2 },
+  { topic:"Penerapan Pythagoras", q:"Sebuah lapangan berbentuk persegi panjang berukuran 30 m × 40 m. Berapa panjang diagonal lapangan tersebut?", opts:["45 m","50 m","55 m","60 m"], correct:1 },
+  { topic:"Penerapan Pythagoras", q:"Andi berjalan 8 km ke utara lalu 6 km ke timur. Berapa jarak lurus dari titik awal ke posisi akhir Andi?", opts:["9 km","10 km","11 km","12 km"], correct:1 },
+];
+
+/* ================= DATA: ESAI ================= */
+const essayQuestions = [
+  { topic:"Konsep Teorema Pythagoras", q:"Gambarkan sebuah segitiga siku-siku, lalu tunjukkan mana yang disebut sisi siku-siku dan mana yang disebut hipotenusa. Jelaskan pula ciri-ciri segitiga siku-siku!" },
+  { topic:"Rumus & Pembuktian", q:"Sebuah segitiga siku-siku memiliki sisi siku-siku 6 cm dan 8 cm. Buktikan Teorema Pythagoras dengan menghitung luas persegi pada setiap sisi segitiga tersebut!" },
+  { topic:"Menentukan Panjang Sisi", q:"Sebuah segitiga siku-siku memiliki hipotenusa 25 cm dan salah satu sisi siku-siku 7 cm. Tentukan panjang sisi siku-siku lainnya beserta langkah penyelesaiannya!" },
+  { topic:"Tripel Pythagoras", q:"Tentukan apakah 9, 40, dan 41 merupakan Tripel Pythagoras. Tunjukkan cara pembuktianmu!" },
+  { topic:"Penerapan Pythagoras", q:"Sebuah kapal berlayar 12 km ke arah timur, kemudian 5 km ke arah utara. Berapa jarak kapal tersebut dari titik keberangkatan? Gunakan Teorema Pythagoras dalam penyelesaianmu!" },
+];
+
+const essayKunci = [
+  "Segitiga siku-siku memiliki tepat satu sudut 90°. Dua sisi yang mengapit sudut siku-siku disebut <b>sisi siku-siku</b> (a dan b); sisi terpanjang yang berhadapan dengan sudut siku-siku disebut <b>hipotenusa</b> (c).",
+  "a=6, b=8 → a²=36, b²=64. Jumlah = 36+64 = 100. c=√100=10, sehingga c²=100. Karena a²+b² = c² (36+64=100), Teorema Pythagoras terbukti.",
+  "c=25, a=7. b = √(25²−7²) = √(625−49) = √576 = <b>24 cm</b>.",
+  "9² + 40² = 81 + 1600 = 1681. 41² = 1681. Karena 9²+40² = 41², maka <b>9, 40, 41 adalah Tripel Pythagoras</b>.",
+  "Jarak = √(12² + 5²) = √(144+25) = √169 = <b>13 km</b>.",
+];
+
+/* ================= SLIDE SETUP ================= */
+const slideNames = ["Sampul","Petunjuk"];
+for(let i=1;i<=15;i++) slideNames.push("PG No."+i);
+slideNames.push("Esai","Kunci Jawaban","Cara Penilaian","Penutup");
+const totalSlides = slideNames.length; // 21
+let current = 0;
+let userAnswers = new Array(15).fill(null);
+
+/* ================= BUILD PG SLIDES ================= */
+function letterOf(i){ return ['A','B','C','D'][i]; }
+pgQuestions.forEach((item, idx)=>{
+  const section = document.getElementById('s'+(idx+2));
+  section.innerHTML = `
+    <div class="slide-inner">
+      <div class="eyebrow">Bagian A · Soal ${idx+1} dari 15</div>
+      <span class="pg-tag">${item.topic}</span>
+      <div class="pg-qtext">${idx+1}. ${item.q}</div>
+      <div class="pg-options" id="pgopts-${idx}"></div>
+    </div>`;
+  const optWrap = section.querySelector('#pgopts-'+idx);
+  item.opts.forEach((opt, oi)=>{
+    const b = document.createElement('button');
+    b.className = 'pg-opt';
+    b.innerHTML = `<span class="letter">${letterOf(oi)}</span><span>${opt}</span>`;
+    b.onclick = ()=>{
+      userAnswers[idx] = oi;
+      optWrap.querySelectorAll('.pg-opt').forEach(el=> el.classList.remove('selected'));
+      b.classList.add('selected');
+    };
+    optWrap.appendChild(b);
+  });
+});
+
+/* ================= BUILD ESSAY SLIDE ================= */
+const essayWrap = document.getElementById('essayList');
+essayQuestions.forEach((item,idx)=>{
+  const div = document.createElement('div');
+  div.className = 'essay-item';
+  div.innerHTML = `<div class="essay-num">${idx+1}.</div><div><span class="etopic">${item.topic}</span><p>${item.q}</p></div>`;
+  essayWrap.appendChild(div);
+});
+
+/* ================= KUNCI JAWABAN ================= */
+const kunciPgGrid = document.getElementById('kunciPgGrid');
+pgQuestions.forEach((item, idx)=>{
+  const d = document.createElement('div');
+  d.className = 'kunci-pg-item';
+  const userAns = userAnswers[idx];
+  let chk = '';
+  if(userAns !== null){
+    chk = userAns === item.correct ? '<div class="chk ok">✓ jawabanmu benar</div>' : '<div class="chk no">✗ jawabanmu salah</div>';
+  }
+  d.innerHTML = `<div class="no">No. ${idx+1}</div><div class="ans">${letterOf(item.correct)}</div>${chk}`;
+  kunciPgGrid.appendChild(d);
+});
+const kunciEssayWrap = document.getElementById('kunciEssayList');
+essayQuestions.forEach((item, idx)=>{
+  const d = document.createElement('div');
+  d.className = 'kunci-essay-item';
+  d.innerHTML = `<div class="eq">${idx+1}. ${item.topic}</div><div class="ea">${essayKunci[idx]}</div>`;
+  kunciEssayWrap.appendChild(d);
+});
+function updatePgScoreBox(){
+  const answered = userAnswers.filter(a=>a!==null).length;
+  const correctCount = userAnswers.filter((a,i)=> a!==null && a===pgQuestions[i].correct).length;
+  const box = document.getElementById('pgScoreBox');
+  if(answered===0){
+    box.innerHTML = 'Kamu belum memilih jawaban apa pun di Bagian A — kunci jawaban tetap ditampilkan di atas untuk referensi.';
+  } else {
+    box.innerHTML = `Jawabanmu benar <b>${correctCount}</b> dari ${answered} soal yang dipilih (dari 15 total) → estimasi skor PG: <b>${correctCount*4}</b> / 60 poin.`;
+  }
+}
+function toggleKunci(){
+  const content = document.getElementById('kunciContent');
+  const lock = document.getElementById('kunciLock');
+  const willShow = !content.classList.contains('show');
+  if(willShow){ updatePgScoreBox(); }
+  content.classList.toggle('show', willShow);
+  lock.style.display = willShow ? 'none' : 'block';
+}
+
+/* ================= SLIDE NAV ================= */
+function buildDots(){
+  const wrap = document.getElementById('dots');
+  wrap.innerHTML = '';
+  for(let i=0;i<totalSlides;i++){
+    const d = document.createElement('button');
+    d.className = 'dot'; d.title = slideNames[i]; d.onclick = () => goTo(i);
+    wrap.appendChild(d);
+  }
+}
+function goTo(i){
+  if(i<0 || i>=totalSlides) return;
+  const dir = i > current ? 1 : -1;
+  document.getElementById('s'+current).classList.remove('active');
+  if(dir>0) document.getElementById('s'+current).classList.add('prevslide');
+  current = i;
+  const el = document.getElementById('s'+current);
+  el.classList.remove('prevslide'); el.classList.add('active');
+  setTimeout(()=>{ document.querySelectorAll('.slide').forEach(s=>{ if(!s.classList.contains('active')) s.classList.remove('prevslide'); }); }, 420);
+  document.querySelectorAll('.dot').forEach((d,idx)=>{ d.classList.toggle('active', idx===current); d.classList.toggle('done', idx<current); });
+  document.getElementById('slideCount').textContent = String(current+1).padStart(2,'0') + '/' + String(totalSlides).padStart(2,'0');
+  document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100) + '%';
+  document.getElementById('stepLabel').innerHTML = (current+1) + '/' + totalSlides + ' · <b>' + slideNames[current] + '</b>';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===totalSlides-1;
+}
+
+/* ================= FINISH ================= */
+function finish(){ window.location.href = 'matb-bab2.html'; }
+
+/* ================= KEYBOARD NAV ================= */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
+});
+
+/* ================= TOUCH SWIPE NAV ================= */
+let touchStartX = 0, touchStartY = 0;
+main.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive:true});
+main.addEventListener('touchend', (e)=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ if(dx < 0) goTo(current+1); else goTo(current-1); }
+}, {passive:true});
+
+/* ================= INIT ================= */
+buildDots();
+goTo(0);
+</script>
+</body>
+</html>

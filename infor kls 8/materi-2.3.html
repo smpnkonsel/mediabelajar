@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 2 · Abstraksi dalam Pemecahan Masalah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0A1830;
+    --navy-2:#122A4E;
+    --navy-3:#1B3A66;
+    --paper:#F7F2E7;
+    --paper-2:#EFE7D6;
+    --ink:#12141B;
+    --coral:#FF6B4A;
+    --coral-dim:#c94f34;
+    --teal:#2FDFC4;
+    --amber:#FFC145;
+    --mute:#9FB0C9;
+    --mute-2:#5B6E8C;
+    --danger:#FF6B6B;
+    --radius:18px;
+    --radius-sm:10px;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.5);
+    --ff-display:'Sora', sans-serif;
+    --ff-body:'Plus Jakarta Sans', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--ff-body);
+    background:
+      radial-gradient(circle at 15% 8%, rgba(47,223,196,0.10), transparent 40%),
+      radial-gradient(circle at 90% 85%, rgba(255,107,74,0.12), transparent 45%),
+      var(--navy);
+    color:var(--paper);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--coral); color:white; }
+  button{ font-family:inherit; cursor:pointer; }
+  .deck{
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- Top progress ---------- */
+  .topbar{
+    position:relative;
+    height:4px;
+    background:rgba(255,255,255,0.08);
+    flex-shrink:0;
+  }
+  .topbar .fill{
+    position:absolute; inset:0 auto 0 0;
+    width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--coral));
+    transition:width .45s cubic-bezier(.65,0,.35,1);
+  }
+
+  /* ---------- Slides ---------- */
+  .slides{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute; inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding: clamp(24px,5vw,64px) clamp(18px,6vw,90px) clamp(90px,10vw,110px);
+    overflow-y:auto;
+    opacity:0;
+    transform:translateX(40px);
+    pointer-events:none;
+    transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1);
+  }
+  .slide.active{
+    opacity:1; transform:translateX(0);
+    pointer-events:auto;
+  }
+  .slide.prev{ transform:translateX(-40px); }
+  .slide-inner{ width:100%; max-width:980px; margin:0 auto; }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--ff-display);
+    font-size:12px; font-weight:700;
+    letter-spacing:.14em; text-transform:uppercase;
+    color:var(--teal);
+    background:rgba(47,223,196,0.08);
+    border:1px solid rgba(47,223,196,0.25);
+    padding:6px 14px; border-radius:999px;
+    margin-bottom:18px;
+  }
+  .eyebrow.alt{ color:var(--coral); background:rgba(255,107,74,0.09); border-color:rgba(255,107,74,0.28); }
+
+  h1.title{
+    font-family:var(--ff-display);
+    font-weight:800;
+    font-size:clamp(28px,5vw,52px);
+    line-height:1.08;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  h2.title{
+    font-family:var(--ff-display);
+    font-weight:700;
+    font-size:clamp(22px,3.6vw,36px);
+    line-height:1.15;
+    margin:0 0 14px;
+    letter-spacing:-0.01em;
+  }
+  .lead{
+    font-size:clamp(15px,1.9vw,18px);
+    color:var(--mute);
+    line-height:1.6;
+    max-width:640px;
+    margin:0 0 28px;
+  }
+  strong.hl{ color:var(--teal); font-weight:700; }
+  strong.hl2{ color:var(--coral); font-weight:700; }
+
+  .card{
+    background:var(--navy-2);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius);
+    padding:22px 24px;
+  }
+  .card.paper{
+    background:var(--paper);
+    color:var(--ink);
+    border:none;
+  }
+
+  .btn{
+    font-family:var(--ff-display);
+    font-weight:700;
+    font-size:14px;
+    border-radius:999px;
+    border:none;
+    padding:13px 26px;
+    display:inline-flex; align-items:center; gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{ background:var(--coral); color:#1a0d08; box-shadow:0 10px 24px -10px rgba(255,107,74,0.6); }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; color:var(--paper); border:1.5px solid rgba(255,255,255,0.25); }
+  .btn-ghost:hover{ border-color:var(--teal); color:var(--teal); }
+  .btn:active{ transform:scale(.97); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+
+  /* ---------- Bottom nav ---------- */
+  .navbar{
+    position:fixed; left:0; right:0; bottom:0;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:14px;
+    padding:12px clamp(14px,4vw,40px);
+    background:linear-gradient(0deg, rgba(10,24,48,0.97), rgba(10,24,48,0.85));
+    backdrop-filter:blur(10px);
+    border-top:1px solid rgba(255,255,255,0.08);
+    z-index:50;
+  }
+  .navbar .navbtn{
+    width:46px; height:46px; border-radius:50%;
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.12);
+    color:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+    transition:background .15s ease, transform .15s ease, opacity .15s;
+  }
+  .navbar .navbtn:hover:not(:disabled){ background:var(--teal); color:var(--navy); transform:translateY(-2px); }
+  .navbar .navbtn:disabled{ opacity:.25; cursor:default; }
+  .navmid{
+    flex:1; text-align:center; min-width:0;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .navmid .label{
+    font-family:var(--ff-display); font-weight:700; font-size:13px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    color:var(--paper);
+  }
+  .navmid .count{ font-size:11px; color:var(--mute-2); letter-spacing:.05em; }
+
+  /* ---------- Grid utilities ---------- */
+  .grid{ display:grid; gap:16px; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:repeat(3,1fr); }
+  .grid-4{ grid-template-columns:repeat(4,1fr); }
+  .grid-auto{ grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+  @media (max-width:760px){
+    .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:520px){
+    .grid-2,.grid-3,.grid-4{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- Pillars (slide 1) ---------- */
+  .pillar{
+    padding:20px; border-radius:var(--radius-sm);
+    background:var(--navy-2); border:1px solid rgba(255,255,255,0.08);
+    transition:transform .2s ease, border-color .2s ease;
+  }
+  .pillar .num{ font-family:var(--ff-display); font-size:11px; color:var(--mute-2); letter-spacing:.1em; }
+  .pillar .icon{ font-size:28px; margin:6px 0 10px; }
+  .pillar .name{ font-family:var(--ff-display); font-weight:700; font-size:16px; margin-bottom:6px; }
+  .pillar .desc{ font-size:13px; color:var(--mute); line-height:1.5; }
+  .pillar.active{ border-color:var(--teal); background:rgba(47,223,196,0.07); transform:translateY(-4px); }
+  .pillar.active .name{ color:var(--teal); }
+
+  /* ---------- Definition slide ---------- */
+  .def-box{
+    border-radius:var(--radius);
+    padding:26px 28px;
+    background:linear-gradient(135deg, var(--navy-3), var(--navy-2));
+    border-left:4px solid var(--teal);
+    margin-bottom:18px;
+  }
+  .def-box .tag{ font-family:var(--ff-display); font-size:11px; letter-spacing:.12em; color:var(--teal); text-transform:uppercase; margin-bottom:8px; }
+  .def-box p{ margin:0; font-size:clamp(15px,2vw,19px); line-height:1.6; }
+  .def-box.simple{ border-left-color:var(--coral); }
+  .def-box.simple .tag{ color:var(--coral); }
+
+  .flow{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:20px; }
+  .flow .chip{
+    background:var(--navy-2); border:1px solid rgba(255,255,255,0.1);
+    padding:10px 16px; border-radius:999px; font-size:13px; font-weight:600;
+  }
+  .flow .chip.filter{ background:var(--coral); color:#1a0d08; border:none; font-family:var(--ff-display); }
+  .flow .chip.result{ background:var(--teal); color:#062a24; border:none; font-family:var(--ff-display); }
+  .flow .arrow{ color:var(--mute-2); font-size:18px; }
+
+  /* ---------- Toggle demo (peta) ---------- */
+  .toggle-row{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .toggle-btn{
+    background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.12);
+    color:var(--mute); padding:11px 20px; border-radius:999px;
+    font-family:var(--ff-display); font-weight:700; font-size:13px;
+  }
+  .toggle-btn.on{ background:var(--coral); color:#1a0d08; border-color:var(--coral); }
+  .demo-stage{
+    border-radius:var(--radius);
+    background:var(--paper);
+    color:var(--ink);
+    padding:26px;
+    min-height:260px;
+    position:relative;
+    overflow:hidden;
+  }
+  .city-view{ display:none; }
+  .city-view.show{ display:block; }
+  .cluttered{ display:flex; flex-wrap:wrap; gap:8px; align-content:flex-start; }
+  .cluttered span{
+    font-size:22px; padding:6px 9px; background:#fff; border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+  }
+  .route-view{ display:flex; align-items:center; flex-wrap:wrap; gap:0; padding:20px 0; }
+  .route-view .stop{ display:flex; flex-direction:column; align-items:center; gap:6px; width:90px; }
+  .route-view .dot{ width:22px; height:22px; border-radius:50%; background:var(--coral); border:4px solid #fff; box-shadow:0 0 0 2px var(--coral); }
+  .route-view .stop span{ font-size:11px; font-weight:700; text-align:center; }
+  .route-view .line{ flex:1; height:4px; background:var(--coral); min-width:20px; }
+  .demo-caption{ margin-top:18px; font-size:14px; color:var(--mute); line-height:1.55; }
+  .demo-caption b{ color:var(--paper); }
+
+  /* ---------- Icon gallery ---------- */
+  .icon-tile{
+    background:var(--navy-2); border:1px solid rgba(255,255,255,0.1);
+    border-radius:var(--radius-sm); padding:18px 12px; text-align:center;
+    transition:transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  .icon-tile .emo{ font-size:32px; display:block; margin-bottom:8px; }
+  .icon-tile .lbl{ font-size:12px; font-weight:700; font-family:var(--ff-display); }
+  .icon-tile:hover{ transform:translateY(-4px); border-color:var(--teal); }
+  .icon-tile.selected{ background:rgba(47,223,196,0.1); border-color:var(--teal); }
+  .icon-detail{
+    margin-top:18px; padding:18px 20px; border-radius:var(--radius-sm);
+    background:var(--navy-3); border-left:3px solid var(--teal);
+    font-size:14px; line-height:1.6; color:var(--paper);
+    min-height:66px;
+    display:flex; align-items:center;
+  }
+  .icon-detail .placeholder{ color:var(--mute-2); }
+
+  /* ---------- Word-select game ---------- */
+  .scenario{
+    background:var(--navy-2); border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius); padding:20px 22px; margin-bottom:20px;
+    font-size:14px; color:var(--mute); line-height:1.6;
+  }
+  .chip-field{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+  .word-chip{
+    background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.14);
+    padding:10px 16px; border-radius:10px; font-size:13px; font-weight:600;
+    color:var(--paper);
+  }
+  .word-chip.picked{ background:rgba(47,223,196,0.14); border-color:var(--teal); color:var(--teal); }
+  .word-chip.correct{ background:rgba(47,223,196,0.18); border-color:var(--teal); color:var(--teal); }
+  .word-chip.wrong{ background:rgba(255,107,107,0.16); border-color:var(--danger); color:var(--danger); }
+  .word-chip.missed{ border-style:dashed; border-color:var(--amber); color:var(--amber); }
+  .game-result{ margin-top:16px; font-size:14px; padding:14px 18px; border-radius:var(--radius-sm); background:var(--navy-3); display:none; }
+  .game-result.show{ display:block; }
+
+  /* ---------- Steps ---------- */
+  .step-list{ display:flex; flex-direction:column; gap:12px; }
+  .step-item{
+    display:flex; gap:16px; align-items:flex-start;
+    background:var(--navy-2); border:1px solid rgba(255,255,255,0.08);
+    border-radius:var(--radius-sm); padding:16px 18px;
+  }
+  .step-item .n{
+    font-family:var(--ff-display); font-weight:800; font-size:16px;
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background:var(--coral); color:#1a0d08; display:flex; align-items:center; justify-content:center;
+  }
+  .step-item .t{ font-family:var(--ff-display); font-weight:700; font-size:14.5px; margin-bottom:4px; }
+  .step-item .d{ font-size:13px; color:var(--mute); line-height:1.5; }
+
+  /* ---------- Tabs (mobil) ---------- */
+  .tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .tab-btn{
+    background:var(--navy-2); border:1.5px solid rgba(255,255,255,0.12); color:var(--mute);
+    padding:11px 18px; border-radius:999px; font-family:var(--ff-display); font-weight:700; font-size:13px;
+  }
+  .tab-btn.on{ background:var(--teal); color:#062a24; border-color:var(--teal); }
+  .tab-panel{ display:none; }
+  .tab-panel.show{ display:block; }
+  .attr-list{ display:flex; flex-direction:column; gap:8px; }
+  .attr-list .attr{ display:flex; align-items:center; gap:10px; padding:10px 14px; border-radius:8px; font-size:13.5px; }
+  .attr.keep{ background:rgba(47,223,196,0.1); color:var(--teal); }
+  .attr.drop{ background:rgba(255,107,107,0.08); color:#e39a9a; text-decoration:line-through; opacity:.75; }
+
+  /* ---------- Worked examples ---------- */
+  .soal-box{
+    background:var(--paper); color:var(--ink); border-radius:var(--radius);
+    padding:24px 26px; margin-bottom:16px;
+  }
+  .soal-box .kicker{ font-family:var(--ff-display); font-weight:800; font-size:12px; color:var(--coral-dim); letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+  .soal-box p{ line-height:1.65; font-size:14.5px; margin:0 0 8px; }
+  .reveal-panel{
+    max-height:0; overflow:hidden; transition:max-height .4s ease;
+    border-radius:var(--radius-sm);
+  }
+  .reveal-panel.open{ max-height:600px; }
+  .reveal-inner{
+    margin-top:14px; padding:18px 20px; background:var(--navy-3);
+    border-left:3px solid var(--amber); border-radius:var(--radius-sm);
+    font-size:13.5px; line-height:1.65; color:var(--paper);
+  }
+  .reveal-inner ol{ margin:8px 0 0; padding-left:20px; }
+  .reveal-inner li{ margin-bottom:6px; }
+
+  /* ---------- Quiz ---------- */
+  .quiz-wrap{ background:var(--navy-2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius); padding:26px; }
+  .quiz-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; font-size:12px; color:var(--mute-2); font-family:var(--ff-display); font-weight:700; letter-spacing:.05em; }
+  .quiz-bar{ height:5px; border-radius:99px; background:rgba(255,255,255,0.08); overflow:hidden; margin-bottom:22px; }
+  .quiz-bar .f{ height:100%; background:linear-gradient(90deg,var(--teal),var(--coral)); width:0%; transition:width .35s ease; }
+  .q-text{ font-family:var(--ff-display); font-weight:700; font-size:clamp(16px,2.3vw,20px); line-height:1.4; margin-bottom:20px; }
+  .q-options{ display:flex; flex-direction:column; gap:10px; }
+  .q-opt{
+    text-align:left; background:var(--navy-3); border:1.5px solid rgba(255,255,255,0.1);
+    color:var(--paper); padding:14px 18px; border-radius:12px; font-size:14px; line-height:1.5;
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .q-opt .k{ font-family:var(--ff-display); font-weight:800; color:var(--mute-2); flex-shrink:0; }
+  .q-opt:hover:not(:disabled){ border-color:var(--teal); }
+  .q-opt.correct{ background:rgba(47,223,196,0.14); border-color:var(--teal); }
+  .q-opt.correct .k{ color:var(--teal); }
+  .q-opt.wrong{ background:rgba(255,107,107,0.12); border-color:var(--danger); }
+  .q-opt.wrong .k{ color:var(--danger); }
+  .q-opt:disabled{ cursor:default; }
+  .q-feedback{ margin-top:16px; padding:14px 16px; border-radius:10px; background:var(--navy); font-size:13.5px; line-height:1.55; color:var(--mute); display:none; }
+  .q-feedback.show{ display:block; }
+  .q-next{ margin-top:18px; text-align:right; }
+  .quiz-result{ display:none; text-align:center; padding:20px 0; }
+  .quiz-result.show{ display:block; }
+  .quiz-result .score{ font-family:var(--ff-display); font-weight:800; font-size:clamp(38px,7vw,58px); color:var(--teal); margin:8px 0; }
+  .quiz-result .msg{ color:var(--mute); font-size:14px; margin-bottom:20px; }
+
+  /* ---------- Summary ---------- */
+  .sum-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
+  .sum-item{ display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.55; color:var(--mute); }
+  .sum-item .ic{ color:var(--teal); flex-shrink:0; font-size:16px; }
+
+  /* ---------- Cover / final ---------- */
+  .cover-slide, .final-slide{ justify-content:center; align-items:center; text-align:center; }
+  .scan-wrap{
+    position:relative; width:min(320px,70vw); height:min(320px,70vw);
+    margin:10px auto 30px; border-radius:50%;
+    background:radial-gradient(circle, rgba(47,223,196,0.08), transparent 70%);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .scan-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; font-size:clamp(26px,6vw,34px); z-index:2; }
+  .scan-grid span{ opacity:.28; transition:opacity .3s ease, transform .3s ease; }
+  .scan-grid span.hit{ opacity:1; transform:scale(1.15); filter:drop-shadow(0 0 10px rgba(47,223,196,0.7)); }
+  .scan-ring{
+    position:absolute; inset:0; border-radius:50%;
+    border:2px solid rgba(47,223,196,0.25);
+  }
+  .scan-ring::after{
+    content:''; position:absolute; inset:0; border-radius:50%;
+    background:conic-gradient(from 0deg, transparent 0deg, rgba(47,223,196,0.5) 25deg, transparent 60deg);
+    animation:spin 3.2s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .final-emoji{ font-size:clamp(46px,9vw,72px); margin-bottom:10px; }
+  .final-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin-top:24px; }
+
+  /* ---------- Scrollbar ---------- */
+  .slide::-webkit-scrollbar{ width:6px; }
+  .slide::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.15); border-radius:99px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide, .scan-ring::after, .icon-tile, .navbar .navbtn{ transition:none !important; animation:none !important; }
+  }
+
+  @media (max-width:640px){
+    .navmid .label{ display:none; }
+    .navbar{ padding:10px 14px; }
+    .card{ padding:18px; }
+    .step-item{ padding:14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="topbar"><div class="fill" id="progressFill"></div></div>
+
+  <div class="slides" id="slides">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide cover-slide" data-title="Cover">
+      <div class="slide-inner">
+        <div class="scan-wrap">
+          <div class="scan-ring"></div>
+          <div class="scan-grid" id="coverScan">
+            <span>🗺️</span><span>📎</span><span>🧮</span>
+            <span>🖼️</span><span class="hit">🎯</span><span>🧵</span>
+            <span>📐</span><span>🪙</span><span>🔎</span>
+          </div>
+        </div>
+        <div class="eyebrow">Informatika · Bab 2 · Berpikir Komputasional</div>
+        <h1 class="title">Abstraksi dalam<br>Pemecahan Masalah</h1>
+        <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center;">
+          Cara memilih <strong class="hl">informasi yang penting</strong> dan mengabaikan
+          informasi yang <strong class="hl2">tidak diperlukan</strong> — biar masalah jadi lebih sederhana untuk diselesaikan.
+        </p>
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : APERSEPSI -->
+    <section class="slide" data-title="Apa itu Berpikir Komputasional?">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 01 · Pengantar</div>
+        <h2 class="title">Apa itu Berpikir Komputasional?</h2>
+        <p class="lead">
+          <strong class="hl">Berpikir Komputasional</strong> (Computational Thinking) adalah cara berpikir untuk
+          menyelesaikan masalah dengan langkah-langkah yang jelas dan logis — seperti cara seorang programmer
+          "membedah" masalah sebelum menuliskan kode. Ada 4 pilar utamanya:
+        </p>
+        <div class="grid grid-4">
+          <div class="pillar">
+            <div class="num">PILAR 01</div>
+            <div class="icon">🧩</div>
+            <div class="name">Dekomposisi</div>
+            <div class="desc">Memecah masalah besar jadi bagian-bagian kecil.</div>
+          </div>
+          <div class="pillar">
+            <div class="num">PILAR 02</div>
+            <div class="icon">🔁</div>
+            <div class="name">Pengenalan Pola</div>
+            <div class="desc">Menemukan kesamaan/pola dari bagian-bagian tadi.</div>
+          </div>
+          <div class="pillar active">
+            <div class="num">PILAR 03 · FOKUS BAB INI</div>
+            <div class="icon">🎯</div>
+            <div class="name">Abstraksi</div>
+            <div class="desc">Memilih info penting, mengabaikan yang tidak perlu.</div>
+          </div>
+          <div class="pillar">
+            <div class="num">PILAR 04</div>
+            <div class="icon">📋</div>
+            <div class="name">Algoritma</div>
+            <div class="desc">Menyusun langkah-langkah runtut untuk solusi.</div>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:20px;">
+          Di bab ini kita akan fokus mendalami pilar ketiga: <strong class="hl">Abstraksi</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : DEFINISI -->
+    <section class="slide" data-title="Definisi Abstraksi">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 02 · Konsep Dasar</div>
+        <h2 class="title">Apa itu Abstraksi?</h2>
+        <div class="def-box">
+          <div class="tag">Definisi Formal</div>
+          <p>Abstraksi adalah proses <strong class="hl">menentukan informasi apa saja yang penting</strong>
+            untuk menyelesaikan suatu masalah, sekaligus <strong class="hl">mengabaikan detail-detail
+            yang tidak relevan</strong> dengan tujuan penyelesaian masalah tersebut.</p>
+        </div>
+        <div class="def-box simple">
+          <div class="tag">Bahasa Gampangnya</div>
+          <p>Abstraksi itu seperti "menyaring" — dari banyak sekali informasi, kamu cuma mengambil
+            bagian yang benar-benar dibutuhkan, dan menyisihkan sisanya supaya masalah tidak terasa rumit.</p>
+        </div>
+        <div class="flow">
+          <div class="chip">🗂️ Semua Informasi</div>
+          <div class="arrow">→</div>
+          <div class="chip filter">🎯 Proses Abstraksi</div>
+          <div class="arrow">→</div>
+          <div class="chip result">✅ Info Penting Saja</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : CIRI & KENAPA PENTING -->
+    <section class="slide" data-title="Kenapa Abstraksi Penting?">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 03 · Konsep Dasar</div>
+        <h2 class="title">Ciri &amp; Kenapa Abstraksi Itu Penting</h2>
+        <div class="grid grid-2">
+          <div class="card">
+            <div style="font-family:var(--ff-display);font-weight:700;color:var(--teal);margin-bottom:10px;">✓ Ciri Abstraksi yang Baik</div>
+            <div class="sum-list">
+              <div class="sum-item"><span class="ic">•</span>Fokus pada <em>tujuan</em> penyelesaian masalah</div>
+              <div class="sum-item"><span class="ic">•</span>Menyisakan info yang benar-benar dibutuhkan</div>
+              <div class="sum-item"><span class="ic">•</span>Detail yang tidak berpengaruh disembunyikan</div>
+              <div class="sum-item"><span class="ic">•</span>Hasilnya lebih ringkas & mudah dipahami</div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="font-family:var(--ff-display);font-weight:700;color:var(--coral);margin-bottom:10px;">★ Kenapa Ini Penting?</div>
+            <div class="sum-list">
+              <div class="sum-item"><span class="ic" style="color:var(--coral);">•</span>Masalah rumit jadi lebih sederhana</div>
+              <div class="sum-item"><span class="ic" style="color:var(--coral);">•</span>Solusi ditemukan lebih cepat</div>
+              <div class="sum-item"><span class="ic" style="color:var(--coral);">•</span>Mengurangi kesalahan karena terlalu banyak data</div>
+              <div class="sum-item"><span class="ic" style="color:var(--coral);">•</span>Dasar dari pembuatan aplikasi, peta, ikon, dsb.</div>
+            </div>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:22px;">
+          Ingat: <strong class="hl">informasi "penting" itu tergantung tujuannya.</strong> Sesuatu yang penting
+          di satu situasi, bisa jadi tidak penting di situasi lain — kita akan lihat contohnya di slide berikutnya!
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : DEMO PETA -->
+    <section class="slide" data-title="Contoh Interaktif: Peta">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 01</div>
+        <h2 class="title">Coba Klik: Kondisi Nyata vs Peta Rute</h2>
+        <p class="lead">Bayangkan kamu ingin menunjukkan rute bus sekolah. Coba tekan tombol di bawah untuk membandingkan.</p>
+        <div class="toggle-row">
+          <button class="toggle-btn on" id="btnReal" onclick="setCityView('real')">🏙️ Kondisi Nyata (Semua Detail)</button>
+          <button class="toggle-btn" id="btnRoute" onclick="setCityView('route')">🚌 Peta Rute (Sudah Diabstraksi)</button>
+        </div>
+        <div class="demo-stage">
+          <div class="city-view show" id="viewReal">
+            <div class="cluttered">
+              <span>🏠</span><span>🌳</span><span>🚗</span><span>🏪</span><span>🐦</span>
+              <span>🚦</span><span>🌸</span><span>🏢</span><span>🐕</span><span>🚲</span>
+              <span>🏠</span><span>🪧</span><span>🌳</span><span>🚗</span><span>🏫</span>
+              <span>🧍</span><span>🏠</span><span>🚏</span><span>🌳</span><span>🏬</span>
+              <span>🐈</span><span>🚗</span><span>🏠</span><span>🌳</span><span>🚏</span>
+            </div>
+          </div>
+          <div class="city-view" id="viewRoute">
+            <div class="route-view">
+              <div class="stop"><div class="dot"></div><span>Rumah</span></div>
+              <div class="line"></div>
+              <div class="stop"><div class="dot"></div><span>Halte A</span></div>
+              <div class="line"></div>
+              <div class="stop"><div class="dot"></div><span>Halte B</span></div>
+              <div class="line"></div>
+              <div class="stop"><div class="dot"></div><span>Sekolah</span></div>
+            </div>
+          </div>
+          <div class="demo-caption" id="cityCaption">
+            <b>Kondisi Nyata:</b> berisi SEMUA hal di jalan — pohon, mobil, toko, hewan, orang. Terlalu ramai
+            dan sulit dipakai untuk menjelaskan rute dengan cepat.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : ICON GALLERY -->
+    <section class="slide" data-title="Contoh Interaktif: Ikon Aplikasi">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 02</div>
+        <h2 class="title">Klik Ikon untuk Melihat Abstraksinya</h2>
+        <p class="lead">Ikon aplikasi di HP-mu adalah hasil abstraksi! Klik salah satu untuk melihat penjelasannya.</p>
+        <div class="grid grid-auto" id="iconGallery">
+          <div class="icon-tile" data-icon="calc"><span class="emo">🧮</span><span class="lbl">Kalkulator</span></div>
+          <div class="icon-tile" data-icon="cam"><span class="emo">📷</span><span class="lbl">Kamera</span></div>
+          <div class="icon-tile" data-icon="clock"><span class="emo">⏰</span><span class="lbl">Jam/Alarm</span></div>
+          <div class="icon-tile" data-icon="weather"><span class="emo">⛅</span><span class="lbl">Cuaca</span></div>
+          <div class="icon-tile" data-icon="music"><span class="emo">🎵</span><span class="lbl">Musik</span></div>
+          <div class="icon-tile" data-icon="map"><span class="emo">📍</span><span class="lbl">Peta/Lokasi</span></div>
+        </div>
+        <div class="icon-detail" id="iconDetail"><span class="placeholder">👆 Klik salah satu ikon di atas untuk melihat penjelasan abstraksinya.</span></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : WORD GAME -->
+    <section class="slide" data-title="Latihan: Pilih Informasi Penting">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Interaktif 03 · Latihan</div>
+        <h2 class="title">Klik Informasi yang PENTING</h2>
+        <div class="scenario">
+          🎯 <b>Tujuan:</b> Kamu sedang membuat <b>Kartu Anggota Perpustakaan Sekolah</b>.
+          Klik kata/frasa di bawah yang menurutmu <b>penting</b> untuk dicantumkan di kartu tersebut,
+          lalu tekan "Cek Jawaban".
+        </div>
+        <div class="chip-field" id="wordField">
+          <div class="word-chip" data-correct="true">Nama Lengkap</div>
+          <div class="word-chip" data-correct="true">Kelas</div>
+          <div class="word-chip" data-correct="true">Nomor Induk Siswa</div>
+          <div class="word-chip" data-correct="false">Warna Sepatu Favorit</div>
+          <div class="word-chip" data-correct="false">Makanan Kesukaan</div>
+          <div class="word-chip" data-correct="true">Masa Berlaku Kartu</div>
+          <div class="word-chip" data-correct="false">Tinggi Badan</div>
+          <div class="word-chip" data-correct="false">Grup Band Favorit</div>
+          <div class="word-chip" data-correct="true">Foto Siswa</div>
+        </div>
+        <button class="btn btn-primary" onclick="checkWordGame()">Cek Jawaban</button>
+        <div class="game-result" id="wordResult"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : LANGKAH -->
+    <section class="slide" data-title="Langkah-Langkah Abstraksi">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 04 · Proses</div>
+        <h2 class="title">Langkah-Langkah Melakukan Abstraksi</h2>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="n">1</div>
+            <div><div class="t">Kenali Tujuan / Konteks Masalah</div><div class="d">Tanyakan: masalah ini untuk apa? Siapa yang akan memakainya?</div></div>
+          </div>
+          <div class="step-item">
+            <div class="n">2</div>
+            <div><div class="t">Kumpulkan Semua Informasi yang Ada</div><div class="d">Catat dulu semua data/detail yang tersedia, sebanyak apapun.</div></div>
+          </div>
+          <div class="step-item">
+            <div class="n">3</div>
+            <div><div class="t">Pilih Informasi yang Relevan</div><div class="d">Sortir mana yang benar-benar berhubungan dengan tujuan di langkah 1.</div></div>
+          </div>
+          <div class="step-item">
+            <div class="n">4</div>
+            <div><div class="t">Abaikan / Sembunyikan Detail Lain</div><div class="d">Info yang tidak relevan tidak perlu ditampilkan atau dipikirkan lagi.</div></div>
+          </div>
+          <div class="step-item">
+            <div class="n">5</div>
+            <div><div class="t">Susun Representasi yang Sederhana</div><div class="d">Buat versi ringkas — bisa berupa peta, ikon, tabel, atau daftar singkat.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 : TABS MOBIL -->
+    <section class="slide" data-title="Abstraksi Tergantung Konteks">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi 05 · Abstraksi dalam Teknologi</div>
+        <h2 class="title">Objek yang Sama, Abstraksi Berbeda</h2>
+        <p class="lead">Bayangkan objek <strong class="hl">"Mobil"</strong>. Dua aplikasi berbeda akan mengambil informasi yang berbeda pula, tergantung tujuannya. Coba klik tab di bawah:</p>
+        <div class="tabs">
+          <button class="tab-btn on" onclick="setCarTab('race')">🏎️ Aplikasi Balap Mobil</button>
+          <button class="tab-btn" onclick="setCarTab('shop')">🛒 Aplikasi Jual-Beli Mobil</button>
+        </div>
+        <div class="card">
+          <div class="tab-panel show" id="tabRace">
+            <div class="attr-list">
+              <div class="attr keep">✅ Kecepatan maksimum</div>
+              <div class="attr keep">✅ Tenaga mesin (HP)</div>
+              <div class="attr keep">✅ Berat kendaraan</div>
+              <div class="attr keep">✅ Grip / traksi ban</div>
+              <div class="attr drop">❌ Harga jual</div>
+              <div class="attr drop">❌ Tahun produksi untuk pajak</div>
+              <div class="attr drop">❌ Riwayat servis</div>
+            </div>
+          </div>
+          <div class="tab-panel" id="tabShop">
+            <div class="attr-list">
+              <div class="attr keep">✅ Harga jual</div>
+              <div class="attr keep">✅ Tahun produksi</div>
+              <div class="attr keep">✅ Riwayat servis & kondisi</div>
+              <div class="attr keep">✅ Jarak tempuh (KM)</div>
+              <div class="attr drop">❌ Kecepatan maksimum di sirkuit</div>
+              <div class="attr drop">❌ Grip ban balap</div>
+              <div class="attr drop">❌ Tenaga mesin versi racing</div>
+            </div>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:18px;">
+          💡 Kesimpulan: <strong class="hl">tidak ada satu abstraksi yang "benar" secara mutlak</strong> —
+          semuanya tergantung pada tujuan penggunaannya.
+        </p>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : CONTOH SOAL 1 -->
+    <section class="slide" data-title="Contoh Soal 1">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Soal · Pembahasan 01</div>
+        <h2 class="title">Yuk, Coba Selesaikan Soal Ini</h2>
+        <div class="soal-box">
+          <div class="kicker">Soal</div>
+          <p>Bu Rina ingin membuat <b>label pengiriman paket</b> untuk toko online-nya. Data yang ia miliki
+            tentang pembeli: Nama, Alamat lengkap, Nomor HP, Warna favorit, Tanggal lahir, Nama sekolah anaknya,
+            dan Jumlah barang yang dipesan.</p>
+          <p><b>Pertanyaan:</b> Informasi mana saja yang perlu ditulis di label pengiriman?</p>
+        </div>
+        <button class="btn btn-ghost" onclick="toggleReveal('rev1')">🔍 Lihat Pembahasan</button>
+        <div class="reveal-panel" id="rev1">
+          <div class="reveal-inner">
+            <b>Tujuan:</b> label harus membantu kurir mengantar paket dengan benar.<br><br>
+            <b>Informasi penting (diambil):</b>
+            <ol>
+              <li>Nama penerima</li>
+              <li>Alamat lengkap</li>
+              <li>Nomor HP (untuk dihubungi kurir)</li>
+              <li>Jumlah barang (untuk cek kelengkapan)</li>
+            </ol>
+            <b>Informasi tidak relevan (diabaikan):</b> Warna favorit, Tanggal lahir, dan Nama sekolah anaknya —
+            karena tidak berhubungan dengan proses pengiriman paket.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : CONTOH SOAL 2 -->
+    <section class="slide" data-title="Contoh Soal 2">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Soal · Pembahasan 02</div>
+        <h2 class="title">Satu Lagi, Yuk Coba!</h2>
+        <div class="soal-box">
+          <div class="kicker">Soal</div>
+          <p>Sebuah aplikasi <b>rapor digital sekolah</b> ingin menampilkan ringkasan nilai siswa di halaman
+            utama. Data yang tersedia di database sekolah: Nilai ujian tiap mata pelajaran, Nama guru pengajar,
+            Nomor ruang kelas, Rata-rata nilai, Catatan absensi, dan Warna seragam sekolah.</p>
+          <p><b>Pertanyaan:</b> Data mana yang paling penting ditampilkan di ringkasan halaman utama?</p>
+        </div>
+        <button class="btn btn-ghost" onclick="toggleReveal('rev2')">🔍 Lihat Pembahasan</button>
+        <div class="reveal-panel" id="rev2">
+          <div class="reveal-inner">
+            <b>Tujuan:</b> memberi gambaran cepat tentang performa akademik siswa.<br><br>
+            <b>Informasi penting (diambil):</b>
+            <ol>
+              <li>Nilai ujian tiap mata pelajaran</li>
+              <li>Rata-rata nilai</li>
+              <li>Catatan absensi (berkaitan dengan performa belajar)</li>
+            </ol>
+            <b>Informasi tidak relevan untuk ringkasan ini (diabaikan):</b> Nama guru pengajar, Nomor ruang
+            kelas, dan Warna seragam sekolah — informasi ini mungkin berguna di halaman lain, tapi tidak
+            untuk ringkasan performa akademik.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11 : QUIZ -->
+    <section class="slide" data-title="Kuis Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Kuis · Uji Pemahamanmu</div>
+        <h2 class="title">Kuis Latihan Abstraksi</h2>
+        <div class="quiz-wrap">
+          <div class="quiz-top"><span id="quizPos">SOAL 1 / 6</span><span id="quizScoreTop">SKOR: 0</span></div>
+          <div class="quiz-bar"><div class="f" id="quizBarFill"></div></div>
+
+          <div id="quizQuestionArea"></div>
+
+          <div class="quiz-result" id="quizResult">
+            <div style="font-size:40px;">🏆</div>
+            <div class="score" id="quizFinalScore">0/6</div>
+            <div class="msg" id="quizFinalMsg">Terus berlatih, ya!</div>
+            <button class="btn btn-primary" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">Rangkuman</div>
+        <h2 class="title">Yang Perlu Kamu Ingat</h2>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="sum-list">
+            <div class="sum-item"><span class="ic">✔</span><span><b style="color:var(--paper)">Abstraksi</b> = memilih informasi penting, mengabaikan yang tidak perlu, sesuai tujuan masalah.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Abstraksi membuat masalah lebih <b style="color:var(--paper)">sederhana</b> dan lebih cepat diselesaikan.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Contoh abstraksi ada di sekitar kita: <b style="color:var(--paper)">peta rute, ikon aplikasi, formulir, rapor digital</b>.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Informasi yang "penting" itu <b style="color:var(--paper)">tergantung tujuan/konteks</b> — bisa berbeda untuk tiap situasi.</span></div>
+            <div class="sum-item"><span class="ic">✔</span><span>Langkah abstraksi: kenali tujuan → kumpulkan data → pilih yang relevan → abaikan sisanya → susun versi sederhana.</span></div>
+          </div>
+        </div>
+        <div class="flow">
+          <div class="chip">🧩 Dekomposisi</div><div class="arrow">→</div>
+          <div class="chip">🔁 Pengenalan Pola</div><div class="arrow">→</div>
+          <div class="chip filter">🎯 Abstraksi</div><div class="arrow">→</div>
+          <div class="chip result">📋 Algoritma</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : FINAL -->
+    <section class="slide final-slide" data-title="Selesai">
+      <div class="slide-inner">
+        <div class="final-emoji">🎉</div>
+        <div class="eyebrow">Materi Selesai</div>
+        <h1 class="title">Kerja Bagus!</h1>
+        <p class="lead" style="margin-left:auto;margin-right:auto;text-align:center;">
+          Kamu telah menyelesaikan materi <strong class="hl">Abstraksi dalam Pemecahan Masalah</strong>.
+          Sekarang kamu tahu cara menentukan informasi penting dan mengabaikan yang tidak perlu — salah satu
+          kunci utama dalam Berpikir Komputasional.
+        </p>
+        <div class="final-actions">
+          <button class="btn btn-ghost" onclick="goTo(0)">↺ Ulangi Materi</button>
+          <a class="btn btn-primary" href="infob-bab2.html" style="text-decoration:none;">✅ Selesai & Kembali</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="navbtn" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">←</button>
+    <div class="navmid">
+      <div class="label" id="navLabel">Cover</div>
+      <div class="count" id="navCount">01 / 14</div>
+    </div>
+    <button class="navbtn" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">→</button>
+  </div>
+</div>
+
+<script>
+/* ============ NAVIGASI DECK ============ */
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const total = slideEls.length;
+let current = 0;
+
+function renderSlide(){
+  slideEls.forEach((el,i)=>{
+    el.classList.remove('active','prev');
+    if(i===current) el.classList.add('active');
+    else if(i<current) el.classList.add('prev');
+  });
+  document.getElementById('navLabel').textContent = slideEls[current].dataset.title || '';
+  document.getElementById('navCount').textContent = pad(current+1) + ' / ' + pad(total);
+  document.getElementById('progressFill').style.width = (current/(total-1))*100 + '%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  slideEls[current].scrollTop = 0;
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function goTo(i){
+  if(i<0||i>=total) return;
+  current = i;
+  renderSlide();
+}
+function nextSlide(){ if(current<total-1){ current++; renderSlide(); } }
+function prevSlide(){ if(current>0){ current--; renderSlide(); } }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+/* swipe */
+let touchX=null;
+document.getElementById('slides').addEventListener('touchstart', e=>{ touchX = e.changedTouches[0].clientX; }, {passive:true});
+document.getElementById('slides').addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 50){ dx < 0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+
+renderSlide();
+
+/* ============ COVER SCAN ANIMATION ============ */
+(function(){
+  const spans = document.querySelectorAll('#coverScan span');
+  let i = 0;
+  setInterval(()=>{
+    spans.forEach(s=>s.classList.remove('hit'));
+    spans[i % spans.length].classList.add('hit');
+    i++;
+  }, 900);
+})();
+
+/* ============ SLIDE 4: PETA TOGGLE ============ */
+function setCityView(mode){
+  const btnReal = document.getElementById('btnReal');
+  const btnRoute = document.getElementById('btnRoute');
+  const viewReal = document.getElementById('viewReal');
+  const viewRoute = document.getElementById('viewRoute');
+  const caption = document.getElementById('cityCaption');
+  if(mode==='real'){
+    btnReal.classList.add('on'); btnRoute.classList.remove('on');
+    viewReal.classList.add('show'); viewRoute.classList.remove('show');
+    caption.innerHTML = '<b>Kondisi Nyata:</b> berisi SEMUA hal di jalan — pohon, mobil, toko, hewan, orang. Terlalu ramai dan sulit dipakai untuk menjelaskan rute dengan cepat.';
+  } else {
+    btnRoute.classList.add('on'); btnReal.classList.remove('on');
+    viewRoute.classList.add('show'); viewReal.classList.remove('show');
+    caption.innerHTML = '<b>Peta Rute (Abstraksi):</b> hanya menyisakan halte-halte pemberhentian & urutannya — detail lain seperti pohon dan toko diabaikan karena tidak penting untuk tujuan menunjukkan rute.';
+  }
+}
+
+/* ============ SLIDE 5: ICON GALLERY ============ */
+const iconInfo = {
+  calc: '🧮 <b>Kalkulator:</b> ikonnya hanya menampilkan gambar tombol angka sederhana — bukan detail merek, warna casing, atau jenis prosesor di dalamnya. Yang penting: orang langsung tahu ini aplikasi hitung-hitungan.',
+  cam: '📷 <b>Kamera:</b> ikonnya cukup bentuk lensa & badan kamera — tanpa detail megapiksel, jenis sensor, atau merek. Fungsinya sudah jelas hanya dari bentuk sederhana itu.',
+  clock: '⏰ <b>Jam/Alarm:</b> cukup ditampilkan bentuk jam analog sederhana, tanpa detail jenis mesin jam atau merek arloji. Yang penting: orang tahu ini untuk mengatur waktu.',
+  weather: '⛅ <b>Cuaca:</b> hanya menampilkan simbol matahari/awan — bukan data ilmiah seperti kelembapan udara, kecepatan angin dalam angka, atau nama-nama awan. Info kompleks itu disederhanakan jadi 1 ikon.',
+  music: '🎵 <b>Musik:</b> ikon not musik sudah cukup mewakili "aplikasi pemutar musik" — tanpa perlu menampilkan detail format file (MP3, WAV) atau nama codec audio.',
+  map: '📍 <b>Peta/Lokasi:</b> ikon pin lokasi mewakili "tempat" — tanpa detail koordinat GPS yang panjang berupa angka desimal, karena pengguna cukup tahu itu adalah penanda lokasi.'
+};
+document.getElementById('iconGallery').addEventListener('click', (e)=>{
+  const tile = e.target.closest('.icon-tile');
+  if(!tile) return;
+  document.querySelectorAll('#iconGallery .icon-tile').forEach(t=>t.classList.remove('selected'));
+  tile.classList.add('selected');
+  document.getElementById('iconDetail').innerHTML = iconInfo[tile.dataset.icon];
+});
+
+/* ============ SLIDE 6: WORD GAME ============ */
+document.getElementById('wordField').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.word-chip');
+  if(!chip) return;
+  chip.classList.toggle('picked');
+});
+function checkWordGame(){
+  const chips = document.querySelectorAll('#wordField .word-chip');
+  let correctPicked=0, totalCorrect=0, wrongPicked=0;
+  chips.forEach(c=>{
+    const isCorrect = c.dataset.correct === 'true';
+    const isPicked = c.classList.contains('picked');
+    c.classList.remove('correct','wrong','missed');
+    if(isCorrect) totalCorrect++;
+    if(isCorrect && isPicked){ c.classList.add('correct'); correctPicked++; }
+    else if(!isCorrect && isPicked){ c.classList.add('wrong'); wrongPicked++; }
+    else if(isCorrect && !isPicked){ c.classList.add('missed'); }
+  });
+  const result = document.getElementById('wordResult');
+  result.classList.add('show');
+  if(correctPicked===totalCorrect && wrongPicked===0){
+    result.innerHTML = '🎉 <b style="color:var(--teal);">Sempurna!</b> Kamu berhasil memilih semua informasi yang penting dan tidak salah pilih.';
+  } else {
+    result.innerHTML = `📝 Kamu memilih ${correctPicked} dari ${totalCorrect} info penting yang benar` + (wrongPicked>0 ? `, dan ${wrongPicked} pilihan kurang tepat.` : '.') + ' Info bertanda <span style="color:var(--amber);">kuning putus-putus</span> adalah yang terlewat — coba cek lagi ya!';
+  }
+}
+
+/* ============ SLIDE 8: TABS MOBIL ============ */
+function setCarTab(mode){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('show'));
+  if(mode==='race'){
+    document.querySelectorAll('.tab-btn')[0].classList.add('on');
+    document.getElementById('tabRace').classList.add('show');
+  } else {
+    document.querySelectorAll('.tab-btn')[1].classList.add('on');
+    document.getElementById('tabShop').classList.add('show');
+  }
+}
+
+/* ============ SLIDE 9-10: REVEAL SOAL ============ */
+function toggleReveal(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+/* ============ SLIDE 11: QUIZ ============ */
+const quizData = [
+  {
+    q: "Ketika membuat peta rute bus sekolah, informasi apa yang PALING PENTING untuk ditampilkan?",
+    opts: [
+      "Warna cat setiap gedung di sepanjang jalan",
+      "Halte-halte pemberhentian dan urutannya",
+      "Jumlah pohon di pinggir jalan",
+      "Merek mobil yang lewat"
+    ],
+    correct: 1,
+    exp: "Tujuan peta rute adalah membantu penumpang tahu di mana harus naik/turun, jadi yang penting adalah halte pemberhentian dan urutannya."
+  },
+  {
+    q: "Manakah yang merupakan CONTOH abstraksi dalam kehidupan sehari-hari?",
+    opts: [
+      "Menghafal seluruh isi buku kata demi kata",
+      "Ikon amplop yang mewakili aplikasi 'Email'",
+      "Menggambar peta dengan detail setiap helai daun",
+      "Mencatat semua percakapan di kelas"
+    ],
+    correct: 1,
+    exp: "Ikon amplop menyederhanakan konsep 'surat elektronik' menjadi satu simbol sederhana — itulah abstraksi."
+  },
+  {
+    q: "Dalam aplikasi toko online, data 'warna favorit pembeli' termasuk informasi...",
+    opts: [
+      "Sangat penting dan wajib ditampilkan",
+      "Tidak relevan dengan proses jual-beli",
+      "Harus dicetak di struk belanja",
+      "Menentukan harga barang"
+    ],
+    correct: 1,
+    exp: "Warna favorit pembeli tidak berhubungan dengan proses transaksi jual-beli, sehingga bisa diabaikan (bukan bagian dari abstraksi yang relevan)."
+  },
+  {
+    q: "Apa tujuan utama dari abstraksi dalam pemecahan masalah?",
+    opts: [
+      "Membuat masalah menjadi lebih rumit",
+      "Menghilangkan semua data yang ada",
+      "Menyederhanakan masalah dengan fokus pada hal penting",
+      "Mengganti masalah dengan masalah yang baru"
+    ],
+    correct: 2,
+    exp: "Abstraksi bertujuan menyederhanakan masalah dengan berfokus pada informasi yang penting sesuai tujuan."
+  },
+  {
+    q: "Sebuah aplikasi cuaca menampilkan ikon matahari, suhu, dan persen hujan. Informasi yang SENGAJA diabaikan aplikasi ini adalah...",
+    opts: [
+      "Suhu udara saat ini",
+      "Nama-nama awan secara ilmiah & kandungan gas atmosfer",
+      "Kemungkinan hujan",
+      "Kondisi cuaca umum (cerah/berawan/hujan)"
+    ],
+    correct: 1,
+    exp: "Data ilmiah yang sangat detail seperti kandungan gas atmosfer tidak dibutuhkan pengguna biasa, sehingga diabaikan demi tampilan yang sederhana."
+  },
+  {
+    q: "Dua aplikasi berbeda (aplikasi balap mobil dan aplikasi jual-beli mobil) akan melakukan abstraksi objek 'Mobil' dengan cara...",
+    opts: [
+      "Selalu sama persis karena objeknya sama",
+      "Berbeda, karena tujuan penggunaannya berbeda",
+      "Tidak mungkin dilakukan abstraksi",
+      "Hanya salah satu yang boleh diabstraksi"
+    ],
+    correct: 1,
+    exp: "Abstraksi tergantung pada tujuan/konteks penggunaan — objek yang sama bisa diabstraksi secara berbeda untuk keperluan yang berbeda."
+  }
+];
+let qIndex = 0, qScore = 0, qAnswered = false;
+
+function renderQuiz(){
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizQuestionArea').style.display = 'block';
+  document.getElementById('quizPos').textContent = 'SOAL ' + (qIndex+1) + ' / ' + quizData.length;
+  document.getElementById('quizScoreTop').textContent = 'SKOR: ' + qScore;
+  document.getElementById('quizBarFill').style.width = (qIndex/quizData.length)*100 + '%';
+  qAnswered = false;
+
+  const item = quizData[qIndex];
+  const area = document.getElementById('quizQuestionArea');
+  const letters = ['A','B','C','D'];
+  area.innerHTML = `
+    <div class="q-text">${item.q}</div>
+    <div class="q-options">
+      ${item.opts.map((o,i)=>`<button class="q-opt" data-i="${i}"><span class="k">${letters[i]}</span><span>${o}</span></button>`).join('')}
+    </div>
+    <div class="q-feedback" id="qFeedback"></div>
+    <div class="q-next"><button class="btn btn-primary" id="qNextBtn" style="display:none;" onclick="nextQuizQuestion()">${qIndex===quizData.length-1?'Lihat Hasil →':'Soal Berikutnya →'}</button></div>
+  `;
+  area.querySelectorAll('.q-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>answerQuiz(parseInt(btn.dataset.i)));
+  });
+}
+
+function answerQuiz(choice){
+  if(qAnswered) return;
+  qAnswered = true;
+  const item = quizData[qIndex];
+  const opts = document.querySelectorAll('.q-opt');
+  opts.forEach((btn,i)=>{
+    btn.disabled = true;
+    if(i===item.correct) btn.classList.add('correct');
+    else if(i===choice) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('qFeedback');
+  fb.classList.add('show');
+  if(choice===item.correct){
+    qScore++;
+    fb.innerHTML = '✅ <b style="color:var(--teal);">Benar!</b> ' + item.exp;
+  } else {
+    fb.innerHTML = '❌ <b style="color:var(--danger);">Belum tepat.</b> ' + item.exp;
+  }
+  document.getElementById('quizScoreTop').textContent = 'SKOR: ' + qScore;
+  document.getElementById('qNextBtn').style.display = 'inline-flex';
+}
+
+function nextQuizQuestion(){
+  if(qIndex < quizData.length-1){
+    qIndex++;
+    renderQuiz();
+  } else {
+    document.getElementById('quizBarFill').style.width = '100%';
+    document.getElementById('quizQuestionArea').style.display = 'none';
+    const result = document.getElementById('quizResult');
+    result.classList.add('show');
+    document.getElementById('quizFinalScore').textContent = qScore + '/' + quizData.length;
+    let msg = '';
+    if(qScore===quizData.length) msg = 'Luar biasa! Kamu benar-benar paham konsep abstraksi. 🌟';
+    else if(qScore >= quizData.length-2) msg = 'Bagus sekali! Sedikit lagi sempurna.';
+    else if(qScore >= quizData.length/2) msg = 'Lumayan! Coba baca ulang materinya, ya.';
+    else msg = 'Yuk, ulangi materi Abstraksi dulu supaya lebih paham.';
+    document.getElementById('quizFinalMsg').textContent = msg;
+  }
+}
+function restartQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>
