@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bab 3 · Membuat dan Mendesain Konten</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1024;
+  --bg-soft:#141838;
+  --card:#1b2048;
+  --card-hi:#232a5c;
+  --border:rgba(255,255,255,.09);
+  --text:#eef0fc;
+  --text-dim:#a6acd6;
+  --text-faint:#6d74a8;
+
+  --teks:#5b9dff;
+  --teks-soft:rgba(91,157,255,.14);
+  --gambar:#ff6fa8;
+  --gambar-soft:rgba(255,111,168,.14);
+  --audio:#2fd6b4;
+  --audio-soft:rgba(47,214,180,.14);
+  --video:#ffa24d;
+  --video-soft:rgba(255,162,77,.14);
+  --multi:#b183ff;
+  --multi-soft:rgba(177,131,255,.14);
+
+  --accent:#5b9dff;
+  --good:#2fd6b4;
+  --bad:#ff6b6b;
+
+  --radius:20px;
+  --font-display:'Poppins',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(circle at 12% -10%, rgba(91,157,255,.18), transparent 45%),
+    radial-gradient(circle at 100% 10%, rgba(177,131,255,.14), transparent 40%),
+    radial-gradient(circle at 50% 110%, rgba(47,214,180,.10), transparent 45%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+::selection{background:var(--accent);color:#fff;}
+button{font-family:inherit;cursor:pointer;}
+h1,h2,h3{font-family:var(--font-display);margin:0;}
+p{margin:0;line-height:1.6;}
+
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:.72rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text-faint);
+  display:flex;align-items:center;gap:.5em;
+}
+.eyebrow::before{content:'';width:18px;height:2px;background:var(--accent);display:inline-block;border-radius:2px;}
+
+/* ===== App shell ===== */
+.app{
+  max-width:1100px;
+  margin:0 auto;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  padding:0 clamp(16px,4vw,40px);
+}
+
+/* top bar */
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  padding:18px 0 12px;
+  position:sticky;
+  top:0;
+  z-index:40;
+  background:linear-gradient(var(--bg) 78%, transparent);
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  color:var(--text-dim);
+  white-space:nowrap;
+}
+.brand b{color:var(--text);font-weight:600;}
+.progress-wrap{
+  flex:1;
+  height:6px;
+  background:var(--card);
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid var(--border);
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--teks),var(--gambar),var(--audio),var(--video),var(--multi));
+  border-radius:10px;
+  transition:width .45s cubic-bezier(.65,0,.35,1);
+}
+.slide-counter{
+  font-family:var(--font-mono);
+  font-size:.78rem;
+  color:var(--text-dim);
+  min-width:52px;
+  text-align:right;
+}
+
+/* stage */
+.stage{
+  flex:1;
+  position:relative;
+  padding:8px 0 24px;
+}
+.slide{
+  display:none;
+  animation:fadeUp .5s cubic-bezier(.2,.7,.3,1);
+}
+.slide.active{display:block;}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@media (prefers-reduced-motion:reduce){
+  .slide{animation:none;}
+}
+
+.slide-card{
+  background:linear-gradient(160deg,var(--card),var(--bg-soft));
+  border:1px solid var(--border);
+  border-radius:calc(var(--radius) + 6px);
+  padding:clamp(22px,4vw,44px);
+  min-height:min(64vh,560px);
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.slide-title{
+  font-size:clamp(1.5rem,3.4vw,2.3rem);
+  font-weight:700;
+  letter-spacing:-.01em;
+}
+.slide-lede{
+  color:var(--text-dim);
+  font-size:clamp(.95rem,1.6vw,1.08rem);
+  max-width:62ch;
+}
+
+/* bottom nav */
+.navbar{
+  position:sticky;
+  bottom:0;
+  padding:14px 0 22px;
+  background:linear-gradient(transparent, var(--bg) 30%);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:11px 18px;
+  border-radius:100px;
+  font-weight:600;
+  font-size:.9rem;
+  transition:.18s ease;
+}
+.nav-btn:hover:not(:disabled){background:var(--card-hi);transform:translateY(-1px);}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed;}
+.nav-btn:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+.dots{
+  display:flex;gap:7px;flex-wrap:wrap;justify-content:center;
+  max-width:60%;
+}
+.dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--border);
+  border:none;padding:0;
+  transition:.2s;
+}
+.dot.active{background:var(--accent);width:22px;border-radius:6px;}
+.dot:hover{background:var(--text-dim);}
+
+/* ===== Generic content components ===== */
+.grid{display:grid;gap:14px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-5{grid-template-columns:repeat(5,1fr);}
+@media(max-width:820px){
+  .grid-3{grid-template-columns:repeat(2,1fr);}
+  .grid-5{grid-template-columns:repeat(2,1fr);}
+  .grid-2{grid-template-columns:1fr;}
+}
+@media(max-width:480px){
+  .grid-3{grid-template-columns:1fr;}
+}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:10px;}
+.chip{
+  background:var(--teks-soft);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:10px 16px;
+  border-radius:100px;
+  font-size:.88rem;
+  font-weight:500;
+  display:flex;align-items:center;gap:8px;
+  transition:.18s;
+}
+.chip:hover{transform:translateY(-2px);border-color:var(--accent);}
+.chip.on{background:var(--accent);color:#08102a;font-weight:700;}
+
+.reveal-box{
+  border:1px dashed var(--border);
+  border-radius:14px;
+  padding:14px 16px;
+  font-size:.92rem;
+  color:var(--text-dim);
+  background:rgba(255,255,255,.02);
+  min-height:20px;
+  display:none;
+}
+.reveal-box.show{display:block;animation:fadeUp .35s ease;}
+
+.flip-card{
+  perspective:1200px;
+  height:168px;
+  cursor:pointer;
+}
+.flip-inner{
+  position:relative;width:100%;height:100%;
+  transition:transform .55s cubic-bezier(.3,.7,.3,1.1);
+  transform-style:preserve-3d;
+}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{
+  position:absolute;inset:0;
+  border-radius:16px;
+  backface-visibility:hidden;
+  padding:16px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid var(--border);
+}
+.flip-front{background:var(--card-hi);}
+.flip-back{transform:rotateY(180deg);font-size:.85rem;color:var(--text-dim);}
+.flip-hint{font-family:var(--font-mono);font-size:.68rem;color:var(--text-faint);}
+
+.icon-badge{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.15rem;
+  flex-shrink:0;
+}
+
+/* type-specific slide theming */
+.type-teks .accent-el{color:var(--teks);}
+.type-gambar .accent-el{color:var(--gambar);}
+.type-audio .accent-el{color:var(--audio);}
+.type-video .accent-el{color:var(--video);}
+.type-multi .accent-el{color:var(--multi);}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px 18px;
+}
+.card:hover{border-color:var(--border);}
+
+.fact-strip{
+  border-radius:16px;
+  padding:14px 18px;
+  font-size:.9rem;
+  display:flex;gap:12px;align-items:flex-start;
+  border:1px solid var(--border);
+}
+
+/* audio player mock */
+.audio-player{
+  display:flex;align-items:center;gap:16px;
+  background:var(--audio-soft);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px 20px;
+}
+.play-btn{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--audio);
+  border:none;color:#04231d;
+  font-size:1.1rem;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:transform .15s;
+}
+.play-btn:hover{transform:scale(1.06);}
+.wave{display:flex;align-items:center;gap:3px;height:34px;flex:1;overflow:hidden;}
+.wave span{
+  width:4px;border-radius:3px;background:var(--audio);opacity:.55;
+  height:20%;
+  transition:height .25s ease;
+}
+.wave.playing span{animation:bounce 1s ease-in-out infinite;opacity:1;}
+@keyframes bounce{
+  0%,100%{height:20%;}
+  50%{height:90%;}
+}
+
+/* video mock */
+.video-mock{
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid var(--border);
+  background:linear-gradient(135deg,#26123f,#0d1024 70%);
+  position:relative;
+}
+.video-screen{
+  aspect-ratio:16/9;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.video-playbtn{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(255,162,77,.92);
+  border:none;color:#331500;font-size:1.3rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.video-playbtn:hover{transform:scale(1.08);}
+.video-bar{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:10px 14px;
+  background:linear-gradient(transparent,rgba(0,0,0,.55));
+  display:flex;align-items:center;gap:10px;
+}
+.video-progress{
+  flex:1;height:4px;background:rgba(255,255,255,.25);border-radius:4px;overflow:hidden;
+}
+.video-progress i{
+  display:block;height:100%;width:0%;background:var(--video);
+  transition:width linear;
+}
+.video-time{font-family:var(--font-mono);font-size:.7rem;color:#fff;}
+
+/* comparison table */
+.compare-table{width:100%;border-collapse:separate;border-spacing:0 10px;}
+.compare-table th{
+  text-align:left;font-family:var(--font-mono);font-size:.7rem;
+  color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;
+  padding:0 14px 6px;
+}
+.compare-table td{
+  background:var(--card);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:12px 14px;
+  font-size:.86rem;
+  vertical-align:top;
+}
+.compare-table tr td:first-child{border-left:1px solid var(--border);border-radius:12px 0 0 12px;}
+.compare-table tr td:last-child{border-right:1px solid var(--border);border-radius:0 12px 12px 0;}
+.compare-table tr{cursor:pointer;transition:.15s;}
+.compare-table tr:hover td{filter:brightness(1.15);}
+.type-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:8px;}
+
+@media(max-width:720px){
+  .compare-table thead{display:none;}
+  .compare-table, .compare-table tbody, .compare-table tr, .compare-table td{display:block;width:100%;}
+  .compare-table tr{background:var(--card);border-radius:14px;border:1px solid var(--border);margin-bottom:10px;padding:10px 4px;}
+  .compare-table td{border:none !important;background:transparent;padding:6px 14px;}
+  .compare-table td::before{content:attr(data-label);display:block;font-family:var(--font-mono);font-size:.65rem;color:var(--text-faint);text-transform:uppercase;margin-bottom:2px;}
+}
+
+/* quiz */
+.quiz-progress{display:flex;gap:6px;flex-wrap:wrap;}
+.quiz-progress span{
+  width:26px;height:6px;border-radius:4px;background:var(--border);
+}
+.quiz-progress span.done{background:var(--good);}
+.quiz-progress span.wrong{background:var(--bad);}
+.quiz-progress span.current{background:var(--accent);}
+.q-text{font-size:clamp(1.05rem,2.2vw,1.3rem);font-weight:600;font-family:var(--font-display);}
+.answers{display:flex;flex-direction:column;gap:10px;}
+.answer-btn{
+  text-align:left;
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:14px 16px;
+  border-radius:14px;
+  font-size:.95rem;
+  display:flex;align-items:center;gap:12px;
+  transition:.15s;
+}
+.answer-btn:hover:not(:disabled){border-color:var(--accent);background:var(--card-hi);}
+.answer-letter{
+  width:26px;height:26px;border-radius:8px;background:var(--bg-soft);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);flex-shrink:0;
+}
+.answer-btn.correct{border-color:var(--good);background:rgba(47,214,180,.14);}
+.answer-btn.correct .answer-letter{background:var(--good);color:#04231d;}
+.answer-btn.wrong{border-color:var(--bad);background:rgba(255,107,107,.14);}
+.answer-btn.wrong .answer-letter{background:var(--bad);color:#2a0505;}
+.answer-btn:disabled{cursor:default;}
+.feedback{
+  font-size:.88rem;
+  padding:12px 14px;border-radius:12px;
+  display:none;
+  border:1px solid var(--border);
+}
+.feedback.show{display:block;animation:fadeUp .3s ease;}
+.feedback.ok{color:var(--good);border-color:var(--good);background:rgba(47,214,180,.08);}
+.feedback.no{color:#ffb3b3;border-color:var(--bad);background:rgba(255,107,107,.08);}
+.quiz-next{align-self:flex-end;}
+
+.score-ring{
+  width:150px;height:150px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  background:conic-gradient(var(--accent) calc(var(--pct,0) * 1%), var(--bg-soft) 0);
+  margin:0 auto;
+}
+.score-ring-inner{
+  width:118px;height:118px;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+}
+.score-num{font-family:var(--font-display);font-size:1.9rem;font-weight:700;}
+.score-label{font-size:.7rem;color:var(--text-dim);}
+
+/* buttons */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 22px;border-radius:100px;
+  border:none;font-weight:700;font-size:.95rem;
+  transition:.18s;
+}
+.btn-primary{background:var(--accent);color:#08102a;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px -8px var(--accent);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-ghost:hover{border-color:var(--text-dim);}
+
+/* cover slide */
+.cover{
+  display:flex;flex-direction:column;justify-content:center;
+  min-height:min(64vh,560px);
+  gap:22px;
+}
+.cover-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--card-hi);border:1px solid var(--border);
+  padding:8px 16px;border-radius:100px;
+  font-family:var(--font-mono);font-size:.75rem;color:var(--text-dim);
+  width:fit-content;
+}
+.cover h1{font-size:clamp(2rem,5.5vw,3.2rem);line-height:1.08;letter-spacing:-.02em;}
+.cover .hl{
+  background:linear-gradient(90deg,var(--teks),var(--gambar),var(--audio),var(--video),var(--multi));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.cover-types{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;}
+.cover-type-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:100px;font-size:.82rem;font-weight:600;
+  border:1px solid var(--border);
+}
+
+.mini-nav-help{
+  font-size:.78rem;color:var(--text-faint);font-family:var(--font-mono);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+kbd{
+  background:var(--card-hi);border:1px solid var(--border);border-radius:6px;
+  padding:2px 7px;font-family:var(--font-mono);font-size:.72rem;
+}
+
+/* end slide */
+.end-wrap{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:16px;min-height:min(64vh,560px);
+}
+.end-emoji{font-size:3rem;}
+.end-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:8px;}
+
+.section-list{display:flex;flex-direction:column;gap:10px;}
+.section-list li{list-style:none;}
+.check-item{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:12px 16px;font-size:.92rem;color:var(--text-dim);
+}
+.check-item b{color:var(--text);}
+.num{
+  font-family:var(--font-mono);font-size:.75rem;color:var(--accent);
+  width:24px;flex-shrink:0;
+}
+
+.pulse-note{
+  font-size:.82rem;color:var(--text-faint);font-style:italic;
+}
+
+@media(max-width:560px){
+  .topbar{padding:14px 0 10px;}
+  .brand span.full{display:none;}
+  .slide-card{min-height:auto;}
+  .nav-btn span{display:none;}
+  .nav-btn{padding:11px 14px;}
+  .dots{max-width:100%;order:3;width:100%;justify-content:center;}
+  .navbar{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><b>Bab 3</b><span class="full"> · Konten Digital</span></div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-counter" id="slideCounter">01 / 13</div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 1. COVER -->
+    <section class="slide active" data-title="Cover">
+      <div class="slide-card cover">
+        <div class="cover-badge">📘 Informatika · Kelas SMP</div>
+        <h1>Bab 3. Membuat dan<br><span class="hl">Mendesain Konten</span></h1>
+        <p class="slide-lede">Konsep dan Jenis Konten Digital — memahami pengertian, tujuan, karakteristik, serta ragam konten teks, gambar, audio, video, dan multimedia di sekitar kita.</p>
+        <div class="cover-types">
+          <span class="cover-type-pill" style="border-color:var(--teks);color:var(--teks)">✏️ Teks</span>
+          <span class="cover-type-pill" style="border-color:var(--gambar);color:var(--gambar)">🖼️ Gambar</span>
+          <span class="cover-type-pill" style="border-color:var(--audio);color:var(--audio)">🎧 Audio</span>
+          <span class="cover-type-pill" style="border-color:var(--video);color:var(--video)">🎬 Video</span>
+          <span class="cover-type-pill" style="border-color:var(--multi);color:var(--multi)">✨ Multimedia</span>
+        </div>
+        <p class="mini-nav-help">Navigasi: <kbd>←</kbd> <kbd>→</kbd> atau geser layar, atau klik tombol di bawah</p>
+      </div>
+    </section>
+
+    <!-- 2. TUJUAN PEMBELAJARAN -->
+    <section class="slide" data-title="Tujuan Pembelajaran">
+      <div class="slide-card">
+        <div class="eyebrow">Sebelum mulai</div>
+        <h2 class="slide-title">Tujuan Pembelajaran</h2>
+        <p class="slide-lede">Setelah mempelajari bab ini, kamu diharapkan mampu:</p>
+        <ul class="section-list">
+          <li class="check-item"><span class="num">01</span><span>Menjelaskan <b>pengertian konten digital</b> dengan kata-katamu sendiri.</span></li>
+          <li class="check-item"><span class="num">02</span><span>Menyebutkan <b>tujuan</b> dibuatnya sebuah konten digital.</span></li>
+          <li class="check-item"><span class="num">03</span><span>Mengidentifikasi <b>karakteristik</b> yang membedakan konten digital dari konten cetak/analog.</span></li>
+          <li class="check-item"><span class="num">04</span><span>Membedakan <b>lima jenis konten digital</b>: teks, gambar, audio, video, dan multimedia beserta contohnya.</span></li>
+          <li class="check-item"><span class="num">05</span><span>Menguji pemahaman lewat <b>kuis interaktif</b> di akhir bab.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. PENGERTIAN -->
+    <section class="slide" data-title="Pengertian Konten Digital">
+      <div class="slide-card">
+        <div class="eyebrow">3.1 Konsep Dasar</div>
+        <h2 class="slide-title">Apa itu Konten Digital?</h2>
+        <p class="slide-lede"><b>Konten digital</b> adalah segala bentuk informasi, ide, atau karya yang dibuat, disimpan, dan disebarluaskan dalam format digital menggunakan perangkat elektronik (komputer, HP, tablet), lalu dapat diakses melalui internet atau media penyimpanan digital.</p>
+        <div class="card" style="background:var(--teks-soft);">
+          <p style="font-size:.9rem"><b>Kata kuncinya:</b> dibuat dengan perangkat digital → disimpan dalam bentuk data (bit) → bisa disebarkan lewat internet.</p>
+        </div>
+        <p class="eyebrow" style="margin-top:4px">Klik contoh di bawah untuk melihat penjelasannya</p>
+        <div class="chip-row" id="pengertianChips">
+          <button class="chip" data-info="Tulisan pendek di media sosial yang menyertai foto atau video, contohnya caption Instagram.">📱 Postingan medsos</button>
+          <button class="chip" data-info="Video yang diunggah dan ditonton banyak orang secara online, misalnya di YouTube.">📺 Video YouTube</button>
+          <button class="chip" data-info="Tulisan panjang berisi informasi atau opini yang dipublikasikan di sebuah situs web.">📰 Artikel blog</button>
+          <button class="chip" data-info="Rekaman suara berisi obrolan atau cerita bertema tertentu, bisa didengarkan kapan saja.">🎙️ Podcast</button>
+          <button class="chip" data-info="Gambar lucu berisi teks singkat yang dibuat untuk menghibur dan mudah dibagikan.">😂 Meme</button>
+          <button class="chip" data-info="Aplikasi hiburan interaktif yang menggabungkan gambar, suara, dan cerita — juga termasuk konten digital!">🎮 Game</button>
+        </div>
+        <div class="reveal-box" id="pengertianReveal"></div>
+      </div>
+    </section>
+
+    <!-- 4. TUJUAN -->
+    <section class="slide" data-title="Tujuan Konten Digital">
+      <div class="slide-card">
+        <div class="eyebrow">3.2 Mengapa Dibuat</div>
+        <h2 class="slide-title">Tujuan Konten Digital</h2>
+        <p class="slide-lede">Setiap konten dibuat untuk mencapai suatu maksud tertentu. Klik tiap kartu untuk membaliknya dan melihat contoh nyata.</p>
+        <div class="grid grid-3" id="tujuanGrid">
+          <div class="flip-card" data-front-emoji="📢" data-front-title="Menyampaikan Informasi" data-back="Contoh: berita online, video edukasi, infografis cara mencuci tangan yang benar.">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--teks-soft)">📢</div><div><h3 style="font-size:1rem">Menyampaikan Informasi</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+          <div class="flip-card" data-front-emoji="🎉" data-front-title="Menghibur" data-back="Contoh: meme, video lucu, game, cerita fiksi digital yang dibuat untuk mengisi waktu senggang.">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--gambar-soft)">🎉</div><div><h3 style="font-size:1rem">Menghibur</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+          <div class="flip-card" data-front-emoji="🛍️" data-front-title="Mempromosikan" data-back="Contoh: iklan produk di media sosial, video review barang, poster diskon toko online.">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--video-soft)">🛍️</div><div><h3 style="font-size:1rem">Mempromosikan</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+          <div class="flip-card" data-front-emoji="🧑‍🤝‍🧑" data-front-title="Membangun Komunitas" data-back="Contoh: akun fanbase, grup diskusi hobi, live streaming yang mempertemukan orang dengan minat sama.">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--audio-soft)">🧑‍🤝‍🧑</div><div><h3 style="font-size:1rem">Membangun Komunitas</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+          <div class="flip-card" data-front-emoji="💬" data-front-title="Mengajak Berinteraksi" data-back="Contoh: kuis di Instagram Story, kolom komentar, tombol like/share yang mengajak audiens ikut berpartisipasi.">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--multi-soft)">💬</div><div><h3 style="font-size:1rem">Mengajak Berinteraksi</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+          <div class="flip-card" data-front-emoji="🎓" data-front-title="Mengedukasi" data-back="Contoh: video tutorial matematika, modul belajar interaktif, presentasi seperti yang sedang kamu buka ini!">
+            <div class="flip-inner">
+              <div class="flip-face flip-front"><div class="icon-badge" style="background:var(--teks-soft)">🎓</div><div><h3 style="font-size:1rem">Mengedukasi</h3></div><span class="flip-hint">klik untuk contoh →</span></div>
+              <div class="flip-face flip-back"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. KARAKTERISTIK -->
+    <section class="slide" data-title="Karakteristik Konten Digital">
+      <div class="slide-card">
+        <div class="eyebrow">3.3 Ciri Khas</div>
+        <h2 class="slide-title">Karakteristik Konten Digital</h2>
+        <p class="slide-lede">Klik setiap karakteristik untuk melihat penjelasan lebih lengkap.</p>
+        <div class="grid grid-3" id="karakteristikGrid">
+          <button class="card" data-k="1" style="text-align:left">
+            <div class="icon-badge" style="background:var(--teks-soft)">🌐</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Mudah Diakses</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Bisa dibuka kapan saja & di mana saja selama ada perangkat dan koneksi internet.</p>
+          </button>
+          <button class="card" data-k="2" style="text-align:left">
+            <div class="icon-badge" style="background:var(--gambar-soft)">🔁</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Mudah Disebarluaskan</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Cukup satu klik "bagikan", konten bisa sampai ke ribuan orang dalam hitungan detik.</p>
+          </button>
+          <button class="card" data-k="3" style="text-align:left">
+            <div class="icon-badge" style="background:var(--audio-soft)">✏️</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Dapat Diedit & Diperbarui</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Berbeda dari buku cetak, konten digital bisa direvisi tanpa harus dicetak ulang.</p>
+          </button>
+          <button class="card" data-k="4" style="text-align:left">
+            <div class="icon-badge" style="background:var(--video-soft)">👆</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Interaktif</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Pengguna bisa terlibat langsung: like, komentar, klik, geser, bahkan bermain.</p>
+          </button>
+          <button class="card" data-k="5" style="text-align:left">
+            <div class="icon-badge" style="background:var(--multi-soft)">🧩</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Beragam Format</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Bisa berdiri sendiri (teks saja) atau digabung jadi satu (teks+gambar+suara).</p>
+          </button>
+          <button class="card" data-k="6" style="text-align:left">
+            <div class="icon-badge" style="background:var(--teks-soft)">💻</div>
+            <h3 style="font-size:.98rem;margin-top:10px">Butuh Perangkat Digital</h3>
+            <p style="font-size:.82rem;color:var(--text-dim);margin-top:6px" class="k-desc">Untuk membuat maupun mengakses, dibutuhkan alat elektronik seperti HP atau komputer.</p>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. JENIS: TEKS -->
+    <section class="slide type-teks" data-title="Konten Teks">
+      <div class="slide-card">
+        <div class="eyebrow">3.4 Jenis Konten · 1 dari 5</div>
+        <h2 class="slide-title accent-el">✏️ Konten Teks</h2>
+        <p class="slide-lede">Konten yang berbentuk <b>tulisan</b> — jenis konten paling dasar dan ringan dalam dunia digital.</p>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Ciri-ciri</h3>
+            <ul style="margin:8px 0 0;padding-left:18px;font-size:.86rem;color:var(--text-dim);line-height:1.9">
+              <li>Ukuran file paling ringan</li>
+              <li>Cepat diakses & mudah dicari (searchable)</li>
+              <li>Tidak butuh kuota internet besar</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Format Umum</h3>
+            <div class="chip-row" style="margin-top:8px">
+              <span class="chip" style="background:var(--teks-soft)">.TXT</span>
+              <span class="chip" style="background:var(--teks-soft)">.DOCX</span>
+              <span class="chip" style="background:var(--teks-soft)">.PDF</span>
+              <span class="chip" style="background:var(--teks-soft)">.HTML</span>
+            </div>
+          </div>
+        </div>
+        <p class="eyebrow">Klik contoh untuk melihat cuplikannya</p>
+        <div class="chip-row" id="teksChips">
+          <button class="chip" data-info='Contoh caption Instagram: "Belajar itu proses, bukan perlombaan. Nikmati setiap langkahnya! 🚀 #belajarseru"'>Caption medsos</button>
+          <button class="chip" data-info='Contoh judul berita: "Siswa SMP Raih Juara Nasional Olimpiade Sains 2026"'>Artikel berita</button>
+          <button class="chip" data-info='Contoh chat: "Bu, tugas Informatikanya dikumpulkan hari ini ya? Saya sudah selesai kok 😊"'>Pesan chat</button>
+          <button class="chip" data-info="E-book adalah buku digital yang dibaca lewat aplikasi, tanpa perlu dicetak di kertas.">E-book</button>
+        </div>
+        <div class="reveal-box" id="teksReveal"></div>
+        <div class="fact-strip" style="background:var(--teks-soft)"><span>💡</span><span><b>Tahukah kamu?</b> Meski paling sederhana, teks tetap sangat penting — mesin pencari seperti Google membaca teks untuk menampilkan hasil pencarian!</span></div>
+      </div>
+    </section>
+
+    <!-- 7. JENIS: GAMBAR -->
+    <section class="slide type-gambar" data-title="Konten Gambar">
+      <div class="slide-card">
+        <div class="eyebrow">3.4 Jenis Konten · 2 dari 5</div>
+        <h2 class="slide-title accent-el">🖼️ Konten Gambar</h2>
+        <p class="slide-lede">Konten visual diam <i>(still image)</i> yang menyampaikan pesan lewat apa yang dilihat, bukan dibaca atau didengar.</p>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Ciri-ciri</h3>
+            <ul style="margin:8px 0 0;padding-left:18px;font-size:.86rem;color:var(--text-dim);line-height:1.9">
+              <li>Menarik perhatian lebih cepat dari teks</li>
+              <li>Bisa menyampaikan pesan tanpa kata (infografis)</li>
+              <li>Mudah diingat secara visual</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Format Umum</h3>
+            <div class="chip-row" style="margin-top:8px">
+              <span class="chip" style="background:var(--gambar-soft)">.JPG</span>
+              <span class="chip" style="background:var(--gambar-soft)">.PNG</span>
+              <span class="chip" style="background:var(--gambar-soft)">.GIF</span>
+              <span class="chip" style="background:var(--gambar-soft)">.SVG</span>
+            </div>
+          </div>
+        </div>
+        <p class="eyebrow">Klik jenis gambar untuk melihat contoh penggunaannya</p>
+        <div class="chip-row" id="gambarChips">
+          <button class="chip" data-info="Menampilkan data atau langkah-langkah secara visual, misalnya infografis 'Cara Memilah Sampah'.">📊 Infografis</button>
+          <button class="chip" data-info="Gambar dengan teks lucu yang dibagikan untuk menghibur, biasanya menyindir kejadian sehari-hari.">😆 Meme</button>
+          <button class="chip" data-info="Gambar promosi kegiatan sekolah yang diunggah ke media sosial, misalnya poster Lomba 17 Agustus.">🖼️ Poster digital</button>
+          <button class="chip" data-info="Cerita bergambar yang dibaca secara digital, panel demi panel, seperti komik strip di Webtoon.">📖 Komik digital</button>
+        </div>
+        <div class="reveal-box" id="gambarReveal"></div>
+        <div class="fact-strip" style="background:var(--gambar-soft)"><span>💡</span><span><b>Tahukah kamu?</b> Format <b>PNG</b> mendukung latar belakang transparan, sedangkan <b>JPG</b> biasanya untuk foto karena ukurannya lebih kecil.</span></div>
+      </div>
+    </section>
+
+    <!-- 8. JENIS: AUDIO -->
+    <section class="slide type-audio" data-title="Konten Audio">
+      <div class="slide-card">
+        <div class="eyebrow">3.4 Jenis Konten · 3 dari 5</div>
+        <h2 class="slide-title accent-el">🎧 Konten Audio</h2>
+        <p class="slide-lede">Konten berbentuk <b>suara</b> yang dinikmati lewat indra pendengaran.</p>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Ciri-ciri</h3>
+            <ul style="margin:8px 0 0;padding-left:18px;font-size:.86rem;color:var(--text-dim);line-height:1.9">
+              <li>Bisa dinikmati sambil beraktivitas lain (multitasking)</li>
+              <li>Menyampaikan emosi lewat nada & intonasi suara</li>
+              <li>Butuh perangkat pemutar (speaker/headset)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Format Umum</h3>
+            <div class="chip-row" style="margin-top:8px">
+              <span class="chip" style="background:var(--audio-soft)">.MP3</span>
+              <span class="chip" style="background:var(--audio-soft)">.WAV</span>
+              <span class="chip" style="background:var(--audio-soft)">.AAC</span>
+              <span class="chip" style="background:var(--audio-soft)">.OGG</span>
+            </div>
+          </div>
+        </div>
+        <p class="eyebrow">Coba tekan tombol putar (simulasi tampilan pemutar audio)</p>
+        <div class="audio-player">
+          <button class="play-btn" id="audioPlayBtn">▶</button>
+          <div class="wave" id="audioWave">
+            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="chip-row" id="audioChips">
+          <button class="chip" data-info="Lagu yang didengarkan lewat aplikasi streaming seperti Spotify atau YouTube Music.">🎵 Musik digital</button>
+          <button class="chip" data-info="Acara obrolan atau cerita bersambung yang direkam dan bisa didengarkan kapan saja.">🎙️ Podcast</button>
+          <button class="chip" data-info="Buku yang dibacakan dan direkam, cocok didengar sambil bersantai atau di perjalanan.">📚 Audiobook</button>
+          <button class="chip" data-info="Efek suara pendek untuk memperkuat suasana, misalnya suara notifikasi atau ledakan di game.">🔊 Sound effect</button>
+        </div>
+        <div class="reveal-box" id="audioReveal"></div>
+        <p class="pulse-note">*Tombol putar di atas hanya simulasi tampilan, tidak memutar suara asli.</p>
+      </div>
+    </section>
+
+    <!-- 9. JENIS: VIDEO -->
+    <section class="slide type-video" data-title="Konten Video">
+      <div class="slide-card">
+        <div class="eyebrow">3.4 Jenis Konten · 4 dari 5</div>
+        <h2 class="slide-title accent-el">🎬 Konten Video</h2>
+        <p class="slide-lede">Gabungan <b>gambar bergerak</b> dan (biasanya) <b>suara</b> — jenis konten paling menarik dan mudah dipahami.</p>
+        <div class="grid grid-2">
+          <div>
+            <div class="video-mock">
+              <div class="video-screen">
+                <button class="video-playbtn" id="videoPlayBtn">▶</button>
+                <div class="video-bar">
+                  <div class="video-progress"><i id="videoProgress"></i></div>
+                  <span class="video-time" id="videoTime">0:00 / 0:24</span>
+                </div>
+              </div>
+            </div>
+            <p class="pulse-note" style="margin-top:8px">*Simulasi tampilan pemutar video, klik ▶ untuk melihat animasinya.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <h3 style="font-size:.92rem" class="accent-el">Ciri-ciri</h3>
+              <ul style="margin:8px 0 0;padding-left:18px;font-size:.86rem;color:var(--text-dim);line-height:1.9">
+                <li>Paling menarik & mudah dipahami</li>
+                <li>Butuh koneksi internet & kuota lebih besar</li>
+                <li>Proses pembuatan lebih kompleks (syuting, edit)</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3 style="font-size:.92rem" class="accent-el">Format Umum</h3>
+              <div class="chip-row" style="margin-top:8px">
+                <span class="chip" style="background:var(--video-soft)">.MP4</span>
+                <span class="chip" style="background:var(--video-soft)">.MOV</span>
+                <span class="chip" style="background:var(--video-soft)">.MKV</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="eyebrow">Klik contoh untuk melihat penjelasannya</p>
+        <div class="chip-row" id="videoChips">
+          <button class="chip" data-info="Video pendek yang menceritakan keseharian seseorang, biasanya diunggah rutin di YouTube.">📹 Vlog</button>
+          <button class="chip" data-info="Video singkat berdurasi 15-60 detik di TikTok/Instagram Reels, biasanya diiringi musik.">🎞️ Reels/TikTok</button>
+          <button class="chip" data-info="Video yang menjelaskan langkah demi langkah cara melakukan sesuatu, misalnya tutorial eksperimen sains.">🧪 Video tutorial</button>
+          <button class="chip" data-info="Film berdurasi singkat yang dibuat untuk kompetisi sekolah atau media sosial.">🎥 Film pendek</button>
+        </div>
+        <div class="reveal-box" id="videoReveal"></div>
+      </div>
+    </section>
+
+    <!-- 10. JENIS: MULTIMEDIA -->
+    <section class="slide type-multi" data-title="Konten Multimedia">
+      <div class="slide-card">
+        <div class="eyebrow">3.4 Jenis Konten · 5 dari 5</div>
+        <h2 class="slide-title accent-el">✨ Konten Multimedia</h2>
+        <p class="slide-lede">Gabungan <b>dua atau lebih</b> jenis konten (teks + gambar + audio + video) dalam satu media, biasanya bersifat <b>interaktif</b>.</p>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Ciri-ciri</h3>
+            <ul style="margin:8px 0 0;padding-left:18px;font-size:.86rem;color:var(--text-dim);line-height:1.9">
+              <li>Paling lengkap dan kompleks</li>
+              <li>Sering bersifat interaktif (bisa diklik/dimainkan)</li>
+              <li>Butuh perangkat lunak/aplikasi khusus untuk membuatnya</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3 style="font-size:.92rem" class="accent-el">Format Umum</h3>
+            <div class="chip-row" style="margin-top:8px">
+              <span class="chip" style="background:var(--multi-soft)">.HTML</span>
+              <span class="chip" style="background:var(--multi-soft)">.APK</span>
+              <span class="chip" style="background:var(--multi-soft)">.PPTX</span>
+              <span class="chip" style="background:var(--multi-soft)">.EXE</span>
+            </div>
+          </div>
+        </div>
+        <p class="eyebrow">Klik contoh untuk melihat penjelasannya</p>
+        <div class="chip-row" id="multiChips">
+          <button class="chip" data-info="Aplikasi hiburan interaktif yang menggabungkan grafik, suara, cerita, dan kontrol pemain.">🎮 Game</button>
+          <button class="chip" data-info="Aplikasi belajar yang menggabungkan teks, video, kuis, dan animasi dalam satu tempat.">📱 Aplikasi belajar interaktif</button>
+          <button class="chip" data-info="Website yang memiliki animasi, tombol, dan elemen yang bisa diklik pengguna.">🌐 Website interaktif</button>
+          <button class="chip" data-info="Filter kamera yang menambahkan objek virtual ke dunia nyata lewat layar HP.">🕶️ Filter AR</button>
+        </div>
+        <div class="reveal-box" id="multiReveal"></div>
+        <div class="fact-strip" style="background:var(--multi-soft)"><span>🤓</span><span><b>Sadar tidak?</b> Presentasi interaktif yang sedang kamu buka ini — dengan teks, warna, tombol, dan kuis — juga termasuk contoh <b>konten multimedia</b>!</span></div>
+      </div>
+    </section>
+
+    <!-- 11. PERBANDINGAN -->
+    <section class="slide" data-title="Perbandingan Jenis Konten">
+      <div class="slide-card">
+        <div class="eyebrow">3.5 Rangkuman</div>
+        <h2 class="slide-title">Perbandingan Jenis Konten Digital</h2>
+        <p class="slide-lede">Klik salah satu baris untuk menyorotinya.</p>
+        <div style="overflow-x:auto">
+        <table class="compare-table" id="compareTable">
+          <thead><tr><th>Jenis</th><th>Format</th><th>Ukuran File</th><th>Kelebihan Utama</th></tr></thead>
+          <tbody>
+            <tr><td data-label="Jenis"><span class="type-dot" style="background:var(--teks)"></span>Teks</td><td data-label="Format">TXT, DOCX, PDF</td><td data-label="Ukuran">Sangat ringan</td><td data-label="Kelebihan">Cepat dibuat & mudah dicari</td></tr>
+            <tr><td data-label="Jenis"><span class="type-dot" style="background:var(--gambar)"></span>Gambar</td><td data-label="Format">JPG, PNG, GIF</td><td data-label="Ukuran">Ringan–sedang</td><td data-label="Kelebihan">Menarik perhatian secara visual</td></tr>
+            <tr><td data-label="Jenis"><span class="type-dot" style="background:var(--audio)"></span>Audio</td><td data-label="Format">MP3, WAV</td><td data-label="Ukuran">Sedang</td><td data-label="Kelebihan">Bisa dinikmati sambil beraktivitas</td></tr>
+            <tr><td data-label="Jenis"><span class="type-dot" style="background:var(--video)"></span>Video</td><td data-label="Format">MP4, MOV</td><td data-label="Ukuran">Besar</td><td data-label="Kelebihan">Paling mudah dipahami</td></tr>
+            <tr><td data-label="Jenis"><span class="type-dot" style="background:var(--multi)"></span>Multimedia</td><td data-label="Format">HTML, APK, PPTX</td><td data-label="Ukuran">Bervariasi</td><td data-label="Kelebihan">Paling lengkap & interaktif</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="reveal-box" id="compareReveal"></div>
+      </div>
+    </section>
+
+    <!-- 12. QUIZ -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-card" id="quizCard">
+        <div class="eyebrow">Uji Pemahaman</div>
+        <h2 class="slide-title">Kuis Interaktif</h2>
+        <div class="quiz-progress" id="quizProgress"></div>
+        <div id="quizBody"></div>
+      </div>
+    </section>
+
+    <!-- 13. PENUTUP -->
+    <section class="slide" data-title="Selesai">
+      <div class="slide-card">
+        <div class="end-wrap">
+          <div class="end-emoji">🎉</div>
+          <h2 class="slide-title">Kerja Bagus!</h2>
+          <p class="slide-lede" style="max-width:46ch">Kamu sudah menyelesaikan Bab 3: Konsep dan Jenis Konten Digital. Skor kuismu: <b id="finalScoreText">-</b></p>
+          <div class="end-actions">
+            <button class="btn btn-ghost" id="restartBtn">↺ Ulangi Presentasi</button>
+            <a class="btn btn-primary" id="doneBtn" href="infob-bab3.html">✅ Selesai — Kembali ke Bab 2</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="prevBtn">‹ <span>Sebelumnya</span></button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="nextBtn"><span>Berikutnya</span> ›</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  let current = 0;
+
+  const progressBar = document.getElementById('progressBar');
+  const slideCounter = document.getElementById('slideCounter');
+  const dotsWrap = document.getElementById('dots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  slides.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.className = 'dot' + (i===0?' active':'');
+    d.setAttribute('aria-label', 'Slide ' + (i+1) + ': ' + s.dataset.title);
+    d.addEventListener('click', ()=>go(i));
+    dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  function go(i){
+    if(i<0||i>=total) return;
+    slides[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    dots.forEach((d,idx)=>d.classList.toggle('active', idx===current));
+    progressBar.style.width = ((current)/(total-1)*100) + '%';
+    slideCounter.textContent = String(current+1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    prevBtn.disabled = current===0;
+    nextBtn.disabled = current===total-1;
+    document.getElementById('stage').scrollIntoView({behavior:'smooth', block:'start'});
+    if(current === total-2) buildQuizIfNeeded();
+    if(current === total-1) updateFinalScore();
+  }
+
+  prevBtn.addEventListener('click', ()=>go(current-1));
+  nextBtn.addEventListener('click', ()=>go(current+1));
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight') go(current+1);
+    if(e.key==='ArrowLeft') go(current-1);
+  });
+
+  // touch swipe
+  let touchX = null;
+  document.addEventListener('touchstart', e=>{ touchX = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', e=>{
+    if(touchX===null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 50){ dx < 0 ? go(current+1) : go(current-1); }
+    touchX = null;
+  }, {passive:true});
+
+  go(0);
+
+  // ---- generic reveal chips ----
+  function wireChips(containerId, revealId){
+    const container = document.getElementById(containerId);
+    const reveal = document.getElementById(revealId);
+    if(!container || !reveal) return;
+    container.querySelectorAll('.chip').forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        container.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+        chip.classList.add('on');
+        reveal.textContent = chip.dataset.info;
+        reveal.classList.add('show');
+      });
+    });
+  }
+  wireChips('pengertianChips','pengertianReveal');
+  wireChips('teksChips','teksReveal');
+  wireChips('gambarChips','gambarReveal');
+  wireChips('audioChips','audioReveal');
+  wireChips('videoChips','videoReveal');
+  wireChips('multiChips','multiReveal');
+
+  // ---- flip cards (tujuan) ----
+  document.querySelectorAll('#tujuanGrid .flip-card').forEach(card=>{
+    const back = card.querySelector('.flip-back');
+    back.textContent = card.dataset.back;
+    card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+    card.setAttribute('tabindex','0');
+    card.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); card.classList.toggle('flipped'); } });
+  });
+
+  // ---- karakteristik toggle emphasis ----
+  document.querySelectorAll('#karakteristikGrid .card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const active = card.classList.contains('active-k');
+      document.querySelectorAll('#karakteristikGrid .card').forEach(c=>{c.classList.remove('active-k'); c.style.borderColor='var(--border)'; c.style.background='var(--card)';});
+      if(!active){
+        card.classList.add('active-k');
+        card.style.borderColor = 'var(--accent)';
+        card.style.background = 'var(--card-hi)';
+      }
+    });
+  });
+
+  // ---- audio mock ----
+  const audioBtn = document.getElementById('audioPlayBtn');
+  const wave = document.getElementById('audioWave');
+  let playing = false;
+  if(audioBtn){
+    wave.querySelectorAll('span').forEach(s=>{ s.style.animationDelay = (Math.random()*1).toFixed(2)+'s'; });
+    audioBtn.addEventListener('click', ()=>{
+      playing = !playing;
+      audioBtn.textContent = playing ? '❚❚' : '▶';
+      wave.classList.toggle('playing', playing);
+    });
+  }
+
+  // ---- video mock ----
+  const videoBtn = document.getElementById('videoPlayBtn');
+  const videoProgress = document.getElementById('videoProgress');
+  const videoTime = document.getElementById('videoTime');
+  let vPlaying = false, vInterval = null, vSec = 0;
+  const vTotal = 24;
+  if(videoBtn){
+    videoBtn.addEventListener('click', ()=>{
+      vPlaying = !vPlaying;
+      videoBtn.textContent = vPlaying ? '❚❚' : '▶';
+      if(vPlaying){
+        vInterval = setInterval(()=>{
+          vSec++;
+          if(vSec>vTotal){ vSec=0; }
+          videoProgress.style.width = (vSec/vTotal*100)+'%';
+          videoTime.textContent = fmt(vSec) + ' / ' + fmt(vTotal);
+        }, 1000);
+      } else {
+        clearInterval(vInterval);
+      }
+    });
+  }
+  function fmt(s){ const m=Math.floor(s/60); const r=s%60; return m+':'+String(r).padStart(2,'0'); }
+
+  // ---- compare table row highlight ----
+  const compareInfo = {
+    'Teks':'Pilih Teks jika kamu ingin menyampaikan info secara ringkas, cepat dibuat, dan tidak butuh banyak kuota.',
+    'Gambar':'Pilih Gambar jika pesanmu lebih kuat disampaikan secara visual, misalnya data atau langkah-langkah singkat.',
+    'Audio':'Pilih Audio jika audiensmu perlu mendengarkan sambil melakukan aktivitas lain, misalnya belajar sambil berjalan.',
+    'Video':'Pilih Video jika kamu ingin menjelaskan sesuatu secara detail dan menarik, meski perlu proses pembuatan lebih lama.',
+    'Multimedia':'Pilih Multimedia jika kamu ingin audiens benar-benar terlibat, seperti pada game atau aplikasi belajar interaktif.'
+  };
+  const compareReveal = document.getElementById('compareReveal');
+  document.querySelectorAll('#compareTable tbody tr').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      const jenis = row.querySelector('td').textContent.trim();
+      compareReveal.textContent = compareInfo[jenis] || '';
+      compareReveal.classList.add('show');
+    });
+  });
+
+  // ================= QUIZ =================
+  const quizQuestions = [
+    {
+      q: "Konten digital adalah…",
+      options: [
+        "Informasi yang hanya bisa dibaca di buku cetak",
+        "Informasi/karya yang dibuat dan disebarkan dalam format digital lewat perangkat elektronik",
+        "Surat yang ditulis tangan dan dikirim lewat pos",
+        "Gambar yang hanya bisa dilihat di pameran seni"
+      ],
+      correct: 1,
+      explain: "Konten digital dibuat, disimpan, dan disebarkan dalam format digital menggunakan perangkat elektronik seperti HP atau komputer."
+    },
+    {
+      q: "Meme dan video lucu di media sosial paling tepat mewakili tujuan konten digital untuk…",
+      options: ["Menghibur", "Mempromosikan produk", "Menulis laporan resmi", "Mencetak dokumen"],
+      correct: 0,
+      explain: "Meme dan video lucu dibuat terutama untuk menghibur penontonnya."
+    },
+    {
+      q: "Kemampuan sebuah konten untuk dibagikan ke banyak orang hanya dengan satu klik disebut karakteristik…",
+      options: ["Mudah diedit", "Interaktif", "Mudah disebarluaskan", "Butuh perangkat digital"],
+      correct: 2,
+      explain: "Konten digital bisa dibagikan (share) dalam hitungan detik ke banyak orang sekaligus — inilah ciri 'mudah disebarluaskan'."
+    },
+    {
+      q: "Berikut ini yang termasuk contoh konten audio adalah…",
+      options: ["Infografis", "Podcast", "Poster digital", "Artikel blog"],
+      correct: 1,
+      explain: "Podcast adalah konten berupa rekaman suara yang didengarkan — termasuk jenis konten audio."
+    },
+    {
+      q: "Manakah format file yang biasa digunakan untuk konten gambar?",
+      options: [".MP3", ".JPG", ".MP4", ".DOCX"],
+      correct: 1,
+      explain: ".JPG (dan juga .PNG, .GIF) adalah format umum untuk menyimpan gambar digital."
+    },
+    {
+      q: "Sebuah aplikasi belajar yang berisi teks, video penjelasan, animasi, dan kuis dalam satu tempat termasuk jenis konten…",
+      options: ["Teks", "Gambar", "Audio", "Multimedia"],
+      correct: 3,
+      explain: "Karena menggabungkan lebih dari satu jenis konten (teks, video, animasi, kuis) sekaligus bersifat interaktif, ini termasuk konten multimedia."
+    },
+    {
+      q: "Berikut ini manakah yang BUKAN termasuk karakteristik konten digital?",
+      options: ["Mudah diakses lewat internet", "Harus dicetak di atas kertas terlebih dahulu", "Dapat diedit dan diperbarui", "Bersifat interaktif"],
+      correct: 1,
+      explain: "Konten digital justru tidak perlu dicetak — ia disimpan dan diakses dalam bentuk data digital, bukan di atas kertas."
+    },
+    {
+      q: "Konten yang menggabungkan gambar bergerak dengan suara disebut konten…",
+      options: ["Teks", "Gambar", "Video", "Multimedia"],
+      correct: 2,
+      explain: "Video adalah gabungan gambar bergerak dan suara — berbeda dari multimedia yang menggabungkan lebih banyak jenis konten sekaligus dan bersifat interaktif."
+    }
+  ];
+
+  let qIndex = 0;
+  let qScore = 0;
+  let qAnswered = [];
+  let quizBuilt = false;
+
+  function buildQuizIfNeeded(){
+    if(quizBuilt) return;
+    quizBuilt = true;
+    renderQuizProgress();
+    renderQuestion();
+  }
+
+  function renderQuizProgress(){
+    const wrap = document.getElementById('quizProgress');
+    wrap.innerHTML = '';
+    quizQuestions.forEach((_,i)=>{
+      const s = document.createElement('span');
+      if(i === qIndex) s.classList.add('current');
+      wrap.appendChild(s);
+    });
+  }
+
+  function updateQuizProgressMark(i, correct){
+    const wrap = document.getElementById('quizProgress');
+    const el = wrap.children[i];
+    el.classList.remove('current');
+    el.classList.add(correct ? 'done' : 'wrong');
+    if(i+1 < wrap.children.length) wrap.children[i+1].classList.add('current');
+  }
+
+  function renderQuestion(){
+    const body = document.getElementById('quizBody');
+    if(qIndex >= quizQuestions.length){
+      const pct = Math.round((qScore/quizQuestions.length)*100);
+      let msg = pct>=80 ? "Luar biasa! Pemahamanmu tentang konten digital sudah sangat baik. 🌟" :
+                pct>=50 ? "Bagus! Beberapa bagian masih perlu diulang sedikit. 💪" :
+                "Ayo coba lagi, pelajari kembali materinya ya! 📖";
+      body.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:10px 0">
+          <div class="score-ring" style="--pct:${pct}">
+            <div class="score-ring-inner">
+              <div class="score-num">${qScore}/${quizQuestions.length}</div>
+              <div class="score-label">SKOR</div>
+            </div>
+          </div>
+          <p style="text-align:center;max-width:42ch;color:var(--text-dim)">${msg}</p>
+          <button class="btn btn-primary" id="quizRetryBtn">↺ Coba Lagi</button>
+        </div>
+      `;
+      document.getElementById('quizRetryBtn').addEventListener('click', ()=>{
+        qIndex=0; qScore=0; qAnswered=[];
+        renderQuizProgress();
+        renderQuestion();
+      });
+      window.__quizScore = { score: qScore, total: quizQuestions.length };
+      return;
+    }
+
+    const item = quizQuestions[qIndex];
+    body.innerHTML = `
+      <p class="q-text" style="margin-top:14px">${qIndex+1}. ${item.q}</p>
+      <div class="answers" id="answersWrap" style="margin-top:14px"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:14px">
+        <button class="btn btn-primary quiz-next" id="quizNextBtn" style="display:none">Lanjut ›</button>
+      </div>
+    `;
+    const letters = ['A','B','C','D'];
+    const answersWrap = document.getElementById('answersWrap');
+    item.options.forEach((opt, i)=>{
+      const b = document.createElement('button');
+      b.className = 'answer-btn';
+      b.innerHTML = `<span class="answer-letter">${letters[i]}</span><span>${opt}</span>`;
+      b.addEventListener('click', ()=>selectAnswer(i));
+      answersWrap.appendChild(b);
+    });
+  }
+
+  function selectAnswer(i){
+    const item = quizQuestions[qIndex];
+    const buttons = document.querySelectorAll('#answersWrap .answer-btn');
+    buttons.forEach(b=>b.disabled = true);
+    const correct = i === item.correct;
+    buttons[i].classList.add(correct ? 'correct':'wrong');
+    if(!correct) buttons[item.correct].classList.add('correct');
+
+    const fb = document.getElementById('quizFeedback');
+    fb.textContent = (correct ? '✅ Benar! ' : '❌ Belum tepat. ') + item.explain;
+    fb.classList.add('show', correct ? 'ok':'no');
+
+    if(correct) qScore++;
+    updateQuizProgressMark(qIndex, correct);
+    document.getElementById('quizNextBtn').style.display = 'inline-flex';
+    document.getElementById('quizNextBtn').onclick = ()=>{
+      qIndex++;
+      renderQuestion();
+    };
+  }
+
+  function updateFinalScore(){
+    const el = document.getElementById('finalScoreText');
+    if(window.__quizScore){
+      el.textContent = window.__quizScore.score + ' / ' + window.__quizScore.total;
+    } else {
+      el.textContent = 'Belum mengerjakan kuis';
+    }
+  }
+
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    go(0);
+  });
+
+})();
+</script>
+</body>
+</html>

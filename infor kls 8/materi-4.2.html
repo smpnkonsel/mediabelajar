@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 4 · Sistem Komputer & Perangkat Keras</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#0A1614;
+  --bg-panel:#12211D;
+  --bg-panel-2:#183029;
+  --line:#28493D;
+  --copper:#E7A55D;
+  --cyan:#5CE1E6;
+  --lime:#9EF01A;
+  --amber:#FFC978;
+  --danger:#FF6B5C;
+  --text:#EFF6F2;
+  --muted:#8FAFA3;
+  --radius:18px;
+  --shadow: 0 14px 34px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(circle at 10% 6%, rgba(92,225,230,.14), transparent 42%),
+    radial-gradient(circle at 92% 86%, rgba(231,165,93,.13), transparent 46%),
+    var(--bg-deep);
+  color:var(--text);
+  overflow:hidden;
+}
+h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif; margin:0; line-height:1.18; font-weight:700;}
+p{margin:0;}
+button{font-family:inherit;}
+::selection{background:var(--cyan); color:#0A1614;}
+
+.deck{ position:relative; height:100vh; width:100vw; }
+.circuitbg{
+  position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(92,225,230,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(92,225,230,.05) 1px, transparent 1px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 78%);
+  mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 78%);
+}
+
+/* top bar */
+.topbar{
+  position:fixed; top:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px clamp(16px,4vw,40px);
+  z-index:50; gap:12px;
+}
+.brand{
+  display:flex; align-items:center; gap:10px;
+  font-family:'Space Grotesk',sans-serif; font-weight:700;
+  font-size:clamp(13px,2.4vw,16px); color:var(--muted);
+}
+.pin{ width:9px;height:9px;border-radius:2px; background:var(--lime); box-shadow:0 0 8px var(--lime); }
+.progress-wrap{ flex:1; max-width:340px; height:8px; border-radius:99px; background:var(--bg-panel-2); overflow:hidden; border:1px solid var(--line); }
+.progress-bar{ height:100%; width:0%; background:linear-gradient(90deg,var(--copper),var(--lime)); transition:width .4s ease; border-radius:99px; }
+.slide-count{ font-size:13px; color:var(--muted); font-weight:600; white-space:nowrap; }
+
+/* slides */
+.slides{ position:relative; height:100vh; width:100vw; z-index:1; }
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:clamp(80px,10vh,110px) clamp(20px,6vw,80px) clamp(110px,12vh,130px);
+  opacity:0; visibility:hidden; transform:translateX(40px);
+  transition:opacity .45s ease, transform .45s ease;
+  overflow-y:auto;
+}
+.slide.active{ opacity:1; visibility:visible; transform:translateX(0); }
+.slide-inner{ width:100%; max-width:980px; margin:0 auto; }
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:12.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--lime); background:rgba(158,240,26,.08); border:1px solid rgba(158,240,26,.28);
+  padding:6px 14px; border-radius:8px; margin-bottom:16px; font-family:'Space Grotesk';
+}
+.slide h2.title{ font-size:clamp(26px,4.6vw,42px); margin-bottom:14px; }
+.lead{ font-size:clamp(15px,2vw,18px); color:var(--muted); max-width:720px; margin-bottom:28px; }
+.lead b{color:var(--text);}
+
+/* bottom nav */
+.navbar{
+  position:fixed; bottom:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  padding:16px clamp(16px,4vw,40px) 22px; z-index:50;
+  background:linear-gradient(to top, rgba(10,22,20,.96), rgba(10,22,20,0));
+}
+.navbtn{
+  cursor:pointer; border:1px solid var(--line); background:var(--bg-panel); color:var(--text);
+  border-radius:10px; padding:11px 22px; font-weight:700; font-size:14px;
+  display:flex; align-items:center; gap:8px; transition:.2s;
+}
+.navbtn:hover{ background:var(--bg-panel-2); border-color:var(--cyan); transform:translateY(-1px);}
+.navbtn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+.navbtn.primary{ background:linear-gradient(120deg,var(--copper),#f0c07f); color:#231404; border:none; }
+.navbtn.primary:hover{filter:brightness(1.06);}
+.dots{ display:flex; gap:7px; }
+.dots span{ width:7px;height:7px;border-radius:2px; background:var(--line); transition:.25s; }
+.dots span.on{ width:20px; background:var(--cyan); border-radius:4px;}
+
+/* ---------- Cover ---------- */
+.cover{ text-align:center; position:relative; }
+.cover .chips{ position:absolute; inset:0; pointer-events:none; }
+.chip-float{
+  position:absolute; width:70px; height:70px; border-radius:12px;
+  box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center;
+  font-size:26px; transform:rotate(var(--r)); opacity:.92; border:1.5px solid rgba(255,255,255,.12);
+}
+.cover h1{
+  font-size:clamp(32px,6.2vw,58px); font-weight:700;
+  background:linear-gradient(120deg,#fff,var(--cyan) 55%,var(--lime));
+  -webkit-background-clip:text; background-clip:text; color:transparent; margin-bottom:10px;
+}
+.cover .sub{ font-size:clamp(16px,2.6vw,22px); color:var(--muted); font-weight:600; margin-bottom:26px; }
+.meta-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:34px; }
+.chip{ padding:7px 16px; border-radius:8px; font-size:13px; font-weight:700; border:1px solid var(--line); color:var(--muted); }
+.start-btn{
+  cursor:pointer; border:none; background:linear-gradient(120deg,var(--cyan),#8ff0f4); color:#062523;
+  font-weight:800; font-size:16px; padding:15px 34px; border-radius:10px;
+  box-shadow:0 10px 30px rgba(92,225,230,.28); transition:.2s;
+}
+.start-btn:hover{transform:translateY(-2px); filter:brightness(1.05);}
+
+/* flow diagram */
+.flow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.flow-step{ flex:1; min-width:130px; background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:18px 14px; text-align:center; }
+.flow-step .n{ font-size:26px; margin-bottom:6px; }
+.flow-step h4{ font-size:15px; margin-bottom:4px; }
+.flow-step p{ font-size:12.5px; color:var(--muted); }
+.flow-arrow{ color:var(--cyan); font-size:20px; font-family:'Space Grotesk'; }
+@media (max-width:700px){ .flow{flex-direction:column;} .flow-arrow{ transform:rotate(90deg); } }
+
+/* grid + card */
+.grid{ display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+.card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; cursor:pointer; transition:.2s; position:relative; min-height:120px; }
+.card:hover{ border-color:var(--cyan); transform:translateY(-3px); }
+.card .icon{ font-size:26px; margin-bottom:8px; display:block;}
+.card h4{ font-size:15px; margin-bottom:6px; }
+.card p{ font-size:12.8px; color:var(--muted); }
+
+/* flip card */
+.flipcard{ perspective:1200px; height:180px; cursor:pointer; }
+.flipcard-inner{ position:relative; width:100%; height:100%; transition:transform .55s; transform-style:preserve-3d; }
+.flipcard.flipped .flipcard-inner{ transform:rotateY(180deg); }
+.flipface{ position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius); border:1px solid var(--line); padding:16px; display:flex; flex-direction:column; justify-content:center; }
+.flipface.front{ background:var(--bg-panel); }
+.flipface.back{ background:linear-gradient(135deg,var(--bg-panel-2),var(--bg-panel)); transform:rotateY(180deg); border-color:var(--lime); }
+.flipface .icon{font-size:24px;}
+.flipface h4{font-size:14.5px; margin:6px 0 4px;}
+.flipface p{font-size:12.5px; color:var(--muted);}
+.flip-hint{font-size:10.5px; color:var(--cyan); margin-top:8px; font-weight:700; font-family:'Space Grotesk';}
+
+/* detail panel */
+.detail-panel{
+  margin-top:18px; padding:18px 20px; border-radius:var(--radius); background:var(--bg-panel-2);
+  border:1px solid var(--copper); min-height:74px; font-size:13.6px; color:var(--muted);
+  display:flex; gap:12px; align-items:flex-start;
+}
+.detail-panel b{color:var(--text);}
+.detail-panel .dicon{font-size:22px;}
+
+/* mindmap */
+.mindmap{ display:flex; flex-direction:column; align-items:center; gap:22px; margin-top:10px; }
+.mm-center{
+  background:linear-gradient(120deg,var(--copper),#f2c68a); color:#241404; font-weight:700; font-family:'Space Grotesk';
+  padding:16px 30px; border-radius:14px; font-size:17px; box-shadow:var(--shadow);
+}
+.mm-branches{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; }
+.mm-node{ background:var(--bg-panel); border:1px solid var(--line); padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700; font-size:13.6px; transition:.2s; }
+.mm-node:hover, .mm-node.active{ border-color:var(--cyan); background:var(--bg-panel-2); color:var(--cyan); }
+
+/* tabs */
+.tabs{ display:flex; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+.tab-btn{
+  cursor:pointer; border:1px solid var(--line); background:var(--bg-panel); color:var(--muted);
+  padding:10px 18px; border-radius:99px; font-weight:700; font-size:13.5px; transition:.2s;
+}
+.tab-btn.active{ border-color:var(--lime); color:var(--lime); background:rgba(158,240,26,.08); }
+
+/* compare bars */
+.compare{ margin-top:22px; }
+.cmp-row{ margin-bottom:14px; }
+.cmp-label{ display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:6px; }
+.cmp-track{ height:12px; border-radius:99px; background:var(--bg-panel-2); border:1px solid var(--line); overflow:hidden; }
+.cmp-fill{ height:100%; border-radius:99px; }
+
+/* accordion */
+.acc-item{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); }
+.acc-head{ display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+.acc-check{ width:20px; height:20px; border-radius:5px; border:2px solid var(--cyan); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--cyan); font-weight:800; }
+.acc-check.checked{ background:var(--cyan); color:#062523; }
+.acc-title{ font-weight:700; font-size:14.5px; flex:1; }
+.acc-arrow{ color:var(--muted); transition:.2s; }
+.acc-item.open .acc-arrow{ transform:rotate(90deg); color:var(--cyan); }
+.acc-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 16px; font-size:13px; color:var(--muted); }
+.acc-item.open .acc-body{ max-height:200px; padding:0 16px 16px 48px; }
+
+/* case study */
+.case-box{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px clamp(16px,3vw,28px); }
+.case-scenario{ background:var(--bg-panel-2); border-left:4px solid var(--copper); padding:14px 16px; border-radius:10px; font-size:13.6px; color:var(--text); margin-bottom:18px; }
+.case-progress{ display:flex; gap:6px; margin-bottom:16px; }
+.case-progress span{ flex:1; height:5px; border-radius:99px; background:var(--line); }
+.case-progress span.done{ background:var(--cyan); }
+.case-progress span.current{ background:var(--copper); }
+.case-q{ font-weight:700; font-size:15.5px; margin-bottom:14px; }
+.case-options{ display:grid; gap:10px; }
+.case-opt{ text-align:left; padding:13px 16px; border-radius:12px; border:1px solid var(--line); background:var(--bg-deep); color:var(--text); cursor:pointer; font-size:13.6px; font-weight:600; transition:.15s; }
+.case-opt:hover{ border-color:var(--cyan); }
+.case-opt.correct{ border-color:var(--lime); background:rgba(158,240,26,.1); }
+.case-opt.wrong{ border-color:var(--danger); background:rgba(255,107,92,.12); }
+.case-feedback{ margin-top:14px; font-size:13.2px; padding:12px 14px; border-radius:10px; background:rgba(158,240,26,.07); border:1px solid rgba(158,240,26,.3); display:none; }
+.case-feedback.show{ display:block; }
+.case-next{ margin-top:16px; display:none; }
+.case-next.show{ display:inline-flex; }
+.case-done{ text-align:center; padding:20px 0 6px; }
+
+/* quiz */
+.quiz-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:8px;}
+.quiz-tag{ font-size:12.5px; color:var(--muted); font-weight:700;}
+.quiz-score{ font-size:12.5px; color:var(--copper); font-weight:800; }
+.quiz-box{ background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px clamp(16px,3vw,28px); min-height:300px; }
+.qz-q{ font-weight:700; font-size:16px; margin-bottom:16px; }
+.qz-options{ display:grid; gap:10px; margin-bottom:6px; }
+.qz-opt{ text-align:left; padding:13px 16px; border-radius:12px; border:1px solid var(--line); background:var(--bg-deep); color:var(--text); cursor:pointer; font-size:13.6px; font-weight:600; display:flex; gap:10px; align-items:center; }
+.qz-opt .lbl{ width:24px;height:24px;border-radius:6px; background:var(--bg-panel-2); border:1px solid var(--line); display:flex;align-items:center;justify-content:center; font-size:11.5px; font-weight:800; flex-shrink:0; }
+.qz-opt:hover{ border-color:var(--cyan); }
+.qz-opt.correct{ border-color:var(--lime); background:rgba(158,240,26,.1); }
+.qz-opt.wrong{ border-color:var(--danger); background:rgba(255,107,92,.12); }
+.qz-opt.disabled{ pointer-events:none; }
+.qz-explain{ margin-top:12px; font-size:13px; padding:12px 14px; border-radius:10px; background:var(--bg-panel-2); border:1px solid var(--line); display:none; color:var(--muted); }
+.qz-explain.show{ display:block; }
+.qz-explain b{ color:var(--text); }
+.qz-footer{ display:flex; justify-content:flex-end; margin-top:16px; }
+.qz-result{ text-align:center; }
+.score-ring{
+  width:150px; height:150px; border-radius:50%; margin:0 auto 18px;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  background:conic-gradient(var(--lime) calc(var(--pct)*1%), var(--bg-panel-2) 0); position:relative;
+}
+.score-ring::before{ content:""; position:absolute; inset:10px; border-radius:50%; background:var(--bg-panel); }
+.score-ring .num{ position:relative; font-family:'Space Grotesk'; font-size:28px; font-weight:700; }
+.score-ring .lbl2{ position:relative; font-size:11px; color:var(--muted); }
+
+/* recap */
+.recap-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:8px; }
+.recap-card{ background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:16px; border-top:3px solid var(--accent); }
+.recap-card .num2{ font-size:22px; color:var(--accent); margin-bottom:6px; }
+.recap-card h4{ font-size:14px; margin-bottom:4px;}
+.recap-card p{ font-size:12.3px; color:var(--muted);}
+
+/* final */
+.final{ text-align:center; }
+.final .badge{ width:84px;height:84px;border-radius:18px; background:linear-gradient(135deg,var(--copper),var(--lime)); display:flex;align-items:center;justify-content:center; font-size:38px; margin:0 auto 18px; box-shadow:var(--shadow); }
+.final h2{ font-size:clamp(24px,4vw,36px); margin-bottom:10px;}
+.final .lead{ margin-left:auto; margin-right:auto; }
+.final-actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px; }
+.final-btn{ cursor:pointer; border:none; border-radius:10px; padding:14px 28px; font-weight:800; font-size:14.5px; display:inline-flex; align-items:center; gap:8px; text-decoration:none; }
+.final-btn.primary{ background:linear-gradient(120deg,var(--copper),#f0c07f); color:#231404; }
+.final-btn.ghost{ background:transparent; border:1px solid var(--line); color:var(--text); }
+.final-btn:hover{ transform:translateY(-2px); }
+
+.small-note{ font-size:12px; color:var(--muted); margin-top:14px; }
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:var(--line); border-radius:99px; }
+
+@media (max-width:600px){
+  .navbtn span.label{ display:none; }
+  .navbtn{ padding:11px 14px; }
+  .slide{ padding-top:76px; padding-bottom:100px; }
+}
+</style>
+</head>
+<body>
+
+<div class="deck">
+  <div class="circuitbg"></div>
+
+  <div class="topbar">
+    <div class="brand"><span class="pin"></span> Bab 4 · Sistem Komputer</div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-count" id="slideCount">1 / 11</div>
+  </div>
+
+  <div class="slides" id="slides">
+
+    <!-- 0. COVER -->
+    <section class="slide cover active" data-title="Cover">
+      <div class="chips">
+        <div class="chip-float" style="--r:-8deg; top:16%; left:8%; background:var(--copper); color:#241404;">⌨️</div>
+        <div class="chip-float" style="--r:6deg; top:20%; right:9%; background:var(--cyan); color:#062523;">🖥️</div>
+        <div class="chip-float" style="--r:5deg; bottom:18%; left:12%; background:var(--lime); color:#152600;">💾</div>
+        <div class="chip-float" style="--r:-6deg; bottom:14%; right:12%; background:var(--amber); color:#2b1c00;">🖨️</div>
+      </div>
+      <div class="slide-inner">
+        <div class="eyebrow">📚 Informatika · Kelas SMP</div>
+        <h1>Sistem Komputer</h1>
+        <div class="sub">Bab 4 — Perangkat Keras Komputer</div>
+        <div class="meta-row">
+          <span class="chip">⌨️ Perangkat Input</span>
+          <span class="chip">🧠 Perangkat Proses</span>
+          <span class="chip">🖥️ Perangkat Output</span>
+          <span class="chip">💾 Perangkat Penyimpanan</span>
+        </div>
+        <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+        <div class="small-note">Gunakan tombol di bawah atau tombol panah ← → di keyboard untuk berpindah slide</div>
+      </div>
+    </section>
+
+    <!-- 1. PENGANTAR -->
+    <section class="slide" data-title="Pengantar">
+      <div class="slide-inner">
+        <div class="eyebrow">01 · Pengantar</div>
+        <h2 class="title">Apa Itu Perangkat Keras Komputer?</h2>
+        <p class="lead"><b>Perangkat keras (hardware)</b> adalah semua bagian komputer yang bisa dilihat dan disentuh secara fisik — berbeda dengan <b>perangkat lunak (software)</b> yang berupa program/aplikasi. Perangkat keras bekerja sama dalam <b>4 kelompok besar</b> berikut ini.</p>
+        <div class="flow">
+          <div class="flow-step" style="border-top:3px solid var(--copper)">
+            <div class="n">⌨️</div><h4>Input</h4><p>Memasukkan data/perintah ke komputer</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="border-top:3px solid var(--cyan)">
+            <div class="n">🧠</div><h4>Proses</h4><p>Mengolah data yang masuk (CPU)</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="border-top:3px solid var(--lime)">
+            <div class="n">🖥️</div><h4>Output</h4><p>Menampilkan hasil pengolahan data</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="border-top:3px solid var(--amber)">
+            <div class="n">💾</div><h4>Penyimpanan</h4><p>Menyimpan data agar bisa dipakai lagi</p>
+          </div>
+        </div>
+        <p class="lead" style="margin-top:22px; margin-bottom:0;">Yuk, kita bahas fungsi masing-masing kelompok satu per satu — lengkap dengan contoh perangkatnya!</p>
+      </div>
+    </section>
+
+    <!-- 2. PERANGKAT INPUT -->
+    <section class="slide" data-title="Perangkat Input">
+      <div class="slide-inner">
+        <div class="eyebrow">02 · Perangkat Input</div>
+        <h2 class="title">Perangkat yang Memasukkan Data</h2>
+        <p class="lead">Perangkat input berfungsi mengirim data atau perintah dari pengguna ke komputer. Klik kartu untuk melihat fungsinya 👇</p>
+        <div class="grid" id="inputGrid"></div>
+      </div>
+    </section>
+
+    <!-- 3. PERANGKAT PROSES -->
+    <section class="slide" data-title="Perangkat Proses">
+      <div class="slide-inner">
+        <div class="eyebrow">03 · Perangkat Proses</div>
+        <h2 class="title">CPU — Otak dari Komputer</h2>
+        <p class="lead"><b>CPU (Central Processing Unit)</b> mengolah semua data yang masuk. Di dalamnya ada beberapa bagian penting. Klik setiap bagian untuk melihat fungsinya.</p>
+        <div class="mindmap">
+          <div class="mm-center">🧠 CPU</div>
+          <div class="mm-branches" id="cpuBranches"></div>
+        </div>
+        <div class="detail-panel" id="cpuDetail">
+          <span class="dicon">👆</span>
+          <div>Klik salah satu bagian CPU di atas untuk melihat penjelasannya.</div>
+        </div>
+        <h3 style="font-size:16px; margin:30px 0 12px;">Komponen Pendukung Proses Lainnya</h3>
+        <div class="grid" id="procGrid"></div>
+      </div>
+    </section>
+
+    <!-- 4. PERANGKAT OUTPUT -->
+    <section class="slide" data-title="Perangkat Output">
+      <div class="slide-inner">
+        <div class="eyebrow">04 · Perangkat Output</div>
+        <h2 class="title">Perangkat yang Menampilkan Hasil</h2>
+        <p class="lead">Perangkat output menyampaikan hasil pengolahan data kepada pengguna, dalam bentuk gambar, suara, atau cetakan. Klik kartu untuk membaliknya.</p>
+        <div class="grid" id="outputGrid"></div>
+      </div>
+    </section>
+
+    <!-- 5. PERANGKAT PENYIMPANAN -->
+    <section class="slide" data-title="Perangkat Penyimpanan">
+      <div class="slide-inner">
+        <div class="eyebrow">05 · Perangkat Penyimpanan</div>
+        <h2 class="title">Menyimpan Data Agar Tidak Hilang</h2>
+        <p class="lead">Perangkat penyimpanan dibedakan menjadi <b>internal</b> (terpasang di dalam komputer) dan <b>eksternal</b> (bisa dilepas-pasang). Klik tab di bawah untuk melihat masing-masing.</p>
+        <div class="tabs">
+          <button class="tab-btn active" id="tabInternal" onclick="showStorage('internal')">💽 Internal</button>
+          <button class="tab-btn" id="tabExternal" onclick="showStorage('external')">🔌 Eksternal</button>
+        </div>
+        <div class="grid" id="storageGrid"></div>
+        <div class="compare">
+          <h3 style="font-size:15px; margin-bottom:14px;">⚡ Perbandingan Kecepatan Baca Umum: HDD vs SSD</h3>
+          <div class="cmp-row">
+            <div class="cmp-label"><span>HDD (piringan magnetik)</span><span style="color:var(--muted)">Lebih lambat</span></div>
+            <div class="cmp-track"><div class="cmp-fill" style="width:28%; background:var(--copper);"></div></div>
+          </div>
+          <div class="cmp-row">
+            <div class="cmp-label"><span>SSD (chip flash)</span><span style="color:var(--lime)">Lebih cepat</span></div>
+            <div class="cmp-track"><div class="cmp-fill" style="width:88%; background:var(--lime);"></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. BEKERJA BERSAMA -->
+    <section class="slide" data-title="Bekerja Bersama">
+      <div class="slide-inner">
+        <div class="eyebrow">06 · Studi Alur</div>
+        <h2 class="title">Contoh: Mengetik & Mencetak Tugas</h2>
+        <p class="lead">Semua perangkat keras bekerja sama dalam satu alur. Klik tiap langkah untuk melihat perangkat apa yang berperan.</p>
+        <div class="mindmap">
+          <div class="mm-branches" id="workflowBranches" style="margin-top:0;"></div>
+        </div>
+        <div class="detail-panel" id="workflowDetail">
+          <span class="dicon">👆</span>
+          <div>Klik salah satu langkah di atas untuk melihat penjelasan perangkatnya.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. STUDI KASUS -->
+    <section class="slide" data-title="Studi Kasus">
+      <div class="slide-inner">
+        <div class="eyebrow">07 · Contoh Interaktif</div>
+        <h2 class="title">Rancang Lab Multimedia Sekolah!</h2>
+        <div class="case-box">
+          <div class="case-scenario" id="caseScenario">Memuat skenario...</div>
+          <div class="case-progress" id="caseProgress"></div>
+          <div class="case-q" id="caseQ"></div>
+          <div class="case-options" id="caseOptions"></div>
+          <div class="case-feedback" id="caseFeedback"></div>
+          <button class="navbtn primary case-next" id="caseNextBtn" onclick="caseNext()">Lanjut ke langkah berikutnya →</button>
+          <div class="case-done" id="caseDone" style="display:none;">
+            <div style="font-size:40px;">🎉</div>
+            <h3 style="margin:10px 0 6px;">Lab Multimedia Siap!</h3>
+            <p class="lead" style="margin:0 auto;">Kamu berhasil memilih perangkat input, proses, output, dan penyimpanan yang tepat untuk lab multimedia sekolah.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. QUIZ -->
+    <section class="slide" data-title="Latihan Soal">
+      <div class="slide-inner">
+        <div class="eyebrow">08 · Latihan Soal</div>
+        <h2 class="title">Uji Pemahamanmu</h2>
+        <div class="quiz-top">
+          <div class="quiz-tag" id="qzTag">Soal 1 / 7</div>
+          <div class="quiz-score" id="qzScore">Skor: 0</div>
+        </div>
+        <div class="quiz-box" id="quizBox"></div>
+      </div>
+    </section>
+
+    <!-- 9. RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">09 · Rangkuman</div>
+        <h2 class="title">4 Kelompok Perangkat Keras</h2>
+        <p class="lead">Ingat kembali fungsi masing-masing kelompok perangkat keras komputer:</p>
+        <div class="recap-grid">
+          <div class="recap-card" style="--accent:var(--copper)"><div class="num2">⌨️</div><h4>Input</h4><p>Memasukkan data/perintah, contoh: keyboard, mouse, scanner, mikrofon.</p></div>
+          <div class="recap-card" style="--accent:var(--cyan)"><div class="num2">🧠</div><h4>Proses</h4><p>Mengolah data, contoh: CPU (ALU, CU, Register), RAM, motherboard.</p></div>
+          <div class="recap-card" style="--accent:var(--lime)"><div class="num2">🖥️</div><h4>Output</h4><p>Menampilkan hasil, contoh: monitor, printer, speaker, proyektor.</p></div>
+          <div class="recap-card" style="--accent:var(--amber)"><div class="num2">💾</div><h4>Penyimpanan</h4><p>Menyimpan data, contoh: SSD, HDD, flashdisk, cloud storage.</p></div>
+        </div>
+        <p class="lead" style="margin-top:22px; margin-bottom:0;">Keempat kelompok ini saling terhubung membentuk <b>sistem komputer</b> yang utuh. 🖥️⚡</p>
+      </div>
+    </section>
+
+    <!-- 10. SELESAI -->
+    <section class="slide final" data-title="Selesai">
+      <div class="slide-inner">
+        <div class="badge">🏁</div>
+        <h2>Selamat, Bab 4 Selesai!</h2>
+        <p class="lead">Kamu sudah mempelajari perangkat keras komputer: perangkat input, proses, output, dan penyimpanan beserta fungsinya masing-masing. Sekarang kamu lebih paham bagaimana komputer bekerja dari dalam!</p>
+        <div class="final-actions">
+          <a href="infob-bab4.html" class="final-btn primary">✅ Selesai — Kembali ke Menu Bab 4</a>
+          <button class="final-btn ghost" onclick="goTo(0)">↺ Ulangi Presentasi</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="navbtn" id="prevBtn" onclick="prev()">← <span class="label">Sebelumnya</span></button>
+    <div class="dots" id="dots"></div>
+    <button class="navbtn primary" id="nextBtn" onclick="next()"><span class="label">Berikutnya</span> →</button>
+  </div>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const total = slideEls.length;
+let current = 0;
+
+const dotsWrap = document.getElementById('dots');
+slideEls.forEach((_, i) => {
+  const d = document.createElement('span');
+  d.addEventListener('click', () => goTo(i));
+  dotsWrap.appendChild(d);
+});
+
+function render(){
+  slideEls.forEach((s,i) => s.classList.toggle('active', i === current));
+  document.querySelectorAll('#dots span').forEach((d,i) => d.classList.toggle('on', i === current));
+  document.getElementById('progressBar').style.width = ((current+1)/total*100) + '%';
+  document.getElementById('slideCount').textContent = (current+1) + ' / ' + total;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === total - 1;
+}
+function goTo(i){ if(i < 0 || i >= total) return; current = i; render(); }
+function next(){ if(current < total-1){ current++; render(); } }
+function prev(){ if(current > 0){ current--; render(); } }
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowRight') next();
+  if(e.key === 'ArrowLeft') prev();
+});
+let touchX = null;
+document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+document.addEventListener('touchend', e => {
+  if(touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(dx > 60) prev();
+  if(dx < -60) next();
+  touchX = null;
+});
+render();
+
+/* ================= SLIDE 2: PERANGKAT INPUT ================= */
+const inputData = [
+  {icon:'⌨️', title:'Keyboard', example:'Mengetik huruf, angka, simbol, dan perintah ke dalam komputer.'},
+  {icon:'🖱️', title:'Mouse', example:'Menggerakkan kursor dan memilih/mengklik objek di layar.'},
+  {icon:'🖨️', title:'Scanner', example:'Memindai dokumen atau gambar fisik menjadi file digital.'},
+  {icon:'🎙️', title:'Mikrofon', example:'Merekam suara dan mengubahnya menjadi data digital.'},
+  {icon:'📷', title:'Webcam', example:'Menangkap gambar atau video secara langsung (live).'},
+  {icon:'🎮', title:'Joystick/Gamepad', example:'Mengontrol gerakan dalam permainan atau simulasi.'},
+];
+const inputGrid = document.getElementById('inputGrid');
+inputData.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'flipcard';
+  el.innerHTML = `
+    <div class="flipcard-inner">
+      <div class="flipface front"><span class="icon">${item.icon}</span><h4>${item.title}</h4><div class="flip-hint">Klik untuk lihat fungsi →</div></div>
+      <div class="flipface back"><span class="icon">⚙️</span><p><b>Fungsi:</b> ${item.example}</p></div>
+    </div>`;
+  el.addEventListener('click', () => el.classList.toggle('flipped'));
+  inputGrid.appendChild(el);
+});
+
+/* ================= SLIDE 3: CPU MINDMAP + PROC GRID ================= */
+const cpuData = [
+  {title:'🧮 ALU', detail:'Arithmetic Logic Unit — bertugas melakukan operasi hitung (tambah, kurang) dan logika (perbandingan, benar/salah).'},
+  {title:'🎛️ CU', detail:'Control Unit — mengatur dan mengoordinasikan seluruh kegiatan/proses di dalam komputer.'},
+  {title:'📥 Register', detail:'Menyimpan data atau instruksi sementara yang sedang diproses oleh CPU, dengan kecepatan sangat tinggi.'},
+];
+const cpuBranches = document.getElementById('cpuBranches');
+const cpuDetail = document.getElementById('cpuDetail');
+cpuData.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'mm-node';
+  el.textContent = item.title;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('#cpuBranches .mm-node').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    cpuDetail.innerHTML = `<span class="dicon">🧩</span><div><b>${item.title}:</b> ${item.detail}</div>`;
+  });
+  cpuBranches.appendChild(el);
+});
+
+const procData = [
+  {icon:'🔌', title:'Motherboard', example:'Papan sirkuit utama yang menghubungkan semua komponen komputer.'},
+  {icon:'🧬', title:'RAM', example:'Memori sementara tempat data aktif disimpan selama komputer menyala.'},
+  {icon:'🎨', title:'GPU', example:'Memproses data grafis agar gambar & video tampil dengan lancar.'},
+  {icon:'🔋', title:'Power Supply', example:'Mengubah & menyalurkan daya listrik ke seluruh komponen komputer.'},
+];
+const procGrid = document.getElementById('procGrid');
+procData.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'flipcard';
+  el.innerHTML = `
+    <div class="flipcard-inner">
+      <div class="flipface front"><span class="icon">${item.icon}</span><h4>${item.title}</h4><div class="flip-hint">Klik untuk lihat fungsi →</div></div>
+      <div class="flipface back"><span class="icon">⚙️</span><p><b>Fungsi:</b> ${item.example}</p></div>
+    </div>`;
+  el.addEventListener('click', () => el.classList.toggle('flipped'));
+  procGrid.appendChild(el);
+});
+
+/* ================= SLIDE 4: PERANGKAT OUTPUT ================= */
+const outputData = [
+  {icon:'🖥️', title:'Monitor', example:'Menampilkan hasil kerja komputer dalam bentuk visual/gambar.'},
+  {icon:'🖨️', title:'Printer', example:'Mencetak dokumen digital menjadi bentuk fisik di atas kertas.'},
+  {icon:'🔊', title:'Speaker', example:'Mengeluarkan suara dari komputer, misalnya musik atau notifikasi.'},
+  {icon:'📽️', title:'Proyektor', example:'Menampilkan gambar/video ke layar besar untuk banyak orang.'},
+  {icon:'🎧', title:'Headphone', example:'Mengeluarkan suara secara personal tanpa mengganggu orang lain.'},
+];
+const outputGrid = document.getElementById('outputGrid');
+outputData.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'flipcard';
+  el.innerHTML = `
+    <div class="flipcard-inner">
+      <div class="flipface front"><span class="icon">${item.icon}</span><h4>${item.title}</h4><div class="flip-hint">Klik untuk lihat fungsi →</div></div>
+      <div class="flipface back"><span class="icon">⚙️</span><p><b>Fungsi:</b> ${item.example}</p></div>
+    </div>`;
+  el.addEventListener('click', () => el.classList.toggle('flipped'));
+  outputGrid.appendChild(el);
+});
+
+/* ================= SLIDE 5: PENYIMPANAN (TABS) ================= */
+const storageData = {
+  internal: [
+    {icon:'🧬', title:'RAM', example:'Penyimpanan sementara & sangat cepat, data hilang saat komputer dimatikan.'},
+    {icon:'💽', title:'SSD', example:'Penyimpanan permanen berbasis chip flash, kecepatan tinggi & tahan guncangan.'},
+    {icon:'🗄️', title:'HDD', example:'Penyimpanan permanen berbasis piringan magnetik, kapasitas besar & harga lebih murah.'},
+  ],
+  external: [
+    {icon:'💾', title:'Flashdisk', example:'Penyimpanan portabel kecil yang mudah dibawa dan dicolok lewat port USB.'},
+    {icon:'🗃️', title:'Hard Disk Eksternal', example:'Penyimpanan tambahan berkapasitas besar yang bisa dilepas-pasang.'},
+    {icon:'☁️', title:'Cloud Storage', example:'Menyimpan data secara daring (online) sehingga bisa diakses dari mana saja.'},
+    {icon:'💿', title:'Optical Disc (CD/DVD)', example:'Media penyimpanan berbentuk cakram, kini sudah jarang digunakan.'},
+  ]
+};
+const storageGrid = document.getElementById('storageGrid');
+function showStorage(kind){
+  document.getElementById('tabInternal').classList.toggle('active', kind==='internal');
+  document.getElementById('tabExternal').classList.toggle('active', kind==='external');
+  storageGrid.innerHTML = '';
+  storageData[kind].forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'flipcard';
+    el.innerHTML = `
+      <div class="flipcard-inner">
+        <div class="flipface front"><span class="icon">${item.icon}</span><h4>${item.title}</h4><div class="flip-hint">Klik untuk lihat fungsi →</div></div>
+        <div class="flipface back"><span class="icon">⚙️</span><p><b>Fungsi:</b> ${item.example}</p></div>
+      </div>`;
+    el.addEventListener('click', () => el.classList.toggle('flipped'));
+    storageGrid.appendChild(el);
+  });
+}
+showStorage('internal');
+
+/* ================= SLIDE 6: WORKFLOW ================= */
+const workflowData = [
+  {title:'1️⃣ Input', detail:'Kamu mengetik tugas menggunakan keyboard — data huruf mulai dikirim ke komputer.'},
+  {title:'2️⃣ Proses', detail:'CPU & RAM mengolah setiap huruf yang diketik dan menyimpannya sementara di memori.'},
+  {title:'3️⃣ Output (layar)', detail:'Hasil ketikan langsung ditampilkan di monitor agar kamu bisa melihat & mengoreksi.'},
+  {title:'4️⃣ Penyimpanan', detail:'Setelah selesai, file disimpan ke SSD atau flashdisk agar tidak hilang.'},
+  {title:'5️⃣ Output (cetak)', detail:'Dokumen dikirim ke printer untuk dicetak menjadi lembar tugas fisik.'},
+];
+const wfBranches = document.getElementById('workflowBranches');
+const wfDetail = document.getElementById('workflowDetail');
+workflowData.forEach(item => {
+  const el = document.createElement('div');
+  el.className = 'mm-node';
+  el.textContent = item.title;
+  el.addEventListener('click', () => {
+    document.querySelectorAll('#workflowBranches .mm-node').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    wfDetail.innerHTML = `<span class="dicon">💡</span><div><b>${item.title}:</b> ${item.detail}</div>`;
+  });
+  wfBranches.appendChild(el);
+});
+
+/* ================= SLIDE 7: STUDI KASUS ================= */
+const caseSteps = [
+  {
+    q:'Langkah 1 (Input): Guru ingin merekam narasi suara untuk video pembelajaran. Perangkat input yang tepat adalah...',
+    options:['Mouse','Mikrofon','Printer','Speaker'],
+    correct:1,
+    feedback:'Tepat! Mikrofon berfungsi merekam suara dan mengubahnya menjadi data digital yang bisa diedit.'
+  },
+  {
+    q:'Langkah 2 (Proses): Agar editing video berjalan lancar tanpa lag, yang perlu diperhatikan adalah...',
+    options:['Keyboard biasa','Prosesor (CPU) cepat & RAM besar','Kabel HDMI','Kertas HVS'],
+    correct:1,
+    feedback:'Benar! Mengedit video butuh kemampuan proses tinggi — CPU cepat dan RAM besar membuat pengolahan data lebih lancar.'
+  },
+  {
+    q:'Langkah 3 (Output): Untuk menampilkan hasil video ke seluruh siswa di kelas, perangkat output yang cocok adalah...',
+    options:['Scanner','Proyektor','Joystick','Flashdisk'],
+    correct:1,
+    feedback:'Sesuai! Proyektor bisa menampilkan gambar/video dalam ukuran besar agar terlihat oleh seluruh siswa.'
+  },
+  {
+    q:'Langkah 4 (Penyimpanan): Supaya file video besar tersimpan aman dan bisa diakses lagi nanti, sebaiknya disimpan di...',
+    options:['RAM','SSD eksternal atau cloud storage','Cache sementara','Clipboard'],
+    correct:1,
+    feedback:'Pas sekali! SSD eksternal atau cloud storage cocok untuk menyimpan file besar secara permanen dan aman.'
+  },
+];
+let caseIdx = 0;
+const caseScenario = document.getElementById('caseScenario');
+const caseProgress = document.getElementById('caseProgress');
+const caseQ = document.getElementById('caseQ');
+const caseOptions = document.getElementById('caseOptions');
+const caseFeedback = document.getElementById('caseFeedback');
+const caseNextBtn = document.getElementById('caseNextBtn');
+const caseDone = document.getElementById('caseDone');
+const caseBoxParts = [caseScenario, caseProgress, caseQ, caseOptions];
+
+function renderCase(){
+  caseScenario.innerHTML = '<b>🎬 Skenario:</b> Sekolahmu membangun Lab Multimedia baru. Kamu diminta membantu memilih perangkat keras yang tepat untuk tiap kebutuhan. Ikuti 4 langkahnya!';
+  caseProgress.innerHTML = '';
+  caseSteps.forEach((s,i) => {
+    const span = document.createElement('span');
+    if(i < caseIdx) span.className = 'done';
+    else if(i === caseIdx) span.className = 'current';
+    caseProgress.appendChild(span);
+  });
+  const step = caseSteps[caseIdx];
+  caseQ.textContent = step.q;
+  caseOptions.innerHTML = '';
+  caseFeedback.classList.remove('show');
+  caseNextBtn.classList.remove('show');
+  step.options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'case-opt';
+    b.textContent = opt;
+    b.addEventListener('click', () => {
+      if(b.classList.contains('answered')) return;
+      const allBtns = caseOptions.querySelectorAll('.case-opt');
+      if(i === step.correct){
+        allBtns.forEach(x => x.classList.add('answered'));
+        b.classList.add('correct');
+        caseFeedback.textContent = '✅ ' + step.feedback;
+        caseFeedback.classList.add('show');
+        caseNextBtn.classList.add('show');
+        caseNextBtn.textContent = caseIdx === caseSteps.length-1 ? 'Lihat Hasil 🎉' : 'Lanjut ke langkah berikutnya →';
+      } else {
+        b.classList.add('wrong');
+        setTimeout(() => b.classList.remove('wrong'), 500);
+      }
+    });
+    caseOptions.appendChild(b);
+  });
+  caseBoxParts.forEach(p => p.style.display = '');
+  caseDone.style.display = 'none';
+}
+function caseNext(){
+  caseIdx++;
+  if(caseIdx >= caseSteps.length){
+    caseBoxParts.forEach(p => p.style.display = 'none');
+    caseFeedback.classList.remove('show');
+    caseNextBtn.classList.remove('show');
+    caseDone.style.display = 'block';
+  } else {
+    renderCase();
+  }
+}
+renderCase();
+
+/* ================= SLIDE 8: QUIZ ================= */
+const quizData = [
+  {
+    q:'Perangkat yang berfungsi memasukkan data ke dalam komputer disebut perangkat...',
+    options:['Output','Input','Proses','Penyimpanan'],
+    correct:1,
+    explain:'Perangkat input bertugas mengirim data atau perintah dari pengguna ke dalam komputer, contohnya keyboard dan mouse.'
+  },
+  {
+    q:'Bagian CPU yang bertugas melakukan perhitungan dan operasi logika adalah...',
+    options:['Control Unit (CU)','Arithmetic Logic Unit (ALU)','RAM','Monitor'],
+    correct:1,
+    explain:'ALU (Arithmetic Logic Unit) melakukan operasi hitung seperti tambah/kurang dan operasi logika seperti perbandingan.'
+  },
+  {
+    q:'Berikut ini yang termasuk perangkat output adalah...',
+    options:['Mouse','Keyboard','Printer','Scanner'],
+    correct:2,
+    explain:'Printer termasuk perangkat output karena mencetak hasil olahan data menjadi dokumen fisik.'
+  },
+  {
+    q:'Media penyimpanan yang paling cepat namun sifatnya sementara (hilang saat komputer mati) adalah...',
+    options:['Hard Disk','RAM','Flashdisk','Cloud Storage'],
+    correct:1,
+    explain:'RAM adalah memori sementara berkecepatan sangat tinggi, tetapi datanya akan hilang saat komputer dimatikan.'
+  },
+  {
+    q:'Fungsi Control Unit (CU) pada CPU adalah...',
+    options:['Menyimpan file secara permanen','Mengatur & mengoordinasikan seluruh kegiatan komputer','Menampilkan gambar ke layar','Merekam suara pengguna'],
+    correct:1,
+    explain:'Control Unit (CU) mengatur dan mengoordinasikan seluruh proses kerja di dalam komputer.'
+  },
+  {
+    q:'Contoh perangkat penyimpanan eksternal adalah...',
+    options:['RAM','Register','Flashdisk','ALU'],
+    correct:2,
+    explain:'Flashdisk adalah media penyimpanan eksternal yang bisa dilepas-pasang dan dibawa ke mana saja.'
+  },
+  {
+    q:'Saat kamu mengetik dokumen dan hasilnya langsung terlihat di layar, layar berperan sebagai perangkat...',
+    options:['Input','Proses','Output','Penyimpanan'],
+    correct:2,
+    explain:'Layar/monitor menampilkan hasil pengolahan data kepada pengguna, sehingga termasuk perangkat output.'
+  },
+];
+let qzIdx = 0, qzScore = 0, qzAnswered = false;
+const quizBox = document.getElementById('quizBox');
+const qzTag = document.getElementById('qzTag');
+const qzScoreEl = document.getElementById('qzScore');
+const letters = ['A','B','C','D'];
+
+function renderQuiz(){
+  if(qzIdx >= quizData.length){ renderQuizResult(); return; }
+  qzTag.textContent = `Soal ${qzIdx+1} / ${quizData.length}`;
+  qzScoreEl.textContent = `Skor: ${qzScore}`;
+  const item = quizData[qzIdx];
+  qzAnswered = false;
+  quizBox.innerHTML = `
+    <div class="qz-q">${item.q}</div>
+    <div class="qz-options" id="qzOptions"></div>
+    <div class="qz-explain" id="qzExplain"></div>
+    <div class="qz-footer"><button class="navbtn primary" id="qzNextBtn" style="display:none;" onclick="qzNext()">${qzIdx === quizData.length-1 ? 'Lihat Hasil 🎉' : 'Soal Berikutnya →'}</button></div>
+  `;
+  const opts = document.getElementById('qzOptions');
+  item.options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'qz-opt';
+    b.innerHTML = `<span class="lbl">${letters[i]}</span><span>${opt}</span>`;
+    b.addEventListener('click', () => {
+      if(qzAnswered) return;
+      qzAnswered = true;
+      const allBtns = opts.querySelectorAll('.qz-opt');
+      allBtns.forEach(x => x.classList.add('disabled'));
+      if(i === item.correct){
+        b.classList.add('correct');
+        qzScore++;
+      } else {
+        b.classList.add('wrong');
+        allBtns[item.correct].classList.add('correct');
+      }
+      qzScoreEl.textContent = `Skor: ${qzScore}`;
+      const ex = document.getElementById('qzExplain');
+      ex.innerHTML = `<b>${i === item.correct ? '✅ Benar!' : '❌ Kurang tepat.'}</b> ${item.explain}`;
+      ex.classList.add('show');
+      document.getElementById('qzNextBtn').style.display = 'inline-flex';
+    });
+    opts.appendChild(b);
+  });
+}
+function qzNext(){ qzIdx++; renderQuiz(); }
+function renderQuizResult(){
+  qzTag.textContent = 'Selesai';
+  const pct = Math.round((qzScore/quizData.length)*100);
+  let msg = 'Terus berlatih ya!';
+  if(pct >= 80) msg = 'Keren, pemahamanmu sangat baik! 🎉';
+  else if(pct >= 50) msg = 'Bagus, sudah cukup paham! 👍';
+  quizBox.innerHTML = `
+    <div class="qz-result">
+      <div class="score-ring" style="--pct:${pct}"><div class="num">${qzScore}/${quizData.length}</div><div class="lbl2">BENAR</div></div>
+      <h3 style="margin-bottom:8px;">${msg}</h3>
+      <p class="lead" style="margin:0 auto 18px;">Kamu menjawab benar ${qzScore} dari ${quizData.length} soal (${pct}%).</p>
+      <button class="navbtn primary" onclick="qzRestart()">↺ Ulangi Kuis</button>
+    </div>`;
+}
+function qzRestart(){ qzIdx = 0; qzScore = 0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>
