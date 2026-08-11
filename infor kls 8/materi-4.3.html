@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Perangkat Lunak Komputer — Bab 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0A0F1E;
+    --bg-deep-2:#070B15;
+    --bg-panel:#121A2E;
+    --bg-panel-2:#172440;
+    --bg-panel-3:#1D2E52;
+    --cyan:#4FD6E8;
+    --cyan-soft:#A6EEF5;
+    --cyan-dim:rgba(79,214,232,0.14);
+    --amber:#F2A65A;
+    --amber-dim:rgba(242,166,90,0.16);
+    --cream:#EAF0F7;
+    --cream-dim:#96A7C4;
+    --coral:#F2665A;
+    --coral-dim:rgba(242,102,90,0.18);
+    --leaf:#5FD98A;
+    --leaf-dim:rgba(95,217,138,0.18);
+    --line:rgba(234,240,247,0.12);
+    --line-strong:rgba(234,240,247,0.24);
+    --shadow:0 24px 60px rgba(0,0,0,0.45);
+    --radius:18px;
+    --font-display:'Space Grotesk', sans-serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 650px at 88% -8%, rgba(79,214,232,0.14), transparent 60%),
+      radial-gradient(900px 600px at -8% 108%, rgba(242,166,90,0.10), transparent 55%),
+      var(--bg-deep);
+    color:var(--cream);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+  h1,h2,h3,h4{font-family:var(--font-display); margin:0; letter-spacing:-0.01em;}
+  p{margin:0;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  ::selection{background:var(--cyan); color:#052226;}
+
+  .app{height:100vh; display:flex; flex-direction:column;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px clamp(16px,4vw,40px); border-bottom:1px solid var(--line); flex-shrink:0;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:clamp(0.95rem,2vw,1.15rem); color:var(--cyan-soft); white-space:nowrap;}
+  .brand .glyph{display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:linear-gradient(145deg, var(--cyan), var(--bg-panel-3)); color:#06222a; font-size:1rem; font-weight:700; border:1px solid var(--line-strong);}
+  .brand span{color:var(--cream-dim); font-weight:500;}
+  .brand b{color:var(--cyan-soft);}
+
+  .progress-wrap{flex:1; display:flex; align-items:center; gap:12px; max-width:520px;}
+  .progress-track{flex:1; height:6px; border-radius:999px; background:rgba(234,240,247,0.10); overflow:hidden; position:relative;}
+  .progress-fill{height:100%; width:5%; border-radius:999px; background:linear-gradient(90deg, var(--cyan), var(--amber)); transition:width .45s ease; position:relative;}
+  .progress-fill::after{content:''; position:absolute; right:-3px; top:50%; width:9px; height:9px; background:var(--amber); border-radius:50%; transform:translateY(-50%); box-shadow:0 0 0 4px rgba(242,166,90,0.25);}
+  #progressLabel{font-size:0.78rem; color:var(--cream-dim); white-space:nowrap; font-variant-numeric:tabular-nums; font-family:var(--font-mono);}
+
+  .toc-btn{display:flex; align-items:center; gap:8px; background:var(--bg-panel-2); color:var(--cream); border:1px solid var(--line-strong); border-radius:10px; padding:9px 14px; font-size:0.85rem; font-weight:600; white-space:nowrap;}
+  .toc-btn:hover{background:var(--bg-panel-3);}
+
+  /* ---------- TOC OVERLAY ---------- */
+  .toc-overlay{position:fixed; inset:0; background:rgba(4,8,16,0.75); backdrop-filter:blur(3px); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .toc-overlay.open{display:flex;}
+  .toc-panel{width:min(640px, 100%); max-height:80vh; overflow:auto; background:var(--bg-panel); border:1px solid var(--line-strong); border-radius:20px; padding:26px; box-shadow:var(--shadow);}
+  .toc-panel h3{color:var(--cyan-soft); font-size:1.3rem; margin-bottom:4px;}
+  .toc-panel .sub{color:var(--cream-dim); font-size:0.88rem; margin-bottom:18px;}
+  .toc-list{display:flex; flex-direction:column; gap:6px;}
+  .toc-item{display:flex; align-items:center; gap:12px; background:transparent; border:1px solid transparent; color:var(--cream); padding:10px 12px; border-radius:10px; text-align:left; font-size:0.92rem; width:100%;}
+  .toc-item:hover{background:var(--bg-panel-2); border-color:var(--line);}
+  .toc-item.current{background:var(--cyan-dim); border-color:var(--cyan); color:var(--cyan-soft); font-weight:600;}
+  .toc-item .num{flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--bg-panel-3); display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:var(--cream-dim); font-family:var(--font-mono);}
+  .toc-close{margin-top:18px; width:100%; padding:11px; border-radius:10px; border:1px solid var(--line-strong); background:var(--bg-panel-2); color:var(--cream); font-weight:600;}
+
+  /* ---------- STAGE ---------- */
+  .stage{flex:1; position:relative; overflow:hidden;}
+  .slide{position:absolute; inset:0; display:none; flex-direction:column; overflow-y:auto; padding:clamp(20px,4vw,56px) clamp(18px,7vw,90px) clamp(90px,10vh,110px);}
+  .slide.active{display:flex; animation:slideIn .5s ease;}
+  @keyframes slideIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .slide-inner{max-width:1000px; margin:0 auto; width:100%;}
+
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; color:var(--cyan-soft); font-size:0.74rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; font-family:var(--font-mono); background:var(--cyan-dim); border:1px solid rgba(79,214,232,0.35); padding:6px 14px; border-radius:999px; margin-bottom:18px;}
+  .slide h1.title{font-size:clamp(1.7rem, 4.2vw, 2.7rem); line-height:1.12; color:var(--cream); margin-bottom:14px;}
+  .slide h1.title b, .slide h2.title b{color:var(--cyan-soft); font-weight:700;}
+  .slide h2.title{font-size:clamp(1.4rem, 3vw, 2rem); color:var(--cream); margin-bottom:12px;}
+  .lead{font-size:clamp(0.98rem,1.6vw,1.12rem); color:var(--cream-dim); line-height:1.65; max-width:720px; margin-bottom:8px;}
+
+  /* ---------- COVER ---------- */
+  .cover-wrap{display:flex; align-items:center; gap:clamp(20px,4vw,60px); flex-wrap:wrap; margin-top:clamp(10px,4vh,40px);}
+  .cover-text{flex:1 1 420px; min-width:280px;}
+  .cover-visual{flex:1 1 320px; min-width:260px; display:flex; justify-content:center;}
+  .start-btn{margin-top:22px; display:inline-flex; align-items:center; gap:10px; background:linear-gradient(120deg, var(--cyan), #2fa9bd); color:#052226; border:none; padding:14px 26px; border-radius:14px; font-weight:700; font-size:1rem; box-shadow:0 14px 30px rgba(79,214,232,0.25);}
+  .start-btn:hover{transform:translateY(-1px); box-shadow:0 18px 36px rgba(79,214,232,0.32);}
+  .cover-tags{display:flex; gap:8px; flex-wrap:wrap; margin-top:20px;}
+  .cover-tags span{font-size:0.76rem; color:var(--cream-dim); border:1px solid var(--line-strong); padding:6px 12px; border-radius:999px; background:rgba(255,255,255,0.02); font-family:var(--font-mono);}
+
+  .window-mock{width:280px; background:var(--bg-panel); border:1px solid var(--line-strong); border-radius:14px; overflow:hidden; box-shadow:var(--shadow);}
+  .window-bar{display:flex; align-items:center; gap:6px; padding:10px 12px; background:var(--bg-panel-2); border-bottom:1px solid var(--line);}
+  .window-bar i{width:10px; height:10px; border-radius:50%; display:inline-block;}
+  .window-bar i:nth-child(1){background:#F2665A;} .window-bar i:nth-child(2){background:#F2A65A;} .window-bar i:nth-child(3){background:#5FD98A;}
+  .window-body{padding:22px 18px; display:flex; flex-direction:column; gap:12px;}
+  .stack-row{display:flex; align-items:center; gap:10px; background:var(--bg-panel-2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; font-family:var(--font-mono); font-size:0.78rem; color:var(--cream-dim);}
+  .stack-row b{color:var(--cyan-soft); font-family:var(--font-display); font-size:0.85rem;}
+  .stack-row.app b{color:var(--amber);}
+  .stack-row.util b{color:var(--leaf);}
+
+  /* ---------- GRIDS / CARDS ---------- */
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:20px;}
+  @media (max-width:760px){ .grid-2, .grid-3{grid-template-columns:1fr;} }
+
+  .panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius); padding:22px;}
+  .panel h4{font-size:1rem; margin-bottom:8px;}
+  .panel p{font-size:0.88rem; color:var(--cream-dim); line-height:1.55;}
+
+  .formula-box{background:var(--bg-panel-2); border:1px solid var(--line-strong); border-radius:14px; padding:16px 22px; font-family:var(--font-mono); font-size:clamp(0.9rem,1.6vw,1.05rem); color:var(--cyan-soft); margin:16px 0; display:inline-block;}
+  .note{background:var(--cyan-dim); border:1px solid rgba(79,214,232,0.4); border-radius:12px; padding:12px 16px; font-size:0.88rem; color:var(--cream); margin-top:12px;}
+  .note.warn{background:var(--coral-dim); border-color:rgba(242,102,90,0.4);}
+
+  .obj-list{list-style:none; padding:0; margin:22px 0 0; display:flex; flex-direction:column; gap:12px;}
+  .obj-list li{display:flex; gap:12px; align-items:flex-start; background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; font-size:0.95rem; color:var(--cream-dim);}
+  .obj-list .tick{flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--leaf-dim); color:var(--leaf); display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; border:1px solid rgba(95,217,138,0.4);}
+
+  .map-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:26px;}
+  @media (max-width:760px){ .map-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .map-grid{grid-template-columns:1fr;} }
+  .map-card{text-align:left; background:var(--bg-panel); border:1px solid var(--line); border-radius:14px; padding:16px; color:var(--cream);}
+  .map-card:hover{border-color:var(--cyan); background:var(--bg-panel-2);}
+  .map-card .idx{font-family:var(--font-mono); color:var(--cyan-soft); font-size:0.74rem; letter-spacing:0.05em;}
+  .map-card .lbl{font-size:0.95rem; font-weight:600; margin-top:4px;}
+
+  /* ---------- FLIP CARDS ---------- */
+  .flip-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:22px;}
+  @media (max-width:760px){ .flip-grid{grid-template-columns:repeat(2,1fr);} }
+  .flip-card{perspective:1200px; height:130px;}
+  .flip-inner{position:relative; width:100%; height:100%; transition:transform .55s cubic-bezier(.2,.8,.2,1); transform-style:preserve-3d;}
+  .flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+  .flip-front,.flip-back{position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px; text-align:center;}
+  .flip-front{background:var(--bg-panel-2); border:1px solid var(--line-strong); font-family:var(--font-display); font-size:1.05rem; color:var(--cyan-soft);}
+  .flip-front small{color:var(--cream-dim); font-size:0.66rem; margin-top:6px; font-family:var(--font-body);}
+  .flip-back{transform:rotateY(180deg); color:#06121a; font-weight:700; font-size:0.8rem; line-height:1.4;}
+  .flip-back.os{background:var(--cyan);}
+  .flip-back.appc{background:var(--amber);}
+  .flip-back.util{background:var(--leaf);}
+  .flip-hint{font-size:0.72rem; color:var(--cream-dim); text-align:center; margin-top:10px;}
+
+  /* ---------- TABS / EXAMPLES ---------- */
+  .example-tabs{margin-top:22px;}
+  .tab-buttons{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+  .tab-btn{background:var(--bg-panel-2); border:1px solid var(--line-strong); color:var(--cream-dim); padding:9px 16px; border-radius:10px; font-family:var(--font-display); font-size:0.88rem; font-weight:600;}
+  .tab-btn.active{background:var(--cyan); border-color:var(--cyan); color:#052226;}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+
+  .info-card{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:20px;}
+  .info-head{display:flex; align-items:center; gap:14px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed var(--line-strong);}
+  .info-icon{width:46px; height:46px; border-radius:12px; background:var(--bg-panel-2); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; border:1px solid var(--line-strong);}
+  .info-head h4{font-size:1.15rem; color:var(--cream);}
+  .info-head p{font-size:0.82rem; color:var(--cream-dim); margin-top:2px;}
+  .info-facts{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px;}
+  .info-facts li{font-size:0.9rem; color:var(--cream-dim); line-height:1.55;}
+  .info-facts b{color:var(--cyan-soft); font-family:var(--font-display); font-weight:600;}
+
+  .app-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:6px;}
+  @media (max-width:640px){ .app-grid{grid-template-columns:1fr 1fr;} }
+  .app-flip{perspective:1200px; height:120px;}
+  .app-flip .flip-inner{position:relative; width:100%; height:100%; transition:transform .5s ease; transform-style:preserve-3d;}
+  .app-flip.flipped .flip-inner{transform:rotateY(180deg);}
+  .app-flip .flip-front, .app-flip .flip-back{position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px; text-align:center;}
+  .app-flip .flip-front{background:var(--bg-panel-2); border:1px solid var(--line-strong); font-family:var(--font-display); font-weight:700; font-size:0.92rem; color:var(--cream);}
+  .app-flip .flip-front small{display:block; font-family:var(--font-body); font-weight:400; color:var(--cream-dim); font-size:0.65rem; margin-top:6px;}
+  .app-flip .flip-back{transform:rotateY(180deg); background:var(--amber); color:#2a1602; font-size:0.78rem; font-weight:600; line-height:1.4;}
+
+  /* ---------- MCQ ---------- */
+  .mcq-group{margin-top:20px; display:flex; flex-direction:column; gap:18px;}
+  .mcq{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:18px 20px;}
+  .mcq .q-head{display:flex; gap:10px; align-items:baseline; margin-bottom:12px;}
+  .mcq .q-num{font-family:var(--font-mono); color:var(--cyan-soft); font-weight:700; font-size:0.9rem; flex-shrink:0;}
+  .mcq .q-text{font-size:0.98rem; color:var(--cream);}
+  .options{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:560px){ .options{grid-template-columns:1fr;} }
+  .option{text-align:left; background:var(--bg-panel-2); border:1px solid var(--line-strong); color:var(--cream); padding:11px 14px; border-radius:10px; font-size:0.9rem; display:flex; align-items:center; gap:10px;}
+  .option:hover{border-color:var(--cyan);}
+  .option .dot{width:18px; height:18px; border-radius:50%; border:2px solid var(--line-strong); flex-shrink:0;}
+  .mcq.answered .option{cursor:default;}
+  .mcq.answered .option:hover{border-color:var(--line-strong);}
+  .option.is-correct{background:var(--leaf-dim); border-color:var(--leaf); color:var(--leaf);}
+  .option.is-correct .dot{background:var(--leaf); border-color:var(--leaf);}
+  .option.is-wrong{background:var(--coral-dim); border-color:var(--coral); color:var(--coral);}
+  .option.is-wrong .dot{background:var(--coral); border-color:var(--coral);}
+  .option.is-disabled{opacity:0.55;}
+  .explain{max-height:0; opacity:0; overflow:hidden; transition:max-height .35s ease, opacity .35s ease, margin .35s ease; font-size:0.85rem; color:var(--cream-dim); border-left:2px solid var(--amber); padding-left:12px;}
+  .explain.show{max-height:160px; opacity:1; margin-top:12px;}
+
+  .score-bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; background:var(--bg-panel-2); border:1px solid var(--line-strong); border-radius:14px; padding:14px 18px; margin:18px 0;}
+  .score-bar .score-label{font-size:0.85rem; color:var(--cream-dim);}
+  .score-bar .score-val{font-family:var(--font-mono); font-size:1.5rem; color:var(--cyan-soft);}
+  .result-panel{max-height:0; opacity:0; overflow:hidden; transition:max-height .5s ease, opacity .5s ease, margin .5s ease; text-align:center;}
+  .result-panel.show{max-height:200px; opacity:1; margin-top:18px;}
+  .result-panel .inner{background:linear-gradient(120deg, var(--cyan-dim), var(--amber-dim)); border:1px solid var(--line-strong); border-radius:16px; padding:22px;}
+  .result-panel .result-msg{font-family:var(--font-display); font-size:1.1rem; color:var(--cream);}
+
+  /* ---------- LAYER STACK ---------- */
+  .layer-stack{display:flex; flex-direction:column; gap:10px; margin-top:22px;}
+  .layer-btn{width:100%; text-align:left; display:flex; align-items:center; gap:14px; background:var(--bg-panel); border:1px solid var(--line-strong); color:var(--cream); padding:16px 18px; border-radius:14px; font-family:var(--font-display); font-size:1rem; font-weight:600;}
+  .layer-btn .emoji{font-size:1.3rem;}
+  .layer-btn:hover{border-color:var(--cyan);}
+  .layer-btn.open{background:var(--bg-panel-2); border-color:var(--cyan);}
+  .layer-desc{max-height:0; opacity:0; overflow:hidden; transition:max-height .4s ease, opacity .4s ease, margin .4s ease, padding .4s ease; font-size:0.9rem; color:var(--cream-dim); line-height:1.6; padding:0 18px; border-left:2px solid var(--cyan); margin-left:20px;}
+  .layer-desc.open{max-height:160px; opacity:1; padding:10px 18px; margin-bottom:4px;}
+
+  /* ---------- SUMMARY CARDS ---------- */
+  .summary-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:22px;}
+  @media (max-width:760px){ .summary-grid{grid-template-columns:1fr;} }
+  .summary-card{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:18px 20px; border-top:3px solid var(--cyan);}
+  .summary-card h4{color:var(--cyan-soft); font-size:1rem; margin-bottom:8px;}
+  .summary-card .f{font-family:var(--font-mono); color:var(--cream); font-size:0.95rem; margin:6px 0;}
+  .summary-card p{font-size:0.85rem; color:var(--cream-dim); line-height:1.5;}
+
+  /* ---------- CLOSING ---------- */
+  .closing-wrap{display:flex; flex-direction:column; align-items:flex-start; gap:6px; margin-top:8px;}
+  .closing-actions{display:flex; gap:14px; flex-wrap:wrap; margin-top:26px;}
+  .btn-primary{background:linear-gradient(120deg, var(--cyan), #2fa9bd); color:#052226; border:none; padding:14px 26px; border-radius:14px; font-weight:700; font-size:1rem; box-shadow:0 14px 30px rgba(79,214,232,0.25);}
+  .btn-secondary{background:transparent; color:var(--cream); border:1px solid var(--line-strong); padding:14px 24px; border-radius:14px; font-weight:600; font-size:0.95rem;}
+  .btn-secondary:hover{background:var(--bg-panel-2);}
+  .final-score-echo{margin-top:20px; display:inline-flex; align-items:center; gap:12px; background:var(--bg-panel); border:1px solid var(--line-strong); border-radius:14px; padding:14px 20px; font-family:var(--font-mono);}
+  .final-score-echo span{color:var(--cyan-soft); font-size:1.3rem;}
+
+  /* ---------- CONTROLS ---------- */
+  .controls{flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px clamp(16px,4vw,40px); border-top:1px solid var(--line); background:linear-gradient(180deg, transparent, rgba(0,0,0,0.2));}
+  .nav-btn{display:flex; align-items:center; gap:8px; background:var(--bg-panel-2); color:var(--cream); border:1px solid var(--line-strong); padding:11px 20px; border-radius:12px; font-weight:600; font-size:0.9rem;}
+  .nav-btn:hover:not(:disabled){background:var(--bg-panel-3); border-color:var(--cyan);}
+  .nav-btn:disabled{opacity:0.35; cursor:not-allowed;}
+  #nextBtn{background:var(--cyan); color:#052226; border-color:var(--cyan);}
+  #nextBtn:hover{background:var(--cyan-soft);}
+  .slide-tag{font-size:0.76rem; color:var(--cream-dim); text-align:center; flex:1; display:none; font-family:var(--font-mono);}
+  @media (min-width:640px){ .slide-tag{display:block;} }
+
+  button:focus-visible, .option:focus-visible, .toc-item:focus-visible, .map-card:focus-visible, .tab-btn:focus-visible, .layer-btn:focus-visible{outline:2px solid var(--cyan-soft); outline-offset:2px;}
+
+  @media (max-width:640px){
+    .topbar{gap:10px;}
+    .brand span{display:none;}
+    .progress-wrap{max-width:none;}
+    .toc-btn span{display:none;}
+    .controls{padding:12px 14px;}
+    .nav-btn{padding:10px 14px; font-size:0.85rem;}
+    .options{grid-template-columns:1fr;}
+    .app-grid{grid-template-columns:1fr 1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand"><span class="glyph">&lt;/&gt;</span><span>Bab 4 ·</span> <b>Perangkat Lunak</b></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span id="progressLabel">1 / 19</span>
+    </div>
+    <button class="toc-btn" id="tocOpenBtn">☰ <span>Daftar Materi</span></button>
+  </header>
+
+  <!-- TOC OVERLAY -->
+  <div class="toc-overlay" id="tocOverlay">
+    <div class="toc-panel">
+      <h3>Daftar Materi</h3>
+      <p class="sub">Klik salah satu bagian untuk langsung menuju ke sana.</p>
+      <div class="toc-list" id="tocList"></div>
+      <button class="toc-close" id="tocCloseBtn">Tutup</button>
+    </div>
+  </div>
+
+  <!-- STAGE -->
+  <main class="stage" id="stage">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide active" data-title="Sampul">
+      <div class="slide-inner">
+        <div class="cover-wrap">
+          <div class="cover-text">
+            <div class="eyebrow">Bab 4 · Sistem Komputer</div>
+            <h1 class="title">Perangkat Lunak <b>Komputer</b></h1>
+            <p class="lead">Mengenal sistem operasi, aplikasi, dan perangkat lunak pendukung — bagaimana ketiganya bekerja sama menghidupkan komputer yang kamu pakai setiap hari. Lengkap dengan contoh yang bisa kamu klik sendiri dan kuis latihan.</p>
+            <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+            <div class="cover-tags">
+              <span>SMP · Informatika</span>
+              <span>Interaktif</span>
+              <span>19 halaman</span>
+              <span>+ Kuis</span>
+            </div>
+          </div>
+          <div class="cover-visual">
+            <div class="window-mock">
+              <div class="window-bar"><i></i><i></i><i></i></div>
+              <div class="window-body">
+                <div class="stack-row app">🧩 <b>Aplikasi</b> — Word, Chrome, WhatsApp</div>
+                <div class="stack-row util">🛠️ <b>Utility</b> — Antivirus, WinRAR</div>
+                <div class="stack-row">⚙️ <b>Sistem Operasi</b> — Windows, Linux, Android</div>
+                <div class="stack-row">🖥️ <b>Hardware</b> — CPU, RAM, Disk</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : PETA MATERI -->
+    <section class="slide" data-title="Peta Materi">
+      <div class="slide-inner">
+        <div class="eyebrow">Sebelum mulai</div>
+        <h2 class="title">Tujuan Pembelajaran</h2>
+        <p class="lead">Setelah menyelesaikan bab ini, kamu diharapkan mampu:</p>
+        <ul class="obj-list">
+          <li><span class="tick">✓</span> Memahami pengertian dan fungsi perangkat lunak dalam sistem komputer.</li>
+          <li><span class="tick">✓</span> Membedakan sistem operasi, aplikasi, dan perangkat lunak pendukung.</li>
+          <li><span class="tick">✓</span> Mengenal contoh-contoh sistem operasi populer beserta fungsinya.</li>
+          <li><span class="tick">✓</span> Mengenal berbagai kategori aplikasi dan kegunaannya sehari-hari.</li>
+          <li><span class="tick">✓</span> Memahami peran perangkat lunak pendukung dan jenis lisensi perangkat lunak.</li>
+        </ul>
+        <p class="lead" style="margin-top:26px;">Kamu bisa lompat langsung ke bagian tertentu kapan saja:</p>
+        <div class="map-grid" id="tocGrid"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : PENGERTIAN -->
+    <section class="slide" data-title="Pengertian Perangkat Lunak">
+      <div class="slide-inner">
+        <div class="eyebrow">Bagian 1 · Pengertian</div>
+        <h2 class="title">Apa itu Perangkat Lunak?</h2>
+        <p class="lead"><b>Perangkat lunak (software)</b> adalah kumpulan instruksi atau program yang mengatur perangkat keras (hardware) agar dapat menjalankan tugas tertentu. Berbeda dari hardware, software tidak dapat disentuh secara fisik — tetapi dapat dijalankan, disimpan, diperbarui, bahkan dihapus.</p>
+        <div class="formula-box">Hardware + Software + Brainware = Sistem Komputer yang Utuh</div>
+        <p class="lead">Sebuah sistem komputer terdiri dari tiga komponen yang saling melengkapi:</p>
+        <div class="grid-3">
+          <div class="panel">
+            <h4 style="color:var(--cream);">🖥️ Hardware</h4>
+            <p>Perangkat keras — bagian fisik komputer seperti CPU, RAM, dan penyimpanan yang bisa disentuh.</p>
+          </div>
+          <div class="panel">
+            <h4 style="color:var(--cyan-soft);">🧠 Software</h4>
+            <p>Perangkat lunak — program & instruksi yang mengatur cara kerja hardware, tidak berwujud fisik.</p>
+          </div>
+          <div class="panel">
+            <h4 style="color:var(--amber);">🧑‍💻 Brainware</h4>
+            <p>Manusia — pengguna yang mengoperasikan dan memberi perintah kepada komputer.</p>
+          </div>
+        </div>
+        <div class="note">Software dapat dikelompokkan menjadi tiga jenis utama: <b>Sistem Operasi</b>, <b>Aplikasi</b>, dan <b>Perangkat Lunak Pendukung (Utility)</b> — akan kita bahas satu per satu.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3 : KLASIFIKASI INTERAKTIF -->
+    <section class="slide" data-title="Kenali Jenis Perangkat Lunak">
+      <div class="slide-inner">
+        <div class="eyebrow">Coba sendiri</div>
+        <h2 class="title">Termasuk Jenis Apa?</h2>
+        <p class="lead">Klik setiap kartu untuk melihat apakah perangkat lunak tersebut termasuk Sistem Operasi, Aplikasi, atau Perangkat Lunak Pendukung.</p>
+        <div class="flip-grid">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Windows<small>Klik untuk cek</small></div>
+            <div class="flip-back os">Sistem Operasi<br>Mengelola seluruh sumber daya komputer</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Microsoft Word<small>Klik untuk cek</small></div>
+            <div class="flip-back appc">Aplikasi<br>Membantu mengetik & mengolah dokumen</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Antivirus<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Perangkat Pendukung<br>Melindungi sistem dari virus & malware</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Linux<small>Klik untuk cek</small></div>
+            <div class="flip-back os">Sistem Operasi<br>Open source, banyak dipakai di server</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Google Chrome<small>Klik untuk cek</small></div>
+            <div class="flip-back appc">Aplikasi<br>Digunakan untuk menjelajah internet</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Driver Printer<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Perangkat Pendukung<br>Menghubungkan printer dengan sistem operasi</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">iOS<small>Klik untuk cek</small></div>
+            <div class="flip-back os">Sistem Operasi<br>Khusus untuk iPhone & iPad</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">CapCut<small>Klik untuk cek</small></div>
+            <div class="flip-back appc">Aplikasi<br>Digunakan untuk mengedit video</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">WinRAR<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Perangkat Pendukung<br>Mengompresi & memperkecil ukuran file</div>
+          </div></div>
+        </div>
+        <p class="flip-hint">Tip: Sistem Operasi = "penjaga utama" komputer, Aplikasi = alat bantu tugas pengguna, Utility = perawat & pelindung sistem.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : SISTEM OPERASI - KONSEP -->
+    <section class="slide" data-title="Sistem Operasi — Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Bagian 2 · Sistem Operasi</div>
+        <h2 class="title">Apa itu Sistem Operasi?</h2>
+        <p class="lead"><b>Sistem operasi (Operating System / OS)</b> adalah perangkat lunak utama yang menjadi jembatan antara pengguna, aplikasi, dan perangkat keras. Tanpa OS, hardware tidak dapat dioperasikan langsung oleh pengguna maupun oleh aplikasi lainnya.</p>
+        <p class="lead">Lima fungsi utama sistem operasi:</p>
+        <ul class="obj-list">
+          <li><span class="tick">1</span> <b>Manajemen memori</b> — mengatur penggunaan RAM oleh program yang sedang berjalan.</li>
+          <li><span class="tick">2</span> <b>Manajemen proses (CPU)</b> — mengatur giliran & prioritas program yang diproses oleh CPU.</li>
+          <li><span class="tick">3</span> <b>Manajemen file & penyimpanan</b> — mengorganisasi data ke dalam folder dan berkas.</li>
+          <li><span class="tick">4</span> <b>Manajemen perangkat</b> — menghubungkan hardware seperti printer, mouse, dan keyboard melalui driver.</li>
+          <li><span class="tick">5</span> <b>Antarmuka pengguna</b> — menyediakan tampilan grafis (GUI) atau teks (CLI) agar komputer mudah dioperasikan.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : SISTEM OPERASI - CONTOH -->
+    <section class="slide" data-title="Sistem Operasi — Contoh">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh interaktif</div>
+        <h2 class="title">Sistem Operasi di Sekitar Kita</h2>
+        <p class="lead">Klik tab untuk melihat detail masing-masing sistem operasi.</p>
+        <div class="example-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-target="os-1">Windows</button>
+            <button class="tab-btn" data-target="os-2">macOS</button>
+            <button class="tab-btn" data-target="os-3">Linux</button>
+            <button class="tab-btn" data-target="os-4">Android & iOS</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="os-1">
+              <div class="info-card">
+                <div class="info-head"><div class="info-icon">🪟</div><div><h4>Windows</h4><p>Dikembangkan oleh Microsoft</p></div></div>
+                <ul class="info-facts">
+                  <li><b>Tipe antarmuka:</b> GUI (Graphical User Interface)</li>
+                  <li><b>Kegunaan utama:</b> Komputer & laptop untuk rumah, sekolah, dan perkantoran</li>
+                  <li><b>Fakta menarik:</b> Windows menjadi sistem operasi desktop paling banyak digunakan di dunia sejak tahun 1990-an.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-panel" id="os-2">
+              <div class="info-card">
+                <div class="info-head"><div class="info-icon">🍎</div><div><h4>macOS</h4><p>Dikembangkan oleh Apple</p></div></div>
+                <ul class="info-facts">
+                  <li><b>Tipe antarmuka:</b> GUI dengan desain khas yang elegan</li>
+                  <li><b>Kegunaan utama:</b> Khusus untuk komputer Mac, seperti iMac dan MacBook</li>
+                  <li><b>Fakta menarik:</b> macOS dikenal terintegrasi sangat erat dengan perangkat keras buatan Apple sendiri.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-panel" id="os-3">
+              <div class="info-card">
+                <div class="info-head"><div class="info-icon">🐧</div><div><h4>Linux</h4><p>Dikembangkan komunitas open source</p></div></div>
+                <ul class="info-facts">
+                  <li><b>Tipe antarmuka:</b> GUI maupun CLI (baris perintah)</li>
+                  <li><b>Kegunaan utama:</b> Banyak dipakai di server dan oleh pengguna yang ingin kebebasan memodifikasi sistem</li>
+                  <li><b>Fakta menarik:</b> Linux bersifat open source dan memiliki banyak varian (distro), seperti Ubuntu, Debian, dan Fedora.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="tab-panel" id="os-4">
+              <div class="info-card">
+                <div class="info-head"><div class="info-icon">📱</div><div><h4>Android & iOS</h4><p>Sistem operasi untuk perangkat mobile</p></div></div>
+                <ul class="info-facts">
+                  <li><b>Android:</b> Dikembangkan Google, berbasis Linux, bersifat open source, dan digunakan berbagai merek smartphone.</li>
+                  <li><b>iOS:</b> Dikembangkan Apple, bersifat tertutup (closed source), dan hanya digunakan pada iPhone & iPad.</li>
+                  <li><b>Fakta menarik:</b> Keduanya adalah sistem operasi mobile paling banyak digunakan di dunia saat ini.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : SISTEM OPERASI - LATIHAN -->
+    <section class="slide" data-title="Sistem Operasi — Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan mandiri</div>
+        <h2 class="title">Uji Pemahamanmu</h2>
+        <div class="mcq-group">
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">1.</span><span class="q-text">Fungsi OS yang mengatur giliran penggunaan CPU oleh program-program disebut...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Manajemen memori</button>
+              <button class="option"><span class="dot"></span>Manajemen proses</button>
+              <button class="option"><span class="dot"></span>Antarmuka pengguna</button>
+              <button class="option"><span class="dot"></span>Manajemen file</button>
+            </div>
+            <div class="explain">Mengatur giliran & prioritas program yang diproses CPU adalah tugas <b>manajemen proses</b>.</div>
+          </div>
+          <div class="mcq" data-correct="2">
+            <div class="q-head"><span class="q-num">2.</span><span class="q-text">Sistem operasi yang bersifat open source dan sering dipakai di server adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Windows</button>
+              <button class="option"><span class="dot"></span>iOS</button>
+              <button class="option"><span class="dot"></span>Linux</button>
+              <button class="option"><span class="dot"></span>macOS</button>
+            </div>
+            <div class="explain"><b>Linux</b> bersifat open source, gratis dimodifikasi, dan populer digunakan di server.</div>
+          </div>
+          <div class="mcq" data-correct="2">
+            <div class="q-head"><span class="q-num">3.</span><span class="q-text">Android adalah sistem operasi yang dikembangkan berbasis...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Windows</button>
+              <button class="option"><span class="dot"></span>macOS</button>
+              <button class="option"><span class="dot"></span>Linux</button>
+              <button class="option"><span class="dot"></span>iOS</button>
+            </div>
+            <div class="explain">Android dikembangkan Google berbasis kernel <b>Linux</b>.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : APLIKASI - KONSEP -->
+    <section class="slide" data-title="Aplikasi — Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Bagian 3 · Perangkat Lunak Aplikasi</div>
+        <h2 class="title">Apa itu Perangkat Lunak Aplikasi?</h2>
+        <p class="lead"><b>Perangkat lunak aplikasi</b> adalah program yang dirancang khusus untuk membantu pengguna menyelesaikan tugas atau kebutuhan tertentu, seperti menulis dokumen, mengedit foto, atau berkomunikasi. Aplikasi berjalan "di atas" sistem operasi dan tidak bisa dijalankan tanpanya.</p>
+        <p class="lead">Beberapa kategori aplikasi yang umum digunakan:</p>
+        <div class="grid-3">
+          <div class="panel"><h4 style="color:var(--cyan-soft);">📝 Produktivitas</h4><p>Membantu menulis, menghitung, dan membuat presentasi.</p></div>
+          <div class="panel"><h4 style="color:var(--amber);">🎨 Multimedia & Desain</h4><p>Mengedit foto, video, dan membuat karya visual.</p></div>
+          <div class="panel"><h4 style="color:var(--leaf);">💬 Komunikasi</h4><p>Mengirim pesan, email, dan melakukan panggilan video.</p></div>
+          <div class="panel"><h4 style="color:var(--cyan-soft);">🌐 Browser/Internet</h4><p>Menjelajahi dan mencari informasi di internet.</p></div>
+          <div class="panel"><h4 style="color:var(--amber);">🎮 Hiburan & Game</h4><p>Bermain game, menonton video, dan mendengarkan musik.</p></div>
+          <div class="panel"><h4 style="color:var(--leaf);">📊 Dan lainnya</h4><p>Aplikasi khusus seperti pendidikan, keuangan, atau kesehatan.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8 : APLIKASI - CONTOH -->
+    <section class="slide" data-title="Aplikasi — Contoh">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh interaktif</div>
+        <h2 class="title">Aplikasi Berdasarkan Kategori</h2>
+        <p class="lead">Pilih kategori, lalu klik setiap kartu untuk melihat kegunaannya.</p>
+        <div class="example-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-target="app-1">Produktivitas</button>
+            <button class="tab-btn" data-target="app-2">Multimedia</button>
+            <button class="tab-btn" data-target="app-3">Komunikasi</button>
+            <button class="tab-btn" data-target="app-4">Hiburan</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="app-1">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Microsoft Word<small>Klik</small></div><div class="flip-back">Untuk mengetik & menyusun dokumen</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Microsoft Excel<small>Klik</small></div><div class="flip-back">Untuk mengolah angka & data tabel</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Google Slides<small>Klik</small></div><div class="flip-back">Untuk membuat presentasi</div>
+                </div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="app-2">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Adobe Photoshop<small>Klik</small></div><div class="flip-back">Untuk mengedit dan memanipulasi foto</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">CapCut<small>Klik</small></div><div class="flip-back">Untuk mengedit video</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Canva<small>Klik</small></div><div class="flip-back">Untuk membuat desain grafis</div>
+                </div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="app-3">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">WhatsApp<small>Klik</small></div><div class="flip-back">Untuk mengirim pesan & menelepon</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Gmail<small>Klik</small></div><div class="flip-back">Untuk mengirim & menerima email</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Zoom<small>Klik</small></div><div class="flip-back">Untuk rapat / video conference</div>
+                </div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="app-4">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Spotify<small>Klik</small></div><div class="flip-back">Untuk streaming musik</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Mobile Legends<small>Klik</small></div><div class="flip-back">Aplikasi permainan (game)</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">YouTube<small>Klik</small></div><div class="flip-back">Untuk menonton & mengunggah video</div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9 : APLIKASI - LATIHAN -->
+    <section class="slide" data-title="Aplikasi — Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan mandiri</div>
+        <h2 class="title">Uji Pemahamanmu</h2>
+        <div class="mcq-group">
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">1.</span><span class="q-text">Aplikasi yang digunakan untuk mengolah angka dan data dalam bentuk tabel adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Microsoft Word</button>
+              <button class="option"><span class="dot"></span>Microsoft Excel</button>
+              <button class="option"><span class="dot"></span>Adobe Photoshop</button>
+              <button class="option"><span class="dot"></span>Zoom</button>
+            </div>
+            <div class="explain"><b>Microsoft Excel</b> dirancang khusus untuk mengolah angka dan data tabel.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">2.</span><span class="q-text">CapCut termasuk aplikasi dalam kategori...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Produktivitas</button>
+              <button class="option"><span class="dot"></span>Multimedia & Desain</button>
+              <button class="option"><span class="dot"></span>Komunikasi</button>
+              <button class="option"><span class="dot"></span>Perangkat pendukung</button>
+            </div>
+            <div class="explain">CapCut digunakan untuk mengedit video, termasuk kategori <b>Multimedia & Desain</b>.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">3.</span><span class="q-text">Aplikasi berikut yang termasuk kategori komunikasi adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Spotify</button>
+              <button class="option"><span class="dot"></span>WhatsApp</button>
+              <button class="option"><span class="dot"></span>Microsoft Excel</button>
+              <button class="option"><span class="dot"></span>CCleaner</button>
+            </div>
+            <div class="explain"><b>WhatsApp</b> digunakan untuk mengirim pesan dan menelepon, termasuk kategori komunikasi.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : UTILITY - KONSEP -->
+    <section class="slide" data-title="Perangkat Lunak Pendukung — Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Bagian 4 · Perangkat Lunak Pendukung</div>
+        <h2 class="title">Apa itu Perangkat Lunak Pendukung?</h2>
+        <p class="lead"><b>Perangkat lunak pendukung (utility software)</b> adalah program yang bertugas menjaga, memperbaiki, melindungi, atau mengoptimalkan kinerja sistem komputer. Berbeda dari aplikasi yang langsung dipakai pengguna, utility bekerja "di belakang layar" agar OS dan aplikasi tetap berjalan lancar dan aman.</p>
+        <p class="lead">Beberapa kategori perangkat lunak pendukung:</p>
+        <div class="grid-2">
+          <div class="panel"><h4 style="color:var(--coral);">🛡️ Keamanan</h4><p>Melindungi komputer dari virus, malware, dan ancaman lain. Contoh: Windows Defender, Avast.</p></div>
+          <div class="panel"><h4 style="color:var(--cyan-soft);">🧹 Optimasi Sistem</h4><p>Membersihkan file sampah dan merapikan penyimpanan agar kinerja tetap cepat. Contoh: CCleaner, Disk Cleanup.</p></div>
+          <div class="panel"><h4 style="color:var(--amber);">📦 Kompresi File</h4><p>Mengecilkan ukuran file agar lebih hemat ruang dan mudah dikirim. Contoh: WinRAR, 7-Zip.</p></div>
+          <div class="panel"><h4 style="color:var(--leaf);">🔌 Driver Perangkat</h4><p>Menjembatani hardware agar dikenali dan berjalan dengan OS. Contoh: driver printer, driver kartu grafis.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11 : UTILITY - CONTOH -->
+    <section class="slide" data-title="Perangkat Lunak Pendukung — Contoh">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh interaktif</div>
+        <h2 class="title">Perangkat Lunak Pendukung di Sekitar Kita</h2>
+        <p class="lead">Pilih kategori, lalu klik setiap kartu untuk melihat fungsinya.</p>
+        <div class="example-tabs">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-target="util-1">Keamanan</button>
+            <button class="tab-btn" data-target="util-2">Optimasi & Kompresi</button>
+            <button class="tab-btn" data-target="util-3">Driver & Backup</button>
+          </div>
+          <div class="tab-panels">
+            <div class="tab-panel active" id="util-1">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Windows Defender<small>Klik</small></div><div class="flip-back">Antivirus bawaan Windows, melindungi dari malware</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Avast<small>Klik</small></div><div class="flip-back">Antivirus pihak ketiga yang populer</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Firewall<small>Klik</small></div><div class="flip-back">Menyaring lalu lintas data agar aman dari serangan luar</div>
+                </div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="util-2">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">CCleaner<small>Klik</small></div><div class="flip-back">Membersihkan file sampah & mempercepat sistem</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">WinRAR / 7-Zip<small>Klik</small></div><div class="flip-back">Mengompres file agar ukurannya lebih kecil</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Disk Cleanup<small>Klik</small></div><div class="flip-back">Fitur bawaan untuk menghapus file sementara</div>
+                </div></div>
+              </div>
+            </div>
+            <div class="tab-panel" id="util-3">
+              <div class="app-grid">
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Driver Printer<small>Klik</small></div><div class="flip-back">Menghubungkan printer agar dikenali sistem operasi</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Driver VGA<small>Klik</small></div><div class="flip-back">Mengoptimalkan kinerja kartu grafis</div>
+                </div></div>
+                <div class="app-flip" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+                  <div class="flip-front">Google Drive Backup<small>Klik</small></div><div class="flip-back">Mencadangkan file secara otomatis ke cloud</div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12 : UTILITY - LATIHAN -->
+    <section class="slide" data-title="Perangkat Lunak Pendukung — Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan mandiri</div>
+        <h2 class="title">Uji Pemahamanmu</h2>
+        <div class="mcq-group">
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">1.</span><span class="q-text">Perangkat lunak yang berfungsi melindungi komputer dari virus adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>CapCut</button>
+              <button class="option"><span class="dot"></span>Antivirus</button>
+              <button class="option"><span class="dot"></span>Microsoft Word</button>
+              <button class="option"><span class="dot"></span>Google Chrome</button>
+            </div>
+            <div class="explain"><b>Antivirus</b> bertugas mendeteksi dan melindungi sistem dari virus & malware.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">2.</span><span class="q-text">WinRAR digunakan untuk...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Mengedit video</button>
+              <button class="option"><span class="dot"></span>Mengompres ukuran file</button>
+              <button class="option"><span class="dot"></span>Menjelajah internet</button>
+              <button class="option"><span class="dot"></span>Melindungi dari virus</button>
+            </div>
+            <div class="explain">WinRAR digunakan untuk <b>mengompres / memperkecil ukuran file</b>.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">3.</span><span class="q-text">Driver berfungsi untuk...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Mengedit dokumen</button>
+              <button class="option"><span class="dot"></span>Menghubungkan hardware agar dikenali OS</button>
+              <button class="option"><span class="dot"></span>Streaming musik</button>
+              <button class="option"><span class="dot"></span>Membuat presentasi</button>
+            </div>
+            <div class="explain">Driver menjembatani hardware agar dapat dikenali dan bekerja dengan sistem operasi.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13 : HUBUNGAN LAPISAN -->
+    <section class="slide" data-title="Hubungan Hardware, OS, Aplikasi & Utility">
+      <div class="slide-inner">
+        <div class="eyebrow">Bagian 5 · Bagaimana Semuanya Bekerja Bersama</div>
+        <h2 class="title">Lapisan Sistem Komputer</h2>
+        <p class="lead">Klik setiap lapisan untuk melihat perannya. Semuanya bekerja secara berlapis, dari perangkat keras di paling bawah hingga pengguna di paling atas.</p>
+        <div class="layer-stack" id="layerStack">
+          <button class="layer-btn" data-layer="l1"><span class="emoji">🧑‍💻</span> Brainware (Pengguna)</button>
+          <div class="layer-desc" id="l1">Manusia yang mengoperasikan komputer, memberi perintah melalui aplikasi, dan menentukan tugas apa yang perlu dikerjakan.</div>
+          <button class="layer-btn" data-layer="l2"><span class="emoji">🧩</span> Aplikasi & Perangkat Lunak Pendukung</button>
+          <div class="layer-desc" id="l2">Aplikasi membantu tugas pengguna (mengetik, mengedit, berkomunikasi), sedangkan utility menjaga performa dan keamanan sistem. Keduanya berjalan di atas sistem operasi.</div>
+          <button class="layer-btn" data-layer="l3"><span class="emoji">⚙️</span> Sistem Operasi</button>
+          <div class="layer-desc" id="l3">Menjembatani aplikasi dengan hardware, mengatur memori, proses, file, dan perangkat agar semuanya bekerja sesuai perintah.</div>
+          <button class="layer-btn" data-layer="l4"><span class="emoji">🖥️</span> Hardware (Perangkat Keras)</button>
+          <div class="layer-desc" id="l4">Komponen fisik komputer seperti CPU, RAM, penyimpanan, serta perangkat input dan output — lapisan paling dasar yang benar-benar bisa disentuh.</div>
+        </div>
+        <div class="note">Tanpa OS, aplikasi tidak bisa berkomunikasi dengan hardware. Tanpa hardware, OS dan aplikasi tidak punya "tubuh" untuk dijalankan. Ketiganya saling bergantung!</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14 : LISENSI - KONSEP -->
+    <section class="slide" data-title="Lisensi Perangkat Lunak — Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Materi tambahan</div>
+        <h2 class="title">Jenis Lisensi Perangkat Lunak</h2>
+        <p class="lead">Selain jenisnya, perangkat lunak juga dibedakan berdasarkan cara mendapatkan dan menggunakannya (lisensi):</p>
+        <div class="grid-2">
+          <div class="panel">
+            <h4 style="color:var(--leaf);">🎁 Freeware</h4>
+            <p>Gratis digunakan tanpa batas waktu, namun source code biasanya tertutup. Contoh: Skype, WhatsApp Desktop.</p>
+          </div>
+          <div class="panel">
+            <h4 style="color:var(--amber);">⏳ Shareware</h4>
+            <p>Dapat dicoba gratis dalam waktu atau fitur terbatas, lalu perlu membayar untuk versi penuh. Contoh: versi trial WinRAR.</p>
+          </div>
+          <div class="panel">
+            <h4 style="color:var(--cyan-soft);">🔓 Open Source</h4>
+            <p>Source code terbuka, gratis digunakan, dan dapat dimodifikasi siapa saja. Contoh: Linux, LibreOffice, GIMP.</p>
+          </div>
+          <div class="panel">
+            <h4 style="color:var(--coral);">🔒 Proprietary (Berbayar)</h4>
+            <p>Harus membeli lisensi untuk menggunakannya, source code tertutup. Contoh: Microsoft Office, Adobe Photoshop.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15 : LISENSI - KLASIFIKASI INTERAKTIF -->
+    <section class="slide" data-title="Lisensi Perangkat Lunak — Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Coba sendiri</div>
+        <h2 class="title">Tebak Jenis Lisensinya</h2>
+        <p class="lead">Klik setiap kartu untuk melihat jenis lisensi perangkat lunak berikut.</p>
+        <div class="flip-grid">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">WhatsApp<small>Klik untuk cek</small></div>
+            <div class="flip-back os">Freeware<br>Gratis digunakan tanpa batas waktu</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">WinRAR<small>Klik untuk cek</small></div>
+            <div class="flip-back appc">Shareware<br>Trial gratis, lalu berbayar untuk versi penuh</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Linux<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Open Source<br>Gratis & bebas dimodifikasi siapa saja</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Microsoft Office<small>Klik untuk cek</small></div>
+            <div class="flip-back os" style="background:var(--coral);">Proprietary<br>Berbayar, source code tertutup</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">GIMP<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Open Source<br>Alternatif gratis untuk edit foto</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Adobe Photoshop<small>Klik untuk cek</small></div>
+            <div class="flip-back os" style="background:var(--coral);">Proprietary<br>Perlu membeli lisensi untuk memakainya</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">Skype<small>Klik untuk cek</small></div>
+            <div class="flip-back os">Freeware<br>Gratis, namun source code tertutup</div>
+          </div></div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')"><div class="flip-inner">
+            <div class="flip-front">LibreOffice<small>Klik untuk cek</small></div>
+            <div class="flip-back util">Open Source<br>Alternatif gratis untuk Microsoft Office</div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">Rangkuman</div>
+        <h2 class="title">Kartu Rangkuman Perangkat Lunak</h2>
+        <p class="lead">Simpan halaman ini sebagai referensi cepat sebelum mengerjakan kuis.</p>
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h4>Perangkat Lunak</h4>
+            <p class="f">Software = instruksi untuk hardware</p>
+            <p>Tidak berwujud fisik, mengatur cara kerja hardware bersama brainware.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Sistem Operasi</h4>
+            <p class="f">Windows · macOS · Linux · Android · iOS</p>
+            <p>Menjembatani pengguna, aplikasi, dan hardware; mengelola seluruh sumber daya.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Aplikasi</h4>
+            <p class="f">Produktivitas · Multimedia · Komunikasi</p>
+            <p>Membantu pengguna menyelesaikan tugas tertentu, berjalan di atas OS.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Perangkat Lunak Pendukung</h4>
+            <p class="f">Antivirus · Compressor · Driver</p>
+            <p>Menjaga, melindungi, dan mengoptimalkan kinerja sistem di belakang layar.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Hubungan Lapisan</h4>
+            <p class="f">Hardware → OS → Aplikasi/Utility → Brainware</p>
+            <p>Setiap lapisan saling bergantung agar komputer bisa berfungsi.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Lisensi</h4>
+            <p class="f">Freeware · Shareware · Open Source · Proprietary</p>
+            <p>Membedakan cara mendapatkan dan menggunakan perangkat lunak secara sah.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17 : KUIS -->
+    <section class="slide" data-title="Kuis Akhir">
+      <div class="slide-inner">
+        <div class="eyebrow">Kuis akhir</div>
+        <h2 class="title">Uji Pemahamanmu — Perangkat Lunak Komputer</h2>
+        <p class="lead">Jawab kedelapan soal berikut. Skor akan diperbarui secara otomatis setiap kamu menjawab.</p>
+        <div class="score-bar">
+          <span class="score-label">Skor kamu saat ini</span>
+          <span class="score-val" id="quizScoreDisplay">0 / 8</span>
+        </div>
+        <div class="mcq-group" id="finalQuizGroup" data-score-target="quizScoreDisplay" data-result-target="quizResultPanel">
+          <div class="mcq" data-correct="0">
+            <div class="q-head"><span class="q-num">1.</span><span class="q-text">Manakah berikut yang termasuk sistem operasi?</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Windows</button>
+              <button class="option"><span class="dot"></span>Microsoft Word</button>
+              <button class="option"><span class="dot"></span>WhatsApp</button>
+              <button class="option"><span class="dot"></span>Photoshop</button>
+            </div>
+            <div class="explain"><b>Windows</b> adalah sistem operasi; lainnya termasuk aplikasi.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">2.</span><span class="q-text">Fungsi utama sistem operasi adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Mengedit foto</button>
+              <button class="option"><span class="dot"></span>Mengelola sumber daya hardware & menjembatani pengguna</button>
+              <button class="option"><span class="dot"></span>Mengirim pesan</button>
+              <button class="option"><span class="dot"></span>Mengompres file</button>
+            </div>
+            <div class="explain">OS mengatur memori, proses, file, dan perangkat, serta menjadi jembatan antara pengguna dan hardware.</div>
+          </div>
+          <div class="mcq" data-correct="0">
+            <div class="q-head"><span class="q-num">3.</span><span class="q-text">Microsoft Excel termasuk aplikasi kategori...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Produktivitas</button>
+              <button class="option"><span class="dot"></span>Multimedia</button>
+              <button class="option"><span class="dot"></span>Perangkat pendukung</button>
+              <button class="option"><span class="dot"></span>Sistem operasi</button>
+            </div>
+            <div class="explain">Excel membantu mengolah data & angka, termasuk kategori <b>produktivitas</b>.</div>
+          </div>
+          <div class="mcq" data-correct="1">
+            <div class="q-head"><span class="q-num">4.</span><span class="q-text">Contoh perangkat lunak pendukung (utility) adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Google Chrome</button>
+              <button class="option"><span class="dot"></span>Antivirus</button>
+              <button class="option"><span class="dot"></span>Minecraft</button>
+              <button class="option"><span class="dot"></span>Zoom</button>
+            </div>
+            <div class="explain"><b>Antivirus</b> menjaga & melindungi sistem, termasuk perangkat lunak pendukung.</div>
+          </div>
+          <div class="mcq" data-correct="2">
+            <div class="q-head"><span class="q-num">5.</span><span class="q-text">Android adalah sistem operasi yang banyak digunakan pada...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Komputer desktop</button>
+              <button class="option"><span class="dot"></span>Printer</button>
+              <button class="option"><span class="dot"></span>Smartphone</button>
+              <button class="option"><span class="dot"></span>Router internet</button>
+            </div>
+            <div class="explain">Android dirancang khusus untuk perangkat mobile seperti <b>smartphone</b> dan tablet.</div>
+          </div>
+          <div class="mcq" data-correct="2">
+            <div class="q-head"><span class="q-num">6.</span><span class="q-text">Perangkat lunak yang bersifat open source artinya...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Berbayar & tertutup</button>
+              <button class="option"><span class="dot"></span>Gratis dicoba lalu harus bayar</button>
+              <button class="option"><span class="dot"></span>Source code terbuka & bebas dimodifikasi</button>
+              <button class="option"><span class="dot"></span>Hanya untuk perusahaan besar</button>
+            </div>
+            <div class="explain">Open source berarti <b>source code terbuka</b> dan boleh dimodifikasi siapa saja secara bebas.</div>
+          </div>
+          <div class="mcq" data-correct="0">
+            <div class="q-head"><span class="q-num">7.</span><span class="q-text">WinRAR digunakan untuk...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Mengompresi / memperkecil ukuran file</button>
+              <button class="option"><span class="dot"></span>Mengedit video</button>
+              <button class="option"><span class="dot"></span>Melindungi dari virus</button>
+              <button class="option"><span class="dot"></span>Menjelajah internet</button>
+            </div>
+            <div class="explain">WinRAR adalah utility untuk <b>mengompresi file</b> agar ukurannya lebih kecil.</div>
+          </div>
+          <div class="mcq" data-correct="0">
+            <div class="q-head"><span class="q-num">8.</span><span class="q-text">Hubungan yang benar antar komponen sistem komputer adalah...</span></div>
+            <div class="options">
+              <button class="option"><span class="dot"></span>Software mengatur Hardware, dijalankan oleh Brainware</button>
+              <button class="option"><span class="dot"></span>Hardware mengatur Software</button>
+              <button class="option"><span class="dot"></span>Brainware adalah bagian dari Hardware</button>
+              <button class="option"><span class="dot"></span>Software adalah komponen fisik komputer</button>
+            </div>
+            <div class="explain">Software mengatur cara kerja hardware, dan semuanya dijalankan/dioperasikan oleh brainware (pengguna).</div>
+          </div>
+        </div>
+        <div class="result-panel" id="quizResultPanel">
+          <div class="inner"><p class="result-msg">—</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18 : PENUTUP -->
+    <section class="slide" data-title="Penutup">
+      <div class="slide-inner">
+        <div class="eyebrow">Selesai</div>
+        <h1 class="title">Selamat! Kamu Telah Menyelesaikan <b>Bab 4</b></h1>
+        <div class="closing-wrap">
+          <p class="lead">Kamu sudah mempelajari pengertian perangkat lunak, sistem operasi, aplikasi, perangkat lunak pendukung, hubungan antar lapisan sistem komputer, hingga jenis-jenis lisensi perangkat lunak. Terus eksplorasi perangkat yang kamu pakai sehari-hari!</p>
+          <div class="final-score-echo">Skor kuismu: <span id="finalScoreEcho">— / 8</span></div>
+        </div>
+        <div class="closing-actions">
+          <button class="btn-primary" id="finishBtn">Selesai — Kembali ke Info Bab 4</button>
+          <button class="btn-secondary" onclick="goTo(0)">↺ Ulangi Presentasi</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- CONTROLS -->
+  <nav class="controls">
+    <button class="nav-btn" id="prevBtn">← Sebelumnya</button>
+    <span class="slide-tag" id="slideTag"></span>
+    <button class="nav-btn" id="nextBtn">Selanjutnya →</button>
+  </nav>
+
+</div>
+
+<script>
+  // ---------- SLIDE NAVIGATION ----------
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const stage = document.getElementById('stage');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const slideTag = document.getElementById('slideTag');
+  let current = 0;
+
+  function updateUI(){
+    progressFill.style.width = ((current+1)/slides.length*100) + '%';
+    progressLabel.textContent = (current+1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.textContent = current === slides.length - 1 ? 'Selesai ✓' : 'Selanjutnya →';
+    slideTag.textContent = slides[current].dataset.title || '';
+    document.querySelectorAll('.toc-item, .map-card').forEach(el=>{
+      el.classList.toggle('current', parseInt(el.dataset.goto,10) === current);
+    });
+    if(current === slides.length - 1){
+      const echo = document.getElementById('quizScoreDisplay');
+      const target = document.getElementById('finalScoreEcho');
+      if(echo && target) target.textContent = echo.textContent;
+    }
+  }
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length) return;
+    slides[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    stage.scrollTop = 0;
+    updateUI();
+    closeToc();
+  }
+
+  nextBtn.addEventListener('click', ()=>{
+    if(current === slides.length - 1){
+      window.location.href = 'infob-bab4.html';
+    } else {
+      goTo(current + 1);
+    }
+  });
+  prevBtn.addEventListener('click', ()=> goTo(current - 1));
+  document.getElementById('finishBtn').addEventListener('click', ()=>{
+    window.location.href = 'infob-bab4.html';
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') nextBtn.click();
+    if(e.key === 'ArrowLeft') prevBtn.click();
+  });
+
+  // ---------- TOC (overlay + inline map) ----------
+  const outline = slides.map((s,i)=>({ i, label: s.dataset.title || ('Slide ' + (i+1)) }));
+
+  const tocList = document.getElementById('tocList');
+  outline.forEach(item=>{
+    const btn = document.createElement('button');
+    btn.className = 'toc-item';
+    btn.dataset.goto = item.i;
+    btn.innerHTML = '<span class="num">' + (item.i+1) + '</span><span>' + item.label + '</span>';
+    btn.addEventListener('click', ()=> goTo(item.i));
+    tocList.appendChild(btn);
+  });
+
+  const tocGrid = document.getElementById('tocGrid');
+  const sectionStarts = [
+    {i:2, label:'Pengertian Perangkat Lunak'},
+    {i:4, label:'Sistem Operasi'},
+    {i:7, label:'Perangkat Lunak Aplikasi'},
+    {i:10, label:'Perangkat Lunak Pendukung'},
+    {i:13, label:'Hubungan Antar Lapisan'},
+    {i:14, label:'Lisensi Perangkat Lunak'},
+    {i:16, label:'Rangkuman & Kuis'}
+  ];
+  sectionStarts.forEach((item,idx)=>{
+    const card = document.createElement('button');
+    card.className = 'map-card';
+    card.dataset.goto = item.i;
+    card.innerHTML = '<div class="idx">Bagian ' + (idx+1) + '</div><div class="lbl">' + item.label + '</div>';
+    card.addEventListener('click', ()=> goTo(item.i));
+    tocGrid.appendChild(card);
+  });
+
+  const tocOverlay = document.getElementById('tocOverlay');
+  document.getElementById('tocOpenBtn').addEventListener('click', ()=> tocOverlay.classList.add('open'));
+  document.getElementById('tocCloseBtn').addEventListener('click', closeToc);
+  tocOverlay.addEventListener('click', (e)=>{ if(e.target === tocOverlay) closeToc(); });
+  function closeToc(){ tocOverlay.classList.remove('open'); }
+
+  // ---------- TAB EXAMPLES ----------
+  document.querySelectorAll('.example-tabs').forEach(group=>{
+    const btns = group.querySelectorAll('.tab-btn');
+    btns.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        btns.forEach(b=>b.classList.remove('active'));
+        group.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+  });
+
+  // ---------- LAYER STACK ACCORDION ----------
+  document.querySelectorAll('.layer-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const desc = document.getElementById(btn.dataset.layer);
+      const isOpen = desc.classList.contains('open');
+      desc.classList.toggle('open', !isOpen);
+      btn.classList.toggle('open', !isOpen);
+    });
+  });
+
+  // ---------- MCQ ----------
+  function setupMCQGroup(groupEl){
+    const mcqs = groupEl.querySelectorAll('.mcq');
+    function refreshScore(){
+      const scoreTargetId = groupEl.dataset.scoreTarget;
+      if(!scoreTargetId) return;
+      const scoreEl = document.getElementById(scoreTargetId);
+      if(!scoreEl) return;
+      const correctCount = groupEl.querySelectorAll('.mcq.correct-answered').length;
+      scoreEl.textContent = correctCount + ' / ' + mcqs.length;
+      const answeredCount = groupEl.querySelectorAll('.mcq.answered').length;
+      const resultTargetId = groupEl.dataset.resultTarget;
+      if(resultTargetId){
+        const resultPanel = document.getElementById(resultTargetId);
+        if(resultPanel && answeredCount === mcqs.length){
+          resultPanel.classList.add('show');
+          const pct = correctCount / mcqs.length;
+          let msg;
+          if(pct === 1) msg = 'Sempurna! Kamu menguasai materi perangkat lunak dengan sangat baik. 🌟';
+          else if(pct >= 0.75) msg = 'Bagus sekali! Pemahamanmu sudah kuat. 💪';
+          else if(pct >= 0.5) msg = 'Cukup baik — coba ulas lagi bagian yang masih keliru. 📘';
+          else msg = 'Yuk pelajari lagi materinya sebentar, kamu pasti bisa! 🌱';
+          resultPanel.querySelector('.result-msg').textContent = 'Skor akhir: ' + correctCount + ' / ' + mcqs.length + '. ' + msg;
+        }
+      }
+    }
+    mcqs.forEach(mcq=>{
+      const opts = mcq.querySelectorAll('.option');
+      const correctIdx = parseInt(mcq.dataset.correct, 10);
+      opts.forEach((opt,i)=>{
+        opt.addEventListener('click', ()=>{
+          if(mcq.classList.contains('answered')) return;
+          mcq.classList.add('answered');
+          opts.forEach((o,j)=>{
+            if(j === correctIdx) o.classList.add('is-correct');
+            else o.classList.add('is-disabled');
+          });
+          if(i === correctIdx){
+            mcq.classList.add('correct-answered');
+          } else {
+            opt.classList.add('is-wrong');
+          }
+          const explain = mcq.querySelector('.explain');
+          if(explain) explain.classList.add('show');
+          refreshScore();
+        });
+      });
+    });
+  }
+  document.querySelectorAll('.mcq-group').forEach(setupMCQGroup);
+
+  updateUI();
+</script>
+</body>
+</html>

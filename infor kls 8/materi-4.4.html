@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 4 · Sistem Komputer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-deep:#0a0f1e;
+  --bg-panel:#121a2e;
+  --bg-panel-alt:#1a2440;
+  --bg-panel-hi:#212c4d;
+  --trace-teal:#2dd9b8;
+  --trace-teal-dim:rgba(45,217,184,.18);
+  --trace-amber:#ffb454;
+  --trace-amber-dim:rgba(255,180,84,.18);
+  --trace-violet:#8b7fff;
+  --trace-violet-dim:rgba(139,127,255,.18);
+  --text-hi:#eaf0fa;
+  --text-mid:#9fb0c9;
+  --text-low:#5e6e8c;
+  --danger:#ff6b6b;
+  --success:#4ade80;
+  --line:rgba(159,176,201,.14);
+  --radius:18px;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:var(--font-body);
+  background:var(--bg-deep);
+  color:var(--text-hi);
+  overflow:hidden;
+  position:relative;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001s !important; animation-iteration-count:1 !important; transition-duration:.001s !important;}
+}
+
+/* ambient circuit backdrop */
+.circuit-bg{position:fixed;inset:0;z-index:0;opacity:.5;pointer-events:none;}
+.circuit-bg svg{width:100%;height:100%;}
+.circuit-bg path{fill:none;stroke:var(--line);stroke-width:1;}
+.circuit-bg circle.node-dot{fill:var(--trace-teal);opacity:.35;}
+
+/* deck shell */
+.deck{position:relative;z-index:1;height:100vh;height:100dvh;display:flex;flex-direction:column;}
+
+.topbar{
+  display:flex;align-items:center;gap:14px;
+  padding:16px clamp(16px,4vw,40px) 10px;
+}
+.topbar .brand{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;color:var(--text-low);
+  text-transform:uppercase;white-space:nowrap;
+}
+.progress-track{flex:1;height:4px;background:var(--line);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--trace-teal),var(--trace-violet));transition:width .5s cubic-bezier(.65,0,.35,1);}
+.slide-counter{font-family:var(--font-mono);font-size:12px;color:var(--text-mid);white-space:nowrap;}
+.slide-counter b{color:var(--trace-teal);}
+
+.viewport{flex:1;position:relative;overflow:hidden;}
+
+.slide{
+  position:absolute;inset:0;
+  padding:clamp(20px,4vw,48px) clamp(18px,6vw,80px) clamp(18px,3vw,32px);
+  display:flex;flex-direction:column;justify-content:center;
+  overflow-y:auto;
+  opacity:0;visibility:hidden;
+  transform:translateX(40px);
+  transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1);
+}
+.slide.active{opacity:1;visibility:visible;transform:translateX(0);}
+.slide.prev{transform:translateX(-40px);}
+.slide::-webkit-scrollbar{width:6px;}
+.slide::-webkit-scrollbar-thumb{background:var(--bg-panel-hi);border-radius:6px;}
+
+.eyebrow{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--trace-teal);display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.eyebrow::before{content:'';width:18px;height:1px;background:var(--trace-teal);}
+h1.slide-title{
+  font-family:var(--font-display);font-weight:700;
+  font-size:clamp(26px,4.6vw,48px);line-height:1.1;letter-spacing:-.01em;margin-bottom:10px;
+}
+h1.slide-title .accent{color:var(--trace-teal);}
+.slide-sub{color:var(--text-mid);font-size:clamp(14px,1.6vw,17px);max-width:60ch;line-height:1.55;margin-bottom:22px;}
+.slide-body{width:100%;max-width:1180px;margin:0 auto;}
+
+/* buttons */
+.btn{
+  font-family:var(--font-body);font-weight:600;font-size:14.5px;
+  padding:13px 26px;border-radius:99px;border:1px solid transparent;cursor:pointer;
+  display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease, background .2s ease, border-color .2s ease;
+  background:var(--trace-teal);color:#06251f;
+}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:translateY(0);}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--text-hi);}
+.btn.ghost:hover{border-color:var(--trace-teal);}
+.btn.amber{background:var(--trace-amber);color:#2b1a02;}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* bottom nav */
+.navbar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px clamp(16px,4vw,40px) clamp(16px,3vw,26px);
+}
+.nav-arrow{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:var(--bg-panel);
+  color:var(--text-hi);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  transition:border-color .2s ease, background .2s ease, transform .15s ease;
+}
+.nav-arrow:hover:not(:disabled){border-color:var(--trace-teal);background:var(--bg-panel-alt);}
+.nav-arrow:disabled{opacity:.3;cursor:not-allowed;}
+.dots{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
+.dot{
+  width:9px;height:9px;border-radius:50%;background:var(--line);border:none;cursor:pointer;padding:0;
+  transition:background .2s ease, transform .2s ease, width .3s ease;
+}
+.dot.active{background:var(--trace-teal);width:22px;border-radius:5px;}
+
+/* generic cards */
+.card{
+  background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:20px;
+}
+.grid{display:grid;gap:14px;}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.grid.cols-2{grid-template-columns:repeat(2,1fr);}
+@media (max-width:900px){
+  .grid.cols-3, .grid.cols-4{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:560px){
+  .grid.cols-3, .grid.cols-4, .grid.cols-2{grid-template-columns:1fr;}
+}
+
+/* flip cards */
+.flip-card{perspective:1200px;height:190px;cursor:pointer;}
+.flip-inner{position:relative;width:100%;height:100%;transition:transform .55s cubic-bezier(.65,0,.35,1);transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-face{
+  position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:1px solid var(--line);
+  display:flex;flex-direction:column;padding:16px;background:var(--bg-panel);
+}
+.flip-front{align-items:flex-start;justify-content:space-between;}
+.flip-front .tag{font-family:var(--font-mono);font-size:10px;color:var(--text-low);letter-spacing:.08em;}
+.flip-front .name{font-family:var(--font-display);font-weight:600;font-size:17px;}
+.flip-back{transform:rotateY(180deg);background:var(--bg-panel-alt);justify-content:center;}
+.flip-back p{font-size:13px;color:var(--text-mid);line-height:1.5;}
+.flip-back .name{font-family:var(--font-display);font-weight:600;font-size:14px;color:var(--trace-teal);margin-bottom:6px;}
+.icon-wrap{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
+.icon-wrap svg{width:22px;height:22px;}
+.tap-hint{position:absolute;bottom:10px;right:12px;font-family:var(--font-mono);font-size:9px;color:var(--text-low);opacity:.7;}
+
+/* color themes for chips */
+.t-input .icon-wrap{background:var(--trace-teal-dim);color:var(--trace-teal);}
+.t-input .flip-back{border-left:3px solid var(--trace-teal);}
+.t-proses .icon-wrap{background:var(--trace-amber-dim);color:var(--trace-amber);}
+.t-proses .flip-back{border-left:3px solid var(--trace-amber);}
+.t-output .icon-wrap{background:var(--trace-violet-dim);color:var(--trace-violet);}
+.t-output .flip-back{border-left:3px solid var(--trace-violet);}
+.t-storage .icon-wrap{background:rgba(255,107,107,.16);color:#ff9b9b;}
+.t-storage .flip-back{border-left:3px solid #ff9b9b;}
+
+/* section label chips */
+.section-chip{
+  display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11px;
+  letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:99px;margin-bottom:14px;
+  border:1px solid var(--line);color:var(--text-mid);
+}
+
+/* ===== Cover slide ===== */
+.slide-cover{justify-content:center;align-items:center;text-align:center;}
+.cover-badge{
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;color:var(--trace-teal);
+  border:1px solid var(--trace-teal-dim);background:var(--trace-teal-dim);
+  padding:8px 18px;border-radius:99px;margin-bottom:24px;
+}
+.cover-title{font-family:var(--font-display);font-weight:700;font-size:clamp(34px,7vw,68px);line-height:1.05;letter-spacing:-.02em;}
+.cover-title span{color:var(--trace-teal);}
+.cover-sub{color:var(--text-mid);font-size:clamp(14px,2vw,18px);max-width:56ch;margin:16px auto 30px;line-height:1.6;}
+.cover-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.cover-meta{display:flex;gap:22px;justify-content:center;margin-top:40px;flex-wrap:wrap;}
+.cover-meta div{font-family:var(--font-mono);font-size:11px;color:var(--text-low);text-align:center;}
+.cover-meta b{display:block;font-family:var(--font-display);font-size:20px;color:var(--text-hi);font-weight:600;}
+.cover-chip-orbit{position:relative;width:min(320px,70vw);height:min(320px,70vw);margin:0 auto 10px;}
+.cover-chip-orbit svg{width:100%;height:100%;}
+
+/* ===== goal list ===== */
+.goal-list{display:flex;flex-direction:column;gap:12px;max-width:720px;}
+.goal-item{display:flex;gap:16px;align-items:flex-start;background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+.goal-num{font-family:var(--font-mono);font-size:13px;color:var(--trace-teal);border:1px solid var(--trace-teal-dim);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.goal-item p{color:var(--text-mid);font-size:14.5px;line-height:1.5;}
+.goal-item b{color:var(--text-hi);}
+
+/* ===== definisi slide ===== */
+.def-box{background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px 24px;margin-bottom:22px;position:relative;}
+.def-box::before{content:'"';position:absolute;top:6px;left:16px;font-family:var(--font-display);font-size:60px;color:var(--trace-teal-dim);line-height:1;}
+.def-box p{font-size:clamp(15px,1.8vw,18px);line-height:1.6;padding-left:26px;color:var(--text-hi);}
+.def-box p b{color:var(--trace-teal);}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:760px){.trio{grid-template-columns:1fr;}}
+.trio-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;padding:18px;cursor:pointer;transition:border-color .2s ease, background .2s ease;position:relative;overflow:hidden;}
+.trio-card:hover{border-color:var(--trace-teal);}
+.trio-card .icon-wrap{width:44px;height:44px;border-radius:12px;margin-bottom:12px;}
+.trio-card h3{font-family:var(--font-display);font-size:17px;margin-bottom:6px;}
+.trio-card p{font-size:13px;color:var(--text-mid);line-height:1.5;}
+.trio-card .more{margin-top:10px;font-family:var(--font-mono);font-size:11px;color:var(--trace-teal);display:none;}
+.trio-card.open .more{display:block;}
+.trio-card.open{background:var(--bg-panel-alt);}
+
+/* ===== IPO diagram (signature) ===== */
+.ipo-wrap{position:relative;width:100%;max-width:980px;margin:6px auto 18px;}
+.ipo-svg{width:100%;height:auto;display:block;}
+.ipo-node{cursor:pointer;}
+.ipo-node rect{fill:var(--bg-panel);stroke:var(--line);stroke-width:1.5;transition:stroke .2s ease, fill .2s ease;}
+.ipo-node.active rect{stroke:var(--trace-teal);fill:var(--bg-panel-alt);}
+.ipo-node text{font-family:var(--font-mono);}
+.ipo-label{fill:var(--text-hi);font-size:13px;font-weight:600;}
+.ipo-sub{fill:var(--text-low);font-size:9px;letter-spacing:.08em;}
+.ipo-path{fill:none;stroke:var(--line);stroke-width:1.5;}
+.ipo-pulse{fill:var(--trace-teal);}
+.ipo-info{
+  background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  max-width:980px;margin:0 auto;min-height:96px;transition:border-color .2s ease;
+}
+.ipo-info .name{font-family:var(--font-display);font-weight:600;font-size:16px;margin-bottom:6px;color:var(--trace-teal);}
+.ipo-info p{font-size:13.5px;color:var(--text-mid);line-height:1.55;}
+.ipo-info .examples{margin-top:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--text-low);}
+
+/* ===== inside cpu diagram ===== */
+.cpu-diagram{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+.cpu-part{
+  flex:1;min-width:150px;background:var(--bg-panel);border:1px solid var(--line);border-radius:14px;
+  padding:16px;cursor:pointer;transition:border-color .2s ease, background .2s ease;
+}
+.cpu-part:hover, .cpu-part.active{border-color:var(--trace-amber);background:var(--bg-panel-alt);}
+.cpu-part .abbr{font-family:var(--font-mono);font-size:11px;color:var(--trace-amber);letter-spacing:.08em;}
+.cpu-part h4{font-family:var(--font-display);font-size:15px;margin:4px 0 6px;}
+.cpu-part p{font-size:12.5px;color:var(--text-mid);line-height:1.45;display:none;}
+.cpu-part.active p{display:block;}
+
+/* ===== case study ===== */
+.case-scenario{background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px;}
+.case-scenario .name{font-family:var(--font-mono);font-size:12px;color:var(--trace-violet);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.case-steps{display:flex;flex-direction:column;gap:10px;}
+.case-step{
+  display:flex;gap:14px;align-items:flex-start;background:var(--bg-panel);border:1px solid var(--line);
+  border-radius:14px;padding:14px 16px;opacity:.35;transition:opacity .35s ease, border-color .3s ease, background .3s ease;
+}
+.case-step.revealed{opacity:1;}
+.case-step.revealed.tag-input{border-color:var(--trace-teal-dim);}
+.case-step.revealed.tag-proses{border-color:var(--trace-amber-dim);}
+.case-step.revealed.tag-output{border-color:var(--trace-violet-dim);}
+.case-step .badge{
+  font-family:var(--font-mono);font-size:10px;padding:4px 9px;border-radius:99px;flex-shrink:0;white-space:nowrap;margin-top:2px;
+}
+.tag-input .badge{background:var(--trace-teal-dim);color:var(--trace-teal);}
+.tag-proses .badge{background:var(--trace-amber-dim);color:var(--trace-amber);}
+.tag-output .badge{background:var(--trace-violet-dim);color:var(--trace-violet);}
+.case-step p{font-size:13.5px;color:var(--text-mid);line-height:1.5;}
+.case-step p b{color:var(--text-hi);}
+.case-controls{margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
+.case-progress{font-family:var(--font-mono);font-size:12px;color:var(--text-low);}
+
+/* ===== quiz ===== */
+.quiz-shell{max-width:760px;margin:0 auto;}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.quiz-progress-text{font-family:var(--font-mono);font-size:12px;color:var(--text-low);}
+.quiz-score{font-family:var(--font-mono);font-size:12px;color:var(--trace-teal);}
+.quiz-track{height:5px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:22px;}
+.quiz-track-fill{height:100%;background:var(--trace-teal);transition:width .4s ease;}
+.quiz-question-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);padding:24px;}
+.quiz-q-label{font-family:var(--font-mono);font-size:11px;color:var(--trace-amber);letter-spacing:.08em;margin-bottom:8px;}
+.quiz-q-text{font-family:var(--font-display);font-size:clamp(16px,2.2vw,20px);font-weight:600;line-height:1.4;margin-bottom:18px;}
+.quiz-options{display:flex;flex-direction:column;gap:10px;}
+.quiz-opt{
+  text-align:left;background:var(--bg-panel-alt);border:1px solid var(--line);border-radius:12px;
+  padding:13px 16px;font-size:14.5px;color:var(--text-hi);cursor:pointer;display:flex;gap:10px;align-items:center;
+  transition:border-color .2s ease, background .2s ease;font-family:var(--font-body);
+}
+.quiz-opt:hover:not(:disabled){border-color:var(--trace-teal);}
+.quiz-opt .letter{font-family:var(--font-mono);font-size:12px;color:var(--text-low);width:20px;flex-shrink:0;}
+.quiz-opt.correct{border-color:var(--success);background:rgba(74,222,128,.1);}
+.quiz-opt.wrong{border-color:var(--danger);background:rgba(255,107,107,.1);}
+.quiz-opt:disabled{cursor:default;}
+.quiz-feedback{margin-top:14px;font-size:13px;color:var(--text-mid);line-height:1.5;padding:12px 14px;border-radius:10px;background:var(--bg-panel-alt);display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback b{color:var(--trace-teal);}
+.quiz-footer{display:flex;justify-content:flex-end;margin-top:18px;}
+.quiz-result{text-align:center;padding:20px 10px;}
+.quiz-result .big-score{font-family:var(--font-display);font-size:clamp(44px,9vw,72px);font-weight:700;color:var(--trace-teal);line-height:1;}
+.quiz-result .of{font-family:var(--font-mono);color:var(--text-low);font-size:14px;margin-top:4px;}
+.quiz-result .msg{margin:14px 0 22px;color:var(--text-mid);font-size:15px;max-width:46ch;margin-left:auto;margin-right:auto;line-height:1.55;}
+
+/* ===== ringkasan ===== */
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+@media (max-width:700px){.summary-grid{grid-template-columns:1fr;}}
+.summary-card{background:var(--bg-panel);border:1px solid var(--line);border-radius:16px;padding:18px;}
+.summary-card .tag{font-family:var(--font-mono);font-size:10px;color:var(--trace-teal);letter-spacing:.08em;margin-bottom:8px;display:block;}
+.summary-card h4{font-family:var(--font-display);font-size:16px;margin-bottom:6px;}
+.summary-card p{font-size:13px;color:var(--text-mid);line-height:1.5;}
+
+/* ===== closing slide ===== */
+.slide-closing{justify-content:center;align-items:center;text-align:center;}
+.closing-ring{width:96px;height:96px;border-radius:50%;border:2px solid var(--trace-teal);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.closing-ring svg{width:40px;height:40px;color:var(--trace-teal);}
+.closing-title{font-family:var(--font-display);font-weight:700;font-size:clamp(28px,5vw,44px);margin-bottom:12px;}
+.closing-sub{color:var(--text-mid);max-width:52ch;margin:0 auto 30px;line-height:1.6;font-size:15px;}
+.closing-stats{display:flex;gap:24px;justify-content:center;margin-bottom:34px;flex-wrap:wrap;}
+.closing-stats div{font-family:var(--font-mono);font-size:11px;color:var(--text-low);text-align:center;}
+.closing-stats b{display:block;font-family:var(--font-display);font-size:22px;color:var(--trace-teal);font-weight:700;}
+
+.hint-row{display:flex;align-items:center;gap:8px;color:var(--text-low);font-size:12px;font-family:var(--font-mono);margin-top:6px;}
+
+@media (max-width:640px){
+  .navbar{padding:12px 14px 16px;}
+  .topbar{padding:12px 14px 8px;}
+  .nav-arrow{width:38px;height:38px;}
+}
+</style>
+</head>
+<body>
+
+<div class="circuit-bg" id="circuitBg"></div>
+
+<div class="deck">
+  <div class="topbar">
+    <span class="brand">Informatika · Bab 4</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="slide-counter"><b id="counterNow">01</b>/<span id="counterTotal">13</span></span>
+  </div>
+
+  <div class="viewport" id="viewport">
+
+    <!-- 1. COVER -->
+    <section class="slide slide-cover active" data-index="0">
+      <div class="cover-badge">BAB 4 &nbsp;·&nbsp; INFORMATIKA SMP</div>
+      <h1 class="cover-title">Sistem <span>Komputer</span></h1>
+      <p class="cover-sub">Belajar konsep dan cara kerja sistem komputer: bagaimana komputer menerima data, mengolahnya, lalu menampilkan hasilnya — lengkap dengan contoh interaktif dan kuis latihan.</p>
+      <div class="cover-cta">
+        <button class="btn" onclick="goTo(1)">Mulai Belajar →</button>
+        <button class="btn ghost" onclick="goTo(10)">Langsung ke Kuis</button>
+      </div>
+      <div class="cover-meta">
+        <div><b>13</b>Slide</div>
+        <div><b>4</b>Komponen Utama</div>
+        <div><b>10</b>Soal Latihan</div>
+      </div>
+    </section>
+
+    <!-- 2. TUJUAN -->
+    <section class="slide" data-index="1">
+      <div class="slide-body">
+        <div class="eyebrow">Tujuan Pembelajaran</div>
+        <h1 class="slide-title">Setelah belajar bab ini, kamu akan bisa...</h1>
+        <p class="slide-sub">Empat kemampuan inti yang akan kamu kuasai di bab Sistem Komputer.</p>
+        <div class="goal-list">
+          <div class="goal-item"><div class="goal-num">01</div><p><b>Menjelaskan pengertian</b> sistem komputer dan tiga komponen penyusunnya: hardware, software, dan brainware.</p></div>
+          <div class="goal-item"><div class="goal-num">02</div><p><b>Memahami cara kerja</b> komputer melalui siklus Input → Proses → Output, serta peran penyimpanan (storage) di dalamnya.</p></div>
+          <div class="goal-item"><div class="goal-num">03</div><p><b>Mengidentifikasi contoh perangkat</b> input, proses, output, dan penyimpanan yang ada di sekitarmu.</p></div>
+          <div class="goal-item"><div class="goal-num">04</div><p><b>Menerapkan pemahaman</b> pada skenario nyata dan menyelesaikan soal-soal latihan.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PENGERTIAN -->
+    <section class="slide" data-index="2">
+      <div class="slide-body">
+        <div class="eyebrow">4.1 · Konsep Dasar</div>
+        <h1 class="slide-title">Apa itu Sistem <span class="accent">Komputer</span>?</h1>
+        <div class="def-box">
+          <p><b>Sistem komputer</b> adalah kumpulan perangkat keras, perangkat lunak, dan manusia yang saling bekerja sama untuk menerima, mengolah, dan menghasilkan informasi.</p>
+        </div>
+        <p class="slide-sub" style="margin-bottom:14px;">Ketiganya harus ada bersama-sama — kalau salah satu hilang, komputer tidak bisa bekerja. Klik tiap kartu untuk melihat penjelasannya.</p>
+        <div class="trio" id="trioGroup">
+          <div class="trio-card" data-part="hardware" onclick="toggleTrio(this)">
+            <div class="icon-wrap" style="background:var(--trace-teal-dim);color:var(--trace-teal);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>
+            </div>
+            <h3>Hardware</h3>
+            <p>Perangkat keras — bagian fisik komputer yang bisa disentuh.</p>
+            <div class="more">Contoh: keyboard, mouse, CPU, monitor, harddisk.</div>
+          </div>
+          <div class="trio-card" data-part="software" onclick="toggleTrio(this)">
+            <div class="icon-wrap" style="background:var(--trace-amber-dim);color:var(--trace-amber);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3 4 12l4 9M16 3l4 9-4 9"/></svg>
+            </div>
+            <h3>Software</h3>
+            <p>Perangkat lunak — program/instruksi yang mengatur kerja hardware.</p>
+            <div class="more">Contoh: sistem operasi, aplikasi, browser, game.</div>
+          </div>
+          <div class="trio-card" data-part="brainware" onclick="toggleTrio(this)">
+            <div class="icon-wrap" style="background:var(--trace-violet-dim);color:var(--trace-violet);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/></svg>
+            </div>
+            <h3>Brainware</h3>
+            <p>Manusia yang mengoperasikan dan mengendalikan komputer.</p>
+            <div class="more">Contoh: pengguna, programmer, admin jaringan.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. INTERAKSI HARDWARE SOFTWARE BRAINWARE -->
+    <section class="slide" data-index="3">
+      <div class="slide-body">
+        <div class="eyebrow">4.1 · Konsep Dasar</div>
+        <h1 class="slide-title">Interaksi Hardware, Software, &amp; <span class="accent" style="color:var(--trace-violet);">Brainware</span></h1>
+        <p class="slide-sub">Ketiga komponen tidak bekerja sendiri-sendiri — mereka saling terhubung dalam satu siklus kerja. Klik setiap label koneksi di bawah untuk melihat bagaimana mereka berinteraksi.</p>
+
+        <div class="ipo-wrap">
+          <svg class="ipo-svg" viewBox="0 0 700 380" id="interaksiSvg">
+            <path class="ipo-path" d="M95,290 L300,95"/>
+            <path class="ipo-path" d="M400,95 L560,290"/>
+            <path class="ipo-path" d="M170,325 L480,325"/>
+            <circle class="ipo-pulse" r="4"><animateMotion dur="2.6s" repeatCount="indefinite" path="M95,290 L300,95"/></circle>
+            <circle class="ipo-pulse" r="4"><animateMotion dur="2.6s" begin=".9s" repeatCount="indefinite" path="M400,95 L560,290"/></circle>
+            <circle class="ipo-pulse" r="4"><animateMotion dur="2.6s" begin="1.8s" repeatCount="indefinite" path="M170,325 L480,325"/></circle>
+
+            <g class="ipo-node" data-node="brainware" transform="translate(20,290)">
+              <rect x="0" y="0" width="150" height="70" rx="14" style="stroke:var(--trace-violet);"/>
+              <text x="75" y="32" text-anchor="middle" class="ipo-label">BRAINWARE</text>
+              <text x="75" y="50" text-anchor="middle" class="ipo-sub">PENGGUNA</text>
+            </g>
+            <g class="ipo-node" data-node="software" transform="translate(275,20)">
+              <rect x="0" y="0" width="150" height="70" rx="14" style="stroke:var(--trace-amber);"/>
+              <text x="75" y="32" text-anchor="middle" class="ipo-label">SOFTWARE</text>
+              <text x="75" y="50" text-anchor="middle" class="ipo-sub">PROGRAM</text>
+            </g>
+            <g class="ipo-node" data-node="hardware" transform="translate(480,290)">
+              <rect x="0" y="0" width="150" height="70" rx="14" style="stroke:var(--trace-teal);"/>
+              <text x="75" y="32" text-anchor="middle" class="ipo-label">HARDWARE</text>
+              <text x="75" y="50" text-anchor="middle" class="ipo-sub">PERANGKAT</text>
+            </g>
+<g
+    class="ipo-node"
+    data-node="bs"
+    onclick="setInteraksi('bs')"
+    transform="translate(140,168)"
+>
+    <rect x="0" y="0" width="120" height="34" rx="17" />
+    <text
+        x="60"
+        y="22"
+        text-anchor="middle"
+        class="ipo-label"
+        style="font-size: 11px;"
+    >
+        PERINTAH
+    </text>
+</g>
+
+<g
+    class="ipo-node"
+    data-node="sh"
+    onclick="setInteraksi('sh')"
+    transform="translate(400,168)"
+>
+    <rect x="0" y="0" width="120" height="34" rx="17" />
+    <text
+        x="60"
+        y="22"
+        text-anchor="middle"
+        class="ipo-label"
+        style="font-size: 11px;"
+    >
+        INSTRUKSI
+    </text>
+</g>
+
+<g
+    class="ipo-node"
+    data-node="bh"
+    onclick="setInteraksi('bh')"
+    transform="translate(265,308)"
+>
+    <rect x="0" y="0" width="120" height="34" rx="17" />
+    <text
+        x="60"
+        y="22"
+        text-anchor="middle"
+        class="ipo-label"
+        style="font-size: 11px;"
+    >
+        KONTROL
+    </text>
+</g>
+          </svg>
+        </div>
+        <div class="ipo-info" id="interaksiInfo"></div>
+
+        <p class="slide-sub" style="margin:22px 0 10px;">Contoh nyata: <b style="color:var(--text-hi)">mengetik dan menyimpan dokumen</b></p>
+        <div class="case-steps">
+          <div class="case-step revealed" style="border-color:var(--trace-violet-dim);">
+            <span class="badge" style="background:var(--trace-violet-dim);color:var(--trace-violet);">BRAINWARE</span>
+            <p>Pengguna membuka aplikasi pengolah kata dan mengetik huruf di keyboard.</p>
+          </div>
+          <div class="case-step revealed" style="border-color:var(--trace-amber-dim);">
+            <span class="badge" style="background:var(--trace-amber-dim);color:var(--trace-amber);">SOFTWARE</span>
+            <p>Aplikasi menerjemahkan setiap tombol yang ditekan menjadi instruksi untuk perangkat keras.</p>
+          </div>
+          <div class="case-step revealed" style="border-color:var(--trace-teal-dim);">
+            <span class="badge" style="background:var(--trace-teal-dim);color:var(--trace-teal);">HARDWARE</span>
+            <p>CPU menjalankan instruksi tersebut dan menampilkan huruf itu di layar monitor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. CARA KERJA / IPO DIAGRAM (SIGNATURE) -->
+    <section class="slide" data-index="4">
+      <div class="slide-body">
+        <div class="eyebrow">4.2 · Cara Kerja</div>
+        <h1 class="slide-title">Alur Kerja Sistem <span class="accent">Komputer</span></h1>
+        <p class="slide-sub">Data mengalir seperti arus listrik di papan sirkuit: masuk lewat <b style="color:var(--text-hi)">Input</b>, diolah di <b style="color:var(--text-hi)">Proses</b>, ditampilkan sebagai <b style="color:var(--text-hi)">Output</b>, dan bisa disimpan di <b style="color:var(--text-hi)">Storage</b>. Klik tiap chip untuk detail.</p>
+        <div class="ipo-wrap">
+          <svg class="ipo-svg" viewBox="0 0 960 300" id="ipoSvg">
+            <path class="ipo-path" d="M150,150 L370,150"/>
+            <path class="ipo-path" d="M480,150 L700,150"/>
+            <path class="ipo-path" d="M810,150 L810,230 L480,230 L480,180" id="feedbackPath"/>
+            <path class="ipo-path" d="M480,180 L480,80 L150,80 L150,120" id="storagePath" opacity=".6"/>
+            <circle class="ipo-pulse" r="4"><animateMotion dur="3.2s" repeatCount="indefinite" path="M150,150 L370,150"/></circle>
+            <circle class="ipo-pulse" r="4"><animateMotion dur="3.2s" begin="1.05s" repeatCount="indefinite" path="M480,150 L700,150"/></circle>
+            <circle class="ipo-pulse" r="4" opacity=".7"><animateMotion dur="3.2s" begin="2.1s" repeatCount="indefinite" path="M810,150 L810,230 L480,230 L480,180"/></circle>
+
+            <g class="ipo-node" data-node="input" onclick="setIpo('input')" transform="translate(30,110)">
+              <rect x="0" y="0" width="120" height="80" rx="14"/>
+              <text x="60" y="34" text-anchor="middle" class="ipo-label">INPUT</text>
+              <text x="60" y="52" text-anchor="middle" class="ipo-sub">01 · MASUK</text>
+            </g>
+            <g class="ipo-node" data-node="proses" onclick="setIpo('proses')" transform="translate(370,110)">
+              <rect x="0" y="0" width="120" height="80" rx="14"/>
+              <text x="60" y="34" text-anchor="middle" class="ipo-label">PROSES</text>
+              <text x="60" y="52" text-anchor="middle" class="ipo-sub">02 · OLAH</text>
+            </g>
+            <g class="ipo-node" data-node="output" onclick="setIpo('output')" transform="translate(700,110)">
+              <rect x="0" y="0" width="120" height="80" rx="14"/>
+              <text x="60" y="34" text-anchor="middle" class="ipo-label">OUTPUT</text>
+              <text x="60" y="52" text-anchor="middle" class="ipo-sub">03 · HASIL</text>
+            </g>
+            <g class="ipo-node" data-node="storage" onclick="setIpo('storage')" transform="translate(370,230)">
+              <rect x="0" y="0" width="120" height="45" rx="12"/>
+              <text x="60" y="27" text-anchor="middle" class="ipo-label" style="font-size:12px;">STORAGE</text>
+            </g>
+          </svg>
+        </div>
+        <div class="ipo-info" id="ipoInfo"></div>
+      </div>
+    </section>
+
+    <!-- 6. INPUT DEVICES -->
+    <section class="slide" data-index="5">
+      <div class="slide-body">
+        <span class="section-chip" style="color:var(--trace-teal);border-color:var(--trace-teal-dim);">Tahap Input</span>
+        <h1 class="slide-title">Contoh Perangkat <span class="accent">Input</span></h1>
+        <p class="slide-sub">Perangkat yang memasukkan data ke komputer. Klik kartu untuk membaliknya.</p>
+        <div class="grid cols-4" id="inputGrid"></div>
+      </div>
+    </section>
+
+    <!-- 7. PROSES DEVICES + CPU -->
+    <section class="slide" data-index="6">
+      <div class="slide-body">
+        <span class="section-chip" style="color:var(--trace-amber);border-color:var(--trace-amber-dim);">Tahap Proses</span>
+        <h1 class="slide-title">Di Dalam <span class="accent" style="color:var(--trace-amber);">CPU</span></h1>
+        <p class="slide-sub">CPU (Central Processing Unit) adalah "otak" komputer. Klik tiap bagian untuk melihat tugasnya.</p>
+        <div class="cpu-diagram" id="cpuDiagram"></div>
+        <p class="slide-sub" style="margin-bottom:10px;">Selain CPU, dua perangkat proses penting lainnya:</p>
+        <div class="grid cols-2" id="prosesGrid" style="max-width:600px;"></div>
+      </div>
+    </section>
+
+    <!-- 8. OUTPUT DEVICES -->
+    <section class="slide" data-index="7">
+      <div class="slide-body">
+        <span class="section-chip" style="color:var(--trace-violet);border-color:var(--trace-violet-dim);">Tahap Output</span>
+        <h1 class="slide-title">Contoh Perangkat <span class="accent" style="color:var(--trace-violet);">Output</span></h1>
+        <p class="slide-sub">Perangkat yang menampilkan hasil pengolahan data. Klik kartu untuk membaliknya.</p>
+        <div class="grid cols-4" id="outputGrid"></div>
+      </div>
+    </section>
+
+    <!-- 9. STORAGE -->
+    <section class="slide" data-index="8">
+      <div class="slide-body">
+        <span class="section-chip" style="color:#ff9b9b;border-color:rgba(255,107,107,.25);">Penyimpanan</span>
+        <h1 class="slide-title">Perangkat <span class="accent" style="color:#ff9b9b;">Penyimpanan</span></h1>
+        <p class="slide-sub">Ada dua jenis: <b style="color:var(--text-hi)">memori utama</b> (langsung dipakai CPU) dan <b style="color:var(--text-hi)">memori sekunder</b> (menyimpan data secara permanen). Klik kartu untuk detail.</p>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-low);">MEMORI UTAMA</span>
+        </div>
+        <div class="grid cols-2" id="storagePrimaryGrid" style="margin-bottom:18px;"></div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-low);">MEMORI SEKUNDER</span>
+        </div>
+        <div class="grid cols-3" id="storageSecondaryGrid"></div>
+      </div>
+    </section>
+
+    <!-- 10. CASE STUDY -->
+    <section class="slide" data-index="9">
+      <div class="slide-body">
+        <div class="eyebrow">Studi Kasus</div>
+        <h1 class="slide-title">Yuk, Lihat Alur Kerjanya!</h1>
+        <div class="case-scenario">
+          <div class="name">Skenario</div>
+          <p style="font-size:14.5px;color:var(--text-hi);line-height:1.5;">Rangga mengetik tugas di laptop menggunakan keyboard, lalu mencetaknya dengan printer. Klik tombol di bawah untuk mengikuti setiap langkahnya.</p>
+        </div>
+        <div class="case-steps" id="caseSteps"></div>
+        <div class="case-controls">
+          <button class="btn amber" id="caseNextBtn" onclick="revealNextStep()">Langkah Berikutnya →</button>
+          <button class="btn ghost" onclick="resetCase()">Ulangi</button>
+          <span class="case-progress" id="caseProgress">Langkah 0 / 5</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. QUIZ -->
+    <section class="slide" data-index="10">
+      <div class="slide-body">
+        <div class="eyebrow">Latihan Soal</div>
+        <h1 class="slide-title">Uji Pemahamanmu</h1>
+        <div class="quiz-shell">
+          <div class="quiz-top">
+            <span class="quiz-progress-text" id="quizProgressText">Soal 1 / 8</span>
+            <span class="quiz-score" id="quizScoreText">Skor: 0</span>
+          </div>
+          <div class="quiz-track"><div class="quiz-track-fill" id="quizTrackFill"></div></div>
+          <div id="quizContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. RINGKASAN -->
+    <section class="slide" data-index="11">
+      <div class="slide-body">
+        <div class="eyebrow">Ringkasan</div>
+        <h1 class="slide-title">Yang Perlu Kamu Ingat</h1>
+        <div class="summary-grid">
+          <div class="summary-card"><span class="tag">01 · KOMPONEN</span><h4>Hardware + Software + Brainware</h4><p>Ketiganya bekerja sama membentuk sistem komputer yang utuh.</p></div>
+          <div class="summary-card"><span class="tag">02 · ALUR</span><h4>Input → Proses → Output</h4><p>Data masuk, diolah CPU, lalu ditampilkan sebagai informasi.</p></div>
+          <div class="summary-card"><span class="tag">03 · CPU</span><h4>ALU, CU, dan Register</h4><p>Tiga bagian dalam CPU yang menghitung, mengatur, dan menyimpan data sementara.</p></div>
+          <div class="summary-card"><span class="tag">04 · STORAGE</span><h4>Memori Utama vs Sekunder</h4><p>RAM/ROM untuk kerja cepat, harddisk/SSD/flashdisk untuk simpan permanen.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. CLOSING -->
+    <section class="slide slide-closing" data-index="12">
+      <div class="closing-ring">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <h1 class="closing-title">Materi Bab 4 Selesai!</h1>
+      <p class="closing-sub">Kamu sudah memahami pengertian sistem komputer, cara kerja Input–Proses–Output–Storage, contoh perangkatnya, dan sudah berlatih dengan kuis. Mantap!</p>
+      <div class="closing-stats">
+        <div><b id="finalScoreStat">-</b>Skor Kuis</div>
+        <div><b>4</b>Konsep Inti</div>
+        <div><b>13</b>Slide Ditempuh</div>
+      </div>
+      <div class="cover-cta">
+        <button class="btn ghost" onclick="goTo(10)">↺ Ulangi Kuis</button>
+        <a class="btn" id="finishBtn" href="infob-bab4.html">Selesai — Kembali ke Bab 4 ✓</a>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="nav-arrow" id="prevBtn" onclick="prevSlide()" aria-label="Sebelumnya">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="dots" id="dotsWrap"></div>
+    <button class="nav-arrow" id="nextBtn" onclick="nextSlide()" aria-label="Berikutnya">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+/* ============ SLIDE NAV ============ */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+
+const dotsWrap = document.getElementById('dotsWrap');
+slides.forEach((s,i)=>{
+  const d = document.createElement('button');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.setAttribute('aria-label', 'Slide ' + (i+1));
+  d.onclick = ()=>goTo(i);
+  dotsWrap.appendChild(d);
+});
+const dotEls = Array.from(dotsWrap.children);
+
+function render(){
+  slides.forEach((s,i)=>{
+    s.classList.remove('active','prev');
+    if(i===current) s.classList.add('active');
+    else if(i<current) s.classList.add('prev');
+  });
+  dotEls.forEach((d,i)=>d.classList.toggle('active', i===current));
+  document.getElementById('progressFill').style.width = ((current)/(total-1)*100)+'%';
+  document.getElementById('counterNow').textContent = String(current+1).padStart(2,'0');
+  document.getElementById('counterTotal').textContent = String(total).padStart(2,'0');
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  slides[current].scrollTop = 0;
+}
+function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* swipe support */
+let touchX=null;
+document.getElementById('viewport').addEventListener('touchstart', e=>{touchX=e.touches[0].clientX;}, {passive:true});
+document.getElementById('viewport').addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 60){ dx<0 ? nextSlide() : prevSlide(); }
+  touchX=null;
+}, {passive:true});
+
+/* ============ CIRCUIT BACKDROP ============ */
+(function(){
+  const wrap = document.getElementById('circuitBg');
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 1200 800');
+  svg.setAttribute('preserveAspectRatio','xMidYMid slice');
+  const paths = [
+    "M0,120 L260,120 L260,220 L520,220",
+    "M1200,650 L900,650 L900,540 L640,540",
+    "M0,700 L180,700 L180,600 L400,600 L400,760",
+    "M1200,80 L980,80 L980,180 L760,180",
+    "M600,0 L600,90 L740,90"
+  ];
+  paths.forEach(d=>{
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d', d);
+    svg.appendChild(p);
+    const pts = d.match(/[\d.]+,[\d.]+/g)||[];
+    pts.forEach((pt,idx)=>{
+      if(idx%2===0){
+        const [x,y] = pt.split(',');
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r','3');
+        c.setAttribute('class','node-dot');
+        svg.appendChild(c);
+      }
+    });
+  });
+  wrap.appendChild(svg);
+})();
+
+/* ============ TRIO CARDS (Hardware/Software/Brainware) ============ */
+function toggleTrio(el){
+  const wasOpen = el.classList.contains('open');
+  document.querySelectorAll('#trioGroup .trio-card').forEach(c=>c.classList.remove('open'));
+  if(!wasOpen) el.classList.add('open');
+}
+
+/* ============ IPO DIAGRAM ============ */
+const ipoData = {
+  input: {
+    name: 'INPUT — Tahap Memasukkan Data',
+    desc: 'Data dari luar (ketikan, suara, gambar) dimasukkan ke komputer melalui perangkat input agar bisa diolah.',
+    examples: 'Contoh: keyboard, mouse, scanner, microphone, webcam'
+  },
+  proses: {
+    name: 'PROSES — Tahap Mengolah Data',
+    desc: 'Data yang masuk diolah oleh CPU (dibantu RAM) menggunakan instruksi dari software, sesuai perintah pengguna.',
+    examples: 'Perangkat utama: CPU, RAM, Motherboard'
+  },
+  output: {
+    name: 'OUTPUT — Tahap Menampilkan Hasil',
+    desc: 'Hasil pengolahan data ditampilkan atau dikeluarkan agar bisa dilihat, didengar, atau digunakan manusia.',
+    examples: 'Contoh: monitor, printer, speaker, proyektor'
+  },
+  storage: {
+    name: 'STORAGE — Tahap Menyimpan Data',
+    desc: 'Data dan hasil olahan dapat disimpan agar bisa dibuka atau digunakan lagi di kemudian hari.',
+    examples: 'Contoh: harddisk, SSD, flashdisk, kartu memori'
+  }
+};
+function setIpo(key){
+  document.querySelectorAll('#ipoSvg .ipo-node').forEach(n=>n.classList.toggle('active', n.dataset.node===key));
+  const d = ipoData[key];
+  document.getElementById('ipoInfo').innerHTML =
+    '<div class="name">'+d.name+'</div><p>'+d.desc+'</p><div class="examples">'+d.examples+'</div>';
+}
+setIpo('input');
+
+/* ============ INTERAKSI HARDWARE / SOFTWARE / BRAINWARE ============ */
+const interaksiData = {
+  bs: {
+    name: 'Brainware → Software: Memberi Perintah',
+    desc: 'Pengguna (brainware) memberi perintah lewat aplikasi, misalnya mengetik teks atau mengklik tombol. Software menerima perintah itu dan menerjemahkannya menjadi instruksi yang bisa dipahami mesin, lalu menampilkan hasilnya kembali ke pengguna.'
+  },
+  sh: {
+    name: 'Software → Hardware: Menjalankan Instruksi',
+    desc: 'Software mengubah perintah pengguna menjadi kode-kode instruksi. Instruksi ini dikirim ke hardware (seperti CPU) agar benar-benar dijalankan secara fisik oleh mesin.'
+  },
+  bh: {
+    name: 'Brainware → Hardware: Kontrol Langsung',
+    desc: 'Pengguna juga bisa berinteraksi langsung dengan hardware tanpa lewat software, misalnya menekan tombol power, mencolokkan flashdisk, atau memutar volume fisik pada speaker.'
+  }
+};
+function setInteraksi(key){
+  document.querySelectorAll('#interaksiSvg .ipo-node[data-node]').forEach(n=>{
+    if(['bs','sh','bh'].indexOf(n.dataset.node) !== -1){
+      n.classList.toggle('active', n.dataset.node===key);
+    }
+  });
+  const d = interaksiData[key];
+  document.getElementById('interaksiInfo').innerHTML = '<div class="name">'+d.name+'</div><p>'+d.desc+'</p>';
+}
+setInteraksi('bs');
+
+/* ============ DEVICE ICONS (shared simple line icons) ============ */
+const ICONS = {
+  keyboard: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h8M17 14h.01"/>',
+  mouse: '<rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v6"/>',
+  scanner: '<rect x="3" y="6" width="18" height="12" rx="1.5"/><path d="M3 11h18M7 15h.01"/>',
+  mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v4M8 22h8"/>',
+  webcam: '<circle cx="12" cy="10" r="5"/><circle cx="12" cy="10" r="1.6"/><path d="M7 20h10M9 20l-1 -3M15 20l1 -3"/>',
+  joystick: '<circle cx="12" cy="6" r="3"/><path d="M12 9v7"/><rect x="6" y="16" width="12" height="5" rx="1.5"/>',
+  cpu: '<rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/>',
+  ram: '<rect x="3" y="8" width="18" height="9" rx="1.5"/><path d="M6 8V5M9 8V5M12 8V5M15 8V5M18 8V5"/>',
+  motherboard: '<rect x="3" y="3" width="18" height="18" rx="1.5"/><rect x="6" y="6" width="6" height="6"/><path d="M15 6h3M15 9h3M6 15h4M15 13h3M15 17h3"/>',
+  monitor: '<rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M9 20h6M12 16v4"/>',
+  printer: '<rect x="5" y="9" width="14" height="7" rx="1.5"/><path d="M7 9V4h10v5M7 16v4h10v-4"/>',
+  speaker: '<rect x="6" y="3" width="12" height="18" rx="2"/><circle cx="12" cy="8" r="2"/><circle cx="12" cy="15" r="3"/>',
+  projector: '<rect x="3" y="7" width="14" height="9" rx="1.5"/><circle cx="10" cy="11.5" r="2.5"/><path d="M17 11h4l-2 6"/>',
+  ramchip: '<rect x="4" y="9" width="16" height="8" rx="1.5"/><path d="M7 9V6M10 9V6M13 9V6M16 9V6"/>',
+  rom: '<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h8M8 13h8M8 17h4"/>',
+  harddisk: '<rect x="3" y="6" width="18" height="12" rx="1.5"/><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r=".6"/>',
+  ssd: '<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M8 9h2M8 13h2M13 9h3M13 13h3"/>',
+  flashdisk: '<rect x="8" y="9" width="8" height="12" rx="1.5"/><path d="M10 9V4h4v5M10 13h4"/>'
+};
+function iconSvg(name){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+ICONS[name]+'</svg>';
+}
+function makeFlipCard(theme, icon, tag, name, desc){
+  return '<div class="flip-card '+theme+'" onclick="this.classList.toggle(&quot;flipped&quot;)">'+
+    '<div class="flip-inner">'+
+      '<div class="flip-face flip-front">'+
+        '<div class="icon-wrap">'+iconSvg(icon)+'</div>'+
+        '<div><div class="tag">'+tag+'</div><div class="name">'+name+'</div></div>'+
+        '<span class="tap-hint">KLIK ↻</span>'+
+      '</div>'+
+      '<div class="flip-face flip-back">'+
+        '<div class="name">'+name+'</div><p>'+desc+'</p>'+
+      '</div>'+
+    '</div></div>';
+}
+
+document.getElementById('inputGrid').innerHTML = [
+  makeFlipCard('t-input','keyboard','INPUT · TEKS','Keyboard','Memasukkan huruf, angka, dan simbol dengan cara diketik.'),
+  makeFlipCard('t-input','mouse','INPUT · PENUNJUK','Mouse','Menggerakkan kursor dan memilih objek di layar.'),
+  makeFlipCard('t-input','scanner','INPUT · GAMBAR','Scanner','Mengubah dokumen atau foto fisik menjadi file digital.'),
+  makeFlipCard('t-input','mic','INPUT · SUARA','Microphone','Merekam suara untuk diubah menjadi data digital.'),
+  makeFlipCard('t-input','webcam','INPUT · VIDEO','Webcam','Menangkap gambar bergerak untuk video call atau rekaman.'),
+  makeFlipCard('t-input','joystick','INPUT · KONTROL','Joystick','Mengontrol karakter atau objek, biasa dipakai saat bermain gim.'),
+  makeFlipCard('t-input','scanner','INPUT · CETAK','Barcode Scanner','Membaca kode batang untuk mengambil data produk dengan cepat.'),
+  makeFlipCard('t-input','mic','INPUT · SENTUH','Touchscreen','Memasukkan perintah lewat sentuhan jari langsung di layar.')
+].join('');
+
+document.getElementById('prosesGrid').innerHTML = [
+  makeFlipCard('t-proses','ram','PROSES · MEMORI KERJA','RAM','Menyimpan data sementara yang sedang diproses agar CPU bekerja cepat.'),
+  makeFlipCard('t-proses','motherboard','PROSES · PENGHUBUNG','Motherboard','Papan sirkuit utama yang menghubungkan semua komponen komputer.')
+].join('');
+
+document.getElementById('outputGrid').innerHTML = [
+  makeFlipCard('t-output','monitor','OUTPUT · VISUAL','Monitor','Menampilkan teks, gambar, dan video hasil olahan komputer.'),
+  makeFlipCard('t-output','printer','OUTPUT · CETAK','Printer','Mencetak dokumen atau gambar digital ke atas kertas.'),
+  makeFlipCard('t-output','speaker','OUTPUT · SUARA','Speaker','Mengeluarkan suara dari data audio yang diproses komputer.'),
+  makeFlipCard('t-output','projector','OUTPUT · PROYEKSI','Proyektor','Menampilkan layar komputer dalam ukuran besar ke dinding/layar.')
+].join('');
+
+document.getElementById('storagePrimaryGrid').innerHTML = [
+  makeFlipCard('t-storage','ramchip','MEMORI UTAMA','RAM','Bersifat sementara (volatile) — data hilang saat komputer dimatikan.'),
+  makeFlipCard('t-storage','rom','MEMORI UTAMA','ROM','Bersifat tetap (non-volatile) — menyimpan instruksi dasar sejak pabrik.')
+].join('');
+document.getElementById('storageSecondaryGrid').innerHTML = [
+  makeFlipCard('t-storage','harddisk','MEMORI SEKUNDER','Harddisk','Menyimpan data dalam kapasitas besar secara permanen, memakai piringan magnetik.'),
+  makeFlipCard('t-storage','ssd','MEMORI SEKUNDER','SSD','Penyimpanan permanen tanpa komponen bergerak — lebih cepat dari harddisk.'),
+  makeFlipCard('t-storage','flashdisk','MEMORI SEKUNDER','Flashdisk','Media penyimpanan kecil dan portabel yang dicolok lewat port USB.')
+].join('');
+
+/* ============ CPU DIAGRAM ============ */
+const cpuParts = [
+  {abbr:'ALU', name:'Arithmetic Logic Unit', desc:'Melakukan perhitungan matematika (tambah, kurang, dll) dan operasi logika (bandingkan, ya/tidak).'},
+  {abbr:'CU', name:'Control Unit', desc:'Mengatur dan mengarahkan seluruh kerja komponen komputer agar berjalan sesuai instruksi.'},
+  {abbr:'REGISTER', name:'Register', desc:'Tempat penyimpanan data sementara berkapasitas kecil, tapi paling cepat diakses CPU.'}
+];
+document.getElementById('cpuDiagram').innerHTML = cpuParts.map((p,i)=>
+  '<div class="cpu-part'+(i===0?' active':'')+'" onclick="setCpuPart(this)">'+
+    '<div class="abbr">'+p.abbr+'</div><h4>'+p.name+'</h4><p>'+p.desc+'</p>'+
+  '</div>'
+).join('');
+function setCpuPart(el){
+  document.querySelectorAll('.cpu-part').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ============ CASE STUDY ============ */
+const caseData = [
+  {tag:'input', badge:'INPUT', text:'Rangga menekan huruf di <b>keyboard</b> untuk mengetik tugasnya.'},
+  {tag:'proses', badge:'PROSES', text:'<b>CPU</b> mengolah setiap tombol yang ditekan menjadi karakter teks, dibantu <b>RAM</b> menyimpan sementara.'},
+  {tag:'output', badge:'OUTPUT', text:'Teks yang diketik langsung muncul di <b>monitor</b> laptop.'},
+  {tag:'proses', badge:'STORAGE', text:'Rangga menyimpan file tugasnya ke <b>harddisk</b> agar tidak hilang.'},
+  {tag:'output', badge:'OUTPUT', text:'Rangga menekan tombol cetak, lalu <b>printer</b> mencetak tugasnya di atas kertas.'}
+];
+const caseStepsEl = document.getElementById('caseSteps');
+let caseRevealed = 0;
+function renderCase(){
+  caseStepsEl.innerHTML = caseData.map((c,i)=>
+    '<div class="case-step tag-'+c.tag+(i<caseRevealed?' revealed':'')+'">'+
+      '<span class="badge">'+c.badge+'</span><p>'+c.text+'</p>'+
+    '</div>'
+  ).join('');
+  document.getElementById('caseProgress').textContent = 'Langkah '+caseRevealed+' / '+caseData.length;
+  document.getElementById('caseNextBtn').disabled = caseRevealed>=caseData.length;
+  document.getElementById('caseNextBtn').textContent = caseRevealed>=caseData.length ? 'Selesai ✓' : 'Langkah Berikutnya →';
+}
+function revealNextStep(){ if(caseRevealed<caseData.length){ caseRevealed++; renderCase(); } }
+function resetCase(){ caseRevealed=0; renderCase(); }
+renderCase();
+
+/* ============ QUIZ ============ */
+const quizData = [
+  {q:'Sistem komputer terdiri atas tiga komponen utama, yaitu...', opts:['Input, Proses, Output','Hardware, Software, Brainware','CPU, RAM, Harddisk','Monitor, Keyboard, Mouse'], correct:1, expl:'Sistem komputer = perangkat keras (hardware) + perangkat lunak (software) + manusia pengguna (brainware).'},
+  {q:'Manakah yang termasuk perangkat lunak (software)?', opts:['Keyboard','Mouse','Sistem operasi Windows','Printer'], correct:2, expl:'Sistem operasi adalah program/instruksi, bukan benda fisik — jadi termasuk software.'},
+  {q:'Proses memasukkan data ke dalam komputer disebut tahap...', opts:['Output','Storage','Proses','Input'], correct:3, expl:'Input adalah tahap awal, tempat data dari luar dimasukkan ke komputer.'},
+  {q:'Berikut ini yang BUKAN perangkat output adalah...', opts:['Monitor','Speaker','Printer','Mouse'], correct:3, expl:'Mouse adalah perangkat input (penunjuk), bukan perangkat yang menampilkan hasil.'},
+  {q:'Bagian CPU yang bertugas melakukan perhitungan matematika dan logika disebut...', opts:['Control Unit','Register','ALU (Arithmetic Logic Unit)','RAM'], correct:2, expl:'ALU khusus menangani operasi hitung dan logika di dalam CPU.'},
+  {q:'Media penyimpanan mana yang bersifat non-volatile (data tidak hilang saat listrik mati)?', opts:['RAM','Register','Harddisk','Cache'], correct:2, expl:'Harddisk termasuk memori sekunder yang menyimpan data secara permanen, tidak seperti RAM.'},
+  {q:'Saat kamu mengetik di keyboard dan hasilnya langsung muncul di layar, tahap "muncul di layar" disebut...', opts:['Input','Output','Storage','Brainware'], correct:1, expl:'Menampilkan hasil ke layar adalah tugas tahap Output.'},
+  {q:'Manusia yang mengoperasikan dan mengendalikan jalannya komputer disebut komponen...', opts:['Hardware','Software','Brainware','Firmware'], correct:2, expl:'Brainware adalah istilah untuk manusia sebagai pengguna/pengendali sistem komputer.'},
+  {q:'Manakah pernyataan yang tepat tentang hubungan hardware dan software?', opts:['Software tidak membutuhkan hardware untuk berjalan','Hardware memberi instruksi kepada software','Software berisi instruksi yang dijalankan secara fisik oleh hardware','Hardware dan software tidak saling berhubungan'], correct:2, expl:'Software adalah kumpulan instruksi/program; instruksi itu kemudian dijalankan secara fisik oleh hardware.'},
+  {q:'Contoh interaksi brainware dengan hardware secara langsung (tanpa melalui software) adalah...', opts:['Membuka aplikasi kamera','Menekan tombol power komputer','Menyimpan file ke folder','Mengetik dokumen di aplikasi'], correct:1, expl:'Menekan tombol power adalah interaksi fisik langsung antara pengguna dan hardware, tanpa perlu melalui software.'}
+];
+let qIndex = 0, qScore = 0, qAnswered = false;
+
+function renderQuiz(){
+  const container = document.getElementById('quizContainer');
+  document.getElementById('quizTrackFill').style.width = (qIndex/quizData.length*100)+'%';
+
+  if(qIndex >= quizData.length){
+    document.getElementById('quizProgressText').textContent = 'Selesai';
+    document.getElementById('quizTrackFill').style.width = '100%';
+    const pct = Math.round(qScore/quizData.length*100);
+    let msg = 'Terus berlatih ya, kamu pasti bisa lebih baik!';
+    if(pct>=90) msg = 'Luar biasa! Kamu benar-benar menguasai materi Sistem Komputer.';
+    else if(pct>=70) msg = 'Bagus sekali! Pemahamanmu tentang Sistem Komputer sudah kuat.';
+    else if(pct>=50) msg = 'Cukup baik! Coba baca ulang materi yang masih kurang yakin.';
+    container.innerHTML =
+      '<div class="quiz-result">'+
+        '<div class="big-score">'+qScore+'/'+quizData.length+'</div>'+
+        '<div class="of">'+pct+'% BENAR</div>'+
+        '<p class="msg">'+msg+'</p>'+
+        '<button class="btn" onclick="restartQuiz()">↺ Coba Lagi</button>'+
+        ' <button class="btn ghost" onclick="goTo(11)" style="margin-left:10px;">Lanjut ke Ringkasan →</button>'+
+      '</div>';
+    document.getElementById('finalScoreStat').textContent = qScore+'/'+quizData.length;
+    return;
+  }
+
+  document.getElementById('quizProgressText').textContent = 'Soal '+(qIndex+1)+' / '+quizData.length;
+  const item = quizData[qIndex];
+  qAnswered = false;
+  container.innerHTML =
+    '<div class="quiz-question-card">'+
+      '<div class="quiz-q-label">SOAL '+(qIndex+1)+'</div>'+
+      '<div class="quiz-q-text">'+item.q+'</div>'+
+      '<div class="quiz-options">'+
+        item.opts.map((o,i)=>'<button class="quiz-opt" data-i="'+i+'" onclick="answerQuiz('+i+')"><span class="letter">'+String.fromCharCode(65+i)+'</span>'+o+'</button>').join('')+
+      '</div>'+
+      '<div class="quiz-feedback" id="quizFeedback"></div>'+
+      '<div class="quiz-footer"><button class="btn amber" id="quizNextBtn" onclick="nextQuiz()" disabled>Soal Berikutnya →</button></div>'+
+    '</div>';
+  updateScoreText();
+}
+function updateScoreText(){ document.getElementById('quizScoreText').textContent = 'Skor: '+qScore; }
+function answerQuiz(i){
+  if(qAnswered) return;
+  qAnswered = true;
+  const item = quizData[qIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,idx)=>{
+    o.disabled = true;
+    if(idx===item.correct) o.classList.add('correct');
+    else if(idx===i) o.classList.add('wrong');
+  });
+  const correct = i===item.correct;
+  if(correct) qScore++;
+  updateScoreText();
+  const fb = document.getElementById('quizFeedback');
+  fb.classList.add('show');
+  fb.innerHTML = '<b>'+(correct ? 'Benar! ' : 'Belum tepat. ')+'</b>'+item.expl;
+  document.getElementById('quizNextBtn').disabled = false;
+}
+function nextQuiz(){ qIndex++; renderQuiz(); }
+function restartQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>
