@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluasi Bab 1 — Data Terstruktur</title>
+<style>
+  :root{
+    --ink:#1F2937;
+    --sub:#6B7280;
+    --bg:#FFFFFF;
+    --line:#E5E7EB;
+    --c0:#2563EB; /* Konsep Data Terstruktur */
+    --c1:#7C3AED; /* Jenis dan Sumber Data */
+    --c2:#059669; /* Pengolahan Data Terstruktur */
+    --c3:#D97706; /* Analisis dan Visualisasi Data */
+    --c4:#DC2626; /* Penerapan Data Terstruktur */
+    --dark:#0F172A;
+    --darkcard:#1E293B;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: "Segoe UI", Calibri, Roboto, Arial, sans-serif;
+    color:var(--ink);
+    background:#F1F5F9;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+    padding:24px 16px 90px;
+  }
+  .stage{
+    width:100%;
+    max-width:980px;
+    aspect-ratio:16/9;
+    background:var(--bg);
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(15,23,42,0.12);
+    position:relative;
+    overflow:hidden;
+  }
+  .page{
+    position:absolute; inset:0;
+    display:none;
+    padding:48px 56px 40px;
+    flex-direction:column;
+  }
+  .page.active{display:flex;}
+
+  /* ---------- Cover ---------- */
+  #page-cover{ background:var(--dark); color:#fff; justify-content:center; }
+  #page-cover .deco1{ position:absolute; top:-90px; right:-40px; width:280px; height:280px; border-radius:50%; background:var(--darkcard); }
+  #page-cover .deco2{ position:absolute; bottom:-80px; right:120px; width:180px; height:180px; border-radius:50%; background:var(--darkcard); }
+  .kicker{ letter-spacing:3px; color:#60A5FA; font-weight:700; font-size:14px; z-index:1; }
+  .cover-title{ font-size:44px; font-weight:800; margin:10px 0 6px; z-index:1; }
+  .cover-sub{ color:#CBD5E1; font-size:14px; margin-bottom:26px; z-index:1; }
+  .topic-list{ display:flex; flex-direction:column; gap:10px; z-index:1; }
+  .topic-item{ display:flex; align-items:center; gap:10px; font-size:14px; color:#E2E8F0; }
+  .dot{ width:11px; height:11px; border-radius:50%; flex:none; }
+
+  /* ---------- Question pages ---------- */
+  .tag{ display:flex; align-items:center; gap:8px; font-weight:700; font-size:13px; }
+  .tag .dot{ width:12px; height:12px; }
+  .qnum{ font-size:56px; font-weight:800; color:#E5E7EB; margin:14px 0 0; line-height:1; }
+  .qlabel{ font-size:11px; color:var(--sub); font-style:italic; margin-bottom:14px; }
+  .qtext{ font-size:22px; font-weight:700; line-height:1.3; margin-bottom:22px; }
+  .options{ display:flex; flex-direction:column; gap:16px; }
+  .opt{ display:flex; gap:14px; align-items:flex-start; font-size:15px; }
+  .opt .letter{ font-weight:700; font-size:16px; width:20px; flex:none; }
+
+  /* ---------- Essay page ---------- */
+  .essay-title{ font-size:26px; font-weight:800; margin-bottom:4px; }
+  .essay-hint{ font-size:12px; color:var(--sub); font-style:italic; margin-bottom:18px; }
+  .essay-list{ display:flex; flex-direction:column; gap:14px; overflow:auto; }
+  .essay-item{ display:flex; gap:14px; align-items:flex-start; }
+  .ebadge{ width:28px; height:28px; border-radius:50%; color:#fff; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; flex:none; }
+  .etext{ font-size:13.5px; line-height:1.45; padding-top:3px; }
+
+  /* ---------- Grading page ---------- */
+  .grade-title{ font-size:26px; font-weight:800; margin-bottom:2px; }
+  .grade-sub{ font-size:13px; color:var(--sub); font-style:italic; margin-bottom:16px; }
+  .grade-cols{ display:flex; gap:40px; }
+  .gcol{ flex:1; }
+  .gcol h3{ font-size:15px; margin:0 0 8px; display:flex; align-items:center; gap:8px; }
+  .gcol ul{ margin:0; padding-left:18px; font-size:12.5px; line-height:1.9; }
+  .rubric-title{ font-size:13px; font-weight:700; margin:14px 0 6px; }
+  .rubric-row{ display:flex; gap:14px; font-size:12px; padding:3px 0; }
+  .rubric-score{ width:50px; flex:none; font-weight:700; color:var(--c3); }
+  .final{ text-align:center; font-weight:800; color:var(--c2); font-size:15px; margin-top:14px; }
+
+  /* ---------- Footer / nav ---------- */
+  .foot{ position:absolute; left:56px; right:56px; bottom:16px; display:flex; justify-content:space-between; font-size:11px; color:var(--sub); }
+  #page-cover .foot, .grade-page .foot{ display:none; }
+
+  .navbar{
+    width:100%; max-width:980px; margin-top:18px;
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+  }
+  .navbtn{
+    background:#0F172A; color:#fff; border:none; border-radius:8px;
+    padding:10px 18px; font-size:14px; cursor:pointer; font-weight:600;
+  }
+  .navbtn:disabled{ opacity:.35; cursor:default; }
+  .progress{ flex:1; height:6px; background:#CBD5E1; border-radius:4px; overflow:hidden; }
+  .progress-fill{ height:100%; background:#2563EB; width:0%; transition:width .25s; }
+  .pageindicator{ font-size:13px; color:#475569; min-width:110px; text-align:center; }
+
+  .keybar{ width:100%; max-width:980px; margin-top:14px; display:flex; justify-content:center; }
+  .keylink{ background:none; border:1px solid #CBD5E1; color:#475569; font-size:12px; padding:7px 14px; border-radius:20px; cursor:pointer; }
+  .keylink:hover{ background:#E2E8F0; }
+
+  /* ---------- Answer key overlay ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(15,23,42,0.55);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;
+  }
+  .overlay.show{ display:flex; }
+  .keycard{
+    background:#F8FAFC; border-radius:14px; max-width:980px; width:100%;
+    max-height:88vh; overflow:auto; padding:34px 42px; position:relative;
+  }
+  .keycard h2{ margin:0 0 4px; font-size:24px; }
+  .keycard .note{ font-size:12px; color:var(--sub); font-style:italic; margin-bottom:18px; }
+  .closebtn{ position:absolute; top:20px; right:24px; background:#0F172A; color:#fff; border:none; border-radius:8px; padding:8px 14px; cursor:pointer; font-size:13px; }
+  .section-h{ font-size:14px; font-weight:700; margin:18px 0 8px; }
+  .pg-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px 8px; }
+  .pg-cell{ font-size:13px; display:flex; gap:6px; align-items:baseline; }
+  .pg-cell b{ font-size:14px; }
+  .essaykey{ font-size:12px; line-height:1.5; margin:6px 0; }
+
+  @media (max-width:720px){
+    .stage{ aspect-ratio:auto; min-height:560px; }
+    .page{ padding:30px 22px 30px; }
+    .qtext{ font-size:17px; }
+    .qnum{ font-size:40px; }
+    .cover-title{ font-size:30px; }
+    .grade-cols{ flex-direction:column; gap:18px; }
+    .pg-grid{ grid-template-columns:repeat(3,1fr); }
+    .foot{ left:22px; right:22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- Cover -->
+  <div class="page active" id="page-cover">
+    <div class="deco1"></div>
+    <div class="deco2"></div>
+    <div class="kicker">EVALUASI • BAB 1</div>
+    <div class="cover-title">Data Terstruktur</div>
+    <div class="cover-sub">15 Soal Pilihan Ganda &nbsp;•&nbsp; 5 Soal Esai &nbsp;•&nbsp; Kunci Jawaban &nbsp;•&nbsp; Pedoman Penilaian</div>
+    <div class="topic-list" id="topic-list"></div>
+  </div>
+
+  <!-- Question pages injected by JS -->
+  <div id="question-pages"></div>
+
+  <!-- Essay page -->
+  <div class="page" id="page-essay">
+    <div class="essay-title">Soal Esai</div>
+    <div class="essay-hint">Jawablah pertanyaan berikut dengan uraian yang jelas dan lengkap.</div>
+    <div class="essay-list" id="essay-list"></div>
+    <div class="foot"><span>Evaluasi Bab 1 • Data Terstruktur</span><span>Bagian Esai</span></div>
+  </div>
+
+  <!-- Grading page -->
+  <div class="page grade-page" id="page-grading">
+    <div class="grade-title">Pedoman Penilaian</div>
+    <div class="grade-sub">Skor maksimal keseluruhan: 100</div>
+    <div class="grade-cols">
+      <div class="gcol">
+        <h3><span class="dot" style="background:var(--c0)"></span>Pilihan Ganda (PG)</h3>
+        <ul>
+          <li>Jumlah soal: 15 soal</li>
+          <li>Skor per soal benar: 4 poin</li>
+          <li>Skor jawaban salah: 0 poin</li>
+          <li><b>Total skor PG: 15 × 4 = 60 poin</b></li>
+        </ul>
+      </div>
+      <div class="gcol">
+        <h3><span class="dot" style="background:var(--c4)"></span>Esai</h3>
+        <ul>
+          <li>Jumlah soal: 5 soal</li>
+          <li>Skor maksimal per soal: 8 poin</li>
+          <li>Dinilai dari ketepatan, kelengkapan &amp; kejelasan uraian</li>
+          <li><b>Total skor esai: 5 × 8 = 40 poin</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="rubric-title">Rubrik Skor Esai (per soal, maks. 8 poin)</div>
+    <div class="rubric-row"><span class="rubric-score">7 – 8</span><span>Jawaban lengkap, tepat, dan disertai contoh yang relevan</span></div>
+    <div class="rubric-row"><span class="rubric-score">4 – 6</span><span>Jawaban benar namun kurang lengkap atau contoh kurang tepat</span></div>
+    <div class="rubric-row"><span class="rubric-score">1 – 3</span><span>Jawaban sebagian benar, konsep dasar belum dipahami penuh</span></div>
+    <div class="rubric-row"><span class="rubric-score">0</span><span>Tidak menjawab atau jawaban tidak relevan</span></div>
+    <div class="final">Nilai Akhir &nbsp;=&nbsp; Skor PG (maks. 60) &nbsp;+&nbsp; Skor Esai (maks. 40) &nbsp;=&nbsp; 100</div>
+  </div>
+
+</div>
+
+<div class="navbar">
+  <button class="navbtn" id="btnPrev">← Sebelumnya</button>
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="pageindicator" id="pageIndicator"></div>
+  <button class="navbtn" id="btnNext">Berikutnya →</button>
+</div>
+
+<div class="keybar">
+  <button class="keylink" id="btnKey">🔒 Kunci Jawaban (Khusus Guru)</button>
+</div>
+
+<!-- Answer key overlay (hidden by default) -->
+<div class="overlay" id="overlay">
+  <div class="keycard">
+    <button class="closebtn" id="btnCloseKey">Tutup</button>
+    <h2>Kunci Jawaban</h2>
+    <div class="note">Bagian ini disembunyikan dari alur soal — khusus untuk pengajar.</div>
+    <div class="section-h" style="color:var(--c0)">Pilihan Ganda</div>
+    <div class="pg-grid" id="pg-key-grid"></div>
+    <div class="section-h" style="color:var(--c4)">Esai (poin kunci jawaban)</div>
+    <div id="essay-key-list"></div>
+  </div>
+</div>
+
+<script>
+const TOPICS = [
+  { name: "Konsep Data Terstruktur", color: "var(--c0)" },
+  { name: "Jenis dan Sumber Data", color: "var(--c1)" },
+  { name: "Pengolahan Data Terstruktur", color: "var(--c2)" },
+  { name: "Analisis dan Visualisasi Data", color: "var(--c3)" },
+  { name: "Penerapan Data Terstruktur", color: "var(--c4)" },
+];
+
+const pg = [
+  { t:0, q:"Data terstruktur adalah data yang disimpan dan diorganisasikan dalam bentuk...",
+    o:["Gambar acak tanpa pola","Tabel dengan baris dan kolom yang sistematis","Kumpulan teks bebas tanpa format","Rekaman suara"], a:1 },
+  { t:0, q:"Kumpulan data yang tersusun secara mendatar (horizontal) dalam sebuah tabel disebut...",
+    o:["Kolom","Sel","Baris","Atribut"], a:2 },
+  { t:0, q:"Dalam tabel data siswa, “Nama”, “Kelas”, dan “Nilai” merupakan contoh dari...",
+    o:["Baris","Kolom (atribut)","Record tunggal","Sel kosong"], a:1 },
+
+  { t:1, q:"Data yang berbentuk angka dan dapat dihitung secara matematis disebut data...",
+    o:["Kualitatif","Kuantitatif","Deskriptif","Naratif"], a:1 },
+  { t:1, q:"Data yang diperoleh langsung oleh pengumpul data dari sumber aslinya disebut data...",
+    o:["Sekunder","Primer","Tersier","Publik"], a:1 },
+  { t:1, q:"Berikut ini yang merupakan contoh data tidak terstruktur adalah...",
+    o:["Tabel nilai siswa di aplikasi pengolah angka","Daftar hadir dalam bentuk tabel","Postingan foto dan video di media sosial","Data absensi karyawan dalam database"], a:2 },
+
+  { t:2, q:"Kegiatan menyusun data dari nilai terkecil ke terbesar atau sebaliknya disebut...",
+    o:["Filtering","Sorting","Editing","Importing"], a:1 },
+  { t:2, q:"Untuk menampilkan hanya data yang memenuhi kriteria tertentu dari sebuah tabel, digunakan fitur...",
+    o:["Sorting","Filtering","Formatting","Merging"], a:1 },
+  { t:2, q:"Proses memperbaiki atau memperbarui data yang salah atau sudah tidak relevan disebut...",
+    o:["Menghapus data","Mengubah (edit) data","Menambah data","Menyaring data"], a:1 },
+
+  { t:3, q:"Fungsi yang digunakan untuk menjumlahkan seluruh data pada suatu kolom di aplikasi pengolah angka adalah...",
+    o:["AVERAGE","COUNT","SUM","MAX"], a:2 },
+  { t:3, q:"Jenis diagram yang paling tepat digunakan untuk membandingkan jumlah antar beberapa kategori adalah...",
+    o:["Diagram garis","Diagram batang","Diagram lingkaran","Diagram pencar"], a:1 },
+  { t:3, q:"Untuk mencari nilai rata-rata dari sekumpulan data pada aplikasi pengolah angka, digunakan fungsi...",
+    o:["SUM","AVERAGE","MIN","COUNT"], a:1 },
+
+  { t:4, q:"Sekolah dapat memanfaatkan data terstruktur nilai siswa untuk...",
+    o:["Membuat status di media sosial","Memantau perkembangan prestasi siswa","Mengganti kurikulum secara acak","Menghias ruang kelas"], a:1 },
+  { t:4, q:"Contoh penerapan data terstruktur dalam kehidupan sehari-hari adalah...",
+    o:["Menonton video di internet","Mencatat jadwal pelajaran dalam bentuk tabel","Mendengarkan musik","Bermain gim daring"], a:1 },
+  { t:4, q:"Kesimpulan yang diambil dari sebuah data sebaiknya didasarkan pada...",
+    o:["Perkiraan semata","Fakta dan hasil analisis data","Pendapat pribadi tanpa bukti","Data yang belum diperiksa kebenarannya"], a:1 },
+];
+
+const essay = [
+  "Jelaskan pengertian data terstruktur dan sebutkan tiga contoh datanya dalam kehidupan sehari-hari!",
+  "Jelaskan perbedaan antara data terstruktur dan data tidak terstruktur, serta berikan masing-masing satu contoh!",
+  "Jelaskan langkah-langkah mengolah data dalam tabel, mulai dari memasukkan hingga menyaring data!",
+  "Bagaimana cara menyajikan data dalam bentuk grafik agar mudah dipahami? Jelaskan disertai contoh sederhana!",
+  "Berikan contoh penerapan data terstruktur untuk menyelesaikan masalah di lingkungan sekolahmu, dan jelaskan kesimpulan yang bisa diambil dari data tersebut!",
+];
+
+const essayKeyPoints = [
+  "Data terstruktur = data yang tersimpan rapi dalam format tabel (baris & kolom) sehingga mudah diolah. Contoh: data nilai siswa, jadwal pelajaran, data absensi.",
+  "Data terstruktur tersimpan dalam tabel dengan format baku (mis. data siswa di spreadsheet); data tidak terstruktur tidak memiliki format tetap (mis. foto, video, teks bebas di media sosial).",
+  "Langkah: (1) memasukkan data ke dalam tabel, (2) mengubah/memperbarui data yang keliru, (3) mengurutkan (sorting) data, (4) menyaring (filtering) data sesuai kriteria, (5) mengelola/menyimpan data dengan rapi.",
+  "Pilih jenis grafik sesuai tujuan (batang untuk perbandingan, garis untuk tren, lingkaran untuk proporsi), beri judul & label yang jelas. Contoh: grafik batang jumlah siswa per kelas.",
+  "Jawaban bervariasi — nilai berdasarkan ketepatan contoh masalah nyata di sekolah, penggunaan data terstruktur (tabel), dan kesimpulan logis yang didukung data.",
+];
+
+const letters = ["A","B","C","D"];
+
+// ---- Build cover topic list ----
+const topicListEl = document.getElementById("topic-list");
+TOPICS.forEach(tp=>{
+  const div = document.createElement("div");
+  div.className = "topic-item";
+  div.innerHTML = `<span class="dot" style="background:${tp.color}"></span>${tp.name}`;
+  topicListEl.appendChild(div);
+});
+
+// ---- Build question pages ----
+const qContainer = document.getElementById("question-pages");
+pg.forEach((item, idx)=>{
+  const tp = TOPICS[item.t];
+  const page = document.createElement("div");
+  page.className = "page";
+  page.id = "page-q"+idx;
+  page.innerHTML = `
+    <div class="tag"><span class="dot" style="background:${tp.color}"></span><span style="color:${tp.color}">${tp.name}</span></div>
+    <div class="qnum">${String(idx+1).padStart(2,"0")}</div>
+    <div class="qlabel">Soal Pilihan Ganda</div>
+    <div class="qtext">${item.q}</div>
+    <div class="options">
+      ${item.o.map((opt,i)=>`<div class="opt"><span class="letter" style="color:${tp.color}">${letters[i]}</span><span>${opt}</span></div>`).join("")}
+    </div>
+    <div class="foot"><span>Evaluasi Bab 1 • Data Terstruktur</span><span>Soal ${idx+1} dari 15</span></div>
+  `;
+  qContainer.appendChild(page);
+});
+
+// ---- Build essay page list ----
+const essayListEl = document.getElementById("essay-list");
+essay.forEach((q,i)=>{
+  const tp = TOPICS[i];
+  const div = document.createElement("div");
+  div.className = "essay-item";
+  div.innerHTML = `<span class="ebadge" style="background:${tp.color}">${i+1}</span><span class="etext">${q}</span>`;
+  essayListEl.appendChild(div);
+});
+
+// ---- Build answer key overlay ----
+const pgKeyGrid = document.getElementById("pg-key-grid");
+pg.forEach((item, idx)=>{
+  const tp = TOPICS[item.t];
+  const div = document.createElement("div");
+  div.className = "pg-cell";
+  div.innerHTML = `<span>${idx+1}.</span><b style="color:${tp.color}">${letters[item.a]}</b>`;
+  pgKeyGrid.appendChild(div);
+});
+const essayKeyListEl = document.getElementById("essay-key-list");
+essayKeyPoints.forEach((k,i)=>{
+  const div = document.createElement("div");
+  div.className = "essaykey";
+  div.textContent = `${i+1}. ${k}`;
+  essayKeyListEl.appendChild(div);
+});
+
+// ---- Navigation ----
+const pageOrder = ["page-cover", ...pg.map((_,i)=>"page-q"+i), "page-essay", "page-grading"];
+let current = 0;
+
+function render(){
+  pageOrder.forEach(id=>{
+    document.getElementById(id).classList.remove("active");
+  });
+  document.getElementById(pageOrder[current]).classList.add("active");
+  document.getElementById("btnPrev").disabled = current===0;
+  document.getElementById("btnNext").disabled = current===pageOrder.length-1;
+  document.getElementById("progressFill").style.width = (current/(pageOrder.length-1)*100)+"%";
+  let label;
+  if(current===0) label = "Sampul";
+  else if(current<=15) label = `Soal ${current} dari 15`;
+  else if(current===16) label = "Soal Esai";
+  else label = "Pedoman Penilaian";
+  document.getElementById("pageIndicator").textContent = label;
+}
+document.getElementById("btnPrev").addEventListener("click", ()=>{ if(current>0){current--; render();} });
+document.getElementById("btnNext").addEventListener("click", ()=>{ if(current<pageOrder.length-1){current++; render();} });
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="ArrowRight") document.getElementById("btnNext").click();
+  if(e.key==="ArrowLeft") document.getElementById("btnPrev").click();
+});
+render();
+
+// ---- Answer key overlay toggle (hidden by default) ----
+const overlay = document.getElementById("overlay");
+document.getElementById("btnKey").addEventListener("click", ()=> overlay.classList.add("show"));
+document.getElementById("btnCloseKey").addEventListener("click", ()=> overlay.classList.remove("show"));
+overlay.addEventListener("click", (e)=>{ if(e.target===overlay) overlay.classList.remove("show"); });
+</script>
+
+</body>
+</html>

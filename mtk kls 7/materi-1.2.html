@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bab 1 · Operasi Penjumlahan dan Pengurangan Bilangan Bulat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBF7EC;
+    --paper-deep:#F3EDDC;
+    --grid:#E1D8C0;
+    --ink:#1E2A3A;
+    --ink-soft:#5B6472;
+    --positive:#E2583F;
+    --positive-soft:#FBE1D9;
+    --negative:#2E6E8E;
+    --negative-soft:#DCEAF0;
+    --zero:#B8871F;
+    --zero-soft:#F6EAC9;
+    --white:#FFFFFF;
+    --shadow:0 10px 30px rgba(30,42,58,0.12);
+    --shadow-lg:0 20px 50px rgba(30,42,58,0.18);
+    --radius:18px;
+    --font-display:'Fraunces', serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'Space Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px) 0 0/100% 42px,
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/42px 100%,
+      var(--paper);
+    background-attachment:fixed;
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+  h1,h2,h3{font-family:var(--font-display); margin:0; letter-spacing:-0.01em;}
+  p{margin:0;}
+  button{font-family:inherit; cursor:pointer;}
+  :focus-visible{outline:3px solid var(--negative); outline-offset:3px; border-radius:6px;}
+
+  .deck{ height:100dvh; display:flex; flex-direction:column; }
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px clamp(16px,4vw,40px) 10px; flex-shrink:0;
+  }
+  .topbar .eyebrow{
+    font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  .topbar .eyebrow b{color:var(--negative);}
+  .topbar .counter{
+    font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); background:var(--white);
+    padding:5px 12px; border-radius:999px; box-shadow:var(--shadow); white-space:nowrap;
+  }
+
+  /* ---------- SLIDES ---------- */
+  .slides-viewport{ flex:1; position:relative; overflow:hidden; padding:0 clamp(16px,4vw,40px); }
+  .slide{
+    position:absolute; inset:0; padding:6px clamp(16px,4vw,40px) 10px;
+    display:flex; flex-direction:column; justify-content:center;
+    opacity:0; transform:translateX(40px); pointer-events:none;
+    transition:opacity .45s ease, transform .45s ease;
+    overflow-y:auto;
+  }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.prev{ transform:translateX(-40px); }
+  .slide-inner{ max-width:1020px; margin:0 auto; width:100%; padding-bottom:12px; }
+
+  .kicker{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--negative); background:var(--negative-soft);
+    padding:6px 14px; border-radius:999px; margin-bottom:14px;
+  }
+  .slide h2.title{ font-size:clamp(24px,4.2vw,42px); font-weight:700; line-height:1.1; margin-bottom:10px; }
+  .lede{ font-size:clamp(14px,1.7vw,18px); color:var(--ink-soft); max-width:720px; line-height:1.55; margin-bottom:16px; }
+
+  /* ---------- COVER ---------- */
+  .cover{ text-align:center; align-items:center; }
+  .cover .slide-inner{ display:flex; flex-direction:column; align-items:center; }
+  .cover-badge{
+    width:clamp(64px,9vw,92px); height:clamp(64px,9vw,92px); border-radius:50%; background:var(--ink);
+    color:var(--paper); display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-size:clamp(20px,3vw,28px); font-weight:700; margin-bottom:20px;
+    box-shadow:var(--shadow-lg);
+  }
+  .cover h1{ font-size:clamp(28px,5.6vw,58px); font-weight:900; line-height:1.05; margin-bottom:14px; }
+  .cover h1 .accent{ color:var(--negative); font-style:italic; }
+  .cover .sub{ font-size:clamp(14px,1.9vw,19px); color:var(--ink-soft); max-width:640px; margin-bottom:22px; line-height:1.6; }
+  .cover-ops{ display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; justify-content:center; }
+  .op-badge{
+    font-family:var(--font-mono); font-size:26px; font-weight:700; width:56px; height:56px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);
+  }
+  .op-badge.plus{ background:var(--positive-soft); color:var(--positive); }
+  .op-badge.minus{ background:var(--negative-soft); color:var(--negative); }
+  .goal-card{
+    background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 26px;
+    max-width:660px; text-align:left; border-left:6px solid var(--zero); margin-bottom:26px;
+  }
+  .goal-card .goal-label{
+    font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--zero); font-weight:700; margin-bottom:6px; display:block;
+  }
+  .goal-card p{ font-size:clamp(14px,1.7vw,16.5px); line-height:1.6; color:var(--ink); }
+  .btn-primary{
+    background:var(--ink); color:var(--paper); border:none; padding:15px 30px; border-radius:999px;
+    font-size:16px; font-weight:600; display:inline-flex; align-items:center; gap:10px;
+    box-shadow:var(--shadow); transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+  .btn-primary:active{ transform:translateY(0); }
+
+  .grid{ display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+  .grid.cols-2{ grid-template-columns:repeat(2,1fr); }
+  .grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+  @media (max-width:760px){ .grid.cols-2, .grid.cols-4{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .grid.cols-2, .grid.cols-4{ grid-template-columns:1fr; } }
+
+  /* ---------- JUMP NUMBER LINE (signature interactive widget) ---------- */
+  .jline-wrap{ background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px clamp(10px,3vw,26px) 22px; margin-bottom:10px; }
+  .jline-presets{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:18px; }
+  .jline-preset-btn{
+    font-family:var(--font-mono); font-weight:700; font-size:14px; background:var(--paper-deep);
+    border:2px solid transparent; padding:9px 16px; border-radius:999px; color:var(--ink);
+    transition:all .15s ease;
+  }
+  .jline-preset-btn:hover{ border-color:var(--grid); }
+  .jline-preset-btn.active{ background:var(--ink); color:var(--paper); }
+  .jline-scroll{ overflow-x:auto; padding:36px 6px 26px; }
+  .jline-track{ position:relative; height:2px; min-width:900px; margin:0 20px; }
+  .jline-baseline{ position:absolute; left:0; right:0; top:0; height:2px; background:var(--ink); }
+  .jline-tick{ position:absolute; top:0; transform:translateX(-50%); }
+  .jline-tickline{ display:block; width:2px; height:10px; background:var(--grid); margin:0 auto; }
+  .jline-ticklabel{ display:block; font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); text-align:center; margin-top:4px; white-space:nowrap; }
+  .jline-marker{
+    position:absolute; top:-11px; transform:translateX(-50%); font-size:20px; color:var(--negative);
+    left:50%; transition:left .8s cubic-bezier(.4,0,.2,1); z-index:2;
+  }
+  .jline-marker-label{
+    position:absolute; top:-38px; transform:translateX(-50%); font-family:var(--font-mono); font-weight:700;
+    font-size:13px; background:var(--ink); color:var(--paper); padding:3px 9px; border-radius:8px;
+    left:50%; transition:left .8s cubic-bezier(.4,0,.2,1); white-space:nowrap; z-index:2;
+  }
+  .jline-steps{
+    background:var(--paper-deep); border-radius:12px; padding:14px 18px; font-size:14.5px; line-height:1.65;
+    min-height:30px;
+  }
+  .jline-steps b{ font-family:var(--font-mono); color:var(--positive); }
+
+  /* ---------- RULE / FLIP CARDS ---------- */
+  .flip-card{ perspective:1200px; height:210px; }
+  .flip-inner{ position:relative; width:100%; height:100%; transition:transform .6s cubic-bezier(.4,.2,.2,1); transform-style:preserve-3d; }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:var(--radius); padding:18px; display:flex; flex-direction:column; justify-content:center; box-shadow:var(--shadow); cursor:pointer; }
+  .flip-front{ background:var(--white); text-align:center; align-items:center; }
+  .flip-front .ic{ font-size:30px; margin-bottom:8px; }
+  .flip-front .lbl{ font-weight:700; font-size:16px; margin-bottom:4px; }
+  .flip-front .sub-lbl{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); }
+  .flip-front .hint{ font-size:11.5px; color:var(--ink-soft); margin-top:10px; }
+  .flip-back{ transform:rotateY(180deg); color:var(--white); text-align:left; }
+  .flip-back p{ font-size:13px; line-height:1.5; }
+  .flip-back .eg{ font-family:var(--font-mono); font-size:12.5px; margin-top:10px; background:rgba(255,255,255,.15); padding:8px 10px; border-radius:8px; }
+  .fc-a .flip-back{ background:var(--positive); } .fc-a .flip-front .lbl{ color:var(--positive); }
+  .fc-b .flip-back{ background:var(--negative); } .fc-b .flip-front .lbl{ color:var(--negative); }
+  .fc-c .flip-back{ background:var(--zero); } .fc-c .flip-front .lbl{ color:var(--zero); }
+  .fc-d .flip-back{ background:var(--ink); } .fc-d .flip-front .lbl{ color:var(--ink); }
+
+  /* ---------- PRACTICE / EXAMPLE CARDS ---------- */
+  .example-card{ background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:14px; }
+  .example-card .q{ font-size:15.5px; font-weight:600; margin-bottom:10px; line-height:1.55; }
+  .reveal-btn{ background:var(--paper-deep); border:none; padding:9px 18px; border-radius:999px; font-size:13.5px; font-weight:700; color:var(--ink); display:inline-flex; align-items:center; gap:6px; }
+  .answer-box{ max-height:0; overflow:hidden; transition:max-height .35s ease; font-size:14.5px; line-height:1.65; color:var(--ink-soft); }
+  .example-card.open .answer-box{ max-height:260px; margin-top:12px; padding-top:12px; border-top:1px dashed var(--grid); }
+  .answer-box b{ color:var(--positive); font-family:var(--font-mono); }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-card{ background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg); padding:clamp(18px,3vw,30px); max-width:680px; margin:0 auto; }
+  .quiz-progress{ font-family:var(--font-mono); font-size:12px; color:var(--ink-soft); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
+  .quiz-progress-bar{ height:6px; background:var(--grid); border-radius:999px; overflow:hidden; margin-bottom:20px; }
+  .quiz-progress-fill{ height:100%; background:var(--negative); transition:width .3s ease; }
+  .quiz-q{ font-size:clamp(16px,2.2vw,20px); font-weight:700; margin-bottom:18px; line-height:1.4; }
+  .quiz-opt{ display:block; width:100%; text-align:left; background:var(--paper-deep); border:2px solid transparent; padding:14px 18px; border-radius:12px; margin-bottom:10px; font-size:14.5px; font-weight:500; transition:all .15s ease; }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--negative); }
+  .quiz-opt.correct{ background:var(--positive-soft); border-color:var(--positive); color:var(--positive); font-weight:700; }
+  .quiz-opt.wrong{ background:#FBE2DE; border-color:#D9483A; color:#B93A2E; font-weight:700; }
+  .quiz-explain{ background:var(--paper-deep); padding:14px 16px; border-radius:12px; font-size:13.5px; line-height:1.55; margin-top:6px; display:none; }
+  .quiz-explain.show{ display:block; }
+  .quiz-next{ margin-top:16px; }
+  .quiz-result{ text-align:center; }
+  .quiz-score{ font-family:var(--font-mono); font-size:clamp(40px,7vw,64px); font-weight:700; color:var(--negative); margin:10px 0; }
+  .quiz-msg{ font-size:15px; color:var(--ink-soft); margin-bottom:20px; }
+
+  /* ---------- SUMMARY ---------- */
+  .sum-item{ display:flex; gap:14px; align-items:flex-start; background:var(--white); border-radius:14px; box-shadow:var(--shadow); padding:16px 18px; margin-bottom:12px; }
+  .sum-item .ic{ font-size:22px; flex-shrink:0; }
+  .sum-item .tx b{ display:block; margin-bottom:2px; font-size:14.5px; }
+  .sum-item .tx span{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+
+  /* ---------- CLOSING ---------- */
+  .closing{ text-align:center; }
+  .closing .slide-inner{ display:flex; flex-direction:column; align-items:center; }
+  .closing .big-check{ width:80px; height:80px; border-radius:50%; background:var(--positive-soft); color:var(--positive); display:flex; align-items:center; justify-content:center; font-size:38px; margin-bottom:18px; }
+  .closing-actions{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:10px; }
+  .btn-ghost{ background:var(--white); color:var(--ink); border:2px solid var(--grid); padding:13px 26px; border-radius:999px; font-size:15px; font-weight:600; }
+
+  /* ---------- BOTTOM DOT NAVIGATION ---------- */
+  .numberline{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(8px,2vw,14px);
+    padding:8px clamp(12px,4vw,30px) max(12px, env(safe-area-inset-bottom));
+    min-height:58px;
+  }
+  .nl-arrow{
+    background:var(--white);
+    border:none;
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    box-shadow:var(--shadow);
+    font-size:16px;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--ink);
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .nl-arrow:hover:not(:disabled){ transform:scale(1.1); }
+  .nl-arrow:disabled{ opacity:.35; cursor:default; }
+
+  .nl-track{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    flex:0 1 auto;
+    max-width:70vw;
+    padding:8px 4px;
+    overflow:visible;
+  }
+
+  .nl-tick{
+    position:relative;
+    border:0;
+    padding:0;
+    width:9px;
+    height:9px;
+    min-width:9px;
+    border-radius:50%;
+    background:var(--grid);
+    box-shadow:none;
+    cursor:pointer;
+    transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
+    font-size:0;
+    color:transparent;
+  }
+  .nl-tick:hover{
+    transform:scale(1.35);
+    background:var(--ink-soft);
+  }
+  .nl-tick.active{
+    width:12px;
+    height:12px;
+    min-width:12px;
+    background:var(--ink);
+    transform:scale(1.15);
+    box-shadow:0 0 0 4px rgba(30,42,58,.10);
+  }
+  .nl-tick::after{
+    content:attr(aria-label);
+    position:absolute;
+    left:50%;
+    bottom:calc(100% + 10px);
+    transform:translateX(-50%) translateY(4px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:5px 8px;
+    border-radius:7px;
+    font-family:var(--font-body);
+    font-size:11px;
+    font-weight:600;
+    white-space:nowrap;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .15s ease, transform .15s ease;
+    z-index:20;
+  }
+  .nl-tick:hover::after,
+  .nl-tick:focus-visible::after{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+
+  @media (max-width:700px){
+    .topbar{
+      padding-top:max(10px, env(safe-area-inset-top));
+      padding-left:14px;
+      padding-right:14px;
+    }
+    .topbar .eyebrow{ display:none; }
+    .counter{ font-size:11px !important; padding:5px 10px !important; }
+
+    .slides-viewport{
+      padding:0 10px;
+    }
+    .slide{
+      padding:10px 8px 14px;
+      justify-content:flex-start;
+    }
+    .slide-inner{
+      padding-top:8px;
+      padding-bottom:16px;
+    }
+    .slide h2.title{
+      font-size:clamp(24px,7vw,34px);
+    }
+    .lede{
+      font-size:14px;
+      line-height:1.6;
+    }
+    .goal-card{
+      padding:16px 18px;
+      border-left-width:4px;
+    }
+    .btn-primary,
+    .btn-ghost{
+      min-height:46px;
+      padding:12px 20px;
+    }
+    .flip-card{ height:225px; }
+    .quiz-card{ width:100%; }
+    .numberline{
+      gap:7px;
+      min-height:54px;
+      padding-left:8px;
+      padding-right:8px;
+    }
+    .nl-arrow{
+      width:34px;
+      height:34px;
+      font-size:14px;
+    }
+    .nl-track{
+      gap:7px;
+      max-width:calc(100vw - 105px);
+    }
+    .nl-tick{
+      width:8px;
+      height:8px;
+      min-width:8px;
+    }
+    .nl-tick.active{
+      width:11px;
+      height:11px;
+      min-width:11px;
+    }
+    .nl-tick::after{ display:none; }
+  }
+
+  @media (max-width:420px){
+    .numberline{ gap:5px; }
+    .nl-track{
+      gap:6px;
+      max-width:calc(100vw - 92px);
+    }
+    .nl-arrow{
+      width:32px;
+      height:32px;
+    }
+    .cover h1{ font-size:clamp(27px,8.5vw,38px); }
+    .cover .sub{ font-size:13px; }
+    .cover-ops{ gap:10px; }
+    .op-badge{ width:48px; height:48px; font-size:22px; }
+    .jline-wrap{ padding:15px 10px 16px; }
+    .example-card{ padding:16px; }
+  }
+
+  /* ---------- EXTRA RESPONSIVE SAFETY ---------- */
+  @media (max-height:650px) and (min-width:701px){
+    .topbar{ padding-top:8px; padding-bottom:6px; }
+    .slide{ padding-top:4px; padding-bottom:6px; }
+    .numberline{ padding-top:5px; padding-bottom:8px; }
+    .cover-badge{ margin-bottom:10px; }
+    .cover h1{ margin-bottom:8px; }
+    .cover .sub{ margin-bottom:12px; }
+    .goal-card{ margin-bottom:12px; padding:14px 20px; }
+    .flip-card{ height:190px; }
+  }
+
+  @media (max-width:700px) and (orientation:landscape){
+    .slide{
+      justify-content:flex-start;
+      overflow-y:auto;
+    }
+    .cover{
+      justify-content:flex-start;
+      padding-top:4px;
+    }
+    .cover-badge{
+      width:54px;
+      height:54px;
+      margin-bottom:8px;
+    }
+    .cover h1{ font-size:clamp(25px,5vw,36px); }
+    .cover .sub{ margin-bottom:10px; }
+    .goal-card{ margin-bottom:12px; }
+    .flip-card{ height:190px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .slide, .flip-inner, .nl-tick, .answer-box, .jline-marker, .jline-marker-label{ transition:none !important; }
+  }
+  .swipe-hint{ text-align:center; font-size:11px; color:var(--ink-soft); font-family:var(--font-mono); display:none; padding-bottom:2px; }
+  @media (max-width:700px){ .swipe-hint{ display:block; } }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <div class="topbar">
+    <div class="eyebrow">Bab 1 · Bilangan Bulat <b>▸</b> Operasi Penjumlahan &amp; Pengurangan</div>
+    <div class="counter" id="counter">1 / 10</div>
+  </div>
+
+  <div class="slides-viewport" id="viewport">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide cover" data-title="Cover">
+      <div class="slide-inner">
+        <div class="cover-badge">02</div>
+        <div class="cover-ops">
+          <div class="op-badge plus">+</div>
+          <div class="op-badge minus">−</div>
+        </div>
+        <h1>Penjumlahan &amp; <span class="accent">Pengurangan</span> Bilangan Bulat</h1>
+        <p class="sub">Bab 1 — Bilangan Bulat &nbsp;|&nbsp; Topik: Operasi Penjumlahan dan Pengurangan pada Bilangan Bulat</p>
+        <div class="goal-card">
+          <span class="goal-label">🎯 Tujuan Pembelajaran</span>
+          <p>Peserta didik mampu melakukan operasi penjumlahan dan pengurangan bilangan bulat serta menyelesaikan masalah terkait.</p>
+        </div>
+        <button class="btn-primary" data-next>Mulai Belajar <span>→</span></button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: KONSEP PENJUMLAHAN -->
+    <section class="slide" data-title="Konsep Penjumlahan">
+      <div class="slide-inner">
+        <span class="kicker">➕ Konsep</span>
+        <h2 class="title">Penjumlahan sebagai Lompatan</h2>
+        <p class="lede">Penjumlahan bilangan bulat bisa dibayangkan sebagai lompatan di garis bilangan: mulai dari titik pertama, lalu melompat ke <b>kanan</b> jika bilangan kedua positif, atau ke <b>kiri</b> jika negatif. Klik salah satu contoh di bawah untuk melihat animasinya!</p>
+        <div class="jline-wrap" id="jlineAdd"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ATURAN PENJUMLAHAN -->
+    <section class="slide" data-title="Aturan Penjumlahan">
+      <div class="slide-inner">
+        <span class="kicker">📐 Aturan</span>
+        <h2 class="title">Dua Aturan Penjumlahan</h2>
+        <p class="lede">Klik kartu untuk membalik dan melihat aturan beserta contohnya.</p>
+        <div class="grid cols-2" id="ruleCards"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: KONSEP PENGURANGAN -->
+    <section class="slide" data-title="Konsep Pengurangan">
+      <div class="slide-inner">
+        <span class="kicker">➖ Konsep</span>
+        <h2 class="title">Pengurangan = Menambah Lawannya</h2>
+        <p class="lede">Kunci pengurangan bilangan bulat: <b>a − b = a + (−b)</b>. Mengurangi sama artinya dengan menambahkan lawan (invers) dari bilangan pengurang. Coba klik contoh berikut:</p>
+        <div class="jline-wrap" id="jlineSub"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: LATIHAN CEPAT -->
+    <section class="slide" data-title="Latihan Cepat">
+      <div class="slide-inner">
+        <span class="kicker">⚡ Latihan Cepat</span>
+        <h2 class="title">Tebak Dulu, Baru Cek Jawaban!</h2>
+        <p class="lede">Hitung dulu di kepalamu atau di kertas, lalu klik untuk memeriksa jawabanmu.</p>
+        <div id="practiceCards"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: SIFAT-SIFAT OPERASI -->
+    <section class="slide" data-title="Sifat-sifat Operasi">
+      <div class="slide-inner">
+        <span class="kicker">🧩 Sifat-Sifat</span>
+        <h2 class="title">Sifat-Sifat Penjumlahan Bilangan Bulat</h2>
+        <p class="lede">Klik setiap kartu untuk melihat penjelasan dan contohnya.</p>
+        <div class="grid cols-4" id="propCards"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CONTOH SOAL CERITA -->
+    <section class="slide" data-title="Soal Cerita">
+      <div class="slide-inner">
+        <span class="kicker">📝 Soal Cerita</span>
+        <h2 class="title">Menyelesaikan Masalah Sehari-hari</h2>
+        <p class="lede">Baca ceritanya, coba selesaikan sendiri, lalu klik tombol untuk melihat pembahasan lengkap.</p>
+        <div id="storyCards"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-inner">
+        <span class="kicker">🧠 Uji Pemahaman</span>
+        <h2 class="title" style="text-align:center;">Kuis Penjumlahan &amp; Pengurangan</h2>
+        <p class="lede" style="text-align:center; margin-left:auto; margin-right:auto;">5 soal singkat untuk menguji pemahamanmu. Semangat!</p>
+        <div class="quiz-card" id="quizCard"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RINGKASAN -->
+    <section class="slide" data-title="Ringkasan">
+      <div class="slide-inner">
+        <span class="kicker">📌 Ringkasan</span>
+        <h2 class="title">Yang Perlu Kamu Ingat</h2>
+        <div id="summaryList"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: PENUTUP -->
+    <section class="slide closing" data-title="Penutup">
+      <div class="slide-inner">
+        <div class="big-check">✓</div>
+        <h1 style="font-size:clamp(26px,5vw,44px); margin-bottom:10px;">Selamat, Kamu Hebat! 🎉</h1>
+        <p class="sub" style="margin-bottom:6px;">Kamu telah menyelesaikan materi <b>Operasi Penjumlahan dan Pengurangan Bilangan Bulat</b>.</p>
+        <p class="sub">Lanjutkan ke materi berikutnya, atau ulangi presentasi ini kapan saja.</p>
+        <div class="closing-actions">
+          <button class="btn-ghost" id="restartBtn">↺ Ulangi Presentasi</button>
+          <a class="btn-primary" href="matb-bab1.html" style="text-decoration:none;">Selesai <span>✓</span></a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="swipe-hint">← geser untuk pindah slide →</div>
+  <nav class="numberline" aria-label="Navigasi slide">
+    <button class="nl-arrow" id="prevBtn" aria-label="Slide sebelumnya">←</button>
+    <div class="nl-track" id="nlTrack" role="tablist" aria-label="Pilih slide"></div>
+    <button class="nl-arrow" id="nextBtn" aria-label="Slide berikutnya">→</button>
+  </nav>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ SLIDE NAVIGATION ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const nlTrack = document.getElementById('nlTrack');
+  const counter = document.getElementById('counter');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  let current = 0;
+
+  // Satu titik = satu slide. Tidak lagi menggunakan garis/angka.
+  slides.forEach((slide, i) => {
+    const b = document.createElement('button');
+    b.className = 'nl-tick';
+    b.type = 'button';
+    b.setAttribute('role', 'tab');
+    b.setAttribute('aria-label', 'Ke slide ' + (i+1) + ': ' + slide.dataset.title);
+    b.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    b.addEventListener('click', () => goTo(i));
+    nlTrack.appendChild(b);
+  });
+  const ticks = Array.from(nlTrack.children);
+
+  function goTo(i){
+    if(i < 0 || i >= total) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.toggle('prev', i < current);
+    current = i;
+    slides[current].classList.remove('prev');
+    slides[current].classList.add('active');
+    ticks.forEach((t,idx) => {
+      const active = idx === current;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    counter.textContent = (current+1) + ' / ' + total;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+  document.querySelectorAll('[data-next]').forEach(b => b.addEventListener('click', () => goTo(current + 1)));
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'ArrowRight') goTo(current + 1);
+    if(e.key === 'ArrowLeft') goTo(current - 1);
+  });
+
+  let touchX = null;
+  const viewport = document.getElementById('viewport');
+  viewport.addEventListener('touchstart', e => { touchX = e.changedTouches[0].clientX; }, {passive:true});
+  viewport.addEventListener('touchend', e => {
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 50){ dx < 0 ? goTo(current+1) : goTo(current-1); }
+    touchX = null;
+  }, {passive:true});
+
+  document.getElementById('restartBtn').addEventListener('click', () => goTo(0));
+  goTo(0);
+
+  /* ============ JUMP NUMBER LINE WIDGET ============ */
+  function buildJumpLine(containerId, examples){
+    const container = document.getElementById(containerId);
+    const min = -13, max = 13;
+
+    const presetWrap = document.createElement('div'); presetWrap.className = 'jline-presets';
+    const trackWrap = document.createElement('div'); trackWrap.className = 'jline-scroll';
+    const track = document.createElement('div'); track.className = 'jline-track';
+    const baseline = document.createElement('div'); baseline.className = 'jline-baseline';
+    track.appendChild(baseline);
+
+    function pctOf(n){ return ((Math.max(min,Math.min(max,n)) - min) / (max - min)) * 100; }
+
+    for(let n = min; n <= max; n++){
+      const tick = document.createElement('div');
+      tick.className = 'jline-tick';
+      tick.style.left = pctOf(n) + '%';
+      tick.innerHTML = '<span class="jline-tickline"></span><span class="jline-ticklabel">' + n + '</span>';
+      track.appendChild(tick);
+    }
+    const marker = document.createElement('div'); marker.className = 'jline-marker'; marker.textContent = '●';
+    const label = document.createElement('div'); label.className = 'jline-marker-label'; label.textContent = '0';
+    track.appendChild(marker); track.appendChild(label);
+    trackWrap.appendChild(track);
+
+    const steps = document.createElement('div');
+    steps.className = 'jline-steps';
+    steps.textContent = 'Pilih salah satu contoh soal di atas untuk melihat animasinya.';
+
+    container.appendChild(presetWrap);
+    container.appendChild(trackWrap);
+    container.appendChild(steps);
+
+    function placeMarker(n, animate){
+      marker.style.transition = animate ? 'left .8s cubic-bezier(.4,0,.2,1)' : 'none';
+      label.style.transition = animate ? 'left .8s cubic-bezier(.4,0,.2,1)' : 'none';
+      marker.style.left = pctOf(n) + '%';
+      label.style.left = pctOf(n) + '%';
+      label.textContent = n;
+    }
+
+    examples.forEach(ex => {
+      const btn = document.createElement('button');
+      btn.className = 'jline-preset-btn';
+      btn.textContent = ex.exprLabel;
+      btn.addEventListener('click', () => {
+        presetWrap.querySelectorAll('.jline-preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        runAnimation(ex);
+      });
+      presetWrap.appendChild(btn);
+    });
+
+    function runAnimation(ex){
+      placeMarker(0, false);
+      steps.innerHTML = 'Langkah 1: mulai dari 0.';
+      setTimeout(() => {
+        placeMarker(ex.a, true);
+        steps.innerHTML = 'Langkah 2: lompat ke <b>' + ex.a + '</b> (titik awal).';
+      }, 300);
+      setTimeout(() => {
+        placeMarker(ex.a + ex.b, true);
+        const dir = ex.b >= 0 ? 'kanan (+)' : 'kiri (−)';
+        steps.innerHTML = 'Langkah 3: dari ' + ex.a + ', lompat sejauh <b>' + Math.abs(ex.b) + '</b> langkah ke ' + dir + '.' + (ex.note ? ' ' + ex.note : '');
+      }, 1300);
+      setTimeout(() => {
+        steps.innerHTML += '<br><br>✅ Hasil: <b>' + ex.exprLabel + ' = ' + (ex.a + ex.b) + '</b>';
+      }, 2300);
+    }
+  }
+
+  buildJumpLine('jlineAdd', [
+    {exprLabel:'3 + 5', a:3, b:5},
+    {exprLabel:'-2 + 4', a:-2, b:4},
+    {exprLabel:'5 + (-7)', a:5, b:-7},
+    {exprLabel:'-3 + (-4)', a:-3, b:-4},
+  ]);
+
+  buildJumpLine('jlineSub', [
+    {exprLabel:'6 − 4', a:6, b:-4, note:'(karena 6 − 4 = 6 + (−4))'},
+    {exprLabel:'2 − 5', a:2, b:-5, note:'(karena 2 − 5 = 2 + (−5))'},
+    {exprLabel:'-3 − 2', a:-3, b:-2, note:'(karena −3 − 2 = −3 + (−2))'},
+    {exprLabel:'-4 − (−6)', a:-4, b:6, note:'(dikurangi bilangan negatif = ditambah lawannya, jadi −4 + 6)'},
+  ]);
+
+  /* ============ SLIDE 3: RULE CARDS ============ */
+  const ruleData = [
+    {cls:'fc-a', ic:'🤝', lbl:'Tanda Sama', sub:'(+)+(+) atau (−)+(−)', text:'Jika kedua bilangan bertanda sama, jumlahkan nilainya lalu pertahankan tandanya.', eg:'4 + 5 = 9\\n−4 + (−5) = −9'},
+    {cls:'fc-b', ic:'⚔️', lbl:'Tanda Berbeda', sub:'(+)+(−) atau (−)+(+)', text:'Jika tandanya berbeda, kurangkan nilai yang lebih besar dengan yang lebih kecil. Hasilnya mengikuti tanda bilangan bernilai mutlak lebih besar.', eg:'7 + (−3) = 4\\n−7 + 3 = −4'},
+  ];
+  const ruleWrap = document.getElementById('ruleCards');
+  ruleData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'flip-card ' + d.cls;
+    card.innerHTML = '<div class="flip-inner">' +
+      '<div class="flip-face flip-front"><div class="ic">' + d.ic + '</div><div class="lbl">' + d.lbl + '</div><div class="sub-lbl">' + d.sub + '</div><div class="hint">👆 klik untuk membalik</div></div>' +
+      '<div class="flip-face flip-back"><p>' + d.text + '</p><div class="eg">' + d.eg.replace(/\\n/g,'<br>') + '</div></div>' +
+      '</div>';
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+    ruleWrap.appendChild(card);
+  });
+
+  /* ============ SLIDE 5: PRACTICE CARDS ============ */
+  const practiceData = [
+    {q:'−8 + 12 = ...?', a:'4', exp:'Tanda berbeda: 12 − 8 = 4. Karena |12| &gt; |8|, hasil mengikuti tanda 12 (positif) → <b>4</b>.'},
+    {q:'9 − 15 = ...?', a:'−6', exp:'Ubah menjadi penjumlahan lawan: 9 + (−15). Tanda berbeda: 15 − 9 = 6, ikuti tanda −15 → <b>−6</b>.'},
+    {q:'−6 + (−7) = ...?', a:'−13', exp:'Tanda sama (negatif + negatif): jumlahkan 6 + 7 = 13, tetap negatif → <b>−13</b>.'},
+    {q:'−10 − (−4) = ...?', a:'−6', exp:'Dikurangi bilangan negatif = ditambah lawannya: −10 + 4. Tanda berbeda: 10 − 4 = 6, ikuti tanda −10 → <b>−6</b>.'},
+  ];
+  const practiceWrap = document.getElementById('practiceCards');
+  practiceData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'example-card';
+    card.innerHTML = '<div class="q">' + d.q + '</div>' +
+      '<button class="reveal-btn">👁️ Cek Jawaban</button>' +
+      '<div class="answer-box">Jawaban: <b>' + d.a + '</b><br>' + d.exp + '</div>';
+    card.querySelector('.reveal-btn').addEventListener('click', (e) => {
+      card.classList.toggle('open');
+      e.target.textContent = card.classList.contains('open') ? '🙈 Sembunyikan' : '👁️ Cek Jawaban';
+    });
+    practiceWrap.appendChild(card);
+  });
+
+  /* ============ SLIDE 6: PROPERTY CARDS ============ */
+  const propData = [
+    {cls:'fc-a', ic:'🔄', lbl:'Komutatif', sub:'a + b = b + a', text:'Urutan penjumlahan tidak mengubah hasil.', eg:'3 + (−5) = −2\\n−5 + 3 = −2'},
+    {cls:'fc-b', ic:'🧱', lbl:'Asosiatif', sub:'(a+b)+c = a+(b+c)', text:'Pengelompokan bilangan tidak mengubah hasil.', eg:'(2+(−3))+4 = 3\\n2+((−3)+4) = 3'},
+    {cls:'fc-c', ic:'0️⃣', lbl:'Identitas', sub:'a + 0 = a', text:'Menjumlahkan dengan nol tidak mengubah nilai bilangan.', eg:'−7 + 0 = −7\\n15 + 0 = 15'},
+    {cls:'fc-d', ic:'↔️', lbl:'Invers', sub:'a + (−a) = 0', text:'Setiap bilangan bulat memiliki lawan; jika dijumlahkan hasilnya nol.', eg:'9 + (−9) = 0\\n−4 + 4 = 0'},
+  ];
+  const propWrap = document.getElementById('propCards');
+  propData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'flip-card ' + d.cls;
+    card.innerHTML = '<div class="flip-inner">' +
+      '<div class="flip-face flip-front"><div class="ic">' + d.ic + '</div><div class="lbl">' + d.lbl + '</div><div class="sub-lbl">' + d.sub + '</div><div class="hint">👆 klik</div></div>' +
+      '<div class="flip-face flip-back"><p>' + d.text + '</p><div class="eg">' + d.eg.replace(/\\n/g,'<br>') + '</div></div>' +
+      '</div>';
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+    propWrap.appendChild(card);
+  });
+
+  /* ============ SLIDE 7: STORY CARDS ============ */
+  const storyData = [
+    {q:'Suhu di suatu kota pada pagi hari −2°C. Pada siang hari, suhu naik 9°C. Berapa suhu pada siang hari?', a:'−2 + 9 = <b>7°C</b>', exp:'Kenaikan suhu berarti penjumlahan dengan bilangan positif: −2 + 9 = 7°C.'},
+    {q:'Andi memiliki hutang Rp15.000. Ia membayar lunas hutangnya, lalu meminjam lagi Rp8.000. Berapa posisi keuangan Andi sekarang (dibanding sebelum berhutang)?', a:'−15.000 + 15.000 − 8.000 = <b>−Rp8.000</b>', exp:'Hutang dianggap negatif. Membayar lunas berarti +15.000 (menutup hutang menjadi 0), lalu meminjam lagi berarti −8.000. Hasil akhir: −Rp8.000 (masih berhutang Rp8.000).'},
+    {q:'Sebuah kapal selam berada di kedalaman −120 m. Kapal naik 45 m, kemudian turun lagi 30 m. Berapa posisi akhir kapal selam?', a:'−120 + 45 − 30 = <b>−105 m</b>', exp:'Naik berarti +45 (mengurangi kedalaman/menuju permukaan), turun berarti −30. −120 + 45 = −75, lalu −75 − 30 = −105 m.'},
+  ];
+  const storyWrap = document.getElementById('storyCards');
+  storyData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'example-card';
+    card.innerHTML = '<div class="q">' + d.q + '</div>' +
+      '<button class="reveal-btn">👁️ Lihat Pembahasan</button>' +
+      '<div class="answer-box">' + d.a + '<br>' + d.exp + '</div>';
+    card.querySelector('.reveal-btn').addEventListener('click', (e) => {
+      card.classList.toggle('open');
+      e.target.textContent = card.classList.contains('open') ? '🙈 Sembunyikan Pembahasan' : '👁️ Lihat Pembahasan';
+    });
+    storyWrap.appendChild(card);
+  });
+
+  /* ============ SLIDE 8: QUIZ ============ */
+  const quizData = [
+    {q:'Hasil dari −6 + 9 = ...?', opts:['3','−3','15','−15'], answer:0, exp:'Tanda berbeda: 9 − 6 = 3, ikuti tanda 9 (lebih besar, positif) → 3.'},
+    {q:'Hasil dari 4 − 10 = ...?', opts:['6','−6','14','−14'], answer:1, exp:'4 − 10 = 4 + (−10). Tanda berbeda: 10 − 4 = 6, ikuti tanda −10 → −6.'},
+    {q:'Hasil dari −7 − (−3) = ...?', opts:['−10','−4','4','10'], answer:1, exp:'Dikurangi bilangan negatif = ditambah lawannya: −7 + 3 = −4.'},
+    {q:'Suhu −3°C naik 8°C menjadi ...?', opts:['5°C','−5°C','11°C','−11°C'], answer:0, exp:'−3 + 8 = 5°C.'},
+    {q:'Hasil dari −5 + (−4) = ...?', opts:['9','−9','1','−1'], answer:1, exp:'Tanda sama (negatif + negatif): 5 + 4 = 9, tetap negatif → −9.'},
+  ];
+  let qIndex = 0, score = 0, answered = false;
+  const quizCard = document.getElementById('quizCard');
+
+  function renderQuiz(){
+    if(qIndex >= quizData.length){ renderQuizResult(); return; }
+    answered = false;
+    const d = quizData[qIndex];
+    quizCard.innerHTML =
+      '<div class="quiz-progress"><span>Soal ' + (qIndex+1) + ' dari ' + quizData.length + '</span><span>Skor: ' + score + '</span></div>' +
+      '<div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:' + ((qIndex/quizData.length)*100) + '%"></div></div>' +
+      '<div class="quiz-q">' + d.q + '</div>' +
+      '<div id="optsWrap"></div>' +
+      '<div class="quiz-explain" id="quizExplain">' + d.exp + '</div>' +
+      '<button class="btn-primary quiz-next" id="quizNextBtn" style="display:none;">Soal Berikutnya →</button>';
+    const optsWrap = quizCard.querySelector('#optsWrap');
+    d.opts.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'quiz-opt';
+      b.textContent = opt;
+      b.addEventListener('click', () => {
+        if(answered) return;
+        answered = true;
+        const allOpts = optsWrap.querySelectorAll('.quiz-opt');
+        allOpts.forEach(o => o.disabled = true);
+        if(i === d.answer){
+          b.classList.add('correct');
+          score++;
+        } else {
+          b.classList.add('wrong');
+          allOpts[d.answer].classList.add('correct');
+        }
+        quizCard.querySelector('#quizExplain').classList.add('show');
+        quizCard.querySelector('#quizNextBtn').style.display = 'inline-flex';
+      });
+      optsWrap.appendChild(b);
+    });
+    quizCard.querySelector('#quizNextBtn').addEventListener('click', () => {
+      qIndex++;
+      renderQuiz();
+    });
+  }
+
+  function renderQuizResult(){
+    let msg;
+    if(score === quizData.length) msg = '🌟 Sempurna! Kamu jago menghitung penjumlahan dan pengurangan bilangan bulat!';
+    else if(score >= quizData.length - 1) msg = '👏 Hebat! Pemahamanmu sudah sangat baik.';
+    else if(score >= 3) msg = '👍 Bagus! Coba pelajari lagi bagian yang masih keliru.';
+    else msg = '💪 Yuk, ulangi lagi materinya sebelum lanjut ke topik berikutnya.';
+    quizCard.innerHTML =
+      '<div class="quiz-result"><div style="font-size:40px;">🏆</div>' +
+      '<div class="quiz-score">' + score + '/' + quizData.length + '</div>' +
+      '<div class="quiz-msg">' + msg + '</div>' +
+      '<button class="btn-primary" id="retryQuiz">↺ Coba Lagi</button></div>';
+    quizCard.querySelector('#retryQuiz').addEventListener('click', () => {
+      qIndex = 0; score = 0; renderQuiz();
+    });
+  }
+  renderQuiz();
+
+  /* ============ SLIDE 9: SUMMARY ============ */
+  const summaryData = [
+    {ic:'🤝', t:'Tanda Sama', d:'Jumlahkan nilainya, tanda tetap sama. Contoh: −4 + (−5) = −9.'},
+    {ic:'⚔️', t:'Tanda Berbeda', d:'Kurangkan nilai yang lebih besar dengan yang lebih kecil, hasil mengikuti tanda yang nilainya lebih besar.'},
+    {ic:'➖', t:'Pengurangan = Menambah Lawan', d:'a − b = a + (−b). Mengurangi bilangan negatif sama dengan menambah bilangan positif.'},
+    {ic:'🧩', t:'Sifat-sifat', d:'Berlaku sifat komutatif, asosiatif, identitas (a+0=a), dan invers (a+(−a)=0) pada penjumlahan.'},
+    {ic:'📏', t:'Garis Bilangan', d:'Gunakan lompatan pada garis bilangan untuk membantu memvisualisasikan proses penjumlahan/pengurangan.'},
+  ];
+  const sumWrap = document.getElementById('summaryList');
+  summaryData.forEach(d => {
+    const item = document.createElement('div');
+    item.className = 'sum-item';
+    item.innerHTML = '<div class="ic">' + d.ic + '</div><div class="tx"><b>' + d.t + '</b><span>' + d.d + '</span></div>';
+    sumWrap.appendChild(item);
+  });
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bab 1.3 — Operasi Perkalian dan Pembagian Bilangan Bulat</title>
+<style>
+:root{
+ --ink:#1e2a3a;--soft:#5d6878;--paper:#f7f2e8;--white:#fffdf8;
+ --grid:#d9d2c4;--accent:#b06a3b;--positive:#39735b;--negative:#a44f4f;
+ --shadow:0 10px 28px rgba(30,42,58,.12);--radius:18px
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+ background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+ background-size:28px 28px}
+.app{height:100dvh;display:flex;flex-direction:column;position:relative}
+.topbar{height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+ padding:10px clamp(14px,4vw,40px);background:rgba(247,242,232,.94);border-bottom:1px solid var(--grid);
+ backdrop-filter:blur(8px);z-index:10}
+.brand{font-weight:800;letter-spacing:.02em}
+.counter{font:700 12px ui-monospace,monospace;background:var(--white);padding:7px 12px;border-radius:999px;border:1px solid var(--grid)}
+.slides-viewport{flex:1;min-height:0;overflow:hidden;padding:0 clamp(8px,3vw,34px)}
+.slides{height:100%;display:flex;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
+.slide{width:100%;height:100%;flex:0 0 100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:28px 8px 34px}
+.slide-inner{width:min(900px,100%);padding:12px 8px 28px}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:800;margin-bottom:12px}
+.slide h2{font-size:clamp(30px,5vw,58px);line-height:1.05;margin:0 0 18px;max-width:850px}
+.cover .slide-inner{text-align:center}
+.cover h2{font-size:clamp(32px,6vw,68px)}
+.lede{font-size:clamp(15px,2vw,19px);line-height:1.7;color:var(--soft);max-width:760px}
+.cover .lede{margin:20px auto 0}
+.cards,.sign-grid,.quiz-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:26px}
+.info-card,.sign-card,.quiz-options button{border:1px solid var(--grid);background:var(--white);border-radius:var(--radius);
+ padding:22px;min-height:110px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);font-size:18px;text-align:left;
+ transition:.2s}
+.info-card:hover,.sign-card:hover,.quiz-options button:hover{transform:translateY(-3px)}
+.info-card span{display:block;color:var(--accent);font-size:28px;margin:8px 0}
+.info-card b,.sign-card b{display:block;margin-top:12px;color:var(--positive)}
+.info-card b{visibility:hidden}.info-card.revealed b{visibility:visible}
+.sign-card{font-size:28px;text-align:center}.sign-card b{font-size:17px;visibility:hidden}
+.sign-card.revealed b{visibility:visible}
+.quiz-options button{min-height:70px}.quiz-options strong{margin-right:12px;color:var(--accent)}
+.quiz-options button.correct{border-color:var(--positive);background:#eef7f1}
+.quiz-options button.wrong{border-color:var(--negative);background:#fff0ef}
+.quiz-options button:disabled{cursor:default}
+.feedback{margin-top:15px;min-height:26px;font-weight:800}
+.scenario,.rule-box,.checklist{margin-top:28px;background:var(--white);border:1px solid var(--grid);
+ border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.thermo{font-size:clamp(36px,8vw,64px);font-weight:900;color:var(--negative);margin-bottom:12px}
+.rule-box{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;align-items:center;text-align:center;gap:10px}
+.rule-box span{font-weight:800}.rule-box b{font-size:28px}.rule-box small{color:var(--soft)}
+.checklist{display:grid;gap:14px;font-size:18px}
+.finish{display:inline-flex;margin-top:28px;background:var(--ink);color:white;text-decoration:none;padding:15px 22px;border-radius:12px;font-weight:800}
+.numberline{height:62px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;
+ padding:6px 10px max(8px,env(safe-area-inset-bottom));z-index:10}
+.nl-arrow{width:36px;height:36px;border:0;border-radius:50%;background:var(--white);box-shadow:var(--shadow);font-size:16px;cursor:pointer}
+.nl-arrow:disabled{opacity:.35;cursor:default}
+.nl-track{display:flex;align-items:center;justify-content:center;gap:8px;max-width:72vw}
+.nl-tick{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--grid);cursor:pointer;transition:.2s}
+.nl-tick.active{width:12px;height:12px;background:var(--ink);box-shadow:0 0 0 4px rgba(30,42,58,.1)}
+@media(max-width:700px){
+ .topbar{height:54px}.brand{font-size:13px}.counter{font-size:10px;padding:6px 9px}
+ .slide{padding:15px 4px 20px;align-items:flex-start}.slide-inner{padding-top:10px}
+ .slide h2{font-size:clamp(27px,8vw,42px)}.cover h2{font-size:clamp(29px,9vw,46px)}
+ .cards,.sign-grid,.quiz-options{grid-template-columns:1fr;gap:10px}
+ .info-card,.sign-card{min-height:84px;padding:16px}.lede{font-size:14px}
+ .numberline{height:54px;gap:6px}.nl-track{gap:6px;max-width:calc(100vw - 95px)}
+ .nl-arrow{width:33px;height:33px}.nl-tick{width:8px;height:8px}.nl-tick.active{width:11px;height:11px}
+ .rule-box{grid-template-columns:1fr 1fr}
+}
+@media(max-width:420px){
+ .slide h2{font-size:27px}.cover h2{font-size:31px}.slide{padding-left:2px;padding-right:2px}
+}
+@media(max-height:620px){
+ .slide{align-items:flex-start;padding-top:8px}.slide-inner{padding-top:5px}
+ .slide h2{margin-bottom:10px}.lede{line-height:1.5}.numberline{height:48px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+ <div class="brand">Bab 1 • Bilangan Bulat</div>
+ <div class="counter" id="counter">1 / 20</div>
+</header>
+
+<main class="slides-viewport">
+<div class="slides" id="slides">
+
+<section class="slide cover"><div class="slide-inner">
+ <div class="eyebrow">Semester Ganjil</div>
+ <h2>Bab 1. Bilangan Bulat</h2>
+ <h2 style="font-size:clamp(24px,4vw,42px);margin-top:10px">1.3 Operasi Perkalian dan Pembagian pada Bilangan Bulat</h2>
+ <p class="lede">Peserta didik mampu melakukan operasi perkalian dan pembagian bilangan bulat dengan tepat.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Pemantik</div><h2>Ayo mulai dari pola</h2>
+ <p class="lede">Perkalian dapat dipahami sebagai penjumlahan berulang. Klik kartu untuk melihat bentuk penjumlahannya.</p>
+ <div class="cards">
+  <button class="info-card" onclick="reveal(this)">3 × 4<span>+</span><b>4 + 4 + 4 = 12</b></button>
+  <button class="info-card" onclick="reveal(this)">4 × 3<span>+</span><b>3 + 3 + 3 + 3 = 12</b></button>
+ </div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Materi inti</div><h2>Perkalian bilangan bulat</h2>
+ <p class="lede">Untuk menentukan hasil perkalian, tentukan tanda hasil terlebih dahulu, kemudian kalikan nilai bilangannya.</p>
+ <div class="rule-box"><span>×</span><b>+</b><small>tanda sama</small><b>−</b><small>tanda berbeda</small></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Interaktif</div><h2>Aturan tanda</h2>
+ <p class="lede">Klik setiap kartu.</p>
+ <div class="sign-grid">
+  <button class="sign-card" onclick="reveal(this)">+ × +<b>Positif</b></button>
+  <button class="sign-card" onclick="reveal(this)">− × −<b>Positif</b></button>
+  <button class="sign-card" onclick="reveal(this)">+ × −<b>Negatif</b></button>
+  <button class="sign-card" onclick="reveal(this)">− × +<b>Negatif</b></button>
+ </div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Contoh 1</div><h2>(+6) × (+4)</h2>
+ <p class="lede">Tanda sama → hasil positif. 6 × 4 = 24, jadi hasilnya <b>+24</b>.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Contoh 2</div><h2>(−7) × (+3)</h2>
+ <p class="lede">Tanda berbeda → hasil negatif. 7 × 3 = 21, jadi hasilnya <b>−21</b>.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Contoh 3</div><h2>(−8) × (−5)</h2>
+ <p class="lede">Tanda sama → hasil positif. 8 × 5 = 40, jadi hasilnya <b>+40</b>.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Materi inti</div><h2>Pembagian bilangan bulat</h2>
+ <p class="lede">Pembagian mengikuti aturan tanda yang sama seperti perkalian: tanda sama menghasilkan positif, sedangkan tanda berbeda menghasilkan negatif.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Contoh 4</div><h2>(+36) ÷ (−6)</h2>
+ <p class="lede">Tanda berbeda → negatif. 36 ÷ 6 = 6, jadi hasilnya <b>−6</b>.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Contoh 5</div><h2>(−48) ÷ (−8)</h2>
+ <p class="lede">Tanda sama → positif. 48 ÷ 8 = 6, jadi hasilnya <b>+6</b>.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Strategi</div><h2>3 langkah cepat</h2>
+ <div class="checklist">
+  <div><b>1.</b> Tentukan tanda hasil.</div><div><b>2.</b> Hitung angka tanpa tanda.</div><div><b>3.</b> Gabungkan tanda dengan hasil.</div>
+ </div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Latihan</div><h2>(−9) × (+4) = ...</h2><p class="lede">Pilih jawaban yang benar.</p>
+ <div class="quiz-options">
+  <button onclick="answer(this,'B')"><strong>A</strong>+36</button><button onclick="answer(this,'B')"><strong>B</strong>−36</button>
+  <button onclick="answer(this,'B')"><strong>C</strong>+13</button><button onclick="answer(this,'B')"><strong>D</strong>−13</button>
+ </div><div class="feedback"></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Latihan</div><h2>(−56) ÷ (−7) = ...</h2><p class="lede">Pilih jawaban yang benar.</p>
+ <div class="quiz-options">
+  <button onclick="answer(this,'A')"><strong>A</strong>+8</button><button onclick="answer(this,'A')"><strong>B</strong>−8</button>
+  <button onclick="answer(this,'A')"><strong>C</strong>+49</button><button onclick="answer(this,'A')"><strong>D</strong>−49</button>
+ </div><div class="feedback"></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Kuis 1</div><h2>(+12) × (−3) = ...</h2><p class="lede">Uji pemahamanmu.</p>
+ <div class="quiz-options">
+  <button onclick="answer(this,'A')"><strong>A</strong>−36</button><button onclick="answer(this,'A')"><strong>B</strong>+36</button>
+  <button onclick="answer(this,'A')"><strong>C</strong>−9</button><button onclick="answer(this,'A')"><strong>D</strong>+9</button>
+ </div><div class="feedback"></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Kuis 2</div><h2>(−72) ÷ (+9) = ...</h2><p class="lede">Uji pemahamanmu.</p>
+ <div class="quiz-options">
+  <button onclick="answer(this,'A')"><strong>A</strong>−8</button><button onclick="answer(this,'A')"><strong>B</strong>+8</button>
+  <button onclick="answer(this,'A')"><strong>C</strong>−81</button><button onclick="answer(this,'A')"><strong>D</strong>+81</button>
+ </div><div class="feedback"></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Kuis 3</div><h2>(−11) × (−6) = ...</h2><p class="lede">Uji pemahamanmu.</p>
+ <div class="quiz-options">
+  <button onclick="answer(this,'B')"><strong>A</strong>−66</button><button onclick="answer(this,'B')"><strong>B</strong>+66</button>
+  <button onclick="answer(this,'B')"><strong>C</strong>−17</button><button onclick="answer(this,'B')"><strong>D</strong>+17</button>
+ </div><div class="feedback"></div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Konteks</div><h2>Masalah sehari-hari</h2>
+ <p class="lede">Suhu turun 4°C setiap jam selama 3 jam. Perubahan suhu dapat dimodelkan dengan perkalian bilangan bulat.</p>
+ <div class="scenario"><div class="thermo">−12°C</div><b>(−4) × 3 = −12</b><br>Jadi perubahan suhu selama 3 jam adalah −12°C.</div>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Ringkasan</div><h2>Ingat aturan tanda</h2>
+ <div class="rule-box"><span>× atau ÷</span><b>+</b><small>tanda sama</small><b>−</b><small>tanda berbeda</small></div>
+ <p class="lede">Tanda sama → positif. Tanda berbeda → negatif.</p>
+</div></section>
+
+<section class="slide"><div class="slide-inner">
+ <div class="eyebrow">Cek pemahaman</div><h2>Sudah siap?</h2>
+ <div class="checklist"><div>✓ Menentukan tanda hasil perkalian</div><div>✓ Menentukan tanda hasil pembagian</div><div>✓ Menghitung nilai operasi dengan tepat</div><div>✓ Menyelesaikan masalah sederhana</div></div>
+</div></section>
+
+<section class="slide cover"><div class="slide-inner">
+ <div class="eyebrow">Selesai</div><h2>Hebat! 🎉</h2>
+ <p class="lede">Pembelajaran Operasi Perkalian dan Pembagian Bilangan Bulat telah selesai.</p>
+ <a class="finish" href="matb-bab1.html">Selesai → Kembali</a>
+</div></section>
+
+</div></main>
+
+<nav class="numberline" aria-label="Navigasi slide">
+ <button class="nl-arrow" id="prev" aria-label="Slide sebelumnya">←</button>
+ <div class="nl-track" id="dots" role="tablist" aria-label="Pilih slide"></div>
+ <button class="nl-arrow" id="next" aria-label="Slide berikutnya">→</button>
+</nav>
+</div>
+
+<script>
+const track=document.getElementById('slides');
+const slides=[...document.querySelectorAll('.slide')];
+const dots=document.getElementById('dots');
+const counter=document.getElementById('counter');
+let current=0;
+slides.forEach((s,i)=>{
+ const d=document.createElement('button');
+ d.className='nl-tick'; d.type='button'; d.setAttribute('aria-label','Ke slide '+(i+1));
+ d.onclick=()=>go(i); dots.appendChild(d);
+});
+const ticks=[...document.querySelectorAll('.nl-tick')];
+function go(i){
+ current=Math.max(0,Math.min(slides.length-1,i));
+ track.style.transform='translateX(-'+(current*100)+'%)';
+ counter.textContent=(current+1)+' / '+slides.length;
+ ticks.forEach((d,j)=>d.classList.toggle('active',j===current));
+ document.getElementById('prev').disabled=current===0;
+ document.getElementById('next').disabled=current===slides.length-1;
+}
+document.getElementById('prev').onclick=()=>go(current-1);
+document.getElementById('next').onclick=()=>go(current+1);
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(current+1)}
+ if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}
+});
+let sx=0;
+document.addEventListener('touchstart',e=>sx=e.changedTouches[0].screenX,{passive:true});
+document.addEventListener('touchend',e=>{
+ const dx=e.changedTouches[0].screenX-sx;
+ if(Math.abs(dx)>55)go(current+(dx<0?1:-1));
+},{passive:true});
+function reveal(el){el.classList.toggle('revealed')}
+function answer(btn,correct){
+ const parent=btn.parentElement, all=[...parent.querySelectorAll('button')];
+ const feedback=parent.nextElementSibling;
+ all.forEach(b=>b.disabled=true);
+ const chosen=btn.querySelector('strong').textContent;
+ if(chosen===correct){
+  btn.classList.add('correct'); feedback.textContent='✓ Benar! Jawabanmu tepat.';
+ }else{
+  btn.classList.add('wrong');
+  all.find(b=>b.querySelector('strong').textContent===correct)?.classList.add('correct');
+  feedback.textContent='✗ Belum tepat. Perhatikan aturan tanda.';
+ }
+}
+go(0);
+</script>
+</body>
+</html>

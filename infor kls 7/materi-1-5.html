@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 1 — Penerapan Data Terstruktur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2F7F1;
+    --paper-line:#D6E3D8;
+    --ink:#152E2C;
+    --ink-soft:#4E6C67;
+    --white:#FFFFFF;
+    --amber:#F0A93B;
+    --amber-ink:#5C3B05;
+    --coral:#E5604B;
+    --violet:#8A6BC9;
+    --teal:#2E8B7A;
+    --teal-dark:#1F6357;
+    --red:#D2483A;
+    --green:#3E8C5C;
+    --blue:#3B7DC9;
+    --shadow: 0 2px 0 var(--ink), 4px 6px 0 rgba(21,46,44,0.12);
+    --radius: 14px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:var(--font-body); color:var(--ink);
+    background:
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    -webkit-font-smoothing:antialiased; overflow:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--teal-dark); outline-offset:2px;}
+  .app{height:100vh; display:flex; flex-direction:column;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{display:flex; align-items:center; gap:14px; padding:14px clamp(14px,3vw,32px); border-bottom:2px solid var(--ink); background:var(--white); flex-shrink:0;}
+  .topbar .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; white-space:nowrap;}
+  .brand .mark{width:30px;height:30px;border-radius:7px; background:var(--amber); color:var(--amber-ink); display:flex;align-items:center;justify-content:center; font-family:var(--font-mono); font-size:13px;font-weight:700; border:2px solid var(--ink); flex-shrink:0;}
+  .brand .title{font-size:clamp(13px,2vw,16px); line-height:1.1;}
+  .brand .title small{display:block; font-family:var(--font-body); font-weight:500; color:var(--ink-soft); font-size:11px;}
+  .progress-wrap{flex:1; display:flex; align-items:center; gap:10px; min-width:0;}
+  .progress-track{flex:1; height:8px; background:var(--paper); border:2px solid var(--ink); border-radius:6px; overflow:hidden;}
+  .progress-fill{height:100%; background:repeating-linear-gradient(135deg, var(--amber), var(--amber) 8px, #C98319 8px, #C98319 16px); transition:width .35s ease;}
+  .progress-label{font-family:var(--font-mono); font-size:11px; color:var(--ink-soft); white-space:nowrap;}
+
+  /* ---------- STAGE ---------- */
+  .stage{flex:1; min-height:0; overflow-y:auto; padding:clamp(18px,3.5vw,44px) clamp(14px,6vw,80px) 10px; scroll-behavior:smooth;}
+  .slide{display:none; max-width:1040px; margin:0 auto; animation:slideIn .4s ease;}
+  .slide.active{display:block;}
+  @keyframes slideIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; letter-spacing:.04em; color:var(--teal-dark); background:#E4F2EC; border:1.5px solid var(--teal-dark); padding:4px 10px; border-radius:20px; margin-bottom:14px;}
+  h1.slide-title{font-family:var(--font-display); font-size:clamp(22px,4.2vw,38px); line-height:1.08; margin:0 0 10px;}
+  p.slide-lead{font-size:clamp(14px,1.9vw,17px); color:var(--ink-soft); max-width:700px; line-height:1.55; margin:0 0 22px;}
+
+  .card{background:var(--white); border:2px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow);}
+
+  .btn{font-family:var(--font-body); font-weight:600; font-size:14px; padding:10px 18px; border-radius:9px; border:2px solid var(--ink); background:var(--white); color:var(--ink); cursor:pointer; display:inline-flex; align-items:center; gap:8px; text-decoration:none; transition:transform .12s ease, box-shadow .12s ease; box-shadow:2px 3px 0 var(--ink);}
+  .btn:hover{transform:translate(-1px,-1px); box-shadow:3px 4px 0 var(--ink);}
+  .btn:active{transform:translate(1px,1px); box-shadow:0 0 0 var(--ink);}
+  .btn-primary{background:var(--teal); color:var(--white);}
+  .btn-amber{background:var(--amber); color:var(--amber-ink);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:2px 3px 0 var(--ink);}
+
+  /* ---------- COVER ---------- */
+  .cover{display:grid; grid-template-columns:1.15fr 1fr; gap:30px; align-items:center;}
+  @media (max-width:760px){ .cover{grid-template-columns:1fr;} }
+  .cover-copy .kicker{font-family:var(--font-mono); color:var(--ink-soft); font-size:13px; margin-bottom:10px;}
+  .cover-copy h1{font-family:var(--font-display); font-size:clamp(28px,5.2vw,46px); line-height:1.03; margin:0 0 14px;}
+  .cover-copy h1 span{color:#C98319;}
+  .cover-copy p{color:var(--ink-soft); font-size:clamp(14px,2vw,17px); max-width:540px; margin:0 0 22px; line-height:1.55;}
+  .cover-tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
+  .tag{font-family:var(--font-mono); font-size:11.5px; border:1.5px solid var(--ink); padding:4px 10px; border-radius:20px; background:var(--white);}
+  .formula-bar{font-family:var(--font-mono); font-size:13px; background:var(--white); border:2px solid var(--ink); border-radius:9px; padding:9px 12px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); max-width:500px;}
+  .formula-bar .fx{font-weight:700; color:#C98319; flex-shrink:0;}
+  .cover-visual{background:var(--white); border:2px solid var(--ink); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px;}
+  .flow-steps{display:flex; flex-direction:column; gap:10px;}
+  .flow-step{display:flex; align-items:center; gap:10px; font-family:var(--font-mono); font-size:12.5px;}
+  .flow-step .fs-num{width:26px; height:26px; border-radius:50%; background:var(--paper); border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-weight:700;}
+  .flow-step .fs-arrow{color:var(--ink-soft); margin-left:3px;}
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); margin-top:6px;}
+  .flip-card{padding:18px; cursor:pointer; position:relative; min-height:110px;}
+  .flip-card .num{font-size:20px;}
+  .flip-card h3{font-family:var(--font-display); font-size:15.5px; margin:6px 0 8px;}
+  .flip-card p{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0; display:none;}
+  .flip-card.open p{display:block;}
+  .flip-card .toggle-hint{font-family:var(--font-mono); font-size:11px; color:var(--teal-dark); margin-top:8px; display:inline-block;}
+  .flip-card.open{background:#EFF8F3; border-color:var(--teal-dark);}
+  .step-card{position:relative;}
+  .step-card .step-badge{position:absolute; top:-10px; left:14px; background:var(--amber); color:var(--amber-ink); font-family:var(--font-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1.5px solid var(--ink);}
+
+  /* ---------- TABLE ---------- */
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table.datatable{border-collapse:collapse; width:100%; min-width:460px; font-family:var(--font-mono); font-size:12.5px; background:var(--white);}
+  table.datatable th, table.datatable td{border:1px solid var(--paper-line); padding:9px 12px; text-align:left;}
+  table.datatable thead th{background:var(--ink); color:var(--white); font-weight:700;}
+  table.datatable tbody tr:nth-child(odd){background:#F8FAF7;}
+  table.datatable tbody tr.hl-over{background:#FBEAE7 !important;}
+  table.datatable tbody tr.hl-min{background:var(--green) !important; color:#fff;}
+  table.datatable tbody tr.hl-max{background:var(--coral) !important; color:#fff;}
+  table.datatable td.hl-cheapest{background:var(--green) !important; color:#fff; font-weight:700;}
+  .status-pill{font-family:var(--font-mono); font-size:10.5px; padding:2px 8px; border-radius:20px; font-weight:700;}
+  .status-over{background:#FBEAE7; color:#7a2c22; border:1px solid var(--red);}
+  .status-ok{background:#E9F6EE; color:#215436; border:1px solid var(--green);}
+
+  /* ---------- CASE STUDY PANEL ---------- */
+  .case-wrap{padding:18px;}
+  .case-buttons{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0;}
+  .case-buttons .btn{font-size:13px; padding:8px 14px;}
+  .info-panel{padding:16px; margin-top:14px; min-height:auto;}
+  .info-panel .badge{display:inline-block; font-family:var(--font-mono); font-size:11px; padding:3px 10px; border-radius:20px; border:1.5px solid var(--ink); background:var(--paper); color:var(--ink-soft); margin-bottom:8px;}
+  .info-panel h4{margin:0 0 6px; font-family:var(--font-display); font-size:15px;}
+  .info-panel p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.55;}
+  .info-panel .result-num{font-family:var(--font-display); font-size:30px; color:#C98319;}
+
+  /* ---------- CONTOH SOAL / QA ACCORDION ---------- */
+  .qa-item{margin-bottom:12px; overflow:hidden;}
+  .qa-q{width:100%; text-align:left; background:var(--white); border:none; cursor:pointer; padding:16px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px; font-weight:600; font-size:14.5px; font-family:var(--font-body); color:var(--ink);}
+  .qa-q .qnum{font-family:var(--font-mono); color:#C98319; margin-right:8px;}
+  .qa-q .chevron{transition:transform .2s ease; flex-shrink:0; font-size:14px; color:var(--ink-soft);}
+  .qa-item.open .chevron{transform:rotate(45deg);}
+  .qa-a{max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; background:#F7FAF6;}
+  .qa-item.open .qa-a{padding:14px 18px 18px;}
+
+  /* ---------- LATIHAN ---------- */
+  .task-header{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px;}
+  .task-badge{font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);}
+  .task-prompt{font-weight:600; font-size:14.5px; margin:0 0 14px; padding:12px 14px; background:#FFF7E8; border:1.5px solid var(--amber); border-radius:9px;}
+  .task-data-note{font-family:var(--font-mono); font-size:12px; color:var(--ink-soft); margin-bottom:14px; padding:10px 12px; background:#F7FAF6; border:1px solid var(--paper-line); border-radius:8px; line-height:1.6;}
+  .choice-list{display:flex; flex-direction:column; gap:10px;}
+  .choice-btn{display:flex; align-items:center; gap:12px; padding:13px 16px; border:2px solid var(--ink); border-radius:9px; cursor:pointer; background:var(--white); font-size:14px; text-align:left; transition:background .15s ease;}
+  .choice-btn:hover{background:#F1F7F5;}
+  .choice-btn.correct{background:#E9F6EE; border-color:var(--green);}
+  .choice-btn.wrong{background:#FBEAE7; border-color:var(--red);}
+  .choice-btn.disabled{cursor:default; pointer-events:none;}
+  .feedback{margin-top:14px; padding:12px 14px; border-radius:9px; font-size:13.5px; display:none; border:1.5px solid transparent;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#E9F6EE; border-color:var(--green); color:#215436;}
+  .feedback.bad{background:#FBEAE7; border-color:var(--red); color:#7a2c22;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-progress{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .quiz-dot{width:26px; height:26px; border-radius:50%; border:2px solid var(--ink); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; background:var(--white); color:var(--ink-soft);}
+  .quiz-dot.current{background:var(--ink); color:var(--white);}
+  .quiz-dot.correct{background:var(--green); border-color:var(--green); color:var(--white);}
+  .quiz-dot.wrong{background:var(--red); border-color:var(--red); color:var(--white);}
+  .quiz-card{padding:22px;}
+  .quiz-q{font-family:var(--font-display); font-size:clamp(16px,2.4vw,19px); margin:0 0 16px; line-height:1.4;}
+  .quiz-options{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opt{display:flex; align-items:center; gap:12px; padding:12px 14px; border:2px solid var(--ink); border-radius:9px; cursor:pointer; background:var(--white); font-size:14px; transition:background .15s ease;}
+  .quiz-opt:hover{background:#F1F7F5;}
+  .quiz-opt .letter{font-family:var(--font-mono); font-weight:700; width:24px; height:24px; border-radius:6px; background:var(--paper); border:1.5px solid var(--ink); display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;}
+  .quiz-opt.selected{border-color:#C98319; background:#FFF3DE;}
+  .quiz-opt.correct{background:#E9F6EE; border-color:var(--green);}
+  .quiz-opt.wrong{background:#FBEAE7; border-color:var(--red);}
+  .quiz-opt.disabled{cursor:default;}
+  .quiz-explain{margin-top:16px; padding:12px 14px; border-radius:9px; background:#FFF7E8; border:1.5px solid var(--amber); font-size:13.5px; display:none; line-height:1.55;}
+  .quiz-explain.show{display:block;}
+  .quiz-actions{margin-top:18px; display:flex; justify-content:flex-end;}
+  .quiz-result{padding:30px; text-align:center;}
+  .quiz-result .score-big{font-family:var(--font-display); font-size:clamp(40px,8vw,64px); color:#C98319; margin:6px 0;}
+  .quiz-result .score-msg{font-size:15px; color:var(--ink-soft); max-width:420px; margin:0 auto 20px;}
+
+  /* ---------- SUMMARY / DONE ---------- */
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:26px;}
+  .summary-item{padding:14px 16px; display:flex; gap:10px; align-items:flex-start;}
+  .summary-item .ic{font-size:20px;}
+  .summary-item p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.5;}
+  .summary-item strong{display:block; font-size:13.5px; margin-bottom:2px;}
+  .done-box{padding:30px; text-align:center; background:var(--white);}
+  .done-box .big-emoji{font-size:44px; display:block; margin-bottom:10px;}
+  .done-box h3{font-family:var(--font-display); font-size:22px; margin:0 0 8px;}
+  .done-box p{color:var(--ink-soft); font-size:14px; margin:0 0 22px;}
+
+  /* ---------- FOOTER NAV / SHEET TABS ---------- */
+  .controls{flex-shrink:0; border-top:2px solid var(--ink); background:var(--white); display:flex; align-items:flex-end; gap:8px; padding:8px clamp(10px,3vw,26px) 0;}
+  .nav-arrow{flex-shrink:0; width:38px; height:38px; border-radius:8px; border:2px solid var(--ink); background:var(--white); cursor:pointer; font-size:16px; margin-bottom:8px; display:flex; align-items:center; justify-content:center; box-shadow:2px 2px 0 var(--ink);}
+  .nav-arrow:disabled{opacity:.3; cursor:not-allowed;}
+  .nav-arrow:not(:disabled):hover{background:var(--amber); color:var(--amber-ink);}
+  .tabs{flex:1; display:flex; gap:4px; overflow-x:auto; scrollbar-width:thin; padding-bottom:0;}
+  .tabs::-webkit-scrollbar{height:5px;}
+  .tabs::-webkit-scrollbar-thumb{background:var(--paper-line); border-radius:4px;}
+  .tab{flex-shrink:0; font-family:var(--font-mono); font-size:11.5px; padding:9px 14px 8px; border:2px solid var(--ink); border-bottom:none; border-radius:8px 8px 0 0; background:var(--paper); color:var(--ink-soft); cursor:pointer; position:relative; top:2px; white-space:nowrap;}
+  .tab.active{background:var(--white); color:var(--ink); font-weight:700; top:0; padding-top:11px;}
+
+  @media (max-width:600px){
+    .brand .title{display:none;}
+    .tab{font-size:10.5px; padding:8px 10px 7px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">D5</div>
+      <div class="title">Bab 1 · Penerapan Data Terstruktur<small>Mapel Informatika — SMP</small></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+      <div class="progress-label" id="progressLabel">1 / 10</div>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide active" data-title="Sampul">
+      <div class="cover">
+        <div class="cover-copy">
+          <div class="kicker">INFORMATIKA · KELAS VII–IX · BAB 1 (PENUTUP)</div>
+          <h1>Penerapan <span>Data Terstruktur</span></h1>
+          <p>Ini bagian paling seru: menggunakan semua yang sudah kamu pelajari untuk <strong>menyelesaikan masalah nyata</strong> dan <strong>mengambil kesimpulan</strong> dalam kehidupan sehari-hari — mulai dari memilih ekskul, membandingkan harga, sampai menyusun jadwal piket yang adil.</p>
+          <div class="cover-tags">
+            <span class="tag">🧩 3 Studi Kasus</span>
+            <span class="tag">🧠 Ada Latihan</span>
+            <span class="tag">📝 Ada Kuis</span>
+            <span class="tag">👦 Untuk SMP</span>
+          </div>
+          <div class="formula-bar"><span class="fx">fx</span> = DATA + ANALISIS → KEPUTUSAN</div>
+        </div>
+        <div class="cover-visual">
+          <div class="flow-steps">
+            <div class="flow-step"><span class="fs-num">1</span> Identifikasi Masalah <span class="fs-arrow">↓</span></div>
+            <div class="flow-step"><span class="fs-num">2</span> Kumpulkan / Lihat Data <span class="fs-arrow">↓</span></div>
+            <div class="flow-step"><span class="fs-num">3</span> Olah &amp; Analisis Data <span class="fs-arrow">↓</span></div>
+            <div class="flow-step"><span class="fs-num">4</span> Ambil Kesimpulan ✅</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : PENGERTIAN -->
+    <section class="slide" data-title="Pengertian">
+      <div class="eyebrow">01 — Mengapa Data Penting?</div>
+      <h1 class="slide-title">Data Membantu Kita Mengambil Keputusan</h1>
+      <p class="slide-lead">Data terstruktur tidak hanya untuk dipelajari, tapi juga untuk <strong>digunakan</strong> dalam menyelesaikan masalah sehari-hari. Klik tiap kartu untuk penjelasannya.</p>
+      <div class="grid" id="whyGrid"></div>
+    </section>
+
+    <!-- SLIDE 2 : LANGKAH-LANGKAH -->
+    <section class="slide" data-title="Langkah-langkah">
+      <div class="eyebrow">02 — Cara Menggunakan Data</div>
+      <h1 class="slide-title">4 Langkah Mengambil Keputusan Berbasis Data</h1>
+      <p class="slide-lead">Ikuti urutan ini setiap kali kamu ingin menyelesaikan masalah menggunakan data. Klik tiap langkah untuk contohnya.</p>
+      <div class="grid" id="stepsGrid"></div>
+    </section>
+
+    <!-- SLIDE 3 : STUDI KASUS 1 -->
+    <section class="slide" data-title="Kasus: Ekskul">
+      <div class="eyebrow">03 — Studi Kasus 1</div>
+      <h1 class="slide-title">Memilih &amp; Mengelola Ekstrakurikuler</h1>
+      <p class="slide-lead">Sekolah punya data jumlah peminat dan kuota tiap ekskul. Pelajari datanya, lalu klik tiap pertanyaan untuk melihat bagaimana data ini membantu sekolah mengambil keputusan.</p>
+      <div class="card case-wrap">
+        <div class="table-scroll">
+          <table class="datatable" id="ekskulTable">
+            <thead><tr><th>Ekstrakurikuler</th><th>Peminat</th><th>Kuota</th><th>Status</th></tr></thead>
+            <tbody id="ekskulBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="ekskulInsight" style="margin-top:16px;"></div>
+    </section>
+
+    <!-- SLIDE 4 : STUDI KASUS 2 -->
+    <section class="slide" data-title="Kasus: Harga Toko">
+      <div class="eyebrow">04 — Studi Kasus 2</div>
+      <h1 class="slide-title">Membandingkan Harga di 3 Toko Alat Tulis</h1>
+      <p class="slide-lead">Sebelum membeli, ada baiknya membandingkan harga dulu. Klik tombol untuk menghitung total belanja di tiap toko, lalu lihat toko mana yang paling murah.</p>
+      <div class="card case-wrap">
+        <div class="table-scroll">
+          <table class="datatable" id="hargaTable">
+            <thead><tr><th>Barang</th><th>Toko A</th><th>Toko B</th><th>Toko C</th></tr></thead>
+            <tbody id="hargaBody"></tbody>
+          </table>
+        </div>
+        <div class="case-buttons">
+          <button class="btn btn-amber" data-toko="A">🧮 Hitung Total Toko A</button>
+          <button class="btn btn-amber" data-toko="B">🧮 Hitung Total Toko B</button>
+          <button class="btn btn-amber" data-toko="C">🧮 Hitung Total Toko C</button>
+          <button class="btn" id="hargaKesimpulanBtn">✅ Tampilkan Kesimpulan</button>
+        </div>
+        <div class="card info-panel" id="hargaInfo">
+          <span class="badge">Belum ada perhitungan</span>
+          <h4>Klik salah satu tombol di atas</h4>
+          <p>Total belanja tiap toko akan dihitung dan ditampilkan di sini.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5 : STUDI KASUS 3 -->
+    <section class="slide" data-title="Kasus: Piket">
+      <div class="eyebrow">05 — Studi Kasus 3</div>
+      <h1 class="slide-title">Menyusun Jadwal Piket yang Adil</h1>
+      <p class="slide-lead">Data jumlah piket bulan ini bisa membantu menentukan siapa yang perlu ditambah atau dikurangi jadwalnya. Coba klik tombolnya.</p>
+      <div class="card case-wrap">
+        <div class="table-scroll">
+          <table class="datatable" id="piketTable">
+            <thead><tr><th>Nama Siswa</th><th>Jumlah Piket Bulan Ini</th></tr></thead>
+            <tbody id="piketBody"></tbody>
+          </table>
+        </div>
+        <div class="case-buttons">
+          <button class="btn btn-amber" id="piketMinBtn">🔍 Siapa yang paling sedikit piket?</button>
+          <button class="btn btn-amber" id="piketMaxBtn">🔍 Siapa yang paling banyak piket?</button>
+        </div>
+        <div class="card info-panel" id="piketInfo">
+          <span class="badge">Belum ada yang dipilih</span>
+          <h4>Klik salah satu tombol di atas</h4>
+          <p>Hasil analisis akan membantu menyusun jadwal piket berikutnya secara lebih adil.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6 : LATIHAN -->
+    <section class="slide" data-title="Latihan">
+      <div class="eyebrow">06 — Latihan Interaktif</div>
+      <h1 class="slide-title">Studi Kasus Baru: Rencana Acara Sekolah</h1>
+      <p class="slide-lead">Gunakan data prakiraan cuaca berikut untuk menjawab tiap soal.</p>
+      <div class="card" style="padding:18px;">
+        <div class="task-header">
+          <span class="task-badge" id="taskBadge">Soal 1 dari 4</span>
+          <span class="task-badge" id="taskScore">Benar: 0</span>
+        </div>
+        <div class="task-data-note">
+          🌤️ Prakiraan Cuaca 5 Hari:<br>
+          Senin: Cerah (peluang hujan 10%) · Selasa: Hujan (80%) · Rabu: Berawan (40%) · Kamis: Cerah (15%) · Jumat: Hujan (70%)
+        </div>
+        <p class="task-prompt" id="taskPrompt"></p>
+        <div class="choice-list" id="choiceList"></div>
+        <div class="feedback" id="taskFeedback"></div>
+        <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn" id="taskNextBtn" style="display:none;">Lanjut Soal Berikutnya →</button>
+          <button class="btn" id="taskResetBtn" style="display:none;">🔁 Ulangi Latihan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : CONTOH SOAL -->
+    <section class="slide" data-title="Contoh Soal">
+      <div class="eyebrow">07 — Latihan Pemahaman</div>
+      <h1 class="slide-title">Contoh Soal &amp; Pembahasan</h1>
+      <p class="slide-lead">Coba jawab dulu di dalam hati, lalu klik pertanyaannya untuk melihat kunci jawabannya.</p>
+      <div id="qaList"></div>
+    </section>
+
+    <!-- SLIDE 8 : KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="eyebrow">08 — Kuis Akhir</div>
+      <h1 class="slide-title">Kuis: Penerapan Data Terstruktur</h1>
+      <p class="slide-lead">Jawab 6 soal pilihan ganda berikut. Skormu akan muncul di akhir.</p>
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizArea"></div>
+    </section>
+
+    <!-- SLIDE 9 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="eyebrow">09 — Penutup Bab 1</div>
+      <h1 class="slide-title">Rangkuman Materi</h1>
+      <div class="summary-grid">
+        <div class="card summary-item"><span class="ic">🎯</span><div><strong>Kenapa Data Penting</strong><p>Membantu mengambil keputusan yang tepat, bukan sekadar tebakan.</p></div></div>
+        <div class="card summary-item"><span class="ic">🪜</span><div><strong>4 Langkah</strong><p>Identifikasi masalah → kumpulkan data → olah &amp; analisis → ambil kesimpulan.</p></div></div>
+        <div class="card summary-item"><span class="ic">🏸</span><div><strong>Kasus Ekskul</strong><p>Data peminat &amp; kuota membantu sekolah menentukan seleksi atau promosi.</p></div></div>
+        <div class="card summary-item"><span class="ic">🛒</span><div><strong>Kasus Harga Toko</strong><p>Membandingkan total harga membantu memilih toko paling hemat.</p></div></div>
+        <div class="card summary-item"><span class="ic">🧹</span><div><strong>Kasus Jadwal Piket</strong><p>Data jumlah piket membantu menyusun jadwal yang lebih adil.</p></div></div>
+        <div class="card summary-item"><span class="ic">🌦️</span><div><strong>Kasus Cuaca</strong><p>Data prakiraan cuaca membantu memilih waktu terbaik untuk acara.</p></div></div>
+      </div>
+      <div class="done-box card">
+        <span class="big-emoji">🏆</span>
+        <h3>Selamat, kamu sudah menyelesaikan seluruh materi Bab 1!</h3>
+        <p>Lanjutkan ke halaman informasi bab untuk melihat materi lainnya.</p>
+        <a class="btn btn-primary" href="infob-bab1.html" style="font-size:15px; padding:12px 26px;">✅ Selesai — Kembali ke Info Bab 1</a>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="controls">
+    <button class="nav-arrow" id="prevBtn" aria-label="Slide sebelumnya">←</button>
+    <div class="tabs" id="tabs"></div>
+    <button class="nav-arrow" id="nextBtn" aria-label="Slide berikutnya">→</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ NAVIGASI SLIDE ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tabsWrap = document.getElementById('tabs');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (i === 0 ? ' active' : '');
+    tab.textContent = (i+1) + '. ' + s.dataset.title;
+    tab.addEventListener('click', () => goTo(i));
+    tabsWrap.appendChild(tab);
+  });
+  const tabEls = Array.from(tabsWrap.children);
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length) return;
+    slides[current].classList.remove('active');
+    tabEls[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    tabEls[current].classList.add('active');
+    document.getElementById('stage').scrollTop = 0;
+    tabEls[current].scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    progressFill.style.width = (((current+1)/slides.length)*100) + '%';
+    progressLabel.textContent = (current+1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+  prevBtn.addEventListener('click', () => goTo(current-1));
+  nextBtn.addEventListener('click', () => goTo(current+1));
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if(e.key === 'ArrowRight') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+  goTo(0);
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function idRupiah(n){
+    return 'Rp' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  /* ============ SLIDE 1: KENAPA DATA PENTING ============ */
+  const whyData = [
+    {ic:'🎯', t:'Keputusan Lebih Tepat', d:'Data memberi bukti nyata sehingga keputusan yang diambil lebih tepat, bukan sekadar tebakan atau perasaan.'},
+    {ic:'⚖️', t:'Lebih Objektif', d:'Data membantu kita menilai sesuatu secara adil dan objektif, tidak memihak salah satu pilihan tanpa alasan jelas.'},
+    {ic:'🧩', t:'Menyelesaikan Masalah', d:'Data terstruktur memudahkan kita melihat pola dan hubungan, sehingga masalah lebih mudah dipecahkan.'},
+    {ic:'🏠', t:'Dipakai Sehari-hari', d:'Mulai dari memilih ekskul, membandingkan harga, sampai memilih waktu acara — semua bisa dibantu dengan data.'}
+  ];
+  const whyGrid = document.getElementById('whyGrid');
+  whyData.forEach(o => {
+    const el = document.createElement('div');
+    el.className = 'card flip-card';
+    el.innerHTML = `<div class="num">${o.ic}</div><h3>${o.t}</h3><p>${o.d}</p><span class="toggle-hint">Klik untuk buka ▾</span>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    whyGrid.appendChild(el);
+  });
+
+  /* ============ SLIDE 2: 4 LANGKAH ============ */
+  const stepsData = [
+    {n:1, t:'Identifikasi Masalah', d:'Tentukan dulu masalah atau pertanyaan yang ingin dijawab. Contoh: "Ekstrakurikuler apa yang paling diminati siswa?"'},
+    {n:2, t:'Kumpulkan / Lihat Data', d:'Kumpulkan atau lihat data terstruktur yang relevan dengan masalah, misalnya tabel jumlah peminat tiap ekskul.'},
+    {n:3, t:'Olah &amp; Analisis Data', d:'Hitung, bandingkan, atau urutkan data agar lebih mudah dipahami, misalnya mencari ekskul dengan peminat terbanyak.'},
+    {n:4, t:'Ambil Kesimpulan', d:'Tentukan keputusan berdasarkan hasil analisis data, bukan dugaan semata, misalnya menambah kuota ekskul yang paling diminati.'}
+  ];
+  const stepsGrid = document.getElementById('stepsGrid');
+  stepsData.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'card flip-card step-card';
+    el.innerHTML = `<span class="step-badge">Langkah ${s.n}</span><div class="num" style="margin-top:6px;">🪜</div><h3>${s.t}</h3><p>${s.d}</p><span class="toggle-hint">Klik untuk buka ▾</span>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    stepsGrid.appendChild(el);
+  });
+
+  /* ============ SLIDE 3: STUDI KASUS EKSKUL ============ */
+  const ekskulData = [
+    {nama:"Futsal", peminat:45, kuota:30},
+    {nama:"Paduan Suara", peminat:18, kuota:25},
+    {nama:"Robotik", peminat:22, kuota:20},
+    {nama:"Tari Tradisional", peminat:15, kuota:20},
+    {nama:"Pramuka", peminat:60, kuota:60}
+  ];
+  const ekskulBody = document.getElementById('ekskulBody');
+  ekskulBody.innerHTML = ekskulData.map(d => {
+    const over = d.peminat > d.kuota;
+    return `<tr class="${over ? 'hl-over' : ''}">
+      <td>${d.nama}</td><td>${d.peminat}</td><td>${d.kuota}</td>
+      <td><span class="status-pill ${over ? 'status-over' : 'status-ok'}">${over ? 'Melebihi Kuota' : 'Sesuai Kuota'}</span></td>
+    </tr>`;
+  }).join('');
+
+  const overEkskul = ekskulData.filter(d => d.peminat > d.kuota);
+  const minEkskul = ekskulData.reduce((a,b) => a.peminat < b.peminat ? a : b);
+  const maxEkskul = ekskulData.reduce((a,b) => a.peminat > b.peminat ? a : b);
+  const ekskulInsightData = [
+    {q:'Ekstrakurikuler mana yang peminatnya melebihi kuota, sehingga perlu seleksi tambahan?', a:`<strong>${overEkskul.map(d=>d.nama).join(' dan ')}</strong> — peminatnya melebihi kuota yang tersedia, sehingga sekolah perlu mengadakan seleksi atau menambah kuota.`},
+    {q:'Ekstrakurikuler mana yang jumlah peminatnya paling sedikit?', a:`<strong>${minEkskul.nama}</strong> dengan ${minEkskul.peminat} peminat — mungkin perlu dipromosikan lebih giat agar semakin banyak yang tertarik.`},
+    {q:'Berdasarkan data ini, ekskul apa yang paling diminati secara keseluruhan?', a:`<strong>${maxEkskul.nama}</strong> dengan ${maxEkskul.peminat} peminat adalah ekskul paling diminati di sekolah ini.`},
+    {q:'Kesimpulan apa yang bisa diambil sekolah dari data ini?', a:`Sekolah bisa memutuskan menambah kuota atau mengadakan seleksi untuk ${overEkskul.map(d=>d.nama).join(' dan ')}, serta mempromosikan ${minEkskul.nama} yang peminatnya masih sedikit — semua berdasarkan data, bukan tebakan.`}
+  ];
+  const ekskulInsight = document.getElementById('ekskulInsight');
+  ekskulInsightData.forEach((item,i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card qa-item';
+    wrap.innerHTML = `
+      <button class="qa-q"><span><span class="qnum">${i+1}.</span>${item.q}</span><span class="chevron">＋</span></button>
+      <div class="qa-a">${item.a}</div>
+    `;
+    const btn = wrap.querySelector('.qa-q');
+    const ans = wrap.querySelector('.qa-a');
+    btn.addEventListener('click', () => {
+      const isOpen = wrap.classList.toggle('open');
+      ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0';
+    });
+    ekskulInsight.appendChild(wrap);
+  });
+
+  /* ============ SLIDE 4: STUDI KASUS HARGA TOKO ============ */
+  const hargaItems = [
+    {barang:"Buku Tulis", A:3000, B:3200, C:2800},
+    {barang:"Pensil", A:2000, B:1800, C:2100},
+    {barang:"Penghapus", A:1500, B:1600, C:1300},
+    {barang:"Penggaris", A:2500, B:2300, C:2600}
+  ];
+  const hargaBody = document.getElementById('hargaBody');
+  hargaBody.innerHTML = hargaItems.map(d => `<tr><td>${d.barang}</td><td>${idRupiah(d.A)}</td><td>${idRupiah(d.B)}</td><td>${idRupiah(d.C)}</td></tr>`).join('');
+  const totalA = hargaItems.reduce((a,b)=>a+b.A,0);
+  const totalB = hargaItems.reduce((a,b)=>a+b.B,0);
+  const totalC = hargaItems.reduce((a,b)=>a+b.C,0);
+  const totals = {A:totalA, B:totalB, C:totalC};
+  const cheapestToko = Object.keys(totals).reduce((a,b) => totals[a] < totals[b] ? a : b);
+
+  document.querySelectorAll('[data-toko]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const toko = btn.dataset.toko;
+      const panel = document.getElementById('hargaInfo');
+      panel.innerHTML = `<span class="badge">TOKO ${toko}</span><div class="result-num">${idRupiah(totals[toko])}</div><h4>Total belanja di Toko ${toko}</h4><p>Jumlah = ${hargaItems.map(d=>idRupiah(d[toko])).join(' + ')} = ${idRupiah(totals[toko])}.</p>`;
+    });
+  });
+  document.getElementById('hargaKesimpulanBtn').addEventListener('click', () => {
+    const panel = document.getElementById('hargaInfo');
+    panel.innerHTML = `<span class="badge">KESIMPULAN</span><h4>🏆 Toko ${cheapestToko} paling murah!</h4>
+      <p>Total belanja: Toko A = ${idRupiah(totalA)}, Toko B = ${idRupiah(totalB)}, Toko C = ${idRupiah(totalC)}.
+      Dengan membandingkan totalnya, Toko <strong>${cheapestToko}</strong> menawarkan total harga paling murah, sehingga menjadi pilihan terbaik untuk berbelanja.</p>`;
+  });
+
+  /* ============ SLIDE 5: STUDI KASUS PIKET ============ */
+  const piketData = [
+    {nama:"Rina", jumlah:5}, {nama:"Fajar", jumlah:3}, {nama:"Nabila", jumlah:5},
+    {nama:"Yusuf", jumlah:2}, {nama:"Dewi", jumlah:4}, {nama:"Budi", jumlah:5}
+  ];
+  const piketBody = document.getElementById('piketBody');
+  piketBody.innerHTML = piketData.map(d => `<tr data-nama="${d.nama}"><td>${d.nama}</td><td>${d.jumlah}</td></tr>`).join('');
+  const piketMin = Math.min(...piketData.map(d=>d.jumlah));
+  const piketMax = Math.max(...piketData.map(d=>d.jumlah));
+  const piketMinNames = piketData.filter(d=>d.jumlah===piketMin).map(d=>d.nama);
+  const piketMaxNames = piketData.filter(d=>d.jumlah===piketMax).map(d=>d.nama);
+
+  function clearPiketHighlight(){
+    document.querySelectorAll('#piketBody tr').forEach(tr => tr.classList.remove('hl-min','hl-max'));
+  }
+  document.getElementById('piketMinBtn').addEventListener('click', () => {
+    clearPiketHighlight();
+    piketMinNames.forEach(n => document.querySelector(`#piketBody tr[data-nama="${n}"]`).classList.add('hl-min'));
+    const panel = document.getElementById('piketInfo');
+    panel.innerHTML = `<span class="badge">PALING SEDIKIT</span><h4>${piketMinNames.join(', ')} — ${piketMin}x piket</h4><p>Siswa ini baru piket paling sedikit, jadi sebaiknya diprioritaskan untuk mendapat giliran piket lebih banyak bulan depan agar lebih adil.</p>`;
+  });
+  document.getElementById('piketMaxBtn').addEventListener('click', () => {
+    clearPiketHighlight();
+    piketMaxNames.forEach(n => document.querySelector(`#piketBody tr[data-nama="${n}"]`).classList.add('hl-max'));
+    const panel = document.getElementById('piketInfo');
+    panel.innerHTML = `<span class="badge">PALING BANYAK</span><h4>${piketMaxNames.join(', ')} — ${piketMax}x piket</h4><p>Siswa ini sudah paling banyak piket bulan ini, jadi bisa diberi sedikit keringanan atau giliran lebih sedikit bulan depan.</p>`;
+  });
+
+  /* ============ SLIDE 6: LATIHAN (CUACA) ============ */
+  const tasks = [
+    {
+      prompt: '1️⃣ Berdasarkan data cuaca, hari apa yang paling cocok untuk mengadakan acara di LUAR RUANGAN?',
+      options: ['Senin (10% hujan)', 'Selasa (80% hujan)', 'Rabu (40% hujan)', 'Jumat (70% hujan)'],
+      correct: 0,
+      explain: 'Senin memiliki peluang hujan paling rendah (10%) dan cuaca cerah, sehingga paling cocok untuk acara luar ruangan.'
+    },
+    {
+      prompt: '2️⃣ Hari apa yang sebaiknya DIHINDARI untuk acara luar ruangan karena peluang hujan tinggi?',
+      options: ['Senin', 'Selasa', 'Kamis', 'Rabu'],
+      correct: 1,
+      explain: 'Selasa memiliki peluang hujan tertinggi (80%), sehingga sebaiknya dihindari untuk acara luar ruangan.'
+    },
+    {
+      prompt: '3️⃣ Jika acara terpaksa diadakan hari Rabu (berawan, peluang hujan 40%), sikap apa yang paling tepat?',
+      options: ['Pasti aman tanpa persiapan apa pun', 'Siapkan rencana cadangan (tenda/lokasi indoor) untuk berjaga-jaga', 'Batalkan acara tanpa pertimbangan lebih lanjut', 'Abaikan saja data cuacanya'],
+      correct: 1,
+      explain: 'Karena peluang hujan cukup tinggi (40%), sikap paling tepat adalah menyiapkan rencana cadangan agar acara tetap berjalan lancar meski hujan turun.'
+    },
+    {
+      prompt: '4️⃣ Kesimpulan apa yang paling tepat diambil dari data prakiraan cuaca ini secara keseluruhan?',
+      options: ['Cuaca tidak perlu dipertimbangkan dalam perencanaan acara', 'Data prakiraan cuaca dapat membantu memilih hari terbaik untuk acara luar ruangan', 'Acara luar ruangan sebaiknya tidak pernah diadakan', 'Semua hari sama baiknya untuk acara luar ruangan'],
+      correct: 1,
+      explain: 'Data prakiraan cuaca yang terstruktur membantu kita membandingkan peluang hujan tiap hari, sehingga bisa memilih hari terbaik untuk acara luar ruangan.'
+    }
+  ];
+  let taskIndex = 0, taskScore = 0;
+  const taskBadge = document.getElementById('taskBadge');
+  const taskScoreEl = document.getElementById('taskScore');
+  const taskPrompt = document.getElementById('taskPrompt');
+  const choiceList = document.getElementById('choiceList');
+  const taskFeedback = document.getElementById('taskFeedback');
+  const taskNextBtn = document.getElementById('taskNextBtn');
+  const taskResetBtn = document.getElementById('taskResetBtn');
+  let taskDone = false;
+
+  function loadTask(){
+    taskFeedback.className = 'feedback';
+    taskFeedback.textContent = '';
+    taskNextBtn.style.display = 'none';
+    taskDone = false;
+    if(taskIndex >= tasks.length){
+      taskPrompt.textContent = '🎉 Kerja bagus! Kamu sudah menyelesaikan semua latihan.';
+      choiceList.innerHTML = '';
+      taskBadge.textContent = 'Selesai';
+      taskResetBtn.style.display = 'inline-flex';
+      return;
+    }
+    const task = tasks[taskIndex];
+    taskBadge.textContent = `Soal ${taskIndex+1} dari ${tasks.length}`;
+    taskScoreEl.textContent = `Benar: ${taskScore}`;
+    taskPrompt.textContent = task.prompt;
+    choiceList.innerHTML = '';
+    task.options.forEach((opt, i) => {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = opt;
+      b.dataset.i = i;
+      b.addEventListener('click', () => handleChoice(b, i));
+      choiceList.appendChild(b);
+    });
+  }
+  function handleChoice(btn, i){
+    if(taskDone) return;
+    const task = tasks[taskIndex];
+    const buttons = Array.from(choiceList.children);
+    buttons.forEach(b => b.classList.add('disabled'));
+    taskDone = true;
+    if(i === task.correct){
+      btn.classList.add('correct');
+      taskFeedback.className = 'feedback show ok';
+      taskFeedback.textContent = '✅ Benar! ' + task.explain;
+      taskScore++;
+      taskScoreEl.textContent = `Benar: ${taskScore}`;
+    } else {
+      btn.classList.add('wrong');
+      buttons[task.correct].classList.add('correct');
+      taskFeedback.className = 'feedback show bad';
+      taskFeedback.textContent = '❌ Belum tepat. ' + task.explain;
+    }
+    taskNextBtn.style.display = 'inline-flex';
+  }
+  taskNextBtn.addEventListener('click', () => { taskIndex++; loadTask(); });
+  taskResetBtn.addEventListener('click', () => {
+    taskIndex = 0; taskScore = 0;
+    taskResetBtn.style.display = 'none';
+    loadTask();
+  });
+  loadTask();
+
+  /* ============ SLIDE 7: CONTOH SOAL ============ */
+  const qaData = [
+    {q:'Sebuah sekolah ingin menentukan ekskul mana yang perlu ditambah kuotanya. Data apa yang mereka perlukan, dan bagaimana cara menggunakannya untuk mengambil keputusan?', a:'Sekolah memerlukan data jumlah peminat dan kuota tiap ekskul. Dengan membandingkan jumlah peminat terhadap kuota, sekolah bisa melihat ekskul mana yang peminatnya melebihi kuota, lalu memutuskan menambah kuota atau mengadakan seleksi.'},
+    {q:'Mengapa membandingkan harga barang di beberapa toko sebelum membeli merupakan contoh penerapan data terstruktur?', a:'Karena kita menyusun harga barang dari beberapa toko ke dalam bentuk tabel (data terstruktur), lalu menjumlahkan dan membandingkannya untuk menentukan toko mana yang menawarkan total harga termurah.'},
+    {q:'Jelaskan bagaimana data jumlah piket setiap siswa dapat digunakan untuk membuat jadwal piket yang lebih adil!', a:'Dengan melihat data jumlah piket tiap siswa, kita bisa mengetahui siapa yang sudah piket paling banyak dan siapa yang paling sedikit, sehingga jadwal berikutnya bisa disusun agar siswa yang jarang piket mendapat giliran lebih banyak.'},
+    {q:'Sebutkan 4 langkah umum dalam mengambil keputusan berbasis data!', a:'(1) Identifikasi masalah, (2) Kumpulkan/lihat data yang relevan, (3) Olah dan analisis data, (4) Ambil kesimpulan atau keputusan berdasarkan hasil analisis.'},
+    {q:'Berikan satu contoh lain penerapan data terstruktur dalam kehidupan sehari-harimu, di luar contoh yang sudah dibahas!', a:'Contoh jawaban: membandingkan nilai ujian untuk menentukan mata pelajaran yang perlu dipelajari lebih giat, memilih rute tercepat berdasarkan data waktu tempuh, atau memilih paket data internet berdasarkan tabel harga dan kuota.'}
+  ];
+  const qaList = document.getElementById('qaList');
+  qaData.forEach((item, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card qa-item';
+    wrap.innerHTML = `
+      <button class="qa-q"><span><span class="qnum">Soal ${i+1}.</span>${item.q}</span><span class="chevron">＋</span></button>
+      <div class="qa-a"><strong>Kunci Jawaban:</strong> ${item.a}</div>
+    `;
+    const btn = wrap.querySelector('.qa-q');
+    const ans = wrap.querySelector('.qa-a');
+    btn.addEventListener('click', () => {
+      const isOpen = wrap.classList.toggle('open');
+      ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0';
+    });
+    qaList.appendChild(wrap);
+  });
+
+  /* ============ SLIDE 8: KUIS ============ */
+  const quizData = [
+    {q:'Langkah pertama dalam mengambil keputusan berbasis data adalah…', opts:['Mengambil kesimpulan','Mengidentifikasi masalah','Mengolah data','Membuat grafik'], correct:1, explain:'Langkah pertama adalah mengidentifikasi masalah atau pertanyaan yang ingin dijawab.'},
+    {q:'Setelah data dikumpulkan, langkah selanjutnya sebelum mengambil kesimpulan adalah…', opts:['Mengabaikan data','Mengolah dan menganalisis data','Menghapus data','Membeli data baru'], correct:1, explain:'Data perlu diolah dan dianalisis (dihitung, dibandingkan) sebelum kesimpulan diambil.'},
+    {q:'Seorang siswa membandingkan harga buku di 3 toko sebelum membeli. Ini adalah contoh penerapan data terstruktur untuk…', opts:['Menghibur diri','Mengambil keputusan yang lebih tepat','Menambah data yang tidak perlu','Menghindari data'], correct:1, explain:'Membandingkan harga membantu mengambil keputusan pembelian yang lebih tepat dan hemat.'},
+    {q:'Mengapa keputusan berdasarkan data lebih baik daripada keputusan berdasarkan tebakan/asumsi semata?', opts:['Karena lebih cepat walau belum tentu benar','Karena data memberikan bukti/fakta yang bisa dipertanggungjawabkan','Karena tebakan selalu salah','Karena data selalu 100% sempurna'], correct:1, explain:'Data memberikan bukti nyata yang mendukung keputusan, sehingga lebih bisa dipertanggungjawabkan.'},
+    {q:'Jika data menunjukkan peluang hujan 80% pada suatu hari, sikap paling tepat sebelum mengadakan acara luar ruangan adalah…', opts:['Mengabaikan data dan tetap mengadakan acara tanpa persiapan','Menyiapkan rencana cadangan seperti tenda atau lokasi indoor','Membatalkan seluruh kegiatan sekolah','Tidak melakukan apa-apa'], correct:1, explain:'Menyiapkan rencana cadangan adalah sikap bijak saat peluang hujan tinggi.'},
+    {q:'Data jumlah piket setiap siswa dapat dimanfaatkan sekolah untuk…', opts:['Menghukum siswa yang piket','Menyusun jadwal piket yang lebih adil','Mengurangi jumlah piket menjadi nol','Data tersebut tidak berguna'], correct:1, explain:'Data jumlah piket membantu menyusun jadwal yang lebih adil berdasarkan siapa yang sudah/belum sering piket.'}
+  ];
+  let quizIndex = 0;
+  let quizAnswers = new Array(quizData.length).fill(null);
+  const quizProgress = document.getElementById('quizProgress');
+  const quizArea = document.getElementById('quizArea');
+
+  function renderQuizProgress(){
+    quizProgress.innerHTML = '';
+    quizData.forEach((_, i) => {
+      const dot = document.createElement('div');
+      let cls = 'quiz-dot';
+      if(i === quizIndex) cls += ' current';
+      else if(quizAnswers[i] !== null){ cls += quizAnswers[i] === quizData[i].correct ? ' correct' : ' wrong'; }
+      dot.className = cls;
+      dot.textContent = i+1;
+      quizProgress.appendChild(dot);
+    });
+  }
+  function renderQuizQuestion(){
+    if(quizIndex >= quizData.length){ renderQuizResult(); return; }
+    renderQuizProgress();
+    const item = quizData[quizIndex];
+    const answered = quizAnswers[quizIndex] !== null;
+    const letters = ['A','B','C','D'];
+    quizArea.innerHTML = `
+      <div class="card quiz-card">
+        <p class="quiz-q">Soal ${quizIndex+1}: ${item.q}</p>
+        <div class="quiz-options">
+          ${item.opts.map((o,i) => `<div class="quiz-opt${answered ? ' disabled' : ''}" data-i="${i}"><span class="letter">${letters[i]}</span><span>${o}</span></div>`).join('')}
+        </div>
+        <div class="quiz-explain" id="quizExplain">💡 <strong>Pembahasan:</strong> ${item.explain}</div>
+        <div class="quiz-actions">
+          <button class="btn btn-amber" id="quizNextBtn" ${answered ? '' : 'disabled'}>${quizIndex === quizData.length-1 ? 'Lihat Hasil →' : 'Soal Berikutnya →'}</button>
+        </div>
+      </div>
+    `;
+    if(answered) revealQuizAnswer();
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if(quizAnswers[quizIndex] !== null) return;
+        quizAnswers[quizIndex] = parseInt(opt.dataset.i, 10);
+        opt.classList.add('selected');
+        revealQuizAnswer();
+        renderQuizProgress();
+        document.getElementById('quizNextBtn').disabled = false;
+        quizArea.querySelectorAll('.quiz-opt').forEach(o => o.classList.add('disabled'));
+      });
+    });
+    document.getElementById('quizNextBtn').addEventListener('click', () => { quizIndex++; renderQuizQuestion(); });
+  }
+  function revealQuizAnswer(){
+    const item = quizData[quizIndex];
+    const chosen = quizAnswers[quizIndex];
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      const i = parseInt(opt.dataset.i, 10);
+      if(i === item.correct) opt.classList.add('correct');
+      else if(i === chosen) opt.classList.add('wrong');
+    });
+    document.getElementById('quizExplain').classList.add('show');
+  }
+  function renderQuizResult(){
+    renderQuizProgress();
+    const score = quizAnswers.reduce((acc, ans, i) => acc + (ans === quizData[i].correct ? 1 : 0), 0);
+    const total = quizData.length;
+    let msg = '';
+    if(score === total) msg = 'Sempurna! Kamu benar-benar siap menerapkan data dalam kehidupan sehari-hari. 🌟';
+    else if(score >= total*0.6) msg = 'Bagus! Sedikit lagi untuk benar-benar menguasai materi ini. 💪';
+    else msg = 'Yuk, coba pelajari lagi studi kasusnya, lalu ulangi kuisnya. 📖';
+    quizArea.innerHTML = `
+      <div class="card quiz-result">
+        <div style="font-size:36px;">${score===total ? '🏆' : score >= total*0.6 ? '🎯' : '📘'}</div>
+        <div class="score-big">${score} / ${total}</div>
+        <p class="score-msg">${msg}</p>
+        <button class="btn btn-amber" id="quizRetryBtn">🔁 Ulangi Kuis</button>
+      </div>
+    `;
+    document.getElementById('quizRetryBtn').addEventListener('click', () => {
+      quizIndex = 0;
+      quizAnswers = new Array(quizData.length).fill(null);
+      renderQuizQuestion();
+    });
+  }
+  renderQuizQuestion();
+
+})();
+</script>
+</body>
+</html>

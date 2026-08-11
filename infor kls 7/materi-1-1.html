@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Bab 1 — Bekerja dengan Data Terstruktur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2F7F1;
+    --paper-line:#D6E3D8;
+    --ink:#152E2C;
+    --ink-soft:#4E6C67;
+    --white:#FFFFFF;
+    --amber:#F0A93B;
+    --amber-ink:#5C3B05;
+    --coral:#E5604B;
+    --violet:#8A6BC9;
+    --teal:#2E8B7A;
+    --teal-dark:#1F6357;
+    --red:#D2483A;
+    --green:#3E8C5C;
+    --shadow: 0 2px 0 var(--ink), 4px 6px 0 rgba(21,46,44,0.12);
+    --radius: 14px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--ink);
+    background:
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--paper);
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
+  }
+
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--teal-dark); outline-offset:2px;}
+
+  .app{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px clamp(14px,3vw,32px);
+    border-bottom:2px solid var(--ink);
+    background:var(--white);
+    flex-shrink:0;
+  }
+  .topbar .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-display);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .brand .mark{
+    width:30px;height:30px;border-radius:7px;
+    background:var(--teal);
+    color:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);
+    font-size:13px;font-weight:700;
+    border:2px solid var(--ink);
+    flex-shrink:0;
+  }
+  .brand .title{
+    font-size:clamp(13px,2vw,16px);
+    line-height:1.1;
+  }
+  .brand .title small{
+    display:block;
+    font-family:var(--font-body);
+    font-weight:500;
+    color:var(--ink-soft);
+    font-size:11px;
+  }
+  .progress-wrap{
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+  .progress-track{
+    flex:1;
+    height:8px;
+    background:var(--paper);
+    border:2px solid var(--ink);
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:repeating-linear-gradient(135deg, var(--teal), var(--teal) 8px, var(--teal-dark) 8px, var(--teal-dark) 16px);
+    transition:width .35s ease;
+  }
+  .progress-label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  /* ---------- STAGE ---------- */
+  .stage{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    padding:clamp(18px,3.5vw,44px) clamp(14px,6vw,80px) 10px;
+    scroll-behavior:smooth;
+  }
+  .slide{
+    display:none;
+    max-width:980px;
+    margin:0 auto;
+    animation:slideIn .4s ease;
+  }
+  .slide.active{display:block;}
+  @keyframes slideIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.04em;
+    color:var(--teal-dark);
+    background:#E4F2EC;
+    border:1.5px solid var(--teal-dark);
+    padding:4px 10px;
+    border-radius:20px;
+    margin-bottom:14px;
+  }
+  h1.slide-title{
+    font-family:var(--font-display);
+    font-size:clamp(24px,4.4vw,40px);
+    line-height:1.08;
+    margin:0 0 10px;
+  }
+  p.slide-lead{
+    font-size:clamp(14px,1.9vw,17px);
+    color:var(--ink-soft);
+    max-width:640px;
+    line-height:1.55;
+    margin:0 0 26px;
+  }
+
+  .card{
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+
+  .btn{
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:14px;
+    padding:10px 18px;
+    border-radius:9px;
+    border:2px solid var(--ink);
+    background:var(--white);
+    color:var(--ink);
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    text-decoration:none;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:2px 3px 0 var(--ink);
+  }
+  .btn:hover{transform:translate(-1px,-1px); box-shadow:3px 4px 0 var(--ink);}
+  .btn:active{transform:translate(1px,1px); box-shadow:0 0 0 var(--ink);}
+  .btn-primary{background:var(--teal); color:var(--white);}
+  .btn-amber{background:var(--amber); color:var(--amber-ink);}
+  .btn-coral{background:var(--coral); color:var(--white);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:2px 3px 0 var(--ink);}
+
+  /* ---------- COVER ---------- */
+  .cover{
+    display:grid;
+    grid-template-columns:1.2fr .9fr;
+    gap:30px;
+    align-items:center;
+  }
+  @media (max-width:760px){ .cover{grid-template-columns:1fr;} }
+  .cover-copy .kicker{
+    font-family:var(--font-mono);
+    color:var(--ink-soft);
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  .cover-copy h1{
+    font-family:var(--font-display);
+    font-size:clamp(30px,5.6vw,52px);
+    line-height:1.03;
+    margin:0 0 14px;
+  }
+  .cover-copy h1 span{color:var(--teal-dark);}
+  .cover-copy p{
+    color:var(--ink-soft);
+    font-size:clamp(14px,2vw,17px);
+    max-width:520px;
+    margin:0 0 22px;
+    line-height:1.55;
+  }
+  .cover-tags{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
+  .tag{
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    border:1.5px solid var(--ink);
+    padding:4px 10px;
+    border-radius:20px;
+    background:var(--white);
+  }
+  .formula-bar{
+    font-family:var(--font-mono);
+    font-size:13px;
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:9px;
+    padding:9px 12px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    box-shadow:var(--shadow);
+    max-width:460px;
+  }
+  .formula-bar .fx{
+    font-weight:700; color:var(--teal-dark); flex-shrink:0;
+  }
+  .cover-sheet{
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .cover-sheet table{width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12.5px;}
+  .cover-sheet th, .cover-sheet td{border:1px solid var(--paper-line); padding:8px 9px; text-align:left;}
+  .cover-sheet thead th{background:var(--ink); color:var(--white); font-weight:600;}
+  .cover-sheet tbody tr:nth-child(odd){background:#F7FAF6;}
+  .cover-sheet .corner-label{
+    font-family:var(--font-mono); font-size:11px; color:var(--ink-soft);
+    padding:8px 12px; border-bottom:2px solid var(--ink); background:var(--paper);
+  }
+
+  /* ---------- GRID / CARDS ---------- */
+  .grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+    margin-top:6px;
+  }
+  .grid.cols-2{grid-template-columns:repeat(auto-fit, minmax(260px,1fr));}
+
+  .flip-card{
+    padding:18px;
+    cursor:pointer;
+    position:relative;
+    min-height:120px;
+  }
+  .flip-card .num{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .flip-card h3{
+    font-family:var(--font-display);
+    font-size:16px;
+    margin:6px 0 8px;
+  }
+  .flip-card p{
+    font-size:13.5px;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0;
+    display:none;
+  }
+  .flip-card.open p{display:block;}
+  .flip-card .toggle-hint{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--teal-dark);
+    margin-top:8px;
+    display:inline-block;
+  }
+  .flip-card.open{background:#EFF8F3; border-color:var(--teal-dark);}
+
+  /* ---------- ANATOMY TABLE ---------- */
+  .anatomy-wrap{
+    display:grid;
+    grid-template-columns:1.3fr .9fr;
+    gap:20px;
+    align-items:start;
+  }
+  @media (max-width:760px){ .anatomy-wrap{grid-template-columns:1fr;} }
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table.datatable{
+    border-collapse:collapse;
+    width:100%;
+    min-width:520px;
+    font-family:var(--font-mono);
+    font-size:13px;
+    background:var(--white);
+  }
+  table.datatable caption{
+    text-align:left;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:13px;
+    margin-bottom:8px;
+    color:var(--ink-soft);
+  }
+  table.datatable th, table.datatable td{
+    border:1px solid var(--paper-line);
+    padding:10px 12px;
+    text-align:left;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+    user-select:none;
+  }
+  table.datatable thead th{
+    background:var(--ink);
+    color:var(--white);
+    font-weight:700;
+    position:relative;
+  }
+  table.datatable thead th:hover{background:var(--coral);}
+  table.datatable tbody th[scope="row"]{
+    background:#EFEFEF;
+    font-weight:700;
+    text-align:center;
+    color:var(--ink-soft);
+  }
+  table.datatable tbody th[scope="row"]:hover{background:var(--amber); color:var(--amber-ink);}
+  table.datatable td:hover{background:#E7F1FB;}
+  table.datatable tbody tr:nth-child(odd) td{background:#F8FAF7;}
+  table.datatable tbody tr:nth-child(odd) td:hover{background:#E7F1FB;}
+
+  table.datatable th.hl-col, table.datatable td.hl-col{background:var(--coral) !important; color:var(--white) !important;}
+  table.datatable th.hl-row, table.datatable td.hl-row{background:var(--amber) !important; color:var(--amber-ink) !important;}
+  table.datatable td.hl-cell{background:var(--violet) !important; color:var(--white) !important; font-weight:700;}
+
+  .info-panel{
+    padding:18px;
+    min-height:190px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .info-panel .badge{
+    align-self:flex-start;
+    font-family:var(--font-mono);
+    font-size:11px;
+    padding:3px 10px;
+    border-radius:20px;
+    border:1.5px solid var(--ink);
+  }
+  .badge-col{background:var(--coral); color:var(--white); border-color:var(--coral);}
+  .badge-row{background:var(--amber); color:var(--amber-ink); border-color:var(--amber);}
+  .badge-cell{background:var(--violet); color:var(--white); border-color:var(--violet);}
+  .badge-idle{background:var(--paper); color:var(--ink-soft);}
+  .info-panel h4{margin:0; font-family:var(--font-display); font-size:16px;}
+  .info-panel p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+
+  /* ---------- GALLERY ---------- */
+  .gallery-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+  .gallery-card{
+    padding:16px;
+    cursor:pointer;
+    text-align:left;
+  }
+  .gallery-card .emoji{font-size:26px; display:block; margin-bottom:8px;}
+  .gallery-card h4{margin:0 0 4px; font-family:var(--font-display); font-size:14.5px;}
+  .gallery-card p{margin:0; font-size:12px; color:var(--ink-soft);}
+  .gallery-card.active{border-color:var(--teal-dark); background:#EFF8F3;}
+  .gallery-preview{margin-top:18px; padding:18px; display:none;}
+  .gallery-preview.show{display:block;}
+  .gallery-preview h4{margin:0 0 10px; font-family:var(--font-display); font-size:16px;}
+
+  /* ---------- LATIHAN ---------- */
+  .task-header{
+    display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .task-badge{font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);}
+  .task-prompt{
+    font-weight:600; font-size:15px; margin:0 0 14px;
+    padding:12px 14px; background:#FFF7E8; border:1.5px solid var(--amber); border-radius:9px;
+  }
+  .feedback{
+    margin-top:14px; padding:12px 14px; border-radius:9px; font-size:13.5px; display:none;
+    border:1.5px solid transparent;
+  }
+  .feedback.show{display:block;}
+  .feedback.ok{background:#E9F6EE; border-color:var(--green); color:#215436;}
+  .feedback.bad{background:#FBEAE7; border-color:var(--red); color:#7a2c22;}
+
+  /* ---------- CONTOH SOAL ---------- */
+  .qa-item{margin-bottom:12px; overflow:hidden;}
+  .qa-q{
+    width:100%; text-align:left; background:var(--white); border:none; cursor:pointer;
+    padding:16px 18px; display:flex; justify-content:space-between; align-items:center; gap:12px;
+    font-weight:600; font-size:14.5px; font-family:var(--font-body); color:var(--ink);
+  }
+  .qa-q .qnum{
+    font-family:var(--font-mono); color:var(--teal-dark); margin-right:8px;
+  }
+  .qa-q .chevron{transition:transform .2s ease; flex-shrink:0; font-size:14px; color:var(--ink-soft);}
+  .qa-item.open .chevron{transform:rotate(45deg);}
+  .qa-a{
+    max-height:0; overflow:hidden; transition:max-height .3s ease;
+    padding:0 18px; font-size:13.5px; color:var(--ink-soft); line-height:1.6; background:#F7FAF6;
+  }
+  .qa-item.open .qa-a{padding:14px 18px 18px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-progress{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .quiz-dot{
+    width:26px; height:26px; border-radius:50%; border:2px solid var(--ink);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px;
+    background:var(--white); color:var(--ink-soft);
+  }
+  .quiz-dot.current{background:var(--ink); color:var(--white);}
+  .quiz-dot.correct{background:var(--green); border-color:var(--green); color:var(--white);}
+  .quiz-dot.wrong{background:var(--red); border-color:var(--red); color:var(--white);}
+  .quiz-card{padding:22px;}
+  .quiz-q{font-family:var(--font-display); font-size:clamp(16px,2.4vw,19px); margin:0 0 16px; line-height:1.4;}
+  .quiz-options{display:flex; flex-direction:column; gap:10px;}
+  .quiz-opt{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 14px; border:2px solid var(--ink); border-radius:9px; cursor:pointer;
+    background:var(--white); font-size:14px; transition:background .15s ease;
+  }
+  .quiz-opt:hover{background:#F1F7F5;}
+  .quiz-opt .letter{
+    font-family:var(--font-mono); font-weight:700; width:24px; height:24px; border-radius:6px;
+    background:var(--paper); border:1.5px solid var(--ink); display:flex; align-items:center; justify-content:center;
+    font-size:12px; flex-shrink:0;
+  }
+  .quiz-opt.selected{border-color:var(--teal-dark); background:#E4F2EC;}
+  .quiz-opt.correct{background:#E9F6EE; border-color:var(--green);}
+  .quiz-opt.wrong{background:#FBEAE7; border-color:var(--red);}
+  .quiz-opt.disabled{cursor:default;}
+  .quiz-explain{
+    margin-top:16px; padding:12px 14px; border-radius:9px; background:#FFF7E8; border:1.5px solid var(--amber);
+    font-size:13.5px; display:none; line-height:1.55;
+  }
+  .quiz-explain.show{display:block;}
+  .quiz-actions{margin-top:18px; display:flex; justify-content:flex-end;}
+  .quiz-result{padding:30px; text-align:center;}
+  .quiz-result .score-big{font-family:var(--font-display); font-size:clamp(40px,8vw,64px); color:var(--teal-dark); margin:6px 0;}
+  .quiz-result .score-msg{font-size:15px; color:var(--ink-soft); max-width:420px; margin:0 auto 20px;}
+
+  /* ---------- SUMMARY / DONE ---------- */
+  .summary-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-bottom:26px;}
+  .summary-item{padding:14px 16px; display:flex; gap:10px; align-items:flex-start;}
+  .summary-item .ic{font-size:20px;}
+  .summary-item p{margin:0; font-size:13px; color:var(--ink-soft); line-height:1.5;}
+  .summary-item strong{display:block; font-size:13.5px; margin-bottom:2px;}
+  .done-box{
+    padding:30px;
+    text-align:center;
+    background:var(--white);
+  }
+  .done-box .big-emoji{font-size:44px; display:block; margin-bottom:10px;}
+  .done-box h3{font-family:var(--font-display); font-size:22px; margin:0 0 8px;}
+  .done-box p{color:var(--ink-soft); font-size:14px; margin:0 0 22px;}
+
+  /* ---------- FOOTER NAV / SHEET TABS ---------- */
+  .controls{
+    flex-shrink:0;
+    border-top:2px solid var(--ink);
+    background:var(--white);
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    padding:8px clamp(10px,3vw,26px) 0;
+  }
+  .nav-arrow{
+    flex-shrink:0;
+    width:38px; height:38px;
+    border-radius:8px;
+    border:2px solid var(--ink);
+    background:var(--white);
+    cursor:pointer;
+    font-size:16px;
+    margin-bottom:8px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:2px 2px 0 var(--ink);
+  }
+  .nav-arrow:disabled{opacity:.3; cursor:not-allowed;}
+  .nav-arrow:not(:disabled):hover{background:var(--teal); color:var(--white);}
+  .tabs{
+    flex:1;
+    display:flex;
+    gap:4px;
+    overflow-x:auto;
+    scrollbar-width:thin;
+    padding-bottom:0;
+  }
+  .tabs::-webkit-scrollbar{height:5px;}
+  .tabs::-webkit-scrollbar-thumb{background:var(--paper-line); border-radius:4px;}
+  .tab{
+    flex-shrink:0;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    padding:9px 14px 8px;
+    border:2px solid var(--ink);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    background:var(--paper);
+    color:var(--ink-soft);
+    cursor:pointer;
+    position:relative;
+    top:2px;
+    white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--white);
+    color:var(--ink);
+    font-weight:700;
+    top:0;
+    padding-top:11px;
+  }
+  .tab .tick{color:var(--green); margin-right:4px;}
+
+  @media (max-width:600px){
+    .brand .title{display:none;}
+    .tab{font-size:10.5px; padding:8px 10px 7px;}
+    .table-scroll{border-radius:9px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark">D1</div>
+      <div class="title">Bab 1 · Bekerja dengan Data Terstruktur<small>Mapel Informatika — SMP</small></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+      <div class="progress-label" id="progressLabel">1 / 10</div>
+    </div>
+  </header>
+
+  <main class="stage" id="stage">
+
+    <!-- SLIDE 0 : COVER -->
+    <section class="slide active" data-title="Sampul">
+      <div class="cover">
+        <div class="cover-copy">
+          <div class="kicker">INFORMATIKA · KELAS VII–IX · BAB 1</div>
+          <h1>Bekerja dengan <span>Data Terstruktur</span></h1>
+          <p>Setiap hari kita bertemu data yang tersusun rapi: rapor nilai, jadwal pelajaran, sampai daftar kontak di HP. Yuk kenali apa itu data terstruktur, bagian-bagiannya, dan cara membacanya lewat contoh, latihan klik, dan kuis interaktif.</p>
+          <div class="cover-tags">
+            <span class="tag">📊 Interaktif</span>
+            <span class="tag">🧩 Ada Latihan</span>
+            <span class="tag">📝 Ada Kuis</span>
+            <span class="tag">👦 Untuk SMP</span>
+          </div>
+          <div class="formula-bar"><span class="fx">fx</span> = MULAI_BELAJAR("Bab 1: Data Terstruktur")</div>
+        </div>
+        <div class="cover-sheet">
+          <div class="corner-label">📁 contoh-data.xlsx</div>
+          <table>
+            <thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead>
+            <tbody>
+              <tr><td class="corner-label" style="border:none;">1</td><td><strong>Nama</strong></td><td><strong>Kelas</strong></td><td><strong>Nilai</strong></td></tr>
+              <tr><td class="corner-label" style="border:none;">2</td><td>Budi</td><td>VII-A</td><td>85</td></tr>
+              <tr><td class="corner-label" style="border:none;">3</td><td>Siti</td><td>VII-A</td><td>78</td></tr>
+              <tr><td class="corner-label" style="border:none;">4</td><td>Andi</td><td>VII-A</td><td>92</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1 : PENGERTIAN -->
+    <section class="slide" data-title="Pengertian">
+      <div class="eyebrow">01 — Konsep Dasar</div>
+      <h1 class="slide-title">Apa itu Data Terstruktur?</h1>
+      <p class="slide-lead">Data terstruktur adalah data yang disimpan dengan format dan aturan yang tetap — biasanya berbentuk <strong>tabel dengan baris dan kolom</strong> — sehingga mudah dicari, diurutkan, dan diolah, baik oleh manusia maupun oleh komputer.</p>
+
+      <p style="font-weight:600; margin-bottom:10px; font-size:14px;">Klik salah satu contoh untuk membandingkan 👇</p>
+      <div class="grid cols-2" id="pengertianToggle">
+        <div class="card" style="padding:16px;">
+          <div style="display:flex;gap:10px;margin-bottom:12px;">
+            <button class="btn btn-primary" data-target="terstruktur" id="btnTerstruktur">✅ Data Terstruktur</button>
+            <button class="btn" data-target="tidak" id="btnTidak">🌀 Data Tidak Terstruktur</button>
+          </div>
+          <div id="pengertianPreview"></div>
+        </div>
+        <div class="card" style="padding:16px;" id="pengertianExplain">
+          <h4 style="font-family:var(--font-display); margin:0 0 8px; font-size:15px;">Kenapa begitu?</h4>
+          <p style="font-size:13.5px; color:var(--ink-soft); line-height:1.6; margin:0;" id="pengertianExplainText"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2 : KARAKTERISTIK -->
+    <section class="slide" data-title="Karakteristik">
+      <div class="eyebrow">02 — Ciri-ciri</div>
+      <h1 class="slide-title">Karakteristik Data Terstruktur</h1>
+      <p class="slide-lead">Klik setiap kartu untuk membuka penjelasannya.</p>
+      <div class="grid" id="karakteristikGrid"></div>
+    </section>
+
+    <!-- SLIDE 3 : ANATOMI TABEL -->
+    <section class="slide" data-title="Anatomi Tabel">
+      <div class="eyebrow">03 — Coba Klik!</div>
+      <h1 class="slide-title">Anatomi Sebuah Tabel Data</h1>
+      <p class="slide-lead">Klik bagian tabel di bawah ini — nomor baris, judul kolom, atau salah satu sel — untuk melihat penjelasannya di panel sebelah.</p>
+      <div class="anatomy-wrap">
+        <div class="table-scroll card" style="padding:16px;">
+          <table class="datatable" id="anatomyTable">
+            <caption>Data Nilai Siswa Kelas VII-A</caption>
+            <thead>
+              <tr>
+                <th scope="col" data-col="0">No</th>
+                <th scope="col" data-col="1">Nama Siswa</th>
+                <th scope="col" data-col="2">Kelas</th>
+                <th scope="col" data-col="3">Nilai Matematika</th>
+                <th scope="col" data-col="4">Nilai IPA</th>
+              </tr>
+            </thead>
+            <tbody id="anatomyBody"></tbody>
+          </table>
+        </div>
+        <div class="info-panel card" id="anatomyInfo">
+          <span class="badge badge-idle">Belum ada yang diklik</span>
+          <h4>Silakan klik salah satu bagian tabel</h4>
+          <p>Ada 3 bagian yang bisa kamu jelajahi: <strong>baris</strong> (nomor di kiri), <strong>kolom / atribut</strong> (judul di atas), dan <strong>sel</strong> (isi data).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4 : ELEMEN TABEL -->
+    <section class="slide" data-title="Elemen Tabel">
+      <div class="eyebrow">04 — Istilah Penting</div>
+      <h1 class="slide-title">Empat Elemen Utama Tabel Data</h1>
+      <p class="slide-lead">Klik tiap istilah untuk melihat definisi dan contohnya.</p>
+      <div class="grid cols-2" id="elemenGrid"></div>
+    </section>
+
+    <!-- SLIDE 5 : CONTOH SEHARI-HARI -->
+    <section class="slide" data-title="Contoh Data">
+      <div class="eyebrow">05 — Di Sekitar Kita</div>
+      <h1 class="slide-title">Contoh Data Terstruktur Sehari-hari</h1>
+      <p class="slide-lead">Data terstruktur ternyata ada di banyak tempat. Klik salah satu kartu untuk melihat contoh tabelnya.</p>
+      <div class="gallery-grid" id="galleryGrid"></div>
+      <div class="gallery-preview card" id="galleryPreview"></div>
+    </section>
+
+    <!-- SLIDE 6 : LATIHAN -->
+    <section class="slide" data-title="Latihan">
+      <div class="eyebrow">06 — Latihan Interaktif</div>
+      <h1 class="slide-title">Yuk, Uji Pemahamanmu!</h1>
+      <p class="slide-lead">Klik bagian tabel sesuai perintah pada setiap soal.</p>
+      <div class="card" style="padding:18px;">
+        <div class="task-header">
+          <span class="task-badge" id="taskBadge">Soal 1 dari 4</span>
+          <span class="task-badge" id="taskScore">Benar: 0</span>
+        </div>
+        <p class="task-prompt" id="taskPrompt"></p>
+        <div class="table-scroll">
+          <table class="datatable" id="latihanTable">
+            <caption>Jadwal Piket Kelas VII-B</caption>
+            <thead>
+              <tr>
+                <th scope="col" data-col="0">No</th>
+                <th scope="col" data-col="1">Hari</th>
+                <th scope="col" data-col="2">Nama Siswa Piket</th>
+                <th scope="col" data-col="3">Tugas</th>
+              </tr>
+            </thead>
+            <tbody id="latihanBody"></tbody>
+          </table>
+        </div>
+        <div class="feedback" id="taskFeedback"></div>
+        <div style="margin-top:16px; display:flex; justify-content:flex-end; gap:10px;">
+          <button class="btn btn-primary" id="taskNextBtn" style="display:none;">Lanjut Soal Berikutnya →</button>
+          <button class="btn" id="taskResetBtn" style="display:none;">🔁 Ulangi Latihan</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7 : CONTOH SOAL -->
+    <section class="slide" data-title="Contoh Soal">
+      <div class="eyebrow">07 — Latihan Pemahaman</div>
+      <h1 class="slide-title">Contoh Soal &amp; Pembahasan</h1>
+      <p class="slide-lead">Coba jawab dulu di dalam hati, lalu klik pertanyaannya untuk melihat kunci jawabannya.</p>
+      <div id="qaList"></div>
+    </section>
+
+    <!-- SLIDE 8 : KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="eyebrow">08 — Kuis Akhir</div>
+      <h1 class="slide-title">Kuis: Data Terstruktur</h1>
+      <p class="slide-lead">Jawab 6 soal pilihan ganda berikut. Skormu akan muncul di akhir.</p>
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizArea"></div>
+    </section>
+
+    <!-- SLIDE 9 : RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="eyebrow">09 — Penutup</div>
+      <h1 class="slide-title">Rangkuman Bab 1</h1>
+      <div class="summary-grid">
+        <div class="card summary-item"><span class="ic">📋</span><div><strong>Data terstruktur</strong><p>Data yang disimpan dalam format tetap, biasanya berupa tabel baris &amp; kolom.</p></div></div>
+        <div class="card summary-item"><span class="ic">📏</span><div><strong>Baris (record)</strong><p>Satu set data lengkap tentang satu objek, misalnya satu siswa.</p></div></div>
+        <div class="card summary-item"><span class="ic">🏷️</span><div><strong>Kolom &amp; atribut</strong><p>Kategori data yang sama untuk semua baris, diberi nama lewat judul kolom.</p></div></div>
+        <div class="card summary-item"><span class="ic">🔲</span><div><strong>Sel</strong><p>Pertemuan satu baris dan satu kolom, berisi satu nilai data.</p></div></div>
+        <div class="card summary-item"><span class="ic">🗂️</span><div><strong>Contoh nyata</strong><p>Rapor nilai, jadwal pelajaran, kartu perpustakaan, daftar kontak.</p></div></div>
+        <div class="card summary-item"><span class="ic">🤖</span><div><strong>Kenapa penting</strong><p>Format tetap membuat data mudah dicari, difilter, dan diproses komputer.</p></div></div>
+      </div>
+      <div class="done-box card">
+        <span class="big-emoji">🎉</span>
+        <h3>Kerja bagus, kamu sudah menyelesaikan Bab 1!</h3>
+        <p>Lanjutkan ke halaman informasi bab untuk melihat materi lainnya.</p>
+        <a class="btn btn-primary" href="infob-bab1.html" style="font-size:15px; padding:12px 26px;">✅ Selesai — Kembali ke Info Bab 1</a>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="controls">
+    <button class="nav-arrow" id="prevBtn" aria-label="Slide sebelumnya">←</button>
+    <div class="tabs" id="tabs"></div>
+    <button class="nav-arrow" id="nextBtn" aria-label="Slide berikutnya">→</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ NAVIGASI SLIDE ============ */
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const tabsWrap = document.getElementById('tabs');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (i === 0 ? ' active' : '');
+    tab.innerHTML = '<span class="tick" style="display:none;">✓</span>' + (i+1) + '. ' + s.dataset.title;
+    tab.addEventListener('click', () => goTo(i));
+    tabsWrap.appendChild(tab);
+  });
+  const tabEls = Array.from(tabsWrap.children);
+
+  function goTo(i){
+    if(i < 0 || i >= slides.length) return;
+    slides[current].classList.remove('active');
+    tabEls[current].classList.remove('active');
+    current = i;
+    slides[current].classList.add('active');
+    tabEls[current].classList.add('active');
+    document.getElementById('stage').scrollTop = 0;
+    const active = tabEls[current];
+    active.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+    progressFill.style.width = (((current+1)/slides.length)*100) + '%';
+    progressLabel.textContent = (current+1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+  prevBtn.addEventListener('click', () => goTo(current-1));
+  nextBtn.addEventListener('click', () => goTo(current+1));
+  document.addEventListener('keydown', (e) => {
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if(e.key === 'ArrowRight') goTo(current+1);
+    if(e.key === 'ArrowLeft') goTo(current-1);
+  });
+  goTo(0);
+
+  /* ============ SLIDE 1: PENGERTIAN TOGGLE ============ */
+  const pengertianData = {
+    terstruktur: {
+      preview: `<div style="font-family:var(--font-mono); font-size:12.5px; border:1.5px solid var(--ink); border-radius:8px; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse;">
+          <thead><tr style="background:var(--ink); color:#fff;"><th style="padding:7px 9px; text-align:left;">Nama</th><th style="padding:7px 9px; text-align:left;">Nilai</th></tr></thead>
+          <tbody>
+            <tr><td style="padding:7px 9px; border-top:1px solid var(--paper-line);">Budi</td><td style="padding:7px 9px; border-top:1px solid var(--paper-line);">85</td></tr>
+            <tr style="background:#F7FAF6;"><td style="padding:7px 9px; border-top:1px solid var(--paper-line);">Siti</td><td style="padding:7px 9px; border-top:1px solid var(--paper-line);">78</td></tr>
+          </tbody>
+        </table></div>`,
+      explain: "Data di atas rapi: setiap baris punya kolom yang sama (Nama, Nilai), dan tipe datanya konsisten (teks lalu angka). Karena polanya tetap, komputer dan manusia sama-sama mudah mencari atau mengurutkannya."
+    },
+    tidak: {
+      preview: `<div style="font-family:var(--font-body); font-size:13px; border:1.5px dashed var(--ink-soft); border-radius:8px; padding:14px; background:#FAFAF8; line-height:1.6; color:var(--ink-soft);">
+        "hari ini seruu bgttt jalan2 sama temen, capek tapi happy!! 📸✨ #weekend"</div>`,
+      explain: "Tulisan bebas seperti caption media sosial, foto, atau rekaman suara tidak punya format tetap. Tidak ada 'kolom' yang pasti, sehingga lebih sulit dicari atau diolah otomatis oleh mesin."
+    }
+  };
+  function setPengertian(key){
+    document.getElementById('pengertianPreview').innerHTML = pengertianData[key].preview;
+    document.getElementById('pengertianExplainText').textContent = pengertianData[key].explain;
+    document.getElementById('btnTerstruktur').className = 'btn' + (key==='terstruktur' ? ' btn-primary' : '');
+    document.getElementById('btnTidak').className = 'btn' + (key==='tidak' ? ' btn-coral' : '');
+  }
+  document.getElementById('btnTerstruktur').addEventListener('click', () => setPengertian('terstruktur'));
+  document.getElementById('btnTidak').addEventListener('click', () => setPengertian('tidak'));
+  setPengertian('terstruktur');
+
+  /* ============ SLIDE 2: KARAKTERISTIK ============ */
+  const karakteristik = [
+    {t:"Format Tetap", d:"Setiap baris memiliki jumlah dan jenis kolom yang sama, tidak berubah-ubah dari satu baris ke baris lain."},
+    {t:"Tipe Data Konsisten", d:"Satu kolom selalu berisi jenis data yang sama, misalnya kolom 'Nilai' selalu berisi angka, bukan campuran teks dan angka."},
+    {t:"Mudah Dicari & Diurutkan", d:"Karena polanya teratur, kita bisa dengan cepat mencari, menyaring (filter), atau mengurutkan data."},
+    {t:"Mudah Diproses Mesin", d:"Komputer dapat membaca dan menghitung data terstruktur secara otomatis, misalnya menjumlahkan nilai di spreadsheet."},
+    {t:"Disimpan dalam Tabel", d:"Biasanya disimpan dalam bentuk tabel, spreadsheet (seperti Excel/Sheets), atau basis data (database)."}
+  ];
+  const karGrid = document.getElementById('karakteristikGrid');
+  karakteristik.forEach((k, i) => {
+    const el = document.createElement('div');
+    el.className = 'card flip-card';
+    el.innerHTML = `<div class="num">Ciri ${String(i+1).padStart(2,'0')}</div><h3>${k.t}</h3><p>${k.d}</p><span class="toggle-hint">Klik untuk buka ▾</span>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    karGrid.appendChild(el);
+  });
+
+  /* ============ SLIDE 3: ANATOMI TABEL ============ */
+  const anatomyData = [
+    {no:1, nama:"Budi Santoso", kelas:"VII-A", mtk:85, ipa:90},
+    {no:2, nama:"Siti Aminah", kelas:"VII-A", mtk:78, ipa:88},
+    {no:3, nama:"Andi Wijaya", kelas:"VII-A", mtk:92, ipa:85},
+    {no:4, nama:"Dewi Lestari", kelas:"VII-A", mtk:88, ipa:91}
+  ];
+  const anatomyCols = ["No","Nama Siswa","Kelas","Nilai Matematika","Nilai IPA"];
+  const anatomyBody = document.getElementById('anatomyBody');
+  anatomyData.forEach((row, rIdx) => {
+    const tr = document.createElement('tr');
+    tr.dataset.row = rIdx;
+    tr.innerHTML = `
+      <th scope="row" data-row="${rIdx}" data-col="0" data-tag="rowhead">${row.no}</th>
+      <td data-row="${rIdx}" data-col="1" data-tag="cell">${row.nama}</td>
+      <td data-row="${rIdx}" data-col="2" data-tag="cell">${row.kelas}</td>
+      <td data-row="${rIdx}" data-col="3" data-tag="cell">${row.mtk}</td>
+      <td data-row="${rIdx}" data-col="4" data-tag="cell">${row.ipa}</td>
+    `;
+    anatomyBody.appendChild(tr);
+  });
+
+  function clearAnatomyHighlight(){
+    document.querySelectorAll('#anatomyTable th, #anatomyTable td').forEach(el => {
+      el.classList.remove('hl-col','hl-row','hl-cell');
+    });
+  }
+  function setAnatomyInfo(badgeClass, badgeText, title, text){
+    const panel = document.getElementById('anatomyInfo');
+    panel.innerHTML = `<span class="badge ${badgeClass}">${badgeText}</span><h4>${title}</h4><p>${text}</p>`;
+  }
+
+  document.getElementById('anatomyTable').addEventListener('click', (e) => {
+    const target = e.target.closest('th,td');
+    if(!target) return;
+    clearAnatomyHighlight();
+
+    if(target.tagName === 'TH' && target.closest('thead')){
+      const col = target.dataset.col;
+      document.querySelectorAll(`#anatomyTable [data-col="${col}"]`).forEach(el => el.classList.add('hl-col'));
+      setAnatomyInfo('badge-col', 'KOLOM / ATRIBUT', `Kolom: "${anatomyCols[col]}"`,
+        `Ini disebut <strong>kolom</strong> (field). Nama judulnya, yaitu "${anatomyCols[col]}", disebut <strong>atribut</strong> — atribut menjelaskan jenis data apa yang tersimpan di seluruh sel pada kolom ini.`);
+      return;
+    }
+    if(target.dataset.tag === 'rowhead'){
+      const row = target.dataset.row;
+      document.querySelectorAll(`#anatomyTable tr[data-row="${row}"] th, #anatomyTable tr[data-row="${row}"] td`).forEach(el => el.classList.add('hl-row'));
+      const d = anatomyData[row];
+      setAnatomyInfo('badge-row', 'BARIS / RECORD', `Baris ke-${d.no}: data milik "${d.nama}"`,
+        `Ini disebut <strong>baris</strong> (record). Satu baris berisi satu set data lengkap tentang satu objek — di sini, semua informasi tentang siswa bernama <strong>${d.nama}</strong>.`);
+      return;
+    }
+    if(target.dataset.tag === 'cell'){
+      const row = target.dataset.row, col = target.dataset.col;
+      target.classList.add('hl-cell');
+      const d = anatomyData[row];
+      setAnatomyInfo('badge-cell', 'SEL / VALUE', `Sel: "${target.textContent}"`,
+        `Ini disebut <strong>sel</strong>. Sel adalah pertemuan antara baris ke-${d.no} dan kolom "${anatomyCols[col]}", dan berisi satu nilai data, yaitu <strong>${target.textContent}</strong>.`);
+    }
+  });
+
+  /* ============ SLIDE 4: ELEMEN TABEL ============ */
+  const elemen = [
+    {emoji:"📏", t:"Baris (Row / Record)", d:"Satu set data lengkap yang menggambarkan satu objek atau satu orang. Contoh: satu baris berisi semua data tentang satu siswa (nama, kelas, nilai)."},
+    {emoji:"📐", t:"Kolom (Column / Field)", d:"Kumpulan data dengan kategori yang sama untuk semua baris. Contoh: kolom 'Nilai Matematika' berisi nilai matematika semua siswa."},
+    {emoji:"🏷️", t:"Atribut", d:"Nama atau judul dari sebuah kolom yang menjelaskan jenis datanya. Contoh: atribut 'Kelas' menunjukkan bahwa kolom itu berisi data kelas."},
+    {emoji:"🔲", t:"Sel (Cell)", d:"Titik pertemuan antara satu baris dan satu kolom, berisi satu nilai data tunggal. Contoh: sel di baris Budi dan kolom Nilai Matematika berisi angka 85."}
+  ];
+  const elemenGrid = document.getElementById('elemenGrid');
+  elemen.forEach(e => {
+    const el = document.createElement('div');
+    el.className = 'card flip-card';
+    el.innerHTML = `<div class="num">${e.emoji}</div><h3>${e.t}</h3><p>${e.d}</p><span class="toggle-hint">Klik untuk buka ▾</span>`;
+    el.addEventListener('click', () => el.classList.toggle('open'));
+    elemenGrid.appendChild(el);
+  });
+
+  /* ============ SLIDE 5: GALLERY CONTOH ============ */
+  const galleryData = [
+    {id:'rapor', emoji:'📘', t:'Rapor Nilai', s:'Nilai per mata pelajaran', cols:['Mapel','Nilai','Predikat'], rows:[['Matematika','85','B'],['IPA','90','A'],['Bahasa Indonesia','88','A']]},
+    {id:'jadwal', emoji:'🗓️', t:'Jadwal Pelajaran', s:'Jadwal harian di kelas', cols:['Jam','Senin','Selasa'], rows:[['07.00-08.30','Matematika','IPA'],['08.30-10.00','B. Indonesia','Informatika']]},
+    {id:'perpus', emoji:'📚', t:'Kartu Anggota Perpustakaan', s:'Data peminjaman buku', cols:['No Anggota','Nama','Buku Dipinjam'], rows:[['A001','Rina','Laskar Pelangi'],['A002','Fajar','Bumi Manusia']]},
+    {id:'kontak', emoji:'📱', t:'Daftar Kontak HP', s:'Nama dan nomor telepon', cols:['Nama','Nomor','Kategori'], rows:[['Ibu','0812-xxxx','Keluarga'],['Pak Guru','0813-xxxx','Sekolah']]},
+    {id:'skor', emoji:'🏆', t:'Skor Pertandingan', s:'Hasil lomba antar kelas', cols:['Kelas','Cabang','Skor'], rows:[['VII-A','Futsal','3'],['VII-B','Futsal','1']]}
+  ];
+  const galleryGrid = document.getElementById('galleryGrid');
+  const galleryPreview = document.getElementById('galleryPreview');
+  function renderGalleryPreview(item){
+    let rowsHtml = item.rows.map(r => '<tr>' + r.map(c => `<td style="padding:8px 10px; border-top:1px solid var(--paper-line);">${c}</td>`).join('') + '</tr>').join('');
+    galleryPreview.innerHTML = `
+      <h4>${item.emoji} ${item.t}</h4>
+      <div class="table-scroll"><table style="width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12.5px;">
+        <thead><tr>${item.cols.map(c => `<th style="background:var(--ink); color:#fff; padding:8px 10px; text-align:left;">${c}</th>`).join('')}</tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table></div>
+      <p style="margin-top:10px; font-size:12.5px; color:var(--ink-soft);">Ini adalah data terstruktur karena tersusun rapi dalam baris dan kolom dengan atribut yang jelas.</p>`;
+    galleryPreview.classList.add('show');
+  }
+  galleryData.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'card gallery-card';
+    card.innerHTML = `<span class="emoji">${item.emoji}</span><h4>${item.t}</h4><p>${item.s}</p>`;
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.gallery-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      renderGalleryPreview(item);
+    });
+    galleryGrid.appendChild(card);
+  });
+  // tampilkan contoh pertama secara default
+  document.querySelector('.gallery-card').classList.add('active');
+  renderGalleryPreview(galleryData[0]);
+
+  /* ============ SLIDE 6: LATIHAN INTERAKTIF ============ */
+  const latihanData = [
+    {no:1, hari:"Senin", nama:"Rina", tugas:"Menyapu"},
+    {no:2, hari:"Selasa", nama:"Fajar", tugas:"Mengepel"},
+    {no:3, hari:"Rabu", nama:"Nabila", tugas:"Membuang Sampah"},
+    {no:4, hari:"Kamis", nama:"Yusuf", tugas:"Merapikan Meja"}
+  ];
+  const latihanCols = ["No","Hari","Nama Siswa Piket","Tugas"];
+  const latihanBody = document.getElementById('latihanBody');
+  latihanData.forEach((row, rIdx) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <th scope="row" data-row="${rIdx}" data-col="0" data-tag="rowhead">${row.no}</th>
+      <td data-row="${rIdx}" data-col="1" data-tag="cell">${row.hari}</td>
+      <td data-row="${rIdx}" data-col="2" data-tag="cell">${row.nama}</td>
+      <td data-row="${rIdx}" data-col="3" data-tag="cell">${row.tugas}</td>
+    `;
+    latihanBody.appendChild(tr);
+  });
+
+  const tasks = [
+    {prompt:'1️⃣ Klik salah satu ATRIBUT (judul kolom) pada tabel di bawah ini!', type:'column', check:(t)=> t.tagName==='TH' && t.closest('thead')},
+    {prompt:'2️⃣ Klik BARIS yang berisi jadwal piket hari "Rabu"!', type:'row', check:(t)=> t.dataset.tag==='rowhead' && latihanData[t.dataset.row].hari==='Rabu'},
+    {prompt:'3️⃣ Klik SEL yang berisi nama siswa piket pada hari "Selasa"!', type:'cell', check:(t)=> t.dataset.tag==='cell' && t.dataset.col==='2' && latihanData[t.dataset.row].hari==='Selasa'},
+    {prompt:'4️⃣ Klik KOLOM (atribut) yang menunjukkan jenis tugas piket!', type:'column', check:(t)=> t.tagName==='TH' && t.closest('thead') && t.dataset.col==='3'}
+  ];
+  let taskIndex = 0, taskScore = 0, taskDone = false;
+  const taskBadge = document.getElementById('taskBadge');
+  const taskScoreEl = document.getElementById('taskScore');
+  const taskPrompt = document.getElementById('taskPrompt');
+  const taskFeedback = document.getElementById('taskFeedback');
+  const taskNextBtn = document.getElementById('taskNextBtn');
+  const taskResetBtn = document.getElementById('taskResetBtn');
+
+  function loadTask(){
+    clearLatihanHighlight();
+    taskFeedback.className = 'feedback';
+    taskFeedback.textContent = '';
+    taskNextBtn.style.display = 'none';
+    taskDone = false;
+    if(taskIndex >= tasks.length){
+      taskPrompt.textContent = '🎉 Kerja bagus! Kamu sudah menyelesaikan semua latihan.';
+      taskBadge.textContent = 'Selesai';
+      taskResetBtn.style.display = 'inline-flex';
+      document.getElementById('latihanTable').style.pointerEvents = 'none';
+      document.getElementById('latihanTable').style.opacity = '0.6';
+      return;
+    }
+    taskBadge.textContent = `Soal ${taskIndex+1} dari ${tasks.length}`;
+    taskPrompt.textContent = tasks[taskIndex].prompt;
+    taskScoreEl.textContent = `Benar: ${taskScore}`;
+  }
+  function clearLatihanHighlight(){
+    document.querySelectorAll('#latihanTable th, #latihanTable td').forEach(el => el.classList.remove('hl-col','hl-row','hl-cell'));
+  }
+  document.getElementById('latihanTable').addEventListener('click', (e) => {
+    if(taskDone || taskIndex >= tasks.length) return;
+    const target = e.target.closest('th,td');
+    if(!target) return;
+    const task = tasks[taskIndex];
+    const ok = task.check(target);
+    clearLatihanHighlight();
+    if(target.tagName==='TH' && target.closest('thead')){
+      document.querySelectorAll(`#latihanTable [data-col="${target.dataset.col}"]`).forEach(el=>el.classList.add('hl-col'));
+    } else if(target.dataset.tag === 'rowhead'){
+      document.querySelectorAll(`#latihanTable tr[data-row="${target.dataset.row}"] th, #latihanTable tr[data-row="${target.dataset.row}"] td`).forEach(el=>el.classList.add('hl-row'));
+    } else {
+      target.classList.add('hl-cell');
+    }
+    if(ok){
+      taskFeedback.className = 'feedback show ok';
+      taskFeedback.textContent = '✅ Benar! ' + (task.type==='column' ? 'Itu adalah kolom/atribut.' : task.type==='row' ? 'Itu adalah baris (record) yang tepat.' : 'Itu adalah sel yang tepat.');
+      taskScore++;
+      taskDone = true;
+      taskScoreEl.textContent = `Benar: ${taskScore}`;
+      taskNextBtn.style.display = 'inline-flex';
+    } else {
+      taskFeedback.className = 'feedback show bad';
+      taskFeedback.textContent = '❌ Belum tepat, coba klik bagian lain sesuai perintah di atas.';
+    }
+  });
+  taskNextBtn.addEventListener('click', () => { taskIndex++; loadTask(); });
+  taskResetBtn.addEventListener('click', () => {
+    taskIndex = 0; taskScore = 0;
+    document.getElementById('latihanTable').style.pointerEvents = 'auto';
+    document.getElementById('latihanTable').style.opacity = '1';
+    taskResetBtn.style.display = 'none';
+    loadTask();
+  });
+  loadTask();
+
+  /* ============ SLIDE 7: CONTOH SOAL (ACCORDION) ============ */
+  const qaData = [
+    {q:'Perhatikan tabel jadwal pelajaran mingguan. Apa yang dimaksud dengan "baris" pada tabel tersebut?', a:'Baris pada tabel jadwal pelajaran adalah satu jadwal utuh untuk satu jam atau satu hari tertentu — misalnya semua pelajaran yang berlangsung pada jam 07.00–08.30 di berbagai hari.'},
+    {q:'Sebutkan tiga contoh kolom yang mungkin ada dalam tabel data siswa!', a:'Beberapa contoh kolom yang mungkin ada: Nama, Kelas, Nomor Absen, Nilai, Alamat, atau Tanggal Lahir. Setiap kolom mewakili satu jenis informasi yang sama untuk semua siswa.'},
+    {q:'Mengapa daftar kontak di HP (nama dan nomor telepon) termasuk contoh data terstruktur?', a:'Karena disimpan dengan format tetap: setiap kontak selalu memiliki kolom "Nama" dan "Nomor Telepon" yang polanya sama, sehingga mudah dicari dan diurutkan oleh sistem HP.'},
+    {q:'Apa perbedaan antara "atribut" dan "nilai data" (value) dalam sebuah tabel?', a:'Atribut adalah nama atau judul kolom yang menjelaskan jenis datanya (misalnya "Nilai Matematika"), sedangkan nilai data adalah isi sebenarnya yang tersimpan di dalam sel pada kolom tersebut (misalnya angka 85).'},
+    {q:'Berikan satu contoh data TIDAK terstruktur dari kehidupan sehari-hari, dan jelaskan alasannya!', a:'Contohnya adalah foto liburan, rekaman suara, atau curhatan bebas di media sosial. Data ini tidak memiliki format kolom/baris yang tetap, sehingga lebih sulit dicari atau diproses secara otomatis oleh mesin.'}
+  ];
+  const qaList = document.getElementById('qaList');
+  qaData.forEach((item, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'card qa-item';
+    wrap.innerHTML = `
+      <button class="qa-q"><span><span class="qnum">Soal ${i+1}.</span>${item.q}</span><span class="chevron">＋</span></button>
+      <div class="qa-a"><strong>Kunci Jawaban:</strong> ${item.a}</div>
+    `;
+    const btn = wrap.querySelector('.qa-q');
+    const ans = wrap.querySelector('.qa-a');
+    btn.addEventListener('click', () => {
+      const isOpen = wrap.classList.toggle('open');
+      ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0';
+    });
+    qaList.appendChild(wrap);
+  });
+
+  /* ============ SLIDE 8: KUIS ============ */
+  const quizData = [
+    {q:'Data terstruktur adalah data yang…', opts:['Disimpan bebas tanpa aturan tertentu','Disimpan dalam format tetap seperti tabel dengan baris dan kolom','Hanya berupa gambar dan video','Tidak bisa diolah oleh komputer'], correct:1, explain:'Data terstruktur punya format tetap—biasanya tabel dengan baris dan kolom—sehingga mudah dicari dan diolah.'},
+    {q:'Satu set data lengkap tentang satu objek dalam tabel (misalnya data satu siswa) disebut…', opts:['Kolom','Atribut','Baris (Record)','Sel'], correct:2, explain:'Baris (record) berisi semua informasi tentang satu objek/orang, misalnya satu baris untuk satu siswa.'},
+    {q:'Nama kategori data seperti "Nama", "Kelas", atau "Nilai" pada judul tabel disebut…', opts:['Baris','Atribut / Kolom','Sel','Data tidak terstruktur'], correct:1, explain:'Judul kolom yang menjelaskan jenis datanya disebut atribut, dan itu adalah nama dari kolom tersebut.'},
+    {q:'Pertemuan antara satu baris dan satu kolom yang berisi satu nilai data disebut…', opts:['Record','Field','Sel (Cell)','Tabel'], correct:2, explain:'Sel (cell) adalah titik pertemuan baris dan kolom yang berisi satu nilai data tunggal.'},
+    {q:'Manakah berikut ini yang merupakan contoh data TIDAK terstruktur?', opts:['Tabel nilai rapor','Jadwal pelajaran dalam bentuk tabel','Curhatan bebas di caption media sosial','Daftar kontak di HP'], correct:2, explain:'Tulisan bebas seperti caption medsos tidak memiliki format kolom/baris tetap, jadi termasuk data tidak terstruktur.'},
+    {q:'Salah satu ciri/karakteristik data terstruktur adalah…', opts:['Formatnya berubah-ubah setiap baris','Sulit dicari dan diolah','Setiap kolom memiliki tipe data yang konsisten','Hanya bisa dibaca manusia, tidak bisa diproses mesin'], correct:2, explain:'Data terstruktur punya tipe data yang konsisten di tiap kolom, misalnya kolom nilai selalu berisi angka.'}
+  ];
+  let quizIndex = 0;
+  let quizAnswers = new Array(quizData.length).fill(null);
+  const quizProgress = document.getElementById('quizProgress');
+  const quizArea = document.getElementById('quizArea');
+
+  function renderQuizProgress(){
+    quizProgress.innerHTML = '';
+    quizData.forEach((_, i) => {
+      const dot = document.createElement('div');
+      let cls = 'quiz-dot';
+      if(i === quizIndex) cls += ' current';
+      else if(quizAnswers[i] !== null){
+        cls += quizAnswers[i] === quizData[i].correct ? ' correct' : ' wrong';
+      }
+      dot.className = cls;
+      dot.textContent = i+1;
+      quizProgress.appendChild(dot);
+    });
+  }
+
+  function renderQuizQuestion(){
+    if(quizIndex >= quizData.length){
+      renderQuizResult();
+      return;
+    }
+    renderQuizProgress();
+    const item = quizData[quizIndex];
+    const answered = quizAnswers[quizIndex] !== null;
+    const letters = ['A','B','C','D'];
+    quizArea.innerHTML = `
+      <div class="card quiz-card">
+        <p class="quiz-q">Soal ${quizIndex+1}: ${item.q}</p>
+        <div class="quiz-options">
+          ${item.opts.map((o,i) => `<div class="quiz-opt${answered ? ' disabled' : ''}" data-i="${i}"><span class="letter">${letters[i]}</span><span>${o}</span></div>`).join('')}
+        </div>
+        <div class="quiz-explain" id="quizExplain">💡 <strong>Pembahasan:</strong> ${item.explain}</div>
+        <div class="quiz-actions">
+          <button class="btn btn-primary" id="quizNextBtn" ${answered ? '' : 'disabled'}>${quizIndex === quizData.length-1 ? 'Lihat Hasil →' : 'Soal Berikutnya →'}</button>
+        </div>
+      </div>
+    `;
+    if(answered) revealQuizAnswer();
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if(quizAnswers[quizIndex] !== null) return;
+        quizAnswers[quizIndex] = parseInt(opt.dataset.i, 10);
+        opt.classList.add('selected');
+        revealQuizAnswer();
+        renderQuizProgress();
+        document.getElementById('quizNextBtn').disabled = false;
+        quizArea.querySelectorAll('.quiz-opt').forEach(o => o.classList.add('disabled'));
+      });
+    });
+    document.getElementById('quizNextBtn').addEventListener('click', () => {
+      quizIndex++;
+      renderQuizQuestion();
+    });
+  }
+  function revealQuizAnswer(){
+    const item = quizData[quizIndex];
+    const chosen = quizAnswers[quizIndex];
+    quizArea.querySelectorAll('.quiz-opt').forEach(opt => {
+      const i = parseInt(opt.dataset.i, 10);
+      if(i === item.correct) opt.classList.add('correct');
+      else if(i === chosen) opt.classList.add('wrong');
+    });
+    document.getElementById('quizExplain').classList.add('show');
+  }
+  function renderQuizResult(){
+    renderQuizProgress();
+    const score = quizAnswers.reduce((acc, ans, i) => acc + (ans === quizData[i].correct ? 1 : 0), 0);
+    const total = quizData.length;
+    let msg = '';
+    if(score === total) msg = 'Sempurna! Kamu benar-benar memahami konsep data terstruktur. 🌟';
+    else if(score >= total*0.6) msg = 'Bagus! Sedikit lagi untuk benar-benar menguasai materi ini. 💪';
+    else msg = 'Yuk, coba pelajari lagi bagian anatomi tabel dan elemen tabel, lalu ulangi kuisnya. 📖';
+    quizArea.innerHTML = `
+      <div class="card quiz-result">
+        <div style="font-size:36px;">${score===total ? '🏆' : score >= total*0.6 ? '🎯' : '📘'}</div>
+        <div class="score-big">${score} / ${total}</div>
+        <p class="score-msg">${msg}</p>
+        <button class="btn btn-primary" id="quizRetryBtn">🔁 Ulangi Kuis</button>
+      </div>
+    `;
+    document.getElementById('quizRetryBtn').addEventListener('click', () => {
+      quizIndex = 0;
+      quizAnswers = new Array(quizData.length).fill(null);
+      renderQuizQuestion();
+    });
+  }
+  renderQuizQuestion();
+
+})();
+</script>
+</body>
+</html>

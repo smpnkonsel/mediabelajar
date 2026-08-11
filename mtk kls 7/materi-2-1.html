@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Pecahan dan Lambangnya — Bab 2 Bilangan Rasional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#12203D;
+  --bg-deep:#0C1830;
+  --panel:#1B2F57;
+  --panel-soft:#213868;
+  --line:rgba(245,243,238,.14);
+  --text:#F4F2EA;
+  --text-dim:#AEBADA;
+  --amber:#FFB627;
+  --amber-deep:#E89B12;
+  --coral:#FF6F6B;
+  --mint:#22D3AC;
+  --violet:#9C8CFF;
+  --r-lg:26px;
+  --r-md:16px;
+  --r-sm:10px;
+  --shadow: 0 20px 50px rgba(4,9,25,.45);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(circle at 12% -10%, #24407a 0%, transparent 45%),
+    radial-gradient(circle at 90% 110%, #1c3562 0%, transparent 50%),
+    var(--bg);
+  color:var(--text);
+  overflow:hidden;
+  height:100vh;
+  width:100vw;
+  position:relative;
+}
+.eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--amber);
+  font-weight:700;
+}
+h1,h2,h3{font-family:'Fredoka',sans-serif; font-weight:600; letter-spacing:.01em;}
+
+/* ===== App shell ===== */
+#app{
+  height:100%;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+}
+#deck{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding: clamp(1.1rem,3vw,2.6rem) clamp(1.2rem,6vw,5rem) clamp(1rem,3vw,2rem);
+  overflow-y:auto;
+  opacity:0;
+  transform:translateX(24px);
+}
+.slide.active{
+  display:flex;
+  animation:slideIn .5s cubic-bezier(.22,.8,.28,1) forwards;
+}
+.slide.leaving{
+  animation:slideOut .35s ease forwards;
+}
+@keyframes slideIn{ from{opacity:0; transform:translateX(28px);} to{opacity:1; transform:translateX(0);} }
+@keyframes slideOut{ from{opacity:1;} to{opacity:0; transform:translateX(-28px);} }
+@media (prefers-reduced-motion: reduce){
+  .slide.active, .slide.leaving{ animation:none !important; opacity:1; transform:none; }
+}
+
+.slide-inner{
+  width:100%;
+  max-width:980px;
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:1.1rem;
+  padding-bottom: 1.5rem;
+}
+
+/* ===== Top bar ===== */
+#topbar{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  padding: .8rem clamp(1rem,4vw,2.6rem);
+  border-bottom:1px solid var(--line);
+  background:rgba(12,22,45,.6);
+  backdrop-filter:blur(6px);
+  z-index:20;
+}
+#topbar .brand{
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:.95rem;
+  color:var(--text);
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+}
+#topbar .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--amber);}
+#progress-track{
+  flex:1;
+  height:6px;
+  border-radius:99px;
+  background:var(--panel-soft);
+  overflow:hidden;
+}
+#progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg, var(--mint), var(--amber));
+  border-radius:99px;
+  transition:width .4s ease;
+}
+#slide-counter{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.78rem;
+  color:var(--text-dim);
+  white-space:nowrap;
+}
+
+/* ===== Bottom nav ===== */
+#navbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  padding: .7rem clamp(1rem,4vw,2.6rem) .9rem;
+  border-top:1px solid var(--line);
+  background:rgba(12,22,45,.6);
+  backdrop-filter:blur(6px);
+  z-index:20;
+}
+.navbtn{
+  font-family:'Inter',sans-serif;
+  font-weight:700;
+  font-size:.85rem;
+  border:none;
+  cursor:pointer;
+  border-radius:99px;
+  padding:.65rem 1.15rem;
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+  transition:transform .15s ease, filter .15s ease, opacity .15s ease;
+}
+.navbtn:active{transform:scale(.96);}
+.navbtn.primary{background:var(--amber); color:#20242E;}
+.navbtn.primary:hover{filter:brightness(1.08);}
+.navbtn.ghost{background:var(--panel-soft); color:var(--text);}
+.navbtn.ghost:hover{filter:brightness(1.15);}
+.navbtn:disabled{opacity:.35; cursor:not-allowed;}
+#dots{
+  display:flex;
+  gap:.4rem;
+  flex-wrap:wrap;
+  justify-content:center;
+  max-width:46vw;
+}
+.dot-btn{
+  width:9px; height:9px; border-radius:50%;
+  background:var(--panel-soft);
+  border:none; cursor:pointer;
+  transition:all .2s ease;
+  padding:0;
+}
+.dot-btn.active{ width:22px; border-radius:99px; background:var(--amber);}
+.dot-btn.done{background:var(--mint);}
+@media (max-width:700px){
+  #dots{display:none;}
+  #slide-counter{order:3;}
+  .navbtn span.label{display:none;}
+  .navbtn{padding:.65rem .9rem;}
+}
+
+/* ===== Reusable content styles ===== */
+.pill{
+  display:inline-flex; align-items:center; gap:.4rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+  background:var(--panel-soft); color:var(--amber);
+  padding:.35rem .75rem; border-radius:99px; width:fit-content;
+  border:1px solid var(--line);
+}
+.big-title{font-size:clamp(1.7rem,4.6vw,2.7rem); line-height:1.12;}
+.sub{color:var(--text-dim); font-size:clamp(.95rem,2vw,1.08rem); line-height:1.6; max-width:64ch;}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  padding:clamp(1.1rem,2.4vw,1.8rem);
+  box-shadow:var(--shadow);
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:1.1rem;}
+@media (max-width:760px){.grid2{grid-template-columns:1fr;}}
+.frac{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  display:inline-flex; flex-direction:column; align-items:center;
+  line-height:1;
+}
+.frac .num{padding:0 .3em .18em;}
+.frac .den{padding:.18em .3em 0; border-top:2.5px solid currentColor;}
+.btn-chip{
+  font-family:'Inter',sans-serif; font-weight:700; font-size:.85rem;
+  background:var(--panel-soft); color:var(--text);
+  border:1px solid var(--line); border-radius:99px;
+  padding:.55rem 1.1rem; cursor:pointer; transition:all .15s ease;
+}
+.btn-chip:hover{background:var(--amber); color:#20242E; transform:translateY(-1px);}
+.btn-chip.active{background:var(--mint); color:#0C1830; border-color:var(--mint);}
+.tag{font-size:.72rem; font-weight:700; padding:.25rem .6rem; border-radius:6px; letter-spacing:.03em;}
+.tag.amber{background:rgba(255,182,39,.16); color:var(--amber);}
+.tag.mint{background:rgba(34,211,172,.16); color:var(--mint);}
+.tag.coral{background:rgba(255,111,107,.16); color:var(--coral);}
+.tag.violet{background:rgba(156,140,255,.16); color:var(--violet);}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--panel-soft); border-radius:99px;}
+
+/* ===================== SLIDE 1 — COVER ===================== */
+#s1 .slide-inner{align-items:center; text-align:center; justify-content:center; min-height:60vh; gap:1.5rem;}
+.cover-orbit{position:relative; width:min(70vw,220px); height:min(70vw,220px); margin:.2rem 0;}
+.pizza-deco{width:100%; height:100%;}
+#s1 h1{font-size:clamp(2rem,6vw,3.4rem); line-height:1.08;}
+#s1 h1 .accent{color:var(--amber);}
+.cover-meta{display:flex; gap:.6rem; flex-wrap:wrap; justify-content:center;}
+
+/* ===================== SLIDE 2 — TUJUAN ===================== */
+.goal-card{
+  display:flex; gap:1rem; align-items:flex-start;
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-md);
+  padding:1.1rem 1.3rem;
+}
+.goal-num{
+  font-family:'Fredoka'; font-weight:600; font-size:1.3rem;
+  width:2.4rem; height:2.4rem; min-width:2.4rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--amber); color:#20242E;
+}
+
+/* ===================== SLIDE 3 — PIZZA INTERACTIVE ===================== */
+.pizza-wrap{display:flex; gap:1.6rem; align-items:center; flex-wrap:wrap; justify-content:center;}
+#pizzaSvg{width:min(60vw,240px); height:min(60vw,240px); cursor:pointer; filter:drop-shadow(0 12px 24px rgba(0,0,0,.35));}
+#pizzaSvg path{transition:fill .15s ease, opacity .15s ease;}
+#pizzaSvg path:hover{opacity:.85;}
+.frac-display{
+  display:flex; align-items:center; gap:.9rem;
+  font-size:clamp(2.4rem,7vw,3.6rem);
+}
+.frac-display .frac .num{color:var(--amber);}
+.frac-display .frac .den{color:var(--mint);}
+.frac-label-row{display:flex; gap:.7rem; flex-direction:column; font-size:.85rem; color:var(--text-dim);}
+.frac-label-row b{color:var(--text);}
+.click-hint{font-size:.82rem; color:var(--text-dim); font-style:italic;}
+
+/* ===================== SLIDE 4 — GARIS BILANGAN ===================== */
+.numline-wrap{padding:2.4rem .4rem 1rem; width:100%;}
+.numline{position:relative; height:4px; background:var(--panel-soft); border-radius:99px; margin:0 1rem;}
+.numline-point{
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  width:20px; height:20px; border-radius:50%;
+  background:var(--panel); border:2.5px solid var(--text-dim);
+  cursor:pointer; transition:all .18s ease;
+}
+.numline-point:hover{border-color:var(--amber);}
+.numline-point.active{background:var(--amber); border-color:var(--amber); transform:translate(-50%,-50%) scale(1.25);}
+.numline-point .nl-label{
+  position:absolute; top:-34px; left:50%; transform:translateX(-50%);
+  font-family:'JetBrains Mono',monospace; font-size:.72rem; color:var(--text-dim);
+  white-space:nowrap;
+}
+.numline-point.active .nl-label{color:var(--amber); font-weight:700;}
+#nlInfo{min-height:64px;}
+
+/* ===================== SLIDE 5 — JENIS PECAHAN ===================== */
+.tabs-row{display:flex; gap:.5rem; flex-wrap:wrap;}
+.tab-btn{
+  font-family:'Fredoka'; font-weight:600; font-size:.92rem;
+  padding:.6rem 1.15rem; border-radius:12px; cursor:pointer;
+  background:var(--panel); border:1px solid var(--line); color:var(--text-dim);
+  transition:all .15s ease;
+}
+.tab-btn.active{background:var(--amber); color:#20242E; border-color:var(--amber);}
+.tab-panel{display:none;}
+.tab-panel.active{display:flex; flex-direction:column; gap:.8rem; animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+.example-box{
+  display:flex; align-items:center; gap:1.2rem; flex-wrap:wrap;
+  background:var(--bg-deep); border-radius:var(--r-md); padding:1rem 1.2rem; border:1px dashed var(--line);
+}
+
+/* ===================== SLIDE 6 — PECAHAN SENILAI ===================== */
+.equiv-controls{display:flex; gap:.6rem; flex-wrap:wrap;}
+.equiv-grid-row{display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap;}
+.equiv-cells{display:flex; gap:4px; flex-wrap:wrap; max-width:420px;}
+.equiv-cell{
+  width:34px; height:34px; border-radius:6px;
+  background:var(--panel-soft); border:1px solid var(--line);
+  transition:all .25s ease;
+}
+.equiv-cell.filled{background:var(--mint); border-color:var(--mint);}
+
+/* ===================== SLIDE 7 — KONVERTER ===================== */
+.conv-inputs{display:flex; align-items:center; gap:.8rem; flex-wrap:wrap;}
+.conv-inputs input{
+  width:5rem; font-family:'JetBrains Mono',monospace; font-size:1.3rem; font-weight:700;
+  text-align:center; padding:.5rem; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-deep); color:var(--text);
+}
+.conv-inputs input:focus{outline:2px solid var(--amber); outline-offset:2px;}
+.conv-results{display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-top:.4rem;}
+@media (max-width:620px){.conv-results{grid-template-columns:1fr;}}
+.conv-result-card{
+  background:var(--bg-deep); border:1px solid var(--line); border-radius:var(--r-md);
+  padding:1rem; text-align:center;
+}
+.conv-result-card .val{font-family:'JetBrains Mono'; font-weight:700; font-size:1.5rem; color:var(--amber);}
+.conv-result-card .lbl{font-size:.75rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:.06em; margin-top:.3rem;}
+.conv-bar-track{height:26px; border-radius:99px; background:var(--panel-soft); overflow:hidden; margin-top:.6rem;}
+.conv-bar-fill{height:100%; width:0%; background:linear-gradient(90deg,var(--mint),var(--amber)); transition:width .4s ease; border-radius:99px;}
+
+/* ===================== SLIDE 8 — CONTOH SOAL ===================== */
+.soal-item{
+  background:var(--panel); border:1px solid var(--line); border-radius:var(--r-md);
+  padding:1rem 1.2rem; cursor:pointer;
+}
+.soal-head{display:flex; justify-content:space-between; align-items:center; gap:1rem;}
+.soal-head .qtext{font-weight:600; font-size:.98rem;}
+.soal-toggle{font-size:1.2rem; color:var(--amber); transition:transform .2s ease; flex-shrink:0;}
+.soal-item.open .soal-toggle{transform:rotate(45deg);}
+.soal-answer{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+.soal-item.open .soal-answer{max-height:400px; margin-top:.8rem;}
+.soal-answer-inner{border-top:1px dashed var(--line); padding-top:.8rem; font-size:.92rem; color:var(--text-dim); line-height:1.7;}
+.soal-answer-inner b{color:var(--mint);}
+
+/* ===================== SLIDE 9 — KUIS ===================== */
+#quizArea{width:100%;}
+.quiz-progress{display:flex; gap:.35rem; margin-bottom:1rem;}
+.quiz-progress span{flex:1; height:5px; border-radius:99px; background:var(--panel-soft);}
+.quiz-progress span.done{background:var(--mint);}
+.quiz-progress span.current{background:var(--amber);}
+.quiz-q{font-size:clamp(1.05rem,2.4vw,1.3rem); font-weight:700; margin-bottom:1rem; font-family:'Fredoka';}
+.quiz-opts{display:flex; flex-direction:column; gap:.65rem;}
+.quiz-opt{
+  text-align:left; padding:.85rem 1.1rem; border-radius:12px; cursor:pointer;
+  background:var(--panel); border:1.5px solid var(--line); color:var(--text);
+  font-size:.95rem; font-family:'Inter'; transition:all .15s ease; display:flex; gap:.7rem; align-items:center;
+}
+.quiz-opt:hover:not(.locked){border-color:var(--amber);}
+.quiz-opt .opt-letter{
+  width:1.7rem; height:1.7rem; border-radius:50%; background:var(--panel-soft);
+  display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.8rem; flex-shrink:0;
+}
+.quiz-opt.correct{background:rgba(34,211,172,.18); border-color:var(--mint);}
+.quiz-opt.correct .opt-letter{background:var(--mint); color:#0C1830;}
+.quiz-opt.wrong{background:rgba(255,111,107,.18); border-color:var(--coral);}
+.quiz-opt.wrong .opt-letter{background:var(--coral); color:#0C1830;}
+#quizFeedback{margin-top:1rem; font-size:.9rem; min-height:1.4rem; color:var(--text-dim);}
+#quizResult{display:none; text-align:center; gap:1rem; flex-direction:column; align-items:center;}
+.score-ring{
+  width:150px; height:150px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  background:conic-gradient(var(--mint) calc(var(--pct,0)*1%), var(--panel-soft) 0);
+}
+.score-ring-inner{
+  width:120px; height:120px; border-radius:50%; background:var(--bg);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.score-ring-inner .num{font-family:'Fredoka'; font-size:1.8rem;}
+.score-ring-inner .lbl{font-size:.7rem; color:var(--text-dim);}
+
+/* ===================== SLIDE 10 — RANGKUMAN ===================== */
+.summary-list{display:flex; flex-direction:column; gap:.7rem;}
+.summary-row{display:flex; gap:.8rem; align-items:flex-start; background:var(--panel); border:1px solid var(--line); border-radius:var(--r-md); padding:.9rem 1.1rem;}
+.summary-row .ico{font-size:1.3rem; flex-shrink:0;}
+
+/* ===================== SLIDE 11 — SELESAI ===================== */
+#s11 .slide-inner{align-items:center; text-align:center; justify-content:center; min-height:55vh; gap:1.3rem;}
+.final-score{font-family:'Fredoka'; font-size:clamp(2.4rem,7vw,3.4rem); color:var(--amber);}
+.finish-btn{
+  font-family:'Fredoka'; font-weight:600; font-size:1.05rem;
+  background:var(--amber); color:#20242E; border:none; border-radius:99px;
+  padding:.95rem 2.1rem; cursor:pointer; box-shadow:0 12px 26px rgba(255,182,39,.28);
+  transition:transform .15s ease, filter .15s ease;
+}
+.finish-btn:hover{transform:translateY(-2px); filter:brightness(1.06);}
+.restart-link{background:none; border:none; color:var(--text-dim); text-decoration:underline; cursor:pointer; font-family:'Inter'; font-size:.85rem;}
+
+.section-num{font-family:'JetBrains Mono',monospace; font-size:.72rem; color:var(--text-dim);}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div class="brand"><span class="dot"></span> Bab 2 — Bilangan Rasional</div>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <div id="slide-counter">1 / 11</div>
+  </div>
+
+  <div id="deck">
+
+    <!-- SLIDE 1: COVER -->
+    <section class="slide" id="s1">
+      <div class="slide-inner">
+        <span class="pill">Kelas VII · Fase D · Matematika</span>
+        <div class="cover-orbit">
+          <svg class="pizza-deco" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="92" fill="#213868" stroke="#2c477f" stroke-width="2"/>
+            <path d="M100,100 L100,8 A92,92 0 0,1 179.7,53 Z" fill="#FFB627"/>
+            <path d="M100,100 L179.7,53 A92,92 0 0,1 179.7,147 Z" fill="#22D3AC"/>
+            <path d="M100,100 L179.7,147 A92,92 0 0,1 100,192 Z" fill="#FF6F6B"/>
+            <circle cx="100" cy="100" r="30" fill="#12203D"/>
+            <text x="100" y="107" text-anchor="middle" font-family="JetBrains Mono" font-size="20" font-weight="700" fill="#F4F2EA">3/8</text>
+          </svg>
+        </div>
+        <h1>Pecahan <span class="accent">dan Lambangnya</span></h1>
+        <p class="sub">Menjelajahi bentuk pecahan dan cara merepresentasikan bilangan rasional — lewat pizza, garis bilangan, dan latihan interaktif.</p>
+        <div class="cover-meta">
+          <span class="tag amber">🍕 Contoh Interaktif</span>
+          <span class="tag mint">✅ Kuis Latihan</span>
+          <span class="tag violet">📊 Visualisasi</span>
+        </div>
+        <button class="navbtn primary" style="margin-top:.6rem;" onclick="goNext()">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: TUJUAN -->
+    <section class="slide" id="s2">
+      <div class="slide-inner">
+        <span class="eyebrow">Tujuan Pembelajaran</span>
+        <h2 class="big-title">Setelah sesi ini, kamu akan bisa:</h2>
+        <div class="goal-card">
+          <div class="goal-num">1</div>
+          <div>
+            <b>Memahami bentuk pecahan</b>
+            <p class="sub" style="margin-top:.3rem;">Mengenali pembilang dan penyebut, serta makna sebuah pecahan sebagai bagian dari keseluruhan.</p>
+          </div>
+        </div>
+        <div class="goal-card">
+          <div class="goal-num">2</div>
+          <div>
+            <b>Merepresentasikan bilangan rasional dalam berbagai bentuk</b>
+            <p class="sub" style="margin-top:.3rem;">Mengubah pecahan biasa menjadi pecahan campuran, desimal, dan persen — serta sebaliknya.</p>
+          </div>
+        </div>
+        <div class="goal-card">
+          <div class="goal-num">3</div>
+          <div>
+            <b>Menyelesaikan soal penerapan</b>
+            <p class="sub" style="margin-top:.3rem;">Melatih pemahaman lewat contoh soal dan kuis interaktif di akhir presentasi.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: PIZZA INTERAKTIF -->
+    <section class="slide" id="s3">
+      <div class="slide-inner">
+        <span class="eyebrow">Konsep Dasar</span>
+        <h2 class="big-title">Apa itu Pecahan?</h2>
+        <p class="sub">Pecahan menyatakan <b style="color:var(--text)">bagian dari keseluruhan</b>. Pizza di bawah terbagi menjadi 8 potong sama besar. <span style="color:var(--amber)">Klik potongan pizza</span> untuk memilih berapa bagian yang dimakan!</p>
+        <div class="card">
+          <div class="pizza-wrap">
+            <svg id="pizzaSvg" viewBox="0 0 200 200"></svg>
+            <div style="display:flex; flex-direction:column; gap:1rem; align-items:center;">
+              <div class="frac-display">
+                <div class="frac"><span class="num" id="pizzaNum">0</span><span class="den" id="pizzaDen">8</span></div>
+              </div>
+              <div class="frac-label-row">
+                <div><b>Pembilang</b> (atas) — jumlah bagian yang diambil/dimakan.</div>
+                <div><b>Penyebut</b> (bawah) — jumlah total bagian yang sama besar.</div>
+              </div>
+              <div class="click-hint" id="pizzaHint">Belum ada potongan yang dipilih.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: GARIS BILANGAN -->
+    <section class="slide" id="s4">
+      <div class="slide-inner">
+        <span class="eyebrow">Visualisasi</span>
+        <h2 class="big-title">Pecahan pada Garis Bilangan</h2>
+        <p class="sub">Setiap pecahan punya posisi pasti di antara 0 dan 1. <span style="color:var(--amber)">Klik titik-titik</span> berikut untuk melihat nilainya.</p>
+        <div class="card">
+          <div class="numline-wrap">
+            <div class="numline" id="numline"></div>
+          </div>
+          <div id="nlInfo" class="sub"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: JENIS PECAHAN -->
+    <section class="slide" id="s5">
+      <div class="slide-inner">
+        <span class="eyebrow">Berbagai Bentuk</span>
+        <h2 class="big-title">Jenis-Jenis Pecahan</h2>
+        <p class="sub">Satu nilai pecahan bisa ditulis dalam beberapa bentuk. Klik tab di bawah untuk menjelajahi tiap jenisnya.</p>
+        <div class="tabs-row" id="tabsRow"></div>
+        <div class="card" id="tabPanelsWrap"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: PECAHAN SENILAI -->
+    <section class="slide" id="s6">
+      <div class="slide-inner">
+        <span class="eyebrow">Eksplorasi</span>
+        <h2 class="big-title">Pecahan Senilai</h2>
+        <p class="sub">Pecahan senilai punya nilai yang sama walau angkanya berbeda — didapat dengan mengalikan pembilang <i>dan</i> penyebut dengan bilangan yang sama. Coba klik tombol pengali di bawah.</p>
+        <div class="card">
+          <div class="equiv-controls" id="equivBtns"></div>
+          <div class="equiv-grid-row" style="margin-top:1.1rem;">
+            <div class="equiv-cells" id="equivCells"></div>
+            <div class="frac-display">
+              <div class="frac"><span class="num" id="equivNum" style="color:var(--amber)">1</span><span class="den" id="equivDen" style="color:var(--mint)">2</span></div>
+            </div>
+          </div>
+          <p class="sub" style="margin-top:.9rem;" id="equivNote">1/2 = 1/2 — pengali ×1 (bentuk asal)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: KONVERTER -->
+    <section class="slide" id="s7">
+      <div class="slide-inner">
+        <span class="eyebrow">Latihan Representasi</span>
+        <h2 class="big-title">Ubah Pecahan → Desimal → Persen</h2>
+        <p class="sub">Masukkan pembilang dan penyebut sendiri, lalu lihat bentuk lainnya muncul otomatis.</p>
+        <div class="card">
+          <div class="conv-inputs">
+            <input type="number" id="convNum" value="3" min="0" max="999" aria-label="Pembilang">
+            <span style="font-size:1.4rem; color:var(--text-dim);">/</span>
+            <input type="number" id="convDen" value="4" min="1" max="999" aria-label="Penyebut">
+            <button class="navbtn primary" onclick="runConverter()">Konversi →</button>
+          </div>
+          <div class="conv-results">
+            <div class="conv-result-card"><div class="val" id="convFracOut">3/4</div><div class="lbl">Pecahan Biasa</div></div>
+            <div class="conv-result-card"><div class="val" id="convDecOut">0.75</div><div class="lbl">Desimal</div></div>
+            <div class="conv-result-card"><div class="val" id="convPctOut">75%</div><div class="lbl">Persen</div></div>
+          </div>
+          <div class="conv-bar-track"><div class="conv-bar-fill" id="convBar"></div></div>
+          <p class="sub" id="convNoteText" style="margin-top:.7rem;"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: CONTOH SOAL -->
+    <section class="slide" id="s8">
+      <div class="slide-inner">
+        <span class="eyebrow">Latihan Terpandu</span>
+        <h2 class="big-title">Contoh Soal</h2>
+        <p class="sub">Coba kerjakan dulu di kertas, baru klik soal untuk melihat pembahasannya.</p>
+        <div id="soalList" style="display:flex; flex-direction:column; gap:.8rem;"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: KUIS -->
+    <section class="slide" id="s9">
+      <div class="slide-inner">
+        <span class="eyebrow">Uji Pemahaman</span>
+        <h2 class="big-title">Kuis Pecahan</h2>
+        <div id="quizArea">
+          <div class="quiz-progress" id="quizProgress"></div>
+          <div class="card">
+            <div class="quiz-q" id="quizQ"></div>
+            <div class="quiz-opts" id="quizOpts"></div>
+            <div id="quizFeedback"></div>
+            <button class="navbtn primary" id="quizNextBtn" style="display:none; margin-top:1rem;" onclick="nextQuizQuestion()">Lanjut →</button>
+          </div>
+          <div class="card" id="quizResult">
+            <div class="score-ring" id="scoreRing" style="--pct:0;">
+              <div class="score-ring-inner"><span class="num" id="scoreNum">0/5</span><span class="lbl">SKOR</span></div>
+            </div>
+            <div id="scoreMsg" class="sub"></div>
+            <button class="btn-chip" onclick="resetQuiz()">🔄 Ulangi Kuis</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: RANGKUMAN -->
+    <section class="slide" id="s10">
+      <div class="slide-inner">
+        <span class="eyebrow">Rangkuman</span>
+        <h2 class="big-title">Yang Perlu Kamu Ingat</h2>
+        <div class="summary-list">
+          <div class="summary-row"><span class="ico">🍕</span><div>Pecahan <b>a/b</b> menyatakan bagian dari keseluruhan — <b>a</b> = pembilang, <b>b</b> = penyebut (b ≠ 0).</div></div>
+          <div class="summary-row"><span class="ico">📏</span><div>Setiap pecahan memiliki posisi tetap pada garis bilangan, di antara dua bilangan bulat.</div></div>
+          <div class="summary-row"><span class="ico">🔄</span><div>Pecahan bisa berbentuk <b>biasa</b>, <b>campuran</b>, <b>desimal</b>, atau <b>persen</b> — nilainya tetap sama.</div></div>
+          <div class="summary-row"><span class="ico">✖️</span><div>Pecahan senilai diperoleh dengan mengalikan (atau membagi) pembilang dan penyebut dengan bilangan yang sama.</div></div>
+          <div class="summary-row"><span class="ico">💡</span><div>Bentuk desimal = pembilang ÷ penyebut; bentuk persen = desimal × 100%.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: SELESAI -->
+    <section class="slide" id="s11">
+      <div class="slide-inner">
+        <span class="pill">🎉 Presentasi Selesai</span>
+        <h2 class="big-title">Kerja Bagus!</h2>
+        <p class="sub">Kamu sudah menjelajahi bentuk pecahan dan cara merepresentasikan bilangan rasional dalam berbagai bentuk.</p>
+        <div class="final-score" id="finalScoreDisplay">Skor Kuis: —</div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; margin-top:.5rem;">
+          <a class="finish-btn" href="matb-bab2.html">✅ Selesai — Kembali ke Bab 2</a>
+        </div>
+        <button class="restart-link" onclick="goToSlide(1)">↺ Lihat presentasi dari awal</button>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="navbar">
+    <button class="navbtn ghost" id="prevBtn" onclick="goPrev()">← <span class="label">Sebelumnya</span></button>
+    <div id="dots"></div>
+    <button class="navbtn primary" id="nextBtn" onclick="goNext()"><span class="label">Berikutnya</span> →</button>
+  </div>
+
+</div>
+
+<script>
+/* ============ CORE NAVIGATION ============ */
+const TOTAL = 11;
+let current = 1;
+
+function renderDots(){
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = '';
+  for(let i=1;i<=TOTAL;i++){
+    const b = document.createElement('button');
+    b.className = 'dot-btn';
+    b.setAttribute('aria-label', 'Slide ' + i);
+    b.onclick = () => goToSlide(i);
+    dotsEl.appendChild(b);
+  }
+}
+
+function updateUI(){
+  document.querySelectorAll('.dot-btn').forEach((d,idx)=>{
+    d.classList.toggle('active', idx+1===current);
+    d.classList.toggle('done', idx+1<current);
+  });
+  document.getElementById('slide-counter').textContent = current + ' / ' + TOTAL;
+  document.getElementById('progress-fill').style.width = (current/TOTAL*100) + '%';
+  document.getElementById('prevBtn').disabled = current===1;
+  const nextBtn = document.getElementById('nextBtn');
+  if(current===TOTAL){
+    nextBtn.innerHTML = '<span class="label">Selesai</span> ✓';
+    nextBtn.onclick = () => goToSlide(11);
+  } else {
+    nextBtn.innerHTML = '<span class="label">Berikutnya</span> →';
+    nextBtn.onclick = goNext;
+  }
+}
+
+function goToSlide(n){
+  if(n<1 || n>TOTAL) return;
+  const prevSlide = document.getElementById('s'+current);
+  const nextSlide = document.getElementById('s'+n);
+  if(prevSlide) prevSlide.classList.remove('active');
+  current = n;
+  nextSlide.classList.add('active');
+  nextSlide.scrollTop = 0;
+  document.getElementById('deck').scrollTop = 0;
+  updateUI();
+  if(n===11) updateFinalScore();
+}
+function goNext(){ if(current<TOTAL) goToSlide(current+1); }
+function goPrev(){ if(current>1) goToSlide(current-1); }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goNext();
+  if(e.key==='ArrowLeft') goPrev();
+});
+
+/* swipe support */
+let touchStartX = 0;
+document.getElementById('deck').addEventListener('touchstart', e=>{ touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+document.getElementById('deck').addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 60){ dx < 0 ? goNext() : goPrev(); }
+}, {passive:true});
+
+renderDots();
+document.getElementById('s1').classList.add('active');
+updateUI();
+
+/* ============ SLIDE 3: PIZZA ============ */
+const pizzaSlices = 8;
+let pizzaFilled = new Set();
+function polar(cx,cy,r,angDeg){
+  const a = (angDeg-90) * Math.PI/180;
+  return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+}
+function buildPizza(){
+  const svg = document.getElementById('pizzaSvg');
+  svg.setAttribute('viewBox','0 0 200 200');
+  svg.innerHTML = '';
+  const cx=100, cy=100, r=92;
+  for(let i=0;i<pizzaSlices;i++){
+    const a0 = i*(360/pizzaSlices);
+    const a1 = (i+1)*(360/pizzaSlices);
+    const [x0,y0] = polar(cx,cy,r,a0);
+    const [x1,y1] = polar(cx,cy,r,a1);
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d', `M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 0,1 ${x1.toFixed(2)},${y1.toFixed(2)} Z`);
+    path.setAttribute('fill', '#213868');
+    path.setAttribute('stroke', '#12203D');
+    path.setAttribute('stroke-width','2');
+    path.dataset.idx = i;
+    path.addEventListener('click', ()=>toggleSlice(i));
+    svg.appendChild(path);
+  }
+}
+function toggleSlice(i){
+  if(pizzaFilled.has(i)) pizzaFilled.delete(i); else pizzaFilled.add(i);
+  renderPizza();
+}
+const pizzaColors = ['#FFB627','#FF6F6B','#22D3AC','#9C8CFF'];
+function renderPizza(){
+  document.querySelectorAll('#pizzaSvg path').forEach((p)=>{
+    const i = +p.dataset.idx;
+    p.setAttribute('fill', pizzaFilled.has(i) ? pizzaColors[i % pizzaColors.length] : '#213868');
+  });
+  const n = pizzaFilled.size;
+  document.getElementById('pizzaNum').textContent = n;
+  document.getElementById('pizzaDen').textContent = pizzaSlices;
+  const hint = document.getElementById('pizzaHint');
+  if(n===0){ hint.textContent = 'Belum ada potongan yang dipilih.'; }
+  else{
+    function gcd(a,b){return b===0?a:gcd(b,a%b);}
+    const g = gcd(n,pizzaSlices);
+    const simp = g>1 ? ` (disederhanakan: ${n/g}/${pizzaSlices/g})` : '';
+    hint.textContent = `${n} dari ${pizzaSlices} potong dipilih → ${n}/${pizzaSlices}${simp}`;
+  }
+}
+buildPizza(); renderPizza();
+
+/* ============ SLIDE 4: GARIS BILANGAN ============ */
+const nlDen = 8;
+function buildNumline(){
+  const line = document.getElementById('numline');
+  line.innerHTML='';
+  for(let i=0;i<=nlDen;i++){
+    const pct = (i/nlDen)*100;
+    const pt = document.createElement('button');
+    pt.className='numline-point';
+    pt.style.left = pct+'%';
+    pt.setAttribute('aria-label', i+'/'+nlDen);
+    const lbl = document.createElement('span');
+    lbl.className='nl-label';
+    lbl.textContent = (i===0)?'0': (i===nlDen)?'1': i+'/'+nlDen;
+    pt.appendChild(lbl);
+    pt.addEventListener('click', ()=>selectNumlinePoint(i, pt));
+    line.appendChild(pt);
+  }
+}
+function selectNumlinePoint(i, el){
+  document.querySelectorAll('.numline-point').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  function gcd(a,b){return b===0?a:gcd(b,a%b);}
+  const info = document.getElementById('nlInfo');
+  if(i===0){ info.innerHTML = '<b style="color:var(--text)">Titik 0</b> — bukan pecahan positif, ini titik awal garis bilangan.'; return; }
+  if(i===nlDen){ info.innerHTML = `<b style="color:var(--text)">${i}/${nlDen} = 1</b> — pecahan yang senilai dengan bilangan bulat 1 (bagian penuh).`; return; }
+  const g = gcd(i,nlDen);
+  const simp = g>1 ? `, sama nilainya dengan <b style="color:var(--mint)">${i/g}/${nlDen/g}</b>` : '';
+  info.innerHTML = `Titik ini berada pada <b style="color:var(--amber)">${i}/${nlDen}</b> dari jarak 0 ke 1${simp}. Nilai desimalnya ≈ ${(i/nlDen).toFixed(3)}.`;
+}
+buildNumline();
+
+/* ============ SLIDE 5: JENIS PECAHAN ============ */
+const fracTypes = [
+  {
+    key:'biasa', label:'Pecahan Biasa',
+    body:`<p class="sub">Pecahan biasa ditulis sebagai <b style="color:var(--text)">a/b</b>, dengan pembilang lebih kecil dari penyebut (pecahan murni) atau lebih besar (pecahan tidak murni).</p>
+    <div class="example-box"><div class="frac-display" style="font-size:2rem;"><div class="frac"><span class="num" style="color:var(--amber)">3</span><span class="den" style="color:var(--mint)">4</span></div></div><div class="sub">3 bagian dari total 4 bagian yang sama besar.</div></div>`
+  },
+  {
+    key:'campuran', label:'Pecahan Campuran',
+    body:`<p class="sub">Gabungan bilangan bulat dan pecahan biasa. Digunakan untuk pecahan tidak murni (pembilang > penyebut).</p>
+    <div class="example-box"><div class="frac-display" style="font-size:2rem; gap:.3rem;"><span>1</span><div class="frac"><span class="num" style="color:var(--amber)">3</span><span class="den" style="color:var(--mint)">4</span></div></div><div class="sub">Sama dengan <b style="color:var(--text)">7/4</b> — 1 bagian penuh ditambah 3/4 bagian.</div></div>`
+  },
+  {
+    key:'desimal', label:'Pecahan Desimal',
+    body:`<p class="sub">Pecahan yang ditulis menggunakan tanda koma, hasil dari pembilang dibagi penyebut.</p>
+    <div class="example-box"><div class="frac-display" style="font-size:2rem;"><span style="font-family:'JetBrains Mono'; font-weight:700; color:var(--amber)">0,75</span></div><div class="sub">Diperoleh dari <b style="color:var(--text)">3 ÷ 4 = 0,75</b>.</div></div>`
+  },
+  {
+    key:'persen', label:'Persen',
+    body:`<p class="sub">Pecahan dengan penyebut 100, ditulis dengan simbol %. Persen memudahkan perbandingan.</p>
+    <div class="example-box"><div class="frac-display" style="font-size:2rem;"><span style="font-family:'JetBrains Mono'; font-weight:700; color:var(--amber)">75%</span></div><div class="sub">Diperoleh dari <b style="color:var(--text)">0,75 × 100% = 75%</b>, senilai dengan 3/4.</div></div>`
+  }
+];
+function buildTabs(){
+  const row = document.getElementById('tabsRow');
+  const wrap = document.getElementById('tabPanelsWrap');
+  row.innerHTML=''; wrap.innerHTML='';
+  fracTypes.forEach((t,idx)=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (idx===0?' active':'');
+    btn.textContent = t.label;
+    btn.onclick = ()=>selectTab(t.key);
+    row.appendChild(btn);
+    const panel = document.createElement('div');
+    panel.className = 'tab-panel' + (idx===0?' active':'');
+    panel.id = 'tab-'+t.key;
+    panel.innerHTML = t.body;
+    wrap.appendChild(panel);
+  });
+}
+function selectTab(key){
+  document.querySelectorAll('.tab-btn').forEach((b,idx)=>b.classList.toggle('active', fracTypes[idx].key===key));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+key));
+}
+buildTabs();
+
+/* ============ SLIDE 6: PECAHAN SENILAI ============ */
+const equivMultipliers = [1,2,3,4,5];
+let equivMult = 1;
+function buildEquiv(){
+  const btnWrap = document.getElementById('equivBtns');
+  btnWrap.innerHTML='';
+  equivMultipliers.forEach(m=>{
+    const b = document.createElement('button');
+    b.className='btn-chip' + (m===1?' active':'');
+    b.textContent = '×'+m;
+    b.onclick = ()=>{ equivMult = m; renderEquiv(); document.querySelectorAll('#equivBtns .btn-chip').forEach(c=>c.classList.remove('active')); b.classList.add('active'); };
+    btnWrap.appendChild(b);
+  });
+  renderEquiv();
+}
+function renderEquiv(){
+  const num = 1*equivMult, den = 2*equivMult;
+  document.getElementById('equivNum').textContent = num;
+  document.getElementById('equivDen').textContent = den;
+  const cellsWrap = document.getElementById('equivCells');
+  cellsWrap.innerHTML='';
+  for(let i=0;i<den;i++){
+    const c = document.createElement('div');
+    c.className = 'equiv-cell' + (i<num?' filled':'');
+    cellsWrap.appendChild(c);
+  }
+  document.getElementById('equivNote').innerHTML = `<b style="color:var(--text)">${num}/${den}</b> = <b style="color:var(--text)">1/2</b> — pengali ×${equivMult} pada pembilang dan penyebut.`;
+}
+buildEquiv();
+
+/* ============ SLIDE 7: KONVERTER ============ */
+function runConverter(){
+  let n = parseFloat(document.getElementById('convNum').value) || 0;
+  let d = parseFloat(document.getElementById('convDen').value) || 1;
+  if(d===0){ d = 1; document.getElementById('convDen').value = 1; }
+  const dec = n/d;
+  const pct = dec*100;
+  document.getElementById('convFracOut').textContent = n+'/'+d;
+  document.getElementById('convDecOut').textContent = dec.toFixed(3).replace(/0+$/,'').replace(/\.$/,'') || '0';
+  document.getElementById('convPctOut').textContent = (Math.round(pct*100)/100)+'%';
+  const barPct = Math.max(0, Math.min(100, pct));
+  document.getElementById('convBar').style.width = barPct+'%';
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); return b===0?a:gcd(b,a%b); }
+  const g = gcd(n,d) || 1;
+  let note = '';
+  if(g>1) note = `Bentuk paling sederhana: <b style="color:var(--mint)">${n/g}/${d/g}</b>. `;
+  if(n>=d && d>0) note += `Karena pembilang ≥ penyebut, ini pecahan tidak murni — bentuk campurannya: <b style="color:var(--amber)">${Math.floor(n/d)} ${n%d}/${d}</b>.`;
+  document.getElementById('convNoteText').innerHTML = note;
+}
+runConverter();
+
+/* ============ SLIDE 8: CONTOH SOAL ============ */
+const soalData = [
+  {
+    q:'1. Ibu membeli 1 loyang kue dan memotongnya menjadi 6 bagian sama besar. Andi memakan 2 potong. Berapa pecahan kue yang dimakan Andi, dalam bentuk paling sederhana?',
+    a:`Kue dibagi 6 bagian → penyebut = 6. Andi makan 2 potong → pembilang = 2.<br>Pecahannya adalah <b>2/6</b>.<br>Sederhanakan dengan FPB(2,6) = 2 → <b>2÷2 / 6÷2 = 1/3</b>.<br>Jadi Andi memakan <b>1/3</b> bagian kue.`
+  },
+  {
+    q:'2. Ubahlah pecahan 5/8 ke dalam bentuk desimal dan persen.',
+    a:`Desimal = pembilang ÷ penyebut = <b>5 ÷ 8 = 0,625</b>.<br>Persen = desimal × 100% = <b>0,625 × 100% = 62,5%</b>.<br>Jadi 5/8 = 0,625 = 62,5%.`
+  },
+  {
+    q:'3. Manakah yang lebih besar, 3/4 atau 5/8? Jelaskan.',
+    a:`Samakan penyebut (KPK dari 4 dan 8 adalah 8):<br>3/4 = 6/8 (kalikan pembilang & penyebut dengan 2).<br>Bandingkan 6/8 dengan 5/8 → 6/8 lebih besar.<br>Jadi <b>3/4 lebih besar</b> daripada 5/8.`
+  },
+  {
+    q:'4. Sebuah pecahan campuran 2 1/3 diubah ke pecahan biasa. Berapa hasilnya?',
+    a:`Rumus: (bilangan bulat × penyebut + pembilang) / penyebut.<br>(2 × 3 + 1) / 3 = (6 + 1)/3 = <b>7/3</b>.<br>Jadi 2 1/3 = <b>7/3</b>.`
+  }
+];
+function buildSoal(){
+  const wrap = document.getElementById('soalList');
+  wrap.innerHTML='';
+  soalData.forEach((s,idx)=>{
+    const item = document.createElement('div');
+    item.className='soal-item';
+    item.innerHTML = `
+      <div class="soal-head">
+        <div class="qtext">${s.q}</div>
+        <div class="soal-toggle">+</div>
+      </div>
+      <div class="soal-answer"><div class="soal-answer-inner">${s.a}</div></div>
+    `;
+    item.addEventListener('click', ()=> item.classList.toggle('open'));
+    wrap.appendChild(item);
+  });
+}
+buildSoal();
+
+/* ============ SLIDE 9: KUIS ============ */
+const quizData = [
+  { q:'Pada pecahan 5/9, angka 9 disebut...', opts:['Pembilang','Penyebut','Bilangan campuran','Persen'], correct:1, explain:'Angka di bawah garis pecahan (9) disebut penyebut — jumlah total bagian yang sama besar.' },
+  { q:'Bentuk sederhana dari 8/12 adalah...', opts:['4/6','2/3','1/2','3/4'], correct:1, explain:'FPB dari 8 dan 12 adalah 4. 8÷4=2, 12÷4=3, sehingga bentuk paling sederhana adalah 2/3.' },
+  { q:'0,4 jika diubah ke bentuk persen menjadi...', opts:['4%','0,4%','40%','400%'], correct:2, explain:'Persen = desimal × 100% → 0,4 × 100% = 40%.' },
+  { q:'Pecahan campuran dari 11/4 adalah...', opts:['2 3/4','3 1/4','2 1/4','1 3/4'], correct:0, explain:'11 ÷ 4 = 2 sisa 3, sehingga hasilnya 2 3/4.' },
+  { q:'Manakah pecahan yang senilai dengan 3/5?', opts:['6/9','9/15','12/25','15/20'], correct:1, explain:'3/5 dikalikan 3/3 menghasilkan 9/15 — pembilang dan penyebut dikalikan bilangan yang sama.' }
+];
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+
+function buildQuizProgress(){
+  const p = document.getElementById('quizProgress');
+  p.innerHTML='';
+  quizData.forEach((_,i)=>{
+    const s = document.createElement('span');
+    p.appendChild(s);
+  });
+}
+function updateQuizProgress(){
+  document.querySelectorAll('#quizProgress span').forEach((s,i)=>{
+    s.classList.toggle('done', i<quizIdx);
+    s.classList.toggle('current', i===quizIdx);
+  });
+}
+function renderQuizQuestion(){
+  quizAnswered = false;
+  document.getElementById('quizResult').style.display='none';
+  document.getElementById('quizArea').querySelector('.card').style.display='block';
+  updateQuizProgress();
+  const item = quizData[quizIdx];
+  document.getElementById('quizQ').textContent = (quizIdx+1)+'. '+item.q;
+  const optsWrap = document.getElementById('quizOpts');
+  optsWrap.innerHTML='';
+  const letters = ['A','B','C','D'];
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className='quiz-opt';
+    b.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    b.onclick = ()=>answerQuiz(i,b);
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('quizFeedback').textContent='';
+  document.getElementById('quizNextBtn').style.display='none';
+}
+function answerQuiz(i, el){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const item = quizData[quizIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o=>o.classList.add('locked'));
+  if(i===item.correct){
+    el.classList.add('correct');
+    quizScore++;
+    document.getElementById('quizFeedback').innerHTML = `✅ <b style="color:var(--mint)">Benar!</b> ${item.explain}`;
+  } else {
+    el.classList.add('wrong');
+    opts[item.correct].classList.add('correct');
+    document.getElementById('quizFeedback').innerHTML = `❌ <b style="color:var(--coral)">Belum tepat.</b> ${item.explain}`;
+  }
+  document.getElementById('quizNextBtn').style.display='inline-flex';
+  document.getElementById('quizNextBtn').textContent = (quizIdx===quizData.length-1) ? 'Lihat Hasil →' : 'Lanjut →';
+}
+function nextQuizQuestion(){
+  quizIdx++;
+  if(quizIdx>=quizData.length){ showQuizResult(); return; }
+  renderQuizQuestion();
+}
+function showQuizResult(){
+  document.querySelectorAll('#quizProgress span').forEach(s=>{ s.classList.add('done'); s.classList.remove('current'); });
+  document.getElementById('quizArea').querySelector('.card').style.display='none';
+  const result = document.getElementById('quizResult');
+  result.style.display='flex';
+  const pct = Math.round((quizScore/quizData.length)*100);
+  document.getElementById('scoreRing').style.setProperty('--pct', pct);
+  document.getElementById('scoreNum').textContent = quizScore+'/'+quizData.length;
+  let msg = '';
+  if(quizScore===quizData.length) msg = '🌟 Sempurna! Kamu benar-benar memahami pecahan.';
+  else if(quizScore>=quizData.length-1) msg = '👍 Hampir sempurna, sedikit lagi menguasai penuh!';
+  else if(quizScore>=quizData.length/2) msg = '💪 Sudah cukup baik, coba ulangi untuk hasil lebih maksimal.';
+  else msg = '📖 Yuk pelajari ulang materinya, lalu coba kuis lagi.';
+  document.getElementById('scoreMsg').textContent = msg;
+  window.lastQuizScore = quizScore;
+}
+function resetQuiz(){
+  quizIdx = 0; quizScore = 0;
+  renderQuizQuestion();
+}
+buildQuizProgress();
+renderQuizQuestion();
+
+/* ============ SLIDE 11: FINAL ============ */
+function updateFinalScore(){
+  const el = document.getElementById('finalScoreDisplay');
+  if(typeof window.lastQuizScore === 'number' && quizIdx>=quizData.length){
+    el.textContent = `Skor Kuis: ${window.lastQuizScore}/${quizData.length}`;
+  } else {
+    el.textContent = 'Skor Kuis: belum dikerjakan';
+  }
+}
+</script>
+</body>
+</html>

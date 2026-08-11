@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bab 1.4 — Operasi Bilangan Berpangkat Bulat</title>
+<style>
+:root{--ink:#1e2a3a;--soft:#5d6878;--paper:#f7f2e8;--white:#fffdf8;--grid:#d9d2c4;--accent:#b06a3b;--positive:#39735b;--negative:#a44f4f;--shadow:0 10px 28px rgba(30,42,58,.12);--radius:18px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+.app{height:100dvh;display:flex;flex-direction:column;position:relative}
+.topbar{height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px clamp(14px,4vw,40px);background:rgba(247,242,232,.94);border-bottom:1px solid var(--grid);backdrop-filter:blur(8px);z-index:10}
+.brand{font-weight:800}.counter{font:700 12px ui-monospace,monospace;background:var(--white);padding:7px 12px;border-radius:999px;border:1px solid var(--grid)}
+.slides-viewport{flex:1;min-height:0;overflow:hidden;padding:0 clamp(8px,3vw,34px)}
+.slides{height:100%;display:flex;transition:transform .5s cubic-bezier(.22,.75,.25,1)}
+.slide{width:100%;height:100%;flex:0 0 100%;overflow:auto;display:flex;align-items:center;justify-content:center;padding:28px 8px 34px}
+.slide-inner{width:min(920px,100%);padding:12px 8px 28px}.cover .slide-inner{text-align:center}
+.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:800;margin-bottom:12px}
+.slide h2{font-size:clamp(30px,5vw,58px);line-height:1.05;margin:0 0 18px;max-width:860px}
+.cover h2{font-size:clamp(32px,6vw,68px)}.lede{font-size:clamp(15px,2vw,19px);line-height:1.7;color:var(--soft);max-width:780px}.cover .lede{margin:20px auto 0}
+.cards,.power-grid,.quiz-options,.examples{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:26px}
+.card,.power-card,.quiz-options button,.example{border:1px solid var(--grid);background:var(--white);border-radius:var(--radius);padding:22px;min-height:110px;cursor:pointer;box-shadow:var(--shadow);color:var(--ink);font-size:18px;text-align:left;transition:.2s}
+.card:hover,.power-card:hover,.quiz-options button:hover{transform:translateY(-3px)}
+.power-card{text-align:center;font-size:30px;font-weight:900}.power-card small{display:block;font-size:14px;color:var(--soft);margin-top:10px}.power-card b{display:block;margin-top:10px;color:var(--positive);visibility:hidden;font-size:20px}.power-card.revealed b{visibility:visible}
+.example{cursor:default}.example strong{font-size:28px;display:block;margin-bottom:10px}.example span{color:var(--soft)}
+.rule{margin-top:26px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.rule div{background:var(--white);border:1px solid var(--grid);border-radius:14px;padding:18px;text-align:center;box-shadow:var(--shadow)}.rule b{display:block;font-size:27px;margin-bottom:8px}
+.quiz-options button{min-height:70px}.quiz-options strong{margin-right:12px;color:var(--accent)}.quiz-options button.correct{border-color:var(--positive);background:#eef7f1}.quiz-options button.wrong{border-color:var(--negative);background:#fff0ef}.feedback{margin-top:15px;min-height:26px;font-weight:800}
+.scenario,.checklist{margin-top:28px;background:var(--white);border:1px solid var(--grid);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.checklist{display:grid;gap:14px;font-size:18px}.finish{display:inline-flex;margin-top:28px;background:var(--ink);color:white;text-decoration:none;padding:15px 22px;border-radius:12px;font-weight:800}
+.numberline{height:62px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 10px max(8px,env(safe-area-inset-bottom));z-index:10}
+.nl-arrow{width:36px;height:36px;border:0;border-radius:50%;background:var(--white);box-shadow:var(--shadow);font-size:16px;cursor:pointer}.nl-arrow:disabled{opacity:.35;cursor:default}
+.nl-track{display:flex;align-items:center;justify-content:center;gap:8px;max-width:72vw}.nl-tick{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--grid);cursor:pointer;transition:.2s}.nl-tick.active{width:12px;height:12px;background:var(--ink);box-shadow:0 0 0 4px rgba(30,42,58,.1)}
+@media(max-width:700px){.topbar{height:54px}.brand{font-size:13px}.counter{font-size:10px;padding:6px 9px}.slide{padding:15px 4px 20px;align-items:flex-start}.slide-inner{padding-top:10px}.slide h2{font-size:clamp(27px,8vw,42px)}.cover h2{font-size:clamp(29px,9vw,46px)}.cards,.power-grid,.quiz-options,.examples{grid-template-columns:1fr;gap:10px}.card,.power-card,.example{min-height:84px;padding:16px}.lede{font-size:14px}.rule{grid-template-columns:1fr 1fr}.numberline{height:54px;gap:6px}.nl-track{gap:6px;max-width:calc(100vw - 95px)}.nl-arrow{width:33px;height:33px}.nl-tick{width:8px;height:8px}.nl-tick.active{width:11px;height:11px}}
+@media(max-width:420px){.slide h2{font-size:27px}.cover h2{font-size:31px}.slide{padding-left:2px;padding-right:2px}}
+@media(max-height:620px){.slide{align-items:flex-start;padding-top:8px}.slide-inner{padding-top:5px}.slide h2{margin-bottom:10px}.lede{line-height:1.5}.numberline{height:48px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar"><div class="brand">Bab 1 • Bilangan Bulat</div><div class="counter" id="counter">1 / 20</div></header>
+<main class="slides-viewport"><div class="slides" id="slides">
+
+<section class="slide cover"><div class="slide-inner"><div class="eyebrow">Semester Ganjil</div><h2>Bab 1. Bilangan Bulat</h2><h2 style="font-size:clamp(24px,4vw,42px);margin-top:10px">1.4 Operasi Bilangan Berpangkat Bulat</h2><p class="lede">Peserta didik mampu memahami konsep bilangan berpangkat bulat dan menentukan hasil operasi bilangan berpangkat sederhana.</p></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Pemantik</div><h2>Apa itu bilangan berpangkat?</h2><p class="lede">Bilangan berpangkat merupakan perkalian berulang dari bilangan yang sama. Klik kartu untuk melihat bentuk perkaliannya.</p><div class="power-grid"><button class="power-card" onclick="reveal(this)">2³<small>dibaca: dua pangkat tiga</small><b>2 × 2 × 2 = 8</b></button><button class="power-card" onclick="reveal(this)">5²<small>dibaca: lima pangkat dua</small><b>5 × 5 = 25</b></button></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Konsep</div><h2>Bagian-bagian bilangan berpangkat</h2><div class="example"><strong>3⁴</strong><span>3 = bilangan pokok (basis)</span><br><span>4 = pangkat (eksponen)</span><br><span>3⁴ = 3 × 3 × 3 × 3</span></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Interaktif</div><h2>Ubah pangkat menjadi perkalian</h2><p class="lede">Klik kartu untuk membuka hasil.</p><div class="power-grid"><button class="power-card" onclick="reveal(this)">4²<b>4 × 4 = 16</b></button><button class="power-card" onclick="reveal(this)">3³<b>3 × 3 × 3 = 27</b></button><button class="power-card" onclick="reveal(this)">2⁵<b>2 × 2 × 2 × 2 × 2 = 32</b></button><button class="power-card" onclick="reveal(this)">10²<b>10 × 10 = 100</b></button></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 1</div><h2>2⁴ = ...</h2><p class="lede">2⁴ = 2 × 2 × 2 × 2 = <b>16</b>.</p></div></section>
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 2</div><h2>3³ = ...</h2><p class="lede">3³ = 3 × 3 × 3 = <b>27</b>.</p></div></section>
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 3</div><h2>5² = ...</h2><p class="lede">5² = 5 × 5 = <b>25</b>.</p></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Pangkat nol</div><h2>a⁰ = 1</h2><p class="lede">Untuk bilangan pokok bukan nol, setiap bilangan berpangkat nol bernilai 1.</p><div class="examples"><div class="example"><strong>7⁰ = 1</strong><span>Bilangan pokok 7 tidak nol.</span></div><div class="example"><strong>(−5)⁰ = 1</strong><span>Bilangan pokok −5 juga tidak nol.</span></div></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Pangkat negatif</div><h2>Memahami pangkat bulat negatif</h2><p class="lede">Untuk bilangan pokok bukan nol, pangkat negatif dapat ditulis sebagai kebalikan dari pangkat positif.</p><div class="example"><strong>2⁻³ = 1 / 2³ = 1/8</strong><span>Eksponen negatif mengubah bilangan menjadi bentuk kebalikan.</span></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Aturan dasar</div><h2>Kenali pola operasi</h2><div class="rule"><div><b>aᵐ × aⁿ</b><span>pangkat dijumlahkan</span></div><div><b>aᵐ ÷ aⁿ</b><span>pangkat dikurangkan</span></div><div><b>(aᵐ)ⁿ</b><span>pangkat dikalikan</span></div><div><b>a⁰</b><span>hasilnya 1</span></div></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 4</div><h2>2³ × 2²</h2><p class="lede">Basis sama, maka pangkat dijumlahkan: 2³ × 2² = 2⁵ = <b>32</b>.</p></div></section>
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 5</div><h2>3⁵ ÷ 3²</h2><p class="lede">Basis sama, maka pangkat dikurangkan: 3⁵ ÷ 3² = 3³ = <b>27</b>.</p></div></section>
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Contoh 6</div><h2>(2³)²</h2><p class="lede">Pangkat dikalikan: (2³)² = 2⁶ = <b>64</b>.</p></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Latihan</div><h2>4³ = ...</h2><p class="lede">Pilih jawaban yang benar.</p><div class="quiz-options"><button onclick="answer(this,'A')"><strong>A</strong>64</button><button onclick="answer(this,'A')"><strong>B</strong>12</button><button onclick="answer(this,'A')"><strong>C</strong>16</button><button onclick="answer(this,'A')"><strong>D</strong>81</button></div><div class="feedback"></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Latihan</div><h2>2⁵ = ...</h2><p class="lede">Pilih jawaban yang benar.</p><div class="quiz-options"><button onclick="answer(this,'B')"><strong>A</strong>10</button><button onclick="answer(this,'B')"><strong>B</strong>32</button><button onclick="answer(this,'B')"><strong>C</strong>25</button><button onclick="answer(this,'B')"><strong>D</strong>64</button></div><div class="feedback"></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Kuis 1</div><h2>3² × 3³ = ...</h2><p class="lede">Gunakan aturan perkalian dengan basis sama.</p><div class="quiz-options"><button onclick="answer(this,'C')"><strong>A</strong>27</button><button onclick="answer(this,'C')"><strong>B</strong>81</button><button onclick="answer(this,'C')"><strong>C</strong>243</button><button onclick="answer(this,'C')"><strong>D</strong>729</button></div><div class="feedback"></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Kuis 2</div><h2>5⁴ ÷ 5² = ...</h2><p class="lede">Gunakan aturan pembagian dengan basis sama.</p><div class="quiz-options"><button onclick="answer(this,'B')"><strong>A</strong>5</button><button onclick="answer(this,'B')"><strong>B</strong>25</button><button onclick="answer(this,'B')"><strong>C</strong>125</button><button onclick="answer(this,'B')"><strong>D</strong>625</button></div><div class="feedback"></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Kuis 3</div><h2>(3²)³ = ...</h2><p class="lede">Kalikan kedua eksponen.</p><div class="quiz-options"><button onclick="answer(this,'D')"><strong>A</strong>27</button><button onclick="answer(this,'D')"><strong>B</strong>81</button><button onclick="answer(this,'D')"><strong>C</strong>243</button><button onclick="answer(this,'D')"><strong>D</strong>729</button></div><div class="feedback"></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Konteks</div><h2>Pangkat dalam kehidupan</h2><p class="lede">Pangkat sering digunakan untuk menyatakan jumlah yang bertambah secara berulang, misalnya susunan kotak yang berlipat ganda atau luas persegi.</p><div class="scenario"><b>Contoh:</b> luas persegi dengan sisi 6 cm adalah 6² = 36 cm².</div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Ringkasan</div><h2>Ingat kembali</h2><div class="checklist"><div>✓ Pangkat menyatakan perkalian berulang.</div><div>✓ Pangkat nol pada basis bukan nol bernilai 1.</div><div>✓ Pangkat negatif dapat ditulis sebagai bentuk kebalikan.</div><div>✓ Pada basis sama, aturan operasi pangkat membantu menyederhanakan perhitungan.</div></div></div></section>
+
+<section class="slide"><div class="slide-inner"><div class="eyebrow">Cek pemahaman</div><h2>Sudah siap?</h2><div class="checklist"><div>✓ Memahami basis dan eksponen</div><div>✓ Menentukan hasil pangkat sederhana</div><div>✓ Menggunakan aturan operasi bilangan berpangkat</div><div>✓ Menyelesaikan soal kontekstual sederhana</div></div></div></section>
+
+<section class="slide cover"><div class="slide-inner"><div class="eyebrow">Selesai</div><h2>Hebat! 🎉</h2><p class="lede">Pembelajaran Operasi Bilangan Berpangkat Bulat telah selesai.</p><a class="finish" href="matb-bab1.html">Selesai → Kembali</a></div></section>
+
+</div></main>
+<nav class="numberline" aria-label="Navigasi slide"><button class="nl-arrow" id="prev" aria-label="Slide sebelumnya">←</button><div class="nl-track" id="dots" role="tablist" aria-label="Pilih slide"></div><button class="nl-arrow" id="next" aria-label="Slide berikutnya">→</button></nav>
+</div>
+<script>
+const track=document.getElementById('slides'),slides=[...document.querySelectorAll('.slide')],dots=document.getElementById('dots'),counter=document.getElementById('counter');let current=0;
+slides.forEach((s,i)=>{const d=document.createElement('button');d.className='nl-tick';d.type='button';d.setAttribute('aria-label','Ke slide '+(i+1));d.onclick=()=>go(i);dots.appendChild(d)});
+const ticks=[...document.querySelectorAll('.nl-tick')];
+function go(i){current=Math.max(0,Math.min(slides.length-1,i));track.style.transform='translateX(-'+current*100+'%)';counter.textContent=(current+1)+' / '+slides.length;ticks.forEach((d,j)=>d.classList.toggle('active',j===current));document.getElementById('prev').disabled=current===0;document.getElementById('next').disabled=current===slides.length-1}
+document.getElementById('prev').onclick=()=>go(current-1);document.getElementById('next').onclick=()=>go(current+1);
+document.addEventListener('keydown',e=>{if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(current+1)}if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}});
+let sx=0;document.addEventListener('touchstart',e=>sx=e.changedTouches[0].screenX,{passive:true});document.addEventListener('touchend',e=>{let dx=e.changedTouches[0].screenX-sx;if(Math.abs(dx)>55)go(current+(dx<0?1:-1))},{passive:true});
+function reveal(el){el.classList.toggle('revealed')}
+function answer(btn,correct){const p=btn.parentElement,all=[...p.querySelectorAll('button')],f=p.nextElementSibling;all.forEach(b=>b.disabled=true);let c=btn.querySelector('strong').textContent;if(c===correct){btn.classList.add('correct');f.textContent='✓ Benar! Jawabanmu tepat.'}else{btn.classList.add('wrong');all.find(b=>b.querySelector('strong').textContent===correct)?.classList.add('correct');f.textContent='✗ Belum tepat. Perhatikan kembali konsep bilangan berpangkat.'}}
+go(0);
+</script>
+</body></html>

@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dekomposisi & Pengenalan Pola · Bab 2 Informatika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F1229; --panel:#171B3A; --panel2:#1F244A; --panel3:#252b52;
+  --ink:#EDEFFB; --ink-dim:#9BA3C9; --ink-dim2:#6c73a0;
+  --teal:#45D9C0; --amber:#FFC857; --violet:#B79CFF; --coral:#FF7A6E;
+  --line: rgba(237,239,251,0.12);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:
+    radial-gradient(circle at 12% 8%, rgba(69,217,192,0.10), transparent 42%),
+    radial-gradient(circle at 88% 15%, rgba(255,200,87,0.10), transparent 42%),
+    radial-gradient(circle at 50% 100%, rgba(69,217,192,0.06), transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Plus Jakarta Sans', sans-serif;
+  overflow:hidden;
+  height:100vh;
+}
+::selection{background:var(--teal); color:#0F1229;}
+h1,h2,h3,.font-display{font-family:'Space Grotesk', sans-serif;}
+.mono{font-family:'JetBrains Mono', monospace;}
+
+#app{display:flex; flex-direction:column; height:100vh;}
+
+#topbar{
+  display:flex; align-items:center; gap:14px;
+  padding:14px 20px; border-bottom:1px solid var(--line);
+  background:rgba(15,18,41,0.7); backdrop-filter:blur(6px);
+  z-index:20; flex-shrink:0;
+}
+#toc-btn{
+  background:var(--panel2); border:1px solid var(--line); color:var(--ink);
+  width:38px; height:38px; border-radius:10px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:16px;
+  flex-shrink:0; transition:background .2s;
+}
+#toc-btn:hover{background:var(--panel3);}
+.brand{display:flex; flex-direction:column; line-height:1.2; flex-shrink:0;}
+.brand .eyebrow{font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; color:var(--teal); text-transform:uppercase; font-weight:600;}
+.brand .title{font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; color:var(--ink); display:none;}
+@media(min-width:560px){.brand .title{display:block;}}
+
+#progress-track{
+  flex:1; height:6px; background:var(--panel2); border-radius:99px; overflow:hidden;
+  display:flex; gap:2px; padding:1px;
+}
+.progress-seg{flex:1; background:transparent; border-radius:99px; transition:background .35s ease;}
+.progress-seg.done{background:var(--teal);}
+.progress-seg.current{background:var(--ink);}
+#slide-counter{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-dim); flex-shrink:0; min-width:44px; text-align:right;}
+
+#viewport{flex:1; position:relative; overflow:hidden;}
+.slide{display:none; position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; padding:clamp(20px,4vw,56px) clamp(18px,6vw,80px) 110px;}
+.slide.active{display:block; animation:slideIn .5s cubic-bezier(.2,.8,.2,1) both;}
+@keyframes slideIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+.slide-inner{max-width:980px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; justify-content:center;}
+
+.eyebrow-tag{font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:600; display:inline-flex; align-items:center; gap:8px; margin-bottom:16px;}
+.eyebrow-tag.c-teal{color:var(--teal);} .eyebrow-tag.c-amber{color:var(--amber);}
+.eyebrow-tag.c-violet{color:var(--violet);} .eyebrow-tag.c-coral{color:var(--coral);}
+.eyebrow-tag::before{content:"●";}
+
+h1.slide-title{font-size:clamp(26px,4.4vw,44px); font-weight:700; line-height:1.15; margin-bottom:14px;}
+p.slide-lead{color:var(--ink-dim); font-size:clamp(14.5px,1.8vw,17px); line-height:1.75; max-width:70ch; margin-bottom:26px;}
+
+.card{background:linear-gradient(180deg, var(--panel), var(--panel2)); border:1px solid var(--line); border-radius:16px; padding:20px;}
+
+#navbar{
+  position:absolute; bottom:0; left:0; right:0;
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 20px; border-top:1px solid var(--line);
+  background:rgba(15,18,41,0.85); backdrop-filter:blur(6px);
+  z-index:15;
+}
+.nav-btn{background:var(--panel2); border:1px solid var(--line); color:var(--ink); padding:10px 18px; border-radius:10px; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:8px; transition:.2s;}
+.nav-btn:hover:not(:disabled){background:var(--panel3); transform:translateY(-1px);}
+.nav-btn:disabled{opacity:.3; cursor:not-allowed;}
+.nav-btn.primary{background:linear-gradient(90deg,var(--teal),var(--amber)); color:#0F1229; border:none;}
+#dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:40vw;}
+.dot{width:8px; height:8px; border-radius:50%; background:var(--panel3); cursor:pointer; border:none; padding:0; transition:.2s;}
+.dot.active{background:var(--teal); width:22px; border-radius:5px;}
+@media(max-width:640px){#dots{display:none;} .nav-btn span.label{display:none;}}
+
+#toc-overlay{position:fixed; inset:0; background:rgba(8,10,24,0.75); backdrop-filter:blur(4px); z-index:100; display:none; align-items:center; justify-content:center; padding:20px;}
+#toc-overlay.open{display:flex;}
+#toc-panel{background:linear-gradient(180deg, var(--panel), var(--panel2)); border:1px solid var(--line); border-radius:18px; padding:24px; max-width:520px; width:100%; max-height:80vh; overflow-y:auto;}
+#toc-panel h3{font-size:18px; margin-bottom:4px;}
+#toc-panel p{color:var(--ink-dim); font-size:13px; margin-bottom:18px;}
+.toc-item{display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:8px; cursor:pointer; color:var(--ink); font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; transition:.15s;}
+.toc-item:hover{background:rgba(255,255,255,0.07);}
+.toc-item .num{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-dim2); width:20px; flex-shrink:0;}
+.toc-close{width:100%; margin-top:6px; background:var(--panel3); border:1px solid var(--line); color:var(--ink); padding:10px; border-radius:10px; cursor:pointer; font-weight:600;}
+
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+@media(max-width:800px){.grid-2{grid-template-columns:1fr;}}
+
+.pillar-card{border-radius:16px; padding:22px; cursor:pointer; border:1px solid var(--line); background:var(--panel); position:relative; overflow:hidden; transition:transform .2s, box-shadow .2s; clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);}
+.pillar-card:hover{transform:translateY(-4px);}
+.pillar-card .num{font-family:'JetBrains Mono',monospace; font-size:11px; opacity:.7; margin-bottom:10px;}
+.pillar-card .ic{font-size:34px; margin-bottom:10px;}
+.pillar-card h4{font-size:19px; margin-bottom:8px;}
+.pillar-card p{font-size:13.5px; color:var(--ink-dim); line-height:1.6;}
+.pillar-card.teal{box-shadow:inset 0 0 0 1px rgba(69,217,192,.25);} .pillar-card.teal .num,.pillar-card.teal .ic{color:var(--teal);}
+.pillar-card.amber{box-shadow:inset 0 0 0 1px rgba(255,200,87,.25);} .pillar-card.amber .num,.pillar-card.amber .ic{color:var(--amber);}
+
+.btn{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px; cursor:pointer; border-radius:10px; padding:11px 20px; border:1px solid var(--line); background:var(--panel3); color:var(--ink); transition:.2s;}
+.btn:hover{background:var(--panel2); transform:translateY(-1px);}
+.btn.accent{background:linear-gradient(90deg,var(--teal),var(--amber)); border:none; color:#0F1229;}
+.btn.small{padding:8px 14px; font-size:13px;}
+
+.reveal-box{margin-top:16px; border:1px dashed var(--line); border-radius:14px; padding:16px; display:none; background:rgba(255,255,255,0.02);}
+.reveal-box.show{display:block; animation:slideIn .4s ease both;}
+.subitem{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,0.03); margin-bottom:8px; font-size:13.5px; opacity:0; animation:popIn .4s ease forwards;}
+@keyframes popIn{from{opacity:0; transform:translateX(-6px);} to{opacity:1; transform:translateX(0);}}
+
+.tab-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.tab-btn{background:var(--panel2); border:1px solid var(--line); color:var(--ink-dim); padding:9px 16px; border-radius:99px; font-size:13px; cursor:pointer; font-weight:600; font-family:'Plus Jakarta Sans',sans-serif; transition:.2s;}
+.tab-btn.active{background:var(--ink); color:#0F1229; border-color:transparent;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block; animation:slideIn .35s ease both;}
+
+.opt-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px;}
+@media(max-width:520px){.opt-grid{grid-template-columns:repeat(2,1fr);}}
+.opt-btn{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:18px 6px; font-size:24px; cursor:pointer; transition:.15s; color:var(--ink);}
+.opt-btn:hover{background:var(--panel3);}
+.opt-btn.correct{background:rgba(69,217,192,.2); border-color:var(--teal);}
+.opt-btn.wrong{background:rgba(255,122,110,.2); border-color:var(--coral);}
+.feedback-msg{margin-top:14px; font-size:13.5px; font-weight:600; display:none;}
+.feedback-msg.show{display:block; animation:slideIn .3s ease both;}
+.feedback-msg.ok{color:var(--teal);} .feedback-msg.no{color:var(--coral);}
+
+.soal-card{border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:14px; background:rgba(255,255,255,0.02);}
+.soal-num{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--amber); margin-bottom:8px; font-weight:600;}
+.soal-q{font-size:14.5px; line-height:1.7; margin-bottom:10px;}
+.jawaban{display:none; margin-top:12px; border-top:1px dashed var(--line); padding-top:12px; font-size:13.5px; color:var(--ink-dim); line-height:1.7;}
+.jawaban.show{display:block; animation:slideIn .3s ease both;}
+.jawaban b{color:var(--teal);}
+
+#quiz-progress{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--ink-dim); margin-bottom:10px;}
+#quiz-card{border:1px solid var(--line); border-radius:16px; padding:24px; background:var(--panel);}
+.quiz-opt{display:block; width:100%; text-align:left; background:var(--panel2); border:1px solid var(--line); color:var(--ink); border-radius:12px; padding:14px 16px; margin-bottom:10px; cursor:pointer; font-size:14px; font-family:'Plus Jakarta Sans',sans-serif; transition:.15s;}
+.quiz-opt:hover:not(.locked){background:var(--panel3);}
+.quiz-opt.correct{background:rgba(69,217,192,.18); border-color:var(--teal); font-weight:600;}
+.quiz-opt.wrong{background:rgba(255,122,110,.18); border-color:var(--coral);}
+#quiz-result{display:none; text-align:center;}
+#quiz-result.show{display:block;}
+.score-ring{width:120px; height:120px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; background:conic-gradient(var(--teal) calc(var(--pct,0)*1%), var(--panel3) 0);}
+.score-ring span{background:var(--bg); width:92px; height:92px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
+
+.map-node{border:1px solid var(--line); border-radius:14px; padding:18px; text-align:center;}
+.final-icon{font-size:60px; margin-bottom:10px;}
+.mini{font-size:12.5px; color:var(--ink-dim); line-height:1.6;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <button id="toc-btn" aria-label="Buka daftar materi">☰</button>
+    <div class="brand">
+      <span class="eyebrow">Informatika · Bab 2</span>
+      <span class="title">Dekomposisi & Pengenalan Pola</span>
+    </div>
+    <div id="progress-track"></div>
+    <div id="slide-counter">1/10</div>
+  </div>
+
+  <div id="viewport">
+
+    <!-- 0. COVER -->
+    <section class="slide" id="slide-0">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-teal">Informatika · Bab 2 · SMP</div>
+        <h1 class="slide-title" style="font-size:clamp(30px,5.6vw,52px);">Dekomposisi &<br>Pengenalan Pola</h1>
+        <p class="slide-lead">Dua cara berpikir dasar dalam Berpikir Komputasional: <b>memecah masalah besar menjadi bagian-bagian kecil</b>, lalu <b>menemukan pola atau kesamaan</b> agar solusi bisa dipakai berulang. Yuk pelajari lewat contoh, latihan, dan kuis interaktif! 🧩🔁</p>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:28px;">
+          <span class="mono" style="font-size:12px; background:var(--panel2); padding:8px 14px; border-radius:99px; color:var(--teal); border:1px solid var(--line);">10 Slide</span>
+          <span class="mono" style="font-size:12px; background:var(--panel2); padding:8px 14px; border-radius:99px; color:var(--amber); border:1px solid var(--line);">Contoh Interaktif</span>
+          <span class="mono" style="font-size:12px; background:var(--panel2); padding:8px 14px; border-radius:99px; color:var(--violet); border:1px solid var(--line);">Kuis Latihan</span>
+        </div>
+        <button class="btn accent" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- 1. PENGANTAR -->
+    <section class="slide" id="slide-1">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-violet">Pengantar</div>
+        <h1 class="slide-title">Bagian dari Berpikir Komputasional</h1>
+        <p class="slide-lead">Berpikir Komputasional adalah cara berpikir sistematis untuk menyelesaikan masalah. Dua pilar pertamanya adalah <b>Dekomposisi</b> dan <b>Pengenalan Pola</b> — keduanya sering dipakai bersamaan: pecah dulu masalahnya, baru cari pola di antara bagian-bagiannya.</p>
+        <div class="grid-2">
+          <div class="pillar-card teal" onclick="goTo(2)">
+            <div class="num">BAGIAN 01</div>
+            <div class="ic">🧩</div>
+            <h4>Dekomposisi</h4>
+            <p>Memecah masalah besar dan rumit menjadi bagian-bagian kecil yang lebih mudah diselesaikan satu per satu.</p>
+          </div>
+          <div class="pillar-card amber" onclick="goTo(4)">
+            <div class="num">BAGIAN 02</div>
+            <div class="ic">🔁</div>
+            <h4>Pengenalan Pola</h4>
+            <p>Menemukan kemiripan atau tren dari beberapa masalah, agar solusi yang berhasil bisa dipakai lagi.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DEKOMPOSISI - MATERI -->
+    <section class="slide" id="slide-2">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-teal">Pilar 01 · Dekomposisi</div>
+        <h1 class="slide-title">🧩 Apa itu Dekomposisi?</h1>
+        <p class="slide-lead"><b>Dekomposisi</b> adalah kemampuan memecah masalah besar dan rumit menjadi bagian-bagian kecil yang lebih mudah dipahami dan diselesaikan satu per satu.</p>
+        <div class="card">
+          <p class="mono" style="font-size:11px; color:var(--teal); letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;">Kenapa Dekomposisi Penting?</p>
+          <div class="grid-2" style="gap:10px;">
+            <div class="mini">✅ Masalah besar terasa lebih ringan saat dipecah jadi bagian kecil</div>
+            <div class="mini">✅ Setiap bagian bisa dikerjakan bersama teman (kerja tim)</div>
+            <div class="mini">✅ Lebih mudah menemukan letak kesalahan jika ada bagian yang gagal</div>
+            <div class="mini">✅ Pengerjaan jadi lebih terorganisir dan tidak membingungkan</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; font-size:14px; margin-bottom:6px;">Contoh Interaktif 1: Mengadakan Pesta Ulang Tahun 🎉</p>
+          <p class="mini" style="margin-bottom:12px;">"Mengadakan pesta ulang tahun" terdengar besar dan rumit. Klik tombol di bawah untuk memecahnya!</p>
+          <button class="btn accent small" id="decomp-btn" onclick="showDecomp()">🧩 Pecah Masalah Ini</button>
+          <div class="reveal-box" id="decomp-box">
+            <div class="subitem" style="animation-delay:.05s">📩 <div><b>Undangan</b> — siapa saja yang diundang & cara mengundang</div></div>
+            <div class="subitem" style="animation-delay:.15s">🎈 <div><b>Dekorasi</b> — tema, balon, dan hiasan ruangan</div></div>
+            <div class="subitem" style="animation-delay:.25s">🍰 <div><b>Makanan & Kue</b> — menu, kue ulang tahun, minuman</div></div>
+            <div class="subitem" style="animation-delay:.35s">🎮 <div><b>Games & Hiburan</b> — musik dan permainan seru</div></div>
+            <div class="subitem" style="animation-delay:.45s">💰 <div><b>Anggaran</b> — perkiraan biaya semua kebutuhan</div></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; font-size:14px; margin-bottom:6px;">Contoh Interaktif 2: Piket Membersihkan Kelas 🧹</p>
+          <p class="mini" style="margin-bottom:12px;">Coba pecah tugas "membersihkan kelas" jadi bagian-bagian kecil!</p>
+          <button class="btn accent small" id="decomp2-btn" onclick="showDecomp2()">🧩 Pecah Masalah Ini</button>
+          <div class="reveal-box" id="decomp2-box">
+            <div class="subitem" style="animation-delay:.05s">🪑 <div><b>Menata Bangku</b> — merapikan meja & kursi</div></div>
+            <div class="subitem" style="animation-delay:.15s">🧹 <div><b>Menyapu Lantai</b> — membersihkan debu & sampah</div></div>
+            <div class="subitem" style="animation-delay:.25s">🗑️ <div><b>Membuang Sampah</b> — ke tempat sampah luar kelas</div></div>
+            <div class="subitem" style="animation-delay:.35s">📝 <div><b>Membersihkan Papan Tulis</b> — menghapus & merapikan spidol</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. DEKOMPOSISI - LATIHAN -->
+    <section class="slide" id="slide-3">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-teal">Pilar 01 · Dekomposisi</div>
+        <h1 class="slide-title">📝 Latihan: Dekomposisi</h1>
+        <p class="slide-lead">Coba jawab dulu di kepalamu, lalu klik "Lihat Pembahasan" untuk mencocokkan.</p>
+        <div class="soal-card">
+          <div class="soal-num">SOAL A</div>
+          <div class="soal-q">Bu Rini ingin merapikan seluruh isi rumah sebelum Lebaran. Jika kamu menerapkan dekomposisi, bagian-bagian kecil apa saja yang bisa dibuat dari tugas "merapikan rumah"?</div>
+          <button class="btn small" onclick="document.getElementById('jwbd-a').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbd-a"><b>Pembahasan:</b> Kamar tidur, dapur, ruang tamu, kamar mandi, dan halaman — masing-masing bagian dikerjakan satu per satu.</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL B</div>
+          <div class="soal-q">Sebuah tim membuat mading (majalah dinding) sekolah. Jika tugas ini dipecah dengan dekomposisi, bagian apa saja yang bisa dibagi ke tiap anggota tim?</div>
+          <button class="btn small" onclick="document.getElementById('jwbd-b').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbd-b"><b>Pembahasan:</b> Menulis artikel, mendesain tata letak, menggambar ilustrasi, mengedit & mengoreksi tulisan, dan menempelkannya di papan mading.</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL C</div>
+          <div class="soal-q">Kamu ingin membuat video pendek untuk tugas sekolah. Sebutkan minimal 4 bagian kecil dari proses "membuat video" ini!</div>
+          <button class="btn small" onclick="document.getElementById('jwbd-c').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbd-c"><b>Pembahasan:</b> Menulis ide/skrip, merekam video, mengumpulkan bahan pendukung (musik/gambar), mengedit video, dan mengunggah/mengumpulkan hasil akhir.</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL D</div>
+          <div class="soal-q">OSIS akan mengadakan lomba 17 Agustus di sekolah. Sebutkan minimal 4 bagian kecil dari persiapan acara ini!</div>
+          <button class="btn small" onclick="document.getElementById('jwbd-d').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbd-d"><b>Pembahasan:</b> Menentukan jenis lomba, menyiapkan hadiah, membuat jadwal & daftar peserta, menyiapkan perlengkapan lomba, dan mencari juri/panitia.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. POLA - MATERI -->
+    <section class="slide" id="slide-4">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-amber">Pilar 02 · Pengenalan Pola</div>
+        <h1 class="slide-title">🔁 Apa itu Pengenalan Pola?</h1>
+        <p class="slide-lead"><b>Pengenalan pola (pattern recognition)</b> adalah kemampuan menemukan kemiripan atau tren dari beberapa masalah, sehingga solusi yang pernah berhasil bisa dipakai lagi untuk masalah yang serupa.</p>
+        <div class="card">
+          <p class="mono" style="font-size:11px; color:var(--amber); letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;">Kenapa Pengenalan Pola Penting?</p>
+          <div class="grid-2" style="gap:10px;">
+            <div class="mini">✅ Tidak perlu mencari solusi dari nol setiap kali menemui masalah serupa</div>
+            <div class="mini">✅ Membantu memprediksi apa yang akan terjadi selanjutnya</div>
+            <div class="mini">✅ Mempercepat pengambilan keputusan</div>
+            <div class="mini">✅ Membantu mengelompokkan informasi yang mirip agar lebih rapi</div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; font-size:14px; margin-bottom:6px;">Contoh Interaktif 1: Tebak Pola Simbol</p>
+          <p class="mini" style="margin-bottom:6px;">Perhatikan urutan berikut, lalu klik simbol yang tepat untuk melanjutkan pola:</p>
+          <div style="font-size:34px; letter-spacing:10px; margin:14px 0;">🔺 🔵 🔺 🔵 🔺 <span class="mono" style="font-size:16px; color:var(--amber);">?</span></div>
+          <div class="opt-grid" id="pattern-opts"></div>
+          <div class="feedback-msg" id="pattern-feedback"></div>
+        </div>
+        <div class="card" style="margin-top:14px;">
+          <p style="font-weight:600; font-size:14px; margin-bottom:6px;">Contoh Interaktif 2: Tebak Pola Angka</p>
+          <p class="mini" style="margin-bottom:6px;">Sekarang coba pola angka berikut:</p>
+          <div style="font-size:30px; letter-spacing:10px; margin:14px 0;" class="mono">2 · 4 · 6 · 8 · <span style="color:var(--amber);">?</span></div>
+          <div class="opt-grid" id="pattern2-opts"></div>
+          <div class="feedback-msg" id="pattern2-feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. POLA - LATIHAN -->
+    <section class="slide" id="slide-5">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-amber">Pilar 02 · Pengenalan Pola</div>
+        <h1 class="slide-title">📝 Latihan: Pengenalan Pola</h1>
+        <p class="slide-lead">Coba jawab dulu di kepalamu, lalu klik "Lihat Pembahasan" untuk mencocokkan.</p>
+        <div class="soal-card">
+          <div class="soal-num">SOAL A</div>
+          <div class="soal-q">Setiap kali kamu lupa membawa buku PR, gurumu memberi tugas tambahan. Ini terjadi berulang kali di hari Senin dan Rabu (jadwal mapel yang sama). Pola apa yang bisa kamu kenali, dan solusi apa yang bisa dipakai berulang untuk mencegahnya?</div>
+          <button class="btn small" onclick="document.getElementById('jwbp-a').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbp-a"><b>Pembahasan:</b> Polanya adalah lupa selalu terjadi karena packing tas dilakukan buru-buru di pagi hari. Solusi berulang yang bisa dipakai: siapkan tas sejak malam sebelumnya (H-1).</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL B</div>
+          <div class="soal-q">Seorang kasir toko melihat bahwa setiap akhir bulan, penjualan buku tulis selalu meningkat drastis. Pola apa yang bisa dikenali, dan bagaimana toko bisa memanfaatkannya?</div>
+          <button class="btn small" onclick="document.getElementById('jwbp-b').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbp-b"><b>Pembahasan:</b> Polanya berkaitan dengan awal masuk sekolah/pembagian rapor di akhir/awal bulan. Toko bisa menyiapkan stok buku tulis lebih banyak menjelang periode tersebut.</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL C</div>
+          <div class="soal-q">Perhatikan deret berikut: 3, 6, 9, 12, ... Angka apa yang muncul selanjutnya, dan pola apa yang kamu gunakan untuk menjawabnya?</div>
+          <button class="btn small" onclick="document.getElementById('jwbp-c').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbp-c"><b>Pembahasan:</b> Jawabannya adalah 15. Polanya: setiap angka bertambah 3 dari angka sebelumnya (kelipatan 3).</div>
+        </div>
+        <div class="soal-card">
+          <div class="soal-num">SOAL D</div>
+          <div class="soal-q">Ibu selalu memasak sayur bening setiap hari Jumat, karena hari itu adalah hari Pasar Ibu belanja sayur segar. Pola apa yang bisa dikenali dari kebiasaan ini?</div>
+          <button class="btn small" onclick="document.getElementById('jwbp-d').classList.toggle('show')">💡 Lihat Pembahasan</button>
+          <div class="jawaban" id="jwbp-d"><b>Pembahasan:</b> Polanya adalah menu masakan berkaitan dengan jadwal belanja mingguan — sayur segar tersedia karena baru dibeli di hari Jumat, sehingga menu itu berulang tiap minggu.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. STUDI KASUS GABUNGAN -->
+    <section class="slide" id="slide-6">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-violet">Studi Kasus</div>
+        <h1 class="slide-title">Menggabungkan Dekomposisi & Pengenalan Pola</h1>
+        <p class="slide-lead"><b>Studi kasus:</b> Kelasmu akan membuat proyek "Pameran Karya Seni Kelas". Lihat bagaimana kedua pilar dipakai bersama. Klik tab di bawah.</p>
+        <div class="tab-row" id="case-tabs"></div>
+        <div id="case-panes"></div>
+      </div>
+    </section>
+
+    <!-- 7. KUIS -->
+    <section class="slide" id="slide-7">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-coral">Kuis Interaktif</div>
+        <h1 class="slide-title">Uji Pemahamanmu</h1>
+        <p class="slide-lead">6 soal pilihan ganda seputar Dekomposisi dan Pengenalan Pola.</p>
+        <div id="quiz-progress"></div>
+        <div id="quiz-card"></div>
+        <div id="quiz-result">
+          <div class="score-ring" id="score-ring" style="--pct:0;"><span id="score-text">0%</span></div>
+          <h3 id="score-title" style="margin-bottom:8px;"></h3>
+          <p id="score-desc" style="color:var(--ink-dim); font-size:14px; margin-bottom:18px;"></p>
+          <button class="btn accent" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. RINGKASAN -->
+    <section class="slide" id="slide-8">
+      <div class="slide-inner">
+        <div class="eyebrow-tag c-teal">Ringkasan</div>
+        <h1 class="slide-title">Rangkuman Materi</h1>
+        <div class="grid-2">
+          <div class="map-node" style="border-color:rgba(69,217,192,.4);">
+            <div style="font-size:30px;">🧩</div>
+            <b style="color:var(--teal); font-size:15px;">Dekomposisi</b>
+            <p class="mini" style="margin-top:6px;">Memecah masalah besar jadi bagian-bagian kecil agar lebih mudah dikerjakan satu per satu.</p>
+          </div>
+          <div class="map-node" style="border-color:rgba(255,200,87,.4);">
+            <div style="font-size:30px;">🔁</div>
+            <b style="color:var(--amber); font-size:15px;">Pengenalan Pola</b>
+            <p class="mini" style="margin-top:6px;">Menemukan kemiripan/tren antar masalah agar solusi lama bisa dipakai lagi.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <p class="mini">💡 <b style="color:var(--ink);">Ingat:</b> Kedua pilar ini sering dipakai berurutan — pecah dulu masalah besarnya (dekomposisi), lalu cari pola di antara bagian-bagiannya (pengenalan pola) supaya solusi bisa dipakai berulang kali.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. SELESAI -->
+    <section class="slide" id="slide-9">
+      <div class="slide-inner" style="text-align:center; align-items:center;">
+        <div class="final-icon">🎉</div>
+        <h1 class="slide-title">Selamat, Kamu Sudah Menyelesaikannya!</h1>
+        <p class="slide-lead" style="margin-left:auto; margin-right:auto;">Kamu telah mempelajari cara memecah masalah besar (dekomposisi) dan menemukan pola/kesamaan (pengenalan pola). Terus latih kedua cara berpikir ini di kehidupan sehari-hari ya!</p>
+        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+          <a href="infob-bab2.html" class="btn accent" style="text-decoration:none; display:inline-flex; align-items:center;">✓ Selesai — Kembali ke Menu Bab 2</a>
+          <button class="btn" onclick="goTo(0)">↺ Ulangi Presentasi</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="navbar">
+    <button class="nav-btn" id="prev-btn" onclick="prevSlide()">←<span class="label">Sebelumnya</span></button>
+    <div id="dots"></div>
+    <button class="nav-btn primary" id="next-btn" onclick="nextSlide()"><span class="label">Berikutnya</span>→</button>
+  </div>
+</div>
+
+<div id="toc-overlay">
+  <div id="toc-panel">
+    <h3>Daftar Materi</h3>
+    <p>Klik untuk langsung menuju slide.</p>
+    <div id="toc-list"></div>
+    <button class="toc-close" onclick="closeTOC()">Tutup</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const slideTitles = [
+  "Cover","Pengantar","Dekomposisi: Materi","Dekomposisi: Latihan",
+  "Pengenalan Pola: Materi","Pengenalan Pola: Latihan","Studi Kasus Gabungan",
+  "Kuis Interaktif","Ringkasan","Selesai"
+];
+
+const caseData = [
+  {label:"🧩 Dekomposisi", body:"Proyek 'Pameran Karya Seni Kelas' dipecah menjadi bagian kecil: mengumpulkan karya siswa, menata ruang pameran, membuat label karya, mendekorasi ruangan, dan menyiapkan sesi kunjungan untuk kelas lain."},
+  {label:"🔁 Pengenalan Pola", body:"Panitia teringat pameran tahun lalu berjalan lancar saat karya dikelompokkan berdasarkan tema (lukisan, kerajinan, fotografi) — pola pengelompokan ini dipakai lagi tahun ini agar pengunjung lebih mudah menikmati pameran."},
+  {label:"🔗 Kombinasi Keduanya", body:"Setelah dipecah (dekomposisi) dan dikelompokkan berdasarkan pola yang sudah terbukti berhasil (pengenalan pola), panitia bisa membagi tugas ke tiap kelompok dengan lebih cepat dan terarah — tidak perlu mulai merencanakan dari nol."},
+];
+
+const quizData = [
+  {q:"Memecah masalah besar menjadi bagian-bagian kecil disebut...", opts:["Abstraksi","Algoritma","Dekomposisi","Pengenalan Pola"], correct:2},
+  {q:"Ana melihat bahwa soal ulangan matematika selalu mirip dengan soal latihan di buku, sehingga ia bisa memakai cara penyelesaian yang sama. Ana sedang menerapkan...", opts:["Algoritma","Pengenalan Pola","Dekomposisi","Abstraksi"], correct:1},
+  {q:"Manakah yang merupakan CONTOH dekomposisi?", opts:["Menemukan bahwa harga naik setiap bulan Ramadan","Memecah tugas membuat mading menjadi: menulis, mendesain, menempel","Membuat ikon sederhana untuk aplikasi cuaca","Menyusun langkah membuat mi instan"], correct:1},
+  {q:"Manfaat utama dari pengenalan pola adalah...", opts:["Membuat masalah menjadi lebih rumit","Menghindari penggunaan solusi lama","Mempercepat penyelesaian masalah serupa dengan solusi yang sudah terbukti","Menghilangkan detail penting dari masalah"], correct:2},
+  {q:"Sebuah tim OSIS memecah acara 17 Agustus menjadi: hadiah, jadwal lomba, perlengkapan, dan juri. Ini adalah contoh penerapan...", opts:["Pengenalan Pola","Dekomposisi","Algoritma","Abstraksi"], correct:1},
+  {q:"Toko alat tulis menyetok lebih banyak buku tulis setiap akhir bulan karena penjualannya selalu naik di masa itu. Ini contoh penerapan...", opts:["Dekomposisi","Pengenalan Pola","Algoritma","Abstraksi"], correct:1},
+];
+
+/* ===================== SLIDE NAV ===================== */
+let current = 0;
+const total = slideTitles.length;
+
+function buildShell(){
+  const track = document.getElementById('progress-track');
+  const dots = document.getElementById('dots');
+  const tocList = document.getElementById('toc-list');
+  for(let i=0;i<total;i++){
+    const seg = document.createElement('div'); seg.className='progress-seg'; seg.id='seg-'+i;
+    track.appendChild(seg);
+    const dot = document.createElement('button'); dot.className='dot'; dot.id='dot-'+i;
+    dot.setAttribute('aria-label','Slide '+(i+1));
+    dot.onclick=()=>goTo(i);
+    dots.appendChild(dot);
+    const item = document.createElement('button'); item.className='toc-item';
+    item.innerHTML = `<span class="num mono">${String(i+1).padStart(2,'0')}</span><span>${slideTitles[i]}</span>`;
+    item.onclick = ()=>{goTo(i); closeTOC();};
+    tocList.appendChild(item);
+  }
+}
+function updateShell(){
+  document.querySelectorAll('.slide').forEach((s,i)=>{ s.classList.toggle('active', i===current); });
+  for(let i=0;i<total;i++){
+    const seg = document.getElementById('seg-'+i);
+    seg.classList.toggle('done', i<current);
+    seg.classList.toggle('current', i===current);
+    document.getElementById('dot-'+i).classList.toggle('active', i===current);
+  }
+  document.getElementById('slide-counter').textContent = (current+1)+'/'+total;
+  document.getElementById('prev-btn').disabled = current===0;
+  document.getElementById('next-btn').disabled = current===total-1;
+  document.getElementById('viewport').scrollTop = 0;
+  const activeSlide = document.getElementById('slide-'+current);
+  if(activeSlide) activeSlide.scrollTop = 0;
+}
+function goTo(i){ current = Math.max(0, Math.min(total-1, i)); updateShell(); }
+function nextSlide(){ if(current<total-1) goTo(current+1); }
+function prevSlide(){ if(current>0) goTo(current-1); }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+  if(e.key==='Escape') closeTOC();
+});
+
+let touchStartX=0;
+document.getElementById('viewport').addEventListener('touchstart', e=>{touchStartX=e.changedTouches[0].screenX;}, {passive:true});
+document.getElementById('viewport').addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx)>60){ dx<0 ? nextSlide() : prevSlide(); }
+}, {passive:true});
+
+function openTOC(){ document.getElementById('toc-overlay').classList.add('open'); }
+function closeTOC(){ document.getElementById('toc-overlay').classList.remove('open'); }
+document.getElementById('toc-btn').onclick = openTOC;
+document.getElementById('toc-overlay').addEventListener('click', e=>{ if(e.target.id==='toc-overlay') closeTOC(); });
+
+/* ===================== Dekomposisi interaktif ===================== */
+function showDecomp(){
+  document.getElementById('decomp-box').classList.add('show');
+  document.getElementById('decomp-btn').textContent='✓ Sudah Dipecah Jadi 5 Bagian';
+}
+function showDecomp2(){
+  document.getElementById('decomp2-box').classList.add('show');
+  document.getElementById('decomp2-btn').textContent='✓ Sudah Dipecah Jadi 4 Bagian';
+}
+
+/* ===================== Pengenalan Pola interaktif ===================== */
+function buildPattern(){
+  const wrap = document.getElementById('pattern-opts');
+  const opts = [{e:'🔵',ok:true},{e:'🔺',ok:false},{e:'⬛',ok:false},{e:'⭐',ok:false}];
+  opts.forEach(o=>{
+    const b = document.createElement('button'); b.className='opt-btn'; b.textContent=o.e;
+    b.onclick = ()=>{
+      document.querySelectorAll('#pattern-opts .opt-btn').forEach(x=>x.disabled=true);
+      const fb = document.getElementById('pattern-feedback');
+      if(o.ok){ b.classList.add('correct'); fb.textContent='✓ Benar! Polanya berulang: segitiga, lingkaran, segitiga, lingkaran...'; fb.className='feedback-msg show ok'; }
+      else{ b.classList.add('wrong'); fb.textContent='✗ Belum tepat. Coba perhatikan lagi urutannya berulang setiap 2 simbol.'; fb.className='feedback-msg show no'; }
+    };
+    wrap.appendChild(b);
+  });
+}
+function buildPattern2(){
+  const wrap = document.getElementById('pattern2-opts');
+  const opts = [{e:'10',ok:true},{e:'9',ok:false},{e:'12',ok:false},{e:'7',ok:false}];
+  opts.forEach(o=>{
+    const b = document.createElement('button'); b.className='opt-btn mono'; b.style.fontSize='20px'; b.textContent=o.e;
+    b.onclick = ()=>{
+      document.querySelectorAll('#pattern2-opts .opt-btn').forEach(x=>x.disabled=true);
+      const fb = document.getElementById('pattern2-feedback');
+      if(o.ok){ b.classList.add('correct'); fb.textContent='✓ Benar! Polanya bertambah 2 setiap angka: 2, 4, 6, 8, 10...'; fb.className='feedback-msg show ok'; }
+      else{ b.classList.add('wrong'); fb.textContent='✗ Belum tepat. Coba lihat selisih antar angka: 2→4→6→8, selalu bertambah berapa?'; fb.className='feedback-msg show no'; }
+    };
+    wrap.appendChild(b);
+  });
+}
+
+/* ===================== Studi Kasus ===================== */
+function buildCase(){
+  const tabs = document.getElementById('case-tabs');
+  const panes = document.getElementById('case-panes');
+  caseData.forEach((c,i)=>{
+    const tab = document.createElement('button'); tab.className='tab-btn'+(i===0?' active':''); tab.textContent=c.label;
+    tab.onclick = ()=>{
+      document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('pane-'+i).classList.add('active');
+    };
+    tabs.appendChild(tab);
+    const pane = document.createElement('div'); pane.className='tab-pane'+(i===0?' active':''); pane.id='pane-'+i;
+    pane.innerHTML = `<div class="card">${c.body}</div>`;
+    panes.appendChild(pane);
+  });
+}
+
+/* ===================== Quiz ===================== */
+let qIndex=0, qScore=0, qLocked=false;
+function buildQuiz(){
+  qIndex=0; qScore=0;
+  document.getElementById('quiz-result').classList.remove('show');
+  document.getElementById('quiz-card').style.display='block';
+  renderQuizQ();
+}
+function renderQuizQ(){
+  qLocked=false;
+  document.getElementById('quiz-progress').textContent = `Soal ${qIndex+1} dari ${quizData.length} · Skor: ${qScore}`;
+  const q = quizData[qIndex];
+  const card = document.getElementById('quiz-card');
+  card.innerHTML = `<h3 style="font-size:16.5px; margin-bottom:16px; line-height:1.5;">${q.q}</h3>` +
+    q.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join('') +
+    `<div style="margin-top:16px; display:flex; justify-content:flex-end;"><button class="btn accent small" id="quiz-next-btn" style="display:none;" onclick="nextQuizQ()">${qIndex===quizData.length-1?'Lihat Hasil':'Soal Berikutnya'} →</button></div>`;
+  card.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.onclick = ()=>{
+      if(qLocked) return;
+      qLocked=true;
+      const i = +btn.dataset.i;
+      card.querySelectorAll('.quiz-opt').forEach(b=>b.classList.add('locked'));
+      if(i===q.correct){ btn.classList.add('correct'); qScore++; }
+      else { btn.classList.add('wrong'); card.querySelector(`[data-i="${q.correct}"]`).classList.add('correct'); }
+      document.getElementById('quiz-next-btn').style.display='inline-flex';
+      document.getElementById('quiz-progress').textContent = `Soal ${qIndex+1} dari ${quizData.length} · Skor: ${qScore}`;
+    };
+  });
+}
+function nextQuizQ(){
+  qIndex++;
+  if(qIndex>=quizData.length){ showQuizResult(); return; }
+  renderQuizQ();
+}
+function showQuizResult(){
+  document.getElementById('quiz-card').style.display='none';
+  const pct = Math.round((qScore/quizData.length)*100);
+  const res = document.getElementById('quiz-result');
+  res.classList.add('show');
+  document.getElementById('score-ring').style.setProperty('--pct', pct);
+  document.getElementById('score-text').textContent = pct+'%';
+  let title, desc;
+  if(pct>=85){ title='🏆 Luar Biasa!'; desc='Kamu sudah sangat memahami Dekomposisi & Pengenalan Pola.'; }
+  else if(pct>=60){ title='👍 Bagus!'; desc='Pemahamanmu sudah cukup baik, coba pelajari lagi bagian yang masih keliru.'; }
+  else{ title='📖 Terus Berlatih!'; desc='Yuk baca ulang materinya, lalu coba lagi.'; }
+  document.getElementById('score-title').textContent = title;
+  document.getElementById('score-desc').textContent = desc;
+  document.getElementById('quiz-progress').textContent = `Selesai · Skor akhir: ${qScore}/${quizData.length}`;
+}
+function restartQuiz(){ buildQuiz(); }
+
+/* ===================== INIT ===================== */
+buildShell();
+buildPattern();
+buildPattern2();
+buildCase();
+buildQuiz();
+updateShell();
+</script>
+</body>
+</html>

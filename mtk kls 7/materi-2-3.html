@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>2.3 Bilangan Pecahan Negatif dan Sifat Operasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg:#12203D;--bg-deep:#0C1830;--panel:#1B2F57;--panel-soft:#213868;
+--line:rgba(245,243,238,.14);--text:#F4F2EA;--text-dim:#AEBADA;
+--amber:#FFB627;--coral:#FF6F6B;--mint:#22D3AC;--violet:#9C8CFF;
+--r-lg:26px;--r-md:16px;--shadow:0 20px 50px rgba(4,9,25,.45)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+font-family:Inter,sans-serif;color:var(--text);overflow:hidden;height:100vh;
+background:radial-gradient(circle at 10% -10%,#294579 0,transparent 45%),
+radial-gradient(circle at 90% 110%,#213d70 0,transparent 50%),var(--bg)
+}
+h1,h2,h3{font-family:Fredoka,sans-serif;font-weight:600}
+#app{height:100%;display:flex;flex-direction:column}
+#topbar{
+display:flex;align-items:center;gap:1rem;padding:.8rem clamp(1rem,4vw,2.6rem);
+border-bottom:1px solid var(--line);background:rgba(12,22,45,.7);
+backdrop-filter:blur(8px);z-index:20
+}
+.brand{font:600 .95rem Fredoka;white-space:nowrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--amber);margin-right:.5rem}
+#progress-track{flex:1;height:6px;border-radius:99px;background:var(--panel-soft);overflow:hidden}
+#progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--mint),var(--amber));transition:.4s}
+#slide-counter{font:700 .78rem JetBrains Mono;color:var(--text-dim);white-space:nowrap}
+#deck{flex:1;position:relative;overflow:hidden}
+.slide{
+position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
+padding:clamp(1.1rem,3vw,2.6rem) clamp(1.2rem,6vw,5rem) 2rem;
+overflow-y:auto;opacity:0;transform:translateX(24px)
+}
+.slide.active{display:flex;animation:in .45s ease forwards}
+@keyframes in{to{opacity:1;transform:none}}
+.slide-inner{width:100%;max-width:980px;margin:auto;display:flex;flex-direction:column;gap:1rem;padding-bottom:1rem}
+.big-title{font-size:clamp(1.7rem,4.6vw,2.7rem);line-height:1.12}
+.sub{color:var(--text-dim);font-size:clamp(.93rem,2vw,1.06rem);line-height:1.65;max-width:72ch}
+.eyebrow{font:700 .72rem JetBrains Mono;color:var(--amber);letter-spacing:.16em;text-transform:uppercase}
+.pill,.tag{display:inline-flex;width:max-content;border-radius:99px}
+.pill{padding:.35rem .75rem;background:var(--panel-soft);border:1px solid var(--line);color:var(--amber);font:700 .7rem JetBrains Mono;letter-spacing:.1em;text-transform:uppercase}
+.tag{padding:.25rem .6rem;font-size:.72rem;font-weight:700}
+.amber{background:rgba(255,182,39,.16);color:var(--amber)}
+.mint{background:rgba(34,211,172,.16);color:var(--mint)}
+.violet{background:rgba(156,140,255,.16);color:var(--violet)}
+.coral{background:rgba(255,111,107,.16);color:var(--coral)}
+.card,.goal-card,.quiz-opt,.problem{
+background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow)
+}
+.card{padding:clamp(1rem,2.4vw,1.7rem)}
+.goal-card{display:flex;gap:1rem;padding:1rem 1.2rem}
+.goal-num{width:2.4rem;height:2.4rem;min-width:2.4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--amber);color:#20242e;font-weight:800}
+button{font-family:Inter;border:0;cursor:pointer}
+.navbtn{
+font-weight:700;font-size:.85rem;border-radius:99px;padding:.65rem 1.15rem;
+display:flex;align-items:center;gap:.4rem
+}
+.primary{background:var(--amber);color:#20242e}
+.ghost{background:var(--panel-soft);color:var(--text)}
+.navbtn:disabled{opacity:.35;cursor:not-allowed}
+#navbar{
+display:flex;align-items:center;justify-content:space-between;gap:1rem;
+padding:.7rem clamp(1rem,4vw,2.6rem) .9rem;border-top:1px solid var(--line);
+background:rgba(12,22,45,.7);z-index:20
+}
+#dots{display:flex;gap:.4rem}
+.dot-btn{width:9px;height:9px;border:0;border-radius:50%;background:var(--panel-soft);cursor:pointer}
+.dot-btn.active{width:22px;border-radius:99px;background:var(--amber)}
+.dot-btn.done{background:var(--mint)}
+.frac{display:inline-flex;flex-direction:column;align-items:center;font:700 1.4em JetBrains Mono;line-height:1}
+.frac .num{padding:0 .3em .16em}.frac .den{padding:.16em .3em 0;border-top:2px solid currentColor}
+.formula{
+display:flex;justify-content:center;align-items:center;gap:.8rem;
+font:700 clamp(1.7rem,5vw,3rem) JetBrains Mono;margin:1rem 0;flex-wrap:wrap
+}
+.formula .op{color:var(--amber)}
+.operation-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+.op-card{padding:1.1rem;border-radius:var(--r-md);background:var(--bg-deep);border:1px solid var(--line)}
+.op-card h3{margin-bottom:.5rem;color:var(--amber)}
+.example{margin-top:.8rem;padding:.9rem;border-radius:12px;background:var(--panel-soft);line-height:1.8}
+.step{padding:.45rem 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:0}
+.number-line{
+height:100px;position:relative;margin:1.3rem .5rem 1rem;
+border-bottom:3px solid var(--text-dim)
+}
+.number-line .tick{position:absolute;bottom:-9px;width:3px;height:17px;background:var(--text-dim)}
+.number-line .num{position:absolute;bottom:-35px;transform:translateX(-50%);font:600 .8rem JetBrains Mono;color:var(--text-dim)}
+.number-line .point{
+position:absolute;bottom:-8px;width:17px;height:17px;border-radius:50%;
+background:var(--coral);transform:translateX(-50%);box-shadow:0 0 0 5px rgba(255,111,107,.18)
+}
+.interactive{display:flex;gap:.7rem;align-items:center;justify-content:center;flex-wrap:wrap}
+.input{
+width:75px;padding:.65rem;border-radius:10px;border:1px solid var(--line);
+background:var(--bg-deep);color:var(--text);font:700 1.05rem JetBrains Mono;text-align:center
+}
+.result{font:700 1.5rem JetBrains Mono;color:var(--mint);text-align:center;margin-top:1rem;min-height:2rem}
+.rule{
+padding:1rem;border-radius:var(--r-md);background:var(--bg-deep);border-left:4px solid var(--amber);
+line-height:1.7
+}
+.problem{padding:1rem 1.2rem;cursor:pointer}
+.problem-answer{display:none;color:var(--text-dim);line-height:1.7;margin-top:.8rem;padding-top:.8rem;border-top:1px dashed var(--line)}
+.problem.open .problem-answer{display:block}
+.quiz-q{font:700 1.15rem Fredoka;margin-bottom:1rem}
+.quiz-opts{display:flex;flex-direction:column;gap:.65rem}
+.quiz-opt{text-align:left;padding:.85rem 1rem;color:var(--text);box-shadow:none}
+.quiz-opt:hover{border-color:var(--amber)}
+.quiz-opt.correct{background:rgba(34,211,172,.18);border-color:var(--mint)}
+.quiz-opt.wrong{background:rgba(255,111,107,.18);border-color:var(--coral)}
+#quizFeedback{margin-top:1rem;color:var(--text-dim);line-height:1.6}
+.score{text-align:center;font:700 3rem Fredoka;color:var(--amber)}
+.summary{display:flex;flex-direction:column;gap:.7rem}
+.summary-row{
+display:flex;gap:.8rem;padding:.9rem 1rem;border-radius:var(--r-md);
+background:var(--panel);border:1px solid var(--line)
+}
+.cover{text-align:center;align-items:center;justify-content:center}
+.cover-circle{
+width:190px;height:190px;border-radius:50%;
+background:conic-gradient(var(--coral) 0 25%,var(--amber) 25% 50%,var(--mint) 50% 75%,var(--violet) 75%);
+display:flex;align-items:center;justify-content:center;box-shadow:0 20px 50px rgba(0,0,0,.35)
+}
+.cover-circle div{
+width:130px;height:130px;border-radius:50%;background:var(--bg);
+display:flex;align-items:center;justify-content:center;
+font:700 1.7rem JetBrains Mono
+}
+@media(max-width:760px){
+.operation-grid{grid-template-columns:1fr}
+#dots{display:none}.brand{font-size:.8rem}
+.navbtn{padding:.6rem .85rem}.label{display:none}
+.formula{font-size:1.55rem}
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header id="topbar">
+<div class="brand"><span class="dot"></span> Bab 2 — Bilangan Rasional</div>
+<div id="progress-track"><div id="progress-fill"></div></div>
+<div id="slide-counter">1 / 10</div>
+</header>
+
+<main id="deck">
+
+<section class="slide active" id="s1">
+<div class="slide-inner cover">
+<span class="pill">Semester Ganjil · Kelas VII · Matematika</span>
+<div class="cover-circle"><div>−½ + ¼</div></div>
+<h1 class="big-title">Bilangan Pecahan Negatif <span style="color:var(--amber)">dan Sifat Operasi</span></h1>
+<p class="sub">Mengenal pecahan negatif, membandingkan nilainya, serta melakukan penjumlahan, pengurangan, perkalian, dan pembagian dengan menerapkan sifat operasi secara tepat.</p>
+<div>
+<span class="tag coral">− Pecahan Negatif</span>
+<span class="tag amber">± Operasi</span>
+<span class="tag mint">✓ Sifat Operasi</span>
+</div>
+<button class="navbtn primary" onclick="goNext()">Mulai Belajar →</button>
+</div>
+</section>
+
+<section class="slide" id="s2">
+<div class="slide-inner">
+<span class="eyebrow">Tujuan Pembelajaran</span>
+<h2 class="big-title">Setelah belajar, kamu mampu:</h2>
+<div class="goal-card"><div class="goal-num">1</div><div><b>Mengenali pecahan negatif</b><p class="sub">Menentukan letak dan makna bilangan pecahan negatif pada garis bilangan.</p></div></div>
+<div class="goal-card"><div class="goal-num">2</div><div><b>Melakukan operasi pada pecahan negatif</b><p class="sub">Menjumlahkan, mengurangkan, mengalikan, dan membagi pecahan yang melibatkan tanda negatif.</p></div></div>
+<div class="goal-card"><div class="goal-num">3</div><div><b>Menerapkan sifat operasi</b><p class="sub">Menggunakan sifat komutatif, asosiatif, distributif, identitas, dan invers secara tepat.</p></div></div>
+<div class="goal-card"><div class="goal-num">4</div><div><b>Menyelesaikan masalah</b><p class="sub">Menerapkan bilangan pecahan negatif pada situasi matematika dan kehidupan sehari-hari.</p></div></div>
+</div>
+</section>
+
+<section class="slide" id="s3">
+<div class="slide-inner">
+<span class="eyebrow">Materi 1</span>
+<h2 class="big-title">Mengenal Pecahan Negatif</h2>
+<div class="card">
+<p class="sub">Pecahan negatif adalah pecahan yang nilainya kurang dari nol. Tanda negatif dapat ditulis di depan pecahan atau pada pembilang.</p>
+<div class="formula">
+−<span class="frac"><span class="num">2</span><span class="den">3</span></span>
+<span>=</span>
+<span class="frac"><span class="num">−2</span><span class="den">3</span></span>
+</div>
+<div class="rule"><b>Ingat:</b> tanda negatif menunjukkan bahwa nilai pecahan berada di sebelah kiri 0 pada garis bilangan.</div>
+<div class="number-line">
+<div class="tick" style="left:10%"></div><div class="num" style="left:10%">−1</div>
+<div class="tick" style="left:30%"></div><div class="num" style="left:30%">−1/2</div>
+<div class="tick" style="left:50%"></div><div class="num" style="left:50%">0</div>
+<div class="tick" style="left:70%"></div><div class="num" style="left:70%">1/2</div>
+<div class="tick" style="left:90%"></div><div class="num" style="left:90%">1</div>
+<div class="point" style="left:30%"></div>
+</div>
+<p class="sub" style="text-align:center">Titik merah menunjukkan −1/2. Semakin ke kiri dari 0, nilainya semakin kecil.</p>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s4">
+<div class="slide-inner">
+<span class="eyebrow">Materi 2</span>
+<h2 class="big-title">Penjumlahan dan Pengurangan</h2>
+<div class="card">
+<div class="operation-grid">
+<div class="op-card">
+<h3>➕ Tanda Sama</h3>
+<p class="sub">Jumlahkan nilai mutlak, kemudian gunakan tanda yang sama.</p>
+<div class="formula">−1/3 + −2/3 = <span style="color:var(--mint)">−1</span></div>
+</div>
+<div class="op-card">
+<h3>➕ Tanda Berbeda</h3>
+<p class="sub">Kurangkan nilai mutlak dan gunakan tanda dari nilai mutlak yang lebih besar.</p>
+<div class="formula">−3/4 + 1/4 = <span style="color:var(--mint)">−1/2</span></div>
+</div>
+</div>
+<div class="example">
+<b>Pengurangan dapat diubah menjadi penjumlahan lawan:</b>
+<div class="step">−1/2 − 1/4 = −1/2 + (−1/4)</div>
+<div class="step">= −2/4 − 1/4</div>
+<div class="step">= <b style="color:var(--mint)">−3/4</b></div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s5">
+<div class="slide-inner">
+<span class="eyebrow">Materi 3</span>
+<h2 class="big-title">Perkalian Pecahan Negatif</h2>
+<div class="card">
+<p class="sub">Kalikan pembilang dengan pembilang dan penyebut dengan penyebut. Tentukan tanda hasil berdasarkan tanda kedua bilangan.</p>
+<div class="operation-grid" style="margin-top:1rem">
+<div class="op-card"><h3>− × + = −</h3><div class="formula">−2/3 × 3/4 = <span style="color:var(--coral)">−1/2</span></div></div>
+<div class="op-card"><h3>− × − = +</h3><div class="formula">−2/3 × −3/4 = <span style="color:var(--mint)">1/2</span></div></div>
+</div>
+<div class="rule" style="margin-top:1rem">
+<b>Aturan tanda perkalian:</b><br>
+(+) × (+) = (+) &nbsp; | &nbsp; (−) × (+) = (−)<br>
+(+) × (−) = (−) &nbsp; | &nbsp; (−) × (−) = (+)
+</div>
+</div>
+<div class="card">
+<h3 style="color:var(--amber)">🧮 Coba Interaktif</h3>
+<p class="sub">Masukkan pembilang dan penyebut dua pecahan.</p>
+<div class="interactive" style="margin-top:1rem">
+<input class="input" id="m1" value="-2"><span>/</span><input class="input" id="m2" value="3">
+<span>×</span>
+<input class="input" id="m3" value="3"><span>/</span><input class="input" id="m4" value="4">
+<button class="navbtn primary" onclick="multiplyNeg()">Hitung</button>
+</div>
+<div class="result" id="mulResult"></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s6">
+<div class="slide-inner">
+<span class="eyebrow">Materi 4</span>
+<h2 class="big-title">Pembagian Pecahan Negatif</h2>
+<div class="card">
+<p class="sub">Pembagian pecahan dilakukan dengan mengubahnya menjadi perkalian dengan kebalikan pecahan kedua.</p>
+<div class="formula">−3/4 ÷ 2/5 = −3/4 × 5/2 = <span style="color:var(--coral)">−15/8</span></div>
+<div class="example">
+<div class="step"><b>Langkah 1:</b> Pertahankan pecahan pertama.</div>
+<div class="step"><b>Langkah 2:</b> Ubah ÷ menjadi ×.</div>
+<div class="step"><b>Langkah 3:</b> Balik pecahan kedua.</div>
+<div class="step"><b>Langkah 4:</b> Kalikan dan sederhanakan.</div>
+</div>
+<div class="rule" style="margin-top:1rem">
+<b>Aturan tanda pembagian:</b> tanda sama menghasilkan positif, tanda berbeda menghasilkan negatif.
+</div>
+</div>
+<div class="card">
+<h3 style="color:var(--amber)">🔄 Coba Sendiri</h3>
+<div class="interactive" style="margin-top:1rem">
+<input class="input" id="d1" value="-3"><span>/</span><input class="input" id="d2" value="4">
+<span>÷</span>
+<input class="input" id="d3" value="2"><span>/</span><input class="input" id="d4" value="5">
+<button class="navbtn primary" onclick="divideNeg()">Hitung</button>
+</div>
+<div class="result" id="divResult"></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s7">
+<div class="slide-inner">
+<span class="eyebrow">Materi 5</span>
+<h2 class="big-title">Sifat-Sifat Operasi</h2>
+<div class="operation-grid">
+<div class="op-card">
+<h3>🔄 Komutatif</h3>
+<p class="sub">Urutan bilangan dapat ditukar tanpa mengubah hasil untuk penjumlahan dan perkalian.</p>
+<div class="example">a + b = b + a<br>a × b = b × a</div>
+</div>
+<div class="op-card">
+<h3>🧩 Asosiatif</h3>
+<p class="sub">Pengelompokan dapat diubah tanpa mengubah hasil untuk penjumlahan dan perkalian.</p>
+<div class="example">(a+b)+c = a+(b+c)</div>
+</div>
+<div class="op-card">
+<h3>📦 Distributif</h3>
+<p class="sub">Perkalian dapat didistribusikan terhadap penjumlahan atau pengurangan.</p>
+<div class="example">a(b+c)=ab+ac</div>
+</div>
+<div class="op-card">
+<h3>1️⃣ Identitas</h3>
+<p class="sub">0 adalah identitas penjumlahan dan 1 adalah identitas perkalian.</p>
+<div class="example">a+0=a<br>a×1=a</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s8">
+<div class="slide-inner">
+<span class="eyebrow">Eksplorasi</span>
+<h2 class="big-title">Sifat Operasi dalam Pecahan</h2>
+<div class="card">
+<p class="sub">Gunakan contoh berikut untuk melihat bagaimana sifat operasi membantu menyederhanakan perhitungan.</p>
+<div class="example">
+<div class="step"><b>Komutatif:</b> −1/2 + 1/4 = 1/4 + (−1/2)</div>
+<div class="step"><b>Asosiatif:</b> (−1/2 + 1/4) + 1/4 = −1/2 + (1/4 + 1/4)</div>
+<div class="step"><b>Distributif:</b> 1/2 × (−2/3 + 4/3) = (1/2×−2/3) + (1/2×4/3)</div>
+<div class="step"><b>Identitas:</b> −3/5 + 0 = −3/5 dan −3/5 × 1 = −3/5</div>
+</div>
+</div>
+<div class="card">
+<h3 style="color:var(--amber)">💡 Tantangan</h3>
+<p class="sub">Sifat apa yang digunakan pada bentuk berikut?</p>
+<div class="formula" style="font-size:1.7rem">−2/3 × (1/2 + 3/4)</div>
+<div class="interactive">
+<button class="navbtn ghost" onclick="showProperty('Distributif')">Distributif</button>
+<button class="navbtn ghost" onclick="showProperty('Komutatif')">Komutatif</button>
+<button class="navbtn ghost" onclick="showProperty('Identitas')">Identitas</button>
+</div>
+<div class="result" id="propertyResult"></div>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s9">
+<div class="slide-inner">
+<span class="eyebrow">Uji Pemahaman</span>
+<h2 class="big-title">Kuis Pecahan Negatif</h2>
+<div class="card" id="quizCard">
+<div id="quizQ" class="quiz-q"></div>
+<div id="quizOpts" class="quiz-opts"></div>
+<div id="quizFeedback"></div>
+<button id="quizNext" class="navbtn primary" style="display:none;margin-top:1rem" onclick="nextQuiz()">Lanjut →</button>
+</div>
+<div class="card" id="quizResult" style="display:none;text-align:center">
+<div class="score" id="score"></div>
+<p class="sub" id="scoreMsg" style="margin:auto"></p>
+<button class="navbtn primary" onclick="resetQuiz()" style="margin:1rem auto">🔄 Ulangi Kuis</button>
+</div>
+</div>
+</section>
+
+<section class="slide" id="s10">
+<div class="slide-inner">
+<span class="pill">🎉 Materi Selesai</span>
+<h2 class="big-title">Rangkuman 2.3</h2>
+<div class="summary">
+<div class="summary-row"><span>➖</span><div><b>Pecahan negatif:</b> nilainya kurang dari nol dan terletak di sebelah kiri 0 pada garis bilangan.</div></div>
+<div class="summary-row"><span>➕</span><div><b>Penjumlahan:</b> perhatikan tanda dan samakan penyebut jika diperlukan.</div></div>
+<div class="summary-row"><span>✖️</span><div><b>Perkalian:</b> tanda sama → positif, tanda berbeda → negatif.</div></div>
+<div class="summary-row"><span>➗</span><div><b>Pembagian:</b> ubah menjadi perkalian dengan membalik pecahan kedua.</div></div>
+<div class="summary-row"><span>🔄</span><div><b>Sifat operasi:</b> komutatif, asosiatif, distributif, dan identitas dapat digunakan sesuai jenis operasinya.</div></div>
+</div>
+<div class="card" style="text-align:center">
+<div class="score" id="finalScore">Skor Kuis: —</div>
+<button class="navbtn primary" onclick="goToSlide(1)" style="margin:1rem auto">↺ Mulai dari Awal</button>
+</div>
+</div>
+</section>
+
+</main>
+
+<nav id="navbar">
+<button class="navbtn ghost" id="prevBtn" onclick="goPrev()">← <span class="label">Sebelumnya</span></button>
+<div id="dots"></div>
+<button class="navbtn primary" id="nextBtn" onclick="goNext()"><span class="label">Berikutnya</span> →</button>
+</nav>
+</div>
+
+<script>
+const TOTAL=10;
+let current=1;
+
+function gcd(a,b){
+a=Math.abs(a);b=Math.abs(b);
+while(b){[a,b]=[b,a%b]}
+return a||1
+}
+function simplify(n,d){
+if(d===0)return null;
+let g=gcd(n,d);n/=g;d/=g;
+if(d<0){n=-n;d=-d}
+return [n,d]
+}
+function fracText(n,d){
+let s=simplify(n,d);
+if(!s)return 'Tidak terdefinisi';
+return s[0]+'/'+s[1];
+}
+
+function goToSlide(n){
+if(n<1||n>TOTAL)return;
+document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+current=n;
+document.getElementById('s'+n).classList.add('active');
+updateUI();
+if(n===10){
+document.getElementById('finalScore').textContent='Skor Kuis: '+quizScore+'/'+quizData.length;
+}
+}
+function goNext(){
+    if(current < TOTAL){
+        goToSlide(current + 1);
+    } else {
+        window.location.href = "matb-bab2.html";
+    }
+}
+function goPrev(){if(current>1)goToSlide(current-1)}
+function updateUI(){
+document.getElementById('slide-counter').textContent=current+' / '+TOTAL;
+document.getElementById('progress-fill').style.width=(current/TOTAL*100)+'%';
+document.getElementById('prevBtn').disabled=current===1;
+document.querySelectorAll('.dot-btn').forEach((d,i)=>{
+d.classList.toggle('active',i+1===current);
+d.classList.toggle('done',i+1<current)
+});
+document.getElementById('nextBtn').innerHTML=current===TOTAL?'Selesai ✓':'<span class="label">Berikutnya</span> →';
+}
+for(let i=1;i<=TOTAL;i++){
+let b=document.createElement('button');
+b.className='dot-btn';
+b.onclick=()=>goToSlide(i);
+document.getElementById('dots').appendChild(b)
+}
+updateUI();
+
+function multiplyNeg(){
+let a=+m1.value,b=+m2.value,c=+m3.value,d=+m4.value;
+if(b===0||d===0){mulResult.textContent='Penyebut tidak boleh 0';return}
+mulResult.textContent=fracText(a*c,b*d);
+}
+function divideNeg(){
+let a=+d1.value,b=+d2.value,c=+d3.value,d=+d4.value;
+if(b===0||d===0||c===0){divResult.textContent='Penyebut atau pembagi tidak boleh 0';return}
+divResult.textContent=fracText(a*d,b*c);
+}
+function showProperty(x){
+propertyResult.textContent=x==='Distributif'?'✅ Benar! Perkalian didistribusikan terhadap penjumlahan di dalam kurung.':'❌ Coba lagi. Perhatikan bentuk perkalian di luar tanda kurung.';
+}
+
+const quizData=[
+{
+q:'Hasil dari −1/2 + 1/4 adalah...',
+o:['−3/4','−1/4','1/4','3/4'],
+c:1,
+e:'−1/2 = −2/4, sehingga −2/4 + 1/4 = −1/4.'
+},
+{
+q:'Hasil dari −2/3 × −3/4 adalah...',
+o:['−1/2','1/2','−2/4','5/7'],
+c:1,
+e:'Tanda negatif dikali negatif menghasilkan positif. 6/12 = 1/2.'
+},
+{
+q:'Hasil dari −3/4 ÷ 1/2 adalah...',
+o:['−3/8','3/2','−3/2','3/4'],
+c:2,
+e:'−3/4 × 2/1 = −6/4 = −3/2.'
+},
+{
+q:'Sifat yang digunakan pada a(b+c)=ab+ac adalah...',
+o:['Komutatif','Asosiatif','Distributif','Identitas'],
+c:2,
+e:'Bentuk tersebut adalah sifat distributif perkalian terhadap penjumlahan.'
+},
+{
+q:'Manakah pernyataan yang benar?',
+o:['(−) × (−) = (−)','(−) × (+) = (+)','(−) × (−) = (+)','(+) × (+) = (−)'],
+c:2,
+e:'Dua tanda negatif ketika dikalikan menghasilkan tanda positif.'
+}
+];
+
+let quizIdx=0,quizScore=0,answered=false;
+
+function renderQuiz(){
+answered=false;
+quizQ.textContent=(quizIdx+1)+'. '+quizData[quizIdx].q;
+quizOpts.innerHTML='';
+quizFeedback.textContent='';
+quizNext.style.display='none';
+
+quizData[quizIdx].o.forEach((x,i)=>{
+let b=document.createElement('button');
+b.className='quiz-opt';
+b.textContent=String.fromCharCode(65+i)+'. '+x;
+b.onclick=()=>answer(i,b);
+quizOpts.appendChild(b);
+});
+}
+
+function answer(i,b){
+if(answered)return;
+answered=true;
+let q=quizData[quizIdx];
+document.querySelectorAll('.quiz-opt').forEach(x=>x.disabled=true);
+
+if(i===q.c){
+b.classList.add('correct');
+quizScore++;
+quizFeedback.innerHTML='✅ <b style="color:var(--mint)">Benar!</b> '+q.e;
+}else{
+b.classList.add('wrong');
+document.querySelectorAll('.quiz-opt')[q.c].classList.add('correct');
+quizFeedback.innerHTML='❌ <b style="color:var(--coral)">Belum tepat.</b> '+q.e;
+}
+quizNext.style.display='flex';
+quizNext.textContent=quizIdx===quizData.length-1?'Lihat Hasil →':'Lanjut →';
+}
+
+function nextQuiz(){
+quizIdx++;
+if(quizIdx>=quizData.length){
+quizCard.style.display='none';
+quizResult.style.display='block';
+score.textContent=quizScore+'/'+quizData.length;
+scoreMsg.textContent=quizScore===5?'🌟 Sempurna!':quizScore>=3?'👍 Sudah cukup baik!':'📖 Pelajari lagi materinya dan coba ulangi.';
+document.getElementById('finalScore').textContent='Skor Kuis: '+quizScore+'/'+quizData.length;
+}else{
+renderQuiz();
+}
+}
+
+function resetQuiz(){
+quizIdx=0;
+quizScore=0;
+quizCard.style.display='block';
+quizResult.style.display='none';
+renderQuiz();
+}
+
+renderQuiz();
+
+document.addEventListener('keydown',e=>{
+if(e.key==='ArrowRight')goNext();
+if(e.key==='ArrowLeft')goPrev();
+});
+</script>
+</body>
+</html>

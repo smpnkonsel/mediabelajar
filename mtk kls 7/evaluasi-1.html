@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Evaluasi Bab 1 — Bilangan Bulat</title>
+<style>
+:root{--ink:#1e2a3a;--soft:#5d6878;--paper:#f7f2e8;--white:#fffdf8;--grid:#d9d2c4;--accent:#b06a3b;--good:#39735b;--bad:#a44f4f;--shadow:0 10px 28px rgba(30,42,58,.12);--r:18px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px}
+.app{height:100dvh;display:flex;flex-direction:column}
+.top{height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:10px clamp(14px,4vw,40px);border-bottom:1px solid var(--grid);background:rgba(247,242,232,.94);backdrop-filter:blur(8px);z-index:5}
+.brand{font-weight:800}.counter{font:700 12px ui-monospace,monospace;background:var(--white);padding:7px 12px;border:1px solid var(--grid);border-radius:999px}
+.viewport{flex:1;min-height:0;overflow:hidden;padding:0 clamp(8px,3vw,34px)}
+.slides{height:100%;display:flex;transition:transform .45s cubic-bezier(.22,.75,.25,1)}
+.slide{flex:0 0 100%;width:100%;height:100%;overflow:auto;display:flex;justify-content:center;align-items:center;padding:28px 8px 34px}
+.inner{width:min(950px,100%);padding:10px 8px 28px}
+.cover{text-align:center}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--accent);font-weight:800;margin-bottom:12px}
+h1,h2{font-size:clamp(30px,5vw,58px);line-height:1.05;margin:0 0 18px}.cover h1{font-size:clamp(32px,6vw,68px)}
+.lead{font-size:clamp(15px,2vw,19px);line-height:1.7;color:var(--soft);max-width:820px}.cover .lead{margin:20px auto}
+.info,.question,.result,.instructions{background:var(--white);border:1px solid var(--grid);border-radius:var(--r);box-shadow:var(--shadow)}
+.info{padding:22px;margin-top:22px}.info b{color:var(--accent)}
+.question{padding:24px;margin-top:12px}.qnum{font-size:13px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}.qtext{font-size:clamp(21px,3vw,31px);font-weight:800;line-height:1.3}
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.option{border:1px solid var(--grid);background:#fffaf2;border-radius:14px;padding:16px;text-align:left;font-size:17px;color:var(--ink);cursor:pointer;transition:.18s}
+.option:hover{transform:translateY(-2px);box-shadow:var(--shadow)}.option.selected{border-color:var(--ink);background:#eee7db}.option.correct{border-color:var(--good);background:#eef7f1}.option.wrong{border-color:var(--bad);background:#fff0ef}.option:disabled{cursor:default}
+.feedback{min-height:25px;margin-top:14px;font-weight:800}
+.progress{height:8px;background:#e7e0d3;border-radius:99px;overflow:hidden;margin:14px 0}.bar{height:100%;width:0;background:var(--accent);transition:.3s}
+.result{padding:30px;text-align:center}.score{font-size:clamp(48px,9vw,82px);font-weight:900;margin:12px 0}.grade{font-size:24px;font-weight:800;color:var(--accent)}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:22px}.summary div{padding:16px;border:1px solid var(--grid);border-radius:14px;background:#fffaf2}.summary b{display:block;font-size:26px;margin-bottom:5px}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}.btn{border:0;border-radius:12px;padding:14px 20px;font-weight:800;cursor:pointer;text-decoration:none;font-size:15px}.primary{background:var(--ink);color:#fff}.secondary{background:var(--white);color:var(--ink);border:1px solid var(--grid)}
+.instructions{padding:24px;margin-top:22px;line-height:1.7}.instructions ul{margin-bottom:0}
+.nav{height:62px;flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 10px max(8px,env(safe-area-inset-bottom));z-index:5}
+.arrow{width:36px;height:36px;border:0;border-radius:50%;background:var(--white);box-shadow:var(--shadow);font-size:16px;cursor:pointer}.arrow:disabled{opacity:.35;cursor:default}
+.dots{display:flex;align-items:center;justify-content:center;gap:8px;max-width:72vw}.dot{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:var(--grid);cursor:pointer}.dot.active{width:12px;height:12px;background:var(--ink);box-shadow:0 0 0 4px rgba(30,42,58,.1)}
+.hidden{display:none!important}
+@media(max-width:700px){
+.top{height:54px}.brand{font-size:13px}.counter{font-size:10px;padding:6px 9px}.slide{align-items:flex-start;padding:15px 4px 20px}.inner{padding-top:8px}
+h1,h2{font-size:clamp(27px,8vw,42px)}.cover h1{font-size:clamp(29px,9vw,46px)}.lead{font-size:14px}
+.options{grid-template-columns:1fr;gap:9px}.option{padding:14px;font-size:15px}.question{padding:18px}.qtext{font-size:22px}
+.summary{grid-template-columns:1fr}.nav{height:54px;gap:6px}.dots{gap:6px;max-width:calc(100vw - 95px)}.arrow{width:33px;height:33px}.dot{width:8px;height:8px}.dot.active{width:11px;height:11px}
+}
+@media(max-height:620px){.slide{align-items:flex-start;padding-top:8px}.nav{height:48px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand">Evaluasi • Bab 1 Bilangan Bulat</div>
+  <div class="counter" id="counter">1 / 15</div>
+</header>
+
+<main class="viewport">
+<div class="slides" id="slides">
+
+<section class="slide cover">
+<div class="inner">
+<div class="eyebrow">Semester Ganjil</div>
+<h1>Evaluasi Bab 1</h1>
+<h2 style="font-size:clamp(24px,4vw,42px)">Bilangan Bulat</h2>
+<p class="lead">Evaluasi mencakup materi 1.1 sampai 1.6: pengertian bilangan bulat, operasi hitung, bilangan berpangkat, bilangan prima, FPB, kelipatan, dan KPK.</p>
+<div class="instructions">
+<b>Petunjuk pengerjaan</b>
+<ul>
+<li>Pilih satu jawaban yang paling tepat.</li>
+<li>Setiap soal bernilai sama.</li>
+<li>Gunakan tombol bulat di bawah untuk berpindah soal.</li>
+<li>Nilai akhir akan muncul setelah evaluasi selesai.</li>
+</ul>
+</div>
+<div class="actions"><button class="btn primary" onclick="go(1)">Mulai Evaluasi →</button></div>
+</div>
+</section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.1 Pengertian Bilangan Bulat</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 1</div><div class="qtext">Bilangan yang termasuk bilangan bulat negatif adalah ...</div><div class="options"><button class="option" data-answer="B">A. 5</button><button class="option" data-answer="B">B. −7</button><button class="option" data-answer="B">C. 0,5</button><button class="option" data-answer="B">D. 3/4</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.1 Pengertian Bilangan Bulat</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 2</div><div class="qtext">Pada garis bilangan, bilangan −3 terletak ... dari 0.</div><div class="options"><button class="option" data-answer="C">A. 3 satuan di kanan</button><button class="option" data-answer="C">B. 2 satuan di kanan</button><button class="option" data-answer="C">C. 3 satuan di kiri</button><button class="option" data-answer="C">D. tepat di 0</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.2 Penjumlahan & Pengurangan</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 3</div><div class="qtext">Hasil dari −8 + 13 adalah ...</div><div class="options"><button class="option" data-answer="B">A. −21</button><button class="option" data-answer="B">B. 5</button><button class="option" data-answer="B">C. −5</button><button class="option" data-answer="B">D. 21</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.2 Penjumlahan & Pengurangan</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 4</div><div class="qtext">Hasil dari 15 − (−7) adalah ...</div><div class="options"><button class="option" data-answer="D">A. 8</button><button class="option" data-answer="D">B. −8</button><button class="option" data-answer="D">C. 22</button><button class="option" data-answer="D">D. 22</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.3 Perkalian & Pembagian</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 5</div><div class="qtext">Hasil dari (−6) × 4 adalah ...</div><div class="options"><button class="option" data-answer="A">A. −24</button><button class="option" data-answer="A">B. 24</button><button class="option" data-answer="A">C. −10</button><button class="option" data-answer="A">D. 10</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.3 Perkalian & Pembagian</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 6</div><div class="qtext">Hasil dari (−48) ÷ (−6) adalah ...</div><div class="options"><button class="option" data-answer="C">A. −8</button><button class="option" data-answer="C">B. −42</button><button class="option" data-answer="C">C. 8</button><button class="option" data-answer="C">D. 42</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.4 Bilangan Berpangkat</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 7</div><div class="qtext">Nilai dari 2³ adalah ...</div><div class="options"><button class="option" data-answer="D">A. 5</button><button class="option" data-answer="D">B. 6</button><button class="option" data-answer="D">C. 9</button><button class="option" data-answer="D">D. 8</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.4 Bilangan Berpangkat</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 8</div><div class="qtext">Nilai dari (−2)² adalah ...</div><div class="options"><button class="option" data-answer="A">A. 4</button><button class="option" data-answer="A">B. −4</button><button class="option" data-answer="A">C. 2</button><button class="option" data-answer="A">D. −2</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.5 Bilangan Prima, Faktor & FPB</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 9</div><div class="qtext">Manakah yang merupakan bilangan prima?</div><div class="options"><button class="option" data-answer="C">A. 9</button><button class="option" data-answer="C">B. 15</button><button class="option" data-answer="C">C. 17</button><button class="option" data-answer="C">D. 21</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.5 Bilangan Prima, Faktor & FPB</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 10</div><div class="qtext">FPB dari 24 dan 36 adalah ...</div><div class="options"><button class="option" data-answer="B">A. 6</button><button class="option" data-answer="B">B. 12</button><button class="option" data-answer="B">C. 18</button><button class="option" data-answer="B">D. 24</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.6 Kelipatan & KPK</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 11</div><div class="qtext">Kelipatan 7 yang benar adalah ...</div><div class="options"><button class="option" data-answer="A">A. 7, 14, 21, 28</button><button class="option" data-answer="A">B. 7, 12, 17, 22</button><button class="option" data-answer="A">C. 1, 7, 8, 14</button><button class="option" data-answer="A">D. 7, 15, 21, 29</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">1.6 Kelipatan & KPK</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 12</div><div class="qtext">KPK dari 6 dan 8 adalah ...</div><div class="options"><button class="option" data-answer="B">A. 12</button><button class="option" data-answer="B">B. 24</button><button class="option" data-answer="B">C. 36</button><button class="option" data-answer="B">D. 48</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">Campuran</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 13</div><div class="qtext">Suhu mula-mula −4°C. Suhu naik 9°C. Suhu sekarang adalah ...</div><div class="options"><button class="option" data-answer="C">A. −13°C</button><button class="option" data-answer="C">B. −5°C</button><button class="option" data-answer="C">C. 5°C</button><button class="option" data-answer="C">D. 13°C</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">Campuran</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 14</div><div class="qtext">Sebuah alarm berbunyi setiap 4 menit dan alarm lain setiap 6 menit. Jika berbunyi bersama sekarang, keduanya berbunyi bersama lagi setelah ...</div><div class="options"><button class="option" data-answer="D">A. 6 menit</button><button class="option" data-answer="D">B. 8 menit</button><button class="option" data-answer="D">C. 10 menit</button><button class="option" data-answer="D">D. 12 menit</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">Evaluasi Akhir</div><div class="progress"><div class="bar"></div></div><div class="question"><div class="qnum">Soal 15</div><div class="qtext">Hasil dari 3² + (−2) × 4 adalah ...</div><div class="options"><button class="option" data-answer="A">A. 1</button><button class="option" data-answer="A">B. 5</button><button class="option" data-answer="A">C. 17</button><button class="option" data-answer="A">D. −1</button></div><div class="feedback"></div></div></div></section>
+
+<section class="slide"><div class="inner"><div class="eyebrow">Hasil Evaluasi</div><div id="result" class="result"></div></div></section>
+
+</div></main>
+<nav class="nav"><button class="arrow" id="prev">←</button><div class="dots" id="dots"></div><button class="arrow" id="next">→</button></nav>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')],track=document.getElementById('slides'),dots=document.getElementById('dots'),counter=document.getElementById('counter');
+let current=0,score=0,answered=Array(15).fill(false);
+slides.forEach((s,i)=>{const d=document.createElement('button');d.className='dot';d.type='button';d.setAttribute('aria-label','Ke slide '+(i+1));d.onclick=()=>go(i);dots.appendChild(d)});
+const tick=[...document.querySelectorAll('.dot')];
+function go(i){
+ current=Math.max(0,Math.min(slides.length-1,i));
+ track.style.transform=`translateX(-${current*100}%)`;
+ counter.textContent=`${current+1} / ${slides.length}`;
+ tick.forEach((d,j)=>d.classList.toggle('active',j===current));
+ document.getElementById('prev').disabled=current===0;
+ document.getElementById('next').disabled=current===slides.length-1;
+ updateProgress();
+}
+function updateProgress(){
+ const q=current-1;
+ document.querySelectorAll('.bar').forEach((b,i)=>{if(i===q)b.style.width=((q+1)/15*100)+'%'});
+}
+document.getElementById('prev').onclick=()=>go(current-1);
+document.getElementById('next').onclick=()=>go(current+1);
+document.addEventListener('keydown',e=>{
+ if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault();go(current+1)}
+ if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(current-1)}
+});
+let sx=0;
+document.addEventListener('touchstart',e=>sx=e.changedTouches[0].screenX,{passive:true});
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-sx;if(Math.abs(dx)>55)go(current+(dx<0?1:-1))},{passive:true});
+
+document.querySelectorAll('.question').forEach((q,qi)=>{
+ const opts=[...q.querySelectorAll('.option')];
+ opts.forEach(btn=>btn.addEventListener('click',()=>{
+   if(answered[qi])return;
+   answered[qi]=true;
+   const correct=btn.dataset.answer;
+   opts.forEach(o=>o.disabled=true);
+   if(btn.textContent.trim().startsWith(correct+'.')){
+      btn.classList.add('correct');score++;
+      q.querySelector('.feedback').textContent='✓ Benar! Jawabanmu tepat.';
+   }else{
+      btn.classList.add('wrong');
+      const correctBtn=opts.find(o=>o.textContent.trim().startsWith(correct+'.'));
+      if(correctBtn)correctBtn.classList.add('correct');
+      q.querySelector('.feedback').textContent='✗ Belum tepat. Jawaban yang benar ditandai.';
+   }
+   if(answered.every(Boolean))showResult();
+ }));
+});
+function showResult(){
+ const pct=Math.round(score/15*100);
+ let grade=pct>=90?'Sangat Baik':pct>=80?'Baik':pct>=70?'Cukup':'Perlu Belajar Lagi';
+ document.getElementById('result').innerHTML=`<div class="eyebrow">Evaluasi selesai</div><h2>Hasil Evaluasi</h2><div class="score">${score}/15</div><div class="grade">${pct} — ${grade}</div><div class="summary"><div><b>${score}</b>Benar</div><div><b>${15-score}</b>Salah</div><div><b>${pct}</b>Nilai</div></div><div class="actions"><button class="btn secondary" onclick="location.reload()">Ulangi Evaluasi</button><a class="btn primary" href="infob-bab2.html">Selesai → Kembali</a></div>`;
+}
+go(0);
+</script>
+</body>
+</html>

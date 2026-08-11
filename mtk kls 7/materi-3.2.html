@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bab 3 — Rasio | 3.2 Perbandingan Berbalik Nilai</title>
+<style>
+:root{
+  --bg:#07111f; --panel:#0d1b2d; --panel2:#12243a; --text:#f5f7fb;
+  --muted:#aebdd0; --accent:#5eead4; --accent2:#60a5fa; --gold:#fbbf24;
+  --danger:#fb7185; --ok:#34d399; --border:rgba(255,255,255,.1);
+  --shadow:0 20px 60px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:
+radial-gradient(circle at 15% 10%,rgba(96,165,250,.18),transparent 30%),
+radial-gradient(circle at 85% 90%,rgba(94,234,212,.12),transparent 30%),var(--bg);color:var(--text)}
+body{overflow:hidden}
+button{font:inherit}
+.app{height:100vh;display:flex;flex-direction:column}
+.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid var(--border);background:rgba(7,17,31,.82);backdrop-filter:blur(14px);z-index:5}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800}
+.logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04101c;font-weight:900}
+.brand small{display:block;color:var(--muted);font-size:11px;font-weight:600;margin-top:2px}
+.progress-wrap{display:flex;align-items:center;gap:10px;min-width:230px}
+.progress{height:7px;width:170px;background:#1d3047;border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:.35s}
+#counter{font-size:12px;color:var(--muted)}
+main{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;overflow:auto;padding:38px clamp(20px,5vw,80px) 105px;display:none}
+.slide.active{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.container{max-width:1180px;margin:auto}
+.kicker{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+h1{font-size:clamp(38px,6vw,76px);line-height:.98;margin:12px 0 18px;max-width:900px}
+h2{font-size:clamp(28px,4vw,48px);margin:10px 0 18px}
+h3{font-size:22px;margin:0 0 10px}
+p,li{font-size:18px;line-height:1.65;color:#dbe6f3}
+.muted{color:var(--muted)}
+.hero{min-height:calc(100vh - 180px);display:grid;align-items:center}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:35px;align-items:center}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--border);border-radius:99px;background:rgba(255,255,255,.04);color:#dceaff;font-weight:700;font-size:13px}
+.card{background:linear-gradient(180deg,rgba(18,36,58,.94),rgba(13,27,45,.94));border:1px solid var(--border);border-radius:22px;padding:24px;box-shadow:var(--shadow)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.big-number{font-size:52px;font-weight:900;color:var(--accent)}
+.formula{font-size:clamp(22px,3vw,34px);font-weight:800;text-align:center;padding:22px;border-radius:18px;background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.2);color:#bffcf2}
+.flow{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:24px 0}
+.flow .node{min-width:130px;text-align:center;padding:17px;border-radius:17px;background:#10243b;border:1px solid var(--border);font-weight:800}
+.arrow{color:var(--accent);font-size:28px;font-weight:900}
+.example{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.machine{padding:28px;border-radius:24px;background:linear-gradient(135deg,#102a45,#123b42);border:1px solid rgba(255,255,255,.1);text-align:center}
+.machine .workers{font-size:52px;letter-spacing:4px;min-height:70px}
+.bar-area{display:flex;align-items:end;justify-content:center;gap:20px;height:210px;padding:15px}
+.bar{width:55px;background:linear-gradient(180deg,var(--accent2),#2563eb);border-radius:12px 12px 4px 4px;position:relative;transition:.5s}
+.bar span{position:absolute;top:-28px;left:50%;transform:translateX(-50%);font-weight:900}
+button,.btn{border:0;cursor:pointer;border-radius:13px;padding:11px 16px;background:#17304c;color:white;font-weight:800;border:1px solid var(--border);transition:.2s}
+button:hover,.btn:hover{transform:translateY(-2px);background:#214363}
+.btn.primary{background:linear-gradient(135deg,#2563eb,#0ea5e9);border:0}
+.btn.green{background:linear-gradient(135deg,#059669,#14b8a6);border:0}
+.btn.gold{background:linear-gradient(135deg,#d97706,#f59e0b);border:0;color:#101827}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.choice{width:100%;text-align:left;margin:8px 0;padding:15px 17px;background:#102238}
+.choice.correct{outline:2px solid var(--ok);background:rgba(52,211,153,.13)}
+.choice.wrong{outline:2px solid var(--danger);background:rgba(251,113,133,.12)}
+.feedback{margin-top:14px;padding:14px;border-radius:14px;display:none}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(52,211,153,.1);color:#9ff6d2}
+.feedback.no{background:rgba(251,113,133,.1);color:#fecdd3}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.slider-value{text-align:center;font-size:42px;font-weight:900;color:var(--accent)}
+.table{width:100%;border-collapse:collapse;margin-top:15px;overflow:hidden;border-radius:15px}
+.table th,.table td{padding:13px;border-bottom:1px solid var(--border);text-align:center}
+.table th{background:#17304c;color:#bfe4ff}
+.table td{color:#dce6f2}
+.tip{border-left:4px solid var(--gold);padding:15px 18px;background:rgba(251,191,36,.07);border-radius:0 14px 14px 0;margin:18px 0}
+.summary li{margin:9px 0}
+.nav{position:fixed;bottom:0;left:0;right:0;height:78px;background:rgba(7,17,31,.9);border-top:1px solid var(--border);backdrop-filter:blur(15px);display:flex;align-items:center;justify-content:center;gap:10px;z-index:10;padding:10px}
+.nav .wide{min-width:110px}
+.dots{display:flex;gap:5px;max-width:42vw;overflow:hidden}
+.dot{width:7px;height:7px;border-radius:50%;background:#38506c;cursor:pointer;flex:none}
+.dot.active{background:var(--accent);box-shadow:0 0 12px var(--accent)}
+.answer{margin-top:16px;padding:17px;border:1px dashed rgba(94,234,212,.4);border-radius:15px;display:none}
+.answer.show{display:block}
+.quiz-score{text-align:center;font-size:28px;font-weight:900;color:var(--accent)}
+.pillrow{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}
+.pill{padding:9px 12px;border-radius:99px;background:#142b45;border:1px solid var(--border);color:#dbeafe}
+footer-note{display:block;color:var(--muted);font-size:13px;margin-top:25px}
+@media(max-width:800px){
+  body{overflow:auto}.app{min-height:100vh;height:auto}.topbar{height:62px}.progress-wrap{min-width:0}.progress{width:90px}
+  main{min-height:calc(100vh - 140px)}.slide{padding:26px 16px 105px;position:absolute}
+  .hero-grid,.example,.grid,.grid3{grid-template-columns:1fr}
+  h1{font-size:clamp(38px,12vw,58px)}p,li{font-size:16px}.card{padding:19px;border-radius:18px}
+  .nav{height:72px}.nav .wide{min-width:0;padding:10px 13px}.dots{max-width:25vw}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">∝</div>
+    <div><div>Rasio</div><small>Bab 3 • 3.2 Perbandingan Berbalik Nilai</small></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress"><i id="progress"></i></div>
+    <span id="counter">1 / 16</span>
+  </div>
+</header>
+
+<main id="slides">
+
+<section class="slide active">
+<div class="container hero"><div class="hero-grid">
+  <div>
+    <span class="badge">SEMESTER GANJIL • MATEMATIKA SMP</span>
+    <h1>Perbandingan<br><span style="color:var(--accent)">Berbalik Nilai</span></h1>
+    <p>Belajar memahami hubungan dua besaran yang berubah <b>berlawanan arah</b>, lalu menggunakannya untuk menyelesaikan masalah sehari-hari.</p>
+    <div class="controls"><button class="btn primary" onclick="next()">Mulai Belajar →</button></div>
+  </div>
+  <div class="card">
+    <div class="big-number">3.2</div>
+    <h3>Tujuan Pembelajaran</h3>
+    <p>Peserta didik mampu memahami dan menyelesaikan masalah perbandingan berbalik nilai.</p>
+    <div class="pillrow"><span class="pill">Konsep</span><span class="pill">Rumus</span><span class="pill">Visualisasi</span><span class="pill">Kuis</span></div>
+  </div>
+</div></div>
+</section>
+
+<section class="slide"><div class="container">
+<span class="kicker">01 • Apersepsi</span><h2>Pernah melihat kejadian seperti ini?</h2>
+<div class="grid3">
+<div class="card"><div class="big-number">👷</div><h3>Lebih banyak pekerja</h3><p>Pekerjaan yang sama dapat selesai dalam waktu lebih singkat.</p></div>
+<div class="card"><div class="big-number">🚗</div><h3>Lebih cepat</h3><p>Untuk jarak yang sama, waktu tempuh menjadi lebih sedikit.</p></div>
+<div class="card"><div class="big-number">💡</div><h3>Inilah idenya!</h3><p>Satu besaran naik, besaran lainnya turun.</p></div>
+</div>
+<div class="tip"><b>Perhatikan:</b> hubungan berbalik nilai terjadi ketika perubahan kedua besaran bergerak berlawanan arah dan hasil kalinya tetap.</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">02 • Konsep</span><h2>Apa itu perbandingan berbalik nilai?</h2>
+<div class="card">
+<p>Dua besaran dikatakan <b>berbanding terbalik</b> jika ketika satu besaran bertambah, besaran lainnya berkurang dengan pola tertentu.</p>
+<div class="formula">x × y = konstan</div>
+<div class="flow"><div class="node">x ↑</div><div class="arrow">↔</div><div class="node">y ↓</div><div class="arrow">→</div><div class="node">x × y tetap</div></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">03 • Ciri-ciri</span><h2>Bagaimana mengenalinya?</h2>
+<div class="grid">
+<div class="card"><h3>① Arah berlawanan</h3><p>Jika besaran pertama meningkat, besaran kedua menurun.</p></div>
+<div class="card"><h3>② Hasil kali tetap</h3><p>Nilai <b>x × y</b> tetap sama untuk pasangan yang sesuai.</p></div>
+<div class="card"><h3>③ Ada kondisi tetap</h3><p>Misalnya pekerjaan, jarak, atau jumlah barang dibuat tetap.</p></div>
+<div class="card"><h3>④ Bukan sekadar “turun”</h3><p>Perubahannya harus mengikuti hubungan yang konsisten, bukan kebetulan.</p></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">04 • Rumus</span><h2>Rumus perbandingan berbalik nilai</h2>
+<div class="card">
+<div class="formula">x₁ × y₁ = x₂ × y₂</div>
+<p>Jika diketahui tiga nilai, nilai keempat dapat dicari dengan perkalian silang.</p>
+<div class="formula">y₂ = (x₁ × y₁) ÷ x₂</div>
+<div class="tip"><b>Ingat cepat:</b> pada perbandingan berbalik nilai, <b>produk</b> (hasil kali) kedua besaran tetap.</div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">05 • Contoh 1</span><h2>Jumlah pekerja dan waktu</h2>
+<div class="example">
+<div class="card">
+<h3>Soal</h3><p>Sebuah pekerjaan selesai oleh <b>6 pekerja</b> dalam <b>12 hari</b>. Jika pekerjanya menjadi <b>8 orang</b>, berapa hari yang diperlukan?</p>
+<button class="btn green" onclick="toggle('ans1')">Tampilkan penyelesaian</button>
+<div id="ans1" class="answer"><b>6 × 12 = 8 × t</b><br>72 = 8t<br><b>t = 9 hari</b></div>
+</div>
+<div class="machine"><div class="workers">👷 👷 👷</div><p>6 pekerja → 12 hari</p><div class="arrow">↓</div><p style="color:var(--accent)">8 pekerja → ? hari</p></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">06 • Contoh 2</span><h2>Kecepatan dan waktu</h2>
+<div class="card">
+<p>Sebuah mobil menempuh jarak tertentu dengan kecepatan <b>60 km/jam</b> selama <b>4 jam</b>. Jika kecepatannya menjadi <b>80 km/jam</b>, berapa waktu yang dibutuhkan?</p>
+<div class="formula">60 × 4 = 80 × t</div>
+<div class="grid" style="margin-top:18px">
+<div><p>240 = 80t</p><p><b>t = 3 jam</b></p></div>
+<div class="tip"><b>Jadi:</b> kecepatan naik dari 60 menjadi 80 km/jam, waktu turun dari 4 menjadi 3 jam.</div>
+</div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">07 • Visualisasi</span><h2>Lihat hubungan secara langsung</h2>
+<div class="card">
+<p>Geser jumlah pekerja. Anggap total pekerjaan tetap <b>72 pekerja-hari</b>.</p>
+<input id="workerRange" type="range" min="1" max="12" value="6" oninput="updateWorkers(this.value)">
+<div class="slider-value"><span id="workerVal">6</span> pekerja</div>
+<div class="bar-area" id="bars"></div>
+<p style="text-align:center">Waktu yang diperlukan: <b id="daysVal" style="color:var(--accent)">12</b> hari</p>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">08 • Tabel</span><h2>Apakah hasil kalinya tetap?</h2>
+<div class="card">
+<table class="table">
+<thead><tr><th>Pekerja (x)</th><th>Hari (y)</th><th>x × y</th></tr></thead>
+<tbody>
+<tr><td>3</td><td>24</td><td>72</td></tr><tr><td>4</td><td>18</td><td>72</td></tr>
+<tr><td>6</td><td>12</td><td>72</td></tr><tr><td>8</td><td>9</td><td>72</td></tr>
+<tr><td>12</td><td>6</td><td>72</td></tr>
+</tbody>
+</table>
+<p style="text-align:center;color:var(--accent);font-weight:800">Hasil kali selalu 72 → hubungan berbalik nilai.</p>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">09 • Bedakan</span><h2>Berbalik nilai atau senilai?</h2>
+<div class="grid">
+<div class="card"><h3 style="color:var(--accent2)">Perbandingan senilai</h3><p>Satu naik → yang lain juga naik.</p><div class="formula">y/x = tetap</div><p>Contoh: jumlah barang dan harga (harga satuan tetap).</p></div>
+<div class="card"><h3 style="color:var(--accent)">Perbandingan berbalik nilai</h3><p>Satu naik → yang lain turun.</p><div class="formula">x × y = tetap</div><p>Contoh: jumlah pekerja dan waktu.</p></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">10 • Langkah penyelesaian</span><h2>Gunakan 4 langkah ini</h2>
+<div class="grid">
+<div class="card"><div class="big-number">1</div><h3>Tentukan besaran</h3><p>Tuliskan dua besaran yang dibandingkan.</p></div>
+<div class="card"><div class="big-number">2</div><h3>Cek hubungan</h3><p>Pastikan satu naik saat yang lain turun.</p></div>
+<div class="card"><div class="big-number">3</div><h3>Buat persamaan</h3><p>Gunakan <b>x₁y₁ = x₂y₂</b>.</p></div>
+<div class="card"><div class="big-number">4</div><h3>Hitung & cek</h3><p>Pastikan jawaban masuk akal dan satuannya benar.</p></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">11 • Latihan 1</span><h2>Coba kamu hitung!</h2>
+<div class="card">
+<p>10 pekerja menyelesaikan pekerjaan dalam 18 hari. Jika tersedia 15 pekerja, pekerjaan selesai dalam …</p>
+<button class="choice" onclick="quiz(this,false,'A')">A. 10 hari</button>
+<button class="choice" onclick="quiz(this,true,'B')">B. 12 hari</button>
+<button class="choice" onclick="quiz(this,false,'C')">C. 15 hari</button>
+<button class="choice" onclick="quiz(this,false,'D')">D. 20 hari</button>
+<div class="feedback"></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">12 • Latihan 2</span><h2>Perhatikan jaraknya!</h2>
+<div class="card">
+<p>Jarak perjalanan tetap. Pada kecepatan 50 km/jam, waktu yang diperlukan 6 jam. Jika kecepatannya 75 km/jam, waktu yang diperlukan adalah …</p>
+<button class="choice" onclick="quiz(this,false,'A')">A. 3 jam</button>
+<button class="choice" onclick="quiz(this,true,'B')">B. 4 jam</button>
+<button class="choice" onclick="quiz(this,false,'C')">C. 5 jam</button>
+<button class="choice" onclick="quiz(this,false,'D')">D. 8 jam</button>
+<div class="feedback"></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">13 • Latihan 3</span><h2>Soal cerita</h2>
+<div class="card">
+<p>Sebuah proyek dapat selesai dalam 20 hari oleh 12 orang. Agar selesai dalam 15 hari, diperlukan … orang.</p>
+<button class="choice" onclick="quiz(this,false,'A')">A. 9 orang</button>
+<button class="choice" onclick="quiz(this,false,'B')">B. 14 orang</button>
+<button class="choice" onclick="quiz(this,true,'C')">C. 16 orang</button>
+<button class="choice" onclick="quiz(this,false,'D')">D. 18 orang</button>
+<div class="feedback"></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">14 • Tantangan</span><h2>Benar atau salah?</h2>
+<div class="card">
+<p><b>Pernyataan:</b> “Jika jumlah pekerja bertambah dua kali lipat, waktu pengerjaan juga bertambah dua kali lipat.”</p>
+<div class="controls"><button class="btn green" onclick="showTF(false)">Benar</button><button class="btn primary" onclick="showTF(true)">Salah</button></div>
+<div id="tf" class="feedback"></div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container">
+<span class="kicker">15 • Rangkuman</span><h2>Yang perlu kamu ingat</h2>
+<div class="card summary">
+<ul>
+<li>Perbandingan berbalik nilai: satu besaran naik, besaran lain turun.</li>
+<li>Hasil kali kedua besaran tetap: <b>x × y = konstan</b>.</li>
+<li>Gunakan persamaan <b>x₁ × y₁ = x₂ × y₂</b>.</li>
+<li>Selalu cek apakah jawaban dan satuannya masuk akal.</li>
+</ul>
+<div class="formula">Naik ↗ &nbsp;&nbsp; ↔ &nbsp;&nbsp; Turun ↘</div>
+</div>
+</div></section>
+
+<section class="slide"><div class="container hero"><div class="card" style="text-align:center">
+<span class="kicker">16 • Selesai</span>
+<h2>Hebat! Pembelajaran selesai 🎉</h2>
+<p>Kamu sudah mempelajari konsep, rumus, contoh, visualisasi, dan latihan perbandingan berbalik nilai.</p>
+<div class="quiz-score">Sampai jumpa di pembelajaran berikutnya!</div>
+<div class="controls" style="justify-content:center">
+<button class="btn primary" onclick="goHome()">← Kembali</button>
+<button onclick="goTo(1)">↺ Ulangi Materi</button>
+</div>
+<footer-note>Pastikan file <b>infob-bab2.html</b> berada di folder yang sama agar tombol kembali bekerja.</footer-note>
+</div></div></section>
+
+</main>
+
+<nav class="nav">
+<button class="wide" onclick="prev()">← Sebelumnya</button>
+<div class="dots" id="dots"></div>
+<button class="wide btn primary" onclick="next()">Berikutnya →</button>
+</nav>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let current=0;
+const dots=document.getElementById('dots');
+slides.forEach((_,i)=>{
+  const d=document.createElement('span'); d.className='dot'+(i===0?' active':'');
+  d.title='Slide '+(i+1); d.onclick=()=>goTo(i+1); dots.appendChild(d);
+});
+function goTo(n){
+  current=Math.max(0,Math.min(slides.length-1,n-1));
+  slides.forEach((s,i)=>s.classList.toggle('active',i===current));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===current));
+  document.getElementById('counter').textContent=`${current+1} / ${slides.length}`;
+  document.getElementById('progress').style.width=((current+1)/slides.length*100)+'%';
+  slides[current].scrollTop=0;
+}
+function next(){goTo(current+2)}
+function prev(){goTo(current)}
+function toggle(id){document.getElementById(id).classList.toggle('show')}
+function updateWorkers(v){
+  v=Number(v); document.getElementById('workerVal').textContent=v;
+  document.getElementById('daysVal').textContent=(72/v).toFixed(v===1||72%v===0?0:1);
+  const bars=document.getElementById('bars'); bars.innerHTML='';
+  for(let i=1;i<=Math.min(v,12);i++){
+    const b=document.createElement('div'); b.className='bar';
+    b.style.height=(35+i*8)+'px'; b.innerHTML=`<span>👷</span>`; bars.appendChild(b);
+  }
+}
+function quiz(btn,correct){
+  const box=btn.parentElement; box.querySelectorAll('.choice').forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const f=box.querySelector('.feedback'); f.className='feedback show '+(correct?'ok':'no');
+  f.innerHTML=correct?'✓ Benar! Gunakan x₁ × y₁ = x₂ × y₂ untuk memeriksa jawaban.':'✗ Belum tepat. Coba periksa kembali dengan rumus x₁ × y₁ = x₂ × y₂.';
+}
+function showTF(correct){
+  const f=document.getElementById('tf'); f.className='feedback show '+(correct?'ok':'no');
+  f.innerHTML=correct?'✓ Benar. Pernyataan tersebut salah karena pada hubungan berbalik nilai, jika pekerja menjadi 2 kali lipat, waktu justru menjadi setengahnya.':'✗ Coba lagi. Pada hubungan berbalik nilai, satu naik maka yang lain turun.';
+}
+function goHome(){window.location.href='matb-bab3.html'}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='PageDown') next();
+  if(e.key==='ArrowLeft'||e.key==='PageUp') prev();
+});
+updateWorkers(6); goTo(1);
+</script>
+</body>
+</html>
