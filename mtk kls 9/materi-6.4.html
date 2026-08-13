@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bab 6 · Statistika — Ukuran Penyebaran Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB;
+  --grid:#DFE5F5;
+  --ink:#101B33;
+  --ink-soft:#54608A;
+  --card:#FFFFFF;
+  --coral:#FF6B54;
+  --coral-dark:#E24B34;
+  --teal:#12A594;
+  --teal-dark:#0C7F72;
+  --amber:#FFB627;
+  --purple:#6C5CE7;
+  --blue:#4C6FFF;
+  --bad:#E5484D;
+  --line:#E3E8F5;
+  --shadow: 0 1px 2px rgba(16,27,51,.04), 0 8px 24px -8px rgba(16,27,51,.12);
+  --radius: 18px;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+html,body{height:100%;}
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  color:var(--ink);
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/40px 40px,
+    var(--bg);
+  overflow:hidden;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--teal-dark);
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.eyebrow::before{
+  content:"";
+  width:7px;height:7px;border-radius:2px;
+  background:var(--coral);
+  display:inline-block;
+}
+h1,h2,h3{ font-family:'Space Grotesk',sans-serif; margin:0; letter-spacing:-.01em;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* ============ TOP BAR ============ */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px clamp(16px,4vw,40px);
+  flex:0 0 auto;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--ink);
+  display:flex;align-items:end;justify-content:center;gap:2px;
+  padding:5px 6px 4px;
+}
+.brand-mark span{width:4px;background:var(--amber);border-radius:1px;}
+.brand-mark span:nth-child(1){height:6px;background:var(--coral);}
+.brand-mark span:nth-child(2){height:11px;background:var(--teal);}
+.brand-mark span:nth-child(3){height:8px;background:var(--amber);}
+.brand-text{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;}
+.brand-text small{display:block;font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:10.5px;color:var(--ink-soft);letter-spacing:.04em;}
+.slide-count{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink-soft);}
+
+/* ============ SLIDES ============ */
+.stage{flex:1 1 auto; position:relative; overflow:hidden; padding:0 clamp(16px,4vw,40px);}
+.slide{position:absolute; inset:0; display:none; overflow-y:auto; padding:4px clamp(0px,2vw,10px) 10px;}
+.slide.active{display:flex; flex-direction:column; animation: rise .5s cubic-bezier(.2,.8,.2,1);}
+@keyframes rise{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+.slide-inner{max-width:980px; margin:0 auto; width:100%; padding-bottom:10px;}
+
+.title-lg{ font-size:clamp(26px,4.2vw,42px); font-weight:700; line-height:1.08; margin:6px 0 10px;}
+.title-md{ font-size:clamp(21px,3vw,28px); font-weight:700; line-height:1.15; margin:6px 0 14px;}
+.lead{ font-size:clamp(14.5px,1.6vw,17px); color:var(--ink-soft); line-height:1.6; max-width:70ch;}
+
+/* ============ COVER ============ */
+.cover{ justify-content:center; align-items:flex-start; height:100%; padding-top:0;}
+.cover .tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+.tag{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:600;
+  padding:6px 12px; border-radius:100px; border:1.5px solid var(--line);
+  color:var(--ink-soft); background:var(--card);
+}
+.cover-graphic{margin-top:26px; display:flex; align-items:end; gap:10px; height:110px;}
+.cover-graphic .bar{ width:26px; border-radius:6px 6px 0 0; position:relative;}
+.cover-graphic .bar span{position:absolute; top:-22px; left:0; right:0; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); font-weight:600;}
+.btn{
+  font-family:'Inter',sans-serif; font-weight:700; font-size:15px;
+  padding:14px 26px; border-radius:100px; border:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:10px;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--ink); color:#fff; box-shadow:var(--shadow);}
+.btn-primary:hover{ box-shadow:0 10px 26px -8px rgba(16,27,51,.35); }
+.btn-ghost{ background:transparent; border:1.5px solid var(--line); color:var(--ink);}
+.btn-ghost:hover{border-color:var(--ink);}
+.btn-tab{font-family:'Inter',sans-serif; font-weight:700; font-size:13.5px; padding:10px 18px; border-radius:100px; border:1.5px solid var(--line); background:var(--card); color:var(--ink-soft); cursor:pointer; transition:all .15s ease;}
+.btn-tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+
+/* ============ CARDS / GRIDS ============ */
+.grid{display:grid; gap:14px;}
+.grid-2{grid-template-columns:1fr 1fr;}
+.grid-3{grid-template-columns:1fr 1fr 1fr;}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:760px){ .grid-2,.grid-3,.grid-4{grid-template-columns:1fr;} }
+
+.card{background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius); padding:18px 20px; box-shadow:var(--shadow);}
+
+.obj-list{list-style:none; padding:0; margin:18px 0 0; display:flex; flex-direction:column; gap:12px;}
+.obj-list li{display:flex; gap:14px; align-items:flex-start; background:var(--card); border:1.5px solid var(--line); border-radius:14px; padding:14px 16px;}
+.obj-num{flex:0 0 auto; width:30px;height:30px;border-radius:9px; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px;}
+.obj-list p{margin:0; font-size:14.5px; line-height:1.5; color:var(--ink);}
+
+/* flip cards */
+.flip-card{ perspective:1200px; height:150px; cursor:pointer;}
+.flip-inner{position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.2,.8,.2,1); transform-style:preserve-3d;}
+.flip-card.flipped .flip-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute; inset:0; backface-visibility:hidden; border-radius:16px; padding:16px 18px; display:flex; flex-direction:column; justify-content:center; border:1.5px solid var(--line); box-shadow:var(--shadow);}
+.flip-front{background:var(--card);}
+.flip-back{ background:var(--ink); color:#fff; transform:rotateY(180deg);}
+.flip-front .k-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); font-weight:600; margin-bottom:4px;}
+.flip-front h4{font-family:'Space Grotesk',sans-serif; font-size:14.5px; margin:0 0 4px;}
+.flip-front .hint{font-size:12px; color:var(--ink-soft); margin-top:auto;}
+.flip-back p{margin:0; font-size:13px; line-height:1.5;}
+.flip-back .k-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; opacity:.7; margin-bottom:6px;}
+.scn-card{height:170px;}
+
+/* quiz question (inline contoh soal) */
+.q-card{background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius); padding:20px 22px; box-shadow:var(--shadow); margin-top:14px;}
+.q-text{font-size:15.5px; font-weight:600; line-height:1.55; margin-bottom:16px;}
+.opt-list{display:flex; flex-direction:column; gap:10px;}
+.opt{display:flex; align-items:center; gap:12px; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; cursor:pointer; font-size:14px; font-weight:500; background:#fff; transition: border-color .15s ease, background .15s ease;}
+.opt:hover{border-color:var(--ink);}
+.opt .k{flex:0 0 auto; width:24px;height:24px;border-radius:7px; background:var(--bg); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; color:var(--ink-soft);}
+.opt.correct{border-color:var(--teal); background:#EAFBF6;}
+.opt.correct .k{background:var(--teal); color:#fff;}
+.opt.wrong{border-color:var(--bad); background:#FDECEC;}
+.opt.wrong .k{background:var(--bad); color:#fff;}
+.opt.disabled{cursor:default;}
+.feedback{margin-top:14px; padding:12px 14px; border-radius:12px; font-size:13.3px; line-height:1.55; display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:#EAFBF6; color:var(--teal-dark);}
+.feedback.no{background:#FDECEC; color:#B23A3A;}
+
+/* summary bullets */
+.sum-list{list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:10px;}
+.sum-list li{display:flex; gap:12px; align-items:flex-start; font-size:14.5px; line-height:1.5;}
+.sum-list li::before{content:"✓"; flex:0 0 auto; width:22px;height:22px;border-radius:50%; background:var(--teal); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; margin-top:1px;}
+
+/* final quiz */
+.quiz-progress{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+.quiz-progress .track{flex:1; height:6px; background:var(--line); border-radius:100px; overflow:hidden;}
+.quiz-progress .fill{height:100%; background:linear-gradient(90deg,var(--coral),var(--amber)); width:0%; transition:width .4s ease;}
+.score-card{text-align:center; padding:30px 20px;}
+.score-emoji{font-size:52px; margin-bottom:6px;}
+.score-num{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:42px;}
+.score-msg{color:var(--ink-soft); font-size:14.5px; margin-top:6px;}
+
+/* helper boxes */
+.info-box{border-left:4px solid var(--coral); background:#FFF3EF; border-radius:0 12px 12px 0; padding:12px 16px; font-size:13.5px; color:#7A3325; line-height:1.55; margin-top:14px;}
+.example-box{border:1.5px dashed var(--line); border-radius:14px; padding:16px 18px; margin-top:14px; background:#FBFCFF;}
+.example-box .k-label{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--teal-dark); font-weight:700; margin-bottom:8px; display:block;}
+
+/* ---------- CHART / DOT PLOT CARD ---------- */
+.chart-card{background:var(--card); border:1.5px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px 22px 14px; margin-top:14px;}
+.chart-title{font-family:'IBM Plex Mono',monospace; font-size:11.5px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:14px; display:block;}
+.info-panel{margin-top:14px; min-height:20px; font-size:13.5px; font-weight:600; color:var(--teal-dark); font-family:'IBM Plex Mono',monospace; line-height:1.6;}
+
+/* dot plot / number line */
+.dotplot-wrap{position:relative; height:72px; margin:22px 6px 6px;}
+.dotplot-axis{position:absolute; left:0; right:0; top:40px; height:2px; background:var(--line); border-radius:2px;}
+.dotplot-range-bar{position:absolute; top:37px; height:8px; background:var(--amber); opacity:.5; border-radius:5px; transition:all .4s ease;}
+.dotplot-dot{position:absolute; top:40px; width:16px;height:16px;border-radius:50%; background:var(--blue); border:3px solid #fff; box-shadow:0 2px 6px rgba(16,27,51,.25); transform:translate(-50%,-50%); cursor:pointer; transition:transform .15s ease;}
+.dotplot-dot:hover{transform:translate(-50%,-50%) scale(1.2);}
+.dotplot-dot.min{background:var(--coral);}
+.dotplot-dot.max{background:var(--teal);}
+.dotplot-tick-label{position:absolute; top:52px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); font-weight:600; transform:translateX(-50%); white-space:nowrap;}
+
+.range-badge{display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:13px; padding:8px 14px; border-radius:100px; background:var(--bg); border:1.5px solid var(--line); color:var(--ink); margin-top:10px;}
+.range-badge b{color:var(--coral-dark);}
+
+/* ============ BOTTOM NAV ============ */
+.bottomnav{flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px clamp(16px,4vw,40px) 18px;}
+.nav-btn{font-family:'Inter',sans-serif; font-weight:700; font-size:13.5px; width:46px; height:46px; border-radius:50%; border:1.5px solid var(--line); background:var(--card); cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); flex:0 0 auto;}
+.nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+.nav-btn:not(:disabled):hover{border-color:var(--ink);}
+.bars{flex:1; display:flex; align-items:end; justify-content:center; gap:5px; height:34px; overflow-x:auto; padding:0 4px;}
+.bars .b{width:6px; border-radius:3px 3px 0 0; background:var(--line); cursor:pointer; flex:0 0 auto; transition: background .2s ease, height .2s ease;}
+.bars .b.done{background:var(--teal);}
+.bars .b.now{background:var(--coral);}
+@media(max-width:600px){ .bars{gap:4px;} .bars .b{width:5px;} .nav-btn{width:40px;height:40px;} }
+
+::-webkit-scrollbar{width:7px;}
+::-webkit-scrollbar-thumb{background:var(--line); border-radius:10px;}
+
+@media(max-width:520px){
+  .slide{padding-top:2px;}
+  .flip-card{height:180px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"><span></span><span></span><span></span></div>
+    <div class="brand-text">Ukuran Penyebaran<small>Bab 6 · Matematika SMP</small></div>
+  </div>
+  <div class="slide-count mono"><span id="curNum">01</span> / <span id="totNum">14</span></div>
+</div>
+
+<div class="stage" id="stage">
+
+  <!-- 1: COVER -->
+  <section class="slide active" data-slide="1">
+    <div class="slide-inner cover">
+      <span class="eyebrow">Bab 6 · Statistika</span>
+      <h1 class="title-lg">Ukuran Penyebaran<br>Data</h1>
+      <p class="lead">Dua kelompok data bisa saja punya rata-rata yang sama persis — tapi apakah keduanya benar-benar "mirip"? Yuk pelajari <b>jangkauan (range)</b> untuk melihat seberapa menyebar suatu data, dan bagaimana cara membandingkan penyebaran antar kelompok.</p>
+      <div class="tag-row">
+        <span class="tag">🎯 SMP / Fase D</span>
+        <span class="tag">⏱ ± 30 menit</span>
+        <span class="tag">📏 Number Line Interaktif</span>
+      </div>
+      <div class="cover-graphic" aria-hidden="true">
+        <div class="bar" style="height:30px;background:var(--coral)"><span>▮</span></div>
+        <div class="bar" style="height:95px;background:var(--amber)"><span>⇅</span></div>
+        <div class="bar" style="height:60px;background:var(--teal)"><span>▮</span></div>
+        <div class="bar" style="height:75px;background:var(--purple)"><span>▮</span></div>
+        <div class="bar" style="height:45px;background:var(--blue)"><span>▮</span></div>
+      </div>
+      <div style="margin-top:26px;"><button class="btn btn-primary" onclick="goTo(2)">Mulai Belajar <span>→</span></button></div>
+    </div>
+  </section>
+
+  <!-- 2: TUJUAN -->
+  <section class="slide" data-slide="2">
+    <div class="slide-inner">
+      <span class="eyebrow">Tujuan pembelajaran</span>
+      <h2 class="title-md">Setelah slide ini selesai, kamu akan bisa...</h2>
+      <ul class="obj-list">
+        <li><span class="obj-num">1</span><p>Menjelaskan apa itu <b>ukuran penyebaran data</b> dan kenapa dibutuhkan selain mean, median, modus.</p></li>
+        <li><span class="obj-num">2</span><p>Menghitung <b>jangkauan (range)</b> dari suatu kumpulan data.</p></li>
+        <li><span class="obj-num">3</span><p>Menentukan seberapa menyebar/bervariasi suatu data menggunakan range.</p></li>
+        <li><span class="obj-num">4</span><p><b>Membandingkan penyebaran</b> data antara beberapa kelompok data.</p></li>
+        <li><span class="obj-num">5</span><p>Menafsirkan makna range yang besar atau kecil dalam situasi nyata.</p></li>
+      </ul>
+      <div class="info-box">💡 Coba klik tiap titik data pada "garis bilangan" di kalkulator interaktif — kamu bisa lihat langsung nilai minimum, maksimum, dan jangkauannya!</div>
+    </div>
+  </section>
+
+  <!-- 3: KENAPA PERLU -->
+  <section class="slide" data-slide="3">
+    <div class="slide-inner">
+      <span class="eyebrow">Konsep dasar</span>
+      <h2 class="title-md">Kenapa Rata-rata Saja Tidak Cukup?</h2>
+      <p class="lead">Perhatikan dua kelompok data nilai ulangan berikut. Rata-rata keduanya hampir sama — tapi coba lihat sebarannya:</p>
+      <div class="grid grid-2" style="margin-top:14px;">
+        <div class="card" style="border-top:4px solid var(--teal);">
+          <b style="font-family:'Space Grotesk';font-size:15px;">Kelompok A</b>
+          <p class="mono" style="font-size:13.5px;color:var(--ink-soft);margin:8px 0;">70, 72, 74, 76, 78</p>
+          <p style="font-size:13px;color:var(--ink-soft);margin:0;">Rata-rata ≈ 74 · nilainya berdekatan, cenderung <b>seragam</b>.</p>
+        </div>
+        <div class="card" style="border-top:4px solid var(--coral);">
+          <b style="font-family:'Space Grotesk';font-size:15px;">Kelompok B</b>
+          <p class="mono" style="font-size:13.5px;color:var(--ink-soft);margin:8px 0;">40, 60, 74, 90, 100</p>
+          <p style="font-size:13px;color:var(--ink-soft);margin:0;">Rata-rata ≈ 73 · nilainya jauh berbeda-beda, sangat <b>beragam</b>.</p>
+        </div>
+      </div>
+      <p class="lead" style="margin-top:16px;">Padahal rata-ratanya mirip! Di sinilah kita butuh <b>ukuran penyebaran data</b> — untuk melihat seberapa "rapat" atau "menyebar" data-data itu di sekitar nilai tengahnya.</p>
+      <div class="info-box">📌 Ukuran penyebaran yang paling sederhana dan sering dipakai di tingkat SMP adalah <b>jangkauan (range)</b>.</div>
+    </div>
+  </section>
+
+  <!-- 4: JANGKAUAN (RANGE) -->
+  <section class="slide" data-slide="4">
+    <div class="slide-inner">
+      <span class="eyebrow">Jangkauan (range)</span>
+      <h2 class="title-md">Menghitung Jangkauan (Range)</h2>
+      <p class="lead"><b>Jangkauan (range)</b> adalah selisih antara data terbesar dan data terkecil. Semakin besar range, semakin menyebar/bervariasi datanya.</p>
+      <div class="example-box"><span class="k-label">RUMUS</span>Jangkauan (R) = Data terbesar − Data terkecil</div>
+      <div class="chart-card">
+        <span class="chart-title">Klik titik data atau tombol untuk lihat prosesnya · Nilai Ulangan 6 Siswa</span>
+        <div id="rangeDotplot"></div>
+        <button class="btn btn-primary" id="rangeBtn" style="margin-top:10px;">Hitung Jangkauan →</button>
+        <div class="info-panel" id="rangePanel">👆 Klik tombol di atas, atau klik langsung titik data pada garis bilangan</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5: CONTOH SOAL RANGE -->
+  <section class="slide" data-slide="5">
+    <div class="slide-inner">
+      <span class="eyebrow">Contoh soal 1</span>
+      <h2 class="title-md">Hitung Jangkauan Data Ini</h2>
+      <div class="chart-card">
+        <span class="chart-title">Data Suhu Harian Selama 7 Hari (°C)</span>
+        <div id="rangeDotplot2"></div>
+      </div>
+      <div class="q-card">
+        <p class="q-text">Data suhu harian (°C) selama 7 hari: 24, 28, 22, 30, 26, 25, 29. Jangkauan (range) dari data tersebut adalah...</p>
+        <div class="opt-list" id="q1opts"></div>
+        <div class="feedback" id="q1feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6: MENENTUKAN PENYEBARAN -->
+  <section class="slide" data-slide="6">
+    <div class="slide-inner">
+      <span class="eyebrow">Menentukan penyebaran data</span>
+      <h2 class="title-md">Rata-rata Sama, Penyebaran Bisa Beda</h2>
+      <p class="lead">Dua kumpulan data bisa punya <b>rata-rata yang mirip</b>, tapi jangkauannya sangat berbeda. Coba bandingkan langsung dua data berikut:</p>
+      <div class="chart-card">
+        <span class="chart-title" id="spreadTitle">Data A · Nilai Ulangan 5 Siswa</span>
+        <div style="display:flex; gap:10px; margin-bottom:4px;">
+          <button class="btn-tab active" id="spreadTabA">Data A</button>
+          <button class="btn-tab" id="spreadTabB">Data B</button>
+        </div>
+        <div id="spreadDotplot"></div>
+        <div class="info-panel" id="spreadPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7: CONTOH SOAL MENENTUKAN PENYEBARAN -->
+  <section class="slide" data-slide="7">
+    <div class="slide-inner">
+      <span class="eyebrow">Contoh soal 2</span>
+      <h2 class="title-md">Bandingkan Penyebaran Dua Kelas</h2>
+      <p class="lead">Nilai ulangan Kelas A: <b>70, 72, 74, 76, 78</b> (rata-rata ≈ 74)<br>Nilai ulangan Kelas B: <b>40, 60, 74, 90, 100</b> (rata-rata ≈ 73)</p>
+      <div class="q-card">
+        <p class="q-text">Kelas manakah yang nilai ulangannya lebih beragam (penyebarannya lebih besar)?</p>
+        <div class="opt-list" id="q2opts"></div>
+        <div class="feedback" id="q2feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8: MEMBANDINGKAN BEBERAPA KELOMPOK -->
+  <section class="slide" data-slide="8">
+    <div class="slide-inner">
+      <span class="eyebrow">Membandingkan penyebaran</span>
+      <h2 class="title-md">Membandingkan Beberapa Kelompok Data</h2>
+      <p class="lead">Untuk membandingkan konsistensi/keseragaman beberapa kelompok data, kita bisa membandingkan <b>range</b> masing-masing kelompok — bukan hanya rata-ratanya. Klik tiap kelompok waktu lari berikut:</p>
+      <div class="chart-card">
+        <span class="chart-title">Waktu Tempuh Lari 5 Siswa per Kelompok (detik)</span>
+        <div style="display:flex; gap:10px; margin-bottom:4px; flex-wrap:wrap;">
+          <button class="btn-tab active" id="grpTabA">Kelompok A</button>
+          <button class="btn-tab" id="grpTabB">Kelompok B</button>
+          <button class="btn-tab" id="grpTabC">Kelompok C</button>
+        </div>
+        <div id="groupDotplot"></div>
+        <div class="info-panel" id="groupPanel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9: CONTOH SOAL MEMBANDINGKAN -->
+  <section class="slide" data-slide="9">
+    <div class="slide-inner">
+      <span class="eyebrow">Contoh soal 3</span>
+      <h2 class="title-md">Kelompok Mana yang Paling Seragam?</h2>
+      <p class="lead">Tinggi tanaman (cm) setelah 2 minggu, dari tiga kelompok berbeda:<br>
+      Kelompok X: <b>20, 22, 21, 23, 19</b><br>
+      Kelompok Y: <b>10, 30, 15, 25, 35</b><br>
+      Kelompok Z: <b>21, 21, 22, 21, 20</b></p>
+      <div class="q-card">
+        <p class="q-text">Kelompok manakah yang pertumbuhan tanamannya paling seragam (jangkauan paling kecil)?</p>
+        <div class="opt-list" id="q3opts"></div>
+        <div class="feedback" id="q3feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10: SCENARIO -->
+  <section class="slide" data-slide="10">
+    <div class="slide-inner">
+      <span class="eyebrow">Membaca situasi</span>
+      <h2 class="title-md">Penyebaran Kecil atau Besar?</h2>
+      <p class="lead">Klik tiap situasi berikut untuk menebak apakah datanya punya penyebaran (range) kecil atau besar:</p>
+      <div class="grid grid-3" id="scenarioCards" style="margin-top:10px;"></div>
+      <div class="info-box">📌 Range kecil = data cenderung <b>seragam/konsisten</b>. Range besar = data cenderung <b>beragam/bervariasi</b>, dan mean bisa kurang mewakili kondisi sebenarnya.</div>
+    </div>
+  </section>
+
+  <!-- 11: CONTOH SOAL PILIH -->
+  <section class="slide" data-slide="11">
+    <div class="slide-inner">
+      <span class="eyebrow">Contoh soal 4</span>
+      <h2 class="title-md">Menafsirkan Perbandingan Range</h2>
+      <div class="q-card">
+        <p class="q-text">Kelompok 1 memiliki jangkauan (range) = 5, sedangkan Kelompok 2 memiliki jangkauan (range) = 40. Pernyataan yang paling tepat adalah...</p>
+        <div class="opt-list" id="q4opts"></div>
+        <div class="feedback" id="q4feedback"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12: KUIS LATIHAN -->
+  <section class="slide" data-slide="12">
+    <div class="slide-inner" id="quizWrap">
+      <span class="eyebrow">Kuis latihan</span>
+      <h2 class="title-md">Uji Pemahamanmu</h2>
+      <div class="quiz-progress">
+        <span class="mono" id="quizStep" style="font-size:12.5px; color:var(--ink-soft);">Soal 1/5</span>
+        <div class="track"><div class="fill" id="quizFill"></div></div>
+      </div>
+      <div class="q-card" id="quizCard"></div>
+    </div>
+  </section>
+
+  <!-- 13: RANGKUMAN -->
+  <section class="slide" data-slide="13">
+    <div class="slide-inner">
+      <span class="eyebrow">Rangkuman</span>
+      <h2 class="title-md">Yang Perlu Kamu Ingat</h2>
+      <ul class="sum-list">
+        <li><b>Ukuran penyebaran data</b> menunjukkan seberapa menyebar/bervariasi suatu data, melengkapi ukuran pemusatan (mean, median, modus).</li>
+        <li><b>Jangkauan (Range)</b> = Data terbesar − Data terkecil.</li>
+        <li>Range <b>kecil</b> → data cenderung seragam/homogen. Range <b>besar</b> → data cenderung beragam/heterogen.</li>
+        <li>Dua kelompok data bisa punya <b>rata-rata yang sama</b>, tapi <b>penyebaran (range) yang sangat berbeda</b>.</li>
+        <li>Untuk membandingkan beberapa kelompok data, bandingkan <b>range</b> masing-masing kelompok, jangan hanya melihat rata-ratanya saja.</li>
+      </ul>
+      <div class="info-box">🎉 Sampai jumpa di materi statistika berikutnya!</div>
+    </div>
+  </section>
+
+  <!-- 14: SELESAI -->
+  <section class="slide" data-slide="14">
+    <div class="slide-inner cover">
+      <span class="eyebrow">Selesai</span>
+      <h1 class="title-lg">Kerja Bagus! 🎊</h1>
+      <p class="lead">Kamu sudah menyelesaikan materi <b>Ukuran Penyebaran Data</b> — jangkauan (range), menentukan, dan membandingkan penyebaran data — dari Bab 6 Statistika. Skor kuismu ada di slide sebelumnya — coba lagi kapan saja kalau mau nilai lebih tinggi.</p>
+      <div class="cover-graphic" aria-hidden="true">
+        <div class="bar" style="height:95px;background:var(--teal)"><span>✓</span></div>
+        <div class="bar" style="height:95px;background:var(--teal)"><span>✓</span></div>
+        <div class="bar" style="height:95px;background:var(--teal)"><span>✓</span></div>
+        <div class="bar" style="height:95px;background:var(--coral)"><span>★</span></div>
+      </div>
+      <div style="margin-top:26px; display:flex; gap:12px; flex-wrap:wrap;">
+        <a href="matb-bab6.html" style="text-decoration:none;"><button class="btn btn-primary">Selesai — Kembali ke Bab 6 <span>↩</span></button></a>
+        <button class="btn btn-ghost" onclick="goTo(1)">Ulangi Presentasi</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="bottomnav">
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">←</button>
+  <div class="bars" id="barsNav"></div>
+  <button class="nav-btn" id="nextBtn" onclick="nextSlide()">→</button>
+</div>
+
+<script>
+/* ===================== CORE NAV ===================== */
+const totalSlides = 14;
+let current = 1;
+const slides = document.querySelectorAll('.slide');
+const barsNav = document.getElementById('barsNav');
+const heights = [18,20,22,24,26,22,24,26,24,22,26,30,22,24];
+
+for(let i=1;i<=totalSlides;i++){
+  const b = document.createElement('div');
+  b.className='b';
+  b.style.height = heights[i-1]+'px';
+  b.dataset.i = i;
+  b.title = 'Slide '+i;
+  b.addEventListener('click', ()=>goTo(i));
+  barsNav.appendChild(b);
+}
+function render(){
+  slides.forEach(s=> s.classList.toggle('active', +s.dataset.slide === current));
+  document.getElementById('curNum').textContent = String(current).padStart(2,'0');
+  document.getElementById('prevBtn').disabled = current===1;
+  document.getElementById('nextBtn').disabled = current===totalSlides;
+  [...barsNav.children].forEach((b,idx)=>{
+    const i = idx+1;
+    b.classList.toggle('now', i===current);
+    b.classList.toggle('done', i<current);
+  });
+}
+function goTo(n){ current = Math.min(totalSlides, Math.max(1,n)); render(); }
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+document.getElementById('totNum').textContent = totalSlides;
+render();
+
+/* ===================== DOT PLOT BUILDER ===================== */
+function buildDotPlot(containerId, data, opts){
+  opts = opts || {};
+  const container = document.getElementById(containerId);
+  container.innerHTML='';
+  const min = Math.min(...data), max = Math.max(...data);
+  const pad = Math.max((max-min)*0.18, 1);
+  const scaleMin = min-pad, scaleMax = max+pad;
+  const span = scaleMax-scaleMin;
+  const wrap = document.createElement('div');
+  wrap.className='dotplot-wrap';
+
+  const axis = document.createElement('div');
+  axis.className='dotplot-axis';
+  wrap.appendChild(axis);
+
+  const rBar = document.createElement('div');
+  rBar.className='dotplot-range-bar';
+  const leftPct = ((min-scaleMin)/span)*100;
+  const widthPct = ((max-min)/span)*100;
+  rBar.style.left = leftPct+'%';
+  rBar.style.width = Math.max(widthPct,0.5)+'%';
+  wrap.appendChild(rBar);
+
+  data.forEach(v=>{
+    const leftV = ((v-scaleMin)/span)*100;
+    const dot = document.createElement('div');
+    dot.className='dotplot-dot'+(v===min?' min':'')+(v===max?' max':'');
+    dot.style.left = leftV+'%';
+    wrap.appendChild(dot);
+    const lbl = document.createElement('div');
+    lbl.className='dotplot-tick-label';
+    lbl.style.left = leftV+'%';
+    lbl.textContent = v;
+    wrap.appendChild(lbl);
+    dot.addEventListener('click', ()=>{ if(opts.onClick) opts.onClick(v); });
+  });
+  container.appendChild(wrap);
+  return {min:min, max:max, range: max-min};
+}
+
+/* ===================== SLIDE 4: RANGE ===================== */
+const rangeData = [65,80,72,90,58,85];
+let rangeStats = buildDotPlot('rangeDotplot', rangeData, {
+  onClick: (v)=>{ document.getElementById('rangePanel').textContent = 'Nilai yang diklik: '+v; }
+});
+document.getElementById('rangeBtn').addEventListener('click', function(){
+  const dots = document.querySelectorAll('#rangeDotplot .dotplot-dot');
+  dots.forEach(d=>{ d.style.transform='translate(-50%,-50%) scale(1.15)'; });
+  document.getElementById('rangePanel').innerHTML =
+    `Data terbesar = <b>${rangeStats.max}</b>, data terkecil = <b>${rangeStats.min}</b><br>` +
+    `Jangkauan (R) = ${rangeStats.max} − ${rangeStats.min} = <b>${rangeStats.range}</b>`;
+});
+
+/* ===================== SLIDE 5: CONTOH SOAL RANGE ===================== */
+buildDotPlot('rangeDotplot2', [24,28,22,30,26,25,29]);
+
+/* ===================== SLIDE 6: MENENTUKAN PENYEBARAN ===================== */
+const spreadSets = {
+  A: {data:[48,50,52,49,51], desc:'Nilai berdekatan satu sama lain'},
+  B: {data:[20,80,50,10,90], desc:'Nilai jauh berbeda-beda'}
+};
+function renderSpread(key){
+  const set = spreadSets[key];
+  const mean = (set.data.reduce((a,b)=>a+b,0)/set.data.length).toFixed(1);
+  const stats = buildDotPlot('spreadDotplot', set.data);
+  document.getElementById('spreadTitle').textContent = `Data ${key} · Nilai Ulangan 5 Siswa`;
+  document.getElementById('spreadPanel').innerHTML =
+    `Data: <b>${set.data.join(', ')}</b><br>Rata-rata ≈ <b>${mean}</b> · ${set.desc}<br>` +
+    `Jangkauan = ${stats.max} − ${stats.min} = <b>${stats.range}</b> ${stats.range<=10?'→ penyebaran KECIL (seragam)':'→ penyebaran BESAR (beragam)'}`;
+  document.getElementById('spreadTabA').classList.toggle('active', key==='A');
+  document.getElementById('spreadTabB').classList.toggle('active', key==='B');
+}
+document.getElementById('spreadTabA').addEventListener('click', ()=>renderSpread('A'));
+document.getElementById('spreadTabB').addEventListener('click', ()=>renderSpread('B'));
+renderSpread('A');
+
+/* ===================== SLIDE 8: MEMBANDINGKAN KELOMPOK ===================== */
+const groupSets = {
+  A: [60,62,61,63,59],
+  B: [50,70,55,65,75],
+  C: [58,58,59,58,59]
+};
+function renderGroup(key){
+  const data = groupSets[key];
+  const stats = buildDotPlot('groupDotplot', data);
+  const seragam = stats.range<=5;
+  document.getElementById('groupPanel').innerHTML =
+    `Kelompok ${key}: <b>${data.join(', ')}</b> detik<br>` +
+    `Jangkauan = ${stats.max} − ${stats.min} = <b>${stats.range}</b> detik ${seragam? '→ waktu lari relatif SERAGAM' : '→ waktu lari cukup BERAGAM'}`;
+  ['A','B','C'].forEach(k=> document.getElementById('grpTab'+k).classList.toggle('active', k===key));
+}
+document.getElementById('grpTabA').addEventListener('click', ()=>renderGroup('A'));
+document.getElementById('grpTabB').addEventListener('click', ()=>renderGroup('B'));
+document.getElementById('grpTabC').addEventListener('click', ()=>renderGroup('C'));
+renderGroup('A');
+
+/* ===================== SCENARIO CARDS (slide 10) ===================== */
+const scenarios = [
+  {icon:'🌡️', txt:'Suhu Kota P selama seminggu: 24, 25, 24, 26, 25 °C', ans:'Penyebaran Kecil', reason:'Nilai-nilainya berdekatan → range kecil, suhu relatif stabil.'},
+  {icon:'🌦️', txt:'Suhu Kota Q selama seminggu: 18, 30, 20, 35, 15 °C', ans:'Penyebaran Besar', reason:'Nilai naik-turun drastis → range besar, suhu tidak stabil.'},
+  {icon:'🔩', txt:'Panjang baut hasil pabrik A: 4.9, 5.0, 5.1, 5.0, 5.0 mm', ans:'Penyebaran Kecil', reason:'Ukuran hampir seragam → kualitas produksi konsisten.'},
+  {icon:'🔧', txt:'Panjang baut hasil pabrik B: 4.5, 5.5, 4.8, 5.6, 5.0 mm', ans:'Penyebaran Besar', reason:'Ukuran bervariasi cukup jauh → kualitas produksi kurang konsisten.'},
+  {icon:'🏃', txt:'Waktu latihan lari pelari A (5x latihan): 62, 63, 61, 64, 62 menit', ans:'Penyebaran Kecil', reason:'Waktu tempuhnya konsisten dari latihan ke latihan.'},
+  {icon:'🏃‍♀️', txt:'Waktu latihan lari pelari B (5x latihan): 55, 75, 58, 70, 60 menit', ans:'Penyebaran Besar', reason:'Waktu tempuhnya naik-turun cukup jauh antar latihan.'},
+];
+const scnEl = document.getElementById('scenarioCards');
+scenarios.forEach(s=>{
+  const el = document.createElement('div');
+  el.className='flip-card scn-card';
+  el.innerHTML = `<div class="flip-inner">
+    <div class="flip-front"><div class="k-label">${s.icon} Situasi</div><h4>${s.txt}</h4><span class="hint">Klik untuk tebak →</span></div>
+    <div class="flip-back"><span class="k-label">Jawaban</span><p><b>${s.ans}</b><br>${s.reason}</p></div>
+  </div>`;
+  el.addEventListener('click', ()=> el.classList.toggle('flipped'));
+  scnEl.appendChild(el);
+});
+
+/* ===================== GENERIC MCQ BUILDER ===================== */
+function buildMCQ(container, feedbackEl, options, correctIdx, explainCorrect, explainWrong){
+  container.innerHTML='';
+  const labels = ['A','B','C','D'];
+  options.forEach((opt,idx)=>{
+    const el = document.createElement('div');
+    el.className='opt';
+    el.innerHTML = `<span class="k">${labels[idx]}</span><span>${opt}</span>`;
+    el.addEventListener('click', ()=>{
+      if(container.dataset.locked) return;
+      container.dataset.locked = '1';
+      [...container.children].forEach((c,i2)=>{
+        c.classList.add('disabled');
+        if(i2===correctIdx) c.classList.add('correct');
+        if(i2===idx && idx!==correctIdx) c.classList.add('wrong');
+      });
+      feedbackEl.classList.add('show');
+      if(idx===correctIdx){
+        feedbackEl.classList.add('ok');
+        feedbackEl.textContent = '✓ Benar! '+explainCorrect;
+      } else {
+        feedbackEl.classList.add('no');
+        feedbackEl.textContent = '✕ Belum tepat. '+explainWrong;
+      }
+    });
+    container.appendChild(el);
+  });
+}
+buildMCQ(document.getElementById('q1opts'), document.getElementById('q1feedback'),
+  ['6','7','8','9'], 2,
+  'Data terbesar = 30, data terkecil = 22. Jangkauan = 30 − 22 = 8.',
+  'Cari dulu suhu tertinggi dan terendah, lalu kurangkan keduanya.');
+
+buildMCQ(document.getElementById('q2opts'), document.getElementById('q2feedback'),
+  ['Kelas A','Kelas B','Sama saja','Tidak dapat ditentukan'], 1,
+  'Kelas A punya range 78−70=8, sedangkan Kelas B punya range 100−40=60. Kelas B jauh lebih beragam meski rata-ratanya mirip.',
+  'Coba bandingkan selisih data terbesar dan terkecil pada masing-masing kelas.');
+
+buildMCQ(document.getElementById('q3opts'), document.getElementById('q3feedback'),
+  ['Kelompok X','Kelompok Y','Kelompok Z','Tidak dapat ditentukan'], 2,
+  'Range X = 23−19 = 4, range Y = 35−10 = 25, range Z = 22−20 = 2. Kelompok Z punya range paling kecil, jadi paling seragam.',
+  'Hitung jangkauan (range) tiap kelompok, lalu bandingkan mana yang paling kecil.');
+
+buildMCQ(document.getElementById('q4opts'), document.getElementById('q4feedback'),
+  ['Kelompok 1 lebih beragam datanya','Kelompok 2 lebih beragam datanya','Kedua kelompok sama beragamnya','Tidak bisa dibandingkan hanya dari range'], 1,
+  'Semakin besar range, semakin beragam/menyebar datanya. Range 40 jauh lebih besar dari 5, jadi Kelompok 2 lebih beragam.',
+  'Ingat: semakin besar jangkauan (range), semakin beragam/bervariasi datanya.');
+
+/* ===================== SLIDE 12: FINAL QUIZ ===================== */
+const quizQuestions = [
+  {q:'Data: 15, 22, 18, 30, 12. Jangkauan (range) dari data tersebut adalah...', opts:['15','16','18','20'], correct:2, exp:'Data terbesar = 30, terkecil = 12. Range = 30 − 12 = 18.'},
+  {q:'Semakin besar jangkauan (range) suatu data, maka data tersebut...', opts:['semakin seragam','semakin beragam/bervariasi','semakin kecil rata-ratanya','semakin besar rata-ratanya'], correct:1, exp:'Range besar berarti selisih data terbesar dan terkecil jauh, sehingga datanya semakin beragam/bervariasi.'},
+  {q:'Data A: 50, 52, 51, 49, 50. Data B: 20, 80, 40, 90, 10. Kelompok manakah yang lebih homogen (seragam)?', opts:['Data A','Data B','Sama saja','Tidak dapat ditentukan'], correct:0, exp:'Range Data A = 52−49 = 3, sangat kecil dibanding range Data B = 90−10 = 80. Data A jauh lebih homogen.'},
+  {q:'Data nilai ulangan: 60, 70, 65, 95, 68. Jangkauan (range) dari data tersebut adalah...', opts:['30','32','35','40'], correct:2, exp:'Data terbesar = 95, terkecil = 60. Range = 95 − 60 = 35.'},
+  {q:'Dua kota memiliki rata-rata suhu tahunan yang sama. Kota P memiliki range suhu 5°C, sedangkan Kota Q memiliki range suhu 20°C. Pernyataan yang tepat adalah...', opts:['Kota P memiliki suhu yang lebih stabil sepanjang tahun','Kota Q memiliki suhu yang lebih stabil sepanjang tahun','Kedua kota sama stabilnya','Rata-rata saja sudah cukup menentukan kestabilan suhu'], correct:0, exp:'Range yang lebih kecil (5°C) menunjukkan suhu Kota P tidak banyak berubah sepanjang tahun, jadi lebih stabil dibanding Kota Q.'},
+];
+let quizIdx = 0;
+let quizScore = 0;
+const quizCard = document.getElementById('quizCard');
+const quizStep = document.getElementById('quizStep');
+const quizFill = document.getElementById('quizFill');
+
+function renderQuiz(){
+  if(quizIdx >= quizQuestions.length){ renderQuizResult(); return; }
+  const item = quizQuestions[quizIdx];
+  quizStep.textContent = `Soal ${quizIdx+1}/${quizQuestions.length}`;
+  quizFill.style.width = ((quizIdx)/quizQuestions.length*100)+'%';
+  quizCard.innerHTML = `<p class="q-text">${item.q}</p><div class="opt-list" id="liveOpts"></div><div class="feedback" id="liveFeedback"></div>`;
+  const optsEl = document.getElementById('liveOpts');
+  const fbEl = document.getElementById('liveFeedback');
+  const labels = ['A','B','C','D'];
+  item.opts.forEach((opt,idx)=>{
+    const el = document.createElement('div');
+    el.className='opt';
+    el.innerHTML = `<span class="k">${labels[idx]}</span><span>${opt}</span>`;
+    el.addEventListener('click', ()=>{
+      if(optsEl.dataset.locked) return;
+      optsEl.dataset.locked='1';
+      const correct = idx===item.correct;
+      if(correct) quizScore++;
+      [...optsEl.children].forEach((c,i2)=>{
+        c.classList.add('disabled');
+        if(i2===item.correct) c.classList.add('correct');
+        if(i2===idx && !correct) c.classList.add('wrong');
+      });
+      fbEl.classList.add('show', correct?'ok':'no');
+      fbEl.textContent = (correct? '✓ Benar! ':'✕ Belum tepat. ') + item.exp;
+      const nextBtn = document.createElement('button');
+      nextBtn.className='btn btn-primary';
+      nextBtn.style.marginTop='16px';
+      nextBtn.textContent = (quizIdx===quizQuestions.length-1) ? 'Lihat Hasil →' : 'Soal Berikutnya →';
+      nextBtn.onclick = ()=>{ quizIdx++; renderQuiz(); };
+      quizCard.appendChild(nextBtn);
+    });
+    optsEl.appendChild(el);
+  });
+}
+function renderQuizResult(){
+  quizStep.textContent = 'Selesai';
+  quizFill.style.width='100%';
+  const pct = quizScore/quizQuestions.length;
+  let emoji='🙂', msg='Lumayan! Coba baca ulang materinya sedikit lagi.';
+  if(pct===1){emoji='🏆'; msg='Sempurna! Kamu benar-benar paham cara mengukur penyebaran data.';}
+  else if(pct>=0.8){emoji='🎉'; msg='Keren, hampir sempurna!';}
+  else if(pct>=0.6){emoji='👍'; msg='Bagus, sedikit lagi menuju sempurna.';}
+  else {emoji='💪'; msg='Yuk, ulangi materinya sebentar lalu coba lagi.';}
+  quizCard.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-num">${quizScore}<span style="font-size:20px;color:var(--ink-soft);">/${quizQuestions.length}</span></div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" style="margin-top:18px;" onclick="restartQuiz()">Coba Lagi</button>
+    </div>`;
+}
+function restartQuiz(){ quizIdx=0; quizScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>

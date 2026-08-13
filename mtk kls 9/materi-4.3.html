@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>Penyajian Fungsi — Matematika SMP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBF8F2;
+  --paper-2:#F3EFE4;
+  --grid-line: rgba(23,27,46,0.07);
+  --ink:#171B2E;
+  --ink-soft:#565C7C;
+  --ink-faint:#8A8FB0;
+  --domain:#E07A1F;
+  --domain-dark:#B65E12;
+  --domain-soft:#FFE9CE;
+  --kodomain:#0E8F82;
+  --kodomain-dark:#096E64;
+  --kodomain-soft:#CFF4EE;
+  --accent:#5B4FE5;
+  --accent-dark:#4038B0;
+  --accent-soft:#E9E6FF;
+  --danger:#E5484D;
+  --danger-soft:#FDE2E2;
+  --success:#1E9E63;
+  --success-soft:#DBF3E6;
+  --card:#FFFFFF;
+  --shadow-sm: 0 2px 10px rgba(23,27,46,0.06);
+  --shadow-md: 0 10px 30px rgba(23,27,46,0.10);
+  --shadow-lg: 0 20px 50px rgba(23,27,46,0.16);
+  --radius: 18px;
+  --font-display:'Baloo 2', system-ui, sans-serif;
+  --font-body:'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 1.5px 1.5px, var(--grid-line) 1.5px, transparent 0) 0 0/26px 26px,
+    var(--paper);
+  overflow:hidden;
+  height:100vh;
+  width:100vw;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
+}
+
+button{font-family:inherit; cursor:pointer;}
+a{color:inherit;}
+:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:6px;}
+
+.app{ position:relative; height:100vh; width:100vw; display:flex; flex-direction:column; }
+
+.topbar{
+  display:flex; align-items:center; gap:14px;
+  padding:14px clamp(16px,4vw,40px) 10px;
+  flex-shrink:0;
+}
+.topbar .brand{
+  font-family:var(--font-display); font-weight:700;
+  font-size:clamp(13px,1.6vw,16px);
+  color:var(--ink-soft);
+  display:flex; align-items:center; gap:8px;
+  white-space:nowrap;
+}
+.topbar .brand .dot-a{width:9px;height:9px;border-radius:50%;background:var(--domain);display:inline-block;}
+.topbar .brand .dot-b{width:9px;height:9px;border-radius:50%;background:var(--kodomain);display:inline-block;margin-left:-4px;}
+.progress-track{ flex:1; height:6px; background:var(--grid-line); border-radius:99px; overflow:hidden; }
+.progress-fill{
+  height:100%; width:0%; border-radius:99px;
+  background:linear-gradient(90deg,var(--domain),var(--accent),var(--kodomain));
+  transition:width .4s ease;
+}
+.slide-counter{ font-family:var(--font-mono); font-size:clamp(11px,1.4vw,13px); color:var(--ink-faint); white-space:nowrap; }
+
+.stage{ flex:1; position:relative; overflow:hidden; padding:0 clamp(16px,4vw,40px); }
+
+.slide{
+  position:absolute; inset:0;
+  padding:clamp(10px,2vh,28px) clamp(16px,4vw,40px);
+  display:flex; flex-direction:column;
+  opacity:0; pointer-events:none;
+  transform:translateX(40px);
+  transition:opacity .38s ease, transform .38s ease;
+  overflow-y:auto;
+}
+.slide.active{ opacity:1; pointer-events:auto; transform:translateX(0); }
+.slide.prev{ transform:translateX(-40px); }
+
+.eyebrow{
+  font-family:var(--font-mono); font-size:clamp(11px,1.4vw,13px); font-weight:700;
+  color:var(--accent); letter-spacing:.06em; text-transform:uppercase;
+  display:flex; align-items:center; gap:8px; margin-bottom:6px;
+}
+.eyebrow::before{content:"▸"; color:var(--domain);}
+
+h1.slide-title{
+  font-family:var(--font-display); font-weight:800;
+  font-size:clamp(24px,4.2vw,44px); line-height:1.08; color:var(--ink);
+  margin-bottom:6px;
+}
+p.slide-lede{ font-size:clamp(13px,1.7vw,17px); color:var(--ink-soft); max-width:760px; margin-bottom:16px; }
+
+.slide-body{ flex:1; display:flex; flex-direction:column; gap:16px; min-height:0; }
+
+.bottombar{
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px clamp(16px,4vw,40px) clamp(12px,2vh,20px);
+}
+.nav-btn{
+  display:flex; align-items:center; gap:8px;
+  background:var(--card); border:1.5px solid var(--grid-line);
+  padding:10px 18px; border-radius:99px; font-weight:700; font-size:14px;
+  color:var(--ink); box-shadow:var(--shadow-sm);
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.nav-btn:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+.nav-btn:active{transform:translateY(0);}
+.nav-btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+.nav-btn.primary{ background:var(--ink); color:#fff; border-color:var(--ink); }
+
+.dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:44vw; }
+.dots button{
+  width:8px; height:8px; border-radius:50%; background:var(--grid-line); border:none; padding:0;
+  transition:all .2s ease; flex-shrink:0;
+}
+.dots button.active{ width:22px; border-radius:99px; background:var(--accent); }
+@media (max-width:700px){ .dots{display:none;} }
+
+.card{
+  background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm);
+  border:1.5px solid var(--grid-line); padding:clamp(14px,2vw,22px);
+}
+.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.grid-4{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+@media (max-width:820px){ .grid-2, .grid-3, .grid-4{ grid-template-columns:1fr; } }
+
+.tag{
+  display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono);
+  font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;
+}
+.tag.a{ background:var(--domain-soft); color:var(--domain-dark); }
+.tag.b{ background:var(--kodomain-soft); color:var(--kodomain-dark); }
+.tag.ok{ background:var(--success-soft); color:var(--success); }
+.tag.no{ background:var(--danger-soft); color:var(--danger); }
+
+.cover{ justify-content:center; align-items:center; text-align:center; }
+.cover-badge{
+  font-family:var(--font-mono); font-size:13px; font-weight:700; letter-spacing:.08em;
+  color:var(--accent); background:var(--accent-soft); padding:6px 16px; border-radius:99px; margin-bottom:18px;
+}
+.cover h1{
+  font-family:var(--font-display); font-weight:800; font-size:clamp(32px,7vw,72px); line-height:1.02;
+  color:var(--ink); margin-bottom:10px;
+}
+.cover h1 span{
+  background:linear-gradient(90deg,var(--domain),var(--accent) 55%,var(--kodomain));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.cover p{ font-size:clamp(14px,2vw,19px); color:var(--ink-soft); max-width:600px; margin:0 auto 26px; }
+.cover-visual{
+  display:flex; align-items:center; gap:clamp(10px,3vw,22px); margin:10px 0 30px; flex-wrap:wrap; justify-content:center;
+}
+.cover-chip{
+  font-family:var(--font-mono); font-weight:700; font-size:clamp(12px,1.6vw,14px);
+  padding:10px 18px; border-radius:14px; background:#fff; border:1.5px solid var(--grid-line);
+  box-shadow:var(--shadow-sm); color:var(--ink);
+}
+.start-btn{
+  font-family:var(--font-display); font-weight:700; font-size:clamp(16px,2vw,20px);
+  background:var(--ink); color:#fff; padding:14px 34px; border-radius:99px; border:none;
+  box-shadow:var(--shadow-md); transition:transform .18s ease, box-shadow .18s ease;
+}
+.start-btn:hover{ transform:translateY(-3px) scale(1.02); box-shadow:var(--shadow-lg); }
+
+.svg-wrap{ width:100%; }
+.svg-wrap svg{ width:100%; height:auto; display:block; }
+.node{ cursor:pointer; transition:transform .15s ease, opacity .2s ease; }
+.node:hover{ filter:brightness(1.05); }
+.node.dim{ opacity:.28; }
+.node.active-a circle, .node.active-a rect{ stroke:var(--domain-dark); stroke-width:3; }
+.node.active-b circle, .node.active-b rect{ stroke:var(--kodomain-dark); stroke-width:3; }
+.rel-path{ fill:none; stroke:var(--accent); stroke-width:2.4; opacity:.35; transition:opacity .2s ease, stroke-width .2s ease; }
+.rel-path.active{ opacity:1; stroke-width:3.6; }
+.rel-path.dim{ opacity:.08; }
+.rel-path.bad{ stroke:var(--danger); }
+.svg-label{ font-family:var(--font-mono); font-weight:700; font-size:13px; fill:var(--ink-soft); }
+
+.chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
+.chip{
+  font-family:var(--font-mono); font-weight:700; font-size:14px;
+  background:var(--paper-2); border:1.5px solid var(--grid-line); border-radius:12px;
+  padding:8px 14px; transition:all .15s ease; cursor:pointer; color:var(--ink);
+}
+.chip:hover{ border-color:var(--accent); }
+.chip.active{ background:var(--accent); color:#fff; border-color:var(--accent-dark); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+
+.tab-panel{ text-align:center; }
+.tab-panel .fx-table{ width:auto; margin:0 auto; }
+.tab-panel .chip-row{ justify-content:center; }
+.tab-panel .svg-wrap{ max-width:440px; margin:0 auto; }
+
+.definition-box{
+  background:linear-gradient(135deg, var(--accent-soft), #fff);
+  border:1.5px solid var(--accent-soft); border-left:5px solid var(--accent);
+  border-radius:14px; padding:16px 20px; font-size:clamp(13px,1.7vw,16px); line-height:1.55;
+}
+.definition-box b{ color:var(--accent-dark); }
+.example-box{
+  border:1.5px dashed var(--grid-line); border-radius:14px; padding:14px 18px;
+  background:var(--paper-2); font-size:clamp(13px,1.6vw,15px); line-height:1.6;
+}
+.term-card{ border-radius:14px; padding:14px 16px; border:1.5px solid var(--grid-line); background:#fff; }
+.term-card .term-title{ font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:4px; display:flex; align-items:center; gap:8px;}
+.term-card .swatch{ width:12px; height:12px; border-radius:4px; display:inline-block; }
+.term-card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+
+.btn{
+  font-weight:700; font-size:13.5px; padding:9px 18px; border-radius:99px; border:1.5px solid var(--ink);
+  background:var(--ink); color:#fff; transition:all .15s ease;
+}
+.btn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.btn.ghost{ background:#fff; color:var(--ink); }
+.action-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.feedback{ font-size:13.5px; font-weight:700; padding:8px 14px; border-radius:10px; display:none; }
+.feedback.show{ display:inline-flex; align-items:center; gap:6px; }
+.feedback.ok{ background:var(--success-soft); color:var(--success); }
+.feedback.bad{ background:var(--danger-soft); color:var(--danger); }
+
+.judge-card{ display:flex; flex-direction:column; gap:10px; }
+.judge-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+.judge-btn{
+  flex:1; font-weight:700; font-size:13px; padding:8px 10px; border-radius:10px; border:1.5px solid var(--grid-line); background:#fff;
+  transition:all .15s ease; min-width:110px;
+}
+.judge-btn.pick-ok{ border-color:var(--success); background:var(--success-soft); color:var(--success); }
+.judge-btn.pick-bad{ border-color:var(--danger); background:var(--danger-soft); color:var(--danger); }
+.judge-explain{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; display:none; padding-top:2px; }
+.judge-explain.show{ display:block; }
+
+.step-reveal{ display:flex; flex-direction:column; gap:8px; }
+.step-line{
+  font-family:var(--font-mono); font-size:14px; padding:8px 12px; border-radius:10px; background:var(--paper-2);
+  opacity:.25; transition:opacity .25s ease;
+}
+.step-line.show{ opacity:1; }
+
+table.fx-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:clamp(12px,1.6vw,15px); }
+table.fx-table th, table.fx-table td{ border:1.5px solid var(--grid-line); padding:10px; text-align:center; }
+table.fx-table th{ background:var(--paper-2); font-weight:700; }
+table.fx-table td.reveal-cell{ cursor:pointer; font-weight:700; color:var(--ink-faint); }
+table.fx-table td.reveal-cell.shown{ color:var(--success); background:var(--success-soft); }
+
+.summary-list{ display:flex; flex-direction:column; gap:10px; }
+.summary-item{ display:flex; gap:12px; align-items:flex-start; background:#fff; border:1.5px solid var(--grid-line); border-radius:14px; padding:12px 16px; }
+.summary-item .num{
+  font-family:var(--font-display); font-weight:800; font-size:16px; width:30px; height:30px; border-radius:9px;
+  background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.summary-item p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+.summary-item b{ color:var(--ink); }
+
+.quiz-shell{ flex:1; display:flex; flex-direction:column; gap:16px; max-width:760px; }
+.quiz-progress{ display:flex; gap:6px; }
+.quiz-progress .seg{ flex:1; height:6px; border-radius:99px; background:var(--grid-line); }
+.quiz-progress .seg.done{ background:var(--success); }
+.quiz-progress .seg.now{ background:var(--accent); }
+.quiz-q{ font-family:var(--font-display); font-weight:700; font-size:clamp(17px,2.4vw,22px); line-height:1.3; }
+.quiz-opts{ display:flex; flex-direction:column; gap:10px; }
+.quiz-opt{
+  text-align:left; background:#fff; border:1.5px solid var(--grid-line); border-radius:14px;
+  padding:13px 16px; font-size:14.5px; font-weight:600; display:flex; align-items:center; gap:12px;
+  transition:all .15s ease;
+}
+.quiz-opt:hover{ border-color:var(--accent); }
+.quiz-opt .opt-letter{
+  width:26px; height:26px; border-radius:50%; background:var(--paper-2); display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-weight:700; font-size:12.5px; flex-shrink:0;
+}
+.quiz-opt.correct{ background:var(--success-soft); border-color:var(--success); }
+.quiz-opt.correct .opt-letter{ background:var(--success); color:#fff; }
+.quiz-opt.wrong{ background:var(--danger-soft); border-color:var(--danger); }
+.quiz-opt.wrong .opt-letter{ background:var(--danger); color:#fff; }
+.quiz-opt:disabled{ cursor:default; }
+.quiz-explain{
+  font-size:13.5px; line-height:1.55; padding:12px 16px; border-radius:12px; background:var(--paper-2);
+  border-left:4px solid var(--accent); display:none;
+}
+.quiz-explain.show{ display:block; }
+.quiz-foot{ display:flex; justify-content:space-between; align-items:center; }
+.quiz-score-pill{ font-family:var(--font-mono); font-weight:700; font-size:13px; background:var(--accent-soft); color:var(--accent-dark); padding:6px 14px; border-radius:99px; }
+.quiz-result{ text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; flex:1; justify-content:center; }
+.quiz-result .big-score{ font-family:var(--font-display); font-weight:800; font-size:clamp(46px,8vw,84px); color:var(--accent); }
+.quiz-result .score-msg{ font-size:15px; color:var(--ink-soft); max-width:420px; }
+
+.closing{ justify-content:center; align-items:center; text-align:center; gap:8px; }
+.closing .trophy{ font-size:clamp(46px,8vw,80px); margin-bottom:6px; }
+.closing h1{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,5vw,48px); }
+.closing p{ color:var(--ink-soft); font-size:clamp(13px,1.8vw,17px); max-width:520px; margin:6px auto 10px; }
+.final-score{ font-family:var(--font-mono); font-weight:700; background:var(--paper-2); padding:8px 18px; border-radius:99px; font-size:14px; margin-bottom:14px;}
+.replay-link{ margin-top:14px; font-size:13px; color:var(--ink-faint); text-decoration:underline; background:none; border:none; }
+
+.slide::-webkit-scrollbar{ width:8px; }
+.slide::-webkit-scrollbar-thumb{ background:var(--grid-line); border-radius:99px; }
+
+@media (max-width:520px){ .grid-3, .grid-4{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot-a"></span><span class="dot-b"></span>&nbsp;Fungsi · Penyajian Fungsi</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="slide-counter" id="slideCounter">01 / 11</div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 0. SAMPUL -->
+    <section class="slide cover" data-title="Sampul">
+      <div class="cover-badge">MATEMATIKA · KELAS 8 SMP</div>
+      <h1>Penyajian <span>Fungsi</span></h1>
+      <p>Fungsi yang sama bisa "berganti wajah" — ditulis dengan <b>4 cara berbeda</b>: diagram panah, tabel, pasangan berurutan, dan grafik. Yuk pelajari satu per satu!</p>
+      <div class="cover-visual">
+        <div class="cover-chip">➜ Diagram Panah</div>
+        <div class="cover-chip">▦ Tabel</div>
+        <div class="cover-chip">( , ) Pasangan Berurutan</div>
+        <div class="cover-chip">✳ Grafik</div>
+      </div>
+      <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+    </section>
+
+    <!-- 1. PENGANTAR: OVERVIEW 4 CARA -->
+    <section class="slide" data-title="Pengantar">
+      <div class="eyebrow">Pengantar</div>
+      <h1 class="slide-title">Fungsi yang Sama, Wajah yang Berbeda</h1>
+      <p class="slide-lede">Perhatikan fungsi f(x) = 2x dari A = {1,2,3,4} ke B = {2,4,6,8,10}. Klik tab untuk melihat 4 cara menyajikan fungsi <b>yang sama persis</b> ini.</p>
+      <div class="chip-row" id="overviewTabs">
+        <button class="chip active" data-tab="panah">➜ Diagram Panah</button>
+        <button class="chip" data-tab="tabel">▦ Tabel</button>
+        <button class="chip" data-tab="pasangan">( , ) Pasangan Berurutan</button>
+        <button class="chip" data-tab="grafik">✳ Grafik</button>
+      </div>
+      <div class="card">
+        <div class="tab-panel" data-panel="panah">
+          <div class="svg-wrap"><svg id="svgOverviewPanah" viewBox="0 0 420 300"></svg></div>
+        </div>
+        <div class="tab-panel" data-panel="tabel" style="display:none;">
+          <table class="fx-table">
+            <tr><th>x (Domain)</th><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+            <tr><th>f(x) = 2x</th><td>2</td><td>4</td><td>6</td><td>8</td></tr>
+          </table>
+        </div>
+        <div class="tab-panel" data-panel="pasangan" style="display:none;">
+          <div class="chip-row">
+            <span class="chip">(1, 2)</span><span class="chip">(2, 4)</span><span class="chip">(3, 6)</span><span class="chip">(4, 8)</span>
+          </div>
+        </div>
+        <div class="tab-panel" data-panel="grafik" style="display:none;">
+          <div class="svg-wrap"><svg id="svgOverviewGrafik" viewBox="0 0 340 260"></svg></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. DIAGRAM PANAH -->
+    <section class="slide" data-title="Diagram Panah">
+      <div class="eyebrow">Cara 1 · Diagram Panah</div>
+      <h1 class="slide-title">Menyajikan Fungsi dengan Diagram Panah</h1>
+      <p class="slide-lede">Cara paling visual: setiap anggota domain dihubungkan ke bayangannya dengan sebuah anak panah.</p>
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <div class="svg-wrap"><svg id="svgPanahContoh" viewBox="0 0 420 300"></svg></div>
+          <p class="picker-hint" id="panahHint" style="font-size:13px; color:var(--ink-faint); margin-top:8px;">👆 Klik salah satu angka pada himpunan A untuk melihat panahnya.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="definition-box">
+            Fungsi g(x) = x + 3 dengan domain A = {0,1,2,3}. Setiap anggota A digambar sebagai satu bulatan, begitu juga anggota B, lalu dihubungkan dengan panah sesuai aturan fungsinya.
+          </div>
+          <div class="example-box">
+            <b>Kelebihan diagram panah:</b> paling mudah dipakai untuk memeriksa apakah suatu relasi memenuhi syarat fungsi (tepat satu panah keluar dari tiap anggota A).
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TABEL -->
+    <section class="slide" data-title="Tabel">
+      <div class="eyebrow">Cara 2 · Tabel</div>
+      <h1 class="slide-title">Menyajikan Fungsi dengan Tabel</h1>
+      <p class="slide-lede">Nilai domain dan bayangannya disusun berdampingan dalam dua baris (atau dua kolom).</p>
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <div class="definition-box">
+            Tabel cocok dipakai saat kita ingin membaca banyak nilai fungsi sekaligus secara ringkas dan rapi.
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-weight:700; font-size:14px; margin-bottom:10px;">h(x) = x² dengan domain {1, 2, 3}. Klik tiap sel untuk mengungkap nilainya.</p>
+          <table class="fx-table" id="tabelLatihan"></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. PASANGAN BERURUTAN -->
+    <section class="slide" data-title="Pasangan Berurutan">
+      <div class="eyebrow">Cara 3 · Pasangan Berurutan</div>
+      <h1 class="slide-title">Menyajikan Fungsi dengan Pasangan Berurutan</h1>
+      <p class="slide-lede">Tiap anggota domain dan bayangannya ditulis sebagai satu pasangan (x, f(x)), lalu semua pasangan dikumpulkan menjadi satu himpunan.</p>
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <div class="definition-box">
+            Notasi umum: <b>{(x₁, f(x₁)), (x₂, f(x₂)), …}</b>. Urutan di dalam kurung penting — angka pertama adalah anggota domain, angka kedua adalah bayangannya.
+          </div>
+          <div class="example-box" style="margin-top:12px;">
+            <b>Contoh:</b> f(x) = x − 1 dengan domain {1,2,3} menghasilkan pasangan berurutan <b>{(1,0), (2,1), (3,2)}</b>.
+          </div>
+        </div>
+        <div class="card judge-card">
+          <p style="font-weight:700; font-size:14px;">Latihan: fungsi f(x) = 3x dengan domain {1,2}. Manakah himpunan pasangan berurutan yang benar?</p>
+          <div class="judge-btns" id="pbBtns">
+            <button class="judge-btn" data-ans="0">{(1,3),(2,6)}</button>
+            <button class="judge-btn" data-ans="1">{(3,1),(6,2)}</button>
+            <button class="judge-btn" data-ans="2">{(1,4),(2,5)}</button>
+          </div>
+          <p class="judge-explain" id="pbExplain">Jawaban benar: {(1,3),(2,6)}, karena f(1)=3(1)=3 dan f(2)=3(2)=6. Urutannya (x, f(x)), bukan dibalik.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. GRAFIK -->
+    <section class="slide" data-title="Grafik">
+      <div class="eyebrow">Cara 4 · Grafik</div>
+      <h1 class="slide-title">Menyajikan Fungsi dengan Grafik</h1>
+      <p class="slide-lede">Setiap pasangan berurutan (x, f(x)) digambarkan sebagai satu titik koordinat pada bidang kartesius x-y.</p>
+      <div class="grid-2" style="align-items:start;">
+        <div class="card">
+          <div class="svg-wrap"><svg id="svgGrafikContoh" viewBox="0 0 340 260"></svg></div>
+          <p style="font-size:13px; color:var(--ink-soft); margin-top:8px;">Grafik dari f(x) = x + 1, domain {0,1,2,3,4}.</p>
+        </div>
+        <div class="card judge-card">
+          <p style="font-weight:700; font-size:14px;">Latihan: titik manakah yang termasuk grafik fungsi f(x) = 2x − 1?</p>
+          <div class="judge-btns" id="grafikBtns">
+            <button class="judge-btn" data-ans="0">(2, 3)</button>
+            <button class="judge-btn" data-ans="1">(2, 5)</button>
+            <button class="judge-btn" data-ans="2">(3, 4)</button>
+          </div>
+          <p class="judge-explain" id="grafikExplain">Jawaban benar: (2, 3), karena f(2) = 2(2) − 1 = 3. Titik (2,5) dan (3,4) tidak sesuai rumus fungsinya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. LATIHAN KONVERSI -->
+    <section class="slide" data-title="Latihan Konversi">
+      <div class="eyebrow">Latihan Gabungan</div>
+      <h1 class="slide-title">Satu Fungsi, Empat Tampilan</h1>
+      <p class="slide-lede">Fungsi f(x) = x + 2 dengan domain A = {1,2,3}. Klik tiap tombol untuk mengungkap penyajiannya dalam bentuk lain.</p>
+      <div class="grid-4" id="konversiWrap"></div>
+    </section>
+
+    <!-- 7. RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="eyebrow">Rangkuman</div>
+      <h1 class="slide-title">Yang Perlu Kamu Ingat</h1>
+      <p class="slide-lede">Sebelum lanjut ke kuis, cek lagi poin-poin pentingnya.</p>
+      <div class="summary-list">
+        <div class="summary-item"><span class="num">1</span><p><b>Diagram panah</b> menghubungkan tiap anggota domain ke bayangannya dengan anak panah — paling mudah untuk memeriksa syarat fungsi.</p></div>
+        <div class="summary-item"><span class="num">2</span><p><b>Tabel</b> menyusun domain dan bayangannya berdampingan dalam baris/kolom — ringkas untuk banyak nilai sekaligus.</p></div>
+        <div class="summary-item"><span class="num">3</span><p><b>Pasangan berurutan</b> menulis tiap (x, f(x)) sebagai satu pasangan, dikumpulkan dalam satu himpunan.</p></div>
+        <div class="summary-item"><span class="num">4</span><p><b>Grafik</b> menggambarkan tiap pasangan berurutan sebagai satu titik pada bidang koordinat x-y.</p></div>
+        <div class="summary-item"><span class="num">5</span><p>Keempatnya hanya <b>tampilan berbeda</b> dari data yang sama — bisa saling dikonversi satu sama lain.</p></div>
+      </div>
+    </section>
+
+    <!-- 8. KUIS INTRO -->
+    <section class="slide cover" data-title="Kuis">
+      <div class="cover-badge">SAATNYA UJI PEMAHAMAN</div>
+      <h1>Kuis <span>Penyajian Fungsi</span></h1>
+      <p>6 soal pilihan ganda seputar diagram panah, tabel, pasangan berurutan, dan grafik fungsi.</p>
+      <button class="start-btn" onclick="goTo(9)">Mulai Kuis →</button>
+    </section>
+
+    <!-- 9. KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="quiz-shell" id="quizShell"></div>
+    </section>
+
+    <!-- 10. PENUTUP -->
+    <section class="slide closing" data-title="Penutup">
+      <div class="trophy">🎉</div>
+      <h1>Kerja Bagus!</h1>
+      <p>Kamu sudah menyelesaikan materi Penyajian Fungsi — diagram panah, tabel, pasangan berurutan, dan grafik.</p>
+      <div class="final-score" id="finalScoreBadge">Skor kuis: – / 6</div><br>
+      <button class="replay-link" onclick="goTo(0)">↺ Ulangi presentasi dari awal</button>
+    </section>
+
+  </div>
+
+  <div class="bottombar">
+    <button class="nav-btn" id="btnPrev" onclick="prevSlide()">← Sebelumnya</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn primary" id="btnNext" onclick="nextSlide()">Selanjutnya →</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   NAVIGATION
+============================================================ */
+const slides = Array.from(document.querySelectorAll('.slide'));
+const total = slides.length;
+let current = 0;
+
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const b = document.createElement('button');
+  b.addEventListener('click', ()=>goTo(i));
+  b.setAttribute('aria-label', 'Ke slide ' + (i+1));
+  dotsWrap.appendChild(b);
+});
+
+function render(){
+  slides.forEach((s,i)=>{
+    s.classList.remove('active','prev');
+    if(i===current) s.classList.add('active');
+    else if(i<current) s.classList.add('prev');
+  });
+  Array.from(dotsWrap.children).forEach((d,i)=> d.classList.toggle('active', i===current));
+  document.getElementById('progressFill').style.width = ((current)/(total-1)*100) + '%';
+  document.getElementById('slideCounter').textContent = String(current+1).padStart(2,'0') + ' / ' + total;
+  document.getElementById('btnPrev').disabled = current===0;
+  document.getElementById('btnNext').textContent = current===total-1 ? 'Selesai ✓' : 'Selanjutnya →';
+  document.getElementById('stage').scrollTop = 0;
+}
+function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+function nextSlide(){ if(current<total-1) goTo(current+1); }
+function prevSlide(){ if(current>0) goTo(current-1); }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+let touchX=null;
+document.getElementById('stage').addEventListener('touchstart', e=> touchX = e.changedTouches[0].clientX, {passive:true});
+document.getElementById('stage').addEventListener('touchend', e=>{
+  if(touchX===null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if(Math.abs(dx) > 60){ dx<0 ? nextSlide() : prevSlide(); }
+  touchX = null;
+}, {passive:true});
+
+render();
+
+/* ============================================================
+   HELPERS: SVG arrow-diagram builder
+============================================================ */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function ensureArrowDef(svg, id){
+  let defs = svg.querySelector('defs');
+  if(!defs){ defs = el('defs',{}); svg.appendChild(defs); }
+  if(svg.querySelector('#'+id)) return;
+  const marker = el('marker', {id:id, markerWidth:8, markerHeight:8, refX:6, refY:3, orient:'auto', markerUnits:'strokeWidth'});
+  const path = el('path', {d:'M0,0 L0,6 L7,3 z', fill:'#5B4FE5'});
+  marker.appendChild(path);
+  defs.appendChild(marker);
+}
+
+function buildArrowDiagram(svg, opts){
+  svg.innerHTML = '';
+  const {A,B,pairs,w,h} = opts;
+  const r = opts.r || 20;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const markerId = 'arrowHead_' + Math.random().toString(36).slice(2,8);
+  ensureArrowDef(svg, markerId);
+
+  const marginY = 34;
+  const usableH = h - marginY*2;
+  const xA = w*0.24, xB = w*0.76;
+  const posA = {}, posB = {};
+  A.forEach((v,i)=>{ posA[v] = marginY + (A.length===1? usableH/2 : i*(usableH/(A.length-1||1))); });
+  B.forEach((v,i)=>{ posB[v] = marginY + (B.length===1? usableH/2 : i*(usableH/(B.length-1||1))); });
+
+  const ovalPad = 30;
+  svg.appendChild(el('rect',{x:xA-ovalPad, y:6, width:ovalPad*2, height:h-12, rx:ovalPad, fill:'#FFF7EE', stroke:'#E07A1F', 'stroke-opacity':0.35}));
+  svg.appendChild(el('rect',{x:xB-ovalPad, y:6, width:ovalPad*2, height:h-12, rx:ovalPad, fill:'#EEFBF9', stroke:'#0E8F82', 'stroke-opacity':0.35}));
+  const labA = el('text', {x:xA, y:20, 'text-anchor':'middle', class:'svg-label'}); labA.textContent = 'A'; svg.appendChild(labA);
+  const labB = el('text', {x:xB, y:20, 'text-anchor':'middle', class:'svg-label'}); labB.textContent = 'B'; svg.appendChild(labB);
+
+  const pathEls = [];
+  pairs.forEach(([a,b])=>{
+    const y1 = posA[a], y2 = posB[b];
+    const mx = (xA+xB)/2;
+    const d = `M ${xA+r} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${xB-r-8} ${y2}`;
+    const p = el('path', {d, class:'rel-path', 'marker-end':'url(#'+markerId+')', 'data-a':a, 'data-b':b});
+    svg.appendChild(p);
+    pathEls.push(p);
+  });
+
+  const nodeEls = {A:{}, B:{}};
+  function makeNode(v, x, y, side, color){
+    const g = el('g', {class:'node', 'data-side':side, 'data-val':v});
+    const c = el('circle', {cx:x, cy:y, r:r, fill:color});
+    const t = el('text', {x:x, y:y+5, 'text-anchor':'middle', fill:'#fff', 'font-family':'JetBrains Mono', 'font-weight':'700', 'font-size': String(v).length>3?'9':'13'});
+    t.textContent = v;
+    g.appendChild(c); g.appendChild(t);
+    g.addEventListener('click', ()=> highlight(side, v));
+    svg.appendChild(g);
+    nodeEls[side][v] = g;
+  }
+  A.forEach(v=> makeNode(v, xA, posA[v], 'A', '#E07A1F'));
+  B.forEach(v=> makeNode(v, xB, posB[v], 'B', '#0E8F82'));
+
+  let activeKey = null;
+  function highlight(side, val){
+    if(activeKey === side+val){
+      activeKey = null;
+      pathEls.forEach(p=> p.classList.remove('active','dim'));
+      Object.values(nodeEls.A).forEach(n=>n.classList.remove('dim','active-a'));
+      Object.values(nodeEls.B).forEach(n=>n.classList.remove('dim','active-b'));
+      if(opts.onNode) opts.onNode(null);
+      return;
+    }
+    activeKey = side+val;
+    pathEls.forEach(p=>{
+      const match = side==='A' ? p.getAttribute('data-a')===String(val) : p.getAttribute('data-b')===String(val);
+      p.classList.toggle('active', match);
+      p.classList.toggle('dim', !match);
+    });
+    Object.entries(nodeEls.A).forEach(([k,n])=>{
+      const keep = side==='A' ? String(k)===String(val) : pairs.some(([a,b])=>String(b)===String(val)&&String(a)===String(k));
+      n.classList.toggle('dim', !keep);
+      n.classList.toggle('active-a', side==='A' && String(k)===String(val));
+    });
+    Object.entries(nodeEls.B).forEach(([k,n])=>{
+      const keep = side==='B' ? String(k)===String(val) : pairs.some(([a,b])=>String(a)===String(val)&&String(b)===String(k));
+      n.classList.toggle('dim', !keep);
+      n.classList.toggle('active-b', side==='B' && String(k)===String(val));
+    });
+    if(opts.onNode) opts.onNode({side, val});
+  }
+  return {highlight};
+}
+
+function buildGraphPlot(svg, opts){
+  svg.innerHTML = '';
+  const {pairs, xMax, yMax, w, h} = opts;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  const pad=36;
+  const plotW=w-pad*2, plotH=h-pad*2;
+  const ox=pad, oy=h-pad;
+  function pt(x,y){ return [ox + x*(plotW/xMax), oy - y*(plotH/yMax)]; }
+
+  svg.appendChild(el('line',{x1:ox,y1:oy,x2:ox+plotW,y2:oy,stroke:'#8A8FB0','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:ox,y1:oy,x2:ox,y2:oy-plotH,stroke:'#8A8FB0','stroke-width':1.5}));
+
+  for(let i=1;i<=xMax;i++){
+    const [gx] = pt(i,0);
+    svg.appendChild(el('line',{x1:gx,y1:oy,x2:gx,y2:oy+5,stroke:'#8A8FB0'}));
+    const t=el('text',{x:gx,y:oy+18,'text-anchor':'middle',class:'svg-label'}); t.textContent=i; svg.appendChild(t);
+  }
+  for(let j=2;j<=yMax;j+=2){
+    const [,gy]=pt(0,j);
+    svg.appendChild(el('line',{x1:ox-5,y1:gy,x2:ox,y2:gy,stroke:'#8A8FB0'}));
+    const t=el('text',{x:ox-10,y:gy+4,'text-anchor':'end',class:'svg-label'}); t.textContent=j; svg.appendChild(t);
+  }
+  const lx=el('text',{x:ox+plotW+4,y:oy+4,class:'svg-label'}); lx.textContent='x'; svg.appendChild(lx);
+  const ly=el('text',{x:ox-4,y:oy-plotH-8,'text-anchor':'middle',class:'svg-label'}); ly.textContent='y'; svg.appendChild(ly);
+
+  pairs.forEach(([x,y])=>{
+    const [cx,cy] = pt(x,y);
+    svg.appendChild(el('circle',{cx,cy,r:6,fill:'#5B4FE5'}));
+    const t=el('text',{x:cx+9,y:cy-8,class:'svg-label'}); t.textContent=`(${x},${y})`; svg.appendChild(t);
+  });
+}
+
+/* ============================================================
+   SLIDE 1: Overview tabs (panah / tabel / pasangan / grafik)
+============================================================ */
+(function(){
+  const A=[1,2,3,4], B=[2,4,6,8,10];
+  const pairs = A.map(x=>[x, x*2]);
+  buildArrowDiagram(document.getElementById('svgOverviewPanah'), {A,B,pairs,w:420,h:300,r:20});
+  buildGraphPlot(document.getElementById('svgOverviewGrafik'), {pairs, xMax:5, yMax:9, w:340, h:260});
+
+  const tabs = document.querySelectorAll('#overviewTabs .chip');
+  const panels = document.querySelectorAll('#overviewTabs').length ? document.querySelectorAll('.tab-panel') : [];
+  tabs.forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p=> p.style.display = (p.dataset.panel===tab.dataset.tab) ? 'block' : 'none');
+    });
+  });
+})();
+
+/* ============================================================
+   SLIDE 2: Diagram panah — contoh interaktif g(x) = x + 3
+============================================================ */
+(function(){
+  const A=[0,1,2,3], B=[3,4,5,6];
+  const pairs = A.map(x=>[x, x+3]);
+  const hint = document.getElementById('panahHint');
+  buildArrowDiagram(document.getElementById('svgPanahContoh'), {A,B,pairs,w:420,h:300,r:20, onNode:(info)=>{
+    if(!info){ hint.textContent = '👆 Klik salah satu angka pada himpunan A untuk melihat panahnya.'; return; }
+    if(info.side==='A'){ hint.textContent = `g(${info.val}) = ${info.val} + 3 = ${info.val+3}, jadi bayangannya adalah ${info.val+3}.`; }
+    else { const x = pairs.find(([a,b])=>b===info.val)[0]; hint.textContent = `${info.val} adalah bayangan dari ${x}, karena g(${x}) = ${info.val}.`; }
+  }});
+})();
+
+/* ============================================================
+   SLIDE 3: Tabel — latihan reveal h(x) = x^2
+============================================================ */
+(function(){
+  const xs = [1,2,3];
+  const table = document.getElementById('tabelLatihan');
+  const rowX = xs.map(x=>`<th>${x}</th>`).join('');
+  const rowFx = xs.map(x=>`<td class="reveal-cell" data-val="${x*x}">?</td>`).join('');
+  table.innerHTML = `
+    <tr><th>x</th>${rowX}</tr>
+    <tr><th>h(x) = x²</th>${rowFx}</tr>
+  `;
+  table.querySelectorAll('.reveal-cell').forEach(cell=>{
+    cell.addEventListener('click', ()=>{
+      cell.textContent = cell.dataset.val;
+      cell.classList.add('shown');
+    });
+  });
+})();
+
+/* ============================================================
+   SLIDE 4: Pasangan berurutan — latihan pilihan ganda
+============================================================ */
+(function(){
+  const btns = document.querySelectorAll('#pbBtns .judge-btn');
+  const explain = document.getElementById('pbExplain');
+  btns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btns.forEach(b=>b.classList.remove('pick-ok','pick-bad'));
+      if(btn.dataset.ans==='0'){ btn.classList.add('pick-ok'); }
+      else{ btn.classList.add('pick-bad'); document.querySelector('#pbBtns .judge-btn[data-ans="0"]').classList.add('pick-ok'); }
+      explain.classList.add('show');
+    });
+  });
+})();
+
+/* ============================================================
+   SLIDE 5: Grafik — contoh + latihan pilihan ganda
+============================================================ */
+(function(){
+  const pairs = [0,1,2,3,4].map(x=>[x, x+1]);
+  buildGraphPlot(document.getElementById('svgGrafikContoh'), {pairs, xMax:5, yMax:6, w:340, h:260});
+
+  const btns = document.querySelectorAll('#grafikBtns .judge-btn');
+  const explain = document.getElementById('grafikExplain');
+  btns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      btns.forEach(b=>b.classList.remove('pick-ok','pick-bad'));
+      if(btn.dataset.ans==='0'){ btn.classList.add('pick-ok'); }
+      else{ btn.classList.add('pick-bad'); document.querySelector('#grafikBtns .judge-btn[data-ans="0"]').classList.add('pick-ok'); }
+      explain.classList.add('show');
+    });
+  });
+})();
+
+/* ============================================================
+   SLIDE 6: Latihan konversi — f(x) = x + 2, domain {1,2,3}
+============================================================ */
+(function(){
+  const A=[1,2,3], B=[3,4,5];
+  const pairs = A.map(x=>[x, x+2]);
+  const wrap = document.getElementById('konversiWrap');
+
+  const cardPanah = document.createElement('div');
+  cardPanah.className='card';
+  cardPanah.innerHTML = `<p style="font-weight:700; font-size:13.5px; margin-bottom:8px;">➜ Diagram Panah</p><div id="konvPanahBox"></div>`;
+  wrap.appendChild(cardPanah);
+
+  const cardTabel = document.createElement('div');
+  cardTabel.className='card';
+  cardTabel.innerHTML = `<p style="font-weight:700; font-size:13.5px; margin-bottom:8px;">▦ Tabel</p><div id="konvTabelBox"><button class="btn ghost" id="konvTabelBtn">Tampilkan →</button></div>`;
+  wrap.appendChild(cardTabel);
+
+  const cardPasangan = document.createElement('div');
+  cardPasangan.className='card';
+  cardPasangan.innerHTML = `<p style="font-weight:700; font-size:13.5px; margin-bottom:8px;">( , ) Pasangan Berurutan</p><div id="konvPasanganBox"><button class="btn ghost" id="konvPasanganBtn">Tampilkan →</button></div>`;
+  wrap.appendChild(cardPasangan);
+
+  const cardGrafik = document.createElement('div');
+  cardGrafik.className='card';
+  cardGrafik.innerHTML = `<p style="font-weight:700; font-size:13.5px; margin-bottom:8px;">✳ Grafik</p><div id="konvGrafikBox"><button class="btn ghost" id="konvGrafikBtn">Tampilkan →</button></div>`;
+  wrap.appendChild(cardGrafik);
+
+  // Diagram panah langsung tampil (sebagai acuan)
+  const svgKonv = el('svg', {viewBox:'0 0 260 200'});
+  document.getElementById('konvPanahBox').appendChild(svgKonv);
+  buildArrowDiagram(svgKonv, {A,B,pairs,w:260,h:200,r:16});
+
+  document.getElementById('konvTabelBtn').addEventListener('click', function(){
+    const rowX = A.map(x=>`<th>${x}</th>`).join('');
+    const rowFx = A.map(x=>`<td>${x+2}</td>`).join('');
+    document.getElementById('konvTabelBox').innerHTML = `<table class="fx-table"><tr><th>x</th>${rowX}</tr><tr><th>f(x)</th>${rowFx}</tr></table>`;
+  });
+  document.getElementById('konvPasanganBtn').addEventListener('click', function(){
+    const chips = pairs.map(([a,b])=>`<span class="chip">(${a}, ${b})</span>`).join('');
+    document.getElementById('konvPasanganBox').innerHTML = `<div class="chip-row">${chips}</div>`;
+  });
+  document.getElementById('konvGrafikBtn').addEventListener('click', function(){
+    const box = document.getElementById('konvGrafikBox');
+    box.innerHTML = '';
+    const svgG = el('svg', {viewBox:'0 0 260 200'});
+    box.appendChild(svgG);
+    buildGraphPlot(svgG, {pairs, xMax:4, yMax:6, w:260, h:200});
+  });
+})();
+
+/* ============================================================
+   QUIZ ENGINE
+============================================================ */
+const quizData = [
+  {
+    q:'Cara menyajikan fungsi dengan menghubungkan tiap anggota domain ke bayangannya menggunakan anak panah disebut…',
+    opts:['Tabel','Diagram panah','Pasangan berurutan','Grafik'], correct:1,
+    exp:'Cara ini disebut diagram panah — paling mudah dipakai untuk memeriksa syarat fungsi secara visual.'
+  },
+  {
+    q:'Fungsi f(x) = x + 1 dengan domain {1,2,3} disajikan dalam tabel: baris x = 1,2,3 dan baris f(x) = 2,3,4. Berapa nilai f(2)?',
+    opts:['1','2','3','4'], correct:2,
+    exp:'Dari tabel, saat x = 2 maka f(x) = 3.'
+  },
+  {
+    q:'Himpunan pasangan berurutan dari fungsi f(x) = 2x dengan domain {1,2,3} adalah…',
+    opts:['{(1,2),(2,4),(3,6)}','{(2,1),(4,2),(6,3)}','{(1,1),(2,2),(3,3)}','{(1,3),(2,6),(3,9)}'], correct:0,
+    exp:'f(1)=2, f(2)=4, f(3)=6, sehingga pasangan berurutannya {(1,2),(2,4),(3,6)}.'
+  },
+  {
+    q:'Titik manakah yang termasuk grafik fungsi f(x) = x − 2?',
+    opts:['(5, 7)','(5, 3)','(2, 5)','(3, 5)'], correct:1,
+    exp:'f(5) = 5 − 2 = 3, sehingga titik (5, 3) berada pada grafik fungsi tersebut.'
+  },
+  {
+    q:'Fungsi f(x) = 3x dengan domain {1,2}. Pasangan berurutan yang benar adalah…',
+    opts:['{(3,1),(6,2)}','{(1,3),(2,6)}','{(1,1),(2,2)}','{(1,4),(2,5)}'], correct:1,
+    exp:'f(1) = 3(1) = 3 dan f(2) = 3(2) = 6, jadi pasangannya {(1,3),(2,6)} — urutannya (x, f(x)).'
+  },
+  {
+    q:'Grafik fungsi merupakan kumpulan titik-titik pada bidang koordinat yang diperoleh dari…',
+    opts:['Anggota kodomain saja','Anggota domain saja','Pasangan berurutan (x, f(x))','Nama fungsi f'], correct:2,
+    exp:'Tiap titik pada grafik berasal dari satu pasangan berurutan (x, f(x)).'
+  }
+];
+let qIndex = 0, qScore = 0;
+
+function renderQuiz(){
+  const shell = document.getElementById('quizShell');
+  if(qIndex >= quizData.length){
+    shell.innerHTML = `
+      <div class="quiz-result">
+        <div class="eyebrow" style="justify-content:center;">Hasil Kuis</div>
+        <div class="big-score">${qScore} / ${quizData.length}</div>
+        <p class="score-msg">${qScore===quizData.length ? '🌟 Sempurna! Kamu sudah sangat paham cara-cara menyajikan fungsi.' : qScore >= quizData.length/2 ? '👍 Bagus! Cek lagi bagian yang belum pas ya.' : '💪 Yuk baca ulang materinya, kamu pasti bisa lebih baik!'}</p>
+        <div class="action-row">
+          <button class="btn" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+          <button class="btn ghost" onclick="goTo(10)">Lanjut ke Penutup →</button>
+        </div>
+      </div>`;
+    document.getElementById('finalScoreBadge').textContent = `Skor kuis: ${qScore} / ${quizData.length}`;
+    return;
+  }
+  const item = quizData[qIndex];
+  const letters = ['A','B','C','D'];
+  shell.innerHTML = `
+    <div class="quiz-progress">${quizData.map((_,i)=>`<div class="seg ${i<qIndex?'done':i===qIndex?'now':''}"></div>`).join('')}</div>
+    <div class="quiz-score-pill" style="align-self:flex-start;">Skor: ${qScore} · Soal ${qIndex+1} dari ${quizData.length}</div>
+    <div class="quiz-q">${item.q}</div>
+    <div class="quiz-opts">
+      ${item.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}"><span class="opt-letter">${letters[i]}</span><span>${o}</span></button>`).join('')}
+    </div>
+    <div class="quiz-explain" id="quizExplain">${item.exp}</div>
+    <div class="quiz-foot"><span></span><button class="nav-btn primary" id="quizNextBtn" style="display:none;" onclick="quizNext()">Soal Berikutnya →</button></div>
+  `;
+  shell.querySelectorAll('.quiz-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const i = parseInt(btn.dataset.i);
+      shell.querySelectorAll('.quiz-opt').forEach(b=> b.disabled = true);
+      if(i===item.correct){ btn.classList.add('correct'); qScore++; }
+      else{ btn.classList.add('wrong'); shell.querySelector(`.quiz-opt[data-i="${item.correct}"]`).classList.add('correct'); }
+      document.getElementById('quizExplain').classList.add('show');
+      document.getElementById('quizNextBtn').style.display='inline-flex';
+    });
+  });
+}
+function quizNext(){ qIndex++; renderQuiz(); }
+function restartQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+renderQuiz();
+</script>
+</body>
+</html>
