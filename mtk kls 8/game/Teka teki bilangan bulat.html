@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Teka-Teki Bilangan Bulat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-top:#EAF2FF;
+    --bg-bottom:#F6F0FF;
+    --ink:#1C2541;
+    --ink-soft:#4B5570;
+    --ink-faint:#8892AC;
+
+    --purple:#6C4FD6;
+    --purple-dark:#4A32A8;
+
+    --gold:#F2B705;
+    --success:#1FA363;
+    --success-soft:#E9F8F0;
+    --danger:#E14B4B;
+    --danger-soft:#FDECEC;
+    --white:#FFFFFF;
+
+    --given-bg:#EDEFF7;
+    --blank-border:#C7CFE6;
+
+    --shadow: 0 2px 4px rgba(28,37,65,0.06), 0 16px 34px -16px rgba(28,37,65,0.28);
+    --radius: 20px;
+
+    --display-font:'Baloo 2', system-ui, sans-serif;
+    --body-font:'Nunito', system-ui, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    font-family:var(--body-font);
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 500px at 15% -10%, #DCE9FF 0%, transparent 60%),
+      radial-gradient(1200px 500px at 90% 110%, #F3E4FF 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    min-height:100vh;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  .wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:24px 16px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  header{ text-align:center; margin-bottom:14px; }
+  header h1{
+    font-family:var(--display-font); font-weight:800;
+    font-size:clamp(20px,4vw,32px);
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  header h1 .accent{ color:var(--purple); -webkit-text-stroke:1.3px var(--ink); }
+  header p{
+    margin:0; font-size:13.5px; font-weight:700; color:var(--ink-soft);
+  }
+
+  /* ===== Indikator level (tidak bisa diklik bebas — hanya menunjukkan
+     posisi level saat ini; naik level otomatis setelah jawaban benar) ===== */
+  .level-row{
+    display:flex; gap:8px; margin:14px 0 18px;
+    background:var(--white); padding:6px; border-radius:14px; box-shadow:var(--shadow);
+  }
+  .level-btn{
+    font-family:var(--display-font); font-weight:700; font-size:13.5px;
+    border:none; border-radius:10px; padding:9px 16px;
+    background:transparent; color:var(--ink-soft);
+    cursor:default;
+    transition:background .12s ease, color .12s ease;
+  }
+  .level-btn.active{ background:var(--purple); color:#fff; }
+  .level-btn.done{ color:var(--success); }
+
+  /* ===== Side-by-side game area: calculator LEFT, puzzle RIGHT ===== */
+  .game-area{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    gap:18px;
+    width:100%;
+    justify-content:center;
+    flex-wrap:wrap-reverse;
+  }
+
+  .controls-card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:18px;
+    width:250px;
+    flex:0 0 250px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    order:1;
+  }
+
+  .board-wrap{
+    order:2;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-width:0;
+  }
+
+  .board-card{
+    background:var(--white);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:20px;
+    margin-bottom:14px;
+    overflow-x:auto;
+    max-width:100%;
+  }
+
+  .grid{
+    display:grid;
+    gap:0;
+    margin:0 auto;
+    width:max-content;
+  }
+
+  /* Semua sel nyata (given/op/blank) berbagi garis tepi yang sama sehingga
+     terlihat sebagai satu papan menyambung, seperti pada gambar acuan.
+     Trik: setiap sel punya border penuh + margin negatif agar tumpang
+     tindih pas dengan sel tetangga (border-collapse ala tabel). */
+  .cell{
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--display-font); font-weight:800;
+    font-size:clamp(14px,2.2vw,20px);
+    width:clamp(38px,7vw,56px);
+    height:clamp(38px,7vw,56px);
+    box-sizing:border-box;
+    border:2.5px solid var(--ink);
+    margin:-1.25px;
+    border-radius:0;
+    position:relative;
+    user-select:none;
+  }
+  .cell.block{
+    visibility:hidden;
+    border-color:transparent;
+  }
+  .cell.given{
+    background:var(--given-bg);
+    color:var(--ink);
+  }
+  .cell.op{
+    background:#fff;
+    color:var(--purple-dark);
+    font-size:clamp(14px,2vw,19px);
+  }
+  .cell.blank{
+    background:#fff;
+    color:var(--ink);
+    cursor:pointer;
+    z-index:1;
+    transition:box-shadow .12s ease, background .12s ease, transform .08s ease;
+  }
+  .cell.blank:hover{ box-shadow:inset 0 0 0 3px var(--purple); }
+  .cell.blank.selected{
+    box-shadow:inset 0 0 0 3px var(--gold), 0 0 0 4px rgba(242,183,5,0.3);
+    z-index:2;
+  }
+  .cell.blank.correct{
+    box-shadow:inset 0 0 0 3px var(--success);
+    background:var(--success-soft);
+    color:#136B3D;
+    z-index:2;
+  }
+  .cell.blank.wrong{
+    box-shadow:inset 0 0 0 3px var(--danger);
+    background:var(--danger-soft);
+    color:#9A2323;
+    animation:shake .4s ease;
+    z-index:2;
+  }
+  @keyframes shake{
+    0%,100%{ transform:translateX(0); }
+    20%{ transform:translateX(-6px); }
+    40%{ transform:translateX(6px); }
+    60%{ transform:translateX(-4px); }
+    80%{ transform:translateX(4px); }
+  }
+
+  .legend{
+    display:flex; flex-wrap:wrap; gap:14px; justify-content:center;
+  }
+  .legend .item{
+    display:flex; align-items:center; gap:7px;
+    font-size:12px; font-weight:800; color:var(--ink-soft);
+  }
+  .legend .swatch{ width:15px; height:15px; border-radius:5px; }
+  .legend .swatch.given{ background:var(--given-bg); border:2px solid #DDE2F2; }
+  .legend .swatch.blank{ background:#fff; border:2.5px solid var(--blank-border); }
+
+  .status-line{
+    text-align:center;
+    font-family:var(--display-font);
+    font-weight:700;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    min-height:34px;
+  }
+
+  .keypad{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    grid-template-rows:repeat(4, 1fr);
+    gap:8px;
+  }
+  .key{
+    font-family:var(--display-font); font-weight:700; font-size:18px;
+    background:#F1F3FA; color:var(--ink);
+    border:none; border-radius:11px;
+    padding:13px 0;
+    cursor:pointer;
+    box-shadow:0 2px 0 rgba(0,0,0,0.08);
+    transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .key:active{ transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.08); }
+  .key.zero{ grid-column:2; }
+  .key.mod{ background:#E4E8F5; color:var(--ink-soft); font-size:0.85em; }
+
+  .action-row{ display:flex; gap:10px; }
+  .btn{
+    flex:1;
+    font-family:var(--display-font); font-weight:800; font-size:13.5px;
+    border:none; border-radius:12px; padding:12px 0;
+    cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn-check{ background:var(--purple); color:#fff; }
+  .btn-check:hover{ background:var(--purple-dark); }
+  .btn-hint{ background:#FFF3D6; color:#8A5A00; }
+  .btn-hint:hover{ background:#FCE7B0; }
+  .btn-reset{
+    background:transparent; color:var(--ink-soft);
+    border:2px solid #E1E5F2;
+    font-family:var(--body-font); font-weight:800; font-size:13px;
+    border-radius:12px; padding:10px 0; cursor:pointer;
+  }
+  .btn-reset:hover{ border-color:var(--ink); color:var(--ink); }
+  .btn-new{
+    background:var(--ink); color:#fff;
+    font-family:var(--display-font); font-weight:800; font-size:13.5px;
+    border:none; border-radius:12px; padding:12px 0; cursor:pointer;
+  }
+  .btn-new:hover{ background:#0F1730; }
+
+  @media (max-width: 640px){
+    .game-area{ flex-direction:column-reverse; align-items:center; }
+    .controls-card{ width:100%; max-width:340px; flex:none; }
+  }
+
+  /* ===== Winner modal ===== */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:100;
+    background:rgba(20,26,48,0.55);
+    display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-card{
+    background:#fff; border-radius:26px;
+    padding:38px 34px; text-align:center;
+    max-width:380px; width:100%;
+    box-shadow:0 24px 60px -20px rgba(0,0,0,0.4);
+    animation: pop-in .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes pop-in{
+    from{ opacity:0; transform:scale(0.8) translateY(10px); }
+    to{ opacity:1; transform:scale(1) translateY(0); }
+  }
+  .modal-card .trophy{ font-size:52px; margin-bottom:6px; }
+  .modal-card h2{
+    font-family:var(--display-font); font-weight:800; font-size:26px;
+    margin:0 0 8px; color:var(--purple-dark);
+  }
+  .modal-card p{ color:var(--ink-soft); font-weight:700; margin:0 0 22px; font-size:14.5px; }
+  .play-again{
+    font-family:var(--display-font); font-weight:800; font-size:16px;
+    background:var(--ink); color:#fff; border:none;
+    padding:14px 26px; border-radius:14px; cursor:pointer;
+  }
+  .play-again:hover{ background:#0F1730; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Teka-Teki <span class="accent">Bilangan Bulat</span></h1>
+    <p>Isi semua kotak kosong agar setiap persamaan mendatar &amp; menurun menjadi benar</p>
+  </header>
+
+  <div class="level-row" id="levelRow">
+    <div class="level-btn" data-level="1">Level 1 · Mudah</div>
+    <div class="level-btn" data-level="2">Level 2 · Sedang</div>
+    <div class="level-btn" data-level="3">Level 3 · Sulit</div>
+  </div>
+
+  <div class="game-area">
+    <div class="controls-card">
+      <div class="status-line" id="statusLine">Pilih sebuah kotak kosong, lalu ketik angkanya.</div>
+      <div class="keypad" id="keypad"></div>
+      <div class="action-row">
+        <button class="btn btn-hint" onclick="useHint()">💡 Petunjuk</button>
+        <button class="btn btn-check" onclick="checkAll()">✓ Cek</button>
+      </div>
+      <button class="btn-reset" onclick="resetPuzzle()">↺ Ulangi Isian</button>
+      <button class="btn-new" onclick="newPuzzle()">🎲 Pasel Baru</button>
+    </div>
+
+    <div class="board-wrap">
+      <div class="board-card">
+        <div class="grid" id="grid"></div>
+      </div>
+      <div class="legend">
+        <span class="item"><span class="swatch given"></span> Angka diketahui</span>
+        <span class="item"><span class="swatch blank"></span> Kotak kosong (isi ini)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card">
+    <div class="trophy" id="modalTrophy">🏆</div>
+    <h2 id="modalTitle">Puzzle Selesai!</h2>
+    <p id="modalText">Semua persamaan bilangan bulat berhasil kamu lengkapi dengan benar.</p>
+    <button class="play-again" id="modalBtn" onclick="handleModalAction()">Main Lagi</button>
+  </div>
+</div>
+
+<script>
+/*
+  Bentuk pasel (mengikuti gaya gambar referensi): beberapa persamaan mendatar
+  & menurun yang saling terhubung di titik potong, dengan lengan yang menonjol
+  ke berbagai arah, mirip bentuk pada gambar.
+
+  Grid: row 0-6, col 0-8
+  Sel yang tidak dipakai otomatis jadi 'block' (tak terlihat).
+*/
+
+const MINUS = '\u2212';
+
+// ======================================================================
+// Setiap level punya BENTUK PASEL YANG BERBEDA (jumlah kotak, susunan
+// persamaan, dan ukuran papan berbeda-beda), bukan cuma angka yang beda.
+// ======================================================================
+const LEVELS = {
+  1: {
+    label: 'Level 1 · Mudah',
+    rows: 5, cols: 6,
+    ops: [
+      {row:0, col:2, text:'+'}, {row:0, col:4, text:'='},
+      {row:1, col:1, text:'\u00D7'},
+      {row:2, col:2, text:MINUS}, {row:2, col:4, text:'='},
+      {row:3, col:1, text:'='},
+    ],
+    vars: {
+      A: {row:0, col:1}, B: {row:0, col:3},
+      C: {row:2, col:1}, D: {row:2, col:3},
+    },
+    results: {
+      R1: {row:0, col:5, calc:v => v.A + v.B},
+      R2: {row:4, col:1, calc:v => v.A * v.C},
+      R3: {row:2, col:5, calc:v => v.C - v.D},
+    },
+    hidden: [],
+    gen(){
+      const A = randInt(1,9), B = randInt(1,9), C = randInt(1,9);
+      const D = randInt(1, C);   // jaga C - D tetap >= 0
+      return {A,B,C,D};
+    },
+  },
+  2: {
+    label: 'Level 2 · Sedang',
+    rows: 7, cols: 6,
+    ops: [
+      {row:0, col:2, text:'+'}, {row:0, col:4, text:'='},
+      {row:1, col:1, text:'\u00D7'},
+      {row:2, col:2, text:MINUS}, {row:2, col:4, text:'='},
+      {row:3, col:1, text:'='}, {row:3, col:3, text:'\u00D7'},
+      {row:4, col:2, text:MINUS}, {row:4, col:4, text:'='},
+      {row:5, col:3, text:'='},
+    ],
+    vars: {
+      A: {row:0, col:1}, B: {row:0, col:3},
+      C: {row:2, col:1}, D: {row:2, col:3},
+      F: {row:4, col:3},
+    },
+    results: {
+      R1: {row:0, col:5, calc:v => v.A + v.B},
+      R2: {row:4, col:1, calc:v => v.A * v.C},
+      R3: {row:2, col:5, calc:v => v.C - v.D},
+      R7: {row:6, col:3, calc:v => v.D * v.F},
+      R9: {row:4, col:5, calc:v => v.R2 - v.F},
+    },
+    hidden: [],
+    gen(){
+      return {
+        A: randInt(-9,9), B: randInt(-9,9),
+        C: randNonZero(-9,9), D: randInt(-9,9),
+        F: randNonZero(-9,9),
+      };
+    },
+  },
+  3: {
+    label: 'Level 3 · Sulit',
+    rows: 7, cols: 10,
+    ops: [
+      {row:0, col:2, text:'+'}, {row:0, col:4, text:'='},
+      {row:1, col:1, text:'\u00D7'}, {row:1, col:5, text:'+'},
+      {row:2, col:2, text:MINUS}, {row:2, col:4, text:'='},
+      {row:2, col:6, text:'+'}, {row:2, col:8, text:'='},
+      {row:3, col:1, text:'='}, {row:3, col:3, text:'\u00D7'},
+      {row:4, col:2, text:MINUS}, {row:4, col:4, text:'='},
+      {row:5, col:3, text:'='},
+    ],
+    vars: {
+      A: {row:0, col:1}, B: {row:0, col:3},
+      C: {row:2, col:1}, D: {row:2, col:3},
+      E: {row:2, col:7}, F: {row:4, col:3},
+    },
+    results: {
+      R1: {row:0, col:5, calc:v => v.A + v.B},
+      R2: {row:4, col:1, calc:v => v.A * v.C},
+      R3: {row:2, col:5, calc:v => v.C - v.D},
+      R6: {row:2, col:9, calc:v => v.R3 + v.E},
+      R7: {row:6, col:3, calc:v => v.D * v.F},
+      R9: {row:4, col:5, calc:v => v.R2 - v.F},
+    },
+    hidden: ['R2'],   // level tersulit: satu hasil ikut disembunyikan
+    gen(){
+      return {
+        A: randInt(-15,15), B: randInt(-15,15),
+        C: randNonZero(-12,12), D: randInt(-15,15),
+        E: randInt(-15,15), F: randNonZero(-12,12),
+      };
+    },
+  },
+};
+const LAST_LEVEL = 3;
+const NEXT_MATERI_URL = 'materi-2-2.html';
+
+let currentLevel = 1;
+let ROWS = 0, COLS = 0, OPS = [];
+let blanks = {};      // id -> {row,col,answer}
+let givens = {};      // id -> {row,col,value}
+let values = {};      // id -> string being typed
+let selectedId = null;
+let modalAction = null;
+
+function fmt(n){ return n < 0 ? (MINUS + Math.abs(n)) : String(n); }
+
+function randInt(min, max){ return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+function randNonZero(min, max){
+  let n = 0;
+  while(n === 0) n = randInt(min, max);
+  return n;
+}
+
+function generateValues(cfg, level){
+  let v, tries = 0;
+  do{
+    tries++;
+    v = cfg.gen();
+    Object.entries(cfg.results).forEach(([id, def]) => { v[id] = def.calc(v); });
+  } while(level === 1 && Object.values(v).some(n => n < 0) && tries < 80);
+  return v;
+}
+
+function buildPuzzle(level){
+  currentLevel = level;
+  const cfg = LEVELS[level];
+  ROWS = cfg.rows; COLS = cfg.cols; OPS = cfg.ops;
+
+  const v = generateValues(cfg, level);
+
+  blanks = {};
+  givens = {};
+
+  Object.entries(cfg.vars).forEach(([id, pos])=>{
+    blanks[id] = {row:pos.row, col:pos.col, answer:v[id]};
+  });
+
+  Object.entries(cfg.results).forEach(([id, def])=>{
+    if(cfg.hidden.includes(id)){
+      blanks[id] = {row:def.row, col:def.col, answer:v[id]};
+    } else {
+      givens[id] = {row:def.row, col:def.col, value:v[id]};
+    }
+  });
+
+  values = {};
+  selectedId = null;
+  buildGrid();
+  document.getElementById('statusLine').textContent = 'Pilih sebuah kotak kosong, lalu ketik angkanya.';
+  document.getElementById('modalOverlay').classList.remove('show');
+
+  document.querySelectorAll('.level-btn').forEach(btn=>{
+    const n = Number(btn.dataset.level);
+    btn.textContent = LEVELS[n].label;
+    btn.classList.toggle('active', n === level);
+    btn.classList.toggle('done', n < level);
+  });
+}
+
+function buildGrid(){
+  const grid = document.getElementById('grid');
+  grid.style.gridTemplateColumns = `repeat(${COLS}, minmax(38px, 56px))`;
+  grid.style.gridTemplateRows = `repeat(${ROWS}, minmax(38px, 56px))`;
+  grid.innerHTML = '';
+
+  const cellMap = {};
+  OPS.forEach(o => cellMap[o.row+'-'+o.col] = {kind:'op', text:o.text});
+  Object.entries(givens).forEach(([id,g]) => cellMap[g.row+'-'+g.col] = {kind:'given', text:fmt(g.value)});
+  Object.entries(blanks).forEach(([id,b]) => cellMap[b.row+'-'+b.col] = {kind:'blank', id});
+
+  for(let r=0; r<ROWS; r++){
+    for(let c=0; c<COLS; c++){
+      const info = cellMap[r+'-'+c];
+      const div = document.createElement('div');
+      div.style.gridRowStart = r+1;
+      div.style.gridColumnStart = c+1;
+
+      if(!info){
+        div.className = 'cell block';
+      } else if(info.kind === 'op'){
+        div.className = 'cell op';
+        div.textContent = info.text;
+      } else if(info.kind === 'given'){
+        div.className = 'cell given';
+        div.textContent = info.text;
+      } else {
+        div.className = 'cell blank';
+        div.id = 'blank-' + info.id;
+        div.dataset.id = info.id;
+        div.textContent = '';
+        div.addEventListener('click', ()=>selectBlank(info.id));
+      }
+      grid.appendChild(div);
+    }
+  }
+}
+
+function selectBlank(id){
+  selectedId = id;
+  document.querySelectorAll('.cell.blank').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('blank-'+id).classList.add('selected');
+  document.getElementById('statusLine').textContent = 'Kotak dipilih — ketik angkanya di keypad.';
+}
+
+function renderBlank(id){
+  const el = document.getElementById('blank-'+id);
+  el.textContent = values[id] || '';
+}
+
+function pressKey(key){
+  if(!selectedId){
+    document.getElementById('statusLine').textContent = 'Pilih dulu kotak kosongnya, baru ketik angka.';
+    return;
+  }
+  let v = values[selectedId] || '';
+  if(key === 'C'){
+    v = '';
+  } else if(key === '\u00B1'){
+    v = v.startsWith('-') ? v.slice(1) : '-' + v;
+  } else {
+    const digitsOnly = v.replace('-','');
+    if(digitsOnly.length < 3) v += key;
+  }
+  values[selectedId] = v;
+  const el = document.getElementById('blank-'+selectedId);
+  el.classList.remove('correct','wrong');
+  renderBlank(selectedId);
+}
+
+function buildKeypad(){
+  const kp = document.getElementById('keypad');
+  kp.innerHTML = '';
+  const layout = ['1','2','3','4','5','6','7','8','9','\u00B1','0','C'];
+  layout.forEach(k=>{
+    const btn = document.createElement('button');
+    btn.className = 'key';
+    if(k==='0') btn.classList.add('zero');
+    if(k==='\u00B1' || k==='C') btn.classList.add('mod');
+    btn.textContent = k;
+    btn.addEventListener('click', ()=>pressKey(k));
+    kp.appendChild(btn);
+  });
+}
+
+document.addEventListener('keydown', (e)=>{
+  if(!selectedId) return;
+  if(e.key >= '0' && e.key <= '9') pressKey(e.key);
+  else if(e.key === '-' ) pressKey('\u00B1');
+  else if(e.key === 'Backspace' || e.key === 'Delete') pressKey('C');
+});
+
+function showModal({trophy, title, text, btnText, action}){
+  document.getElementById('modalTrophy').textContent = trophy;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalText').textContent = text;
+  document.getElementById('modalBtn').textContent = btnText;
+  modalAction = action;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function handleModalAction(){
+  if(modalAction) modalAction();
+}
+
+function checkAll(){
+  let allCorrect = true;
+  let filledCount = 0;
+  Object.entries(blanks).forEach(([id,b])=>{
+    const el = document.getElementById('blank-'+id);
+    const raw = values[id];
+    el.classList.remove('correct','wrong');
+    if(raw === undefined || raw === '' || raw === '-'){
+      allCorrect = false;
+      return;
+    }
+    filledCount++;
+    const guess = parseInt(raw, 10);
+    if(guess === b.answer){
+      el.classList.add('correct');
+    } else {
+      el.classList.add('wrong');
+      allCorrect = false;
+    }
+  });
+
+  const total = Object.keys(blanks).length;
+  const status = document.getElementById('statusLine');
+
+  if(allCorrect){
+    if(currentLevel < LAST_LEVEL){
+      const next = currentLevel + 1;
+      status.textContent = 'Semua benar! 🎉 Naik ke Level ' + next + '...';
+      showModal({
+        trophy: '🎉',
+        title: 'Level ' + currentLevel + ' Selesai!',
+        text: 'Kerja bagus, semua persamaan benar. Lanjutkan ke ' + LEVELS[next].label + '.',
+        btnText: 'Lanjut ke Level ' + next,
+        action: () => buildPuzzle(next),
+      });
+    } else {
+      status.textContent = 'Semua level selesai! 🏆';
+      showModal({
+        trophy: '🏆',
+        title: 'Selesai!',
+        text: 'Kamu berhasil menyelesaikan semua level teka-teki bilangan bulat.',
+        btnText: 'Lanjut ke Materi Berikutnya',
+        action: () => { window.location.href = NEXT_MATERI_URL; },
+      });
+    }
+  } else if(filledCount < total){
+    status.textContent = `Baru terisi ${filledCount} dari ${total} kotak — lengkapi dulu semuanya.`;
+  } else {
+    status.textContent = 'Masih ada yang salah — kotak merah perlu diperbaiki.';
+  }
+}
+
+function useHint(){
+  const unresolved = Object.entries(blanks).filter(([id,b])=>{
+    const raw = values[id];
+    return raw === undefined || parseInt(raw,10) !== b.answer;
+  });
+  if(unresolved.length === 0){
+    document.getElementById('statusLine').textContent = 'Semua kotak sudah benar, tidak perlu petunjuk lagi!';
+    return;
+  }
+  const [id, b] = unresolved[Math.floor(Math.random()*unresolved.length)];
+  values[id] = String(b.answer);
+  renderBlank(id);
+  const el = document.getElementById('blank-'+id);
+  el.classList.remove('wrong');
+  el.classList.add('correct');
+  document.getElementById('statusLine').textContent = 'Petunjuk dipakai untuk salah satu kotak.';
+}
+
+function resetPuzzle(){
+  values = {};
+  selectedId = null;
+  document.getElementById('modalOverlay').classList.remove('show');
+  document.querySelectorAll('.cell.blank').forEach(el=>{
+    el.textContent = '';
+    el.classList.remove('correct','wrong','selected');
+  });
+  document.getElementById('statusLine').textContent = 'Pilih sebuah kotak kosong, lalu ketik angkanya.';
+}
+
+function newPuzzle(){
+  buildPuzzle(currentLevel);
+}
+
+buildKeypad();
+buildPuzzle(1);
+</script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Petualangan Sifat Bilangan Berpangkat</title>
+<style>
+:root{
+  --blue:#2457d6;--blue2:#163b9c;--red:#e63b50;--gold:#f4b400;
+  --green:#20a464;--ink:#18233d;--muted:#64708b;--bg:#eef4ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,#eaf2ff,#f8f1ff);min-height:100vh}
+button{font:inherit;cursor:pointer}
+.app{max-width:1050px;margin:auto;padding:22px}
+
+/* ===== Header dengan dekorasi mengambang ===== */
+header{position:relative;text-align:center;margin-bottom:16px;padding:14px 0 6px;overflow:hidden}
+.floaters{position:absolute;inset:0;pointer-events:none}
+.floaters span{position:absolute;font-weight:800;opacity:.16;color:var(--blue2);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-14px) rotate(8deg)}}
+h1{margin:0;font-size:clamp(26px,4vw,42px);position:relative}
+.subtitle{color:var(--muted);margin:6px 0;position:relative}
+
+.card{background:#fff;border-radius:24px;padding:24px;box-shadow:0 12px 35px #263b671f}
+.hidden{display:none!important}
+
+/* ===== Menu level ===== */
+#menu h2{text-align:center}
+.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:20px}
+.level{border:0;border-radius:18px;padding:18px;text-align:left;color:#fff;min-height:130px;background:linear-gradient(135deg,var(--blue),var(--blue2));transition:.15s;display:flex;flex-direction:column}
+.level:hover{transform:translateY(-3px)}
+.level.lvl2{background:linear-gradient(135deg,#16a0c8,#1764a7)}
+.level.lvl3{background:linear-gradient(135deg,#e95c35,#b82d38)}
+.level.lvl4{background:linear-gradient(135deg,#833fcb,#4d2a9b)}
+.level b{font-size:18px}
+.level small{display:block;margin-top:8px;opacity:.92}
+.materi-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px}
+.materi-tags span{background:rgba(255,255,255,.22);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:bold;white-space:nowrap}
+.lock-tag{display:none;margin-top:10px;font-size:12px;font-weight:bold;background:rgba(0,0,0,.22);padding:6px 10px;border-radius:10px;width:fit-content}
+.level.locked{opacity:.55;filter:grayscale(.35);cursor:not-allowed;transform:none!important}
+.level.locked:hover{transform:none}
+.level.locked .lock-tag{display:block}
+.level.locked .materi-tags{display:none}
+
+.formula{background:#f0f5ff;border-left:5px solid var(--blue);padding:12px;border-radius:10px;margin:8px 0;font-size:16px;font-weight:bold}
+
+/* ===== Papan permainan ===== */
+.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:15px;flex-wrap:wrap}
+.dots{display:flex;gap:6px;flex:1;flex-wrap:wrap;min-width:180px}
+.dot{width:16px;height:16px;border-radius:50%;background:#e5eaf5;transition:.25s}
+.dot.current{background:var(--blue);transform:scale(1.2);box-shadow:0 0 0 4px rgba(36,87,214,.18)}
+.dot.correct{background:var(--green)}
+.dot.wrong{background:var(--red)}
+.stats{display:flex;gap:9px;flex-wrap:wrap}
+.pill{background:#f0f4fb;padding:8px 12px;border-radius:999px;font-weight:bold}
+
+.timer-wrap{height:9px;background:#e5eaf5;border-radius:999px;overflow:hidden;margin:8px auto 16px;max-width:280px}
+.timer-bar{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,var(--green),#55c98a)}
+.timer-bar.low{background:linear-gradient(90deg,var(--red),#ff8a8a)}
+
+.question{font-size:clamp(30px,6vw,52px);text-align:center;font-weight:800;margin:14px 0 10px;transition:transform .18s ease}
+.question sup{font-size:.58em;vertical-align:super}
+.question.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(.92)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
+.instruction{text-align:center;color:var(--muted);font-weight:bold}
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:20px}
+.choice{background:#fff;border:3px solid #dce3f2;border-radius:16px;padding:16px;font-size:22px;font-weight:bold;transition:.12s}
+.choice:hover{border-color:var(--blue);background:#f4f7ff}
+.choice.correct{border-color:var(--green);background:#e9fff3}
+.choice.wrong{border-color:var(--red);background:#fff0f2;animation:shake .35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.feedback{text-align:center;min-height:28px;font-weight:bold;margin:15px 0}
+
+.actions{text-align:center}
+.btn{border:0;border-radius:13px;padding:11px 18px;font-weight:bold;background:var(--ink);color:#fff}
+.btn.secondary{background:#e9eef8;color:var(--ink)}
+
+.result{text-align:center}
+.result .score{font-size:52px;font-weight:900;color:var(--blue)}
+.review{margin:18px auto;max-width:650px;text-align:left;background:#f7f9fd;border-radius:15px;padding:14px}
+
+/* ===== Confetti ===== */
+.confetti-piece{position:fixed;top:-30px;pointer-events:none;z-index:200;animation:confettiFall 1.9s ease-in forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(360deg);opacity:0}}
+
+@media(max-width:650px){
+  .menu-grid,.choices{grid-template-columns:1fr}
+  .app{padding:12px}
+  .card{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="floaters" aria-hidden="true">
+    <span style="top:2px;left:6%;font-size:26px;animation-delay:0s">✖️</span>
+    <span style="top:30px;left:20%;font-size:20px;animation-delay:.8s">➗</span>
+    <span style="top:6px;right:22%;font-size:24px;animation-delay:1.4s">aⁿ</span>
+    <span style="top:36px;right:8%;font-size:22px;animation-delay:.4s">xᵐ</span>
+    <span style="top:0;left:42%;font-size:18px;animation-delay:1.8s">➕</span>
+  </div>
+  <h1>🚀 Petualangan Sifat Pangkat</h1>
+  <p class="subtitle">Susun jawaban yang tepat dan taklukkan 3 level!</p>
+</header>
+
+<section id="menu" class="card">
+<h2>🎮 Pilih Level</h2>
+<div class="menu-grid">
+<button class="level lvl1" id="levelBtn1" onclick="startLevel(1)">
+  <b>⭐ Level 1</b>
+  <small>Perkalian & pembagian bilangan berpangkat — mudah hingga sulit</small>
+  <div class="materi-tags"><span>Perkalian Pangkat</span><span>Pembagian Pangkat</span><span>10 Soal</span></div>
+</button>
+<button class="level lvl2" id="levelBtn2" onclick="startLevel(2)">
+  <b>🔷 Level 2</b>
+  <small>Pangkat dipangkatkan & distribusi pangkat — mudah hingga sulit</small>
+  <div class="materi-tags"><span>Pangkat Dipangkatkan</span><span>Pangkat pada Perkalian</span><span>Pangkat pada Pembagian</span><span>10 Soal</span></div>
+  <div class="lock-tag">🔒 Selesaikan Level 1 dahulu</div>
+</button>
+<button class="level lvl3" id="levelBtn3" onclick="startLevel(3)">
+  <b>🏆 Level 3</b>
+  <small>Tantangan gabungan semua sifat — sedang hingga sulit</small>
+  <div class="materi-tags"><span>Semua Sifat Level 1 & 2</span><span>Pangkat Nol</span><span>Pangkat Negatif</span><span>10 Soal</span></div>
+  <div class="lock-tag">🔒 Selesaikan Level 2 dahulu</div>
+</button>
+<button class="level lvl4" id="levelBtn4" onclick="startLevel(4)">
+  <b>🌈 Level 4</b>
+  <small>Tantangan super campuran — beberapa sifat digabung dalam satu soal</small>
+  <div class="materi-tags"><span>3 Sifat Sekaligus per Soal</span><span>10 Soal</span></div>
+  <div class="lock-tag">🔒 Selesaikan Level 3 dahulu</div>
+</button>
+</div>
+</section>
+
+<section id="game" class="card hidden">
+<div class="toolbar">
+<button class="btn secondary" onclick="backMenu()">← Menu</button>
+<div class="dots" id="dots"></div>
+<div class="stats"><span class="pill" id="levelText">Level 1</span><span class="pill">⭐ <span id="score">0</span></span><span class="pill">❤️ <span id="lives">3</span></span></div>
+</div>
+<div class="timer-wrap"><div class="timer-bar" id="timerBar"></div></div>
+<div id="question" class="question"></div>
+<div id="instruction" class="instruction"></div>
+<div id="choices" class="choices"></div>
+<div id="feedback" class="feedback"></div>
+</section>
+
+<section id="result" class="card hidden">
+<div class="result">
+<h2 id="resultTitle">🎉 Level Selesai!</h2>
+<div class="score" id="finalScore">0</div>
+<p id="finalText"></p>
+<div class="review" id="review"></div>
+<button class="btn" onclick="backMenu()">🏠 Pilih Level</button>
+</div>
+</section>
+</div>
+
+<script>
+/* ======================================================================
+   1. KONSTANTA & DATA LEVEL
+   ====================================================================== */
+const SUP_DIGIT = {0:'⁰',1:'¹',2:'²',3:'³',4:'⁴',5:'⁵',6:'⁶',7:'⁷',8:'⁸',9:'⁹'};
+const SUP_MINUS = '⁻';
+
+const DELAY_CORRECT = 700;
+const DELAY_WRONG   = 1600;
+const DELAY_LEVELUP = 1400;
+const DELAY_RESTART = 1600;
+
+// Rentang basis & pangkat per tingkat kesulitan
+const TIER_RANGE = {
+  mudah:  {baseMin:2, baseMax:5, expMin:1, expMax:2},
+  sedang: {baseMin:2, baseMax:7, expMin:2, expMax:3},
+  sulit:  {baseMin:2, baseMax:9, expMin:3, expMax:4},
+};
+const TIER_LABEL = {mudah:'🟢 Mudah', sedang:'🟠 Sedang', sulit:'🔴 Sulit'};
+const TIER_TIME  = {mudah:20, sedang:16, sulit:12};   // detik per soal
+
+// idx = indeks soal (0-based) dalam satu level, total = jumlah soal di level itu
+function tierMudahKeSulit(idx, total){
+  const third = Math.ceil(total / 3);
+  if(idx < third) return 'mudah';
+  if(idx < third * 2) return 'sedang';
+  return 'sulit';
+}
+function tierSedangKeSulit(idx, total){
+  return idx < Math.ceil(total / 2) ? 'sedang' : 'sulit';
+}
+
+const LEVELS = {
+  1: {
+    label: 'Level 1 · Perkalian & Pembagian',
+    total: 10,
+    types: ['perkalian', 'pembagian'],
+    tierFn: tierMudahKeSulit,
+  },
+  2: {
+    label: 'Level 2 · Pangkat Berpangkat & Distribusi',
+    total: 10,
+    types: ['dipangkatkan', 'pangkat_perkalian', 'pangkat_pembagian'],
+    tierFn: tierMudahKeSulit,
+  },
+  3: {
+    label: 'Level 3 · Tantangan Gabungan',
+    total: 10,
+    types: ['perkalian', 'pembagian', 'dipangkatkan', 'pangkat_perkalian', 'pangkat_pembagian', 'nol', 'negatif'],
+    tierFn: tierSedangKeSulit,
+  },
+  4: {
+    label: 'Level 4 · Super Campuran',
+    total: 10,
+    types: ['campuran'],
+    tierFn: tierSedangKeSulit,
+  },
+};
+const MAX_LEVEL = 4;
+
+/* ======================================================================
+   2. REFERENSI ELEMEN DOM
+   ====================================================================== */
+const menuSection   = document.getElementById('menu');
+const gameSection   = document.getElementById('game');
+const resultSection = document.getElementById('result');
+
+const dotsEl        = document.getElementById('dots');
+const levelTextEl   = document.getElementById('levelText');
+const scoreEl       = document.getElementById('score');
+const livesEl       = document.getElementById('lives');
+const timerBarEl    = document.getElementById('timerBar');
+
+const questionEl    = document.getElementById('question');
+const instructionEl = document.getElementById('instruction');
+const choicesEl     = document.getElementById('choices');
+const feedbackEl    = document.getElementById('feedback');
+
+const resultTitleEl = document.getElementById('resultTitle');
+const finalScoreEl  = document.getElementById('finalScore');
+const finalTextEl   = document.getElementById('finalText');
+const reviewEl      = document.getElementById('review');
+
+/* ======================================================================
+   3. STATE PERMAINAN
+   ====================================================================== */
+let level = 1;
+let TOTAL = 10;
+let index = 0;
+let score = 0;
+let lives = 3;
+let locked = false;
+let correctCount = 0;
+let questions = [];
+let answerLog = [];   // 'correct' | 'wrong' per soal yang sudah dijawab
+let unlockedLevel = 1; // level tertinggi yang boleh dipilih dari menu
+
+/* ======================================================================
+   4. FUNGSI BANTU
+   ====================================================================== */
+function refreshMenuLocks(){
+  for(let l = 1; l <= MAX_LEVEL; l++){
+    const btn = document.getElementById('levelBtn' + l);
+    if(!btn) continue;
+    const isLocked = l > unlockedLevel;
+    btn.classList.toggle('locked', isLocked);
+    btn.disabled = isLocked;
+  }
+}
+
+function randInt(min, max){
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function toSup(n){
+  return String(n).split('').map(ch => ch === '-' ? SUP_MINUS : (SUP_DIGIT[ch] ?? ch)).join('');
+}
+
+function p(base, exp){
+  return `${base}<sup>${toSup(exp)}</sup>`;
+}
+
+function randBase(tier){
+  const t = TIER_RANGE[tier];
+  return randInt(t.baseMin, t.baseMax);
+}
+function randExp(tier){
+  const t = TIER_RANGE[tier];
+  return randInt(t.expMin, t.expMax);
+}
+
+// Acak urutan pilihan jawaban (Fisher–Yates) supaya jawaban benar
+// tidak selalu berada di posisi yang sama.
+function shuffleOptions(q){
+  const items = q.opts.map((opt, i) => ({opt, isCorrect: i === q.ans}));
+  for(let i = items.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  q.opts = items.map(it => it.opt);
+  q.ans = items.findIndex(it => it.isCorrect);
+  return q;
+}
+
+function burstConfetti(count){
+  const emojis = ['🎉','⭐','✨','🎊','🌟'];
+  for(let i = 0; i < count; i++){
+    const s = document.createElement('span');
+    s.className = 'confetti-piece';
+    s.textContent = emojis[randInt(0, emojis.length - 1)];
+    s.style.left = randInt(0, 96) + 'vw';
+    s.style.fontSize = (16 + randInt(0, 14)) + 'px';
+    s.style.animationDelay = (Math.random() * 0.4) + 's';
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 2300);
+  }
+}
+
+/* ======================================================================
+   5. GENERATOR SOAL PER SIFAT
+   ====================================================================== */
+function genPerkalian(tier){
+  const a = randBase(tier), m = randExp(tier), n = randExp(tier);
+  return {
+    q:`${p(a,m)} × ${p(a,n)} = ?`,
+    opts:[p(a,m+n), p(a,m*n), p(a,Math.abs(m-n)), p(a,m+n+1)],
+    ans:0,
+    why:'Basis sama, pangkat dijumlahkan: aᵐ × aⁿ = aᵐ⁺ⁿ.',
+  };
+}
+function genPembagian(tier){
+  const a = randBase(tier), n = randExp(tier), m = n + randExp(tier);
+  return {
+    q:`${p(a,m)} ÷ ${p(a,n)} = ?`,
+    opts:[p(a,m-n), p(a,m+n), p(a,m*n), p(a,n-m)],
+    ans:0,
+    why:'Basis sama, pangkat dikurangkan: aᵐ ÷ aⁿ = aᵐ⁻ⁿ.',
+  };
+}
+function genDipangkatkan(tier){
+  const a = randBase(tier), m = randExp(tier), n = randExp(tier);
+  return {
+    q:`(${p(a,m)})${toSup(n)} = ?`,
+    opts:[p(a,m*n), p(a,m+n), p(a,Math.abs(m-n)), p(a,m*n+1)],
+    ans:0,
+    why:'Pangkat dari pangkat dikalikan: (aᵐ)ⁿ = aᵐˣⁿ.',
+  };
+}
+function genPangkatPerkalian(tier){
+  let a = randBase(tier), b = randBase(tier);
+  while(b === a) b = randBase(tier);
+  const n = randExp(tier);
+  return {
+    q:`(${a}×${b})${toSup(n)} = ?`,
+    opts:[`${p(a,n)} × ${p(b,n)}`, `${p(a,n)} + ${p(b,n)}`, `${p(a+b,n)}`, `${p(a,n+1)} × ${p(b,n)}`],
+    ans:0,
+    why:'Pangkat dibagi ke setiap faktor: (a×b)ⁿ = aⁿ×bⁿ.',
+  };
+}
+function genPangkatPembagian(tier){
+  let a = randBase(tier), b = randBase(tier);
+  while(b === a) b = randBase(tier);
+  const n = randExp(tier);
+  return {
+    q:`(${a}/${b})${toSup(n)} = ?`,
+    opts:[`${p(a,n)}/${p(b,n)}`, `${p(a,n)} × ${p(b,n)}`, `${p(a+b,n)}`, `${p(a,n)}/${p(b,n+1)}`],
+    ans:0,
+    why:'Pangkat dibagi ke pembilang & penyebut: (a/b)ⁿ = aⁿ/bⁿ.',
+  };
+}
+function genNol(tier){
+  const a = randBase(tier);
+  return {
+    q:`${p(a,0)} = ?`,
+    opts:['1', `${a}`, '0', p(a,1)],
+    ans:0,
+    why:'Bilangan berpangkat nol bernilai 1: a⁰ = 1, untuk a ≠ 0.',
+  };
+}
+function genNegatif(tier){
+  const a = randBase(tier), n = randInt(1,3);
+  return {
+    q:`${p(a,-n)} = ?`,
+    opts:[`1/${p(a,n)}`, p(a,n), `-${p(a,n)}`, `1/${p(a,n+1)}`],
+    ans:0,
+    why:'Pangkat negatif berarti kebalikan: a⁻ⁿ = 1/aⁿ.',
+  };
+}
+
+// Menghasilkan 3 pilihan pangkat salah yang berbeda dari pangkat benar (E)
+function wrongExponents(E, count){
+  const candidates = new Set();
+  [E+1, E-1, E+2, E-2, E*2, -E, E+3, E-3].forEach(c => {
+    if(c !== E) candidates.add(c);
+  });
+  return [...candidates].slice(0, count);
+}
+
+// Level 4: gabungkan 3 sifat sekaligus (dipilih acak & berbeda-beda) dalam
+// satu rantai ekspresi berbasis sama, lalu minta hasil akhirnya.
+const CAMPURAN_STEPS = ['kali','bagi','pangkat','nol','negatif'];
+const CAMPURAN_LABEL = {
+  kali:'Perkalian pangkat', bagi:'Pembagian pangkat', pangkat:'Pangkat dipangkatkan',
+  nol:'Pangkat nol', negatif:'Pangkat negatif',
+};
+function pickDistinct(arr, n){
+  const pool = [...arr], picked = [];
+  for(let i = 0; i < n; i++){
+    const idx = randInt(0, pool.length - 1);
+    picked.push(pool.splice(idx, 1)[0]);
+  }
+  return picked;
+}
+function genCampuran(tier){
+  const a = randBase(tier);
+  let E = randExp(tier);
+  let expr = p(a, E);
+  const steps = pickDistinct(CAMPURAN_STEPS, 3);
+
+  steps.forEach(step => {
+    if(step === 'kali'){
+      const k = randExp(tier);
+      expr = `${expr} × ${p(a,k)}`;
+      E += k;
+    } else if(step === 'bagi'){
+      const k = randInt(1, Math.max(1, TIER_RANGE[tier].expMax - 1));
+      expr = `${expr} ÷ ${p(a,k)}`;
+      E -= k;
+    } else if(step === 'pangkat'){
+      const k = randInt(2,3);
+      expr = `(${expr})${toSup(k)}`;
+      E *= k;
+    } else if(step === 'nol'){
+      expr = `${expr} × ${p(a,0)}`;
+    } else if(step === 'negatif'){
+      const k = randInt(1,2);
+      expr = `${expr} × ${p(a,-k)}`;
+      E -= k;
+    }
+  });
+
+  const wrongs = wrongExponents(E, 3);
+  return {
+    q:`${expr} = ?`,
+    opts:[p(a,E), ...wrongs.map(w => p(a,w))],
+    ans:0,
+    why:`Gabungan sifat yang dipakai: ${steps.map(s => CAMPURAN_LABEL[s]).join(', ')} → hasil akhir pangkat ${E}.`,
+  };
+}
+
+const GENERATORS = {
+  perkalian: genPerkalian,
+  pembagian: genPembagian,
+  dipangkatkan: genDipangkatkan,
+  pangkat_perkalian: genPangkatPerkalian,
+  pangkat_pembagian: genPangkatPembagian,
+  nol: genNol,
+  negatif: genNegatif,
+  campuran: genCampuran,
+};
+
+function makeQuestion(cfg, idx){
+  const type = cfg.types[randInt(0, cfg.types.length - 1)];
+  const tier = cfg.tierFn(idx, cfg.total);
+  const q = GENERATORS[type](tier);
+  q.tier = tier;
+  return shuffleOptions(q);
+}
+
+function generateQuestions(){
+  const cfg = LEVELS[level];
+  TOTAL = cfg.total;
+  questions = [];
+  for(let i = 0; i < TOTAL; i++){
+    questions.push(makeQuestion(cfg, i));
+  }
+}
+
+/* ======================================================================
+   6. VISUAL: TITIK PROGRES
+   ====================================================================== */
+function renderDots(){
+  dotsEl.innerHTML = '';
+  for(let i = 0; i < TOTAL; i++){
+    const d = document.createElement('span');
+    d.className = 'dot';
+    if(i < answerLog.length) d.classList.add(answerLog[i]);
+    else if(i === index) d.classList.add('current');
+    dotsEl.appendChild(d);
+  }
+}
+
+/* ======================================================================
+   7. ALUR PERMAINAN
+   ====================================================================== */
+function startLevel(l){
+  if(l > unlockedLevel) return; // jaga-jaga: level masih terkunci
+
+  level = l;
+  index = 0;
+  score = 0;
+  lives = 3;
+  correctCount = 0;
+  locked = false;
+  answerLog = [];
+  generateQuestions();
+
+  menuSection.classList.add('hidden');
+  resultSection.classList.add('hidden');
+  gameSection.classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const q = questions[index];
+
+  levelTextEl.textContent = 'Level ' + level;
+  scoreEl.textContent = score;
+  livesEl.textContent = lives;
+  renderDots();
+
+  questionEl.innerHTML = q.q;
+  questionEl.classList.remove('pop');
+  void questionEl.offsetWidth; // reset animasi
+  questionEl.classList.add('pop');
+
+  instructionEl.textContent = 'Pilih jawaban yang paling tepat!';
+  feedbackEl.textContent = '';
+
+  choicesEl.innerHTML = '';
+  q.opts.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = 'choice';
+    b.innerHTML = o;
+    b.onclick = () => answer(i, b);
+    choicesEl.appendChild(b);
+  });
+
+  startTimer(TIER_TIME[q.tier] || 15);
+}
+
+// ===== Timer per soal =====
+let timeoutTimer = null;
+let lowTimer = null;
+
+function startTimer(seconds){
+  stopTimer();
+  timerBarEl.classList.remove('low');
+  timerBarEl.style.transition = 'none';
+  timerBarEl.style.width = '100%';
+  void timerBarEl.offsetWidth; // paksa reflow supaya transisi berikutnya jalan
+  timerBarEl.style.transition = `width ${seconds}s linear`;
+  timerBarEl.style.width = '0%';
+
+  lowTimer = setTimeout(() => timerBarEl.classList.add('low'), seconds * 1000 * 0.6);
+  timeoutTimer = setTimeout(handleTimeout, seconds * 1000);
+}
+
+function stopTimer(){
+  clearTimeout(timeoutTimer);
+  clearTimeout(lowTimer);
+  timerBarEl.style.transition = 'none';
+}
+
+// Waktu habis sebelum menjawab -> dihitung sama seperti jawaban salah.
+function handleTimeout(){
+  if(locked) return;
+  locked = true;
+
+  const q = questions[index];
+  document.querySelectorAll('.choice').forEach((b, j) => {
+    if(j === q.ans) b.classList.add('correct');
+  });
+
+  lives--;
+  answerLog.push('wrong');
+  feedbackEl.textContent = '⏰ Waktu habis! ' + q.why;
+  feedbackEl.style.color = 'var(--red)';
+  livesEl.textContent = lives;
+  renderDots();
+  setTimeout(handleWrongAdvance, DELAY_WRONG);
+}
+
+// Jawaban benar -> langsung pindah ke soal berikutnya (nyawa tetap).
+// Jawaban salah -> nyawa berkurang, tetap lanjut kecuali nyawa habis.
+function answer(i, btn){
+  if(locked) return;
+  locked = true;
+  stopTimer();
+
+  const q = questions[index];
+  document.querySelectorAll('.choice').forEach((b, j) => {
+    if(j === q.ans) b.classList.add('correct');
+  });
+
+  if(i === q.ans){
+    score += 100;
+    correctCount++;
+    answerLog.push('correct');
+    feedbackEl.textContent = '✅ Benar! +100 poin';
+    feedbackEl.style.color = 'var(--green)';
+    scoreEl.textContent = score;
+    burstConfetti(6);
+    renderDots();
+    setTimeout(handleCorrectAdvance, DELAY_CORRECT);
+  } else {
+    lives--;
+    answerLog.push('wrong');
+    btn.classList.add('wrong');
+    feedbackEl.textContent = '❌ Belum tepat. ' + q.why;
+    feedbackEl.style.color = 'var(--red)';
+    livesEl.textContent = lives;
+    renderDots();
+    setTimeout(handleWrongAdvance, DELAY_WRONG);
+  }
+}
+
+// Setelah jawaban BENAR: lanjut ke soal berikutnya. Jika ini soal
+// terakhir di level ini, level dianggap selesai -> lanjut/berhenti.
+function handleCorrectAdvance(){
+  const isLastQuestion = (index + 1) >= TOTAL;
+  if(!isLastQuestion){
+    index++;
+    renderQuestion();
+  } else {
+    proceedAfterLevelComplete();
+  }
+}
+
+// Setelah jawaban SALAH: jika nyawa habis, kembali ke Level 1 soal 1
+// secara otomatis. Jika masih ada nyawa, tetap lanjut seperti biasa.
+function handleWrongAdvance(){
+  if(lives <= 0){
+    restartFromLevel1();
+    return;
+  }
+  const isLastQuestion = (index + 1) >= TOTAL;
+  if(!isLastQuestion){
+    index++;
+    renderQuestion();
+  } else {
+    proceedAfterLevelComplete();
+  }
+}
+
+// Level selesai (soal terakhir terjawab, nyawa masih ada) -> langsung
+// lanjut ke level berikutnya secara otomatis. Level terakhir -> hasil akhir.
+function proceedAfterLevelComplete(){
+  if(level < MAX_LEVEL){
+    unlockedLevel = Math.max(unlockedLevel, level + 1);
+    refreshMenuLocks();
+    burstConfetti(24);
+    feedbackEl.textContent = '🎉 Level ' + level + ' selesai! Lanjut ke Level ' + (level + 1) + '...';
+    feedbackEl.style.color = 'var(--gold)';
+    setTimeout(() => startLevel(level + 1), DELAY_LEVELUP);
+  } else {
+    burstConfetti(30);
+    finish();
+  }
+}
+
+// Nyawa habis di level manapun -> selalu kembali ke Level 1, soal 1.
+function restartFromLevel1(){
+  feedbackEl.textContent = '💔 Nyawa habis! Kembali ke Level 1 soal 1...';
+  feedbackEl.style.color = 'var(--red)';
+  setTimeout(() => startLevel(1), DELAY_RESTART);
+}
+
+function finish(){
+  gameSection.classList.add('hidden');
+  resultSection.classList.remove('hidden');
+
+  finalScoreEl.textContent = score + ' ⭐';
+  resultTitleEl.textContent = correctCount >= Math.ceil(TOTAL * 0.6) ? '🏆 Semua Level Ditaklukkan!' : '💪 Hampir Sampai!';
+  finalTextEl.textContent = `Kamu menyelesaikan seluruh ${MAX_LEVEL} level! Benar ${correctCount} dari ${TOTAL} soal di Level ${level}.`;
+  reviewEl.innerHTML = `<b>Yang dilatih:</b><br><br>
+  <div class="formula">Perkalian: aᵐ × aⁿ = aᵐ⁺ⁿ</div>
+  <div class="formula">Pembagian: aᵐ ÷ aⁿ = aᵐ⁻ⁿ</div>
+  <div class="formula">Pangkat dipangkatkan: (aᵐ)ⁿ = aᵐˣⁿ</div>
+  <div class="formula">Pangkat pada perkalian: (a×b)ⁿ = aⁿ×bⁿ</div>
+  <div class="formula">Pangkat pada pembagian: (a/b)ⁿ = aⁿ/bⁿ</div>
+  <div class="formula">Pangkat nol: a⁰ = 1, untuk a ≠ 0</div>
+  <div class="formula">Pangkat negatif: a⁻ⁿ = 1/aⁿ</div>`;
+}
+
+function backMenu(){
+  stopTimer();
+  gameSection.classList.add('hidden');
+  resultSection.classList.add('hidden');
+  menuSection.classList.remove('hidden');
+  refreshMenuLocks();
+}
+
+refreshMenuLocks();
+</script>
+</body>
+</html>

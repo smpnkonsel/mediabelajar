@@ -2,805 +2,697 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sifat-Sifat Bilangan Berpangkat — Presentasi Interaktif</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bab 1 — Sifat-Sifat Bilangan Berpangkat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap');
+  :root{
+    --bg:#0F1521; --bg-2:#151E30; --panel:#1A2540; --panel-2:#131C30; --line:#28365A;
+    --cyan:#4FD1C5; --violet:#8B5CF6; --amber:#F5A623; --rose:#E8607A;
+    --ink:#EAF0FA; --ink-dim:#93A2C2; --ok:#4FD1A0; --bad:#E8607A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 8%, rgba(139,92,246,0.16), transparent 45%),
+      radial-gradient(circle at 88% 82%, rgba(79,209,197,0.13), transparent 45%),
+      var(--bg);
+    color:var(--ink); font-family:'Inter', sans-serif; min-height:100vh; overflow-x:hidden;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  h1,h2,h3{font-family:'Sora', sans-serif;}
 
-:root{
-  --bg:#0E1526;
-  --bg-alt:#121B32;
-  --surface:#1A2440;
-  --surface-2:#212E52;
-  --border:rgba(255,255,255,0.09);
-  --text:#F3F6FC;
-  --text-muted:#8FA0C2;
-  --text-faint:#5B6B8C;
+  .topbar{position:fixed; top:0; left:0; right:0; height:5px; z-index:50; background:var(--panel-2);}
+  .topbar-fill{height:100%; background:linear-gradient(90deg,var(--violet),var(--cyan)); width:8%; transition:width .35s ease;}
+  .meta-bar{
+    position:fixed; top:5px; left:0; right:0; z-index:49; display:flex; justify-content:space-between; align-items:center;
+    padding:14px 22px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:var(--ink-dim);
+    letter-spacing:0.05em; pointer-events:none; background:linear-gradient(var(--bg) 60%, transparent);
+  }
+  .meta-bar span b{color:var(--cyan);}
 
-  --pos:#45D9A0;
-  --pos-dim:rgba(69,217,160,0.14);
-  --zero:#FFC857;
-  --zero-dim:rgba(255,200,87,0.14);
-  --neg:#FF7086;
-  --neg-dim:rgba(255,112,134,0.14);
-  --primary:#6C8CFF;
-  --primary-dim:rgba(108,140,255,0.15);
-  --violet:#B694FF;
-  --violet-dim:rgba(182,148,255,0.14);
+  .deck{max-width:900px; margin:0 auto; padding:0 24px;}
+  .slide{display:none; min-height:100vh; padding:88px 4px 130px; flex-direction:column; justify-content:center;}
+  .slide.active{display:flex; animation:slideIn .45s ease;}
+  @keyframes slideIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
 
-  --display:'Space Grotesk',sans-serif;
-  --body:'Inter',sans-serif;
-  --mono:'JetBrains Mono',monospace;
-}
+  .eyebrow{font-family:'JetBrains Mono', monospace; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--cyan); margin-bottom:10px; display:flex; align-items:center; gap:8px;}
+  .eyebrow::before{content:""; width:18px; height:2px; background:var(--cyan); display:inline-block;}
+  h2.slide-title{font-size:clamp(1.4rem, 4.2vw, 2.15rem); font-weight:700; margin-bottom:14px; line-height:1.22;}
+  .lead{color:var(--ink-dim); font-size:clamp(0.9rem,2.2vw,1.02rem); line-height:1.7; margin-bottom:22px; max-width:640px;}
 
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body{height:100%;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--body);
-  overflow:hidden;
-  -webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:"";
-  position:fixed; inset:0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-  background-size:44px 44px;
-  pointer-events:none;
-  z-index:0;
-}
-::selection{background:var(--primary); color:#0E1526;}
-:focus-visible{outline:2px solid var(--primary); outline-offset:3px; border-radius:4px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin-bottom:16px;}
+  .card-tight{padding:16px 18px;}
 
-.deck{position:relative; width:100%; height:100vh;}
+  .formula{font-family:'JetBrains Mono', monospace; font-size:clamp(1.2rem,3.6vw,1.6rem); color:var(--amber); text-align:center; padding:16px 10px; letter-spacing:0.02em;}
+  .formula sup{color:var(--violet); font-size:0.8em;}
+  .formula sub{color:var(--rose); font-size:0.75em;}
 
-.slide{
-  position:absolute; inset:0;
-  display:flex; flex-direction:column;
-  padding:56px 8vw 40px;
-  opacity:0; visibility:hidden;
-  transform:translateX(40px);
-  transition:opacity .5s ease, transform .5s ease, visibility .5s;
-  overflow-y:auto;
-}
-.slide.active{opacity:1; visibility:visible; transform:translateX(0); z-index:2;}
-.slide.prev{transform:translateX(-40px);}
+  /* COVER */
+  .cover{align-items:flex-start;}
+  .cover-badge{display:inline-flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--line); padding:8px 16px; border-radius:100px; margin-bottom:26px; font-family:'JetBrains Mono', monospace; font-size:0.78rem; color:var(--ink-dim);}
+  .cover h1{font-size:clamp(1.8rem,6.6vw,3.1rem); line-height:1.1; margin-bottom:14px;}
+  .cover h1 em{font-style:normal; color:transparent; background:linear-gradient(90deg,var(--cyan),var(--violet)); -webkit-background-clip:text; background-clip:text;}
+  .cover-sub{color:var(--ink-dim); font-size:clamp(1rem,3vw,1.15rem); max-width:580px; margin-bottom:30px; line-height:1.6;}
+  .cover-tags{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:38px;}
+  .tag{border:1px solid var(--line); border-radius:100px; padding:6px 14px; font-size:0.76rem; color:var(--ink-dim); font-family:'JetBrains Mono',monospace;}
+  .start-btn{background:linear-gradient(90deg,var(--violet),var(--cyan)); color:#0B0F1A; border:none; font-weight:700; font-family:'Sora',sans-serif; font-size:0.98rem; padding:15px 30px; border-radius:9px; cursor:pointer; display:inline-flex; align-items:center; gap:10px;}
+  .start-btn:hover{filter:brightness(1.08);}
 
-.eyebrow{
-  font-family:var(--mono);
-  font-size:13px;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--violet);
-  display:flex; align-items:center; gap:10px;
-  margin-bottom:14px;
-}
-.eyebrow::before{content:""; width:22px; height:1px; background:var(--violet);}
+  /* TUJUAN */
+  .goal-list{display:flex; flex-direction:column; gap:10px;}
+  .goal-item{display:flex; gap:14px; align-items:flex-start; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:8px; padding:13px 16px;}
+  .goal-num{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--cyan); font-size:0.98rem; flex-shrink:0;}
+  .goal-item p{color:var(--ink-dim); font-size:0.88rem; line-height:1.5;}
+  .goal-item b{color:var(--ink); font-weight:600;}
 
-h1.headline{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(30px,4.4vw,54px);
-  line-height:1.08;
-  letter-spacing:-.01em;
-  max-width:900px;
-}
-h2.headline{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(24px,3.2vw,38px);
-  line-height:1.15;
-  letter-spacing:-.01em;
-  max-width:820px;
-}
-.lede{
-  font-size:clamp(15px,1.4vw,18px);
-  color:var(--text-muted);
-  max-width:660px;
-  margin-top:14px;
-  line-height:1.6;
-}
+  .btn-row{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0;}
+  .chip-btn{background:var(--panel-2); border:1px solid var(--line); color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:0.85rem; padding:9px 15px; border-radius:7px; cursor:pointer; transition:all .15s ease;}
+  .chip-btn:hover{border-color:var(--cyan); color:var(--cyan);}
+  .chip-btn.active{background:var(--cyan); color:#0B0F1A; border-color:var(--cyan); font-weight:700;}
+  .chip-group-label{font-size:0.72rem; color:var(--ink-dim); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px; margin-top:10px;}
 
-.slide-body{flex:1; display:flex; flex-direction:column; justify-content:center; min-height:0; padding-top:8px;}
+  .reveal-btn{background:none; border:1px dashed var(--violet); color:var(--violet); font-family:'JetBrains Mono',monospace; font-size:0.82rem; padding:9px 16px; border-radius:6px; cursor:pointer; margin-top:6px;}
+  .reveal-btn:hover{background:rgba(139,92,246,0.12);}
+  .reveal-box{max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease, opacity .35s ease, margin .35s ease;}
+  .reveal-box.open{max-height:600px; opacity:1; margin-top:14px;}
+  .step-box{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:14px 18px; font-family:'JetBrains Mono',monospace; font-size:0.88rem; color:var(--ink-dim); line-height:2;}
+  .step-box .final{color:var(--ok); font-weight:700;}
 
-/* ---------- Buttons ---------- */
-.btn{
-  font-family:var(--body);
-  font-weight:600;
-  font-size:14px;
-  padding:11px 20px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--surface);
-  color:var(--text);
-  cursor:pointer;
-  transition:border-color .2s, transform .15s, background .2s;
-}
-.btn:hover{border-color:var(--violet); transform:translateY(-1px);}
-.btn:active{transform:translateY(0);}
-.btn.primary{background:var(--violet); color:#0E1526; border-color:var(--violet);}
-.btn.primary:hover{filter:brightness(1.08);}
-.btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+  .step-display{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:16px 18px; font-family:'JetBrains Mono',monospace; font-size:0.95rem; color:var(--ink); line-height:2.1; text-align:center; margin-top:6px;}
+  .step-display .arrow{color:var(--ink-dim); display:block; font-size:0.85rem;}
+  .step-display .final{color:var(--ok); font-weight:700; font-size:1.05rem;}
 
-/* ---------- Widget shell ---------- */
-.expo-widget{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:30px 26px;
-  display:flex; flex-direction:column; gap:20px;
-}
-.expo-controls{display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap;}
-.control-group{display:flex; align-items:center; gap:10px;}
-.control-group .cg-label{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
-.round-btn{
-  width:38px; height:38px; border-radius:50%;
-  background:var(--surface-2); border:1px solid var(--border);
-  color:var(--text); font-size:18px; font-family:var(--mono);
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:all .15s;
-}
-.round-btn:hover{border-color:var(--violet); color:var(--violet);}
-.round-btn:disabled{opacity:.3; cursor:not-allowed;}
-.cg-val{
-  font-family:var(--mono); font-weight:700; font-size:20px;
-  min-width:28px; text-align:center;
-}
+  table.ex-table{width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:0.84rem;}
+  table.ex-table th, table.ex-table td{padding:9px 10px; text-align:left; border-bottom:1px solid var(--line); color:var(--ink-dim);}
+  table.ex-table th{color:var(--ink); font-weight:600; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.05em;}
+  table.ex-table td.res{color:var(--amber); font-weight:600;}
 
-.eq-display{
-  font-family:var(--mono); font-weight:700;
-  font-size:clamp(22px,3vw,32px);
-  text-align:center;
-  display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
-}
-.eq-display sup{font-size:.55em; vertical-align:super;}
+  .note{font-size:0.8rem; color:var(--ink-dim); margin-top:12px; line-height:1.6;}
+  .note b{color:var(--ink);}
 
-.expo-visual{
-  min-height:110px;
-  display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
-  gap:10px; padding:14px 4px;
-}
-.tile-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;}
-.tile{
-  font-family:var(--mono); font-weight:700; font-size:17px;
-  width:40px; height:40px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center;
-  border:1px solid var(--border);
-  animation:popIn .35s ease backwards;
-  position:relative;
-}
-.tile.m-tile{background:var(--primary-dim); color:var(--primary); border-color:rgba(108,140,255,.35);}
-.tile.n-tile{background:var(--violet-dim); color:var(--violet); border-color:rgba(182,148,255,.35);}
-.tile.combo-tile{background:var(--pos-dim); color:var(--pos); border-color:rgba(69,217,160,.35);}
-.tile.cancel-tile{background:rgba(255,255,255,0.03); color:var(--text-faint); border-color:var(--border); opacity:.45;}
-.tile.cancel-tile::after{
-  content:""; position:absolute; left:2px; right:2px; top:50%; height:2px;
-  background:var(--neg); transform:rotate(-20deg);
-}
-.tile.result-tile{width:auto; min-width:52px; padding:0 12px; font-size:17px;}
-@keyframes popIn{from{opacity:0; transform:scale(.6);} to{opacity:1; transform:scale(1);}}
-.times{color:var(--text-faint); font-family:var(--mono); font-size:16px;}
-.eq-arrow{color:var(--text-faint); font-family:var(--mono); font-size:18px; padding:0 4px;}
+  .soal-item{margin-bottom:16px;}
+  .soal-q{font-size:0.95rem; margin-bottom:8px; line-height:1.55;}
+  .soal-q .n{color:var(--violet); font-weight:700; margin-right:6px;}
 
-.frac{display:flex; flex-direction:column; align-items:center; gap:6px;}
-.frac-num, .frac-den{display:flex; align-items:center; gap:8px;}
-.frac-line{width:100%; height:2px; background:var(--text-faint); border-radius:2px;}
+  /* QUIZ */
+  .quiz-progress{display:flex; gap:5px; margin-bottom:20px;}
+  .quiz-dot{flex:1; height:5px; border-radius:3px; background:var(--line);}
+  .quiz-dot.done{background:var(--ok);}
+  .quiz-dot.current{background:var(--cyan);}
+  .quiz-q{font-size:1.02rem; line-height:1.55; margin-bottom:20px;}
+  .quiz-opts{display:flex; flex-direction:column; gap:10px;}
+  .qopt{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:13px 16px; text-align:left; color:var(--ink); font-size:0.92rem; font-family:'JetBrains Mono',monospace; cursor:pointer; display:flex; align-items:center; gap:12px; transition:border-color .15s ease;}
+  .qopt:hover{border-color:var(--violet);}
+  .qopt .letter{width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:0.7rem; color:var(--ink-dim); flex-shrink:0;}
+  .qopt.correct{border-color:var(--ok); background:rgba(79,209,160,0.1);}
+  .qopt.correct .letter{background:var(--ok); border-color:var(--ok); color:#0B0F1A;}
+  .qopt.wrong{border-color:var(--bad); background:rgba(232,96,122,0.1);}
+  .qopt.wrong .letter{background:var(--bad); border-color:var(--bad); color:#0B0F1A;}
+  .qopt.disabled{cursor:default;}
+  .quiz-feedback{margin-top:16px; padding:12px 16px; border-radius:8px; font-size:0.84rem; line-height:1.55; display:none;}
+  .quiz-feedback.show{display:block;}
+  .quiz-feedback.ok{background:rgba(79,209,160,0.1); border:1px solid var(--ok); color:#c9f2e2;}
+  .quiz-feedback.bad{background:rgba(232,96,122,0.1); border:1px solid var(--bad); color:#f5d2da;}
+  .quiz-next{margin-top:18px; display:none;}
+  .quiz-next.show{display:inline-flex;}
+  .quiz-result{text-align:center; padding:20px 0;}
+  .quiz-result .score{font-family:'JetBrains Mono',monospace; font-size:2.5rem; color:var(--amber); margin:14px 0 6px;}
+  .quiz-result p{color:var(--ink-dim); font-size:0.92rem;}
 
-.group-box{
-  border:1.5px dashed var(--violet); border-radius:12px; padding:8px 10px;
-  display:flex; align-items:center; gap:6px;
-  animation:popIn .35s ease backwards;
-}
+  .primary-btn{background:linear-gradient(90deg,var(--violet),var(--cyan)); color:#0B0F1A; border:none; font-weight:700; font-family:'Sora',sans-serif; font-size:0.9rem; padding:12px 22px; border-radius:8px; cursor:pointer;}
+  .primary-btn:hover{filter:brightness(1.08);}
+  .ghost-btn{background:none; border:1px solid var(--line); color:var(--ink-dim); font-family:'Sora',sans-serif; font-size:0.88rem; padding:12px 20px; border-radius:8px; cursor:pointer;}
+  .ghost-btn:hover{border-color:var(--cyan); color:var(--cyan);}
 
-.expo-caption{
-  text-align:center; font-family:var(--mono); font-size:13px; color:var(--text-muted);
-  min-height:20px; line-height:1.5;
-}
-.expo-caption b{color:var(--text);}
+  /* PENUTUP */
+  .summary-grid{display:flex; flex-direction:column; gap:9px; margin-bottom:28px;}
+  .summary-row{display:flex; gap:12px; align-items:center; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 16px;}
+  .summary-row .ic{width:26px; height:26px; border-radius:50%; background:rgba(79,209,197,0.15); color:var(--cyan); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:0.72rem; flex-shrink:0;}
+  .summary-row span{font-size:0.86rem; color:var(--ink-dim);}
+  .summary-row b{color:var(--ink);}
+  .finish-btn{background:linear-gradient(90deg,var(--amber),var(--rose)); color:#0B0F1A; text-decoration:none; font-weight:700; font-family:'Sora',sans-serif; font-size:0.96rem; padding:16px 30px; border-radius:9px; display:inline-flex; align-items:center; gap:10px; width:fit-content;}
+  .finish-btn:hover{filter:brightness(1.07);}
+  .play-btn{background:linear-gradient(90deg,var(--cyan),var(--violet)); color:#0B0F1A; text-decoration:none; font-weight:700; font-family:'Sora',sans-serif; font-size:0.96rem; padding:16px 30px; border-radius:9px; display:inline-flex; align-items:center; gap:10px; width:fit-content;}
+  .play-btn:hover{filter:brightness(1.07);}
 
-/* ---------- Example cards ---------- */
-.card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px;}
-@media (max-width:960px){.card-grid{grid-template-columns:1fr;}}
-.example-card{
-  background:var(--surface); border:1px solid var(--border); border-radius:16px;
-  padding:22px; cursor:pointer; transition:border-color .2s, transform .15s;
-}
-.example-card:hover{border-color:var(--violet); transform:translateY(-2px);}
-.example-card .expr{
-  font-family:var(--mono); font-weight:700; font-size:22px; color:var(--text); text-align:center;
-}
-.example-card .expr sup{color:var(--violet); font-size:.62em;}
-.example-card .hint{text-align:center; font-size:12.5px; color:var(--text-faint); margin-top:8px; font-family:var(--mono);}
-.example-card .reveal{
-  max-height:0; overflow:hidden; transition:max-height .4s ease, margin-top .4s ease;
-}
-.example-card.open .reveal{max-height:260px; margin-top:16px;}
-.example-card.open{border-color:var(--violet);}
-.step-line{
-  font-family:var(--mono); font-size:14px; color:var(--text-muted);
-  padding:6px 0; border-top:1px dashed var(--border);
-}
-.step-line:first-child{border-top:none;}
-.step-line b{color:var(--text);}
-
-/* ---------- Summary cards ---------- */
-.law-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
-@media (max-width:820px){.law-grid{grid-template-columns:1fr;}}
-.law-card{
-  border-radius:16px; padding:20px 22px; border:1px solid var(--border);
-  background:var(--surface);
-  display:flex; align-items:center; gap:18px;
-}
-.law-card .law-num{
-  font-family:var(--mono); font-weight:700; font-size:13px; color:var(--violet);
-  background:var(--violet-dim); width:34px; height:34px; border-radius:10px;
-  display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.law-card .law-formula{font-family:var(--mono); font-weight:700; font-size:19px;}
-.law-card .law-formula sup{font-size:.6em;}
-.law-card .law-name{font-size:12.5px; color:var(--text-muted); margin-top:4px;}
-
-/* ---------- Quiz ---------- */
-.quiz-wrap{max-width:680px; margin:0 auto; width:100%;}
-.quiz-progress{display:flex; gap:6px; margin-bottom:22px;}
-.quiz-progress .seg{flex:1; height:4px; border-radius:99px; background:var(--surface-2); overflow:hidden;}
-.quiz-progress .seg i{display:block; height:100%; width:0%; background:var(--violet); transition:width .3s;}
-.quiz-progress .seg.done i{width:100%; background:var(--pos);}
-.quiz-progress .seg.active i{width:100%;}
-.q-text{font-family:var(--display); font-weight:600; font-size:clamp(19px,2.4vw,25px); margin-bottom:22px; line-height:1.4;}
-.q-options{display:flex; flex-direction:column; gap:10px;}
-.q-option{
-  text-align:left; padding:14px 16px; border-radius:12px; border:1px solid var(--border);
-  background:var(--surface); color:var(--text); font-family:var(--mono); font-size:15px;
-  cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:12px;
-}
-.q-option:hover{border-color:var(--violet);}
-.q-option .letter{
-  width:26px; height:26px; border-radius:50%; background:var(--surface-2); flex-shrink:0;
-  display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;
-}
-.q-option.correct{border-color:var(--pos); background:var(--pos-dim); color:var(--pos);}
-.q-option.wrong{border-color:var(--neg); background:var(--neg-dim); color:var(--neg);}
-.q-option.disabled{cursor:default;}
-.q-feedback{margin-top:18px; font-size:14px; color:var(--text-muted); min-height:22px;}
-.q-footer{display:flex; justify-content:space-between; align-items:center; margin-top:24px;}
-.score-tag{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
-
-/* ---------- Closing / Score ---------- */
-.score-circle{
-  width:160px; height:160px; border-radius:50%; margin:0 auto 24px;
-  background:var(--surface); border:3px solid var(--violet);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-}
-.score-circle .num{font-family:var(--display); font-weight:700; font-size:44px;}
-.score-circle .of{font-family:var(--mono); font-size:13px; color:var(--text-muted);}
-
-/* ---------- Nav ---------- */
-.nav-bar{
-  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
-  display:flex; align-items:center; gap:16px;
-  background:rgba(20,28,50,0.85); backdrop-filter:blur(10px);
-  border:1px solid var(--border); border-radius:99px;
-  padding:10px 16px; z-index:10;
-}
-.nav-arrow{
-  width:34px; height:34px; border-radius:50%; border:none; background:transparent;
-  color:var(--text); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;
-  transition:background .15s;
-}
-.nav-arrow:hover{background:var(--surface-2);}
-.nav-arrow:disabled{opacity:.25; cursor:not-allowed;}
-.nav-dots{display:flex; gap:7px;}
-.nav-dot{width:7px; height:7px; border-radius:50%; background:var(--text-faint); cursor:pointer; transition:all .2s; border:none;}
-.nav-dot.active{background:var(--violet); width:20px; border-radius:99px;}
-
-.slide-index{
-  position:fixed; top:24px; right:8vw; font-family:var(--mono); font-size:12.5px; color:var(--text-faint); z-index:10;
-}
-
-@media (max-width:640px){
-  .slide{padding:80px 24px 100px;}
-  .expo-controls{gap:14px;}
-}
-
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:0.001s !important; transition-duration:0.001s !important;}
-}
+  /* NAV BAR */
+  .navbar{position:fixed; bottom:0; left:0; right:0; z-index:50; background:linear-gradient(0deg, var(--bg) 55%, transparent); padding:18px 20px 22px; display:flex; align-items:center; justify-content:center; gap:16px;}
+  .nav-inner{display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--line); border-radius:100px; padding:8px 10px; box-shadow:0 8px 30px rgba(0,0,0,0.35);}
+  .nav-btn{background:var(--panel-2); border:1px solid var(--line); color:var(--ink); width:38px; height:38px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; transition:all .15s ease; flex-shrink:0;}
+  .nav-btn:hover:not(:disabled){border-color:var(--cyan); color:var(--cyan);}
+  .nav-btn:disabled{opacity:0.3; cursor:default;}
+  .dots{display:flex; gap:5px; padding:0 4px; max-width:220px; overflow-x:auto;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--line); cursor:pointer; transition:all .2s ease; flex-shrink:0;}
+  .dot.active{background:var(--cyan); width:18px; border-radius:4px;}
+  .nav-label{font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--ink-dim); padding:0 6px; white-space:nowrap; display:none;}
+  @media (min-width:640px){.nav-label{display:inline;}}
+  @media (max-width:600px){
+    .slide{padding:78px 2px 130px;}
+    .dots{display:none;}
+    .card{padding:18px 16px;}
+  }
 </style>
 </head>
 <body>
 
-<div class="slide-index" id="slideIndex">01 / 08</div>
-<div class="deck" id="deck"></div>
+<div class="topbar"><div class="topbar-fill" id="topbarFill"></div></div>
+<div class="meta-bar">
+  <span>BAB 1 · <b>SIFAT-SIFAT BILANGAN BERPANGKAT</b></span>
+  <span id="metaCounter">01 / 13</span>
+</div>
 
-<div class="nav-bar">
-  <button class="nav-arrow" id="prevBtn" aria-label="Sebelumnya">←</button>
-  <div class="nav-dots" id="navDots"></div>
-  <button class="nav-arrow" id="nextBtn" aria-label="Berikutnya">→</button>
+<div class="deck" id="deck">
+
+  <!-- 0 COVER -->
+  <section class="slide cover">
+    <div class="cover-badge">📘 Matematika · SMP</div>
+    <h1>Bab 1<br><em>Sifat-Sifat</em><br>Bilangan Berpangkat</h1>
+    <p class="cover-sub">Mempelajari tujuh aturan penting untuk menyederhanakan dan menghitung bilangan berpangkat dengan cepat dan tepat.</p>
+    <div class="cover-tags">
+      <span class="tag">⏱ ± 30 menit</span>
+      <span class="tag">🎯 7 sifat pangkat</span>
+      <span class="tag">📝 kuis interaktif</span>
+    </div>
+    <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+  </section>
+
+  <!-- 1 TUJUAN -->
+  <section class="slide">
+    <div class="eyebrow">Tujuan Pembelajaran</div>
+    <h2 class="slide-title">Setelah bab ini, kamu bisa...</h2>
+    <div class="goal-list">
+      <div class="goal-item"><div class="goal-num">01</div><p>Menerapkan <b>perkalian bilangan berpangkat</b> berbasis sama: aᵐ × aⁿ = aᵐ⁺ⁿ</p></div>
+      <div class="goal-item"><div class="goal-num">02</div><p>Menerapkan <b>pembagian bilangan berpangkat</b> berbasis sama: aᵐ ÷ aⁿ = aᵐ⁻ⁿ</p></div>
+      <div class="goal-item"><div class="goal-num">03</div><p>Menyederhanakan <b>pangkat yang dipangkatkan</b>: (aᵐ)ⁿ = aᵐˣⁿ</p></div>
+      <div class="goal-item"><div class="goal-num">04</div><p>Menerapkan <b>pangkat pada perkalian</b> dua bilangan: (a×b)ⁿ = aⁿ×bⁿ</p></div>
+      <div class="goal-item"><div class="goal-num">05</div><p>Menerapkan <b>pangkat pada pembagian</b> dua bilangan: (a/b)ⁿ = aⁿ/bⁿ</p></div>
+      <div class="goal-item"><div class="goal-num">06</div><p>Memahami kembali <b>pangkat nol</b> (a⁰ = 1) dan <b>pangkat negatif</b> (a⁻ⁿ = 1/aⁿ) sebagai bagian dari sifat pangkat.</p></div>
+    </div>
+  </section>
+
+  <!-- 2 REVIEW DASAR -->
+  <section class="slide">
+    <div class="eyebrow">Sebelum Mulai</div>
+    <h2 class="slide-title">Ingat Kembali: Apa itu Bilangan Berpangkat?</h2>
+    <p class="lead">Bilangan berpangkat adalah <b style="color:var(--ink)">perkalian berulang</b> suatu bilangan dengan dirinya sendiri.</p>
+    <div class="card">
+      <div class="formula">a<sup>n</sup> = a × a × a × ... × a <span style="color:var(--ink-dim); font-size:0.6em;">(sebanyak n faktor)</span></div>
+    </div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">2⁴</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev0')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev0">
+        <div class="step-box">2⁴ = 2 × 2 × 2 × 2<br>2⁴ = 4 × 2 × 2<br>2⁴ = 8 × 2<br>2⁴ = <span class="final">16</span></div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:6px;">Sekarang, mari pelajari <b style="color:var(--ink)">7 sifat</b> yang membuat perhitungan bilangan berpangkat jadi jauh lebih cepat — tanpa harus menjabarkan perkalian satu per satu.</p>
+  </section>
+
+  <!-- 3 SIFAT 1: PERKALIAN BASIS SAMA -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 1 · Perkalian</div>
+    <h2 class="slide-title">Perkalian Bilangan Berpangkat Basis Sama</h2>
+    <p class="lead">Jika basisnya sama, cukup <b style="color:var(--ink)">jumlahkan pangkatnya</b>.</p>
+    <div class="card"><div class="formula">a<sup>m</sup> × a<sup>n</sup> = a<sup>m+n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">2³ × 2⁴</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev1')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev1"><div class="step-box">2³ × 2⁴ = 2³⁺⁴<br>= 2⁷<br>= <span class="final">128</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih basis</div>
+      <div class="btn-row" id="s1base"></div>
+      <div class="chip-group-label">Pilih pangkat pertama (m)</div>
+      <div class="btn-row" id="s1m"></div>
+      <div class="chip-group-label">Pilih pangkat kedua (n)</div>
+      <div class="btn-row" id="s1n"></div>
+      <div class="step-display" id="s1display"></div>
+    </div>
+  </section>
+
+  <!-- 4 SIFAT 2: PEMBAGIAN BASIS SAMA -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 2 · Pembagian</div>
+    <h2 class="slide-title">Pembagian Bilangan Berpangkat Basis Sama</h2>
+    <p class="lead">Jika basisnya sama, cukup <b style="color:var(--ink)">kurangkan pangkatnya</b>.</p>
+    <div class="card"><div class="formula">a<sup>m</sup> : a<sup>n</sup> = a<sup>m−n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">5⁶ : 5²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev2')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev2"><div class="step-box">5⁶ : 5² = 5⁶⁻²<br>= 5⁴<br>= <span class="final">625</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih basis</div>
+      <div class="btn-row" id="s2base"></div>
+      <div class="chip-group-label">Pilih pangkat pertama (m)</div>
+      <div class="btn-row" id="s2m"></div>
+      <div class="chip-group-label">Pilih pangkat kedua (n) — harus lebih kecil dari m</div>
+      <div class="btn-row" id="s2n"></div>
+      <div class="step-display" id="s2display"></div>
+    </div>
+  </section>
+
+  <!-- 5 SIFAT 3: PANGKAT DIPANGKATKAN -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 3 · Pangkat Berlapis</div>
+    <h2 class="slide-title">Pangkat yang Dipangkatkan Lagi</h2>
+    <p class="lead">Jika suatu bilangan berpangkat dipangkatkan lagi, <b style="color:var(--ink)">kalikan kedua pangkatnya</b>.</p>
+    <div class="card"><div class="formula">(a<sup>m</sup>)<sup>n</sup> = a<sup>m×n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">(2³)²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev3')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev3"><div class="step-box">(2³)² = 2³ˣ²<br>= 2⁶<br>= <span class="final">64</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih basis</div>
+      <div class="btn-row" id="s3base"></div>
+      <div class="chip-group-label">Pilih pangkat dalam (m)</div>
+      <div class="btn-row" id="s3m"></div>
+      <div class="chip-group-label">Pilih pangkat luar (n)</div>
+      <div class="btn-row" id="s3n"></div>
+      <div class="step-display" id="s3display"></div>
+    </div>
+  </section>
+
+  <!-- 6 SIFAT 4: PANGKAT PADA PERKALIAN -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 4 · Distribusi Perkalian</div>
+    <h2 class="slide-title">Pangkat pada Perkalian Dua Bilangan</h2>
+    <p class="lead">Jika perkalian di dalam kurung dipangkatkan, pangkat berlaku pada <b style="color:var(--ink)">masing-masing faktor</b>.</p>
+    <div class="card"><div class="formula">(a × b)<sup>n</sup> = a<sup>n</sup> × b<sup>n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">(2 × 3)²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev4')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev4"><div class="step-box">(2 × 3)² = 2² × 3²<br>= 4 × 9<br>= <span class="final">36</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih bilangan a</div>
+      <div class="btn-row" id="s4a"></div>
+      <div class="chip-group-label">Pilih bilangan b</div>
+      <div class="btn-row" id="s4b"></div>
+      <div class="chip-group-label">Pilih pangkat (n)</div>
+      <div class="btn-row" id="s4n"></div>
+      <div class="step-display" id="s4display"></div>
+    </div>
+  </section>
+
+  <!-- 7 SIFAT 5: PANGKAT PADA PEMBAGIAN -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 5 · Distribusi Pembagian</div>
+    <h2 class="slide-title">Pangkat pada Pembagian Dua Bilangan</h2>
+    <p class="lead">Jika pembagian di dalam kurung dipangkatkan, pangkat berlaku pada <b style="color:var(--ink)">pembilang dan penyebut</b>.</p>
+    <div class="card"><div class="formula">(a / b)<sup>n</sup> = a<sup>n</sup> / b<sup>n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">(2/3)²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev5')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev5"><div class="step-box">(2/3)² = 2² / 3²<br>= 4 / 9<br>= <span class="final">4/9</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih bilangan a (pembilang)</div>
+      <div class="btn-row" id="s5a"></div>
+      <div class="chip-group-label">Pilih bilangan b (penyebut)</div>
+      <div class="btn-row" id="s5b"></div>
+      <div class="chip-group-label">Pilih pangkat (n)</div>
+      <div class="btn-row" id="s5n"></div>
+      <div class="step-display" id="s5display"></div>
+    </div>
+  </section>
+
+  <!-- 8 SIFAT 6: PANGKAT NOL -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 6 · Kasus Khusus</div>
+    <h2 class="slide-title">Pangkat Nol</h2>
+    <p class="lead">Setiap bilangan <b style="color:var(--ink)">bukan nol</b> yang dipangkatkan nol, hasilnya selalu <b style="color:var(--ink)">1</b>.</p>
+    <div class="card"><div class="formula">a<sup>0</sup> = 1, <span style="font-size:0.7em; color:var(--ink-dim);">a ≠ 0</span></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">7⁰</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev6')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev6"><div class="step-box">Karena basis 7 ≠ 0, berlaku a⁰ = 1<br>7⁰ = <span class="final">1</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Coba basis lain</div>
+      <div class="btn-row" id="s6base"></div>
+      <div class="step-display" id="s6display"></div>
+    </div>
+    <p class="note">💡 Sifat ini sebenarnya konsekuensi dari Sifat 2: aⁿ ÷ aⁿ = aⁿ⁻ⁿ = a⁰, dan kita tahu bilangan apa pun dibagi dirinya sendiri hasilnya 1.</p>
+  </section>
+
+  <!-- 9 SIFAT 7: PANGKAT NEGATIF -->
+  <section class="slide">
+    <div class="eyebrow">Sifat 7 · Kasus Khusus</div>
+    <h2 class="slide-title">Pangkat Negatif</h2>
+    <p class="lead">Pangkat negatif dapat diubah menjadi bentuk <b style="color:var(--ink)">pecahan</b>.</p>
+    <div class="card"><div class="formula">a<sup>−n</sup> = 1 / a<sup>n</sup></div></div>
+    <div class="card">
+      <div class="soal-q"><span class="n">Contoh</span>Tentukan nilai dari <b class="mono" style="color:var(--amber);">2⁻³</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('rev7')">👁 Lihat langkah</button>
+      <div class="reveal-box" id="rev7"><div class="step-box">2⁻³ = 1 / 2³<br>2³ = 8<br>2⁻³ = <span class="final">1/8</span></div></div>
+    </div>
+    <div class="card">
+      <div class="chip-group-label">Pilih basis</div>
+      <div class="btn-row" id="s7base"></div>
+      <div class="chip-group-label">Pilih pangkat negatif (n)</div>
+      <div class="btn-row" id="s7n"></div>
+      <div class="step-display" id="s7display"></div>
+    </div>
+    <p class="note">💡 Sifat ini juga konsekuensi dari Sifat 2: a⁰ ÷ aⁿ = a⁰⁻ⁿ = a⁻ⁿ, dan a⁰ ÷ aⁿ = 1 ÷ aⁿ = 1/aⁿ.</p>
+  </section>
+
+  <!-- 10 CONTOH SOAL -->
+  <section class="slide">
+    <div class="eyebrow">Latihan Terpandu</div>
+    <h2 class="slide-title">Contoh Soal &amp; Pembahasan — 7 Sifat Pangkat</h2>
+    <p class="lead">Coba kerjakan dulu, lalu klik "Lihat pembahasan" untuk mencocokkan jawabanmu.</p>
+
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">1.</span>Sederhanakan <b class="mono" style="color:var(--amber);">3² × 3⁵</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('cs1')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs1"><div class="step-box">3² × 3⁵ = 3²⁺⁵ = 3⁷ = <span class="final">2.187</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">2.</span>Sederhanakan <b class="mono" style="color:var(--amber);">6⁷ : 6³</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('cs2')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs2"><div class="step-box">6⁷ : 6³ = 6⁷⁻³ = 6⁴ = <span class="final">1.296</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">3.</span>Sederhanakan <b class="mono" style="color:var(--amber);">(4²)³</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('cs3')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs3"><div class="step-box">(4²)³ = 4²ˣ³ = 4⁶ = <span class="final">4.096</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">4.</span>Hitung <b class="mono" style="color:var(--amber);">(3 × 5)²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('cs4')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs4"><div class="step-box">(3 × 5)² = 3² × 5² = 9 × 25 = <span class="final">225</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">5.</span>Hitung <b class="mono" style="color:var(--amber);">(4/5)²</b></div>
+      <button class="reveal-btn" onclick="toggleReveal('cs5')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs5"><div class="step-box">(4/5)² = 4² / 5² = <span class="final">16/25</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">6.</span>Sederhanakan <b class="mono" style="color:var(--amber);">2⁵ × 2⁻³</b> (gabungan Sifat 1 &amp; 7)</div>
+      <button class="reveal-btn" onclick="toggleReveal('cs6')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs6"><div class="step-box">2⁵ × 2⁻³ = 2⁵⁺⁽⁻³⁾ = 2² = <span class="final">4</span></div></div>
+    </div>
+    <div class="card soal-item">
+      <div class="soal-q"><span class="n">7.</span>Sederhanakan <b class="mono" style="color:var(--amber);">(2³ × 3²) ÷ 2²</b> (gabungan Sifat 1, 2 &amp; 4)</div>
+      <button class="reveal-btn" onclick="toggleReveal('cs7')">👁 Lihat pembahasan</button>
+      <div class="reveal-box" id="cs7"><div class="step-box">(2³ × 3²) ÷ 2² = 2³⁻² × 3² = 2¹ × 3² = 2 × 9 = <span class="final">18</span></div></div>
+    </div>
+  </section>
+
+  <!-- 11 KUIS -->
+  <section class="slide">
+    <div class="eyebrow">Uji Pemahaman</div>
+    <h2 class="slide-title">Kuis: Sifat-Sifat Bilangan Berpangkat</h2>
+    <div class="quiz-progress" id="quizProgress"></div>
+    <div class="card" id="quizCard"></div>
+  </section>
+
+  <!-- 12 AYO BERMAIN -->
+  <section class="slide">
+    <div class="eyebrow">Waktunya Bermain</div>
+    <h2 class="slide-title">Uji Kecepatan Hitungmu di Tarik Tambang Pangkat!</h2>
+    <p class="lead">Kamu sudah paham ketujuh sifat bilangan berpangkat — mulai dari perkalian, pembagian, pangkat berlapis, hingga pangkat nol dan negatif. Sekarang saatnya uji seberapa cepat kamu bisa menerapkannya lewat game <b style="color:var(--ink)">Tarik Tambang</b>: jawab benar untuk menarik tambang ke sisimu dan kalahkan lawan!</p>
+    <div class="card">
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="summary-row"><div class="ic">🎯</div><span>Jawab soal <b>sifat-sifat bilangan berpangkat</b> dengan benar dan cepat untuk menarik tambang.</span></div>
+        <div class="summary-row"><div class="ic">🧠</div><span>Soal mencakup perkalian, pembagian, pangkat berlapis, distribusi, pangkat nol, dan pangkat negatif.</span></div>
+        <div class="summary-row"><div class="ic">🏆</div><span>Menangkan permainan dengan menarik tambang sampai ke garis kemenangan.</span></div>
+      </div>
+    </div>
+    <a class="play-btn" href="game/game-pangkat copy 2.html">🎮 Ayo Bermain Tarik Tambang</a>
+  </section>
+
+  <!-- 13 PENUTUP -->
+  <section class="slide">
+    <div class="eyebrow">Penutup</div>
+    <h2 class="slide-title">Ringkasan 7 Sifat Bilangan Berpangkat</h2>
+    <div class="summary-grid">
+      <div class="summary-row"><div class="ic">1</div><span><b>Perkalian:</b> aᵐ × aⁿ = aᵐ⁺ⁿ</span></div>
+      <div class="summary-row"><div class="ic">2</div><span><b>Pembagian:</b> aᵐ ÷ aⁿ = aᵐ⁻ⁿ</span></div>
+      <div class="summary-row"><div class="ic">3</div><span><b>Pangkat dipangkatkan:</b> (aᵐ)ⁿ = aᵐˣⁿ</span></div>
+      <div class="summary-row"><div class="ic">4</div><span><b>Pangkat pada perkalian:</b> (a×b)ⁿ = aⁿ×bⁿ</span></div>
+      <div class="summary-row"><div class="ic">5</div><span><b>Pangkat pada pembagian:</b> (a/b)ⁿ = aⁿ/bⁿ</span></div>
+      <div class="summary-row"><div class="ic">6</div><span><b>Pangkat nol:</b> a⁰ = 1, untuk a ≠ 0</span></div>
+      <div class="summary-row"><div class="ic">7</div><span><b>Pangkat negatif:</b> a⁻ⁿ = 1/aⁿ</span></div>
+    </div>
+    <p class="lead">Kerja bagus menyelesaikan materi Sifat-Sifat Bilangan Berpangkat! Sifat-sifat ini akan sangat membantumu saat mempelajari bentuk akar dan notasi ilmiah pada sub-bab berikutnya.</p>
+    <a class="finish-btn" href="matb-bab1.html">✓ Selesai — Kembali ke Daftar Materi</a>
+  </section>
+
+</div>
+
+<div class="navbar">
+  <div class="nav-inner">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">←</button>
+    <div class="dots" id="dots"></div>
+    <span class="nav-label" id="navLabel"></span>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">→</button>
+  </div>
 </div>
 
 <script>
-/* ============ Slide 1: Cover ============ */
-function renderCover(){
-  return `
-  <div class="eyebrow">Bab 1 · 1.2 Sifat-Sifat Bilangan Berpangkat</div>
-  <h1 class="headline">Sifat-Sifat Bilangan Berpangkat</h1>
-  <p class="lede">Perkalian, pembagian, pangkat dari pangkat, serta pangkat pada perkalian dan pembagian. Atur nilai m dan n untuk mengeksplorasi secara visual.</p>
-
-  <div class="slide-body" style="align-items:center;">
-    <div class="expo-widget" style="max-width:560px; width:100%;">
-      <div class="expo-controls">
-        <div class="control-group">
-          <button class="round-btn" id="c1MMinus">−</button>
-          <span class="cg-label">m =</span><span class="cg-val" id="c1MVal">2</span>
-          <button class="round-btn" id="c1MPlus">+</button>
-        </div>
-        <div class="control-group">
-          <button class="round-btn" id="c1NMinus">−</button>
-          <span class="cg-label">n =</span><span class="cg-val" id="c1NVal">3</span>
-          <button class="round-btn" id="c1NPlus">+</button>
-        </div>
-      </div>
-      <div class="eq-display" id="c1Eq"></div>
-      <div class="expo-visual" id="c1Visual"></div>
-      <div class="expo-caption" id="c1Caption"></div>
-    </div>
-  </div>`;
-}
-function initCover(){
-  let m=2, n=3; const base=2; const min=1, max=5;
-  const mVal=document.getElementById('c1MVal'), nVal=document.getElementById('c1NVal');
-  const mMinus=document.getElementById('c1MMinus'), mPlus=document.getElementById('c1MPlus');
-  const nMinus=document.getElementById('c1NMinus'), nPlus=document.getElementById('c1NPlus');
-  const eq=document.getElementById('c1Eq'), visual=document.getElementById('c1Visual'), caption=document.getElementById('c1Caption');
-  function update(){
-    mVal.textContent=m; nVal.textContent=n;
-    eq.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${m+n}</sup>`;
-    let g1=""; for(let i=0;i<m;i++){ g1 += `<div class="tile m-tile">${base}</div>`; if(i<m-1) g1+=`<div class="times">×</div>`; }
-    let g2=""; for(let i=0;i<n;i++){ g2 += `<div class="tile n-tile">${base}</div>`; if(i<n-1) g2+=`<div class="times">×</div>`; }
-    let g3=""; for(let i=0;i<m+n;i++){ g3 += `<div class="tile combo-tile">${base}</div>`; if(i<m+n-1) g3+=`<div class="times">×</div>`; }
-    visual.innerHTML = `<div class="tile-row">${g1}</div><div class="times" style="font-size:20px;">×</div><div class="tile-row">${g2}</div>
-      <div class="eq-arrow">=</div><div class="tile-row">${g3}</div>`;
-    caption.innerHTML = `${m} faktor digabung ${n} faktor = <b>${m+n} faktor</b> → pangkatnya <b>dijumlahkan</b>`;
-    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
-    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
-  }
-  mMinus.onclick=()=>{ if(m>min){m--; update();} };
-  mPlus.onclick=()=>{ if(m<max){m++; update();} };
-  nMinus.onclick=()=>{ if(n>min){n--; update();} };
-  nPlus.onclick=()=>{ if(n<max){n++; update();} };
-  update();
-}
-
-/* ============ Slide 2: Sifat 1 - Perkalian ============ */
-function renderMultiplication(){
-  return `
-  <div class="eyebrow">Sifat 1 · Perkalian Bilangan Berpangkat</div>
-  <h2 class="headline">aᵐ × aⁿ = aᵐ⁺ⁿ</h2>
-  <p class="lede">Jika bilangan pokoknya (basis) sama, perkalian dilakukan dengan menjumlahkan eksponen/pangkatnya.</p>
-  <div class="slide-body" style="align-items:center;">
-    <div class="expo-widget" style="max-width:560px; width:100%;">
-      <div class="expo-controls">
-        <div class="control-group">
-          <button class="round-btn" id="s1MMinus">−</button>
-          <span class="cg-label">m =</span><span class="cg-val" id="s1MVal">2</span>
-          <button class="round-btn" id="s1MPlus">+</button>
-        </div>
-        <div class="control-group">
-          <button class="round-btn" id="s1NMinus">−</button>
-          <span class="cg-label">n =</span><span class="cg-val" id="s1NVal">2</span>
-          <button class="round-btn" id="s1NPlus">+</button>
-        </div>
-      </div>
-      <div class="eq-display" id="s1Eq"></div>
-      <div class="expo-visual" id="s1Visual"></div>
-      <div class="expo-caption" id="s1Caption"></div>
-    </div>
-  </div>`;
-}
-function initMultiplication(){
-  let m=2, n=2; const base=3; const min=1, max=4;
-  const mVal=document.getElementById('s1MVal'), nVal=document.getElementById('s1NVal');
-  const mMinus=document.getElementById('s1MMinus'), mPlus=document.getElementById('s1MPlus');
-  const nMinus=document.getElementById('s1NMinus'), nPlus=document.getElementById('s1NPlus');
-  const eq=document.getElementById('s1Eq'), visual=document.getElementById('s1Visual'), caption=document.getElementById('s1Caption');
-  function update(){
-    mVal.textContent=m; nVal.textContent=n;
-    const total = m+n;
-    eq.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${total}</sup> = ${Math.pow(base,total)}`;
-    let g1=""; for(let i=0;i<m;i++){ g1 += `<div class="tile m-tile">${base}</div>`; if(i<m-1) g1+=`<div class="times">×</div>`; }
-    let g2=""; for(let i=0;i<n;i++){ g2 += `<div class="tile n-tile">${base}</div>`; if(i<n-1) g2+=`<div class="times">×</div>`; }
-    let g3=""; for(let i=0;i<total;i++){ g3 += `<div class="tile combo-tile">${base}</div>`; if(i<total-1) g3+=`<div class="times">×</div>`; }
-    visual.innerHTML = `<div class="tile-row">${g1}</div><div class="times" style="font-size:20px;">×</div><div class="tile-row">${g2}</div>
-      <div class="eq-arrow">=</div><div class="tile-row">${g3}</div>`;
-    caption.innerHTML = `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> = ${base}<sup>${m}+${n}</sup> = ${base}<sup>${total}</sup>`;
-    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
-    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
-  }
-  mMinus.onclick=()=>{ if(m>min){m--; update();} };
-  mPlus.onclick=()=>{ if(m<max){m++; update();} };
-  nMinus.onclick=()=>{ if(n>min){n--; update();} };
-  nPlus.onclick=()=>{ if(n<max){n++; update();} };
-  update();
-}
-
-/* ============ Slide 3: Sifat 2 - Pembagian ============ */
-function renderDivision(){
-  return `
-  <div class="eyebrow">Sifat 2 · Pembagian Bilangan Berpangkat</div>
-  <h2 class="headline">aᵐ : aⁿ = aᵐ⁻ⁿ</h2>
-  <p class="lede">Jika basisnya sama, pembagian berarti mengurangkan pangkat. Faktor pada pembilang dan penyebut saling menghilangkan (mencoret).</p>
-  <div class="slide-body" style="align-items:center;">
-    <div class="expo-widget" style="max-width:600px; width:100%;">
-      <div class="expo-controls">
-        <div class="control-group">
-          <button class="round-btn" id="s2MMinus">−</button>
-          <span class="cg-label">m =</span><span class="cg-val" id="s2MVal">5</span>
-          <button class="round-btn" id="s2MPlus">+</button>
-        </div>
-        <div class="control-group">
-          <button class="round-btn" id="s2NMinus">−</button>
-          <span class="cg-label">n =</span><span class="cg-val" id="s2NVal">2</span>
-          <button class="round-btn" id="s2NPlus">+</button>
-        </div>
-      </div>
-      <div class="eq-display" id="s2Eq"></div>
-      <div class="expo-visual" id="s2Visual"></div>
-      <div class="expo-caption" id="s2Caption"></div>
-    </div>
-  </div>`;
-}
-function initDivision(){
-  let m=5, n=2; const base=2; const min=1, max=6;
-  const mVal=document.getElementById('s2MVal'), nVal=document.getElementById('s2NVal');
-  const mMinus=document.getElementById('s2MMinus'), mPlus=document.getElementById('s2MPlus');
-  const nMinus=document.getElementById('s2NMinus'), nPlus=document.getElementById('s2NPlus');
-  const eq=document.getElementById('s2Eq'), visual=document.getElementById('s2Visual'), caption=document.getElementById('s2Caption');
-  function resultStr(diff){
-    if(diff>0) return `${base}<sup>${diff}</sup> = ${Math.pow(base,diff)}`;
-    if(diff===0) return `${base}<sup>0</sup> = 1`;
-    return `${base}<sup>${diff}</sup> = 1/${Math.pow(base,Math.abs(diff))}`;
-  }
-  function update(){
-    mVal.textContent=m; nVal.textContent=n;
-    const diff = m-n;
-    eq.innerHTML = `${base}<sup>${m}</sup> : ${base}<sup>${n}</sup> = ${base}<sup>${diff}</sup>`;
-    const cancel = Math.min(m,n);
-    let top=""; for(let i=0;i<m;i++){ top += `<div class="tile ${i<cancel?'cancel-tile':'m-tile'}">${base}</div>`; if(i<m-1) top+=`<div class="times">×</div>`; }
-    let bot=""; for(let i=0;i<n;i++){ bot += `<div class="tile ${i<cancel?'cancel-tile':'n-tile'}">${base}</div>`; if(i<n-1) bot+=`<div class="times">×</div>`; }
-    visual.innerHTML = `<div class="frac">
-        <div class="frac-num tile-row">${top}</div>
-        <div class="frac-line"></div>
-        <div class="frac-den tile-row">${bot}</div>
-      </div>
-      <div class="eq-arrow">=</div>
-      <div class="tile result-tile combo-tile">${resultStr(diff)}</div>`;
-    if(diff>0) caption.innerHTML = `Sisa <b>${diff}</b> faktor di atas → hasil positif`;
-    else if(diff===0) caption.innerHTML = `Semua faktor habis dicoret → hasil <b>1</b> (pangkat nol)`;
-    else caption.innerHTML = `Sisa <b>${Math.abs(diff)}</b> faktor di bawah → hasil pecahan (pangkat negatif)`;
-    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
-    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
-  }
-  mMinus.onclick=()=>{ if(m>min){m--; update();} };
-  mPlus.onclick=()=>{ if(m<max){m++; update();} };
-  nMinus.onclick=()=>{ if(n>min){n--; update();} };
-  nPlus.onclick=()=>{ if(n<max){n++; update();} };
-  update();
-}
-
-/* ============ Slide 4: Sifat 3 - Pangkat dari Pangkat ============ */
-function renderPowerOfPower(){
-  return `
-  <div class="eyebrow">Sifat 3 · Pangkat dari Pangkat</div>
-  <h2 class="headline">(aᵐ)ⁿ = aᵐˣⁿ</h2>
-  <p class="lede">Bentuk perpangkatan yang dipangkatkan lagi dapat disederhanakan dengan mengalikan kedua pangkat tersebut.</p>
-  <div class="slide-body" style="align-items:center;">
-    <div class="expo-widget" style="max-width:620px; width:100%;">
-      <div class="expo-controls">
-        <div class="control-group">
-          <button class="round-btn" id="s3MMinus">−</button>
-          <span class="cg-label">m =</span><span class="cg-val" id="s3MVal">2</span>
-          <button class="round-btn" id="s3MPlus">+</button>
-        </div>
-        <div class="control-group">
-          <button class="round-btn" id="s3NMinus">−</button>
-          <span class="cg-label">n =</span><span class="cg-val" id="s3NVal">3</span>
-          <button class="round-btn" id="s3NPlus">+</button>
-        </div>
-      </div>
-      <div class="eq-display" id="s3Eq"></div>
-      <div class="expo-visual" id="s3Visual"></div>
-      <div class="expo-caption" id="s3Caption"></div>
-    </div>
-  </div>`;
-}
-function initPowerOfPower(){
-  let m=2, n=3; const base=2; const min=1, max=4;
-  const mVal=document.getElementById('s3MVal'), nVal=document.getElementById('s3NVal');
-  const mMinus=document.getElementById('s3MMinus'), mPlus=document.getElementById('s3MPlus');
-  const nMinus=document.getElementById('s3NMinus'), nPlus=document.getElementById('s3NPlus');
-  const eq=document.getElementById('s3Eq'), visual=document.getElementById('s3Visual'), caption=document.getElementById('s3Caption');
-  function update(){
-    mVal.textContent=m; nVal.textContent=n;
-    const total = m*n;
-    eq.innerHTML = `(${base}<sup>${m}</sup>)<sup>${n}</sup> = ${base}<sup>${m}×${n}</sup> = ${base}<sup>${total}</sup>`;
-    let groups="";
-    for(let g=0; g<n; g++){
-      let inner=""; for(let i=0;i<m;i++){ inner += `<div class="tile m-tile">${base}</div>`; if(i<m-1) inner+=`<div class="times">×</div>`; }
-      groups += `<div class="group-box" style="animation-delay:${g*0.08}s"><div class="tile-row">${inner}</div></div>`;
-      if(g<n-1) groups += `<div class="times">×</div>`;
-    }
-    visual.innerHTML = `<div class="tile-row">${groups}</div>
-      <div class="eq-arrow">=</div>
-      <div class="tile result-tile combo-tile">${base}<sup>${total}</sup> = ${Math.pow(base,total)}</div>`;
-    caption.innerHTML = `<b>${n}</b> kelompok berisi <b>${m}</b> faktor → total <b>${total}</b> faktor ${base}`;
-    mMinus.disabled = m<=min; mPlus.disabled = m>=max;
-    nMinus.disabled = n<=min; nPlus.disabled = n>=max;
-  }
-  mMinus.onclick=()=>{ if(m>min){m--; update();} };
-  mPlus.onclick=()=>{ if(m<max){m++; update();} };
-  nMinus.onclick=()=>{ if(n>min){n--; update();} };
-  nPlus.onclick=()=>{ if(n<max){n++; update();} };
-  update();
-}
-
-/* ============ Slide 5: Sifat 4 & 5 + Contoh Gabungan ============ */
-const combinedExamples = [
-  {
-    expr:"(2 × 3)<sup>3</sup>",
-    steps:[
-      "Sifat 4: (a × b)ⁿ = aⁿ × bⁿ",
-      "(2 × 3)³ = 2³ × 3³",
-      "= 8 × 27",
-      "<b>= 216</b>"
-    ]
-  },
-  {
-    expr:"(10 ÷ 2)<sup>3</sup>",
-    steps:[
-      "Sifat 5: (a ÷ b)ⁿ = aⁿ ÷ bⁿ",
-      "(10 ÷ 2)³ = 10³ ÷ 2³",
-      "= 1000 ÷ 8",
-      "<b>= 125</b>"
-    ]
-  },
-  {
-    expr:"(2<sup>2</sup> × 2<sup>3</sup>)<sup>2</sup>",
-    steps:[
-      "Sifat 1 dulu: 2² × 2³ = 2⁵",
-      "Lalu sifat 3: (2⁵)² = 2¹⁰",
-      "2¹⁰ = 1024",
-      "<b>= 1024</b>"
-    ]
-  }
+/* ============ SLIDE NAV ============ */
+const slideNames = [
+  "Sampul","Tujuan Belajar","Review Dasar","Sifat 1: Perkalian","Sifat 2: Pembagian",
+  "Sifat 3: Pangkat Berlapis","Sifat 4: Perkalian Dipangkatkan","Sifat 5: Pembagian Dipangkatkan",
+  "Sifat 6: Pangkat Nol","Sifat 7: Pangkat Negatif","Contoh Soal","Kuis","Ayo Bermain","Penutup"
 ];
-function renderCombined(){
-  const cards = combinedExamples.map((e,i)=>`
-    <div class="example-card" data-i="${i}">
-      <div class="expr">${e.expr}</div>
-      <div class="hint">klik untuk lihat langkah</div>
-      <div class="reveal">${e.steps.map(s=>`<div class="step-line">${s}</div>`).join('')}</div>
-    </div>`).join('');
-  return `
-  <div class="eyebrow">Sifat 4 & 5 · Perkalian dan Pembagian Dua Bilangan</div>
-  <h2 class="headline">(a×b)ⁿ = aⁿ×bⁿ &nbsp;·&nbsp; (a÷b)ⁿ = aⁿ÷bⁿ</h2>
-  <p class="lede">Pangkat dari perkalian atau pembagian dua bilangan didistribusikan ke setiap faktornya. Klik kartu di bawah untuk melihat penyelesaiannya.</p>
-  <div class="slide-body">
-    <div class="card-grid">${cards}</div>
-  </div>`;
-}
-function initCombined(){
-  document.querySelectorAll('.example-card').forEach(card=>{
-    card.addEventListener('click', ()=> card.classList.toggle('open'));
-  });
-}
-
-/* ============ Slide 6: Ringkasan Sifat ============ */
-function renderSummary(){
-  return `
-  <div class="eyebrow">1.2 · Ringkasan</div>
-  <h2 class="headline">Lima Sifat Utama Bilangan Berpangkat</h2>
-  <p class="lede">Rangkuman rumus penting yang sering digunakan dalam menyederhanakan bentuk perpangkatan.</p>
-  <div class="slide-body">
-    <div class="law-grid">
-      <div class="law-card"><div class="law-num">1</div><div><div class="law-formula">aᵐ × aⁿ = aᵐ⁺ⁿ</div><div class="law-name">Perkalian basis sama → pangkat dijumlahkan</div></div></div>
-      <div class="law-card"><div class="law-num">2</div><div><div class="law-formula">aᵐ : aⁿ = aᵐ⁻ⁿ</div><div class="law-name">Pembagian basis sama → pangkat dikurangkan</div></div></div>
-      <div class="law-card"><div class="law-num">3</div><div><div class="law-formula">(aᵐ)ⁿ = aᵐˣⁿ</div><div class="law-name">Pangkat dari pangkat → pangkat dikalikan</div></div></div>
-      <div class="law-card"><div class="law-num">4</div><div><div class="law-formula">(a×b)ⁿ = aⁿ×bⁿ</div><div class="law-name">Pangkat dari hasil kali dua bilangan</div></div></div>
-      <div class="law-card" style="grid-column: span 2;"><div class="law-num">5</div><div><div class="law-formula">(a÷b)ⁿ = aⁿ÷bⁿ</div><div class="law-name">Pangkat dari hasil bagi dua bilangan (b ≠ 0)</div></div></div>
-    </div>
-  </div>`;
-}
-
-/* ============ Slide 7: Quiz ============ */
-const quizData = [
-  { q:"3² × 3⁴ = ...", opts:["3⁶","3⁸","3²","9⁶"], correct:0 },
-  { q:"5⁷ : 5³ = ...", opts:["5⁴","5¹⁰","5²·³³","25⁴"], correct:0 },
-  { q:"(2³)² = ...", opts:["2⁵","2⁶","2⁹","4³"], correct:1 },
-  { q:"(2 × 5)³ setara dengan ...", opts:["2³ + 5³","2³ × 5³","2 × 5³","30"], correct:1 },
-  { q:"(4 ÷ 2)³ setara dengan ...", opts:["4³ ÷ 2³","4 ÷ 2³","4³ ÷ 2","4 − 2³"], correct:0 },
-];
-let quizState = { index:0, score:0, answered:false };
-
-function renderQuiz(){
-  return `
-  <div class="eyebrow">1.2 · Evaluasi</div>
-  <h2 class="headline">Uji Pemahaman Sifat Perpangkatan</h2>
-  <div class="slide-body">
-    <div class="quiz-wrap">
-      <div class="quiz-progress" id="quizProgress"></div>
-      <div id="quizBody"></div>
-    </div>
-  </div>`;
-}
-function initQuiz(){
-  quizState = { index:0, score:0, answered:false };
-  buildQuizProgress();
-  renderQuestion();
-}
-function buildQuizProgress(){
-  const wrap = document.getElementById('quizProgress');
-  wrap.innerHTML = quizData.map((_,i)=>`<div class="seg" data-i="${i}"><i></i></div>`).join('');
-}
-function updateQuizProgress(){
-  document.querySelectorAll('.quiz-progress .seg').forEach((seg,i)=>{
-    seg.classList.remove('active','done');
-    if(i < quizState.index) seg.classList.add('done');
-    else if(i === quizState.index) seg.classList.add('active');
-  });
-}
-function renderQuestion(){
-  updateQuizProgress();
-  const item = quizData[quizState.index];
-  const letters = ['A','B','C','D'];
-  const body = document.getElementById('quizBody');
-  body.innerHTML = `
-    <p class="q-text">${quizState.index+1}. ${item.q}</p>
-    <div class="q-options">
-      ${item.opts.map((o,i)=>`<button class="q-option" data-i="${i}"><span class="letter">${letters[i]}</span>${o}</button>`).join('')}
-    </div>
-    <p class="q-feedback" id="qFeedback"></p>
-    <div class="q-footer">
-      <span class="score-tag">Skor: ${quizState.score} / ${quizData.length}</span>
-      <button class="btn primary" id="qNextBtn" style="display:none;">
-        ${quizState.index === quizData.length-1 ? 'Lihat hasil →' : 'Lanjut →'}
-      </button>
-    </div>`;
-  quizState.answered = false;
-  document.querySelectorAll('.q-option').forEach(btn=>{
-    btn.addEventListener('click', ()=> handleAnswer(parseInt(btn.dataset.i)));
-  });
-}
-function handleAnswer(i){
-  if(quizState.answered) return;
-  quizState.answered = true;
-  const item = quizData[quizState.index];
-  const opts = document.querySelectorAll('.q-option');
-  opts.forEach((btn,idx)=>{
-    btn.classList.add('disabled');
-    if(idx === item.correct) btn.classList.add('correct');
-    else if(idx === i) btn.classList.add('wrong');
-  });
-  const fb = document.getElementById('qFeedback');
-  if(i === item.correct){
-    quizState.score++;
-    fb.innerHTML = `<span style="color:var(--pos)">Benar! ✓</span>`;
-  } else {
-    fb.innerHTML = `<span style="color:var(--neg)">Belum tepat.</span> Jawaban benar: <b style="color:var(--text)">${item.opts[item.correct]}</b>`;
-  }
-  document.querySelector('.score-tag').textContent = `Skor: ${quizState.score} / ${quizData.length}`;
-  const nextBtn = document.getElementById('qNextBtn');
-  nextBtn.style.display = 'inline-block';
-  nextBtn.onclick = ()=>{
-    if(quizState.index < quizData.length-1){
-      quizState.index++;
-      renderQuestion();
-    } else {
-      goToSlide(7);
-    }
-  };
-}
-
-/* ============ Slide 8: Closing ============ */
-function renderClosing(){
-  return `
-  <div class="eyebrow">Selesai</div>
-  <h2 class="headline">Hasil Latihan Kuis</h2>
-  <div class="slide-body" style="align-items:center; text-align:center;">
-    <div class="score-circle">
-      <div class="num" id="finalScore">0</div>
-      <div class="of">dari ${quizData.length} benar</div>
-    </div>
-    <p class="lede" id="closingMsg" style="text-align:center;"></p>
-    <div style="display:flex; gap:12px; margin-top:20px;">
-      <button class="btn" id="retryQuizBtn">Ulangi Kuis</button>
-      <button class="btn primary" id="restartDeckBtn">Selesai / Kembali</button>
-    </div>
-  </div>`;
-}
-function initClosing(){
-  document.getElementById('finalScore').textContent = quizState.score;
-  const msg = document.getElementById('closingMsg');
-  const ratio = quizState.score / quizData.length;
-  if(ratio === 1) msg.textContent = "Luar biasa! Kamu sudah menguasai seluruh sifat bilangan berpangkat.";
-  else if(ratio >= 0.6) msg.textContent = "Bagus! Kamu sudah memahami sebagian besar konsep sifat perpangkatan.";
-  else msg.textContent = "Jangan berkecil hati, mari tinjau kembali slide sifat 1–5 lalu coba kuis lagi.";
-
-  document.getElementById('retryQuizBtn').onclick = ()=> goToSlide(8);
-  document.getElementById('restartDeckBtn').onclick = ()=> {
-    window.location.href = "matb-bab1.html";
-  };
-}
-
-/* ============ Slide Registry & Navigation ============ */
-const slides = [
-  { render: renderCover,          init: initCover },
-  { render: renderMultiplication, init: initMultiplication },
-  { render: renderDivision,       init: initDivision },
-  { render: renderPowerOfPower,   init: initPowerOfPower },
-  { render: renderCombined,       init: initCombined },
-  { render: renderSummary,        init: null },
-  { render: renderQuiz,           init: initQuiz },
-  { render: renderClosing,        init: initClosing },
-];
-
+const slides = document.querySelectorAll(".slide");
+const totalSlides = slides.length;
 let current = 0;
-const deck = document.getElementById('deck');
-const navDots = document.getElementById('navDots');
-const slideIndexEl = document.getElementById('slideIndex');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
+const dotsEl = document.getElementById("dots");
+slides.forEach((_,i)=>{
+  const d = document.createElement("div");
+  d.className = "dot" + (i===0 ? " active" : "");
+  d.onclick = ()=>goTo(i);
+  dotsEl.appendChild(d);
+});
+function updateNav(){
+  slides.forEach((s,i)=> s.classList.toggle("active", i===current));
+  document.querySelectorAll(".dot").forEach((d,i)=> d.classList.toggle("active", i===current));
+  document.getElementById("prevBtn").disabled = current===0;
+  document.getElementById("nextBtn").disabled = current===totalSlides-1;
+  document.getElementById("navLabel").textContent = slideNames[current];
+  document.getElementById("metaCounter").textContent = String(current+1).padStart(2,"0") + " / " + totalSlides;
+  document.getElementById("topbarFill").style.width = ((current+1)/totalSlides*100) + "%";
+  window.scrollTo(0,0);
+}
+function goTo(i){ current = Math.max(0, Math.min(totalSlides-1, i)); updateNav(); }
+function nextSlide(){ if(current < totalSlides-1){ current++; updateNav(); } }
+function prevSlide(){ if(current > 0){ current--; updateNav(); } }
+updateNav();
+document.addEventListener("keydown", (e)=>{
+  if(e.key === "ArrowRight") nextSlide();
+  if(e.key === "ArrowLeft") prevSlide();
+});
+let touchStartX = 0;
+document.addEventListener("touchstart", e=>{ touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+document.addEventListener("touchend", e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 60){ dx < 0 ? nextSlide() : prevSlide(); }
+}, {passive:true});
 
-function buildDeck(){
-  slides.forEach((s,i)=>{
-    const el = document.createElement('div');
-    el.className = 'slide';
-    el.id = 'slide-'+i;
-    el.innerHTML = s.render();
-    deck.appendChild(el);
+function toggleReveal(id){ document.getElementById(id).classList.toggle("open"); }
+
+/* ============ CHIP HELPER ============ */
+function buildChips(containerId, values, formatLabel, onChange, defaultIdx){
+  const box = document.getElementById(containerId);
+  const btns = values.map((v,i)=>{
+    const b = document.createElement("button");
+    b.className = "chip-btn";
+    b.textContent = formatLabel(v);
+    b.onclick = ()=>{
+      btns.forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      onChange(v);
+    };
+    box.appendChild(b);
+    return b;
   });
-  navDots.innerHTML = slides.map((_,i)=>`<button class="nav-dot" data-i="${i}" aria-label="Ke slide ${i+1}"></button>`).join('');
-  navDots.querySelectorAll('.nav-dot').forEach(d=>{
-    d.addEventListener('click', ()=> goToSlide(parseInt(d.dataset.i)));
-  });
+  btns[defaultIdx].classList.add("active");
+  return { getButtons:()=>btns };
 }
 
-function goToSlide(i){
-  if(i<0 || i>=slides.length) return;
-  document.querySelectorAll('.slide').forEach((el,idx)=>{
-    el.classList.remove('active','prev');
-    if(idx === i) el.classList.add('active');
-    if(idx < i) el.classList.add('prev');
+/* ============ SIFAT 1: PERKALIAN ============ */
+(function(){
+  let base=2, m=3, n=4;
+  function render(){
+    const val = Math.pow(base, m+n);
+    document.getElementById("s1display").innerHTML =
+      `${base}<sup>${m}</sup> × ${base}<sup>${n}</sup> <span class="arrow">↓ jumlahkan pangkat</span>`+
+      `${base}<sup>${m}+${n}</sup> = ${base}<sup>${m+n}</sup> <span class="arrow">↓</span>`+
+      `<span class="final">${val.toLocaleString('id-ID')}</span>`;
+  }
+  buildChips("s1base",[2,3,5],v=>v,v=>{base=v; render();},0);
+  buildChips("s1m",[1,2,3,4],v=>"m="+v,v=>{m=v; render();},2);
+  buildChips("s1n",[1,2,3,4],v=>"n="+v,v=>{n=v; render();},3);
+  render();
+})();
+
+/* ============ SIFAT 2: PEMBAGIAN ============ */
+(function(){
+  let base=2, m=6, n=2;
+  function render(){
+    if(n>=m){ n = m-1; }
+    const val = Math.pow(base, m-n);
+    document.getElementById("s2display").innerHTML =
+      `${base}<sup>${m}</sup> : ${base}<sup>${n}</sup> <span class="arrow">↓ kurangkan pangkat</span>`+
+      `${base}<sup>${m}−${n}</sup> = ${base}<sup>${m-n}</sup> <span class="arrow">↓</span>`+
+      `<span class="final">${val.toLocaleString('id-ID')}</span>`;
+  }
+  buildChips("s2base",[2,3,5],v=>v,v=>{base=v; render();},0);
+  buildChips("s2m",[3,4,5,6],v=>"m="+v,v=>{m=v; render();},3);
+  buildChips("s2n",[1,2,3],v=>"n="+v,v=>{n=v; render();},1);
+  render();
+})();
+
+/* ============ SIFAT 3: PANGKAT DIPANGKATKAN ============ */
+(function(){
+  let base=2, m=3, n=2;
+  function render(){
+    const val = Math.pow(base, m*n);
+    document.getElementById("s3display").innerHTML =
+      `(${base}<sup>${m}</sup>)<sup>${n}</sup> <span class="arrow">↓ kalikan pangkat</span>`+
+      `${base}<sup>${m}×${n}</sup> = ${base}<sup>${m*n}</sup> <span class="arrow">↓</span>`+
+      `<span class="final">${val.toLocaleString('id-ID')}</span>`;
+  }
+  buildChips("s3base",[2,3],v=>v,v=>{base=v; render();},0);
+  buildChips("s3m",[1,2,3],v=>"m="+v,v=>{m=v; render();},2);
+  buildChips("s3n",[1,2,3],v=>"n="+v,v=>{n=v; render();},1);
+  render();
+})();
+
+/* ============ SIFAT 4: PANGKAT PADA PERKALIAN ============ */
+(function(){
+  let a=2, b=3, n=2;
+  function render(){
+    const an = Math.pow(a,n), bn = Math.pow(b,n);
+    document.getElementById("s4display").innerHTML =
+      `(${a} × ${b})<sup>${n}</sup> <span class="arrow">↓ pangkat berlaku pada tiap faktor</span>`+
+      `${a}<sup>${n}</sup> × ${b}<sup>${n}</sup> = ${an} × ${bn} <span class="arrow">↓</span>`+
+      `<span class="final">${(an*bn).toLocaleString('id-ID')}</span>`;
+  }
+  buildChips("s4a",[2,3,4,5],v=>v,v=>{a=v; render();},0);
+  buildChips("s4b",[2,3,4,5],v=>v,v=>{b=v; render();},1);
+  buildChips("s4n",[1,2,3],v=>"n="+v,v=>{n=v; render();},1);
+  render();
+})();
+
+/* ============ SIFAT 5: PANGKAT PADA PEMBAGIAN ============ */
+(function(){
+  let a=2, b=3, n=2;
+  function render(){
+    const an = Math.pow(a,n), bn = Math.pow(b,n);
+    document.getElementById("s5display").innerHTML =
+      `(${a}/${b})<sup>${n}</sup> <span class="arrow">↓ pangkat berlaku pada pembilang & penyebut</span>`+
+      `${a}<sup>${n}</sup> / ${b}<sup>${n}</sup> = ${an} / ${bn} <span class="arrow">↓</span>`+
+      `<span class="final">${an}/${bn}</span>`;
+  }
+  buildChips("s5a",[2,3,4,5],v=>v,v=>{a=v; render();},0);
+  buildChips("s5b",[2,3,4,5],v=>v,v=>{b=v; render();},1);
+  buildChips("s5n",[1,2,3],v=>"n="+v,v=>{n=v; render();},1);
+  render();
+})();
+
+/* ============ SIFAT 6: PANGKAT NOL ============ */
+(function(){
+  function render(base){
+    document.getElementById("s6display").innerHTML =
+      `${base}<sup>0</sup> <span class="arrow">↓ basis ≠ 0, jadi hasilnya selalu</span><span class="final">1</span>`;
+  }
+  buildChips("s6base",[7,4,9,12],v=>v,v=>render(v),0);
+  render(7);
+})();
+
+/* ============ SIFAT 7: PANGKAT NEGATIF ============ */
+(function(){
+  let base=2, n=3;
+  function render(){
+    const denom = Math.pow(base,n);
+    document.getElementById("s7display").innerHTML =
+      `${base}<sup>−${n}</sup> <span class="arrow">↓ ubah jadi pecahan</span>`+
+      `1 / ${base}<sup>${n}</sup> = 1 / ${denom} <span class="arrow">↓</span>`+
+      `<span class="final">1/${denom}</span>`;
+  }
+  buildChips("s7base",[2,3,5],v=>v,v=>{base=v; render();},0);
+  buildChips("s7n",[1,2,3,4],v=>"n="+v,v=>{n=v; render();},2);
+  render();
+})();
+
+/* ============ KUIS ============ */
+const quizQuestions = [
+  { q:'Sederhanakan <b class="mono" style="color:var(--amber)">4² × 4³</b>', options:["4⁵ = 1.024","4⁶ = 4.096","4¹ = 4","4⁵ = 512"], correct:0, explain:"Basis sama, pangkat dijumlahkan: 4²⁺³ = 4⁵ = 1.024." },
+  { q:'Sederhanakan <b class="mono" style="color:var(--amber)">3⁷ ÷ 3⁴</b>', options:["3¹¹","3³ = 27","3²⁸","3³ = 9"], correct:1, explain:"Basis sama, pangkat dikurangkan: 3⁷⁻⁴ = 3³ = 27." },
+  { q:'Sederhanakan <b class="mono" style="color:var(--amber)">(5²)³</b>', options:["5⁵ = 3.125","5⁶ = 15.625","5¹ = 5","5⁶ = 30"], correct:1, explain:"Pangkat dipangkatkan → pangkat dikalikan: 5²ˣ³ = 5⁶ = 15.625." },
+  { q:'Hitung <b class="mono" style="color:var(--amber)">(2 × 5)³</b>', options:["1.000","30","250","100"], correct:0, explain:"(2×5)³ = 2³ × 5³ = 8 × 125 = 1.000." },
+  { q:'Hitung <b class="mono" style="color:var(--amber)">(3/2)²</b>', options:["9/4","6/4","3/4","9/2"], correct:0, explain:"(3/2)² = 3²/2² = 9/4." },
+  { q:'Nilai dari <b class="mono" style="color:var(--amber)">12⁰</b> adalah...', options:["0","1","12","tidak terdefinisi"], correct:1, explain:"Untuk a ≠ 0, berlaku a⁰ = 1. Karena 12 ≠ 0, maka 12⁰ = 1." },
+  { q:'Bentuk pecahan dari <b class="mono" style="color:var(--amber)">4⁻²</b> adalah...', options:["1/8","1/16","−16","1/4"], correct:1, explain:"4⁻² = 1/4² = 1/16." },
+  { q:'Sederhanakan <b class="mono" style="color:var(--amber)">2⁶ × 2⁻²</b>', options:["2⁴ = 16","2⁸ = 256","2⁻¹² ","2³ = 8"], correct:0, explain:"Basis sama, pangkat dijumlahkan: 2⁶⁺⁽⁻²⁾ = 2⁴ = 16 (gabungan Sifat 1 & 7)." },
+  { q:'Sifat manakah yang digunakan untuk menyederhanakan <b class="mono" style="color:var(--amber)">(2³ × 3³)</b> menjadi <b class="mono" style="color:var(--amber)">(2×3)³</b>?', options:["Sifat pembagian basis sama","Sifat pangkat dipangkatkan","Sifat pangkat pada perkalian (dibaca terbalik)","Sifat pangkat nol"], correct:2, explain:"aⁿ × bⁿ = (a×b)ⁿ adalah Sifat 4 yang dibaca dari kanan ke kiri." }
+];
+let quizIdx = 0, quizScore = 0, quizAnswered = false;
+function renderQuizProgress(){
+  const box = document.getElementById("quizProgress");
+  box.innerHTML = "";
+  quizQuestions.forEach((_,i)=>{
+    const d = document.createElement("div");
+    d.className = "quiz-dot" + (i < quizIdx ? " done" : i===quizIdx ? " current" : "");
+    box.appendChild(d);
   });
-  current = i;
-  navDots.querySelectorAll('.nav-dot').forEach((d,idx)=> d.classList.toggle('active', idx===i));
-  slideIndexEl.textContent = String(i+1).padStart(2,'0') + " / " + String(slides.length).padStart(2,'0');
-  prevBtn.disabled = i===0;
-  nextBtn.disabled = i===slides.length-1;
-  if(slides[i].init) slides[i].init();
 }
-
-prevBtn.addEventListener('click', ()=> goToSlide(current-1));
-nextBtn.addEventListener('click', ()=> goToSlide(current+1));
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowRight') goToSlide(current+1);
-  if(e.key === 'ArrowLeft') goToSlide(current-1);
-});
-
-let touchStartX = null;
-document.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX; });
-document.addEventListener('touchend', e=>{
-  if(touchStartX === null) return;
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  if(Math.abs(dx) > 60){ dx < 0 ? goToSlide(current+1) : goToSlide(current-1); }
-  touchStartX = null;
-});
-
-buildDeck();
-goToSlide(0);
+function renderQuizQuestion(){
+  quizAnswered = false;
+  renderQuizProgress();
+  const card = document.getElementById("quizCard");
+  if(quizIdx >= quizQuestions.length){
+    card.innerHTML = `
+      <div class="quiz-result">
+        <div style="font-size:0.85rem; color:var(--ink-dim); font-family:'JetBrains Mono',monospace;">HASIL KUIS</div>
+        <div class="score">${quizScore} / ${quizQuestions.length}</div>
+        <p>${quizScore===quizQuestions.length ? "Sempurna! Kamu menguasai 7 sifat bilangan berpangkat 🎉" : quizScore >= quizQuestions.length*0.6 ? "Bagus! Coba tinjau lagi sifat yang masih keliru." : "Yuk pelajari ulang sifat-sifatnya, lalu coba lagi."}</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+          <button class="ghost-btn" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+          <button class="primary-btn" onclick="goTo(12)">Lanjut ke Penutup →</button>
+        </div>
+      </div>`;
+    return;
+  }
+  const q = quizQuestions[quizIdx];
+  let optsHtml = "";
+  q.options.forEach((opt,i)=>{
+    const letter = String.fromCharCode(65+i);
+    optsHtml += `<button class="qopt" data-i="${i}" onclick="answerQuiz(${i})"><span class="letter">${letter}</span><span>${opt}</span></button>`;
+  });
+  card.innerHTML = `
+    <div class="quiz-q">Soal ${quizIdx+1}: ${q.q}</div>
+    <div class="quiz-opts" id="quizOpts">${optsHtml}</div>
+    <div class="quiz-feedback" id="quizFeedback"></div>
+    <button class="primary-btn quiz-next" id="quizNextBtn" onclick="nextQuizQuestion()">Soal Berikutnya →</button>
+  `;
+}
+function answerQuiz(i){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizQuestions[quizIdx];
+  const opts = document.querySelectorAll("#quizOpts .qopt");
+  opts.forEach(o=>o.classList.add("disabled"));
+  const correct = i === q.correct;
+  if(correct){ opts[i].classList.add("correct"); quizScore++; }
+  else{ opts[i].classList.add("wrong"); opts[q.correct].classList.add("correct"); }
+  const fb = document.getElementById("quizFeedback");
+  fb.className = "quiz-feedback show " + (correct ? "ok" : "bad");
+  fb.innerHTML = `<b>${correct ? "Benar! " : "Belum tepat. "}</b>${q.explain}`;
+  document.getElementById("quizNextBtn").classList.add("show");
+}
+function nextQuizQuestion(){ quizIdx++; renderQuizQuestion(); }
+function restartQuiz(){ quizIdx=0; quizScore=0; renderQuizQuestion(); }
+renderQuizQuestion();
 </script>
 </body>
 </html>
