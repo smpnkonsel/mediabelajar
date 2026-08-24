@@ -302,6 +302,19 @@ function shuffleOptions(q){
   return q;
 }
 
+// Cek apakah semua pilihan jawaban unik (tidak ada teks yang kembar).
+// Ini penting karena beberapa kombinasi basis/pangkat acak bisa
+// menghasilkan dua pilihan yang tampil identik (mis. a^(m+n) == a^(m*n)
+// ketika m=n=2), yang membuat soal jadi ambigu.
+function optionsAreUnique(q){
+  const seen = new Set();
+  for(const o of q.opts){
+    if(seen.has(o)) return false;
+    seen.add(o);
+  }
+  return true;
+}
+
 function burstConfetti(count){
   const emojis = ['🎉','⭐','✨','🎊','🌟'];
   for(let i = 0; i < count; i++){
@@ -387,10 +400,11 @@ function genNegatif(tier){
   };
 }
 
-// Menghasilkan 3 pilihan pangkat salah yang berbeda dari pangkat benar (E)
+// Menghasilkan pilihan pangkat salah yang berbeda dari pangkat benar (E)
+// DAN berbeda satu sama lain, supaya tidak ada dua pilihan kembar.
 function wrongExponents(E, count){
   const candidates = new Set();
-  [E+1, E-1, E+2, E-2, E*2, -E, E+3, E-3].forEach(c => {
+  [E+1, E-1, E+2, E-2, E*2, -E, E+3, E-3, E+4, -E-1].forEach(c => {
     if(c !== E) candidates.add(c);
   });
   return [...candidates].slice(0, count);
@@ -462,7 +476,16 @@ const GENERATORS = {
 function makeQuestion(cfg, idx){
   const type = cfg.types[randInt(0, cfg.types.length - 1)];
   const tier = cfg.tierFn(idx, cfg.total);
-  const q = GENERATORS[type](tier);
+
+  // Coba generate ulang jika ada pilihan jawaban yang kembar (teks identik),
+  // supaya soal tidak pernah tampil dengan dua opsi yang sama persis.
+  let q;
+  let attempts = 0;
+  do {
+    q = GENERATORS[type](tier);
+    attempts++;
+  } while(!optionsAreUnique(q) && attempts < 40);
+
   q.tier = tier;
   return shuffleOptions(q);
 }

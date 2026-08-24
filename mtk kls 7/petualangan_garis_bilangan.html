@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Petualangan Garis Bilangan</title>
+<style>
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  font-family:"Trebuchet MS",Arial,sans-serif;color:#fff;
+  background:linear-gradient(#5ec8ff 0 38%,#78c94a 38% 100%);
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+  background:
+   radial-gradient(circle at 15% 15%,#fff 0 45px,transparent 46px),
+   radial-gradient(circle at 78% 12%,#fff 0 35px,transparent 36px);
+}
+.game{
+  height:100vh;height:100svh;display:flex;flex-direction:column;gap:8px;
+  padding:8px 12px;position:relative;
+}
+.top{
+ display:flex;gap:10px;align-items:center;justify-content:space-between;
+ max-width:1500px;width:100%;margin:auto;flex:0 0 auto;
+}
+.panel{
+ background:rgba(20,31,40,.92);border:3px solid #9a6a2f;border-radius:16px;
+ box-shadow:0 5px 0 rgba(0,0,0,.25),inset 0 0 0 2px #f6cf73;
+}
+.player{display:flex;align-items:center;gap:10px;padding:6px 14px;min-width:210px}
+.avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+ background:#ffe0a6;font-size:24px;border:2px solid #fff;flex:0 0 auto}
+.player b{display:block;color:#ffd92f;font-size:15px}.stats{font-size:14px;margin-top:2px}
+.title{
+ padding:8px 26px;text-align:center;background:#70471e;border:4px solid #9d6b2e;
+ border-radius:14px;box-shadow:0 5px 0 rgba(0,0,0,.25)
+}
+.title h1{margin:0;color:#ffe44e;font-size:clamp(18px,2.6vw,32px);line-height:1}
+.title span{font-size:clamp(11px,1.3vw,16px);font-weight:900}
+.actions{display:flex;gap:6px}.iconbtn{
+ min-width:64px;padding:6px 6px;color:#fff;background:#172735;border:2px solid #4d6b7b;
+ border-radius:12px;font-weight:bold;cursor:pointer;font-size:11px
+}
+.iconbtn:hover{transform:translateY(-1px);filter:brightness(1.15)}
+.layout{
+ max-width:1500px;width:100%;margin:0 auto;flex:1 1 auto;min-height:0;
+ display:grid;grid-template-columns:190px 1fr 210px;gap:10px;
+}
+.side{padding:12px;background:rgba(17,31,40,.92);border:2px solid #33515d;border-radius:16px;box-shadow:0 5px 0 #25402c;overflow-y:auto;min-height:0;font-size:13px}
+.side h3{margin:0 0 8px;color:#ffe35a;font-size:15px}.side ul{padding-left:18px;line-height:1.5;margin:0;font-size:12.5px}
+.side .badge{margin-top:10px;padding:8px;border-radius:10px;background:#253b49;font-size:12px}
+.badge strong{color:#6df16d}
+.levelpill{display:inline-block;margin-bottom:4px;padding:3px 12px;border-radius:16px;background:#2f4f36;color:#8ff08a;font-size:11px;font-weight:900;letter-spacing:.4px}
+.center{min-width:0;min-height:0;display:flex;flex-direction:column;gap:6px}
+.mission{
+ flex:0 0 auto;max-width:700px;width:100%;margin:0 auto;text-align:center;padding:8px 16px;
+ background:var(--cream,#fff5d7);color:#222;border:3px solid #b7792c;border-radius:16px;
+ box-shadow:0 5px 0 rgba(0,0,0,.2)
+}
+.ribbon{display:inline-block;background:#d94a35;color:#fff;padding:4px 22px;border-radius:8px;
+ font-weight:900;font-size:14px;transform:translateY(-19px);margin-bottom:-16px}
+.mission h2{margin:4px 0 0;font-size:16px}.mission .target{font-size:26px;font-weight:900;color:#d7372a;line-height:1.1}
+.mission .sub{font-size:12px;color:#555;margin-top:2px}
+.world{
+ position:relative;flex:1 1 auto;min-height:0;border-radius:20px;overflow:hidden;
+ border:4px solid #765029;box-shadow:0 6px 0 rgba(0,0,0,.28);
+ background:
+  linear-gradient(180deg,rgba(70,180,235,.55),rgba(82,146,71,.3)),
+  radial-gradient(ellipse at 50% 55%,#9ad8ef 0 18%,transparent 19%),
+  linear-gradient(#52b9ed 0 52%,#6dbb45 52% 100%);
+}
+.mountain{position:absolute;bottom:22%;width:0;height:0;border-left:110px solid transparent;border-right:110px solid transparent;border-bottom:140px solid rgba(68,111,151,.75)}
+.m1{left:5%;transform:scale(.75)}.m2{left:28%;transform:scale(1.05)}.m3{right:0;transform:scale(.8)}
+.cloud{position:absolute;background:#fff;border-radius:50px;width:80px;height:24px;opacity:.75}
+.cloud:before,.cloud:after{content:"";position:absolute;background:#fff;border-radius:50%}
+.cloud:before{width:36px;height:36px;left:12px;top:-18px}.cloud:after{width:46px;height:46px;right:12px;top:-24px}
+.c1{top:8%;left:5%}.c2{top:14%;right:10%}
+.flag{position:absolute;right:10%;bottom:26%;font-size:34px;filter:drop-shadow(0 3px 2px #333)}
+.hero{
+ position:absolute;bottom:26%;left:var(--hero-x,42%);
+ font-size:44px;transition:left .4s cubic-bezier(.2,.8,.2,1);
+ filter:drop-shadow(0 4px 2px rgba(0,0,0,.3));z-index:4
+}
+.card{
+ position:absolute;top:6%;left:50%;transform:translateX(-50%);
+ width:110px;padding:14px 8px;background:#fff;color:#222;border-radius:14px;
+ border:4px solid #f6cf73;box-shadow:0 6px 0 rgba(0,0,0,.25);text-align:center;
+ font-size:30px;font-weight:900;z-index:6
+}
+.card small{display:block;font-size:10px;font-weight:700;color:#888;margin-top:3px}
+.ground{position:absolute;left:0;right:0;bottom:0;height:24%;background:#54a83f;border-top:6px solid #8bd64b}
+.numberline{
+ position:absolute;left:3%;right:3%;bottom:6%;height:24%;z-index:5;
+ display:flex;align-items:flex-end;justify-content:space-between;gap:2%;
+}
+.num{
+ position:relative;flex:1 1 0;max-width:44px;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;
+ font-family:inherit;font-weight:900;font-size:13px;color:#fff;cursor:default;z-index:2;padding:0;outline:none;
+ background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.5);border-radius:10px;
+ box-shadow:0 3px 0 rgba(0,0,0,.25);transition:transform .12s,background .12s,box-shadow .12s;
+}
+.num:disabled{opacity:1}
+.num.zero{color:#3a2900;background:#ffd52d;border-color:#e8b923}
+.num.clickable{cursor:pointer;background:#2788e8;border-color:#8fc4ff;box-shadow:0 4px 0 #1c5fa3}
+.num.clickable.zero{background:#ffd52d;border-color:#fff0a8;box-shadow:0 4px 0 #b8890c}
+.num.clickable:hover{transform:translateY(-3px);filter:brightness(1.12)}
+.num.clickable:active{transform:translateY(2px);box-shadow:0 1px 0 #1c5fa3}
+.num.selected{background:#37d34a;border-color:#a6ffb0;box-shadow:0 4px 0 #1f8a2c;color:#fff}
+.controlsRow{flex:0 0 auto;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap}
+.move{
+ padding:9px 18px;border:3px solid #247a2a;border-radius:12px;background:#5bd646;
+ color:#fff;font-size:14px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #2d762d
+}
+.move:active{transform:translateY(3px);box-shadow:0 1px 0 #2d762d}
+.move:disabled{opacity:.4;cursor:not-allowed}
+.classifyRow{flex:0 0 auto;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.classbtn{
+ padding:9px 16px;border-radius:12px;font-size:13px;font-weight:900;cursor:pointer;
+ color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.3);border:3px solid rgba(255,255,255,.5);min-width:100px
+}
+.classbtn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+.classbtn.negatif{background:#e94b3c}
+.classbtn.nol{background:#e8b923;color:#3a2900}
+.classbtn.positif{background:#2788e8}
+.steplabel{
+ min-width:90px;text-align:center;font-weight:900;font-size:13px;background:#243845;
+ padding:9px 8px;border-radius:10px
+}
+.bottommsg{
+ flex:0 0 auto;padding:8px 14px;background:var(--cream,#fff5d7);color:#222;border:3px solid #bd873c;
+ border-radius:14px;text-align:center;font-size:13px;font-weight:bold;min-height:18px;line-height:1.3
+}
+.right .missionbox{line-height:1.4;font-size:12.5px}.right .missionbox h3{color:#ffe35a;margin:8px 0 6px;font-size:14px}
+.type{display:block;padding:5px 8px;margin:4px 0;border-radius:8px;background:#243845;font-size:12px}
+.neg{color:#ff665d}.pos{color:#59dfff}.nul{color:#ffe329}
+.progress{height:10px;background:#18232b;border-radius:20px;overflow:hidden;margin:6px 0}
+.progress i{display:block;height:100%;width:0%;background:#4ed843;transition:width .4s}
+.level{display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;z-index:20;padding:16px}
+.modal.show{display:grid}.modalbox{max-width:480px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;background:#fff5d7;color:#222;border:4px solid #b9792e;border-radius:20px;text-align:center}
+.modalbox h2{color:#c83d2d;font-size:24px;margin-top:0}.modalbox button{padding:10px 22px;border:0;border-radius:10px;background:#35bd45;color:white;font-size:16px;font-weight:bold;cursor:pointer;margin-top:8px}
+.modalbox .rewardrow{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px dashed #c9a568;font-size:13px;text-align:left}
+.modalbox .rewardrow.hit{background:#ffe9a8;border-radius:8px;font-weight:900}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}.side{display:none}}
+@media(max-height:640px){.avatar{display:none}.title h1{font-size:16px}.title span{font-size:10px}.iconbtn{padding:4px}}
+@media(max-width:700px){
+ .top{gap:6px}.title{padding:6px 12px}.player{min-width:0;padding:5px 8px}.iconbtn{min-width:0;font-size:9px}
+ .numberline{left:1%;right:1%}.num{font-size:10px;max-width:34px}.move{padding:7px 12px;font-size:12px}
+ .card{width:80px;font-size:20px;padding:10px 4px}.classbtn{padding:7px 10px;font-size:11px;min-width:70px}
+ .steplabel{font-size:11px;min-width:70px}
+}
+</style>
+</head>
+<body>
+<div class="game">
+  <header class="top">
+    <div class="panel player">
+      <div class="avatar">🧑‍🚀</div>
+      <div><b id="playerName">Petualang Muda</b><div class="stats">⭐ <span id="score">0</span> &nbsp; ❤️ <span id="life">3</span></div></div>
+    </div>
+    <div class="title"><h1>PETUALANGAN</h1><span>GARIS BILANGAN</span></div>
+    <div class="actions">
+      <button class="iconbtn" onclick="showAchievement()">🏆<br>Peringkat</button>
+      <button class="iconbtn" onclick="location.reload()">↻<br>Ulang</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="side">
+      <h3>📜 MATERI</h3>
+      <ul>
+        <li>Pengertian Bilangan Bulat</li>
+        <li>Bilangan Positif</li>
+        <li>Bilangan Nol</li>
+        <li>Bilangan Negatif</li>
+        <li>Garis Bilangan</li>
+      </ul>
+      <div class="badge">🎯 <strong>Tujuan</strong><br>Menentukan jenis dan posisi bilangan bulat pada garis bilangan.</div>
+      <div class="badge" id="hintBox">💡 <strong>Petunjuk</strong><br>Ikuti setiap level untuk belajar bilangan bulat langkah demi langkah.</div>
+    </aside>
+
+    <section class="center">
+      <div class="mission">
+        <div class="ribbon">MISI <span id="qNo">1</span>/<span id="totalQ">20</span></div>
+        <span class="levelpill" id="levelPill">LEVEL 1 · KENALI BILANGANNYA</span>
+        <h2 id="question">Bilangan apakah kartu ini?</h2>
+        <div class="target" id="target" style="display:none">-3</div>
+        <div class="sub" id="subtext"></div>
+      </div>
+
+      <div class="world" id="world">
+        <div class="mountain m1"></div><div class="mountain m2"></div><div class="mountain m3"></div>
+        <div class="cloud c1"></div><div class="cloud c2"></div>
+        <div class="ground"></div>
+        <div class="card" id="card" style="display:none">-5</div>
+        <div class="flag" id="flag">🚩</div>
+        <div class="hero" id="hero">🧑‍🚀</div>
+        <div class="numberline" id="numberline"></div>
+      </div>
+
+      <div class="controlsRow" id="classifyRow" style="display:none">
+        <button class="classbtn negatif" onclick="classifyAnswer('negatif')">➖ Negatif</button>
+        <button class="classbtn nol" onclick="classifyAnswer('nol')">0️⃣ Nol</button>
+        <button class="classbtn positif" onclick="classifyAnswer('positif')">➕ Positif</button>
+      </div>
+
+      <div class="controlsRow" id="moveRow" style="display:none">
+        <button class="move" id="btnKiri" onclick="moveHero(-1)">⬅ KIRI</button>
+        <div class="steplabel">Langkah: <span id="stepCount">0</span>/<span id="stepNeeded">0</span></div>
+        <button class="move" id="btnKanan" onclick="moveHero(1)">KANAN ➡</button>
+      </div>
+
+      <div class="bottommsg" id="feedback">Ayo mulai petualangan mengenal bilangan bulat!</div>
+    </section>
+
+    <aside class="side right">
+      <div class="level"><span>LEVEL <b id="level">1</b></span><span id="progressText">0/20</span> ⭐</div>
+      <div class="progress"><i id="progress"></i></div>
+      <div class="missionbox">
+        <h3 id="sideLevelTitle">🎯 LEVEL 1</h3>
+        <p id="sideLevelDesc">Kenali kartu bilangan: tentukan apakah negatif, nol, atau positif.</p>
+        <h3>JENIS BILANGAN</h3>
+        <span class="type neg">● Bilangan Negatif</span>
+        <span class="type nul">● Bilangan Nol</span>
+        <span class="type pos">● Bilangan Positif</span>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+ <div class="modalbox">
+   <h2 id="modalTitle">🎉 Hebat!</h2>
+   <div id="modalText"></div>
+   <button onclick="closeModal()" id="modalBtn">Lanjutkan</button>
+ </div>
+</div>
+
+<script>
+const values=[-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7];
+
+function jenis(n){ return n<0?"negatif":n===0?"nol":"positif"; }
+function fmt(n){ return n>0?"+"+n:""+n; }
+
+/* ===== SUSUNAN MISI DALAM 4 LEVEL (20 misi) ===== */
+const plan=[
+ // LEVEL 1 — Kenali Bilangannya
+ {level:1,mode:"classify",card:-5},
+ {level:1,mode:"classify",card:0},
+ {level:1,mode:"classify",card:3},
+ {level:1,mode:"classify",card:7},
+ {level:1,mode:"classify",card:6},
+ // LEVEL 2 — Tentukan Posisi
+ {level:2,mode:"position",target:-3,prompt:"Temukan posisi -3!"},
+ {level:2,mode:"position",target:4,prompt:"Temukan posisi 4!"},
+ {level:2,mode:"position",target:-6,prompt:"Temukan posisi -6!"},
+ {level:2,mode:"position",target:2,prompt:"Temukan posisi 2!"},
+ {level:2,mode:"position",target:-1,prompt:"Temukan posisi -1!"},
+ // LEVEL 3 — Gerakkan Karakter (langsung lanjut begitu posisi benar)
+ {level:3,mode:"move",steps:4,dir:-1,dirLabel:"kiri",target:-4,prompt:"Bergerak 4 langkah ke kiri."},
+ {level:3,mode:"move",steps:3,dir:1,dirLabel:"kanan",target:3,prompt:"Bergerak 3 langkah ke kanan."},
+ {level:3,mode:"move",steps:6,dir:-1,dirLabel:"kiri",target:-6,prompt:"Bergerak 6 langkah ke kiri."},
+ {level:3,mode:"move",steps:2,dir:1,dirLabel:"kanan",target:2,prompt:"Bergerak 2 langkah ke kanan."},
+ {level:3,mode:"move",steps:5,dir:-1,dirLabel:"kiri",target:-5,prompt:"Bergerak 5 langkah ke kiri."},
+ // LEVEL 4 — Tantangan Cepat (acak: posisi & jenis)
+ {level:4,mode:"position",target:-7,prompt:"Di mana posisi -7?"},
+ {level:4,mode:"classify",indirect:{steps:5,dir:1},prompt:"Bilangan apakah yang berada 5 langkah di kanan 0?"},
+ {level:4,mode:"classify",indirect:{steps:3,dir:-1},prompt:"Bilangan apakah yang berada 3 langkah di kiri 0?"},
+ {level:4,mode:"clickType",type:"negatif",prompt:"Manakah yang merupakan bilangan negatif? Klik salah satu di garis bilangan!"},
+ {level:4,mode:"clickType",type:"positif",prompt:"Manakah yang merupakan bilangan positif? Klik salah satu di garis bilangan!"}
+];
+const TOTAL=plan.length;
+
+const LEVEL_INFO={
+ 1:{title:"KENALI BILANGANNYA",desc:"Lihat kartu bilangan, lalu tentukan apakah negatif, nol, atau positif.",color:"#2f4f36",textcolor:"#8ff08a"},
+ 2:{title:"TENTUKAN POSISI",desc:"Klik posisi yang tepat pada garis bilangan sesuai perintah misi.",color:"#264a5c",textcolor:"#7fd4ff"},
+ 3:{title:"GERAKKAN KARAKTER",desc:"Karakter mulai dari 0. Gerakkan sesuai jumlah & arah langkah — begitu posisi tepat, misi otomatis lanjut!",color:"#5c3f1f",textcolor:"#ffcf7f"},
+ 4:{title:"TANTANGAN CEPAT",desc:"Pertanyaan campuran muncul acak: posisi maupun jenis bilangan!",color:"#5c1f2f",textcolor:"#ff9fae"}
+};
+
+let qIndex=0,score=0,life=3,correctCount=0,current=0,locked=false;
+let stepsTaken=0;
+
+const $=id=>document.getElementById(id);
+$("totalQ").textContent=TOTAL;
+$("progressText").textContent=`0/${TOTAL}`;
+
+function renderLine(clickable,highlightVal,onClickFn){
+  $("numberline").innerHTML="";
+  values.forEach(n=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="num "+(n===0?"zero":"")+(clickable?" clickable":"")+(n===highlightVal?" selected":"");
+    b.textContent=n;
+    if(clickable) b.onclick=()=>onClickFn(n);
+    else b.disabled=true;
+    $("numberline").appendChild(b);
+  });
+}
+function setHero(pos){
+  const idx=values.indexOf(pos);
+  $("hero").style.setProperty("--hero-x",`${5+idx*6.43}%`);
+}
+
+function setLevelUI(level){
+  const info=LEVEL_INFO[level];
+  $("level").textContent=level;
+  const pill=$("levelPill");
+  pill.textContent="LEVEL "+level+" · "+info.title;
+  pill.style.background=info.color;
+  pill.style.color=info.textcolor;
+  $("sideLevelTitle").textContent="🎯 LEVEL "+level;
+  $("sideLevelDesc").textContent=info.desc;
+}
+
+function showLevelIntro(level,cb){
+  const info=LEVEL_INFO[level];
+  $("modalTitle").textContent="🚩 LEVEL "+level;
+  $("modalText").innerHTML=`<b style="font-size:18px">${info.title}</b><p style="margin-top:8px">${info.desc}</p>`;
+  $("modalBtn").textContent="Mulai Level "+level;
+  $("modal").classList.add("show");
+  $("modalBtn").onclick=()=>{ $("modal").classList.remove("show"); $("modalBtn").onclick=closeModal; cb(); };
+}
+
+let lastLevelShown=0;
+
+function loadQuestion(){
+  locked=false;
+  const q=plan[qIndex];
+  setLevelUI(q.level);
+  $("qNo").textContent=qIndex+1;
+  $("progressText").textContent=`${qIndex}/${TOTAL}`;
+  $("progress").style.width=(qIndex*100/TOTAL)+"%";
+
+  $("classifyRow").style.display="none";
+  $("moveRow").style.display="none";
+  $("card").style.display="none";
+  $("target").style.display="none";
+  $("subtext").textContent="";
+
+  const startLevel=()=>{
+    if(q.mode==="classify" && q.card!==undefined){
+      $("question").textContent="Bilangan apakah kartu ini?";
+      $("card").style.display="block";
+      $("card").innerHTML=fmt(q.card)+"<small>Kartu Bilangan</small>";
+      $("classifyRow").style.display="flex";
+      current=q.card; renderLine(false,current); setHero(current);
+      $("feedback").textContent="Pilih jenis bilangan yang sesuai dengan kartu di atas.";
+    } else if(q.mode==="classify" && q.indirect){
+      const val=q.indirect.steps*q.indirect.dir;
+      q._answerVal=val;
+      $("question").textContent=q.prompt;
+      $("classifyRow").style.display="flex";
+      current=0; renderLine(true,current,()=>{}); setHero(current);
+      $("feedback").textContent="Hitung dulu posisinya, lalu tentukan jenis bilangannya.";
+    } else if(q.mode==="position"){
+      $("question").textContent=q.prompt;
+      $("target").style.display="block";
+      $("target").textContent=fmt(q.target);
+      current=0; renderLine(true,null,positionAnswer); setHero(current);
+      $("feedback").textContent="Klik angka yang tepat pada garis bilangan.";
+    } else if(q.mode==="clickType"){
+      $("question").textContent=q.prompt;
+      current=0; renderLine(true,null,typeAnswer); setHero(0);
+      $("hero").style.display="none";
+      $("feedback").textContent="Klik salah satu angka bilangan "+q.type+" pada garis bilangan.";
+    } else if(q.mode==="move"){
+      $("question").textContent=q.prompt;
+      $("subtext").textContent="Karakter mulai dari 0";
+      $("moveRow").style.display="flex";
+      stepsTaken=0; current=0;
+      $("stepCount").textContent=0;
+      $("stepNeeded").textContent=q.steps;
+      $("hero").style.display="block";
+      renderLine(false,current); setHero(current);
+      $("feedback").textContent="Gunakan tombol KIRI/KANAN. Begitu posisi tepat, misi otomatis lanjut!";
+    }
+    if(q.mode!=="clickType") $("hero").style.display="block";
+  };
+
+  if(q.level!==lastLevelShown){
+    lastLevelShown=q.level;
+    showLevelIntro(q.level,startLevel);
+  } else {
+    startLevel();
+  }
+}
+
+function markCorrect(explainHTML,delay){
+  locked=true; score+=10; correctCount++;
+  $("score").textContent=score;
+  $("feedback").innerHTML=`<span style="color:#159d2b">✅ BENAR!</span> ${explainHTML} &nbsp; ⭐ +10 Poin`;
+  setTimeout(()=>{
+    qIndex++;
+    if(qIndex>=plan.length){ finishGame(); return; }
+    loadQuestion();
+  },delay||1100);
+}
+function markWrong(hintHTML){
+  life--; $("life").textContent=life;
+  $("feedback").innerHTML=`❌ Belum tepat. ${hintHTML}`;
+  if(life<=0){
+    $("modalTitle").textContent="💪 Coba Lagi";
+    $("modalText").innerHTML="Nyawa habis. Jangan menyerah! Ulangi permainan dan taklukkan garis bilangan.";
+    $("modalBtn").textContent="Ulangi";
+    $("modal").classList.add("show");
+    $("modalBtn").onclick=()=>location.reload();
+  }
+}
+
+/* LEVEL 1 & 4 (classify) */
+function classifyAnswer(choice){
+  if(locked)return;
+  const q=plan[qIndex];
+  if(q.card!==undefined){
+    const correct=jenis(q.card);
+    if(choice===correct){
+      markCorrect(`<b>${fmt(q.card)}</b> adalah bilangan bulat <b>${correct}</b>.`);
+    } else {
+      markWrong(`<b>${fmt(q.card)}</b> itu sebenarnya bilangan <b>${correct}</b>. Coba lagi!`);
+    }
+  } else if(q.indirect){
+    const val=q._answerVal;
+    const correct=jenis(val);
+    if(choice===correct){
+      markCorrect(`${q.indirect.steps} langkah ke ${q.indirect.dir>0?"kanan":"kiri"} dari 0 adalah <b>${fmt(val)}</b>, bilangan <b>${correct}</b>.`);
+    } else {
+      markWrong(`Posisinya adalah <b>${fmt(val)}</b>, yaitu bilangan <b>${correct}</b>. Coba lagi!`);
+    }
+  }
+}
+
+/* LEVEL 2 & 4 (position) */
+function positionAnswer(n){
+  if(locked)return;
+  const q=plan[qIndex];
+  if(n===q.target){
+    current=n; renderLine(true,n,positionAnswer); setHero(n);
+    markCorrect(`Posisi <b>${fmt(n)}</b> berhasil ditemukan pada garis bilangan!`);
+  } else {
+    markWrong(n<q.target?"Petunjuk: coba geser lebih ke kanan ➡":"Petunjuk: coba geser lebih ke kiri ⬅");
+  }
+}
+
+/* LEVEL 4 (clickType) */
+function typeAnswer(n){
+  if(locked)return;
+  const q=plan[qIndex];
+  if(jenis(n)===q.type){
+    renderLine(true,n,typeAnswer);
+    markCorrect(`<b>${fmt(n)}</b> memang bilangan <b>${q.type}</b>. Tepat sekali!`);
+  } else {
+    markWrong(`<b>${fmt(n)}</b> adalah bilangan <b>${jenis(n)}</b>, bukan ${q.type}. Coba klik angka lain!`);
+  }
+}
+
+/* LEVEL 3 (move) — otomatis lanjut begitu posisi tepat */
+function moveHero(dir){
+  if(locked)return;
+  const q=plan[qIndex];
+  if(q.mode!=="move")return;
+  let idx=values.indexOf(current);
+  idx=Math.max(0,Math.min(values.length-1,idx+dir));
+  current=values[idx];
+  stepsTaken++;
+  $("stepCount").textContent=stepsTaken;
+  renderLine(false,current); setHero(current);
+  if(current===q.target){
+    markCorrect(`Karakter berhasil berhenti di <b>${fmt(q.target)}</b> setelah bergerak ${q.steps} langkah ke ${q.dirLabel}.`,900);
+  } else {
+    $("feedback").textContent="Terus gerakkan sampai berhenti di posisi yang tepat.";
+  }
+}
+
+function finishGame(){
+  $("progress").style.width="100%";$("progressText").textContent=`${TOTAL}/${TOTAL}`;
+  const pct=correctCount/TOTAL;
+  let tier;
+  if(pct>=0.9) tier=1; else if(pct>=0.7) tier=2; else if(pct>=0.5) tier=3; else tier=4;
+  const rows=[
+   {label:"90–100% benar",badge:"🏆 Master Bilangan",n:1},
+   {label:"70–89% benar",badge:"⭐ Hebat",n:2},
+   {label:"50–69% benar",badge:"👍 Bagus",n:3},
+   {label:"<50% benar",badge:"🔄 Coba Lagi",n:4}
+  ];
+  $("modalTitle").textContent="🏁 Misi Selesai!";
+  let html=`<p><b>Jawaban benar: ${correctCount}/${TOTAL}</b><br>Skor akhir: ${score} ⭐</p><div>`;
+  rows.forEach(r=>{
+    html+=`<div class="rewardrow${r.n===tier?" hit":""}"><span>${r.label}</span><span>${r.badge}</span></div>`;
+  });
+  html+="</div>";
+  $("modalText").innerHTML=html;
+  $("modalBtn").textContent="Main Lagi";
+  $("modal").classList.add("show");
+  $("modalBtn").onclick=()=>location.reload();
+}
+
+function closeModal(){ $("modal").classList.remove("show"); }
+
+function showAchievement(){
+ $("modalTitle").textContent="🏆 Peringkat Petualang";
+ $("modalText").innerHTML=`Jawaban benar saat ini: <b>${correctCount}/${TOTAL}</b><br>Skor: <b>${score}</b> ⭐<br><br>🏆 90–100%: Master Bilangan<br>⭐ 70–89%: Hebat<br>👍 50–69%: Bagus<br>🔄 &lt;50%: Coba Lagi`;
+ $("modalBtn").textContent="Tutup";
+ $("modal").classList.add("show");
+ $("modalBtn").onclick=closeModal;
+}
+showLevelIntro(1,()=>loadQuestion());
+</script>
+</body>
+</html>

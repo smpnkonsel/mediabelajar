@@ -201,6 +201,53 @@
   .btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
   .btn-primary:active{ transform:translateY(0); }
 
+  /* ---------- COVER: decorative floating number line ---------- */
+  .cover-nline{
+    display:flex;
+    align-items:center;
+    gap:clamp(6px,1.6vw,14px);
+    margin-bottom:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .cover-nline .cn-dash{
+    width:clamp(12px,2.2vw,24px);
+    height:2px;
+    background:var(--grid);
+    flex-shrink:0;
+  }
+  .cn-badge{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:clamp(12px,1.8vw,15px);
+    width:clamp(32px,4.6vw,42px);
+    height:clamp(32px,4.6vw,42px);
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--white);
+    box-shadow:var(--shadow);
+    color:var(--ink-soft);
+    flex-shrink:0;
+    animation:cn-float 3.6s ease-in-out infinite;
+  }
+  .cn-badge.neg{ color:var(--negative); }
+  .cn-badge.pos{ color:var(--positive); }
+  .cn-badge.zero{
+    color:var(--paper);
+    background:var(--zero);
+    font-size:clamp(15px,2.2vw,19px);
+    width:clamp(42px,6vw,52px);
+    height:clamp(42px,6vw,52px);
+    box-shadow:var(--shadow-lg);
+  }
+  @keyframes cn-float{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-9px); }
+  }
+  @media (prefers-reduced-motion: reduce){ .cn-badge{ animation:none; } }
+
   /* ---------- GENERIC GRID / CARDS ---------- */
   .grid{
     display:grid;
@@ -239,6 +286,30 @@
     transition:border-color .2s ease;
   }
   .feedback-box.on{ border-left-color:var(--negative); }
+
+  /* types preview row (slide 2) */
+  .type-preview{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-bottom:22px;
+  }
+  @media (max-width:700px){ .type-preview{ grid-template-columns:1fr; } }
+  .tp-card{
+    background:var(--white);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:14px 16px;
+    border-top:4px solid var(--grid);
+  }
+  .tp-card .tp-lbl{ font-weight:700; font-size:14px; margin-bottom:4px; }
+  .tp-card .tp-eg{ font-size:12.5px; color:var(--ink-soft); line-height:1.5; }
+  .tp-card.tp-pos{ border-top-color:var(--positive); }
+  .tp-card.tp-pos .tp-lbl{ color:var(--positive); }
+  .tp-card.tp-zero{ border-top-color:var(--zero); }
+  .tp-card.tp-zero .tp-lbl{ color:var(--zero); }
+  .tp-card.tp-neg{ border-top-color:var(--negative); }
+  .tp-card.tp-neg .tp-lbl{ color:var(--negative); }
 
   /* flip cards (slide 3) */
   .flip-card{
@@ -282,12 +353,11 @@
     padding:24px clamp(10px,3vw,26px) 18px;
     margin-bottom:16px;
   }
-  .nline-scroll{ overflow-x:auto; padding:20px 6px 10px; }
+  .nline-scroll{ overflow-x:auto; padding:26px 6px 14px; }
   .nline{
     position:relative;
     display:flex;
     align-items:center;
-    min-width:760px;
     padding:0 20px;
   }
   .nline::before{
@@ -295,26 +365,56 @@
     position:absolute; left:0; right:0; top:50%;
     height:3px; background:var(--ink); transform:translateY(-50%);
   }
-  .nline .arrow-l, .nline .arrow-r{ font-family:var(--font-mono); font-weight:700; color:var(--ink); flex-shrink:0; }
+  .nline .zero-band{
+    position:absolute; top:-14px; bottom:-14px; width:40px;
+    background:var(--zero-soft); border-radius:10px; z-index:0;
+    transform:translateX(-50%);
+  }
+  .nline .arrow-l, .nline .arrow-r{
+    font-family:var(--font-mono); font-weight:700; color:var(--ink-soft); flex-shrink:0; font-size:13px;
+  }
   .nline .pt-wrap{ flex:1; display:flex; justify-content:space-between; position:relative; z-index:1; }
   .npoint{
-    background:var(--white);
-    border:3px solid var(--ink);
-    width:16px; height:16px;
-    border-radius:50%;
+    background:none;
+    border:none;
+    padding:14px 4px;
     cursor:pointer;
     position:relative;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    flex-shrink:0;
+  }
+  .npoint .npoint-dot{
+    display:block;
+    width:16px; height:16px;
+    border-radius:50%;
+    background:var(--white);
+    border:3px solid var(--ink);
     transition:transform .15s ease, background .15s ease, border-color .15s ease;
   }
-  .npoint:hover{ transform:scale(1.3); }
+  .npoint:hover .npoint-dot{ transform:scale(1.3); }
   .npoint .tick-label{
-    position:absolute; top:22px; left:50%; transform:translateX(-50%);
+    display:block;
+    margin-top:8px;
     font-family:var(--font-mono); font-size:12px; color:var(--ink-soft);
+    transition:color .15s ease, font-weight .15s ease;
   }
-  .npoint.active{ transform:scale(1.5); }
-  .npoint.pos.active{ background:var(--positive); border-color:var(--positive); }
-  .npoint.neg.active{ background:var(--negative); border-color:var(--negative); }
-  .npoint.zero.active{ background:var(--zero); border-color:var(--zero); }
+  .npoint.active .npoint-dot{ transform:scale(1.55); }
+  .npoint.pos.active .npoint-dot{ background:var(--positive); border-color:var(--positive); }
+  .npoint.neg.active .npoint-dot{ background:var(--negative); border-color:var(--negative); }
+  .npoint.zero.active .npoint-dot{ background:var(--zero); border-color:var(--zero); }
+  .npoint.pos.active .tick-label{ color:var(--positive); font-weight:700; }
+  .npoint.neg.active .tick-label{ color:var(--negative); font-weight:700; }
+  .npoint.zero.active .tick-label{ color:var(--zero); font-weight:700; }
+  .nline-readout{
+    font-family:var(--font-mono); font-weight:700; font-size:clamp(26px,4vw,34px);
+    text-align:center; margin-bottom:10px; color:var(--ink-soft); transition:color .15s ease;
+    min-height:1.2em;
+  }
+  .nline-readout.pos{ color:var(--positive); }
+  .nline-readout.neg{ color:var(--negative); }
+  .nline-readout.zero{ color:var(--zero); }
   #nline-info{
     font-size:14.5px; line-height:1.6; padding:14px 18px;
     background:var(--paper-deep); border-radius:12px; min-height:26px;
@@ -411,6 +511,59 @@
   .quiz-score{ font-family:var(--font-mono); font-size:clamp(40px,7vw,64px); font-weight:700; color:var(--negative); margin:10px 0; }
   .quiz-msg{ font-size:15px; color:var(--ink-soft); margin-bottom:20px; }
 
+  /* game (slide 9) */
+  .game-card{
+    background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow-lg);
+    padding:clamp(18px,3vw,32px); max-width:680px; margin:0 auto; text-align:center;
+  }
+  .game-intro .game-icon{ font-size:44px; margin-bottom:10px; }
+  .game-intro h3{ font-size:clamp(19px,2.6vw,24px); margin-bottom:10px; }
+  .game-intro p{ font-size:14.5px; color:var(--ink-soft); line-height:1.6; max-width:480px; margin:0 auto 22px; }
+  .game-rules{
+    display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:24px;
+  }
+  .game-rules span{
+    font-family:var(--font-mono); font-size:12px; background:var(--paper-deep);
+    padding:7px 14px; border-radius:999px; color:var(--ink-soft);
+  }
+  .game-hud{
+    display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;
+    font-family:var(--font-mono); font-size:13px; color:var(--ink-soft);
+  }
+  .game-hud .g-score{ font-weight:700; color:var(--ink); font-size:16px; }
+  .game-hud .g-streak{ color:var(--positive); font-weight:700; }
+  .game-timer-bar{ height:8px; background:var(--grid); border-radius:999px; overflow:hidden; margin-bottom:26px; }
+  .game-timer-fill{ height:100%; background:var(--negative); width:100%; transition:width 1s linear, background .3s ease; }
+  .game-timer-fill.warn{ background:var(--zero); }
+  .game-timer-fill.danger{ background:#D9483A; }
+  .game-number{
+    font-family:var(--font-mono); font-weight:700; font-size:clamp(46px,9vw,76px);
+    margin-bottom:6px; transition:transform .15s ease;
+  }
+  .game-number.pop{ transform:scale(1.12); }
+  .game-sub{ font-size:12.5px; color:var(--ink-soft); margin-bottom:24px; font-family:var(--font-mono); }
+  .game-opts{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:6px;
+  }
+  @media (max-width:480px){ .game-opts{ grid-template-columns:1fr; } }
+  .game-opt{
+    background:var(--paper-deep); border:2px solid transparent; border-radius:14px;
+    padding:16px 10px; font-size:14.5px; font-weight:700; color:var(--ink);
+    transition:all .15s ease;
+  }
+  .game-opt:hover:not(:disabled){ border-color:var(--ink); transform:translateY(-2px); }
+  .game-opt.correct{ background:var(--positive-soft); border-color:var(--positive); color:var(--positive); }
+  .game-opt.wrong{ background:#FBE2DE; border-color:#D9483A; color:#B93A2E; }
+  .game-feedback{
+    min-height:22px; font-size:13.5px; font-weight:600; margin-top:14px; color:var(--ink-soft);
+  }
+  .game-result .g-trophy{ font-size:44px; margin-bottom:6px; }
+  .game-result .g-final{
+    font-family:var(--font-mono); font-weight:700; font-size:clamp(38px,7vw,58px); color:var(--negative);
+    margin:6px 0;
+  }
+  .game-result .g-best{ font-size:13px; color:var(--ink-soft); margin-bottom:18px; font-family:var(--font-mono); }
+
   /* summary (slide 9) */
   .sum-item{
     display:flex; gap:14px; align-items:flex-start; background:var(--white);
@@ -496,7 +649,7 @@
 
   <div class="topbar">
     <div class="eyebrow">Bab 1 · Bilangan Bulat <b>▸</b> Pengertian Bilangan Bulat</div>
-    <div class="counter" id="counter">1 / 10</div>
+    <div class="counter" id="counter">1 / 11</div>
   </div>
 
   <div class="slides-viewport" id="viewport">
@@ -506,7 +659,18 @@
       <div class="slide-inner">
         <div class="cover-badge">01</div>
         <h1>Mengenal <span class="accent">Bilangan Bulat</span></h1>
-        <p class="sub">Bab 1 — Bilangan Bulat &nbsp;|&nbsp; Topik: Pengertian Bilangan Bulat</p>
+        <p class="sub">Dari suhu di bawah nol sampai puncak gunung — yuk jelajahi angka negatif, nol, dan positif yang setiap hari ada di sekitar kita.</p>
+        <div class="cover-nline" aria-hidden="true">
+          <span class="cn-badge neg" style="animation-delay:0s">−5</span>
+          <span class="cn-dash"></span>
+          <span class="cn-badge neg" style="animation-delay:.5s">−2</span>
+          <span class="cn-dash"></span>
+          <span class="cn-badge zero" style="animation-delay:1s">0</span>
+          <span class="cn-dash"></span>
+          <span class="cn-badge pos" style="animation-delay:.3s">3</span>
+          <span class="cn-dash"></span>
+          <span class="cn-badge pos" style="animation-delay:.8s">8</span>
+        </div>
         <div class="goal-card">
           <span class="goal-label">🎯 Tujuan Pembelajaran</span>
           <p>Peserta didik mampu memahami pengertian, jenis, dan representasi bilangan bulat pada garis bilangan.</p>
@@ -525,6 +689,20 @@
           <p style="font-family:var(--font-mono); font-size:clamp(15px,2.4vw,20px); text-align:center; color:var(--ink);">
             B = { ..., -3, -2, -1, <span style="color:var(--zero); font-weight:700;">0</span>, 1, 2, 3, ... }
           </p>
+        </div>
+        <div class="type-preview">
+          <div class="tp-card tp-pos">
+            <div class="tp-lbl">➕ Bulat Positif</div>
+            <div class="tp-eg">Contoh: ketinggian Gunung Rinjani <b>+3.676 m</b> di atas laut.</div>
+          </div>
+          <div class="tp-card tp-zero">
+            <div class="tp-lbl">⚪ Nol</div>
+            <div class="tp-eg">Contoh: permukaan laut sebagai titik acuan ketinggian <b>0 m</b>.</div>
+          </div>
+          <div class="tp-card tp-neg">
+            <div class="tp-lbl">➖ Bulat Negatif</div>
+            <div class="tp-eg">Contoh: suhu freezer <b>−18°C</b>, di bawah titik nol.</div>
+          </div>
         </div>
         <p style="font-size:14px; font-weight:600; margin-bottom:10px; color:var(--ink-soft);">👉 Coba klik angka di bawah ini — tebak mana yang termasuk bilangan bulat!</p>
         <div class="chip-row" id="chipRow"></div>
@@ -549,10 +727,13 @@
         <h2 class="title">Bilangan Bulat pada Garis Bilangan</h2>
         <p class="lede">Semakin ke kanan, nilai semakin besar. Semakin ke kiri, nilai semakin kecil. Klik salah satu titik di bawah untuk menjelajah!</p>
         <div class="nline-wrap">
+          <div class="nline-readout" id="nlineReadout">Belum ada titik dipilih</div>
           <div class="nline-scroll">
             <div class="nline" id="numberLine">
               <span class="arrow-l">← −∞</span>
-              <div class="pt-wrap" id="pointWrap"></div>
+              <div class="pt-wrap" id="pointWrap">
+                <div class="zero-band" id="zeroBand" aria-hidden="true"></div>
+              </div>
               <span class="arrow-r">+∞ →</span>
             </div>
           </div>
@@ -596,12 +777,22 @@
       <div class="slide-inner">
         <span class="kicker">🧠 Uji Pemahaman</span>
         <h2 class="title" style="text-align:center;">Kuis Bilangan Bulat</h2>
-        <p class="lede" style="text-align:center; margin-left:auto; margin-right:auto;">5 soal singkat untuk menguji pemahamanmu. Semangat!</p>
+        <p class="lede" style="text-align:center; margin-left:auto; margin-right:auto;">7 soal singkat untuk menguji pemahamanmu. Semangat!</p>
         <div class="quiz-card" id="quizCard"></div>
       </div>
     </section>
 
-    <!-- SLIDE 9 : RINGKASAN -->
+    <!-- SLIDE 9 : GAME -->
+    <section class="slide" data-title="Main Game">
+      <div class="slide-inner">
+        <span class="kicker">🎮 Waktunya Bermain</span>
+        <h2 class="title" style="text-align:center;">Klasifikasi Kilat</h2>
+        <p class="lede" style="text-align:center; margin-left:auto; margin-right:auto;">Sebuah bilangan akan muncul — secepat mungkin, tentukan kelompoknya sebelum waktu habis!</p>
+        <div class="game-card" id="gameCard"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10 : RINGKASAN -->
     <section class="slide" data-title="Ringkasan">
       <div class="slide-inner">
         <span class="kicker">📌 Ringkasan</span>
@@ -610,7 +801,7 @@
       </div>
     </section>
 
-    <!-- SLIDE 10 : PENUTUP -->
+    <!-- SLIDE 11 : PENUTUP -->
     <section class="slide closing" data-title="Penutup">
       <div class="slide-inner">
         <div class="big-check">✓</div>
@@ -649,7 +840,7 @@
   let current = 0;
 
   // map slide index -> integer label used as page number (theme: number line)
-  const lineLabels = [-4,-3,-2,-1,0,1,2,3,4,5];
+  const lineLabels = [-5,-4,-3,-2,-1,0,1,2,3,4,5];
   function labelClass(n){ return n < 0 ? 'neg' : (n === 0 ? 'zero' : 'pos'); }
 
   lineLabels.forEach((label, i) => {
@@ -728,9 +919,9 @@
 
   /* ============ SLIDE 3: TYPE FLIP CARDS ============ */
   const typeData = [
-    {cls:'fc-pos', num:'1, 2, 3...', lbl:'Bilangan Bulat Positif', text:'Bilangan bulat yang nilainya lebih dari nol. Terletak di sebelah KANAN nol pada garis bilangan.', eg:'Contoh: ketinggian di atas laut, keuntungan, kenaikan suhu.'},
-    {cls:'fc-zero', num:'0', lbl:'Nol', text:'Bilangan netral — bukan positif dan bukan negatif. Menjadi titik acuan (patokan) pada garis bilangan.', eg:'Contoh: permukaan laut sebagai ketinggian 0, saldo Rp0.'},
-    {cls:'fc-neg', num:'-1, -2, -3...', lbl:'Bilangan Bulat Negatif', text:'Bilangan bulat yang nilainya kurang dari nol. Terletak di sebelah KIRI nol pada garis bilangan.', eg:'Contoh: hutang, suhu di bawah 0°C, kedalaman di bawah laut.'},
+    {cls:'fc-pos', num:'1, 2, 3...', lbl:'Bilangan Bulat Positif', text:'Bilangan bulat yang nilainya lebih dari nol. Terletak di sebelah KANAN nol pada garis bilangan.', eg:'Contoh: pesawat terbang di ketinggian +10.000 m, suhu ruangan +27°C, keuntungan toko +Rp200.000.'},
+    {cls:'fc-zero', num:'0', lbl:'Nol', text:'Bilangan netral — bukan positif dan bukan negatif. Menjadi titik acuan (patokan) pada garis bilangan.', eg:'Contoh: permukaan laut sebagai ketinggian 0, saldo rekening Rp0, suhu air membeku 0°C.'},
+    {cls:'fc-neg', num:'-1, -2, -3...', lbl:'Bilangan Bulat Negatif', text:'Bilangan bulat yang nilainya kurang dari nol. Terletak di sebelah KIRI nol pada garis bilangan.', eg:'Contoh: hutang −Rp150.000, suhu puncak gunung bersalju −8°C, kedalaman kapal selam −250 m.'},
   ];
   const typeWrap = document.getElementById('typeCards');
   typeData.forEach(d => {
@@ -755,30 +946,47 @@
   /* ============ SLIDE 4: NUMBER LINE ============ */
   const pointWrap = document.getElementById('pointWrap');
   const nlineInfo = document.getElementById('nline-info');
+  const nlineReadout = document.getElementById('nlineReadout');
+  const numberLineEl = document.getElementById('numberLine');
+  const zeroBand = document.getElementById('zeroBand');
   const range = [];
   for(let n=-10; n<=10; n++) range.push(n);
+  numberLineEl.style.minWidth = (range.length * 42 + 80) + 'px';
+
   range.forEach(n => {
-    const wrap = document.createElement('div');
-    wrap.style.position = 'relative';
     const p = document.createElement('button');
     p.className = 'npoint ' + (n<0?'neg':(n===0?'zero':'pos'));
     p.setAttribute('aria-label', 'Titik ' + n);
+    const dot = document.createElement('span');
+    dot.className = 'npoint-dot';
     const tickLabel = document.createElement('span');
     tickLabel.className = 'tick-label';
     tickLabel.textContent = n;
+    p.appendChild(dot);
     p.appendChild(tickLabel);
     p.addEventListener('click', () => {
       document.querySelectorAll('.npoint').forEach(x => x.classList.remove('active'));
       p.classList.add('active');
-      let kind, ket;
-      if(n < 0){ kind = 'negatif'; ket = 'Terletak di sebelah kiri nol. Semakin ke kiri, nilainya semakin kecil.'; }
-      else if(n === 0){ kind = 'nol (netral)'; ket = 'Titik nol adalah batas/acuan antara bilangan positif dan negatif.'; }
-      else { kind = 'positif'; ket = 'Terletak di sebelah kanan nol. Semakin ke kanan, nilainya semakin besar.'; }
+      let kind, ket, cls;
+      if(n < 0){ kind = 'negatif'; ket = 'Terletak di sebelah kiri nol. Semakin ke kiri, nilainya semakin kecil.'; cls = 'neg'; }
+      else if(n === 0){ kind = 'nol (netral)'; ket = 'Titik nol adalah batas/acuan antara bilangan positif dan negatif.'; cls = 'zero'; }
+      else { kind = 'positif'; ket = 'Terletak di sebelah kanan nol. Semakin ke kanan, nilainya semakin besar.'; cls = 'pos'; }
       nlineInfo.innerHTML = `Angka <b>${n}</b> adalah bilangan bulat <b>${kind}</b>. ${ket}`;
+      nlineReadout.textContent = 'Titik terpilih: ' + n;
+      nlineReadout.className = 'nline-readout ' + cls;
     });
-    wrap.appendChild(p);
     pointWrap.appendChild(p);
   });
+
+  // posisikan sorotan lembut di titik nol setelah semua titik dirender
+  function positionZeroBand(){
+    const zeroPoint = pointWrap.querySelector('.npoint.zero');
+    if(zeroPoint && zeroBand){
+      zeroBand.style.left = (zeroPoint.offsetLeft + zeroPoint.offsetWidth / 2) + 'px';
+    }
+  }
+  requestAnimationFrame(positionZeroBand);
+  window.addEventListener('resize', positionZeroBand);
 
   /* ============ SLIDE 5: LIFE EXAMPLES ============ */
   const lifeData = [
@@ -788,6 +996,10 @@
     {icon:'💰', lbl:'Keuangan', val:'-Rp50.000', cls:'neg', desc:'Jika kamu berhutang Rp50.000, itu bisa dicatat sebagai -Rp50.000 dalam pembukuan.'},
     {icon:'⚽', lbl:'Selisih Skor', val:'-2', cls:'neg', desc:'Jika timmu kalah dengan selisih 2 gol dari lawan, selisih skornya ditulis -2.'},
     {icon:'🏢', lbl:'Lantai Gedung', val:'-1 (Basement)', cls:'neg', desc:'Lantai di bawah tanah pada gedung sering ditulis lantai -1 atau B1, di bawah lantai dasar (0).'},
+    {icon:'✈️', lbl:'Ketinggian Pesawat', val:'+10.000 m', cls:'pos', desc:'Pesawat komersial biasanya terbang jelajah pada ketinggian sekitar +10.000 m di atas permukaan laut.'},
+    {icon:'🧊', lbl:'Suhu Freezer', val:'-18°C', cls:'neg', desc:'Freezer di rumah biasanya diatur pada suhu sekitar -18°C agar makanan beku tetap awet.'},
+    {icon:'🛗', lbl:'Lift Parkir Basement', val:'-2', cls:'neg', desc:'Pada lift gedung parkir bertingkat, tombol -2 berarti dua lantai di bawah lantai dasar (0).'},
+    {icon:'🥇', lbl:'Selisih Waktu Lomba Lari', val:'+8 detik', cls:'pos', desc:'Jika waktumu 8 detik lebih lambat dari rekor, selisihnya ditulis +8 detik dari catatan waktu terbaik.'},
   ];
   const lifeWrap = document.getElementById('lifeCards');
   lifeData.forEach(d => {
@@ -839,6 +1051,10 @@
     {q:'1. Urutkan bilangan berikut dari yang <b>terkecil</b>: 3, -5, 0, -2, 7', a:'Urutkan dari posisi paling kiri (terkecil) ke kanan (terbesar) pada garis bilangan: <b>-5, -2, 0, 3, 7</b>'},
     {q:'2. Suhu Kota A adalah -3°C dan Kota B adalah 5°C. Kota mana yang lebih dingin?', a:'Kota <b>A</b>, karena -3 &lt; 5 (posisi -3 lebih ke kiri pada garis bilangan, sehingga nilainya lebih kecil / lebih dingin).'},
     {q:'3. Tuliskan lawan (invers) dari bilangan -8.', a:'Lawan dari -8 adalah <b>8</b>. Setiap bilangan bulat memiliki lawan dengan jarak yang sama dari 0, tetapi tanda berbeda.'},
+    {q:'4. Sebuah kapal selam berada pada kedalaman -120 m, lalu naik ke kedalaman -45 m. Apakah posisi kapal itu naik atau turun? Mengapa?', a:'Posisi kapal itu <b>naik</b>, karena -45 &gt; -120 (letak -45 lebih ke kanan / lebih dekat ke permukaan pada garis bilangan dibanding -120).'},
+    {q:'5. Manakah yang termasuk bilangan bulat: -12, 3¼, 0, 7,8, -1? Sebutkan semuanya.', a:'Yang termasuk bilangan bulat: <b>-12, 0, dan -1</b>. Sedangkan 3¼ dan 7,8 BUKAN bilangan bulat karena berbentuk pecahan/desimal.'},
+    {q:'6. Lift gedung berada di lantai -3, lalu naik 5 lantai. Lift itu sekarang berada di lantai berapa?', a:'Lift sekarang berada di lantai <b>2</b>, karena bergerak dari -3 sebanyak 5 langkah ke arah kanan (naik) pada garis bilangan: -3, -2, -1, 0, 1, 2.'},
+    {q:'7. Urutkan suhu berikut dari yang <b>paling panas</b> ke yang <b>paling dingin</b>: -4°C, 15°C, 0°C, -10°C', a:'Dari paling panas ke paling dingin, urutkan dari nilai terbesar ke terkecil: <b>15°C, 0°C, -4°C, -10°C</b>.'},
   ];
   const exWrap = document.getElementById('exampleCards');
   exampleData.forEach(d => {
@@ -862,6 +1078,8 @@
     {q:'Suhu manakah yang lebih dingin (lebih kecil)?', opts:['-5°C','-2°C','Sama saja'], answer:0, exp:'-5°C lebih dingin karena letaknya lebih ke kiri pada garis bilangan dibanding -2°C.'},
     {q:'Urutan bilangan bulat dari terkecil ke terbesar yang benar adalah...', opts:['-3, -1, 0, 2','2, 0, -1, -3','0, -3, -1, 2'], answer:0, exp:'Urutan dari kiri ke kanan pada garis bilangan: -3, -1, 0, 2.'},
     {q:'Ketinggian 200 m di atas permukaan laut biasanya ditulis sebagai...', opts:['-200','+200 (atau 200)','200 tanpa satuan'], answer:1, exp:'Posisi di atas permukaan laut dianggap positif, jadi ditulis +200 atau cukup 200.'},
+    {q:'Lawan (invers) dari bilangan 15 adalah...', opts:['15','-15','0'], answer:1, exp:'Lawan dari 15 adalah -15 — jaraknya sama dari 0, tetapi tandanya berbeda.'},
+    {q:'Manakah pernyataan yang BENAR tentang bilangan bulat?', opts:['Bilangan bulat selalu positif','Bilangan bulat bisa berupa pecahan','Bilangan bulat mencakup negatif, nol, dan positif'], answer:2, exp:'Bilangan bulat adalah gabungan dari bilangan negatif, nol, dan bilangan positif — tanpa pecahan atau desimal.'},
   ];
   let qIndex = 0, score = 0, answered = false;
   const quizCard = document.getElementById('quizCard');
@@ -917,7 +1135,10 @@
         <div style="font-size:40px;">🏆</div>
         <div class="quiz-score">${score}/${quizData.length}</div>
         <div class="quiz-msg">${msg}</div>
-        <button class="btn-primary" id="retryQuiz">↺ Coba Lagi</button>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn-primary" id="retryQuiz">↺ Coba Lagi</button>
+          <a class="btn-ghost" href="petualangan_garis_bilangan.html" style="text-decoration:none; display:inline-flex; align-items:center;">🎮 Main Game →</a>
+        </div>
       </div>`;
     quizCard.querySelector('#retryQuiz').addEventListener('click', () => {
       qIndex = 0; score = 0; renderQuiz();
@@ -925,7 +1146,146 @@
   }
   renderQuiz();
 
-  /* ============ SLIDE 9: SUMMARY ============ */
+  /* ============ SLIDE 9: GAME — "Klasifikasi Kilat" ============ */
+  const gameCard = document.getElementById('gameCard');
+  const GAME_TIME = 45; // detik
+  const gamePool = [
+    {n:'4', cat:'pos'}, {n:'12', cat:'pos'}, {n:'27', cat:'pos'}, {n:'9', cat:'pos'}, {n:'150', cat:'pos'}, {n:'1', cat:'pos'},
+    {n:'-3', cat:'neg'}, {n:'-8', cat:'neg'}, {n:'-15', cat:'neg'}, {n:'-1', cat:'neg'}, {n:'-22', cat:'neg'}, {n:'-100', cat:'neg'},
+    {n:'0', cat:'zero'},
+    {n:'2,5', cat:'non'}, {n:'-1,75', cat:'non'}, {n:'¾', cat:'non'}, {n:'3,14', cat:'non'}, {n:'-0,5', cat:'non'}, {n:'5½', cat:'non'},
+  ];
+  const catLabel = {pos:'Bulat Positif', neg:'Bulat Negatif', zero:'Nol', non:'Bukan Bulat'};
+  const catOrder = ['pos','zero','neg','non'];
+
+  let gTimeLeft = GAME_TIME;
+  let gScore = 0, gStreak = 0, gBest = 0, gTimerId = null, gCurrent = null, gLocked = false, gLastN = null;
+
+  function renderGameIntro(){
+    clearInterval(gTimerId);
+    gameCard.innerHTML = `
+      <div class="game-intro">
+        <div class="game-icon">🎯</div>
+        <h3>Siap menguji kecepatanmu?</h3>
+        <p>Sebuah angka akan tampil satu per satu. Ketuk kelompok yang tepat: <b>Bulat Positif</b>, <b>Nol</b>, <b>Bulat Negatif</b>, atau <b>Bukan Bulat</b> (pecahan/desimal) — sebelum waktu ${GAME_TIME} detik habis!</p>
+        <div class="game-rules">
+          <span>⏱️ ${GAME_TIME} detik</span>
+          <span>✅ Jawaban benar = +1 skor</span>
+          <span>🔥 3 benar berturut-turut = bonus</span>
+        </div>
+        <button class="btn-primary" id="gameStartBtn" style="margin:0 auto;">Mulai Main <span>▶</span></button>
+      </div>`;
+    document.getElementById('gameStartBtn').addEventListener('click', startGame);
+  }
+
+  function startGame(){
+    gScore = 0; gStreak = 0; gTimeLeft = GAME_TIME; gLastN = null;
+    renderGamePlay();
+    nextGameRound();
+    gTimerId = setInterval(() => {
+      gTimeLeft--;
+      updateGameTimerBar();
+      if(gTimeLeft <= 0){ endGame(); }
+    }, 1000);
+  }
+
+  function renderGamePlay(){
+    gameCard.innerHTML = `
+      <div class="game-hud">
+        <span>Skor: <span class="g-score" id="gScoreEl">0</span></span>
+        <span class="g-streak" id="gStreakEl"></span>
+        <span id="gTimeEl">${gTimeLeft}s</span>
+      </div>
+      <div class="game-timer-bar"><div class="game-timer-fill" id="gTimerFill"></div></div>
+      <div class="game-number" id="gNumberEl">–</div>
+      <div class="game-sub">termasuk kelompok apa?</div>
+      <div class="game-opts" id="gOptsEl"></div>
+      <div class="game-feedback" id="gFeedbackEl"></div>
+    `;
+    catOrder.forEach(c => {
+      const b = document.createElement('button');
+      b.className = 'game-opt';
+      b.textContent = catLabel[c];
+      b.dataset.cat = c;
+      b.addEventListener('click', () => handleGameAnswer(c, b));
+      document.getElementById('gOptsEl').appendChild(b);
+    });
+  }
+
+  function updateGameTimerBar(){
+    const fill = document.getElementById('gTimerFill');
+    const timeEl = document.getElementById('gTimeEl');
+    if(!fill || !timeEl) return;
+    const pct = Math.max(0, (gTimeLeft / GAME_TIME) * 100);
+    fill.style.width = pct + '%';
+    fill.classList.toggle('warn', gTimeLeft <= 20 && gTimeLeft > 10);
+    fill.classList.toggle('danger', gTimeLeft <= 10);
+    timeEl.textContent = Math.max(0, gTimeLeft) + 's';
+  }
+
+  function nextGameRound(){
+    gLocked = false;
+    let pick;
+    do { pick = gamePool[Math.floor(Math.random() * gamePool.length)]; } while(gamePool.length > 1 && gLastN === pick.n);
+    gLastN = pick.n;
+    gCurrent = pick;
+    const numEl = document.getElementById('gNumberEl');
+    if(numEl){
+      numEl.textContent = pick.n;
+      numEl.classList.remove('pop');
+      void numEl.offsetWidth;
+      numEl.classList.add('pop');
+    }
+    const feedback = document.getElementById('gFeedbackEl');
+    if(feedback) feedback.textContent = '';
+    document.querySelectorAll('.game-opt').forEach(b => { b.disabled = false; b.classList.remove('correct','wrong'); });
+  }
+
+  function handleGameAnswer(chosenCat, btnEl){
+    if(gLocked || gTimeLeft <= 0) return;
+    gLocked = true;
+    document.querySelectorAll('.game-opt').forEach(b => b.disabled = true);
+    const feedback = document.getElementById('gFeedbackEl');
+    if(chosenCat === gCurrent.cat){
+      gScore++;
+      gStreak++;
+      gBest = Math.max(gBest, gStreak);
+      btnEl.classList.add('correct');
+      feedback.textContent = gStreak >= 3 ? `🔥 Benar! Runtutan ${gStreak} kali berturut-turut!` : '✅ Benar!';
+    } else {
+      gStreak = 0;
+      btnEl.classList.add('wrong');
+      const correctBtn = document.querySelector(`.game-opt[data-cat="${gCurrent.cat}"]`);
+      if(correctBtn) correctBtn.classList.add('correct');
+      feedback.textContent = `❌ Kurang tepat. ${gCurrent.n} termasuk ${catLabel[gCurrent.cat]}.`;
+    }
+    document.getElementById('gScoreEl').textContent = gScore;
+    const streakEl = document.getElementById('gStreakEl');
+    if(streakEl) streakEl.textContent = gStreak >= 2 ? '🔥 x' + gStreak : '';
+    setTimeout(() => { if(gTimeLeft > 0) nextGameRound(); }, 550);
+  }
+
+  function endGame(){
+    clearInterval(gTimerId);
+    let msg;
+    if(gScore >= 18) msg = '🌟 Luar biasa! Refleksmu terhadap bilangan bulat sangat tajam!';
+    else if(gScore >= 12) msg = '👏 Keren! Kamu cukup cepat mengenali bilangan bulat.';
+    else if(gScore >= 6) msg = '👍 Lumayan! Coba lagi untuk kecepatan yang lebih baik.';
+    else msg = '💪 Ayo coba lagi — perhatikan lagi ciri bilangan bulat ya!';
+    gameCard.innerHTML = `
+      <div class="game-result">
+        <div class="g-trophy">🏆</div>
+        <div class="g-final">${gScore}</div>
+        <div class="game-intro"><p style="margin-bottom:6px;">${msg}</p></div>
+        <div class="g-best">Runtutan benar terbaik: ${gBest}x</div>
+        <button class="btn-primary" id="gameReplayBtn">↺ Main Lagi</button>
+      </div>`;
+    document.getElementById('gameReplayBtn').addEventListener('click', startGame);
+  }
+
+  renderGameIntro();
+
+  /* ============ SLIDE 10: SUMMARY ============ */
   const summaryData = [
     {ic:'🔢', t:'Definisi', d:'Bilangan bulat = {..., -3, -2, -1, 0, 1, 2, 3, ...} — tidak termasuk pecahan atau desimal.'},
     {ic:'🎨', t:'Tiga Jenis', d:'Bilangan bulat positif (kanan nol), nol (netral), dan bilangan bulat negatif (kiri nol).'},
