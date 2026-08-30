@@ -2,1289 +2,631 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Bab 4 · Relasi — Matematika SMP</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>4.1 Konsep Transformasi Geometri</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --paper:#FBF8F2;
-  --paper-2:#F3EFE4;
-  --grid-line: rgba(23,27,46,0.07);
-  --ink:#171B2E;
-  --ink-soft:#565C7C;
-  --ink-faint:#8A8FB0;
-  --domain:#E07A1F;
-  --domain-dark:#B65E12;
-  --domain-soft:#FFE9CE;
-  --kodomain:#0E8F82;
-  --kodomain-dark:#096E64;
-  --kodomain-soft:#CFF4EE;
-  --accent:#5B4FE5;
-  --accent-dark:#4038B0;
-  --accent-soft:#E9E6FF;
-  --danger:#E5484D;
-  --danger-soft:#FDE2E2;
-  --success:#1E9E63;
-  --success-soft:#DBF3E6;
-  --card:#FFFFFF;
-  --shadow-sm: 0 2px 10px rgba(23,27,46,0.06);
-  --shadow-md: 0 10px 30px rgba(23,27,46,0.10);
-  --shadow-lg: 0 20px 50px rgba(23,27,46,0.16);
-  --radius: 18px;
-  --font-display:'Baloo 2', system-ui, sans-serif;
-  --font-body:'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-}
-
-*{box-sizing:border-box; margin:0; padding:0;}
-html{-webkit-text-size-adjust:100%;}
-body{
-  font-family:var(--font-body);
-  color:var(--ink);
-  background:
-    radial-gradient(circle at 1.5px 1.5px, var(--grid-line) 1.5px, transparent 0) 0 0/26px 26px,
-    var(--paper);
-  overflow:hidden;
-  height:100vh;
-  width:100vw;
-}
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;}
-}
-
-button{font-family:inherit; cursor:pointer;}
-a{color:inherit;}
-:focus-visible{outline:3px solid var(--accent); outline-offset:2px; border-radius:6px;}
-
-/* ---------- Shell ---------- */
-.app{
-  position:relative;
-  height:100vh; width:100vw;
-  display:flex; flex-direction:column;
-}
-
-.topbar{
-  display:flex; align-items:center; gap:14px;
-  padding:14px clamp(16px,4vw,40px) 10px;
-  flex-shrink:0;
-}
-.topbar .brand{
-  font-family:var(--font-display); font-weight:700;
-  font-size:clamp(13px,1.6vw,16px);
-  color:var(--ink-soft);
-  display:flex; align-items:center; gap:8px;
-  white-space:nowrap;
-}
-.topbar .brand .dot-a{width:9px;height:9px;border-radius:50%;background:var(--domain);display:inline-block;}
-.topbar .brand .dot-b{width:9px;height:9px;border-radius:50%;background:var(--kodomain);display:inline-block;margin-left:-4px;}
-.progress-track{
-  flex:1; height:6px; background:var(--grid-line); border-radius:99px; overflow:hidden;
-}
-.progress-fill{
-  height:100%; width:0%; border-radius:99px;
-  background:linear-gradient(90deg,var(--domain),var(--accent),var(--kodomain));
-  transition:width .4s ease;
-}
-.slide-counter{
-  font-family:var(--font-mono); font-size:clamp(11px,1.4vw,13px); color:var(--ink-faint); white-space:nowrap;
-}
-
-.stage{
-  flex:1; position:relative; overflow:hidden;
-  padding:0 clamp(16px,4vw,40px);
-}
-
-.slide{
-  position:absolute; inset:0;
-  padding:clamp(10px,2vh,28px) clamp(16px,4vw,40px);
-  display:flex; flex-direction:column;
-  opacity:0; pointer-events:none;
-  transform:translateX(40px);
-  transition:opacity .38s ease, transform .38s ease;
-  overflow-y:auto;
-}
-.slide.active{ opacity:1; pointer-events:auto; transform:translateX(0); }
-.slide.prev{ transform:translateX(-40px); }
-
-.eyebrow{
-  font-family:var(--font-mono); font-size:clamp(11px,1.4vw,13px); font-weight:700;
-  color:var(--accent); letter-spacing:.06em; text-transform:uppercase;
-  display:flex; align-items:center; gap:8px; margin-bottom:6px;
-}
-.eyebrow::before{content:"▸"; color:var(--domain);}
-
-h1.slide-title{
-  font-family:var(--font-display); font-weight:800;
-  font-size:clamp(24px,4.2vw,44px); line-height:1.08; color:var(--ink);
-  margin-bottom:6px;
-}
-p.slide-lede{
-  font-size:clamp(13px,1.7vw,17px); color:var(--ink-soft); max-width:760px; margin-bottom:16px;
-}
-
-.slide-body{ flex:1; display:flex; flex-direction:column; gap:16px; min-height:0; }
-
-/* ---------- Bottom nav ---------- */
-.bottombar{
-  flex-shrink:0;
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  padding:12px clamp(16px,4vw,40px) clamp(12px,2vh,20px);
-}
-.nav-btn{
-  display:flex; align-items:center; gap:8px;
-  background:var(--card); border:1.5px solid var(--grid-line);
-  padding:10px 18px; border-radius:99px; font-weight:700; font-size:14px;
-  color:var(--ink); box-shadow:var(--shadow-sm);
-  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
-}
-.nav-btn:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
-.nav-btn:active{transform:translateY(0);}
-.nav-btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
-.nav-btn.primary{ background:var(--ink); color:#fff; border-color:var(--ink); }
-
-.dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:44vw; }
-.dots button{
-  width:8px; height:8px; border-radius:50%; background:var(--grid-line); border:none; padding:0;
-  transition:all .2s ease; flex-shrink:0;
-}
-.dots button.active{ width:22px; border-radius:99px; background:var(--accent); }
-@media (max-width:700px){ .dots{display:none;} }
-
-/* ---------- Cards / general components ---------- */
-.card{
-  background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-sm);
-  border:1.5px solid var(--grid-line); padding:clamp(14px,2vw,22px);
-}
-.grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-@media (max-width:820px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
-
-.tag{
-  display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono);
-  font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;
-}
-.tag.a{ background:var(--domain-soft); color:var(--domain-dark); }
-.tag.b{ background:var(--kodomain-soft); color:var(--kodomain-dark); }
-
-/* ---------- Cover slide ---------- */
-.cover{ justify-content:center; align-items:center; text-align:center; }
-.cover-badge{
-  font-family:var(--font-mono); font-size:13px; font-weight:700; letter-spacing:.08em;
-  color:var(--accent); background:var(--accent-soft); padding:6px 16px; border-radius:99px; margin-bottom:18px;
-}
-.cover h1{
-  font-family:var(--font-display); font-weight:800; font-size:clamp(32px,7vw,72px); line-height:1.02;
-  color:var(--ink); margin-bottom:10px;
-}
-.cover h1 span{
-  background:linear-gradient(90deg,var(--domain),var(--accent) 55%,var(--kodomain));
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.cover p{ font-size:clamp(14px,2vw,19px); color:var(--ink-soft); max-width:600px; margin:0 auto 26px; }
-.cover-visual{
-  display:flex; align-items:center; gap:clamp(20px,6vw,70px); margin:10px 0 30px; flex-wrap:wrap; justify-content:center;
-}
-.cover-set{
-  display:flex; flex-direction:column; gap:10px; align-items:center;
-}
-.cover-set .label{font-family:var(--font-mono); font-weight:700; font-size:13px;}
-.cover-set.a .label{color:var(--domain-dark);}
-.cover-set.b .label{color:var(--kodomain-dark);}
-.cover-node{
-  width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-display); font-weight:700; font-size:16px; color:#fff; box-shadow:var(--shadow-sm);
-}
-.cover-col{ display:flex; flex-direction:column; gap:12px; }
-.cover-arrow{ font-size:26px; color:var(--accent); animation:pulse-x 1.8s ease-in-out infinite; }
-@keyframes pulse-x{ 0%,100%{transform:translateX(0);opacity:.55;} 50%{transform:translateX(6px);opacity:1;} }
-.start-btn{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(16px,2vw,20px);
-  background:var(--ink); color:#fff; padding:14px 34px; border-radius:99px; border:none;
-  box-shadow:var(--shadow-md); transition:transform .18s ease, box-shadow .18s ease;
-}
-.start-btn:hover{ transform:translateY(-3px) scale(1.02); box-shadow:var(--shadow-lg); }
-
-/* ---------- SVG diagram styling ---------- */
-.svg-wrap{ width:100%; }
-.svg-wrap svg{ width:100%; height:auto; display:block; }
-.node{ cursor:pointer; transition:transform .15s ease, opacity .2s ease; }
-.node:hover{ filter:brightness(1.05); }
-.node.dim{ opacity:.28; }
-.node.active-a circle, .node.active-a rect{ stroke:var(--domain-dark); stroke-width:3; }
-.node.active-b circle, .node.active-b rect{ stroke:var(--kodomain-dark); stroke-width:3; }
-.rel-path{ fill:none; stroke:var(--accent); stroke-width:2.4; opacity:.35; transition:opacity .2s ease, stroke-width .2s ease; }
-.rel-path.active{ opacity:1; stroke-width:3.6; }
-.rel-path.dim{ opacity:.08; }
-.arrow-marker{ fill:var(--accent); }
-.svg-label{ font-family:var(--font-mono); font-weight:700; font-size:13px; fill:var(--ink-soft); }
-
-/* ---------- Pills / chips ---------- */
-.chip-row{ display:flex; flex-wrap:wrap; gap:10px; }
-.chip{
-  font-family:var(--font-mono); font-weight:700; font-size:14px;
-  background:var(--paper-2); border:1.5px solid var(--grid-line); border-radius:12px;
-  padding:8px 14px; transition:all .15s ease; cursor:pointer; color:var(--ink);
-}
-.chip:hover{ border-color:var(--accent); }
-.chip.active{ background:var(--accent); color:#fff; border-color:var(--accent-dark); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
-.chip.static{ cursor:default; }
-.chip .a-part{ color:var(--domain-dark); }
-.chip .b-part{ color:var(--kodomain-dark); }
-.chip.active .a-part, .chip.active .b-part{ color:#fff; }
-
-/* ---------- Info boxes ---------- */
-.definition-box{
-  background:linear-gradient(135deg, var(--accent-soft), #fff);
-  border:1.5px solid var(--accent-soft); border-left:5px solid var(--accent);
-  border-radius:14px; padding:16px 20px; font-size:clamp(13px,1.7vw,16px); line-height:1.55;
-}
-.definition-box b{ color:var(--accent-dark); }
-.example-box{
-  border:1.5px dashed var(--grid-line); border-radius:14px; padding:14px 18px;
-  background:var(--paper-2); font-size:clamp(13px,1.6vw,15px); line-height:1.6;
-}
-.term-card{
-  border-radius:14px; padding:14px 16px; border:1.5px solid var(--grid-line); background:#fff;
-}
-.term-card .term-title{ font-family:var(--font-display); font-weight:700; font-size:16px; margin-bottom:4px; display:flex; align-items:center; gap:8px;}
-.term-card .swatch{ width:12px; height:12px; border-radius:4px; display:inline-block; }
-.term-card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
-
-/* ---------- Interactive picker (slide 3) ---------- */
-.picker-wrap{ display:flex; flex-direction:column; gap:14px; flex:1; min-height:0; }
-.picker-hint{ font-size:13.5px; color:var(--ink-faint); }
-.picker-cols{ display:grid; grid-template-columns:1fr auto 1fr; gap:10px; align-items:start; }
-@media (max-width:820px){ .picker-cols{ grid-template-columns:1fr; } }
-.picker-col{ display:flex; flex-direction:column; gap:8px; }
-.picker-col .col-title{ font-family:var(--font-mono); font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em;}
-.picker-col.a .col-title{ color:var(--domain-dark); }
-.picker-col.b .col-title{ color:var(--kodomain-dark); }
-.pick-item{
-  text-align:left; background:#fff; border:1.5px solid var(--grid-line); border-radius:12px;
-  padding:10px 14px; font-weight:600; font-size:14px; transition:all .15s ease; display:flex; align-items:center; gap:8px;
-}
-.pick-item:hover{ border-color:var(--ink-faint); }
-.pick-item.sel-a{ border-color:var(--domain); background:var(--domain-soft); color:var(--domain-dark); }
-.pick-item.sel-b{ border-color:var(--kodomain); background:var(--kodomain-soft); color:var(--kodomain-dark); }
-.pick-item.faded{ opacity:.35; }
-.picker-mid{ display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; color:var(--accent); font-size:14px; padding-top:30px; text-align:center; }
-
-/* ---------- Build-your-own pair grid ---------- */
-.pair-grid{ display:grid; gap:8px; }
-.pair-btn{
-  font-family:var(--font-mono); font-weight:700; font-size:13.5px;
-  background:#fff; border:1.5px solid var(--grid-line); border-radius:10px; padding:9px 6px;
-  text-align:center; transition:all .12s ease;
-}
-.pair-btn.selected{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-dark); }
-.pair-btn.correct{ background:var(--success-soft); border-color:var(--success); color:var(--success); }
-.pair-btn.wrong{ background:var(--danger-soft); border-color:var(--danger); color:var(--danger); }
-.pair-btn.missed{ background:#fff; border:1.5px dashed var(--success); color:var(--success); }
-
-.action-row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-.btn{
-  font-weight:700; font-size:13.5px; padding:9px 18px; border-radius:99px; border:1.5px solid var(--ink);
-  background:var(--ink); color:#fff; transition:all .15s ease;
-}
-.btn:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
-.btn.ghost{ background:#fff; color:var(--ink); }
-.feedback{ font-size:13.5px; font-weight:700; padding:8px 14px; border-radius:10px; display:none; }
-.feedback.show{ display:inline-flex; align-items:center; gap:6px; }
-.feedback.ok{ background:var(--success-soft); color:var(--success); }
-.feedback.bad{ background:var(--danger-soft); color:var(--danger); }
-
-/* ---------- Cartesius grid ---------- */
-.cartesius-point{ cursor:pointer; }
-.cartesius-point circle{ transition:all .15s ease; }
-.cartesius-point:hover circle{ r:8; }
-.click-grid-point{ cursor:pointer; }
-.click-grid-point circle{ fill:#fff; stroke:var(--ink-faint); stroke-width:1.5; transition:all .12s ease; }
-.click-grid-point.on circle{ fill:var(--accent); stroke:var(--accent-dark); }
-.click-grid-point.correct circle{ fill:var(--success); stroke:var(--success); }
-.click-grid-point.wrong circle{ fill:var(--danger); stroke:var(--danger); }
-.click-grid-point.missed circle{ fill:#fff; stroke:var(--success); stroke-width:2.5; stroke-dasharray:3 2; }
-
-/* ---------- Comparison / signature slide ---------- */
-.compare-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; flex:1; min-height:0; }
-@media (max-width:900px){ .compare-grid{ grid-template-columns:1fr; } }
-.compare-panel{ display:flex; flex-direction:column; gap:10px; }
-.compare-panel .panel-title{ font-family:var(--font-mono); font-weight:700; font-size:12px; text-transform:uppercase; color:var(--ink-faint); letter-spacing:.05em; }
-.pair-chip-sync{
-  font-family:var(--font-mono); font-weight:700; font-size:13.5px; padding:7px 12px; border-radius:10px;
-  border:1.5px solid var(--grid-line); background:#fff; cursor:pointer; transition:all .15s ease;
-}
-.pair-chip-sync.hl{ background:var(--accent); color:#fff; border-color:var(--accent-dark); transform:scale(1.05); box-shadow:var(--shadow-sm); }
-.sync-dim{ opacity:.25; }
-
-/* ---------- Quiz ---------- */
-.quiz-shell{ flex:1; display:flex; flex-direction:column; gap:16px; max-width:760px; }
-.quiz-progress{ display:flex; gap:6px; }
-.quiz-progress .seg{ flex:1; height:6px; border-radius:99px; background:var(--grid-line); }
-.quiz-progress .seg.done{ background:var(--success); }
-.quiz-progress .seg.now{ background:var(--accent); }
-.quiz-q{ font-family:var(--font-display); font-weight:700; font-size:clamp(17px,2.4vw,22px); line-height:1.3; }
-.quiz-opts{ display:flex; flex-direction:column; gap:10px; }
-.quiz-opt{
-  text-align:left; background:#fff; border:1.5px solid var(--grid-line); border-radius:14px;
-  padding:13px 16px; font-size:14.5px; font-weight:600; display:flex; align-items:center; gap:12px;
-  transition:all .15s ease;
-}
-.quiz-opt:hover{ border-color:var(--accent); }
-.quiz-opt .opt-letter{
-  width:26px; height:26px; border-radius:50%; background:var(--paper-2); display:flex; align-items:center; justify-content:center;
-  font-family:var(--font-mono); font-weight:700; font-size:12.5px; flex-shrink:0;
-}
-.quiz-opt.correct{ background:var(--success-soft); border-color:var(--success); }
-.quiz-opt.correct .opt-letter{ background:var(--success); color:#fff; }
-.quiz-opt.wrong{ background:var(--danger-soft); border-color:var(--danger); }
-.quiz-opt.wrong .opt-letter{ background:var(--danger); color:#fff; }
-.quiz-opt:disabled{ cursor:default; }
-.quiz-explain{
-  font-size:13.5px; line-height:1.55; padding:12px 16px; border-radius:12px; background:var(--paper-2);
-  border-left:4px solid var(--accent); display:none;
-}
-.quiz-explain.show{ display:block; }
-.quiz-foot{ display:flex; justify-content:space-between; align-items:center; }
-.quiz-score-pill{ font-family:var(--font-mono); font-weight:700; font-size:13px; background:var(--accent-soft); color:var(--accent-dark); padding:6px 14px; border-radius:99px; }
-
-.quiz-result{ text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px; flex:1; justify-content:center; }
-.quiz-result .big-score{ font-family:var(--font-display); font-weight:800; font-size:clamp(46px,8vw,84px); color:var(--accent); }
-.quiz-result .score-msg{ font-size:15px; color:var(--ink-soft); max-width:420px; }
-
-/* ---------- Summary ---------- */
-.summary-list{ display:flex; flex-direction:column; gap:10px; }
-.summary-item{ display:flex; gap:12px; align-items:flex-start; background:#fff; border:1.5px solid var(--grid-line); border-radius:14px; padding:12px 16px; }
-.summary-item .num{
-  font-family:var(--font-display); font-weight:800; font-size:16px; width:30px; height:30px; border-radius:9px;
-  background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.summary-item p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
-.summary-item b{ color:var(--ink); }
-
-/* ---------- Closing ---------- */
-.closing{ justify-content:center; align-items:center; text-align:center; gap:8px; }
-.closing .trophy{ font-size:clamp(46px,8vw,80px); margin-bottom:6px; }
-.closing h1{ font-family:var(--font-display); font-weight:800; font-size:clamp(26px,5vw,48px); }
-.closing p{ color:var(--ink-soft); font-size:clamp(13px,1.8vw,17px); max-width:520px; margin:6px auto 10px; }
-.final-score{ font-family:var(--font-mono); font-weight:700; background:var(--paper-2); padding:8px 18px; border-radius:99px; font-size:14px; margin-bottom:14px;}
-.finish-btn{
-  font-family:var(--font-display); font-weight:700; font-size:clamp(16px,2vw,20px);
-  background:linear-gradient(90deg,var(--domain),var(--accent),var(--kodomain)); color:#fff;
-  padding:15px 40px; border-radius:99px; border:none; text-decoration:none; display:inline-block;
-  box-shadow:var(--shadow-md); transition:transform .18s ease, box-shadow .18s ease;
-}
-.finish-btn:hover{ transform:translateY(-3px) scale(1.02); box-shadow:var(--shadow-lg); }
-.replay-link{ margin-top:14px; font-size:13px; color:var(--ink-faint); text-decoration:underline; background:none; border:none; }
-
-/* scrollbar tidy */
-.slide::-webkit-scrollbar{ width:8px; }
-.slide::-webkit-scrollbar-thumb{ background:var(--grid-line); border-radius:99px; }
-
-@media (max-width:520px){
-  .grid-3{ grid-template-columns:1fr; }
-  .picker-mid{ padding-top:0; transform:rotate(90deg); }
-}
+  :root{
+    --bg:#0a0e1a; --bg2:#0d1220; --card:#131a2e; --card2:#182140; --border:#232c47;
+    --text:#e8ebf5; --text-dim:#8b93ab; --text-dim2:#5d6684;
+    --coral:#ff6b5b; --coral-dim:rgba(255,107,91,.14); --coral-bd:rgba(255,107,91,.35);
+    --teal:#2dd4bf; --teal-dim:rgba(45,212,191,.14); --teal-bd:rgba(45,212,191,.35);
+    --amber:#fbbf24; --amber-dim:rgba(251,191,36,.14); --amber-bd:rgba(251,191,36,.35);
+    --purple:#a78bfa; --purple-dim:rgba(167,139,250,.14); --purple-bd:rgba(167,139,250,.35);
+    --sans:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:var(--sans); background:radial-gradient(ellipse at top,var(--bg2),var(--bg) 60%);
+    color:var(--text); overflow:hidden; -webkit-tap-highlight-color:transparent;
+  }
+  .presentation{position:relative; width:100vw; height:100vh; overflow:hidden;}
+  .slide{
+    position:absolute; inset:0; display:none; flex-direction:column;
+    padding:clamp(16px,4vw,56px); overflow-y:auto; opacity:0; transition:opacity .35s ease;
+  }
+  .slide.active{display:flex; opacity:1;}
+  .slide-inner{max-width:1100px; margin:0 auto; width:100%; padding-bottom:90px;}
+  h1{font-size:clamp(26px,4.6vw,44px); font-weight:700; letter-spacing:-.02em; line-height:1.15;}
+  h2{font-size:clamp(22px,3.6vw,32px); font-weight:700; letter-spacing:-.01em; margin-bottom:6px;}
+  h3{font-size:clamp(16px,2.2vw,19px); font-weight:600; margin-bottom:8px;}
+  p{color:var(--text-dim); line-height:1.65; font-size:clamp(14px,1.8vw,16px);}
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--teal); display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .eyebrow::before{content:''; width:18px; height:2px; background:var(--teal); display:inline-block;}
+  .card{
+    background:linear-gradient(155deg,var(--card),var(--card2)); border:1px solid var(--border);
+    border-radius:16px; padding:clamp(16px,2.4vw,26px); margin-top:16px;
+  }
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  @media(max-width:760px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+  .badge{
+    display:inline-block; font-family:var(--mono); font-size:11px; padding:4px 10px; border-radius:20px;
+    background:var(--coral-dim); color:var(--coral); border:1px solid var(--coral-bd); font-weight:600;
+  }
+  .badge.teal{background:var(--teal-dim); color:var(--teal); border-color:var(--teal-bd);}
+  .badge.amber{background:var(--amber-dim); color:var(--amber); border-color:var(--amber-bd);}
+  .badge.purple{background:var(--purple-dim); color:var(--purple); border-color:var(--purple-bd);}
+  .icon-tile{
+    width:50px; height:50px; border-radius:14px; display:flex; align-items:center; justify-content:center;
+    font-size:23px; margin-bottom:10px; flex-shrink:0;
+  }
+  .illus-card{background:#0d1424; border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center;}
+  .illus-card svg{width:100%; max-width:220px; height:auto;}
+  .illus-card .cap{font-size:13px; color:var(--text-dim); margin-top:8px;}
+  .illus-card .cap b{color:var(--text);}
+  /* Nav */
+  .nav-top{position:fixed; top:0; left:0; right:0; height:4px; background:var(--border); z-index:50;}
+  .nav-top-fill{height:100%; background:linear-gradient(90deg,var(--teal),var(--coral)); transition:width .3s ease; width:8.3%;}
+  .nav-bottom{
+    position:fixed; bottom:0; left:0; right:0; padding:12px 20px; display:flex; align-items:center;
+    justify-content:space-between; background:linear-gradient(0deg,var(--bg) 60%,transparent); z-index:50; gap:10px;
+  }
+  .nav-btn{
+    font-family:var(--sans); font-weight:600; font-size:14px; color:var(--text); background:var(--card2);
+    border:1px solid var(--border); padding:10px 18px; border-radius:10px; cursor:pointer; display:flex;
+    align-items:center; gap:6px; transition:.2s;
+  }
+  .nav-btn:hover{border-color:var(--teal); color:var(--teal);}
+  .nav-btn:disabled{opacity:.3; cursor:not-allowed;}
+  .dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:50vw;}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--border); cursor:pointer; transition:.2s; flex-shrink:0;}
+  .dot.active{background:var(--coral); width:20px; border-radius:4px;}
+  .slide-count{font-family:var(--mono); font-size:12px; color:var(--text-dim2); white-space:nowrap;}
+  /* type overview cards */
+  .type-card{border:1px solid var(--border); border-radius:14px; padding:18px; background:#0d1424;}
+  .type-card .visual{background:#0a0f1e; border-radius:10px; padding:14px; margin:12px 0; text-align:center;}
+  .type-card .visual svg{width:100%; max-width:260px; height:auto;}
+  .trait-list{margin-top:10px; font-size:13.5px; color:var(--text-dim);}
+  .trait-list div{padding:4px 0; padding-left:18px; position:relative;}
+  .trait-list div::before{content:'—'; position:absolute; left:0; color:var(--teal);}
+  /* compare */
+  .compare-wrap{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media(max-width:760px){.compare-wrap{grid-template-columns:1fr;}}
+  .compare-card{border-radius:14px; padding:18px; border:1px solid var(--border); background:#0d1424;}
+  /* game */
+  .game-card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; margin-top:16px;}
+  .game-progress{font-family:var(--mono); font-size:12px; color:var(--text-dim2); margin-bottom:14px;}
+  .game-visual{background:#0a0f1e; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:18px; text-align:center;}
+  .game-visual svg{width:100%; max-width:420px; height:auto;}
+  .game-opts{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  @media(max-width:600px){.game-opts{grid-template-columns:repeat(2,1fr);}}
+  .game-opt{
+    font-family:var(--sans); font-weight:600; font-size:14px; padding:14px 8px; border-radius:10px;
+    background:var(--card2); border:1px solid var(--border); color:var(--text); cursor:pointer; transition:.15s;
+  }
+  .game-opt:hover{border-color:var(--teal);}
+  .game-opt.correct{background:var(--teal-dim); border-color:var(--teal); color:var(--teal);}
+  .game-opt.wrong{background:var(--coral-dim); border-color:var(--coral); color:var(--coral);}
+  .game-opt:disabled{cursor:default;}
+  .game-explain{margin-top:14px; padding:12px 14px; border-radius:9px; background:#0d1424; border:1px solid var(--border); font-size:14px; color:var(--text-dim); display:none;}
+  .game-explain.show{display:block;}
+  .game-next{margin-top:16px;}
+  .reveal-btn{
+    font-family:var(--mono); font-size:12.5px; font-weight:600; color:var(--bg); background:var(--teal);
+    border:none; padding:9px 16px; border-radius:8px; cursor:pointer; margin-top:10px; transition:.15s;
+  }
+  .reveal-btn:hover{filter:brightness(1.1);}
+  .score-screen{text-align:center; padding:24px 10px;}
+  .score-num{font-family:var(--mono); font-size:52px; font-weight:700; background:linear-gradient(90deg,var(--teal),var(--coral)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  /* quiz */
+  .quiz-q{font-size:16.5px; font-weight:600; margin-bottom:16px; line-height:1.5;}
+  .quiz-opt{
+    display:block; width:100%; text-align:left; padding:13px 16px; margin-bottom:10px; border-radius:10px;
+    background:var(--card2); border:1px solid var(--border); color:var(--text); font-family:var(--sans);
+    font-size:14.5px; cursor:pointer; transition:.15s;
+  }
+  .quiz-opt:hover{border-color:var(--teal);}
+  .quiz-opt.correct{background:var(--teal-dim); border-color:var(--teal); color:var(--teal);}
+  .quiz-opt.wrong{background:var(--coral-dim); border-color:var(--coral); color:var(--coral);}
+  .quiz-opt:disabled{cursor:default;}
+  .finish-btn{
+    display:inline-block; font-family:var(--sans); font-weight:700; font-size:15px; color:var(--bg);
+    background:linear-gradient(90deg,var(--teal),var(--coral)); padding:14px 30px; border-radius:12px;
+    text-decoration:none; margin-top:16px; border:none; cursor:pointer;
+  }
+  .finish-btn.secondary{background:var(--card2); color:var(--text); border:1px solid var(--border);}
+  ::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-thumb{background:var(--border); border-radius:3px;}
 </style>
 </head>
 <body>
-<div class="app">
 
-  <div class="topbar">
-    <div class="brand"><span class="dot-a"></span><span class="dot-b"></span>&nbsp;Bab 4 · Relasi &amp; Fungsi</div>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="slide-counter" id="slideCounter">01 / 15</div>
-  </div>
+<div class="nav-top"><div class="nav-top-fill" id="progressFill"></div></div>
 
-  <div class="stage" id="stage">
-    <!-- Slides injected structurally below -->
+<div class="presentation" id="presentation">
 
-    <!-- 0. COVER -->
-    <section class="slide cover" data-title="Sampul">
-      <div class="cover-badge">MATEMATIKA · KELAS 8 SMP</div>
-      <h1>Relasi &amp; <span>Fungsi</span></h1>
-      <p>Bab 4 — Bagian 1: <b>Relasi</b>. Yuk pahami cara menghubungkan dua himpunan lewat diagram panah, pasangan berurutan, dan diagram Cartesius — lengkap dengan contoh dan kuis interaktif.</p>
-      <div class="cover-visual">
-        <div class="cover-set a">
-          <span class="label">HIMPUNAN A</span>
-          <div class="cover-col">
-            <div class="cover-node" style="background:var(--domain)">2</div>
-            <div class="cover-node" style="background:var(--domain)">3</div>
-          </div>
+  <!-- 0: COVER -->
+  <section class="slide active">
+    <div class="slide-inner" style="display:flex; flex-direction:column; justify-content:center; min-height:80vh;">
+      <span class="eyebrow">Bab 4 · Sub-materi 4.1</span>
+      <h1>Konsep Transformasi<br>Geometri</h1>
+      <p style="max-width:540px; margin-top:16px; font-size:17px;">Sebelum belajar menghitung, mari pahami dulu apa itu transformasi geometri dan bagaimana cara mengenali keempat jenisnya di sekitar kita.</p>
+      <div class="card" style="margin-top:26px; max-width:520px;">
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+          <div><div class="badge teal">⏱ 4 JP</div></div>
+          <div><div class="badge amber">🎯 Tujuan Pembelajaran</div></div>
         </div>
-        <div class="cover-arrow">➜</div>
-        <div class="cover-set b">
-          <span class="label">HIMPUNAN B</span>
-          <div class="cover-col">
-            <div class="cover-node" style="background:var(--kodomain)">4</div>
-            <div class="cover-node" style="background:var(--kodomain)">6</div>
-            <div class="cover-node" style="background:var(--kodomain)">9</div>
-          </div>
+        <p style="margin-top:12px; color:var(--text); font-size:14.5px;">Peserta didik mampu memahami konsep dan jenis-jenis transformasi geometri.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1: APA ITU TRANSFORMASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">01 · Definisi</span>
+      <h2>Apa itu Transformasi Geometri?</h2>
+      <p>Transformasi geometri adalah proses memindahkan, mencerminkan, memutar, atau mengubah ukuran suatu bangun geometri mengikuti aturan tertentu.</p>
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="card">
+          <h3>Objek dan Bayangan</h3>
+          <p style="font-size:14px;">Bangun mula-mula disebut <b style="color:var(--teal)">objek</b>. Bangun hasil transformasi disebut <b style="color:var(--coral)">bayangan (peta)</b>. Titik bayangan ditulis dengan tanda aksen: titik A menjadi A′ (dibaca "A aksen").</p>
+          <svg viewBox="0 0 260 100" style="width:100%; margin-top:10px;">
+            <polygon points="20,80 60,80 40,30" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+            <text x="30" y="20" fill="#2dd4bf" font-family="JetBrains Mono" font-size="12">objek</text>
+            <path d="M75,55 L115,55" stroke="#5d6684" stroke-width="2" marker-end="url(#arr)"/>
+            <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5d6684"/></marker></defs>
+            <polygon points="150,90 210,90 180,25" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+            <text x="165" y="15" fill="#ff6b5b" font-family="JetBrains Mono" font-size="12">bayangan</text>
+          </svg>
+        </div>
+        <div class="card">
+          <h3>Contoh dalam kehidupan</h3>
+          <p style="font-size:14px;">Transformasi bukan hanya konsep di buku — kita menjumpainya setiap hari: bayangan di cermin, jarum jam yang berputar, foto yang di-zoom, hingga potongan lego yang digeser.</p>
         </div>
       </div>
-      <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
-    </section>
+    </div>
+  </section>
 
-    <!-- 1. PENGERTIAN RELASI -->
-    <section class="slide" data-title="Pengertian Relasi">
-      <div class="eyebrow">Materi 1.1</div>
-      <h1 class="slide-title">Apa itu Relasi?</h1>
-      <p class="slide-lede">Sebelum masuk ke rumus, pahami dulu ide dasarnya lewat kejadian sehari-hari.</p>
-      <div class="slide-body">
-        <div class="definition-box">
-          <b>Relasi</b> dari himpunan A ke himpunan B adalah aturan yang <b>menghubungkan / memasangkan</b> anggota himpunan A dengan anggota himpunan B. Relasi tidak harus memasangkan setiap anggota A dengan tepat satu anggota B — satu anggota A boleh berelasi dengan lebih dari satu anggota B, atau tidak berelasi sama sekali.
+  <!-- 2: TRANSFORMASI DI SEKITAR KITA -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">02 · Konteks Nyata</span>
+      <h2>Transformasi di Sekitar Kita</h2>
+      <p>Perhatikan empat situasi berikut. Masing-masing sebenarnya adalah contoh dari satu jenis transformasi geometri.</p>
+      <div class="grid-4" style="margin-top:16px;">
+        <div class="illus-card">
+          <svg viewBox="0 0 120 120">
+            <rect x="10" y="15" width="45" height="70" fill="rgba(45,212,191,.12)" stroke="#2dd4bf" stroke-width="2" rx="3"/>
+            <circle cx="32" cy="40" r="7" fill="#fbbf24"/>
+            <polygon points="24,60 40,60 32,75" fill="#fbbf24"/>
+            <line x1="60" y1="10" x2="60" y2="110" stroke="#e8ebf5" stroke-width="2" stroke-dasharray="4 3"/>
+            <rect x="65" y="15" width="45" height="70" fill="rgba(255,107,91,.12)" stroke="#ff6b5b" stroke-width="2" rx="3"/>
+            <circle cx="88" cy="40" r="7" fill="#fbbf24"/>
+            <polygon points="80,60 96,60 88,75" fill="#fbbf24"/>
+          </svg>
+          <div class="cap"><b>Cermin</b><br>Objek terpantul terbalik → Refleksi</div>
         </div>
-        <div class="grid-2">
-          <div class="example-box">
-            <b>🍽️ Contoh 1 — "gemar akan"</b><br>
-            Andi gemar Sepak Bola dan Basket. Budi gemar Renang. Relasi <i>"gemar akan"</i> menghubungkan himpunan siswa dengan himpunan olahraga.
-          </div>
-          <div class="example-box">
-            <b>🔢 Contoh 2 — "faktor dari"</b><br>
-            2 adalah faktor dari 4, 6, dan 8. Relasi <i>"faktor dari"</i> menghubungkan himpunan bilangan A dengan himpunan bilangan B.
-          </div>
+        <div class="illus-card">
+          <svg viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#232c47" stroke-width="3"/>
+            <circle cx="60" cy="60" r="4" fill="#fbbf24"/>
+            <line x1="60" y1="60" x2="60" y2="18" stroke="#2dd4bf" stroke-width="3"/>
+            <circle cx="60" cy="18" r="6" fill="#2dd4bf"/>
+            <line x1="60" y1="60" x2="98" y2="83" stroke="#ff6b5b" stroke-width="3"/>
+            <circle cx="98" cy="83" r="6" fill="#ff6b5b"/>
+            <path d="M75,25 A45,45 0 0,1 95,55" fill="none" stroke="#5d6684" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arr2)"/>
+            <defs><marker id="arr2" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5d6684"/></marker></defs>
+          </svg>
+          <div class="cap"><b>Bianglala</b><br>Kursi berputar mengelilingi pusat → Rotasi</div>
         </div>
-        <div class="card" style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">
-          <span class="tag a">💡 INGAT</span>
-          <p style="font-size:13.5px; color:var(--ink-soft); flex:1; min-width:220px;">
-            Kata kunci sebuah relasi biasanya berupa <b style="color:var(--ink)">kata kerja atau frasa penghubung</b>, misalnya: "gemar akan", "faktor dari", "lebih dari", "kurang dari", "akar dari", "dua kali dari", dsb.
-          </p>
+        <div class="illus-card">
+          <svg viewBox="0 0 120 120">
+            <polygon points="20,80 40,80 30,55" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+            <polygon points="55,95 95,95 75,40" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+            <path d="M42,60 L52,55" stroke="#5d6684" stroke-width="2" marker-end="url(#arr3)"/>
+            <defs><marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5d6684"/></marker></defs>
+          </svg>
+          <div class="cap"><b>Zoom Kamera</b><br>Ukuran gambar membesar → Dilatasi</div>
+        </div>
+        <div class="illus-card">
+          <svg viewBox="0 0 120 120">
+            <rect x="10" y="55" width="24" height="24" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+            <path d="M40,67 L75,67" stroke="#5d6684" stroke-width="2" stroke-dasharray="3 3" marker-end="url(#arr4)"/>
+            <defs><marker id="arr4" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5d6684"/></marker></defs>
+            <rect x="80" y="55" width="24" height="24" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+          </svg>
+          <div class="cap"><b>Pintu Geser</b><br>Bergerak lurus tanpa berubah bentuk → Translasi</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 2. CONTOH INTERAKTIF -->
-    <section class="slide" data-title="Contoh Interaktif">
-      <div class="eyebrow">Materi 1.2 · Coba klik!</div>
-      <h1 class="slide-title">Relasi "Gemar akan"</h1>
-      <p class="slide-lede">Klik nama siswa untuk melihat hobinya, atau klik hobi untuk melihat siapa saja yang menggemarinya.</p>
-      <div class="picker-wrap">
-        <div class="picker-cols">
-          <div class="picker-col a">
-            <span class="col-title">Himpunan A (Siswa)</span>
-            <div id="pickA"></div>
-          </div>
-          <div class="picker-mid" id="pickerMidLabel">gemar akan ➜</div>
-          <div class="picker-col b">
-            <span class="col-title">Himpunan B (Hobi)</span>
-            <div id="pickB"></div>
-          </div>
+  <!-- 3: 4 JENIS OVERVIEW -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">03 · Klasifikasi</span>
+      <h2>Mengenal 4 Jenis Transformasi</h2>
+      <p>Setiap transformasi geometri termasuk ke dalam salah satu dari empat jenis berikut.</p>
+      <div class="grid-4" style="margin-top:16px;">
+        <div class="card">
+          <div class="icon-tile" style="background:var(--teal-dim);">↗️</div>
+          <h3 style="color:var(--teal);">Translasi</h3>
+          <p style="font-size:13px;">Pergeseran lurus objek ke arah tertentu, tanpa memutar atau membalik.</p>
         </div>
-        <p class="picker-hint" id="pickerHint">👆 Klik salah satu nama atau hobi di atas untuk mulai.</p>
+        <div class="card">
+          <div class="icon-tile" style="background:var(--coral-dim);">🪞</div>
+          <h3 style="color:var(--coral);">Refleksi</h3>
+          <p style="font-size:13px;">Pencerminan objek terhadap sebuah garis, hasilnya terbalik seperti di cermin.</p>
+        </div>
+        <div class="card">
+          <div class="icon-tile" style="background:var(--amber-dim);">🔄</div>
+          <h3 style="color:var(--amber);">Rotasi</h3>
+          <p style="font-size:13px;">Perputaran objek mengelilingi sebuah titik pusat sejauh sudut tertentu.</p>
+        </div>
+        <div class="card">
+          <div class="icon-tile" style="background:var(--purple-dim);">🔍</div>
+          <h3 style="color:var(--purple);">Dilatasi</h3>
+          <p style="font-size:13px;">Perbesaran atau perkecilan ukuran objek terhadap titik pusat.</p>
+        </div>
       </div>
-    </section>
+      <div class="card" style="margin-top:16px;">
+        <p style="font-size:13.5px;">📌 Pada pertemuan berikutnya (4.2 – 4.5), setiap jenis akan dipelajari lebih dalam lengkap dengan rumus dan latihan hitung. Materi 4.1 ini berfokus pada <b style="color:var(--text)">mengenali ciri visual</b> masing-masing jenis.</p>
+      </div>
+    </div>
+  </section>
 
-    <!-- 3. ISTILAH PENTING -->
-    <section class="slide" data-title="Istilah Penting">
-      <div class="eyebrow">Materi 1.3</div>
-      <h1 class="slide-title">Domain, Kodomain &amp; Range</h1>
-      <p class="slide-lede">Tiga istilah ini akan terus muncul, jadi penting untuk dikuasai sejak awal.</p>
-      <div class="slide-body">
-        <div class="grid-3">
-          <div class="term-card">
-            <div class="term-title"><span class="swatch" style="background:var(--domain)"></span>Domain</div>
-            <p>Daerah asal — yaitu <b>himpunan A</b> secara keseluruhan, dari mana relasi "berangkat".</p>
+  <!-- 4: CIRI VISUAL - TRANSLASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow" style="color:var(--teal);">04 · Ciri Visual</span>
+      <h2>Translasi — Ciri Khasnya Apa?</h2>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="type-card">
+          <div class="visual">
+            <svg viewBox="0 0 260 120">
+              <polygon points="30,90 55,90 42,55" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+              <path d="M65,72 L165,72" stroke="#5d6684" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrT)"/>
+              <defs><marker id="arrT" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#5d6684"/></marker></defs>
+              <polygon points="175,90 200,90 187,55" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+            </svg>
           </div>
-          <div class="term-card">
-            <div class="term-title"><span class="swatch" style="background:var(--kodomain)"></span>Kodomain</div>
-            <p>Daerah kawan — yaitu <b>himpunan B</b> secara keseluruhan, tempat relasi "bermuara".</p>
-          </div>
-          <div class="term-card">
-            <div class="term-title"><span class="swatch" style="background:var(--accent)"></span>Range</div>
-            <p>Daerah hasil — anggota B yang <b>benar-benar mendapat pasangan</b> dari A (bagian dari kodomain).</p>
+          <div class="trait-list">
+            <div>Bentuk dan ukuran objek <b style="color:var(--text)">tetap sama persis</b></div>
+            <div>Objek bergerak <b style="color:var(--text)">lurus</b> ke satu arah</div>
+            <div>Tidak ada perputaran maupun pembalikan bentuk</div>
           </div>
         </div>
         <div class="card">
-          <p style="font-size:13px; font-weight:700; color:var(--ink-faint); margin-bottom:10px;">CONTOH: A = siswa, B = hobi. "Catur" ada di B tapi tak ada yang menggemarinya.</p>
-          <div class="svg-wrap"><svg id="svgTerms" viewBox="0 0 640 300"></svg></div>
-          <div class="chip-row" style="margin-top:10px;">
-            <span class="tag a">Domain = {Andi, Budi, Citra, Dewi}</span>
-            <span class="tag b">Kodomain = {Sepak Bola, Basket, Renang, Melukis, Catur}</span>
-            <span class="tag" style="background:var(--accent-soft); color:var(--accent-dark);">Range = {Sepak Bola, Basket, Renang, Melukis}</span>
+          <h3>Bayangkan seperti ini</h3>
+          <p style="font-size:14px;">Menggeser potongan puzzle di atas meja, atau menggeser buku dari satu sisi rak ke sisi lain — bentuknya tidak berubah, hanya posisinya.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5: CIRI VISUAL - REFLEKSI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow" style="color:var(--coral);">04 · Ciri Visual</span>
+      <h2>Refleksi — Ciri Khasnya Apa?</h2>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="type-card">
+          <div class="visual">
+            <svg viewBox="0 0 260 120">
+              <polygon points="45,90 70,90 45,55" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+              <line x1="130" y1="15" x2="130" y2="105" stroke="#fbbf24" stroke-width="1.6" stroke-dasharray="5 4"/>
+              <polygon points="215,90 190,90 215,55" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="trait-list">
+            <div>Bayangan tampak <b style="color:var(--text)">terbalik</b> seperti di cermin</div>
+            <div>Jarak objek dan bayangan ke garis cermin <b style="color:var(--text)">sama</b></div>
+            <div>Ukuran objek tidak berubah, hanya arah hadapnya</div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- 4. TIGA CARA OVERVIEW -->
-    <section class="slide" data-title="Tiga Cara Menyatakan Relasi">
-      <div class="eyebrow">Materi 2</div>
-      <h1 class="slide-title">3 Cara Menyatakan Relasi</h1>
-      <p class="slide-lede">Relasi yang sama bisa digambarkan dengan tiga cara berbeda. Kita akan bahas satu per satu di slide berikutnya.</p>
-      <div class="grid-3">
-        <div class="card" style="cursor:pointer;" onclick="goTo(5)">
-          <div style="font-size:26px; margin-bottom:6px;">➜</div>
-          <div class="term-title" style="font-family:var(--font-display); font-weight:700; font-size:17px; margin-bottom:4px;">1. Diagram Panah</div>
-          <p style="font-size:13px; color:var(--ink-soft);">Dua himpunan digambar berdampingan, anggotanya dihubungkan dengan tanda panah.</p>
-          <div class="tag" style="background:var(--accent-soft); color:var(--accent-dark); margin-top:8px;">Lihat materi →</div>
-        </div>
-        <div class="card" style="cursor:pointer;" onclick="goTo(7)">
-          <div style="font-size:26px; margin-bottom:6px;">( , )</div>
-          <div class="term-title" style="font-family:var(--font-display); font-weight:700; font-size:17px; margin-bottom:4px;">2. Pasangan Berurutan</div>
-          <p style="font-size:13px; color:var(--ink-soft);">Setiap hubungan ditulis sebagai (x, y) dan dikumpulkan dalam satu himpunan.</p>
-          <div class="tag" style="background:var(--accent-soft); color:var(--accent-dark); margin-top:8px;">Lihat materi →</div>
-        </div>
-        <div class="card" style="cursor:pointer;" onclick="goTo(9)">
-          <div style="font-size:26px; margin-bottom:6px;">⌗</div>
-          <div class="term-title" style="font-family:var(--font-display); font-weight:700; font-size:17px; margin-bottom:4px;">3. Diagram Cartesius</div>
-          <p style="font-size:13px; color:var(--ink-soft);">Domain di sumbu-x, kodomain di sumbu-y, pasangan digambar sebagai titik/noktah.</p>
-          <div class="tag" style="background:var(--accent-soft); color:var(--accent-dark); margin-top:8px;">Lihat materi →</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. DIAGRAM PANAH - KONSEP -->
-    <section class="slide" data-title="Diagram Panah">
-      <div class="eyebrow">Materi 2.1 · Cara ke-1</div>
-      <h1 class="slide-title">Diagram Panah</h1>
-      <p class="slide-lede">Relasi "faktor dari" dari A = {2, 3, 4, 5} ke B = {4, 6, 8, 10, 15}. Klik anggota A atau B untuk menelusuri relasinya.</p>
-      <div class="grid-2" style="align-items:start;">
-        <div class="card"><div class="svg-wrap"><svg id="svgArrow1" viewBox="0 0 460 320"></svg></div></div>
-        <div class="card" style="display:flex; flex-direction:column; gap:10px;">
-          <div class="definition-box" style="border-left-color:var(--domain);">
-            Cara membaca: garis panah <b>keluar dari A</b> menuju <b>masuk ke B</b> menandakan "anggota A ini berelasi dengan anggota B itu".
-          </div>
-          <div class="example-box">
-            <b>Contoh soal:</b><br>
-            Sebutkan semua anggota B yang berelasi dengan 3 pada relasi "faktor dari" di atas.<br><br>
-            <b>Jawab:</b> 3 adalah faktor dari 6 dan 15, jadi 3 berelasi dengan {6, 15}.
-          </div>
-          <p class="picker-hint" id="arrow1Hint">👆 Klik sebuah angka pada diagram untuk mencoba sendiri.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. DIAGRAM PANAH - CONTOH SOAL 2 (build your own) -->
-    <section class="slide" data-title="Diagram Panah - Latihan">
-      <div class="eyebrow">Materi 2.1 · Contoh Soal 2</div>
-      <h1 class="slide-title">Bangun Relasimu Sendiri</h1>
-      <p class="slide-lede">A = {1, 2, 3}, B = {2, 3, 4}. Pilih semua pasangan (a, b) yang sesuai relasi <b>"kurang dari"</b> (a &lt; b), lalu cek jawabanmu.</p>
-      <div class="card" style="display:flex; flex-direction:column; gap:14px;">
-        <div class="pair-grid" id="pairGrid2" style="grid-template-columns:repeat(3, 1fr);"></div>
-        <div class="action-row">
-          <button class="btn" onclick="checkPairGrid2()">✓ Cek Jawaban</button>
-          <button class="btn ghost" onclick="resetPairGrid2()">↺ Ulangi</button>
-          <span class="feedback" id="feedbackGrid2"></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 7. HIMPUNAN PASANGAN BERURUTAN - KONSEP -->
-    <section class="slide" data-title="Himpunan Pasangan Berurutan">
-      <div class="eyebrow">Materi 2.2 · Cara ke-2</div>
-      <h1 class="slide-title">Himpunan Pasangan Berurutan</h1>
-      <p class="slide-lede">Relasi yang sama juga bisa ditulis sebagai himpunan pasangan (a, b), dengan a ∈ A dan b ∈ B. Klik salah satu pasangan untuk melihat posisinya di diagram panah mini.</p>
-      <div class="grid-2" style="align-items:start;">
         <div class="card">
-          <p style="font-size:13px; font-weight:700; color:var(--ink-faint); margin-bottom:10px;">RELASI "FAKTOR DARI" — A = {2,3,4,5}, B = {4,6,8,10,15}</p>
-          <div class="chip-row" id="pairChipList"></div>
-          <div class="definition-box" style="margin-top:14px; border-left-color:var(--kodomain);">
-            Ditulis: R = { (2,4), (2,6), (2,8), (2,10), (3,6), (3,15), (4,4), (4,8), (5,10), (5,15) }
+          <h3>Bayangkan seperti ini</h3>
+          <p style="font-size:14px;">Tanganmu kanan di depan cermin terlihat seperti tangan kiri. Huruf "b" jika dicerminkan terhadap garis tegak akan tampak seperti huruf "d".</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6: CIRI VISUAL - ROTASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow" style="color:var(--amber);">04 · Ciri Visual</span>
+      <h2>Rotasi — Ciri Khasnya Apa?</h2>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="type-card">
+          <div class="visual">
+            <svg viewBox="0 0 260 120">
+              <circle cx="130" cy="60" r="4" fill="#fbbf24"/>
+              <polygon points="130,55 155,55 145,30" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+              <polygon points="135,60 135,85 160,75" fill="rgba(255,107,91,.15)" stroke="#ff6b5b" stroke-width="2"/>
+              <path d="M150,35 A40,40 0 0,1 158,80" fill="none" stroke="#5d6684" stroke-width="1.5" stroke-dasharray="3 3" marker-end="url(#arrR)"/>
+              <defs><marker id="arrR" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#5d6684"/></marker></defs>
+            </svg>
+          </div>
+          <div class="trait-list">
+            <div>Objek berputar mengelilingi <b style="color:var(--text)">satu titik pusat</b></div>
+            <div>Jarak setiap titik objek ke pusat <b style="color:var(--text)">tidak berubah</b></div>
+            <div>Arah hadap objek berubah sesuai sudut putar</div>
           </div>
         </div>
-        <div class="card"><div class="svg-wrap"><svg id="svgArrowMini" viewBox="0 0 420 300"></svg></div></div>
+        <div class="card">
+          <h3>Bayangkan seperti ini</h3>
+          <p style="font-size:14px;">Jarum jam berputar mengelilingi porosnya, atau baling-baling kipas angin yang berputar di tempat.</p>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 8. HIMPUNAN PASANGAN - CONTOH SOAL 2 -->
-    <section class="slide" data-title="Pasangan Berurutan - Latihan">
-      <div class="eyebrow">Materi 2.2 · Contoh Soal 2</div>
-      <h1 class="slide-title">Analisis Himpunan Pasangan</h1>
-      <p class="slide-lede">Diketahui relasi R = {(1,2), (2,4), (3,6), (4,8)} dari A = {1,2,3,4} ke B = {2,4,6,8,10}. Klik jawaban yang menurutmu benar untuk tiap pertanyaan.</p>
-      <div class="grid-3" id="pairAnalysisWrap"></div>
-    </section>
-
-    <!-- 9. DIAGRAM CARTESIUS - KONSEP -->
-    <section class="slide" data-title="Diagram Cartesius">
-      <div class="eyebrow">Materi 2.3 · Cara ke-3</div>
-      <h1 class="slide-title">Diagram Cartesius</h1>
-      <p class="slide-lede">Domain (A) diletakkan pada <b>sumbu mendatar (x)</b>, kodomain (B) pada <b>sumbu tegak (y)</b>. Setiap pasangan (a, b) menjadi satu titik/noktah. Klik sebuah titik untuk melihat pasangannya.</p>
-      <div class="grid-2" style="align-items:start;">
-        <div class="card"><div class="svg-wrap"><svg id="svgCartesius1" viewBox="0 0 420 380"></svg></div></div>
-        <div class="card" style="display:flex; flex-direction:column; gap:10px;">
-          <div class="definition-box" style="border-left-color:var(--accent);">
-            Relasi "faktor dari" dari A = {2,3,4,5} ke B = {4,6,8,10,15} — titik yang sama persis dengan diagram panah &amp; pasangan berurutan sebelumnya, hanya bentuk penyajiannya yang berbeda.
+  <!-- 7: CIRI VISUAL - DILATASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow" style="color:var(--purple);">04 · Ciri Visual</span>
+      <h2>Dilatasi — Ciri Khasnya Apa?</h2>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="type-card">
+          <div class="visual">
+            <svg viewBox="0 0 260 120">
+              <circle cx="60" cy="95" r="3" fill="#a78bfa"/>
+              <polygon points="60,95 80,95 70,75" fill="rgba(45,212,191,.15)" stroke="#2dd4bf" stroke-width="2"/>
+              <polygon points="60,95 120,95 90,35" fill="rgba(255,107,91,.12)" stroke="#ff6b5b" stroke-width="2"/>
+              <line x1="60" y1="95" x2="90" y2="35" stroke="#5d6684" stroke-width="1" stroke-dasharray="3 3"/>
+              <line x1="80" y1="95" x2="120" y2="95" stroke="#5d6684" stroke-width="1" stroke-dasharray="3 3"/>
+            </svg>
           </div>
-          <p class="picker-hint" id="cartHint1">👆 Klik salah satu titik pada grafik.</p>
+          <div class="trait-list">
+            <div>Bentuk objek <b style="color:var(--text)">tidak berubah</b> (sebangun)</div>
+            <div>Ukuran objek <b style="color:var(--text)">membesar atau mengecil</b></div>
+            <div>Perubahan ukuran diukur dari satu titik pusat</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Bayangkan seperti ini</h3>
+          <p style="font-size:14px;">Mencetak foto dari ukuran dompet menjadi ukuran poster, atau memperkecil denah rumah agar muat di kertas.</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 10. DIAGRAM CARTESIUS - CONTOH SOAL 2 -->
-    <section class="slide" data-title="Diagram Cartesius - Latihan">
-      <div class="eyebrow">Materi 2.3 · Contoh Soal 2</div>
-      <h1 class="slide-title">Plot Relasimu di Bidang Cartesius</h1>
-      <p class="slide-lede">A = {1,2,3,4}, B = {1,2,3,4,5}. Klik titik-titik yang memenuhi relasi <b>"kurang dari"</b> (a &lt; b), lalu cek jawabanmu.</p>
-      <div class="card" style="display:flex; flex-direction:column; gap:12px;">
-        <div class="svg-wrap" style="max-width:440px; margin:0 auto;"><svg id="svgCartesius2" viewBox="0 0 420 420"></svg></div>
-        <div class="action-row" style="justify-content:center;">
-          <button class="btn" onclick="checkCartesius2()">✓ Cek Jawaban</button>
-          <button class="btn ghost" onclick="resetCartesius2()">↺ Ulangi</button>
-          <span class="feedback" id="feedbackCart2"></span>
+  <!-- 8: ISOMETRI VS DILATASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">05 · Sifat Penting</span>
+      <h2>Isometri vs Dilatasi</h2>
+      <p>Empat jenis transformasi terbagi menjadi dua kelompok besar berdasarkan apa yang berubah dan apa yang tetap.</p>
+      <div class="compare-wrap" style="margin-top:14px;">
+        <div class="compare-card" style="border-left:3px solid var(--teal);">
+          <span class="badge teal">Isometri</span>
+          <h3 style="margin-top:10px;">Translasi · Refleksi · Rotasi</h3>
+          <p style="font-size:14px;">Bentuk <b style="color:var(--text)">dan</b> ukuran objek tetap sama dengan bayangannya. Objek dan bayangan disebut <b style="color:var(--text)">kongruen</b> (sama dan sebangun persis).</p>
+        </div>
+        <div class="compare-card" style="border-left:3px solid var(--purple);">
+          <span class="badge purple">Bukan Isometri</span>
+          <h3 style="margin-top:10px;">Dilatasi</h3>
+          <p style="font-size:14px;">Bentuk objek tetap sama, tapi <b style="color:var(--text)">ukurannya berubah</b>. Objek dan bayangan disebut <b style="color:var(--text)">sebangun</b>, tapi tidak kongruen (kecuali faktor skalanya ±1).</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 11. PERBANDINGAN / SIGNATURE -->
-    <section class="slide" data-title="Bandingkan Ketiga Cara">
-      <div class="eyebrow">Materi 2.4 · Sinkron-klik</div>
-      <h1 class="slide-title">Tiga Wajah, Satu Relasi</h1>
-      <p class="slide-lede">Relasi "setengah dari": A = {1,2,3} ➜ B = {2,4,6}. Klik pasangan mana pun di panel manapun — perhatikan ketiganya menyala bersamaan!</p>
-      <div class="compare-grid">
-        <div class="compare-panel">
-          <span class="panel-title">Diagram Panah</span>
-          <div class="card" style="flex:1;"><div class="svg-wrap"><svg id="svgSyncArrow" viewBox="0 0 260 260"></svg></div></div>
+  <!-- 9: GAME TEBAK TRANSFORMASI -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">06 · Aktivitas Interaktif</span>
+      <h2>Tebak Jenis Transformasi</h2>
+      <p>Amati bentuk sebelum dan sesudah, lalu tebak jenis transformasinya.</p>
+      <div class="game-card" id="gameContainer"></div>
+    </div>
+  </section>
+
+  <!-- 10: KUIS KONSEP -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">07 · Evaluasi</span>
+      <h2>Kuis Pemahaman Konsep</h2>
+      <p>6 pertanyaan seputar konsep dan ciri-ciri transformasi geometri (bukan hitungan).</p>
+      <div class="game-card" id="quizContainer"></div>
+    </div>
+  </section>
+
+  <!-- 11: RANGKUMAN & PENUTUP -->
+  <section class="slide">
+    <div class="slide-inner">
+      <span class="eyebrow">08 · Rangkuman</span>
+      <h2>Yang Perlu Diingat</h2>
+      <div class="grid-2" style="margin-top:10px;">
+        <div class="card">
+          <h3>Poin-poin kunci</h3>
+          <div class="trait-list" style="margin-top:6px;">
+            <div>Transformasi = mengubah posisi/ukuran objek menjadi bayangan</div>
+            <div>Ada 4 jenis: translasi, refleksi, rotasi, dilatasi</div>
+            <div>Translasi, refleksi, rotasi = isometri (kongruen)</div>
+            <div>Dilatasi = mengubah ukuran (sebangun)</div>
+          </div>
         </div>
-        <div class="compare-panel">
-          <span class="panel-title">Pasangan Berurutan</span>
-          <div class="card" style="flex:1; display:flex; flex-direction:column; gap:10px; justify-content:center;" id="syncChips"></div>
-        </div>
-        <div class="compare-panel">
-          <span class="panel-title">Diagram Cartesius</span>
-          <div class="card" style="flex:1;"><div class="svg-wrap"><svg id="svgSyncCart" viewBox="0 0 260 260"></svg></div></div>
+        <div class="card">
+          <h3>Selanjutnya</h3>
+          <p style="font-size:14px;">Pada materi 4.2 kita akan mempelajari <b style="color:var(--teal)">Translasi</b> secara mendalam: rumus, cara menghitung koordinat bayangan, dan latihan soal.</p>
         </div>
       </div>
-    </section>
-
-    <!-- 12. RANGKUMAN -->
-    <section class="slide" data-title="Rangkuman">
-      <div class="eyebrow">Rangkuman</div>
-      <h1 class="slide-title">Yang Perlu Kamu Ingat</h1>
-      <p class="slide-lede">Sebelum lanjut ke kuis, cek lagi poin-poin pentingnya.</p>
-      <div class="summary-list">
-        <div class="summary-item"><span class="num">1</span><p><b>Relasi</b> adalah aturan yang memasangkan/menghubungkan anggota himpunan A dengan anggota himpunan B.</p></div>
-        <div class="summary-item"><span class="num">2</span><p><b>Domain</b> = himpunan A, <b>Kodomain</b> = himpunan B, <b>Range</b> = anggota B yang benar-benar mendapat pasangan.</p></div>
-        <div class="summary-item"><span class="num">3</span><p>Relasi dapat dinyatakan dengan <b>diagram panah</b>, <b>himpunan pasangan berurutan</b>, atau <b>diagram Cartesius</b> — isinya sama, hanya bentuknya berbeda.</p></div>
-        <div class="summary-item"><span class="num">4</span><p>Pada diagram Cartesius, domain (A) berada pada <b>sumbu-x</b> dan kodomain (B) pada <b>sumbu-y</b>; tiap pasangan menjadi satu titik.</p></div>
-        <div class="summary-item"><span class="num">5</span><p>Satu anggota domain boleh berelasi dengan <b>lebih dari satu</b> anggota kodomain, atau tidak berelasi sama sekali.</p></div>
+      <div style="text-align:center; margin-top:30px;">
+        <a href="materi-4-2.html" class="finish-btn">Lanjut ke Materi 4.2: Translasi →</a><br>
+        <a href="index.html" class="finish-btn secondary">← Kembali ke Daftar Bab</a>
+        <p style="font-size:11px; margin-top:10px; color:var(--text-dim2);">(sesuaikan nama file "materi-4-2.html" dan "index.html" dengan struktur folder Anda)</p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- 13. KUIS INTRO -->
-    <section class="slide cover" data-title="Kuis">
-      <div class="cover-badge">SAATNYA UJI PEMAHAMAN</div>
-      <h1>Kuis <span>Relasi</span></h1>
-      <p>6 soal pilihan ganda seputar pengertian relasi, domain, kodomain, range, dan cara menyatakan relasi. Kerjakan santai, langsung ada pembahasannya!</p>
-      <button class="start-btn" onclick="goTo(14)">Mulai Kuis →</button>
-    </section>
+</div>
 
-    <!-- 14. KUIS -->
-    <section class="slide" data-title="Kuis">
-      <div class="quiz-shell" id="quizShell"></div>
-    </section>
-
-    <!-- 15. PENUTUP -->
-    <section class="slide closing" data-title="Penutup">
-      <div class="trophy">🎉</div>
-      <h1>Kerja Bagus!</h1>
-      <p>Kamu sudah menyelesaikan materi Relasi — pengertian, cara menyatakan relasi, hingga latihan soal. Lanjutkan ke bagian Fungsi berikutnya!</p>
-      <div class="final-score" id="finalScoreBadge">Skor kuis: – / 6</div><br>
-      <a class="finish-btn" href="matb-bab4.html">✓ Selesai</a><br>
-      <button class="replay-link" onclick="goTo(0)">↺ Ulangi presentasi dari awal</button>
-    </section>
-
-  </div>
-
-  <div class="bottombar">
-    <button class="nav-btn" id="btnPrev" onclick="prevSlide()">← Sebelumnya</button>
+<div class="nav-bottom">
+  <button class="nav-btn" id="btnPrev" onclick="changeSlide(-1)">← Sebelumnya</button>
+  <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
     <div class="dots" id="dots"></div>
-    <button class="nav-btn primary" id="btnNext" onclick="nextSlide()">Selanjutnya →</button>
+    <span class="slide-count" id="slideCount">1 / 12</span>
   </div>
+  <button class="nav-btn" id="btnNext" onclick="changeSlide(1)">Selanjutnya →</button>
 </div>
 
 <script>
-/* ============================================================
-   NAVIGATION
-============================================================ */
-const slides = Array.from(document.querySelectorAll('.slide'));
+/* ============ NAVIGATION ============ */
+const slides = document.querySelectorAll('.slide');
 const total = slides.length;
 let current = 0;
-
 const dotsWrap = document.getElementById('dots');
 slides.forEach((s,i)=>{
-  const b = document.createElement('button');
-  b.addEventListener('click', ()=>goTo(i));
-  b.setAttribute('aria-label', 'Ke slide ' + (i+1));
-  dotsWrap.appendChild(b);
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0 ? ' active' : '');
+  d.onclick = ()=> goTo(i);
+  dotsWrap.appendChild(d);
 });
-
-function render(){
-  slides.forEach((s,i)=>{
-    s.classList.remove('active','prev');
-    if(i===current) s.classList.add('active');
-    else if(i<current) s.classList.add('prev');
-  });
-  Array.from(dotsWrap.children).forEach((d,i)=> d.classList.toggle('active', i===current));
-  document.getElementById('progressFill').style.width = ((current)/(total-1)*100) + '%';
-  document.getElementById('slideCounter').textContent = String(current+1).padStart(2,'0') + ' / ' + total;
+function updateNav(){
+  document.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i===current));
+  document.getElementById('slideCount').textContent = (current+1)+' / '+total;
+  document.getElementById('progressFill').style.width = ((current+1)/total*100)+'%';
   document.getElementById('btnPrev').disabled = current===0;
-  document.getElementById('btnNext').textContent = current===total-1 ? 'Selesai ✓' : 'Selanjutnya →';
-  document.getElementById('stage').scrollTop = 0;
+  document.getElementById('btnNext').disabled = current===total-1;
 }
-function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
-function nextSlide(){ if(current<total-1) goTo(current+1); }
-function prevSlide(){ if(current>0) goTo(current-1); }
-
-document.addEventListener('keydown', (e)=>{
-  if(e.key==='ArrowRight') nextSlide();
-  if(e.key==='ArrowLeft') prevSlide();
+function goTo(i){
+  slides[current].classList.remove('active');
+  current = Math.max(0, Math.min(total-1, i));
+  slides[current].classList.add('active');
+  slides[current].scrollTop = 0;
+  updateNav();
+}
+function changeSlide(dir){ goTo(current+dir); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') changeSlide(1);
+  if(e.key==='ArrowLeft') changeSlide(-1);
 });
-let touchX=null;
-document.getElementById('stage').addEventListener('touchstart', e=> touchX = e.changedTouches[0].clientX, {passive:true});
-document.getElementById('stage').addEventListener('touchend', e=>{
-  if(touchX===null) return;
+let touchX=0;
+document.addEventListener('touchstart', e=> touchX = e.touches[0].clientX);
+document.addEventListener('touchend', e=>{
   const dx = e.changedTouches[0].clientX - touchX;
-  if(Math.abs(dx) > 60){ dx<0 ? nextSlide() : prevSlide(); }
-  touchX = null;
-}, {passive:true});
+  if(Math.abs(dx) > 60) changeSlide(dx < 0 ? 1 : -1);
+});
+updateNav();
 
-render();
-
-/* ============================================================
-   HELPERS: SVG builders
-============================================================ */
-const NS = 'http://www.w3.org/2000/svg';
-function el(tag, attrs){
-  const e = document.createElementNS(NS, tag);
-  for(const k in attrs) e.setAttribute(k, attrs[k]);
-  return e;
+/* ============ GAME: TEBAK TRANSFORMASI ============ */
+/* flag-shaped icon so orientation changes are visually obvious */
+const flagPath = "M34,15 L40,15 L40,20 L66,32 L40,44 L40,70 L34,70 Z";
+function flagSVG(transform, color){
+  return `<path d="${flagPath}" fill="${color==='teal'?'rgba(45,212,191,.18)':'rgba(255,107,91,.18)'}" stroke="${color==='teal'?'#2dd4bf':'#ff6b5b'}" stroke-width="2.5" transform="${transform}"/>`;
 }
-function ensureArrowDef(svg, color, id){
-  let defs = svg.querySelector('defs');
-  if(!defs){ defs = el('defs',{}); svg.appendChild(defs); }
-  if(svg.querySelector('#'+id)) return;
-  const marker = el('marker', {id:id, markerWidth:8, markerHeight:8, refX:6, refY:3, orient:'auto', markerUnits:'strokeWidth'});
-  const path = el('path', {d:'M0,0 L0,6 L7,3 z', fill:color});
-  marker.appendChild(path);
-  defs.appendChild(marker);
-}
-
-/* ---------- Generic two-column arrow diagram ---------- */
-function buildArrowDiagram(svg, opts){
-  // opts: {A:[...], B:[...], pairs:[[a,b],...], w, h, r, colA, colB, onNode}
-  svg.innerHTML = '';
-  const {A,B,pairs,w,h} = opts;
-  const r = opts.r || 20;
-  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  ensureArrowDef(svg, 'var(--accent)'.trim()==='var(--accent)' ? '#5B4FE5' : '#5B4FE5', 'arrowHead');
-
-  const marginY = 40;
-  const usableH = h - marginY*2;
-  const xA = w*0.22, xB = w*0.78;
-  const posA = {}, posB = {};
-  A.forEach((v,i)=>{ posA[v] = marginY + (A.length===1? usableH/2 : i*(usableH/(A.length-1||1))); });
-  B.forEach((v,i)=>{ posB[v] = marginY + (B.length===1? usableH/2 : i*(usableH/(B.length-1||1))); });
-
-  // set boundary ovals
-  const ovalPad = 34;
-  svg.appendChild(el('rect',{x:xA-ovalPad, y:8, width:ovalPad*2, height:h-16, rx:ovalPad, fill:'#FFF7EE', stroke:'#E07A1F', 'stroke-opacity':0.35}));
-  svg.appendChild(el('rect',{x:xB-ovalPad, y:8, width:ovalPad*2, height:h-16, rx:ovalPad, fill:'#EEFBF9', stroke:'#0E8F82', 'stroke-opacity':0.35}));
-
-  const labA = el('text', {x:xA, y:24, 'text-anchor':'middle', class:'svg-label'}); labA.textContent = 'A'; svg.appendChild(labA);
-  const labB = el('text', {x:xB, y:24, 'text-anchor':'middle', class:'svg-label'}); labB.textContent = 'B'; svg.appendChild(labB);
-
-  // paths first (so nodes render above)
-  const pathEls = [];
-  pairs.forEach(([a,b], idx)=>{
-    const y1 = posA[a], y2 = posB[b];
-    const mx = (xA+xB)/2;
-    const d = `M ${xA+r} ${y1} C ${mx} ${y1}, ${mx} ${y2}, ${xB-r-8} ${y2}`;
-    const p = el('path', {d, class:'rel-path', 'marker-end':'url(#arrowHead)', 'data-a':a, 'data-b':b});
-    svg.appendChild(p);
-    pathEls.push(p);
-  });
-
-  const nodeEls = {A:{}, B:{}};
-  function makeNode(v, x, y, side, colorVar){
-    const g = el('g', {class:'node', 'data-side':side, 'data-val':v});
-    const c = el('circle', {cx:x, cy:y, r:r, fill:colorVar});
-    const t = el('text', {x:x, y:y+5, 'text-anchor':'middle', fill:'#fff', 'font-family':'JetBrains Mono', 'font-weight':'700', 'font-size':'13'});
-    t.textContent = v;
-    g.appendChild(c); g.appendChild(t);
-    g.addEventListener('click', ()=> highlight(side, v));
-    svg.appendChild(g);
-    nodeEls[side][v] = g;
-  }
-  A.forEach(v=> makeNode(v, xA, posA[v], 'A', '#E07A1F'));
-  B.forEach(v=> makeNode(v, xB, posB[v], 'B', '#0E8F82'));
-
-  let activeKey = null;
-  function highlight(side, val){
-    if(activeKey === side+val){ // toggle off
-      activeKey = null;
-      pathEls.forEach(p=>{ p.classList.remove('active','dim'); });
-      Object.values(nodeEls.A).forEach(n=>n.classList.remove('dim','active-a'));
-      Object.values(nodeEls.B).forEach(n=>n.classList.remove('dim','active-b'));
-      if(opts.onNode) opts.onNode(null);
-      return;
-    }
-    activeKey = side+val;
-    pathEls.forEach(p=>{
-      const match = side==='A' ? p.getAttribute('data-a')===String(val) : p.getAttribute('data-b')===String(val);
-      p.classList.toggle('active', match);
-      p.classList.toggle('dim', !match);
-    });
-    Object.entries(nodeEls.A).forEach(([k,n])=>{
-      const related = pairs.some(([a,b])=> side==='A' ? String(a)===String(val) && String(a)===String(k) : String(b)===String(val) && String(a)===String(k));
-      n.classList.toggle('dim', side==='A' ? String(k)!==String(val) && !pairs.some(([a,b])=>String(b)===String(val)&&String(a)===String(k)) : !pairs.some(([a,b])=>String(b)===String(val)&&String(a)===String(k)));
-      n.classList.toggle('active-a', side==='A' && String(k)===String(val));
-    });
-    Object.entries(nodeEls.B).forEach(([k,n])=>{
-      n.classList.toggle('dim', side==='B' ? String(k)!==String(val) && !pairs.some(([a,b])=>String(a)===String(val)&&String(b)===String(k)) : !pairs.some(([a,b])=>String(a)===String(val)&&String(b)===String(k)));
-      n.classList.toggle('active-b', side==='B' && String(k)===String(val));
-    });
-    if(opts.onNode) opts.onNode({side, val});
-  }
-  return {highlight};
-}
-
-/* ============================================================
-   SLIDE 3: Term diagram (domain/kodomain/range, with unused Catur)
-============================================================ */
-(function(){
-  const svg = document.getElementById('svgTerms');
-  buildArrowDiagram(svg, {
-    A:['Andi','Budi','Citra','Dewi'],
-    B:['Sepak Bola','Basket','Renang','Melukis','Catur'],
-    pairs:[['Andi','Sepak Bola'],['Andi','Basket'],['Budi','Renang'],['Citra','Melukis'],['Citra','Basket'],['Dewi','Sepak Bola']],
-    w:640, h:300, r:16
-  });
-  // resize font for long labels via smaller text - override
-  svg.querySelectorAll('text').forEach(t=>{
-    if(t.textContent.length>6 && t.getAttribute('fill')==='#fff'){ t.setAttribute('font-size','7.5'); }
-  });
-})();
-
-/* ============================================================
-   SLIDE 2: Interactive picker
-============================================================ */
-(function(){
-  const A = ['Andi','Budi','Citra','Dewi'];
-  const B = ['Sepak Bola','Basket','Renang','Melukis'];
-  const pairs = [['Andi','Sepak Bola'],['Andi','Basket'],['Budi','Renang'],['Citra','Melukis'],['Citra','Basket'],['Dewi','Sepak Bola']];
-  const colA = document.getElementById('pickA');
-  const colB = document.getElementById('pickB');
-  const hint = document.getElementById('pickerHint');
-  let sel = null;
-
-  A.forEach(v=>{
-    const b = document.createElement('button');
-    b.className='pick-item'; b.textContent = '👤 ' + v;
-    b.addEventListener('click', ()=> pick('A', v));
-    colA.appendChild(b);
-  });
-  B.forEach(v=>{
-    const b = document.createElement('button');
-    b.className='pick-item'; b.textContent = '⚡ ' + v;
-    b.addEventListener('click', ()=> pick('B', v));
-    colB.appendChild(b);
-  });
-
-  function pick(side, val){
-    sel = (sel && sel.side===side && sel.val===val) ? null : {side, val};
-    const btnsA = colA.children, btnsB = colB.children;
-    A.forEach((v,i)=>{
-      btnsA[i].classList.remove('sel-a','faded');
-      if(sel){
-        const isChosen = side==='A' && v===val;
-        const isLinked = side==='B' && pairs.some(([a,b])=> a===v && b===sel.val);
-        if(isChosen || isLinked) btnsA[i].classList.add('sel-a');
-        else btnsA[i].classList.add('faded');
-      }
-    });
-    B.forEach((v,i)=>{
-      btnsB[i].classList.remove('sel-b','faded');
-      if(sel){
-        const isChosen = side==='B' && v===val;
-        const isLinked = side==='A' && pairs.some(([a,b])=> b===v && a===sel.val);
-        if(isChosen || isLinked) btnsB[i].classList.add('sel-b');
-        else btnsB[i].classList.add('faded');
-      }
-    });
-    if(!sel){ hint.textContent = '👆 Klik salah satu nama atau hobi di atas untuk mulai.'; return; }
-    if(side==='A'){
-      const hobbies = pairs.filter(([a])=>a===val).map(([,b])=>b);
-      hint.textContent = `✅ ${val} gemar akan: ${hobbies.join(', ')}.`;
-    } else {
-      const students = pairs.filter(([,b])=>b===val).map(([a])=>a);
-      hint.textContent = students.length ? `✅ Yang gemar ${val}: ${students.join(', ')}.` : `Belum ada siswa yang gemar ${val}.`;
-    }
-  }
-})();
-
-/* ============================================================
-   SLIDE 5: Diagram panah "faktor dari"
-============================================================ */
-(function(){
-  const svg = document.getElementById('svgArrow1');
-  const hint = document.getElementById('arrow1Hint');
-  const A=[2,3,4,5], B=[4,6,8,10,15];
-  const pairs=[[2,4],[2,6],[2,8],[2,10],[3,6],[3,15],[4,4],[4,8],[5,10],[5,15]];
-  buildArrowDiagram(svg, {A,B,pairs,w:460,h:320,r:20, onNode:(info)=>{
-    if(!info){ hint.textContent = '👆 Klik sebuah angka pada diagram untuk mencoba sendiri.'; return; }
-    if(info.side==='A'){
-      const res = pairs.filter(([a])=>a===info.val).map(([,b])=>b);
-      hint.textContent = `${info.val} adalah faktor dari: ${res.join(', ')}.`;
-    } else {
-      const res = pairs.filter(([,b])=>b===info.val).map(([a])=>a);
-      hint.textContent = `Faktor dari ${info.val} pada himpunan A: ${res.join(', ')}.`;
-    }
-  }});
-})();
-
-/* ============================================================
-   SLIDE 6: Build-your-own pair grid ("kurang dari")
-============================================================ */
-(function(){
-  const A=[1,2,3], B=[2,3,4];
-  const correct = [];
-  A.forEach(a=> B.forEach(b=>{ if(a<b) correct.push(a+','+b); }));
-  const grid = document.getElementById('pairGrid2');
-  const fb = document.getElementById('feedbackGrid2');
-  A.forEach(a=> B.forEach(b=>{
-    const btn = document.createElement('button');
-    btn.className='pair-btn'; btn.textContent = `(${a}, ${b})`;
-    btn.dataset.key = a+','+b;
-    btn.addEventListener('click', ()=>{
-      btn.classList.toggle('selected');
-      fb.classList.remove('show');
-    });
-    grid.appendChild(btn);
-  }));
-  window.checkPairGrid2 = function(){
-    let ok = true;
-    Array.from(grid.children).forEach(btn=>{
-      const key = btn.dataset.key;
-      const isCorrect = correct.includes(key);
-      const isSel = btn.classList.contains('selected');
-      btn.classList.remove('correct','wrong','missed');
-      if(isSel && isCorrect) btn.classList.add('correct');
-      else if(isSel && !isCorrect){ btn.classList.add('wrong'); ok=false; }
-      else if(!isSel && isCorrect){ btn.classList.add('missed'); ok=false; }
-    });
-    fb.classList.add('show');
-    fb.classList.toggle('ok', ok);
-    fb.classList.toggle('bad', !ok);
-    fb.textContent = ok ? '🎉 Tepat sekali! Semua pasangan benar.' : '🔎 Cek lagi — hijau=benar, merah=salah pilih, garis putus=terlewat.';
-  };
-  window.resetPairGrid2 = function(){
-    Array.from(grid.children).forEach(btn=> btn.className='pair-btn');
-    fb.classList.remove('show');
-  };
-})();
-
-/* ============================================================
-   SLIDE 7: Pasangan berurutan chip list + mini diagram
-============================================================ */
-(function(){
-  const A=[2,3,4,5], B=[4,6,8,10,15];
-  const pairs=[[2,4],[2,6],[2,8],[2,10],[3,6],[3,15],[4,4],[4,8],[5,10],[5,15]];
-  const chipList = document.getElementById('pairChipList');
-  const svg = document.getElementById('svgArrowMini');
-  const diagram = buildArrowDiagram(svg, {A,B,pairs,w:420,h:300,r:18});
-
-  pairs.forEach(([a,b])=>{
-    const chip = document.createElement('button');
-    chip.className='chip';
-    chip.innerHTML = `(<span class="a-part">${a}</span>, <span class="b-part">${b}</span>)`;
-    chipList.appendChild(chip);
-  });
-  Array.from(chipList.children).forEach((chip, idx)=>{
-    chip.onclick = ()=>{
-      const active = chip.classList.contains('active');
-      Array.from(chipList.children).forEach(c=>c.classList.remove('active'));
-      svg.querySelectorAll('.rel-path').forEach(p=>p.classList.remove('active','dim'));
-      svg.querySelectorAll('.node').forEach(n=>n.classList.remove('dim','active-a','active-b'));
-      if(active) return;
-      chip.classList.add('active');
-      const [a,b] = pairs[idx];
-      svg.querySelectorAll('.rel-path').forEach(p=>{
-        const match = p.getAttribute('data-a')===String(a) && p.getAttribute('data-b')===String(b);
-        p.classList.toggle('active', match);
-        p.classList.toggle('dim', !match);
-      });
-      svg.querySelectorAll('.node').forEach(n=>{
-        const side = n.getAttribute('data-side'), val = n.getAttribute('data-val');
-        const keep = (side==='A' && val===String(a)) || (side==='B' && val===String(b));
-        n.classList.toggle('dim', !keep);
-        if(side==='A' && keep) n.classList.add('active-a');
-        if(side==='B' && keep) n.classList.add('active-b');
-      });
-    };
-  });
-})();
-
-/* ============================================================
-   SLIDE 8: Pair analysis Q&A (click to reveal)
-============================================================ */
-(function(){
-  const wrap = document.getElementById('pairAnalysisWrap');
-  const qs = [
-    {q:'Apa domain dari relasi R?', opts:['{1,2,3,4}','{2,4,6,8,10}','{1,2,3,4,5}'], correct:0, exp:'Domain = seluruh anggota A = {1,2,3,4}.'},
-    {q:'Apa kodomain dari relasi R?', opts:['{1,2,3,4}','{2,4,6,8,10}','{2,4,6,8}'], correct:1, exp:'Kodomain = seluruh anggota B = {2,4,6,8,10}.'},
-    {q:'Apa range dari relasi R?', opts:['{2,4,6,8,10}','{1,2,3,4}','{2,4,6,8}'], correct:2, exp:'Range = anggota B yang punya pasangan = {2,4,6,8}. Angka 10 tidak masuk range karena tidak dipasangkan.'}
-  ];
-  qs.forEach(item=>{
-    const card = document.createElement('div');
-    card.className='card';
-    card.innerHTML = `<p style="font-weight:700; font-size:14px; margin-bottom:10px;">${item.q}</p>`;
-    const optWrap = document.createElement('div');
-    optWrap.style.display='flex'; optWrap.style.flexDirection='column'; optWrap.style.gap='8px';
-    item.opts.forEach((opt,i)=>{
-      const b = document.createElement('button');
-      b.className='pick-item'; b.style.fontFamily="var(--font-mono)"; b.style.fontSize='13px';
-      b.textContent = opt;
-      b.addEventListener('click', ()=>{
-        Array.from(optWrap.children).forEach(c=>{c.style.borderColor='var(--grid-line)'; c.style.background='#fff'; c.style.color='inherit';});
-        if(i===item.correct){ b.style.borderColor='var(--success)'; b.style.background='var(--success-soft)'; }
-        else { b.style.borderColor='var(--danger)'; b.style.background='var(--danger-soft)';
-          optWrap.children[item.correct].style.borderColor='var(--success)';
-          optWrap.children[item.correct].style.background='var(--success-soft)';
-        }
-        exp.classList.add('show');
-      });
-      optWrap.appendChild(b);
-    });
-    card.appendChild(optWrap);
-    const exp = document.createElement('p');
-    exp.className='quiz-explain'; exp.style.marginTop='10px'; exp.textContent = item.exp;
-    card.appendChild(exp);
-    wrap.appendChild(card);
-  });
-})();
-
-/* ============================================================
-   SLIDE 9: Cartesius (faktor dari) — read/click only
-============================================================ */
-function buildCartesius(svg, opts){
-  // opts: {domain:[], kodomain:[], pairs:[[a,b]], w,h, interactive:bool, onPick, checkable}
-  svg.innerHTML='';
-  const {domain, kodomain, w, h} = opts;
-  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  const padL=44, padB=36, padT=22, padR=18;
-  const plotW = w-padL-padR, plotH = h-padT-padB;
-  const xStep = plotW/(domain.length+1);
-  const yStep = plotH/(kodomain.length+1);
-  const xPos = {}, yPos = {};
-  domain.forEach((d,i)=> xPos[d] = padL + xStep*(i+1));
-  kodomain.forEach((k,i)=> yPos[k] = h-padB - yStep*(i+1));
-
-  // axes
-  svg.appendChild(el('line',{x1:padL,y1:padT-6,x2:padL,y2:h-padB, stroke:'#8A8FB0','stroke-width':1.5}));
-  svg.appendChild(el('line',{x1:padL,y1:h-padB,x2:w-padR,y2:h-padB, stroke:'#8A8FB0','stroke-width':1.5}));
-  const lx = el('text',{x:padL-8, y:padT-10, class:'svg-label', 'font-size':11}); lx.textContent='y (B)'; svg.appendChild(lx);
-  const ly = el('text',{x:w-padR-10, y:h-padB+22, class:'svg-label', 'font-size':11, 'text-anchor':'end'}); ly.textContent='x (A)'; svg.appendChild(ly);
-
-  domain.forEach(d=>{
-    svg.appendChild(el('line',{x1:xPos[d],y1:padT,x2:xPos[d],y2:h-padB, stroke:'var(--grid-line)'.trim(), 'stroke-dasharray':'3 3'}));
-    const t = el('text',{x:xPos[d], y:h-padB+18, 'text-anchor':'middle', 'font-family':'JetBrains Mono','font-size':12,'font-weight':700, fill:'#B65E12'}); t.textContent=d; svg.appendChild(t);
-  });
-  kodomain.forEach(k=>{
-    svg.appendChild(el('line',{x1:padL,y1:yPos[k],x2:w-padR,y2:yPos[k], stroke:'var(--grid-line)'.trim(), 'stroke-dasharray':'3 3'}));
-    const t = el('text',{x:padL-10, y:yPos[k]+4, 'text-anchor':'end', 'font-family':'JetBrains Mono','font-size':12,'font-weight':700, fill:'#096E64'}); t.textContent=k; svg.appendChild(t);
-  });
-
-  if(opts.mode==='fixed'){
-    opts.pairs.forEach(([a,b])=>{
-      const g = el('g', {class:'cartesius-point', 'data-a':a, 'data-b':b});
-      const c = el('circle', {cx:xPos[a], cy:yPos[b], r:6, fill:'#5B4FE5'});
-      g.appendChild(c); svg.appendChild(g);
-      g.addEventListener('click', ()=>{
-        const already = g.classList.contains('picked');
-        svg.querySelectorAll('.cartesius-point').forEach(n=>{ n.classList.remove('picked'); n.querySelector('circle').setAttribute('r',6); n.querySelector('circle').setAttribute('fill','#5B4FE5'); });
-        if(!already){ g.classList.add('picked'); c.setAttribute('r',9); c.setAttribute('fill','#4038B0'); }
-        if(opts.onPick) opts.onPick(already? null : {a,b});
-      });
-    });
-  } else if(opts.mode==='click-grid'){
-    domain.forEach(a=> kodomain.forEach(b=>{
-      const g = el('g', {class:'click-grid-point', 'data-a':a, 'data-b':b});
-      const c = el('circle', {cx:xPos[a], cy:yPos[b], r:6});
-      g.appendChild(c); svg.appendChild(g);
-      g.addEventListener('click', ()=>{ g.classList.toggle('on'); });
-    }));
-  }
-}
-
-(function(){
-  const svg = document.getElementById('svgCartesius1');
-  const hint = document.getElementById('cartHint1');
-  const domain=[2,3,4,5], kodomain=[4,6,8,10,15];
-  const pairs=[[2,4],[2,6],[2,8],[2,10],[3,6],[3,15],[4,4],[4,8],[5,10],[5,15]];
-  buildCartesius(svg, {domain,kodomain,pairs,w:420,h:380,mode:'fixed', onPick:(p)=>{
-    hint.textContent = p ? `Titik terpilih menyatakan pasangan (${p.a}, ${p.b}).` : '👆 Klik salah satu titik pada grafik.';
-  }});
-})();
-
-/* ============================================================
-   SLIDE 10: Cartesius click-grid quiz ("kurang dari")
-============================================================ */
-(function(){
-  const svg = document.getElementById('svgCartesius2');
-  const domain=[1,2,3,4], kodomain=[1,2,3,4,5];
-  buildCartesius(svg, {domain,kodomain,w:420,h:420,mode:'click-grid'});
-  const correctSet = [];
-  domain.forEach(a=> kodomain.forEach(b=>{ if(a<b) correctSet.push(a+','+b); }));
-  window.checkCartesius2 = function(){
-    let ok = true;
-    const fb = document.getElementById('feedbackCart2');
-    svg.querySelectorAll('.click-grid-point').forEach(g=>{
-      const key = g.getAttribute('data-a')+','+g.getAttribute('data-b');
-      const isCorrect = correctSet.includes(key);
-      const isOn = g.classList.contains('on');
-      g.classList.remove('correct','wrong','missed');
-      if(isOn && isCorrect) g.classList.add('correct');
-      else if(isOn && !isCorrect){ g.classList.add('wrong'); ok=false; }
-      else if(!isOn && isCorrect){ g.classList.add('missed'); ok=false; }
-    });
-    fb.classList.add('show'); fb.classList.toggle('ok',ok); fb.classList.toggle('bad',!ok);
-    fb.textContent = ok ? '🎉 Semua titik tepat!' : '🔎 Hijau=benar, merah=salah pilih, garis putus=terlewat.';
-  };
-  window.resetCartesius2 = function(){
-    svg.querySelectorAll('.click-grid-point').forEach(g=> g.className='click-grid-point');
-    document.getElementById('feedbackCart2').classList.remove('show');
-  };
-})();
-
-/* ============================================================
-   SLIDE 11: Signature sync comparison ("setengah dari")
-============================================================ */
-(function(){
-  const A=[1,2,3], B=[2,4,6];
-  const pairs=[[1,2],[2,4],[3,6]];
-  const svgArrow = document.getElementById('svgSyncArrow');
-  const svgCart = document.getElementById('svgSyncCart');
-  const chipsWrap = document.getElementById('syncChips');
-
-  const diagram = buildArrowDiagram(svgArrow, {A,B,pairs,w:260,h:260,r:16});
-  buildCartesius(svgCart, {domain:A,kodomain:B,pairs,w:260,h:260,mode:'fixed', onPick:(p)=>{
-    if(p) syncSet(pairs.findIndex(([a,b])=>a===p.a&&b===p.b)); else syncSet(-1);
-  }});
-
-  pairs.forEach(([a,b],idx)=>{
-    const chip = document.createElement('button');
-    chip.className='pair-chip-sync';
-    chip.textContent = `(${a}, ${b})`;
-    chip.addEventListener('click', ()=> syncSet(chipActive===idx ? -1 : idx));
-    chipsWrap.appendChild(chip);
-  });
-
-  let chipActive = -1;
-  function syncSet(idx){
-    chipActive = idx;
-    // chips
-    Array.from(chipsWrap.children).forEach((c,i)=>{
-      c.classList.toggle('hl', i===idx);
-      c.classList.toggle('sync-dim', idx!==-1 && i!==idx);
-    });
-    // arrow diagram
-    svgArrow.querySelectorAll('.rel-path').forEach((p,i)=>{
-      p.classList.toggle('active', i===idx);
-      p.classList.toggle('dim', idx!==-1 && i!==idx);
-    });
-    svgArrow.querySelectorAll('.node').forEach(n=>{
-      const side=n.getAttribute('data-side'), val=n.getAttribute('data-val');
-      if(idx===-1){ n.classList.remove('dim','active-a','active-b'); return; }
-      const [a,b] = pairs[idx];
-      const keep = (side==='A'&&val===String(a)) || (side==='B'&&val===String(b));
-      n.classList.toggle('dim', !keep);
-      n.classList.toggle('active-a', side==='A'&&keep);
-      n.classList.toggle('active-b', side==='B'&&keep);
-    });
-    // cartesius
-    svgCart.querySelectorAll('.cartesius-point').forEach((g,i)=>{
-      const c = g.querySelector('circle');
-      const active = i===idx;
-      c.setAttribute('r', active?9:6);
-      c.setAttribute('fill', active? '#4038B0' : (idx!==-1 ? '#D9D6FF' : '#5B4FE5'));
-    });
-  }
-})();
-
-/* ============================================================
-   QUIZ ENGINE
-============================================================ */
-const quizData = [
-  {
-    q:'Relasi dari himpunan A ke himpunan B adalah…',
-    opts:[
-      'Aturan yang memasangkan/menghubungkan anggota A dengan anggota B',
-      'Himpunan yang hanya berisi angka genap',
-      'Gabungan dua himpunan menjadi satu',
-      'Operasi penjumlahan antara dua bilangan'
-    ], correct:0,
-    exp:'Relasi adalah aturan yang menghubungkan/memasangkan anggota himpunan A dengan anggota himpunan B.'
-  },
-  {
-    q:'Diketahui A = {siswa}, B = {hobi}, dengan relasi "gemar akan". Himpunan A disebut…',
-    opts:['Range','Kodomain','Domain','Fungsi'], correct:2,
-    exp:'Himpunan tempat relasi "berangkat" (A) disebut domain / daerah asal.'
-  },
-  {
-    q:'Pada relasi "faktor dari" dari A={2,3} ke B={4,6,9}, pasangan mana yang BENAR?',
-    opts:['(2, 9)','(3, 9)','(2, 6) dan (3, 6) saja','(3, 4)'], correct:1,
-    exp:'3 adalah faktor dari 9 (9 = 3×3), sehingga (3,9) merupakan pasangan yang benar. Perhatikan juga (2,4) dan (2,6) sebenarnya juga benar, tapi hanya opsi (3,9) yang tepat dan valid di sini.'
-  },
-  {
-    q:'Anggota kodomain yang TIDAK punya pasangan disebut anggota yang…',
-    opts:['Termasuk range', 'Tidak termasuk range', 'Menjadi domain baru', 'Selalu berjumlah genap'], correct:1,
-    exp:'Range hanya berisi anggota kodomain yang benar-benar mendapat pasangan dari domain.'
-  },
-  {
-    q:'Manakah cara menyatakan relasi yang menggunakan sumbu-x dan sumbu-y?',
-    opts:['Diagram panah', 'Himpunan pasangan berurutan', 'Diagram Cartesius', 'Tabel perkalian'], correct:2,
-    exp:'Diagram Cartesius menempatkan domain pada sumbu-x dan kodomain pada sumbu-y.'
-  },
-  {
-    q:'R = {(1,2),(2,4),(3,6)} adalah relasi "dua kali dari" dari A={1,2,3} ke B={2,4,6}. Apa range-nya?',
-    opts:['{1,2,3}', '{2,4,6}', '{1,2,3,4,5,6}', '{}'], correct:1,
-    exp:'Karena setiap anggota B (2,4,6) mendapat pasangan, maka range = kodomain = {2,4,6}.'
-  }
+const gameData = [
+  {label:'Contoh 1', before:'translate(0,0)', after:'translate(160,0)', answer:'translasi',
+   exp:'Bentuk dan arah hadap bendera sama persis, hanya posisinya bergeser lurus ke kanan → Translasi.'},
+  {label:'Contoh 2', before:'translate(0,0)', after:'translate(300,0) scale(-1,1) translate(0,0)', answer:'refleksi',
+   exp:'Bendera menghadap arah berlawanan (seperti dipantulkan cermin tegak) → Refleksi.'},
+  {label:'Contoh 3', before:'translate(0,0)', after:'translate(230,10) rotate(180,37,42)', answer:'rotasi',
+   exp:'Bendera berputar 180° mengelilingi satu titik pusat, jaraknya ke pusat tetap sama → Rotasi.'},
+  {label:'Contoh 4', before:'translate(0,0)', after:'translate(150,-20) scale(1.7)', answer:'dilatasi',
+   exp:'Bentuk bendera tetap sama, tetapi ukurannya membesar → Dilatasi.'},
+  {label:'Contoh 5', before:'translate(0,0)', after:'translate(210,0) scale(1,-1) translate(0,-84)', answer:'refleksi',
+   exp:'Bendera terbalik atas-bawah seperti dipantulkan cermin datar → Refleksi.'},
+  {label:'Contoh 6', before:'translate(0,0)', after:'translate(190,55) scale(0.55)', answer:'dilatasi',
+   exp:'Bentuk bendera tetap sama namun mengecil → Dilatasi (faktor skala di antara 0 dan 1).'},
 ];
-let qIndex = 0, qScore = 0, qAnswered = [];
-
-function renderQuiz(){
-  const shell = document.getElementById('quizShell');
-  if(qIndex >= quizData.length){
-    shell.innerHTML = `
-      <div class="quiz-result">
-        <div class="eyebrow" style="justify-content:center;">Hasil Kuis</div>
-        <div class="big-score">${qScore} / ${quizData.length}</div>
-        <p class="score-msg">${qScore===quizData.length ? '🌟 Sempurna! Kamu sudah sangat paham materi Relasi.' : qScore >= quizData.length/2 ? '👍 Bagus! Cek lagi bagian yang belum pas ya.' : '💪 Yuk baca ulang materinya, kamu pasti bisa lebih baik!'}</p>
-        <div class="action-row">
-          <button class="btn" onclick="restartQuiz()">↺ Ulangi Kuis</button>
-          <button class="btn ghost" onclick="goTo(15)">Lanjut ke Penutup →</button>
-        </div>
+const typeNames = {translasi:'Translasi', refleksi:'Refleksi', rotasi:'Rotasi', dilatasi:'Dilatasi'};
+let gameIdx = 0, gameScore = 0;
+function renderGame(){
+  const container = document.getElementById('gameContainer');
+  if(gameIdx >= gameData.length){
+    container.innerHTML = `
+      <div class="score-screen">
+        <div class="game-progress">Permainan selesai</div>
+        <div class="score-num">${gameScore}/${gameData.length}</div>
+        <p style="margin-top:10px;">${gameScore===gameData.length ? 'Keren! Kamu sudah bisa mengenali keempat jenis transformasi. 🎯' : 'Coba tinjau lagi ciri-ciri visual tiap jenis, lalu ulangi permainan.'}</p>
+        <button class="reveal-btn" style="margin-top:14px;" onclick="gameIdx=0;gameScore=0;renderGame();">Ulangi Permainan</button>
       </div>`;
-    document.getElementById('finalScoreBadge').textContent = `Skor kuis: ${qScore} / ${quizData.length}`;
     return;
   }
-  const item = quizData[qIndex];
-  const letters = ['A','B','C','D'];
-  shell.innerHTML = `
-    <div class="quiz-progress">${quizData.map((_,i)=>`<div class="seg ${i<qIndex?'done':i===qIndex?'now':''}"></div>`).join('')}</div>
-    <div class="quiz-score-pill" style="align-self:flex-start;">Skor: ${qScore} · Soal ${qIndex+1} dari ${quizData.length}</div>
-    <div class="quiz-q">${item.q}</div>
-    <div class="quiz-opts">
-      ${item.opts.map((o,i)=>`<button class="quiz-opt" data-i="${i}"><span class="opt-letter">${letters[i]}</span><span>${o}</span></button>`).join('')}
-    </div>
-    <div class="quiz-explain" id="quizExplain">${item.exp}</div>
-    <div class="quiz-foot"><span></span><button class="nav-btn primary" id="quizNextBtn" style="display:none;" onclick="quizNext()">Soal Berikutnya →</button></div>
-  `;
-  shell.querySelectorAll('.quiz-opt').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const i = parseInt(btn.dataset.i);
-      shell.querySelectorAll('.quiz-opt').forEach(b=> b.disabled = true);
-      if(i===item.correct){ btn.classList.add('correct'); qScore++; }
-      else{ btn.classList.add('wrong'); shell.querySelector(`.quiz-opt[data-i="${item.correct}"]`).classList.add('correct'); }
-      document.getElementById('quizExplain').classList.add('show');
-      document.getElementById('quizNextBtn').style.display='inline-flex';
-    });
-  });
+  const item = gameData[gameIdx];
+  let html = `<div class="game-progress">${item.label} dari ${gameData.length} &nbsp;·&nbsp; Skor: ${gameScore}</div>`;
+  html += `<div class="game-visual"><svg viewBox="0 0 300 100">
+      ${flagSVG(item.before,'teal')}
+      ${flagSVG(item.after,'coral')}
+    </svg>
+    <div style="font-family:var(--mono); font-size:11px; color:var(--text-dim2); margin-top:6px;">
+      <span style="color:#2dd4bf;">■</span> objek &nbsp; <span style="color:#ff6b5b;">■</span> bayangan
+    </div></div>`;
+  html += `<div class="game-opts">
+      <button class="game-opt" onclick="answerGame('translasi')">Translasi</button>
+      <button class="game-opt" onclick="answerGame('refleksi')">Refleksi</button>
+      <button class="game-opt" onclick="answerGame('rotasi')">Rotasi</button>
+      <button class="game-opt" onclick="answerGame('dilatasi')">Dilatasi</button>
+    </div>`;
+  html += `<div class="game-explain" id="gameExplain">${item.exp}</div>`;
+  container.innerHTML = html;
 }
-function quizNext(){ qIndex++; renderQuiz(); }
-function restartQuiz(){ qIndex=0; qScore=0; renderQuiz(); }
+function answerGame(choice){
+  const item = gameData[gameIdx];
+  const btns = document.querySelectorAll('.game-opt');
+  btns.forEach(b=>{
+    b.disabled = true;
+    if(b.textContent.toLowerCase() === typeNames[item.answer].toLowerCase()) b.classList.add('correct');
+  });
+  if(choice !== item.answer){
+    btns.forEach(b=>{ if(b.textContent.toLowerCase()===typeNames[choice].toLowerCase()) b.classList.add('wrong'); });
+  } else {
+    gameScore++;
+  }
+  document.getElementById('gameExplain').classList.add('show');
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'reveal-btn game-next';
+  nextBtn.textContent = (gameIdx === gameData.length-1) ? 'Lihat Skor' : 'Contoh Berikutnya →';
+  nextBtn.onclick = ()=>{ gameIdx++; renderGame(); };
+  document.getElementById('gameContainer').appendChild(nextBtn);
+}
+
+/* ============ QUIZ KONSEP ============ */
+const quizData = [
+  {q:'Bangun mula-mula sebelum ditransformasikan disebut...', opts:['Objek','Bayangan','Vektor','Faktor skala'], correct:0, exp:'Bangun mula-mula disebut objek; hasilnya disebut bayangan/peta.'},
+  {q:'Jenis transformasi yang membuat objek terlihat seperti pantulan di cermin adalah...', opts:['Refleksi','Translasi','Rotasi','Dilatasi'], correct:0, exp:'Refleksi (pencerminan) menghasilkan bayangan yang terbalik seperti di cermin.'},
+  {q:'Roda sepeda yang berputar pada porosnya adalah contoh transformasi jenis...', opts:['Rotasi','Translasi','Refleksi','Dilatasi'], correct:0, exp:'Perputaran mengelilingi satu titik pusat adalah ciri utama rotasi.'},
+  {q:'Transformasi yang mengubah ukuran suatu bangun (membesar/mengecil) adalah...', opts:['Dilatasi','Translasi','Refleksi','Rotasi'], correct:0, exp:'Dilatasi adalah satu-satunya jenis transformasi yang mengubah ukuran objek.'},
+  {q:'Manakah kelompok transformasi yang tergolong isometri (bentuk dan ukuran tetap)?', opts:['Translasi, Refleksi, Rotasi','Translasi, Dilatasi, Rotasi','Refleksi, Dilatasi','Hanya Dilatasi'], correct:0, exp:'Translasi, refleksi, dan rotasi tidak mengubah ukuran — objek dan bayangannya kongruen.'},
+  {q:'Menggeser meja lurus ke kanan tanpa memutar atau membaliknya adalah contoh...', opts:['Translasi','Refleksi','Rotasi','Dilatasi'], correct:0, exp:'Pergeseran lurus tanpa perubahan arah hadap adalah ciri translasi.'}
+];
+let quizIdx = 0, quizScore = 0;
+function renderQuiz(){
+  const container = document.getElementById('quizContainer');
+  if(quizIdx >= quizData.length){
+    container.innerHTML = `
+      <div class="score-screen">
+        <div class="game-progress">Kuis selesai</div>
+        <div class="score-num">${quizScore}/${quizData.length}</div>
+        <p style="margin-top:10px;">${quizScore===quizData.length ? 'Pemahaman konsepmu sudah solid! Lanjut ke materi berikutnya. 🎯' : 'Tinjau kembali ciri-ciri tiap jenis transformasi di slide sebelumnya.'}</p>
+        <button class="reveal-btn" style="margin-top:14px;" onclick="quizIdx=0;quizScore=0;renderQuiz();">Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const item = quizData[quizIdx];
+  let html = `<div class="game-progress">Soal ${quizIdx+1} dari ${quizData.length} &nbsp;·&nbsp; Skor: ${quizScore}</div>`;
+  html += `<div class="quiz-q">${item.q}</div>`;
+  item.opts.forEach((opt,i)=>{
+    html += `<button class="quiz-opt" onclick="answerQuiz(${i})">${opt}</button>`;
+  });
+  html += `<div class="game-explain" id="quizExplain">${item.exp}</div>`;
+  container.innerHTML = html;
+}
+function answerQuiz(i){
+  const item = quizData[quizIdx];
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach(b=> b.disabled = true);
+  btns[item.correct].classList.add('correct');
+  if(i !== item.correct){ btns[i].classList.add('wrong'); } else { quizScore++; }
+  document.getElementById('quizExplain').classList.add('show');
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'reveal-btn game-next';
+  nextBtn.textContent = (quizIdx === quizData.length-1) ? 'Lihat Skor' : 'Soal Berikutnya →';
+  nextBtn.onclick = ()=>{ quizIdx++; renderQuiz(); };
+  document.getElementById('quizContainer').appendChild(nextBtn);
+}
+
+/* ============ INIT ============ */
+renderGame();
 renderQuiz();
 </script>
 </body>

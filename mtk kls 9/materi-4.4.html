@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4.4 Penerapan Transformasi Geometri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0e1a;
+    --bg-card:#121a2c;
+    --bg-card-2:#0e1526;
+    --border:#212b42;
+    --border-soft:#1a2338;
+    --text:#eef1f7;
+    --text-dim:#8d97ad;
+    --text-dimmer:#5f6b82;
+    --teal:#37e0a0;
+    --teal-dim:rgba(55,224,160,.10);
+    --teal-border:rgba(55,224,160,.35);
+    --amber:#f5ab5c;
+    --amber-dim:rgba(245,171,92,.10);
+    --amber-border:rgba(245,171,92,.35);
+    --coral:#fb7266;
+    --blue-btn:#1c2c4e;
+    --violet:#9d8cff;
+    --violet-dim:rgba(157,140,255,.12);
+    --pink:#ff8fb3;
+    --pink-dim:rgba(255,143,179,.12);
+  }
+  *{box-sizing:border-box; min-width:0;}
+  html,body{height:100%;}
+  html{ overflow-x:hidden; }
+  body{
+    margin:0;
+    overflow-x:hidden;
+    width:100%;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(55,224,160,.06), transparent),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(157,140,255,.05), transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+  }
+  .app{
+    width:100%;
+    max-width:900px;
+    margin:0 auto;
+    padding:32px 24px 20px;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+  }
+  .slide{ display:none; flex:1; flex-direction:column; animation:fadeIn .35s ease; }
+  .slide.active{ display:flex; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  .eyebrow{
+    display:flex; align-items:center; gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; font-weight:500;
+    color:var(--teal);
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    margin-bottom:18px;
+  }
+  .eyebrow .dash{ width:22px; height:2px; background:var(--teal); border-radius:2px; }
+
+  h1.title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:34px; font-weight:700; line-height:1.15;
+    margin:0 0 14px;
+    letter-spacing:-.01em;
+  }
+  h2.stitle{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:24px; font-weight:600; line-height:1.25;
+    margin:0 0 10px;
+  }
+  .lede{ color:var(--text-dim); font-size:16px; line-height:1.65; margin:0 0 22px; max-width:640px;}
+  .kicker{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600;
+    color:var(--text-dimmer); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px;
+  }
+
+  .card{
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px 24px;
+    margin-bottom:16px;
+  }
+  .badges{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:500;
+    padding:6px 13px; border-radius:999px; border:1px solid;
+  }
+  .badge.teal{ color:var(--teal); background:var(--teal-dim); border-color:var(--teal-border); }
+  .badge.amber{ color:var(--amber); background:var(--amber-dim); border-color:var(--amber-border); }
+  .badge.violet{ color:var(--violet); background:var(--violet-dim); border-color:rgba(157,140,255,.35); }
+  .obj-text{ font-size:15.5px; line-height:1.6; color:var(--text); margin:0;}
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .grid4{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:640px){ .grid4{grid-template-columns:1fr;} .grid2{grid-template-columns:1fr;} }
+
+  .mini-card{
+    background:var(--bg-card-2); border:1px solid var(--border-soft); border-radius:14px;
+    padding:18px; display:flex; flex-direction:column; gap:10px;
+  }
+  .mini-card .icon-wrap{ width:44px; height:44px; }
+  .mini-card h3{ font-family:'Space Grotesk',sans-serif; font-size:16px; margin:0; font-weight:600;}
+  .mini-card p{ font-size:13.5px; color:var(--text-dim); margin:0; line-height:1.55;}
+
+  .stage-wrap{
+    background:var(--bg-card-2); border:1px solid var(--border-soft); border-radius:16px;
+    padding:16px; display:flex; flex-direction:column; gap:14px; align-items:center;
+  }
+  svg.stage{ width:100%; max-width:440px; height:auto; display:block; }
+  .obj{ transition:transform .55s cubic-bezier(.4,0,.2,1); }
+
+  .controls{ width:100%; max-width:440px; display:flex; flex-direction:column; gap:12px; }
+  .control-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .control-row label{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-dim); flex:0 0 auto; }
+  .control-row input[type=range]{ flex:1 1 120px; min-width:90px; }
+  input[type=range]{
+    flex:1; -webkit-appearance:none; height:4px; border-radius:3px;
+    background:var(--border); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:16px; height:16px; border-radius:50%;
+    background:var(--teal); cursor:pointer; border:3px solid #0a0e1a;
+    box-shadow:0 0 0 2px var(--teal-border);
+  }
+  .val-chip{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600; color:var(--teal);
+    background:var(--teal-dim); border:1px solid var(--teal-border); border-radius:8px;
+    padding:3px 9px; min-width:46px; text-align:center;
+  }
+  .formula{
+    font-family:'JetBrains Mono',monospace; font-size:13.5px; color:var(--text);
+    background:var(--bg-card); border:1px solid var(--border); border-radius:10px;
+    padding:12px 16px; width:100%; max-width:440px; text-align:center;
+  }
+  .formula b{ color:var(--teal); }
+  .coord-readout{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--teal);
+    background:var(--teal-dim); border:1px solid var(--teal-border); border-radius:10px;
+    padding:9px 14px; width:100%; max-width:440px; text-align:center;
+  }
+  .qbtn.active{ box-shadow:0 0 0 1px var(--teal-border) inset; }
+
+  .quickbtns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+  .qbtn{
+    font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500;
+    background:var(--bg-card); border:1px solid var(--border); color:var(--text-dim);
+    padding:7px 13px; border-radius:9px; cursor:pointer; transition:.2s;
+  }
+  .qbtn:hover{ border-color:var(--teal-border); color:var(--teal); }
+  .qbtn.active{ background:var(--teal-dim); border-color:var(--teal-border); color:var(--teal); }
+
+  .practice-box{
+    background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:22px 24px;
+  }
+  .practice-box .q{ font-size:15.5px; line-height:1.6; margin-bottom:14px; }
+  .practice-box .q b{ color:var(--amber); }
+  .reveal-btn{
+    font-family:'JetBrains Mono',monospace; font-size:12.5px; font-weight:600;
+    background:var(--amber-dim); border:1px solid var(--amber-border); color:var(--amber);
+    padding:9px 16px; border-radius:9px; cursor:pointer;
+  }
+  .answer-box{
+    display:none; margin-top:14px; padding:14px 16px; background:rgba(55,224,160,.06);
+    border:1px solid var(--teal-border); border-radius:10px; font-size:14.5px; line-height:1.6; color:var(--text);
+  }
+  .answer-box.show{ display:block; animation:fadeIn .3s ease; }
+
+  .quiz-item{ margin-bottom:20px; }
+  .quiz-q{ font-size:15px; margin-bottom:10px; font-weight:500; }
+  .quiz-opts{ display:flex; flex-direction:column; gap:8px; }
+  .opt{
+    text-align:left; font-size:14px; padding:11px 15px; border-radius:10px;
+    background:var(--bg-card); border:1px solid var(--border); color:var(--text);
+    cursor:pointer; transition:.15s;
+  }
+  .opt:hover{ border-color:var(--text-dimmer); }
+  .opt.correct{ background:rgba(55,224,160,.12); border-color:var(--teal); color:var(--teal); }
+  .opt.wrong{ background:rgba(251,114,102,.12); border-color:var(--coral); color:var(--coral); }
+  .opt.disabled{ pointer-events:none; }
+  .score-chip{
+    font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--violet);
+    background:var(--violet-dim); border:1px solid rgba(157,140,255,.35);
+    padding:6px 14px; border-radius:999px; display:inline-block; margin-bottom:16px;
+  }
+
+  .foot{
+    max-width:900px; margin:0 auto; width:100%; padding:18px 24px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .nav-btn{
+    font-family:'Inter',sans-serif; font-size:14.5px; font-weight:600;
+    border-radius:12px; padding:13px 22px; cursor:pointer; border:1px solid transparent;
+    display:flex; align-items:center; gap:8px;
+  }
+  .nav-btn.ghost{ background:var(--bg-card); border-color:var(--border); color:var(--text-dim); }
+  .nav-btn.ghost:hover{ color:var(--text); }
+  .nav-btn.solid{ background:#1c2c4e; border-color:#2e4573; color:#fff; }
+  .nav-btn.solid:hover{ background:#24365f; }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .progress{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .dots{ display:flex; gap:6px; }
+  .dot{ width:7px; height:7px; border-radius:4px; background:#2a3450; transition:.25s; }
+  .dot.active{ width:20px; background:var(--coral); }
+  .counter{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-dimmer); }
+
+  .context-note{
+    font-size:13px; color:var(--text-dimmer); font-style:italic; margin-top:2px; text-align:center;
+  }
+
+  /* ---------- RESPONSIVE / MOBILE ---------- */
+  @media (max-width:640px){
+    .app{ padding:22px 16px 14px; }
+    .foot{ padding:14px 16px 20px; gap:10px; }
+    h1.title{ font-size:26px; }
+    h2.stitle{ font-size:20px; }
+    .lede{ font-size:14.5px; margin-bottom:18px; }
+    .kicker{ font-size:11px; }
+    .card, .practice-box{ padding:16px 16px; border-radius:14px; }
+    .stage-wrap{ padding:14px 12px; border-radius:14px; }
+    .badges{ gap:8px; margin-bottom:14px; }
+    .badge{ font-size:11px; padding:5px 11px; }
+    .obj-text{ font-size:14.5px; }
+    .mini-card{ padding:15px; }
+    .mini-card h3{ font-size:15px; }
+    .mini-card p{ font-size:13px; }
+    .formula, .coord-readout{ font-size:11.5px; padding:10px 12px; line-height:1.55; }
+    .val-chip{ min-width:38px; font-size:12px; padding:3px 7px; }
+    .qbtn{ font-size:11px; padding:7px 11px; }
+    .quiz-q{ font-size:14px; }
+    .opt{ font-size:13.5px; padding:10px 13px; }
+    .practice-box .q{ font-size:14.5px; }
+    .answer-box{ font-size:13.5px; padding:12px 14px; }
+    .nav-btn{ padding:11px 14px; font-size:13px; gap:5px; }
+    .counter{ font-size:10.5px; }
+    .eyebrow{ font-size:11px; gap:8px; margin-bottom:14px; }
+  }
+  @media (max-width:380px){
+    .app{ padding:18px 12px 12px; }
+    .foot{ padding:12px 10px 18px; gap:6px; flex-wrap:nowrap; }
+    h1.title{ font-size:22px; }
+    h2.stitle{ font-size:18px; }
+    .nav-btn{ padding:9px 9px; font-size:11px; white-space:nowrap; }
+    .progress{ flex:0 0 auto; }
+    .dots{ gap:4px; }
+    .dot{ width:5px; height:5px; }
+    .dot.active{ width:14px; }
+    .counter{ font-size:9.5px; }
+    .badge{ font-size:10.5px; padding:4px 9px; }
+    .control-row label{ font-size:11px; }
+  }
+  img, svg{ max-width:100%; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- SLIDE 1 : COVER -->
+  <section class="slide active">
+    <div class="eyebrow"><span class="dash"></span> BAB 4 · SUB-MATERI 4.4</div>
+    <h1 class="title">Penerapan Transformasi<br>Geometri</h1>
+    <p class="lede">Translasi, refleksi, rotasi, dan dilatasi bukan cuma rumus di atas kertas. Keempatnya bekerja diam-diam di balik desain game, arsitektur bangunan, motif batik, sampai peta digital yang kamu pakai tiap hari. Yuk lihat bagaimana transformasi geometri menyelesaikan masalah nyata.</p>
+    <div class="card">
+      <div class="badges">
+        <span class="badge teal">⏱ 8 JP</span>
+        <span class="badge amber">🎯 Tujuan Pembelajaran</span>
+      </div>
+      <p class="obj-text">Peserta didik mampu menerapkan transformasi geometri untuk menyelesaikan masalah kontekstual.</p>
+    </div>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 220">
+        <defs>
+          <pattern id="gridcover" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M20 0H0V20" fill="none" stroke="#1a2338" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="400" height="220" fill="url(#gridcover)"/>
+        <g id="coverPinwheel" transform="translate(200,110)">
+          <g id="coverBlade1"><polygon points="0,0 60,-8 60,8" fill="#37e0a0" opacity="0.9"/></g>
+          <g id="coverBlade2" transform="rotate(90)"><polygon points="0,0 60,-8 60,8" fill="#9d8cff" opacity="0.9"/></g>
+          <g id="coverBlade3" transform="rotate(180)"><polygon points="0,0 60,-8 60,8" fill="#f5ab5c" opacity="0.9"/></g>
+          <g id="coverBlade4" transform="rotate(270)"><polygon points="0,0 60,-8 60,8" fill="#ff8fb3" opacity="0.9"/></g>
+          <circle r="7" fill="#eef1f7"/>
+        </g>
+      </svg>
+      <p class="context-note">Satu motif, empat transformasi (rotasi 90°) — pola ini muncul di baling-baling kincir sampai ubin lantai.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 2 : PENDAHULUAN / KONTEKS NYATA -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dash"></span> 4.4 · PENERAPAN TRANSFORMASI</div>
+    <h2 class="stitle">Transformasi ada di mana-mana</h2>
+    <p class="lede">Sebelum masuk ke soal, kenali dulu tempat-tempat transformasi geometri benar-benar dipakai untuk memecahkan masalah.</p>
+    <div class="grid4">
+      <div class="mini-card">
+        <svg class="icon-wrap" viewBox="0 0 44 44"><rect x="4" y="10" width="36" height="24" rx="4" fill="none" stroke="#37e0a0" stroke-width="2"/><circle cx="15" cy="26" r="3" fill="#37e0a0"/><circle cx="29" cy="26" r="3" fill="#37e0a0"/><rect x="19" y="15" width="6" height="5" rx="1" fill="#37e0a0"/></svg>
+        <h3>Desain Game &amp; Animasi</h3>
+        <p>Karakter yang berjalan (translasi), berputar (rotasi), atau bayangannya di air (refleksi) semuanya dihitung pakai transformasi.</p>
+      </div>
+      <div class="mini-card">
+        <svg class="icon-wrap" viewBox="0 0 44 44"><polygon points="22,4 40,40 4,40" fill="none" stroke="#9d8cff" stroke-width="2"/><line x1="22" y1="4" x2="22" y2="40" stroke="#9d8cff" stroke-width="1.5" stroke-dasharray="3,3"/></svg>
+        <h3>Arsitektur &amp; Denah</h3>
+        <p>Denah rumah diperbesar/diperkecil dengan skala tertentu (dilatasi) sebelum dibangun sesuai ukuran aslinya.</p>
+      </div>
+      <div class="mini-card">
+        <svg class="icon-wrap" viewBox="0 0 44 44"><g transform="translate(22,22)"><polygon points="0,-14 4,-4 14,-4 6,2 9,12 0,6 -9,12 -6,2 -14,-4 -4,-4" fill="#f5ab5c" opacity="0.9"/></g></svg>
+        <h3>Motif Batik &amp; Ubin</h3>
+        <p>Satu motif kecil diulang dengan translasi, dicerminkan, dan diputar untuk membentuk pola batik atau keramik yang rapi.</p>
+      </div>
+      <div class="mini-card">
+        <svg class="icon-wrap" viewBox="0 0 44 44"><circle cx="22" cy="18" r="10" fill="none" stroke="#ff8fb3" stroke-width="2"/><polygon points="22,28 17,40 27,40" fill="#ff8fb3"/><circle cx="22" cy="18" r="3" fill="#ff8fb3"/></svg>
+        <h3>Peta &amp; Navigasi GPS</h3>
+        <p>Saat kamu zoom in/out peta digital, itu dilatasi. Saat peta diputar mengikuti arah hadapmu, itu rotasi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 3 : TRANSLASI INTERAKTIF -->
+  <section class="slide">
+    <div class="kicker">Studi Kasus 1 · Translasi</div>
+    <h2 class="stitle">Menata ulang keramik lantai</h2>
+    <p class="lede">Seorang tukang keramik menggeser satu ubin bermotif dari posisi awal ke posisi baru tanpa memutar atau membaliknya. Geser slider untuk menentukan vektor translasi <b style="color:#37e0a0">(a, b)</b> dan lihat ubin berpindah.</p>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 280">
+        <defs><pattern id="gridT" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#1a2338" stroke-width="1"/></pattern></defs>
+        <rect width="400" height="280" fill="url(#gridT)"/>
+        <polygon points="60,180 100,180 100,220 60,220" fill="none" stroke="#3a4568" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="45" y="235" fill="#5f6b82" font-size="11" font-family="JetBrains Mono">A(60,180)</text>
+        <g id="tileObj" class="obj" transform="translate(0,0)">
+          <polygon points="60,180 100,180 100,220 60,220" fill="#37e0a0" opacity="0.85"/>
+          <polygon points="70,190 90,190 90,210 70,210" fill="#0a0e1a" opacity="0.5"/>
+        </g>
+        <text id="tileLabel" x="60" y="172" fill="#37e0a0" font-size="11" font-family="JetBrains Mono">A'</text>
+      </svg>
+      <div class="controls">
+        <div class="control-row"><label>a (horizontal)</label><input type="range" id="txA" min="-3" max="6" value="0" step="1"><span class="val-chip" id="txAval">0</span></div>
+        <div class="control-row"><label>b (vertikal)</label><input type="range" id="txB" min="-6" max="3" value="0" step="1"><span class="val-chip" id="txBval">0</span></div>
+      </div>
+      <div class="formula">T(<b>a, b</b>): (x, y) → (x + <b id="fa">0</b>, y + <b id="fb">0</b>) &nbsp;|&nbsp; A(60,180) → A'(<b id="fx">60</b>, <b id="fy">180</b>)</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 4 : LATIHAN TRANSLASI -->
+  <section class="slide">
+    <div class="kicker">Latihan Kontekstual · Translasi</div>
+    <h2 class="stitle">Karakter game berpindah medan</h2>
+    <div class="practice-box">
+      <p class="q">Sebuah karakter di peta game berada di koordinat <b>P(3, 5)</b>. Untuk sampai ke pintu portal, karakter harus digeser <b>7 satuan ke kanan</b> dan <b>4 satuan ke bawah</b>. Tentukan koordinat karakter setelah translasi tersebut.</p>
+      <button class="reveal-btn" onclick="document.getElementById('ans4').classList.add('show')">Lihat Pembahasan</button>
+      <div class="answer-box" id="ans4">
+        Bergerak ke bawah berarti nilai y berkurang, jadi vektor translasinya <b>(7, −4)</b>.<br>
+        P'(x, y) = (3 + 7, 5 − 4) = <b>P'(10, 1)</b>.<br>
+        Karakter berhenti di koordinat (10, 1).
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 5 : REFLEKSI INTERAKTIF -->
+  <section class="slide">
+    <div class="kicker">Studi Kasus 2 · Refleksi</div>
+    <h2 class="stitle">Bayangan gedung di permukaan air</h2>
+    <p class="lede">Sebuah gedung berdiri di tepi danau. Bayangannya di air adalah hasil refleksi (pencerminan) gedung tersebut. Pilih sumbu cermin untuk melihat bagaimana bayangan terbentuk.</p>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 280">
+        <line id="axisX" x1="0" y1="140" x2="400" y2="140" stroke="#fb7266" stroke-width="1.5" stroke-dasharray="5,4" opacity="0"/>
+        <line id="axisY" x1="200" y1="0" x2="200" y2="280" stroke="#fb7266" stroke-width="1.5" stroke-dasharray="5,4" opacity="0"/>
+        <line id="axisD" x1="60" y1="220" x2="340" y2="-60" stroke="#fb7266" stroke-width="1.5" stroke-dasharray="5,4" opacity="0"/>
+        <g id="buildingObj" class="obj" transform="translate(0,0) scale(1,1)" style="transform-origin:200px 140px;">
+          <polygon points="230,60 270,60 270,140 230,140" fill="#9d8cff" opacity="0.9"/>
+          <rect x="238" y="70" width="8" height="8" fill="#0a0e1a"/>
+          <rect x="254" y="70" width="8" height="8" fill="#0a0e1a"/>
+          <rect x="238" y="86" width="8" height="8" fill="#0a0e1a"/>
+          <rect x="254" y="86" width="8" height="8" fill="#0a0e1a"/>
+          <polygon points="225,58 275,58 250,40" fill="#7d6be0"/>
+        </g>
+      </svg>
+      <div class="quickbtns">
+        <button class="qbtn active" onclick="setReflect('none',this)">Tanpa cermin</button>
+        <button class="qbtn" onclick="setReflect('x',this)">Cermin sumbu-X</button>
+        <button class="qbtn" onclick="setReflect('y',this)">Cermin sumbu-Y</button>
+        <button class="qbtn" onclick="setReflect('yx',this)">Cermin garis y = x</button>
+      </div>
+      <div class="formula" id="reflectFormula">Pilih salah satu sumbu cermin di atas untuk melihat aturan pemetaan titiknya.</div>
+    </div>
+  </section>
+
+  <!-- SLIDE 6 : LATIHAN REFLEKSI -->
+  <section class="slide">
+    <div class="kicker">Latihan Kontekstual · Refleksi</div>
+    <h2 class="stitle">Logo simetris untuk rambu lalu lintas</h2>
+    <div class="practice-box">
+      <p class="q">Sebuah rambu memuat simbol panah di titik <b>B(-4, 6)</b>. Agar simetris, desainer mencerminkan simbol tersebut terhadap <b>sumbu-Y</b>. Di koordinat mana bayangan simbol itu digambar?</p>
+      <button class="reveal-btn" onclick="document.getElementById('ans6').classList.add('show')">Lihat Pembahasan</button>
+      <div class="answer-box" id="ans6">
+        Refleksi terhadap sumbu-Y mengubah tanda absis: (x, y) → (−x, y).<br>
+        B(−4, 6) → <b>B'(4, 6)</b>.<br>
+        Simbol digambar ulang di (4, 6), berjarak sama dari sumbu-Y tapi di sisi berlawanan — persis seperti bayangan cermin.
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 7 : ROTASI INTERAKTIF -->
+  <section class="slide">
+    <div class="kicker">Studi Kasus 3 · Rotasi</div>
+    <h2 class="stitle">Kabin bianglala (ferris wheel) berputar</h2>
+    <p class="lede">Seluruh kabin bianglala berputar bersama mengelilingi satu titik pusat O. Tekan <b style="color:#37e0a0">putar otomatis</b> atau geser sudutnya, lalu perhatikan bagaimana koordinat <b style="color:#37e0a0">kabin bertanda hijau</b> berubah mengikuti rumus rotasi.</p>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 340">
+        <line x1="70" y1="300" x2="330" y2="300" stroke="#1a2338" stroke-width="2"/>
+        <line x1="200" y1="190" x2="145" y2="300" stroke="#232e48" stroke-width="5" stroke-linecap="round"/>
+        <line x1="200" y1="190" x2="255" y2="300" stroke="#232e48" stroke-width="5" stroke-linecap="round"/>
+        <line x1="200" y1="190" x2="160" y2="300" stroke="#1a2338" stroke-width="3" stroke-linecap="round"/>
+        <line x1="200" y1="190" x2="240" y2="300" stroke="#1a2338" stroke-width="3" stroke-linecap="round"/>
+        <rect x="181" y="298" width="38" height="20" rx="3" fill="#141c30" stroke="#2a3450" stroke-width="1.5"/>
+        <circle cx="200" cy="190" r="96" fill="none" stroke="#2a3450" stroke-width="3"/>
+        <circle cx="200" cy="190" r="96" fill="none" stroke="#1a2338" stroke-width="1" stroke-dasharray="2,7"/>
+        <path id="rotArc" d="" fill="rgba(55,224,160,0.15)" stroke="#37e0a0" stroke-width="1.5"/>
+        <g id="wheelObj" transform="rotate(0)"></g>
+        <circle cx="200" cy="190" r="6" fill="#5f6b82"/>
+        <text x="209" y="184" fill="#5f6b82" font-size="11" font-family="JetBrains Mono">O</text>
+      </svg>
+      <div class="coord-readout" id="coordReadout">Kabin bertanda berada di <b>(0.00, 5.00)</b> satuan dari pusat O</div>
+      <div class="controls">
+        <div class="control-row"><label>sudut θ</label><input type="range" id="rotAngle" min="-180" max="180" value="0" step="5"><span class="val-chip" id="rotVal">0°</span></div>
+      </div>
+      <div class="quickbtns">
+        <button class="qbtn" id="playBtn" onclick="togglePlay()">▶ Putar otomatis</button>
+        <button class="qbtn" onclick="setAngle(90)">90°</button>
+        <button class="qbtn" onclick="setAngle(180)">180°</button>
+        <button class="qbtn" onclick="setAngle(-90)">−90°</button>
+        <button class="qbtn" onclick="setAngle(0)">Reset</button>
+      </div>
+      <div class="formula">Rotasi [O, <b id="rotFormulaVal">0°</b>]: (x,y) → (x cosθ − y sinθ, x sinθ + y cosθ) — arah <b id="rotDir">-</b></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 8 : LATIHAN ROTASI -->
+  <section class="slide">
+    <div class="kicker">Latihan Kontekstual · Rotasi</div>
+    <h2 class="stitle">Jarum jam dinding</h2>
+    <div class="practice-box">
+      <p class="q">Ujung jarum panjang jam dinding berada pada titik <b>J(0, 5)</b> relatif terhadap pusat jam di titik asal. Setelah 15 menit, jarum berputar <b>90° searah jarum jam</b>. Tentukan posisi ujung jarum setelahnya.</p>
+      <button class="reveal-btn" onclick="document.getElementById('ans8').classList.add('show')">Lihat Pembahasan</button>
+      <div class="answer-box" id="ans8">
+        Searah jarum jam berarti sudutnya <b>−90°</b>. Rumus rotasi terhadap pusat O sejauh −90°: (x, y) → (y, −x).<br>
+        J(0, 5) → <b>J'(5, 0)</b>.<br>
+        Ujung jarum kini menunjuk lurus ke kanan (arah pukul 3), sesuai intuisi jam analog.
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 9 : DILATASI INTERAKTIF -->
+  <section class="slide">
+    <div class="kicker">Studi Kasus 4 · Dilatasi</div>
+    <h2 class="stitle">Mencetak denah rumah sesuai skala</h2>
+    <p class="lede">Arsitek menggambar denah rumah kecil di atas kertas, lalu skalanya diubah agar sesuai ukuran cetak. Geser faktor skala <b style="color:#37e0a0">k</b> terhadap titik pusat O untuk memperbesar atau memperkecil denah.</p>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 280">
+        <defs><pattern id="gridD" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1a2338" stroke-width="1"/></pattern></defs>
+        <rect width="400" height="280" fill="url(#gridD)"/>
+        <circle cx="120" cy="220" r="4" fill="#5f6b82"/>
+        <text x="128" y="224" fill="#5f6b82" font-size="11" font-family="JetBrains Mono">O (pusat dilatasi)</text>
+        <g id="planObj" class="obj" style="transform-origin:120px 220px;" transform="scale(1)">
+          <polygon points="120,140 200,140 200,220 120,220" fill="none" stroke="#37e0a0" stroke-width="2.5"/>
+          <polygon points="120,140 160,110 200,140" fill="none" stroke="#37e0a0" stroke-width="2.5"/>
+          <rect x="150" y="185" width="20" height="35" fill="none" stroke="#37e0a0" stroke-width="2"/>
+        </g>
+      </svg>
+      <div class="controls">
+        <div class="control-row"><label>faktor skala k</label><input type="range" id="dilK" min="0.4" max="2.2" value="1" step="0.1"><span class="val-chip" id="dilVal">1.0</span></div>
+      </div>
+      <div class="formula">Dilatasi [O, k]: (x, y) → (k·x, k·y) &nbsp;|&nbsp; k = <b id="dilFormulaVal">1.0</b> → <b id="dilDesc">ukuran tetap sama</b></div>
+    </div>
+  </section>
+
+  <!-- SLIDE 10 : LATIHAN DILATASI -->
+  <section class="slide">
+    <div class="kicker">Latihan Kontekstual · Dilatasi</div>
+    <h2 class="stitle">Memperbesar cetak biru bangunan</h2>
+    <div class="practice-box">
+      <p class="q">Sebuah ruangan pada denah digambar sebagai persegi panjang dengan titik sudut <b>R(2, 3)</b> terhadap pusat dilatasi di titik asal. Kontraktor memperbesar denah dengan faktor skala <b>k = 2,5</b> agar sesuai ukuran bangunan asli. Di mana posisi titik sudut tersebut sekarang?</p>
+      <button class="reveal-btn" onclick="document.getElementById('ans10').classList.add('show')">Lihat Pembahasan</button>
+      <div class="answer-box" id="ans10">
+        Dilatasi [O, k]: (x, y) → (k·x, k·y).<br>
+        R(2, 3) → (2,5 × 2, 2,5 × 3) = <b>R'(5, 7,5)</b>.<br>
+        Semua ukuran ruangan membesar 2,5 kali, tapi bentuk dan proporsinya tetap sama — inilah kenapa denah bisa "diperbesar" tanpa mengubah desainnya.
+      </div>
+    </div>
+  </section>
+
+  <!-- SLIDE 11 : KOMBINASI TRANSFORMASI -->
+  <section class="slide">
+    <div class="kicker">Studi Kasus 5 · Kombinasi Transformasi</div>
+    <h2 class="stitle">Merangkai motif batik dari satu bentuk</h2>
+    <p class="lede">Motif batik dan ubin keramik jarang dibuat satu-satu. Biasanya satu motif dasar diulang lewat <b style="color:#37e0a0">translasi</b>, dicerminkan lewat <b style="color:#9d8cff">refleksi</b>, dan diputar lewat <b style="color:#f5ab5c">rotasi</b> — barulah terbentuk pola yang penuh. Klik tombol untuk membangun pola selangkah demi selangkah.</p>
+    <div class="stage-wrap">
+      <svg class="stage" viewBox="0 0 400 300" id="batikStage"></svg>
+      <div class="quickbtns">
+        <button class="qbtn active" onclick="setBatikStep(0,this)">1 motif</button>
+        <button class="qbtn" onclick="setBatikStep(1,this)">+ rotasi</button>
+        <button class="qbtn" onclick="setBatikStep(2,this)">+ translasi</button>
+        <button class="qbtn" onclick="setBatikStep(3,this)">pola penuh</button>
+      </div>
+      <p class="context-note" id="batikCaption">Satu motif dasar berbentuk belah ketupat kecil.</p>
+    </div>
+  </section>
+
+  <!-- SLIDE 12 : RANGKUMAN + QUIZ -->
+  <section class="slide">
+    <div class="eyebrow"><span class="dash"></span> 4.4 · RANGKUMAN</div>
+    <h2 class="stitle">Cek pemahamanmu</h2>
+    <p class="lede">Sebelum lanjut ke sub-materi berikutnya, jawab kuis singkat ini untuk memastikan konsep penerapan transformasi sudah lekat.</p>
+    <div class="score-chip" id="scoreChip">Skor: 0 / 4</div>
+    <div id="quizWrap"></div>
+  </section>
+
+</div>
+
+<div class="foot">
+  <button class="nav-btn ghost" id="prevBtn" onclick="go(-1)">← Sebelumnya</button>
+  <div class="progress">
+    <div class="dots" id="dots"></div>
+    <div class="counter" id="counter">1 / 12</div>
+  </div>
+  <button class="nav-btn solid" id="nextBtn" onclick="go(1)">Selanjutnya →</button>
+</div>
+
+<script>
+/* ---------- NAVIGATION ---------- */
+const slides = document.querySelectorAll('.slide');
+let current = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_,i)=>{ const d=document.createElement('div'); d.className='dot'+(i===0?' active':''); dotsEl.appendChild(d); });
+const dotEls = document.querySelectorAll('.dot');
+
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active', i===current));
+  dotEls.forEach((d,i)=>d.classList.toggle('active', i===current));
+  document.getElementById('counter').textContent = (current+1)+' / '+slides.length;
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').textContent = current===slides.length-1 ? 'Selesai ✓' : 'Selanjutnya →';
+}
+function go(dir){
+  const next = current+dir;
+  if(next<0 || next>slides.length-1) return;
+  current = next;
+  render();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') go(1);
+  if(e.key==='ArrowLeft') go(-1);
+});
+render();
+
+/* ---------- COVER PINWHEEL SPIN ---------- */
+let coverAngle = 0;
+setInterval(()=>{
+  coverAngle += 1.2;
+  const el = document.getElementById('coverPinwheel');
+  if(el) el.setAttribute('transform', 'translate(200,110) rotate('+coverAngle+')');
+}, 40);
+
+/* ---------- SLIDE 3 : TRANSLASI ---------- */
+const txA = document.getElementById('txA');
+const txB = document.getElementById('txB');
+function updateTranslate(){
+  const a = parseInt(txA.value), b = parseInt(txB.value);
+  document.getElementById('txAval').textContent = a;
+  document.getElementById('txBval').textContent = b;
+  document.getElementById('fa').textContent = a;
+  document.getElementById('fb').textContent = b;
+  document.getElementById('fx').textContent = 60+a;
+  document.getElementById('fy').textContent = 180+b;
+  const obj = document.getElementById('tileObj');
+  obj.setAttribute('transform', 'translate('+(a*20)+','+(b*20)+')');
+  document.getElementById('tileLabel').setAttribute('x', 60+a*20);
+  document.getElementById('tileLabel').setAttribute('y', 172+b*20);
+}
+txA.addEventListener('input', updateTranslate);
+txB.addEventListener('input', updateTranslate);
+updateTranslate();
+
+/* ---------- SLIDE 5 : REFLEKSI ---------- */
+function setReflect(mode, btn){
+  document.querySelectorAll('#axisX,#axisY,#axisD').forEach(l=>l.style.opacity=0);
+  const obj = document.getElementById('buildingObj');
+  const formula = document.getElementById('reflectFormula');
+  btn.parentElement.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(mode==='none'){
+    obj.style.transformOrigin = '200px 140px';
+    obj.style.transform = 'scale(1,1)';
+    formula.innerHTML = 'Pilih salah satu sumbu cermin di atas untuk melihat aturan pemetaan titiknya.';
+  } else if(mode==='x'){
+    document.getElementById('axisX').style.opacity = 1;
+    obj.style.transformOrigin = '200px 140px';
+    obj.style.transform = 'scale(1,-1)';
+    formula.innerHTML = 'Cermin sumbu-X: (x, y) → (x, <b>−y</b>). Bayangan gedung "terbalik" ke bawah garis air.';
+  } else if(mode==='y'){
+    document.getElementById('axisY').style.opacity = 1;
+    obj.style.transformOrigin = '200px 140px';
+    obj.style.transform = 'scale(-1,1)';
+    formula.innerHTML = 'Cermin sumbu-Y: (x, y) → (<b>−x</b>, y). Bayangan gedung berpindah ke sisi kiri sumbu.';
+  } else if(mode==='yx'){
+    document.getElementById('axisD').style.opacity = 1;
+    obj.style.transformOrigin = '200px 140px';
+    obj.style.transform = 'matrix(0,1,1,0,0,0)';
+    formula.innerHTML = 'Cermin garis y = x: (x, y) → (<b>y, x</b>). Posisi absis dan ordinat saling bertukar.';
+  }
+}
+
+/* ---------- SLIDE 7 : ROTASI ---------- */
+const rotAngle = document.getElementById('rotAngle');
+const WHEEL_CX = 200, WHEEL_CY = 190, WHEEL_R = 96;
+
+function buildWheel(){
+  const n = 8;
+  const colors = ['#f5ab5c','#9d8cff','#ff8fb3','#8d97ad','#f5ab5c','#9d8cff','#ff8fb3','#8d97ad'];
+  let svg = '';
+  for(let i=0;i<n;i++){
+    const a = i*(360/n);
+    const rad = a*Math.PI/180;
+    const x = WHEEL_CX - WHEEL_R*Math.sin(rad);
+    const y = WHEEL_CY - WHEEL_R*Math.cos(rad);
+    if(i===0){
+      svg += '<line x1="'+WHEEL_CX+'" y1="'+WHEEL_CY+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#37e0a0" stroke-width="2"/>';
+      svg += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="15" fill="#37e0a0" stroke="#0a0e1a" stroke-width="2.5"/>';
+      svg += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5" fill="#0a0e1a"/>';
+    } else {
+      svg += '<line x1="'+WHEEL_CX+'" y1="'+WHEEL_CY+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#232e48" stroke-width="1.5"/>';
+      svg += '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="11" fill="'+colors[i]+'" opacity="0.85"/>';
+    }
+  }
+  document.getElementById('wheelObj').innerHTML = svg;
+}
+buildWheel();
+
+function polarPoint(cx,cy,r,angDeg){
+  const rad = angDeg*Math.PI/180;
+  return { x: cx - r*Math.sin(rad), y: cy - r*Math.cos(rad) };
+}
+function updateArc(v){
+  const r = 42;
+  const arcEl = document.getElementById('rotArc');
+  if(v===0){ arcEl.setAttribute('d',''); return; }
+  const p0 = polarPoint(WHEEL_CX,WHEEL_CY,r,0);
+  const p1 = polarPoint(WHEEL_CX,WHEEL_CY,r,v);
+  const largeArc = Math.abs(v) > 180 ? 1 : 0;
+  const sweep = v >= 0 ? 0 : 1;
+  const d = 'M '+WHEEL_CX+','+WHEEL_CY+' L '+p0.x.toFixed(1)+','+p0.y.toFixed(1)+' A '+r+','+r+' 0 '+largeArc+' '+sweep+' '+p1.x.toFixed(1)+','+p1.y.toFixed(1)+' Z';
+  arcEl.setAttribute('d', d);
+}
+function applyAngle(v){
+  v = Math.max(-180, Math.min(180, v));
+  document.getElementById('rotVal').textContent = v+'°';
+  document.getElementById('rotFormulaVal').textContent = v+'°';
+  document.getElementById('rotDir').textContent = v>=0 ? 'berlawanan jarum jam' : 'searah jarum jam';
+  document.getElementById('wheelObj').setAttribute('transform','rotate('+(-v)+' '+WHEEL_CX+' '+WHEEL_CY+')');
+  updateArc(v);
+  const rad = v*Math.PI/180;
+  const x = (-5*Math.sin(rad)).toFixed(2);
+  const y = (5*Math.cos(rad)).toFixed(2);
+  document.getElementById('coordReadout').innerHTML = 'Kabin bertanda berada di <b>('+x+', '+y+')</b> satuan dari pusat O';
+  rotAngle.value = v;
+}
+let isPlaying = false, playTimer = null;
+function togglePlay(){
+  isPlaying = !isPlaying;
+  const btn = document.getElementById('playBtn');
+  if(isPlaying){
+    btn.textContent = '⏸ Jeda';
+    btn.classList.add('active');
+    playTimer = setInterval(()=>{
+      let v = parseInt(rotAngle.value) + 5;
+      v = ((v + 180) % 360 + 360) % 360 - 180;
+      applyAngle(v);
+    }, 60);
+  } else {
+    btn.textContent = '▶ Putar otomatis';
+    btn.classList.remove('active');
+    clearInterval(playTimer);
+  }
+}
+function stopPlaying(){
+  if(isPlaying) togglePlay();
+}
+rotAngle.addEventListener('input', ()=>{ stopPlaying(); applyAngle(parseInt(rotAngle.value)); });
+function setAngle(v){ stopPlaying(); applyAngle(v); }
+applyAngle(0);
+
+/* ---------- SLIDE 9 : DILATASI ---------- */
+const dilK = document.getElementById('dilK');
+function updateDil(){
+  const k = parseFloat(dilK.value).toFixed(1);
+  document.getElementById('dilVal').textContent = k;
+  document.getElementById('dilFormulaVal').textContent = k;
+  const obj = document.getElementById('planObj');
+  obj.style.transform = 'scale('+k+')';
+  const desc = document.getElementById('dilDesc');
+  if(k==1.0) desc.textContent = 'ukuran tetap sama';
+  else if(k>1.0) desc.textContent = 'denah diperbesar '+k+' kali';
+  else desc.textContent = 'denah diperkecil menjadi '+k+' kali';
+}
+dilK.addEventListener('input', updateDil);
+updateDil();
+
+/* ---------- SLIDE 11 : BATIK COMBINATION ---------- */
+const batikStage = document.getElementById('batikStage');
+const batikCaptions = [
+  'Satu motif dasar berbentuk belah ketupat kecil.',
+  'Motif diputar 90° empat kali mengelilingi satu titik pusat — terbentuk satu unit pola (rosette).',
+  'Unit pola tadi digeser (translasi) ke kanan dan ke bawah untuk mengisi baris & kolom baru.',
+  'Diulang penuh ke seluruh bidang — inilah cara pola batik/ubin dibangun dari satu motif kecil.'
+];
+function diamond(cx,cy,s,fill){
+  return '<polygon points="'+cx+','+(cy-s)+' '+(cx+s)+','+cy+' '+cx+','+(cy+s)+' '+(cx-s)+','+cy+'" fill="'+fill+'" opacity="0.9"/>';
+}
+function rosette(cx,cy,s){
+  const colors=['#37e0a0','#9d8cff','#f5ab5c','#ff8fb3'];
+  let html='';
+  for(let i=0;i<4;i++){
+    const ang = i*90;
+    html += '<g transform="translate('+cx+','+cy+') rotate('+ang+')">'+diamond(0,-s*0.55,s*0.55,colors[i])+'</g>';
+  }
+  return html;
+}
+function setBatikStep(step, btn){
+  btn.parentElement.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('batikCaption').textContent = batikCaptions[step];
+  let svg = '<rect width="400" height="300" fill="#0e1526"/>';
+  if(step===0){
+    svg += diamond(200,150,34,'#37e0a0');
+  } else if(step===1){
+    svg += rosette(200,150,60);
+  } else if(step===2){
+    svg += '<g>'+rosette(140,110,44)+'</g>';
+    svg += '<g opacity="0.4">'+rosette(260,110,44)+'</g>';
+    svg += '<g opacity="0.4">'+rosette(140,220,44)+'</g>';
+    svg += '<g opacity="0.4">'+rosette(260,220,44)+'</g>';
+  } else if(step===3){
+    for(let row=0; row<3; row++){
+      for(let col=0; col<4; col++){
+        svg += '<g>'+rosette(60+col*95, 60+row*95, 40)+'</g>';
+      }
+    }
+  }
+  batikStage.innerHTML = svg;
+}
+setBatikStep(0, document.querySelector('#batikStage').parentElement.querySelector('.qbtn'));
+
+/* ---------- SLIDE 12 : QUIZ ---------- */
+const quizData = [
+  {
+    q: '1. Sebuah pion pada papan permainan digeser dari (2, −1) sejauh vektor (−3, 4). Koordinat pion sekarang adalah…',
+    opts: ['(−1, 3)','(5, −5)','(−1, −5)','(1, 3)'],
+    correct: 0,
+    explain: '(2,−1) + (−3,4) = (2−3, −1+4) = (−1, 3).'
+  },
+  {
+    q: '2. Sebuah papan reklame dicerminkan terhadap sumbu-X. Jika titik sudutnya semula (5, −2), maka bayangannya adalah…',
+    opts: ['(−5, −2)','(5, 2)','(−5, 2)','(2, 5)'],
+    correct: 1,
+    explain: 'Cermin sumbu-X: (x,y) → (x, −y), maka (5,−2) → (5, 2).'
+  },
+  {
+    q: '3. Jarum menit jam berputar 90° searah jarum jam mengelilingi pusat jam. Titik ujung jarum di (0, 6) akan berpindah ke…',
+    opts: ['(0, −6)','(−6, 0)','(6, 0)','(6, 6)'],
+    correct: 2,
+    explain: 'Rotasi −90° (searah jarum jam) terhadap pusat O: (x,y) → (y, −x), maka (0,6) → (6, 0).'
+  },
+  {
+    q: '4. Denah kamar berukuran sudut (4, 2) diperbesar dengan pusat dilatasi di titik asal dan faktor skala k = 1,5. Titik sudut barunya adalah…',
+    opts: ['(2.5, 0.5)','(6, 3)','(4, 3)','(5.5, 3.5)'],
+    correct: 1,
+    explain: 'Dilatasi [O,k]: (x,y) → (kx, ky) = (1,5×4, 1,5×2) = (6, 3).'
+  }
+];
+let score = 0;
+const quizWrap = document.getElementById('quizWrap');
+quizData.forEach((item, qi)=>{
+  const div = document.createElement('div');
+  div.className = 'quiz-item';
+  let optsHtml = '';
+  item.opts.forEach((opt, oi)=>{
+    optsHtml += '<button class="opt" data-q="'+qi+'" data-o="'+oi+'">'+opt+'</button>';
+  });
+  div.innerHTML = '<div class="quiz-q">'+item.q+'</div><div class="quiz-opts">'+optsHtml+'</div><div class="answer-box" id="qexp'+qi+'" style="margin-top:10px;"></div>';
+  quizWrap.appendChild(div);
+});
+quizWrap.addEventListener('click', e=>{
+  if(!e.target.classList.contains('opt')) return;
+  const qi = parseInt(e.target.dataset.q), oi = parseInt(e.target.dataset.o);
+  const group = quizWrap.querySelectorAll('[data-q="'+qi+'"]');
+  if(group[0].classList.contains('disabled')) return;
+  group.forEach(b=>b.classList.add('disabled'));
+  const correct = quizData[qi].correct;
+  group[correct].classList.add('correct');
+  if(oi !== correct){ e.target.classList.add('wrong'); } else { score++; }
+  document.getElementById('scoreChip').textContent = 'Skor: '+score+' / '+quizData.length;
+  const exp = document.getElementById('qexp'+qi);
+  exp.classList.add('show');
+  exp.textContent = 'Pembahasan: '+quizData[qi].explain;
+});
+</script>
+</body>
+</html>
