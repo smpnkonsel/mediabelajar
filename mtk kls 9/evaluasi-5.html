@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluasi Bab 3 — Bangun Ruang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --bg-0:#0a1424;
+        --bg-1:#132540;
+        --bg-2:#1a2f52;
+        --bg-3:#213a63;
+        --line:#2c4568;
+        --line-soft:rgba(180,200,230,.08);
+        --gold:#f5b942;
+        --gold-deep:#d99a1f;
+        --ink:#eef3fb;
+        --ink-dim:#93a8c4;
+        --green:#4ade80;
+        --red:#f87171;
+        --teal:#5eead4;
+        --radius:14px;
+    }
+    *{ margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+        font-family:'Inter',sans-serif;
+        background:
+            radial-gradient(circle at 15% 10%, rgba(94,234,212,.06), transparent 40%),
+            radial-gradient(circle at 85% 90%, rgba(245,185,66,.06), transparent 40%),
+            linear-gradient(160deg, var(--bg-0) 0%, #0d1a30 60%, var(--bg-0) 100%);
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        padding:24px;
+        color:var(--ink);
+    }
+
+    .container{
+        width:100%;
+        max-width:1040px;
+        background:var(--bg-1);
+        border-radius:24px;
+        box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03) inset;
+        overflow:hidden;
+        border:1px solid var(--line);
+    }
+
+    /* top meta bar */
+    .meta-bar{
+        display:flex; align-items:center; justify-content:space-between;
+        padding:14px 28px;
+        border-bottom:1px solid var(--line);
+        background:rgba(255,255,255,.015);
+    }
+    .meta-brand{
+        display:flex; align-items:center; gap:10px;
+        font-family:'JetBrains Mono',monospace;
+        font-size:11.5px; letter-spacing:.12em; text-transform:uppercase;
+        color:var(--ink-dim);
+    }
+    .meta-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); }
+    .meta-brand b{ color:var(--ink); font-weight:600; }
+    .progress-bar{
+        flex:1; max-width:220px; margin-left:24px;
+        height:5px; background:var(--bg-3); border-radius:10px; overflow:hidden;
+    }
+    .progress-fill{
+        height:100%; width:0%;
+        background:linear-gradient(90deg, var(--gold-deep), var(--gold));
+        border-radius:10px; transition:width .35s ease;
+    }
+
+    .slide-container{
+        position:relative;
+        width:100%;
+        aspect-ratio:16/9;
+        display:flex; align-items:center; justify-content:center;
+        overflow:hidden;
+        background:
+            repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 34px),
+            repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 34px),
+            linear-gradient(to bottom, var(--bg-1), var(--bg-2));
+    }
+
+    .slide{
+        display:none;
+        width:100%; height:100%;
+        padding:52px 56px;
+        text-align:center;
+        animation:slideIn .45s ease;
+        overflow-y:auto;
+    }
+    .slide.active{ display:flex; flex-direction:column; justify-content:center; }
+
+    @keyframes slideIn{
+        from{ opacity:0; transform:translateY(10px); }
+        to{ opacity:1; transform:translateY(0); }
+    }
+
+    .eyebrow{
+        display:inline-flex; align-items:center; gap:8px; align-self:center;
+        font-family:'JetBrains Mono',monospace; font-size:11.5px;
+        letter-spacing:.14em; text-transform:uppercase; color:var(--teal);
+        margin-bottom:14px;
+    }
+    .eyebrow .pill{
+        border:1px solid var(--teal); border-radius:20px; padding:3px 10px; color:var(--teal);
+    }
+
+    .slide h1{
+        font-family:'Outfit',sans-serif; font-weight:800;
+        font-size:2.7rem; letter-spacing:-.01em;
+        color:var(--ink); margin-bottom:12px;
+    }
+    .slide h1 .accent{ color:var(--gold); }
+    .slide h2{
+        font-family:'Outfit',sans-serif; font-weight:700;
+        font-size:1.9rem; color:var(--ink); margin-bottom:22px;
+    }
+    .slide h3{
+        font-family:'Outfit',sans-serif; font-weight:600;
+        font-size:1.25rem; color:var(--teal); margin:18px 0 12px 0; text-align:left;
+    }
+    .slide p{
+        font-size:1.02rem; color:var(--ink-dim); line-height:1.65; margin:10px 0;
+    }
+    .subtitle{ font-size:1.05rem; color:var(--ink-dim); margin:4px 0; }
+
+    /* Hero wireframe (signature element) */
+    .hero-shapes{
+        display:flex; justify-content:center; gap:34px; margin:22px 0 6px 0;
+    }
+    .hero-shapes svg{ width:58px; height:58px; opacity:.9; }
+    .hero-shapes .cube{ animation:spin 9s linear infinite; transform-origin:center; }
+    @media (prefers-reduced-motion: reduce){ .hero-shapes .cube{ animation:none; } }
+    @keyframes spin{ from{ transform:rotateY(0deg); } to{ transform:rotateY(360deg); } }
+
+    /* Info / structure cards */
+    .info-grid{
+        display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:26px 0 8px 0;
+    }
+    .info-card{
+        background:var(--bg-3); border:1px solid var(--line);
+        border-radius:12px; padding:18px 14px; text-align:left;
+        position:relative; overflow:hidden;
+    }
+    .info-card::before{
+        content:""; position:absolute; top:0; left:0; right:0; height:2px;
+        background:linear-gradient(90deg, var(--gold-deep), var(--gold));
+    }
+    .info-card .ic-label{
+        font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase;
+        letter-spacing:.1em; color:var(--ink-dim); margin-bottom:8px;
+    }
+    .info-card .ic-value{
+        font-family:'Outfit',sans-serif; font-weight:700; font-size:1.25rem; color:var(--gold);
+    }
+    .info-card .ic-desc{ font-size:.82rem; color:var(--ink-dim); margin-top:4px; line-height:1.4; }
+
+    .note-strip{
+        margin-top:20px; padding:12px 16px; border-radius:10px;
+        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.35);
+        font-size:.92rem; color:var(--gold); text-align:left;
+        display:flex; align-items:center; gap:10px;
+    }
+
+    .app-grid{
+        display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0;
+    }
+    .app-card{
+        background:var(--bg-3); border:1px solid var(--line); border-radius:12px;
+        padding:18px; text-align:left;
+    }
+    .app-card h4{ font-family:'Outfit',sans-serif; color:var(--gold); font-size:1.02rem; margin-bottom:6px; }
+    .app-card p{ font-size:.88rem; color:var(--ink-dim); margin:0; }
+
+    /* Question card */
+    .qcard{
+        background:linear-gradient(180deg, var(--bg-2), var(--bg-3));
+        border:1px solid var(--line); border-radius:16px;
+        padding:30px 34px; text-align:left; position:relative;
+        max-width:680px; margin:0 auto; width:100%;
+    }
+    .qcard .qnum{
+        position:absolute; top:14px; right:22px;
+        font-family:'JetBrains Mono',monospace; font-weight:600;
+        font-size:52px; color:rgba(255,255,255,.05); letter-spacing:-2px; user-select:none;
+    }
+    .qcard .qmeta{
+        font-family:'JetBrains Mono',monospace; font-size:11px;
+        letter-spacing:.1em; text-transform:uppercase; color:var(--teal);
+        display:flex; align-items:center; gap:8px; margin-bottom:10px;
+    }
+    .qcard .qmeta .pill{
+        border:1px solid var(--teal); border-radius:20px; padding:2px 9px;
+    }
+    .qcard .qtitle{
+        font-family:'Outfit',sans-serif; font-weight:600; font-size:1.35rem; color:var(--ink);
+        margin-bottom:6px;
+    }
+    .qcard .qtext{
+        font-size:1.03rem; color:var(--ink); line-height:1.65; margin:0 0 20px 0;
+    }
+    .qcard .qhint{
+        font-family:'JetBrains Mono',monospace; font-size:.82rem; color:var(--gold);
+        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.3);
+        display:inline-block; padding:6px 12px; border-radius:8px; margin-bottom:18px;
+    }
+
+    .options{ display:flex; flex-direction:column; gap:10px; }
+    .opt{
+        display:flex; align-items:center; gap:14px;
+        border:1px solid var(--line); border-radius:10px;
+        padding:12px 16px; cursor:pointer; background:rgba(255,255,255,.015);
+        transition:border-color .15s ease, background .15s ease, transform .1s ease;
+    }
+    .opt:hover{ border-color:var(--gold); background:rgba(245,185,66,.06); transform:translateX(2px); }
+    .opt .badge{
+        flex:none; width:30px; height:30px; border-radius:50%;
+        border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+        font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--ink-dim);
+        transition:all .15s ease;
+    }
+    .opt .otext{ font-size:.98rem; color:var(--ink); line-height:1.5; }
+    .opt.selected{ border-color:var(--gold); background:rgba(245,185,66,.1); }
+    .opt.selected .badge{ background:var(--gold); border-color:var(--gold); color:#241705; }
+
+    /* Essay list */
+    .essay-list{ display:flex; flex-direction:column; gap:16px; max-width:700px; margin:0 auto; width:100%; }
+    .essay-item{
+        background:var(--bg-3); border:1px solid var(--line); border-left:3px solid var(--gold);
+        border-radius:10px; padding:18px 20px; text-align:left;
+    }
+    .essay-item .en{
+        font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
+        text-transform:uppercase; color:var(--gold); margin-bottom:6px;
+    }
+    .essay-item p{ margin:0; color:var(--ink); font-size:.98rem; line-height:1.6; }
+
+    /* Answer key */
+    .lock-card{
+        max-width:520px; margin:0 auto; background:var(--bg-3);
+        border:1px dashed var(--line); border-radius:16px; padding:34px 30px;
+        display:flex; flex-direction:column; align-items:center; gap:14px;
+    }
+    .lock-icon{ width:36px; height:36px; opacity:.85; }
+    .btn{
+        font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.06em;
+        text-transform:uppercase; padding:12px 22px; border-radius:9px; cursor:pointer;
+        border:1px solid var(--line); background:transparent; color:var(--ink);
+        transition:all .15s ease;
+    }
+    .btn:hover{ border-color:var(--gold); color:var(--gold); }
+    .btn.primary{
+        background:linear-gradient(135deg, var(--gold-deep), var(--gold));
+        border-color:var(--gold); color:#241705; font-weight:700;
+        box-shadow:0 10px 24px rgba(245,185,66,.22);
+    }
+    .btn.primary:hover{ color:#241705; filter:brightness(1.06); transform:translateY(-1px); }
+    .btn:disabled{ opacity:.3; cursor:not-allowed; }
+    .btn:disabled:hover{ border-color:var(--line); color:var(--ink); transform:none; }
+
+    .key-body{ display:none; max-width:700px; margin:0 auto; width:100%; }
+    .key-body.shown{ display:block; }
+
+    .score-banner{
+        display:flex; align-items:baseline; justify-content:center; gap:12px;
+        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.3);
+        border-radius:14px; padding:18px; margin-bottom:22px;
+    }
+    .score-banner .num{ font-family:'Outfit',sans-serif; font-weight:800; font-size:2.1rem; color:var(--gold); }
+    .score-banner .label{ font-family:'JetBrains Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim); }
+
+    .key-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:26px; }
+    .key-chip{
+        border:1px solid var(--line); border-radius:9px; padding:10px 6px; text-align:center;
+        font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.02);
+    }
+    .key-chip .qn{ display:block; font-size:10.5px; color:var(--ink-dim); margin-bottom:4px; }
+    .key-chip .ans{ font-weight:600; font-size:14px; color:var(--ink); }
+    .key-chip.correct{ border-color:var(--green); background:rgba(74,222,128,.08); }
+    .key-chip.correct .ans{ color:var(--green); }
+    .key-chip.wrong{ border-color:var(--red); background:rgba(248,113,113,.08); }
+    .key-chip.wrong .ans{ color:var(--red); }
+
+    .essay-key-item{
+        text-align:left; border-left:3px solid var(--teal); padding:12px 16px; margin-bottom:12px;
+        background:rgba(94,234,212,.05); border-radius:0 8px 8px 0;
+    }
+    .essay-key-item .ekn{
+        font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--teal);
+        text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;
+    }
+    .essay-key-item p{ margin:0; font-size:.92rem; color:var(--ink-dim); line-height:1.55; }
+
+    /* Criteria */
+    .criteria-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:22px 0; max-width:680px; margin-left:auto; margin-right:auto; }
+    .criteria-box{
+        background:var(--bg-3); border:1px solid var(--line); border-radius:12px; padding:20px; text-align:left;
+    }
+    .criteria-box .ct{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:8px; }
+    .criteria-box .cv{ font-family:'Outfit',sans-serif; font-weight:800; font-size:1.7rem; color:var(--gold); margin-bottom:6px; }
+    .criteria-box .cd{ font-size:.85rem; color:var(--ink-dim); line-height:1.5; }
+
+    .total-row{
+        display:flex; justify-content:space-between; align-items:center;
+        max-width:680px; margin:0 auto; border-top:1px dashed var(--line); padding-top:18px;
+    }
+    .total-row .tt{ font-family:'JetBrains Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim); }
+    .total-row .tv{ font-family:'Outfit',sans-serif; font-weight:800; font-size:2.2rem; color:var(--gold); }
+
+    .finish-btn{
+        margin-top:26px; align-self:center;
+        display:inline-flex; align-items:center; gap:10px;
+        background:linear-gradient(135deg, var(--gold-deep), var(--gold));
+        color:#241705; border:none; text-decoration:none;
+        font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem;
+        padding:14px 28px; border-radius:11px; cursor:pointer;
+        box-shadow:0 12px 28px rgba(245,185,66,.28);
+        transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .finish-btn:hover{ transform:translateY(-2px); box-shadow:0 16px 34px rgba(245,185,66,.38); }
+
+    /* Controls */
+    .controls{
+        display:flex; justify-content:space-between; align-items:center;
+        padding:16px 28px; background:var(--bg-0); border-top:1px solid var(--line);
+    }
+    .nav-btn{
+        font-family:'Outfit',sans-serif; font-weight:600; font-size:.92rem;
+        padding:11px 22px; border-radius:10px; cursor:pointer;
+        background:var(--bg-3); color:var(--ink); border:1px solid var(--line);
+        transition:all .15s ease;
+    }
+    .nav-btn:hover{ border-color:var(--gold); color:var(--gold); }
+    .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
+    .nav-btn:disabled:hover{ border-color:var(--line); color:var(--ink); }
+    .slide-counter{
+        font-family:'JetBrains Mono',monospace; font-size:.9rem; color:var(--gold); font-weight:600;
+    }
+
+    ::-webkit-scrollbar{ width:8px; }
+    ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
+
+    @media (max-width:760px){
+        .slide{ padding:34px 22px; }
+        .slide h1{ font-size:2rem; }
+        .slide h2{ font-size:1.4rem; }
+        .info-grid{ grid-template-columns:repeat(2,1fr); }
+        .app-grid{ grid-template-columns:1fr; }
+        .criteria-grid{ grid-template-columns:1fr; }
+        .key-grid{ grid-template-columns:repeat(3,1fr); }
+        .qcard{ padding:22px 20px; }
+        .qcard .qnum{ font-size:36px; }
+        .controls{ padding:12px 16px; }
+        .progress-bar{ max-width:100px; margin-left:12px; }
+        .hero-shapes svg{ width:44px; height:44px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="meta-bar">
+        <div class="meta-brand"><span class="dot"></span>Matematika <b>·</b> Bab 3 — Bangun Ruang</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <span class="slide-counter"><span id="currentSlide">1</span>/<span id="totalSlides">15</span></span>
+    </div>
+
+    <div class="slide-container">
+
+        <!-- Slide 1: Judul -->
+        <div class="slide active">
+            <div class="eyebrow"><span class="pill">Evaluasi</span> Kelas VI · Semester Genap</div>
+            <h1>Evaluasi <span class="accent">Bab 3</span><br>Bangun Ruang</h1>
+            <p class="subtitle">Unsur & sifat · Luas permukaan · Volume · Penerapan kontekstual</p>
+            <div class="hero-shapes">
+                <svg class="cube" viewBox="0 0 64 64" fill="none"><path d="M12 20 L32 10 L52 20 L52 44 L32 54 L12 44 Z" stroke="#f5b942" stroke-width="1.6"/><path d="M12 20 L32 30 L52 20" stroke="#f5b942" stroke-width="1.6"/><path d="M32 30 L32 54" stroke="#f5b942" stroke-width="1.6"/></svg>
+                <svg viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="16" rx="18" ry="7" stroke="#5eead4" stroke-width="1.6"/><path d="M14 16 L14 44 A18 7 0 0 0 50 44 L50 16" stroke="#5eead4" stroke-width="1.6"/></svg>
+                <svg viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="48" rx="18" ry="7" stroke="#eef3fb" stroke-width="1.6"/><path d="M32 6 L14 48" stroke="#eef3fb" stroke-width="1.6"/><path d="M32 6 L50 48" stroke="#eef3fb" stroke-width="1.6"/></svg>
+                <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="20" stroke="#f5b942" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="20" ry="7" stroke="#f5b942" stroke-width="1" opacity=".5"/></svg>
+            </div>
+        </div>
+
+        <!-- Slide 2: Struktur Evaluasi -->
+        <div class="slide">
+            <div class="eyebrow"><span class="pill">Ringkasan</span></div>
+            <h2>Struktur Evaluasi</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="ic-label">Bagian A</div>
+                    <div class="ic-value">10 soal</div>
+                    <div class="ic-desc">Pilihan ganda · 6 poin / soal</div>
+                </div>
+                <div class="info-card">
+                    <div class="ic-label">Bagian B</div>
+                    <div class="ic-value">5 soal</div>
+                    <div class="ic-desc">Esai · 8 poin / soal</div>
+                </div>
+                <div class="info-card">
+                    <div class="ic-label">Skor maksimal</div>
+                    <div class="ic-value">100 poin</div>
+                    <div class="ic-desc">PG 60 + Esai 40</div>
+                </div>
+                <div class="info-card">
+                    <div class="ic-label">Waktu</div>
+                    <div class="ic-value">60 menit</div>
+                    <div class="ic-desc">Kerjakan dengan teliti</div>
+                </div>
+            </div>
+            <div class="note-strip">💡 Kunci jawaban tersembunyi dan baru tersedia di bagian akhir evaluasi.</div>
+        </div>
+
+        <!-- Slide 3-12: PG 1-10 (dibangun oleh JavaScript) -->
+
+        <!-- Slide 13: Esai -->
+        <div class="slide" id="essaySlide">
+            <div class="eyebrow"><span class="pill">Bagian B</span> Soal Esai</div>
+            <h2>Jawablah dengan langkah yang jelas</h2>
+            <div class="essay-list" id="essayContainer"></div>
+        </div>
+
+        <!-- Slide 14: Kunci Jawaban -->
+        <div class="slide" id="keySlide">
+            <div class="eyebrow"><span class="pill">Bagian C</span> Kunci Jawaban</div>
+            <h2>Kunci Jawaban</h2>
+            <div class="lock-card" id="lockNote">
+                <svg class="lock-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#f5b942" stroke-width="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#f5b942" stroke-width="1.6"/></svg>
+                <p style="margin:0;">Kunci jawaban disembunyikan. Klik tombol di bawah untuk menampilkannya beserta skor pilihan gandamu.</p>
+                <button class="btn primary" id="revealBtn">Tampilkan Kunci Jawaban</button>
+            </div>
+            <div class="key-body" id="keyBody">
+                <div class="score-banner">
+                    <span class="num" id="pgScore">0/60</span>
+                    <span class="label">Skor Pilihan Ganda</span>
+                </div>
+                <div class="key-grid" id="keyGrid"></div>
+                <h3>Contoh Penyelesaian Esai</h3>
+                <div id="essayKeyContainer"></div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Kriteria Penilaian & Selesai -->
+        <div class="slide">
+            <div class="eyebrow"><span class="pill">Penutup</span> Kriteria Penilaian</div>
+            <h2>Perhitungan Skor Akhir</h2>
+            <div class="criteria-grid">
+                <div class="criteria-box">
+                    <div class="ct">Pilihan Ganda</div>
+                    <div class="cv">10 × 6</div>
+                    <div class="cd">10 soal, tiap jawaban benar bernilai 6 poin. Jawaban salah/kosong bernilai 0.</div>
+                </div>
+                <div class="criteria-box">
+                    <div class="ct">Esai</div>
+                    <div class="cv">5 × 8</div>
+                    <div class="cd">5 soal, tiap jawaban bernilai maksimal 8 poin (proses 4 + hasil akhir 4).</div>
+                </div>
+            </div>
+            <div class="total-row">
+                <span class="tt">Skor Total Maksimal</span>
+                <span class="tv">100</span>
+            </div>
+            <a class="finish-btn" href="bab3.html" id="finishBtn">Selesai — Kembali ke Bab 3 →</a>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Sebelumnya</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Berikutnya →</button>
+    </div>
+</div>
+
+<script>
+    // ---------- DATA ----------
+    const pgQuestions = [
+        {
+            q: "Sebuah kubus memiliki jumlah rusuk sebanyak ...",
+            opts: ["6", "8", "12", "10"],
+            correct: 2,
+            section: "Unsur & Sifat Bangun Ruang"
+        },
+        {
+            q: "Bangun ruang yang memiliki alas berbentuk segiempat dan sisi-sisi tegak berbentuk segitiga yang bertemu di satu titik puncak disebut ...",
+            opts: ["Prisma", "Limas", "Tabung", "Kerucut"],
+            correct: 1,
+            section: "Unsur & Sifat Bangun Ruang"
+        },
+        {
+            q: "Unsur pada tabung yang menghubungkan titik pusat lingkaran alas dengan sisi lingkaran alas disebut ...",
+            opts: ["Diameter", "Jari-jari", "Tinggi", "Sisi lengkung"],
+            correct: 1,
+            section: "Unsur & Sifat Bangun Ruang"
+        },
+        {
+            q: "Berikut ini yang bukan merupakan sifat bola adalah ...",
+            opts: ["Memiliki 1 sisi", "Tidak memiliki rusuk", "Tidak memiliki titik sudut", "Memiliki 2 titik sudut"],
+            correct: 3,
+            section: "Unsur & Sifat Bangun Ruang"
+        },
+        {
+            q: "Kerucut memiliki jumlah sisi sebanyak ...",
+            opts: ["1", "2", "3", "4"],
+            correct: 1,
+            section: "Unsur & Sifat Bangun Ruang"
+        },
+        {
+            q: "Rumus luas permukaan kubus dengan panjang rusuk s adalah ...",
+            opts: ["s³", "6s²", "4s²", "s²"],
+            correct: 1,
+            section: "Luas Permukaan"
+        },
+        {
+            q: "Sebuah balok berukuran panjang 8 cm, lebar 5 cm, dan tinggi 4 cm. Luas permukaan balok tersebut adalah ...",
+            opts: ["184 cm²", "164 cm²", "144 cm²", "204 cm²"],
+            correct: 0,
+            section: "Luas Permukaan",
+            hint: "L = 2(pl + pt + lt)"
+        },
+        {
+            q: "Volume kubus dengan panjang rusuk 7 cm adalah ...",
+            opts: ["343 cm³", "294 cm³", "147 cm³", "441 cm³"],
+            correct: 0,
+            section: "Volume",
+            hint: "V = s³"
+        },
+        {
+            q: "Sebuah tabung memiliki jari-jari alas 7 cm dan tinggi 10 cm (π = 22/7). Volume tabung tersebut adalah ...",
+            opts: ["1.540 cm³", "1.450 cm³", "1.045 cm³", "1.504 cm³"],
+            correct: 0,
+            section: "Volume",
+            hint: "V = π r² t"
+        },
+        {
+            q: "Sebuah bak mandi berbentuk balok berukuran 60 cm × 50 cm × 40 cm akan diisi air hingga penuh. Volume air yang dibutuhkan adalah ...",
+            opts: ["100 liter", "110 liter", "120 liter", "130 liter"],
+            correct: 2,
+            section: "Penerapan Bangun Ruang",
+            hint: "1 liter = 1.000 cm³"
+        }
+    ];
+
+    const essayQuestions = [
+        {
+            q: "Sebutkan minimal 4 unsur limas segiempat beserta penjelasan singkatnya!",
+            key: "Unsur limas segiempat: (1) titik puncak — titik pertemuan semua sisi tegak; (2) rusuk alas — 4 rusuk pembentuk alas; (3) rusuk tegak — rusuk yang menghubungkan titik sudut alas dengan titik puncak; (4) sisi alas — bidang segiempat di bagian bawah; (5) sisi tegak — 4 bidang segitiga."
+        },
+        {
+            q: "Sebuah balok memiliki panjang 12 cm, lebar 6 cm, dan tinggi 5 cm. Hitunglah luas permukaan balok tersebut beserta langkah-langkahnya!",
+            key: "L = 2(pl + pt + lt) = 2((12×6)+(12×5)+(6×5)) = 2(72+60+30) = 2×162 = 324 cm²."
+        },
+        {
+            q: "Sebuah kerucut memiliki diameter alas 14 cm dan tinggi 15 cm (π = 22/7). Hitunglah volume kerucut tersebut!",
+            key: "r = 7 cm. V = 1/3 × π × r² × t = 1/3 × 22/7 × 49 × 15 = 1/3 × 2.310 = 770 cm³."
+        },
+        {
+            q: "Sebuah prisma segitiga memiliki alas berbentuk segitiga siku-siku dengan panjang alas 6 cm dan tinggi segitiga 8 cm, serta tinggi prisma 15 cm. Hitunglah volume prisma tersebut!",
+            key: "Luas alas = 1/2 × 6 × 8 = 24 cm². V = luas alas × tinggi prisma = 24 × 15 = 360 cm³."
+        },
+        {
+            q: "Pak Budi membuat tangki air berbentuk tabung dengan jari-jari 21 cm dan tinggi 50 cm (π = 22/7) untuk menampung air hujan. Tentukan volume tangki tersebut dalam liter, lalu hitung berapa liter air yang tertampung jika tangki hanya diisi 3/4 bagian!",
+            key: "V = π r² t = 22/7 × 441 × 50 = 22 × 63 × 50 = 69.300 cm³ = 69,3 liter. Jika diisi 3/4 bagian: 3/4 × 69,3 = 51,975 liter ≈ 51,98 liter."
+        }
+    ];
+
+    const letters = ["A", "B", "C", "D"];
+    const userAnswers = new Array(pgQuestions.length).fill(null);
+
+    let currentSlide = 1;
+    let totalSlides = 15;
+
+    // ---------- BUILD PG SLIDES ----------
+    const slideContainer = document.querySelector('.slide-container');
+    const essaySlideEl = document.getElementById('essaySlide');
+
+    pgQuestions.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'slide';
+        div.innerHTML = `
+            <div class="eyebrow"><span class="pill">Bagian A</span> Pilihan Ganda</div>
+            <div class="qcard">
+                <div class="qnum">${String(i + 1).padStart(2, '0')}</div>
+                <div class="qmeta"><span class="pill">${item.section}</span></div>
+                <div class="qtitle">Soal No. ${i + 1}</div>
+                <p class="qtext">${item.q}</p>
+                ${item.hint ? `<div class="qhint">Petunjuk rumus: ${item.hint}</div>` : ''}
+                <div class="options">
+                    ${item.opts.map((opt, oi) => `
+                        <label class="opt" data-pg="${i}" data-option="${oi}" onclick="selectPgAnswer(${i}, ${oi})">
+                            <span class="badge">${letters[oi]}</span>
+                            <span class="otext">${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        slideContainer.insertBefore(div, essaySlideEl);
+    });
+
+    function selectPgAnswer(qIndex, optIndex) {
+        userAnswers[qIndex] = optIndex;
+        const options = document.querySelectorAll(`[data-pg="${qIndex}"]`);
+        options.forEach((opt, idx) => {
+            opt.classList.toggle('selected', idx === optIndex);
+        });
+    }
+
+    // ---------- BUILD ESSAY LIST ----------
+    const essayContainer = document.getElementById('essayContainer');
+    essayQuestions.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'essay-item';
+        div.innerHTML = `<div class="en">Soal Esai ${i + 1}</div><p>${item.q}</p>`;
+        essayContainer.appendChild(div);
+    });
+
+    // ---------- BUILD ANSWER KEY ----------
+    const essayKeyContainer = document.getElementById('essayKeyContainer');
+    essayQuestions.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'essay-key-item';
+        div.innerHTML = `<div class="ekn">Soal Esai ${i + 1}</div><p>${item.key}</p>`;
+        essayKeyContainer.appendChild(div);
+    });
+
+    function buildKeyGrid() {
+        const keyGrid = document.getElementById('keyGrid');
+        keyGrid.innerHTML = '';
+        let correctCount = 0;
+        pgQuestions.forEach((item, i) => {
+            const ua = userAnswers[i];
+            const chip = document.createElement('div');
+            let cls = 'key-chip';
+            if (ua !== null) {
+                if (ua === item.correct) { cls += ' correct'; correctCount++; }
+                else cls += ' wrong';
+            }
+            chip.className = cls;
+            chip.innerHTML = `<span class="qn">No. ${i + 1}</span><span class="ans">${letters[item.correct]}${ua !== null ? (ua === item.correct ? ' ✓' : ` ✗ (${letters[ua]})`) : ''}</span>`;
+            keyGrid.appendChild(chip);
+        });
+        document.getElementById('pgScore').textContent = `${correctCount * 6}/60`;
+    }
+
+    document.getElementById('revealBtn').addEventListener('click', () => {
+        buildKeyGrid();
+        document.getElementById('lockNote').style.display = 'none';
+        document.getElementById('keyBody').classList.add('shown');
+    });
+
+    // ---------- NAVIGATION ----------
+    function changeSlide(n) {
+        const newSlide = currentSlide + n;
+        if (newSlide >= 1 && newSlide <= totalSlides) {
+            currentSlide = newSlide;
+            updateSlide();
+        }
+    }
+
+    function updateSlide() {
+        const slides = document.querySelectorAll('.slide');
+        totalSlides = slides.length;
+        document.getElementById('totalSlides').textContent = totalSlides;
+
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[currentSlide - 1].classList.add('active');
+
+        document.getElementById('currentSlide').textContent = currentSlide;
+        document.getElementById('prevBtn').disabled = currentSlide === 1;
+        document.getElementById('nextBtn').style.display = currentSlide === totalSlides ? 'none' : 'inline-block';
+
+        const progress = (currentSlide / totalSlides) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+
+        document.querySelector('.slide-container').scrollTop = 0;
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    updateSlide();
+</script>
+</body>
+</html>

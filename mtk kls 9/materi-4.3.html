@@ -2,370 +2,2392 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0b1020">
-<title>Bab 4.3 — Rotasi dan Dilatasi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>4.3 Refleksi (Pencerminan) — Transformasi Geometri</title>
 <style>
-:root{
-  --bg:#080d1b; --panel:#111a32; --panel2:#17223f; --line:#263453;
-  --text:#f5f7ff; --muted:#aab7d8; --cyan:#35e0d0; --yellow:#ffbf3f;
-  --blue:#5b8cff; --pink:#ff6b6b; --green:#42d392;
-  --shadow:0 18px 50px rgba(0,0,0,.25); --r:22px;
+
+/* =========================================================
+   GOOGLE FONTS
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+
+/* =========================================================
+   ROOT / VARIABLES
+   ========================================================= */
+
+:root {
+  --bg: #0a0e1a;
+  --card: #131a2e;
+  --card2: #182140;
+  --border: #232c47;
+
+  --coral: #ff6b5b;
+  --teal: #2dd4bf;
+  --amber: #fbbf24;
+  --purple: #a78bfa;
+
+  --text: #e8ecf7;
+  --text-dim: #8b93ab;
+
+  --navh: 90px;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(circle at 80% 0%,#17234a 0,#080d1b 42%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.65}
-button,input,select{font:inherit}
-button{cursor:pointer}
-.wrap{max-width:1100px;margin:auto;padding:24px 18px 80px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:28px}
-.crumb{font-size:.82rem;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);font-weight:800}
-.progress{height:7px;background:#1c2742;border-radius:99px;overflow:hidden;margin-top:8px}
-.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--blue));transition:.35s}
-h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.08;margin:8px 0 12px}
-h2{font-size:clamp(1.45rem,3vw,2rem);margin:0 0 10px}
-h3{margin-top:0}
-.lead{color:var(--muted);font-size:1.05rem;max-width:780px}
-.hero,.card{background:linear-gradient(145deg,rgba(25,37,70,.96),rgba(14,22,43,.98));border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
-.hero{padding:28px;margin-bottom:18px}
-.badges{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.badge{display:inline-flex;align-items:center;gap:7px;border:1px solid #276b76;border-radius:999px;padding:6px 13px;color:var(--cyan);font-weight:800;font-size:.82rem}
-.badge.gold{border-color:#7b5d1b;color:var(--yellow)}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
-.card{padding:22px;margin:16px 0}
-.full{grid-column:1/-1}
-.callout{border-left:4px solid var(--cyan);background:#0e1830;padding:15px 17px;border-radius:12px;color:#dce5ff}
-.formula{font-size:1.15rem;text-align:center;background:#0a1124;border:1px solid #2b3a5c;padding:16px;border-radius:16px;margin:12px 0}
-.key{color:var(--yellow);font-weight:800}
-.note{font-size:.9rem;color:var(--muted)}
-.steps{display:grid;gap:10px;padding:0;margin:0;list-style:none}
-.steps li{display:flex;gap:12px;align-items:flex-start;background:#0d162d;border:1px solid var(--line);padding:12px;border-radius:13px}
-.num{min-width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#1b2b50;color:var(--cyan);font-weight:900}
-svg{max-width:100%;height:auto}
-.visual{background:#081022;border:1px solid var(--line);border-radius:18px;padding:10px;overflow:hidden}
-.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
-.tab{border:1px solid var(--line);background:#101a32;color:var(--muted);padding:10px 15px;border-radius:12px;font-weight:800}
-.tab.active,.tab:hover{color:white;background:#1b2a4e;border-color:#4565a5}
-.tabpane{display:none}.tabpane.active{display:block}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.control{background:#0d162d;border:1px solid var(--line);padding:13px;border-radius:14px}
-label{display:block;color:var(--muted);font-size:.9rem;margin-bottom:6px}
-input[type=number],select{width:100%;background:#080f20;border:1px solid #344463;color:white;border-radius:10px;padding:10px}
-input[type=range]{width:100%;accent-color:var(--cyan)}
-.btnrow{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
-.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:900;background:var(--blue);color:white}
-.btn.secondary{background:#1b2847;border:1px solid #334668}
-.btn.success{background:#18895f}
-.btn:active{transform:translateY(1px)}
-.result{margin-top:14px;padding:13px 15px;border-radius:12px;background:#0c1730;border:1px solid #30446d;min-height:48px}
-.good{border-color:#258f69!important;color:#9af0c7}.bad{border-color:#a34d5b!important;color:#ffb0b8}
-.quiz-q{font-weight:800;margin-bottom:9px}
-.option{display:block;width:100%;text-align:left;background:#0d162d;color:#eaf0ff;border:1px solid var(--line);padding:12px;margin:8px 0;border-radius:12px}
-.option:hover{border-color:#5576bd}
-.option.correct{border-color:#2a9f73;background:#102d27}.option.wrong{border-color:#ad4f60;background:#311722}
-.explain{display:none;color:var(--muted);margin-top:8px}.explain.show{display:block}
-.score{font-size:1.25rem;font-weight:900}
-.footer-nav{display:flex;justify-content:space-between;gap:12px;margin-top:25px}
-.small{font-size:.82rem;color:var(--muted)}
-.hidden{display:none!important}
-@media(max-width:760px){
-  .wrap{padding:16px 12px 60px}
-  .grid,.controls{grid-template-columns:1fr}
-  .hero,.card{padding:17px;border-radius:17px}
-  .topbar{align-items:flex-start}
-  .footer-nav .btn{flex:1}
-  h1{font-size:2rem}
+
+
+/* =========================================================
+   RESET
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+}
+
+
+/* =========================================================
+   BODY
+   ========================================================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+
+  font-family: 'Space Grotesk', sans-serif;
+
+  overflow: hidden;
+
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+}
+
+
+/* MONOSPACE */
+
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+
+/* =========================================================
+   PROGRESS BAR
+   ========================================================= */
+
+#progress-wrap {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  height: 4px;
+
+  background: var(--border);
+
+  z-index: 100;
+}
+
+#progress-bar {
+  height: 100%;
+
+  width: 0%;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--coral),
+      var(--teal)
+    );
+
+  transition: width .35s ease;
+}
+
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+
+#app {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+
+  padding-top: 4px;
+}
+
+
+/* =========================================================
+   SLIDE
+   ========================================================= */
+
+.slide {
+  position: absolute;
+
+  top: 4px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 100%;
+  height: calc(100% - 4px);
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  -webkit-overflow-scrolling: touch;
+
+  display: flex;
+
+  /* FIX: align-items:center + overflow:auto adalah kombinasi yang
+     punya bug klasik di flexbox — saat konten lebih tinggi dari
+     area yang tersedia, bagian ATAS konten ikut terpotong dan
+     tidak bisa di-scroll ke sana. flex-start di sini aman karena
+     posisi vertikal sebenarnya dikendalikan oleh margin:auto pada
+     .slide-inner (lihat di bawah), yang otomatis "gagal aman" ke
+     posisi rata-atas ketika konten overflow, bukan malah terpotong. */
+  align-items: flex-start;
+
+  justify-content: center;
+
+  padding:
+    clamp(8px, 1.6vh, 20px)
+    clamp(14px, 4vw, 60px)
+    calc(
+      var(--navh, 90px)
+      + 20px
+      + env(safe-area-inset-bottom)
+    );
+
+  opacity: 0;
+  visibility: hidden;
+
+  transform: translateX(40px);
+
+  transition:
+    opacity .35s ease,
+    transform .35s ease;
+}
+
+
+/* ACTIVE SLIDE */
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+
+  transform: translateX(0);
+}
+
+
+/* =========================================================
+   SLIDE INNER
+   ========================================================= */
+
+.slide-inner {
+  width: 100%;
+  max-width: 980px;
+
+  /* FIX: margin:auto (bukan hanya "0 auto") membuat slide-inner
+     tetap tercermin di tengah secara vertikal saat konten muat,
+     tapi otomatis jatuh ke posisi rata-atas (margin jadi 0) saat
+     konten lebih tinggi dari layar — sehingga scroll bekerja
+     normal dan tidak ada bagian atas yang terpotong. */
+  margin: auto;
+
+  transform-origin: center center;
+}
+
+
+/* =========================================================
+   TYPOGRAPHY
+   ========================================================= */
+
+h1 {
+  font-size: clamp(22px, 4.2vh, 40px);
+
+  font-weight: 700;
+
+  line-height: 1.15;
+
+  margin-bottom: clamp(6px, 1vh, 12px);
+}
+
+h2 {
+  font-size: clamp(18px, 3.2vh, 28px);
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  margin-bottom: clamp(4px, .7vh, 8px);
+}
+
+h3 {
+  font-size: clamp(14px, 2vh, 18px);
+
+  font-weight: 600;
+
+  line-height: 1.3;
+
+  margin-bottom: clamp(4px, .7vh, 8px);
+}
+
+p {
+  color: var(--text-dim);
+
+  line-height: 1.5;
+
+  font-size: clamp(
+    12.5px,
+    1.7vh,
+    15px
+  );
+}
+
+.lead {
+  font-size: clamp(
+    13px,
+    1.9vh,
+    16px
+  );
+
+  color: var(--text-dim);
+
+  line-height: 1.55;
+}
+
+
+/* =========================================================
+   EYEBROW
+   ========================================================= */
+
+.eyebrow {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  font-family: 'JetBrains Mono', monospace;
+
+  font-size: 11px;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+
+  color: var(--teal);
+
+  margin-bottom:
+    clamp(6px, 1vh, 14px);
+
+  font-weight: 500;
+}
+
+.eyebrow .num {
+  background: var(--teal);
+
+  color: #04120f;
+
+  border-radius: 5px;
+
+  padding: 2px 7px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   BADGE
+   ========================================================= */
+
+.badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  font-family: 'JetBrains Mono', monospace;
+
+  font-size: 12.5px;
+
+  font-weight: 600;
+
+  padding: 6px 12px;
+
+  border-radius: 100px;
+
+  border: 1px solid var(--border);
+
+  background: var(--card2);
+
+  color: var(--text);
+}
+
+.badge.coral {
+  border-color:
+    rgba(255,107,91,.4);
+
+  color: var(--coral);
+
+  background:
+    rgba(255,107,91,.08);
+}
+
+.badge.teal {
+  border-color:
+    rgba(45,212,191,.4);
+
+  color: var(--teal);
+
+  background:
+    rgba(45,212,191,.08);
+}
+
+.badge.amber {
+  border-color:
+    rgba(251,191,36,.4);
+
+  color: var(--amber);
+
+  background:
+    rgba(251,191,36,.08);
+}
+
+.badge.purple {
+  border-color:
+    rgba(167,139,250,.4);
+
+  color: var(--purple);
+
+  background:
+    rgba(167,139,250,.08);
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  padding:
+    clamp(10px, 1.8vh, 22px);
+
+  margin-bottom:
+    clamp(8px, 1.2vh, 16px);
+}
+
+.card2 {
+  background: var(--card2);
+}
+
+
+/* =========================================================
+   TYPE CARD
+   ========================================================= */
+
+.type-card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  padding:
+    clamp(10px, 1.6vh, 16px);
+
+  transition:
+    border-color .2s,
+    transform .2s;
+}
+
+.type-card:hover {
+  border-color: var(--teal);
+
+  transform: translateY(-2px);
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.grid-2 {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:
+    clamp(8px, 1.4vh, 16px);
+}
+
+.grid-3 {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr 1fr;
+
+  gap:
+    clamp(8px, 1.4vh, 16px);
+}
+
+.grid-4 {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr 1fr 1fr;
+
+  gap:
+    clamp(8px, 1.2vh, 14px);
+}
+
+
+/* =========================================================
+   FORMULA
+   ========================================================= */
+
+.formula-box {
+  font-family: 'JetBrains Mono', monospace;
+
+  background: #0d1220;
+
+  border: 1px dashed var(--border);
+
+  border-radius: 10px;
+
+  padding:
+    clamp(8px, 1.4vh, 14px)
+    16px;
+
+  color: var(--amber);
+
+  font-size:
+    clamp(12.5px, 1.8vh, 16px);
+
+  line-height: 1.6;
+
+  margin:
+    clamp(6px, 1.2vh, 12px)
+    0;
+
+  overflow-x: auto;
+
+  -webkit-overflow-scrolling: touch;
+}
+
+.formula-box .arrow {
+  color: var(--teal);
+}
+
+.formula-box .old {
+  color: var(--coral);
+}
+
+
+/* =========================================================
+   SVG
+   ========================================================= */
+
+svg {
+  max-width: 100%;
+
+  max-height: 26vh;
+
+  height: auto;
+
+  width: auto;
+
+  display: block;
+
+  margin: 0 auto;
+}
+
+.svg-wrap {
+  background: #0d1220;
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  padding:
+    clamp(6px, 1.2vh, 12px);
+
+  margin:
+    clamp(6px, 1.2vh, 12px)
+    0;
+
+  text-align: center;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   LIST
+   ========================================================= */
+
+ul.points {
+  list-style: none;
+}
+
+ul.points li {
+  position: relative;
+
+  padding-left: 22px;
+
+  margin-bottom:
+    clamp(5px, .9vh, 10px);
+
+  color: var(--text-dim);
+
+  line-height: 1.5;
+
+  font-size:
+    clamp(12.5px, 1.7vh, 15px);
+}
+
+ul.points li::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 7px;
+
+  width: 7px;
+  height: 7px;
+
+  border-radius: 2px;
+
+  background: var(--teal);
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.btn {
+  font-family:
+    'Space Grotesk',
+    sans-serif;
+
+  font-weight: 600;
+
+  font-size: 14px;
+
+  padding: 10px 20px;
+
+  border-radius: 10px;
+
+  border: 1px solid var(--border);
+
+  background: var(--card2);
+
+  color: var(--text);
+
+  cursor: pointer;
+
+  transition: all .2s ease;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.btn:hover {
+  border-color: var(--teal);
+
+  color: var(--teal);
+}
+
+.btn.solid {
+  background: var(--teal);
+
+  color: #04120f;
+
+  border-color: var(--teal);
+}
+
+.btn.solid:hover {
+  background: #25b8a4;
+}
+
+.btn:disabled {
+  opacity: .3;
+
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  border-color: var(--border);
+
+  color: var(--text);
+}
+
+
+/* =========================================================
+   SOAL
+   ========================================================= */
+
+.problem-card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  padding:
+    clamp(10px, 1.8vh, 20px);
+
+  margin-bottom:
+    clamp(8px, 1.4vh, 16px);
+}
+
+.problem-num {
+  font-family:
+    'JetBrains Mono',
+    monospace;
+
+  font-weight: 700;
+
+  color: var(--coral);
+
+  font-size: 12px;
+
+  margin-bottom: 4px;
+
+  letter-spacing: .05em;
+}
+
+
+/* =========================================================
+   SOLUTION
+   ========================================================= */
+
+.solution {
+  margin-top:
+    clamp(6px, 1.2vh, 14px);
+
+  max-height: 0;
+
+  overflow: hidden;
+
+  transition:
+    max-height .4s ease;
+
+  border-top:
+    1px dashed var(--border);
+}
+
+.solution.open {
+  max-height: 900px;
+
+  padding-top:
+    clamp(6px, 1.2vh, 14px);
+}
+
+.solution-step {
+  font-family:
+    'JetBrains Mono',
+    monospace;
+
+  font-size: 12px;
+
+  color: var(--text-dim);
+
+  background: #0d1220;
+
+  border-radius: 7px;
+
+  padding: 7px 10px;
+
+  margin-bottom: 6px;
+
+  line-height: 1.5;
+}
+
+.solution-step b {
+  color: var(--teal);
+}
+
+.solution-step .res {
+  color: var(--amber);
+}
+
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+
+.quiz-card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+
+  border-radius: 14px;
+
+  padding:
+    clamp(10px, 1.8vh, 20px);
+
+  margin-bottom:
+    clamp(8px, 1.3vh, 14px);
+}
+
+.quiz-opt {
+  display: block;
+
+  width: 100%;
+
+  text-align: left;
+
+  background: var(--card2);
+
+  border: 1px solid var(--border);
+
+  border-radius: 9px;
+
+  padding: 8px 14px;
+
+  margin-bottom: 7px;
+
+  color: var(--text);
+
+  font-family:
+    'Space Grotesk',
+    sans-serif;
+
+  font-size: 13.5px;
+
+  cursor: pointer;
+
+  transition: all .2s ease;
+}
+
+.quiz-opt:hover {
+  border-color: var(--purple);
+}
+
+.quiz-opt.correct {
+  border-color: var(--teal);
+
+  background:
+    rgba(45,212,191,.12);
+
+  color: var(--teal);
+}
+
+.quiz-opt.wrong {
+  border-color: var(--coral);
+
+  background:
+    rgba(255,107,91,.12);
+
+  color: var(--coral);
+}
+
+.quiz-opt:disabled {
+  cursor: default;
+}
+
+
+/* =========================================================
+   QUIZ EXPLANATION
+   ========================================================= */
+
+.quiz-explain {
+  font-size: 12.5px;
+
+  color: var(--text-dim);
+
+  margin-top: 8px;
+
+  padding: 8px 10px;
+
+  background: #0d1220;
+
+  border-radius: 7px;
+
+  border-left:
+    3px solid var(--purple);
+
+  display: none;
+
+  line-height: 1.5;
+}
+
+.quiz-explain.show {
+  display: block;
+}
+
+
+/* =========================================================
+   SCORE
+   ========================================================= */
+
+#score-panel {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  background: var(--card2);
+
+  border: 1px solid var(--border);
+
+  border-radius: 12px;
+
+  padding:
+    clamp(8px, 1.4vh, 14px)
+    18px;
+
+  margin-bottom:
+    clamp(8px, 1.3vh, 16px);
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 5;
+}
+
+#score-panel .score-num {
+  font-family:
+    'JetBrains Mono',
+    monospace;
+
+  font-weight: 700;
+
+  color: var(--amber);
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   NAVIGATION BAR
+   ========================================================= */
+
+#nav-bar {
+  position: fixed;
+
+  bottom: 0;
+
+  left: 0;
+  right: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      var(--bg) 22%
+    );
+
+  padding:
+    16px
+    clamp(12px, 4vw, 40px)
+    calc(
+      14px +
+      env(safe-area-inset-bottom)
+    );
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+  z-index: 50;
+
+  flex-wrap: wrap;
+}
+
+#nav-bar .btn {
+  flex-shrink: 0;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   DOTS
+   ========================================================= */
+
+#dots {
+  display: flex;
+
+  gap: 6px;
+
+  flex-wrap: nowrap;
+
+  justify-content: center;
+
+  max-width: min(60vw, 640px);
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+}
+
+#dots::-webkit-scrollbar {
+  display: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: var(--border);
+
+  cursor: pointer;
+
+  transition: all .2s;
+
+  flex-shrink: 0;
+}
+
+.dot.active {
+  background: var(--teal);
+
+  width: 22px;
+
+  border-radius: 5px;
+}
+
+.dot.done {
+  background: var(--purple);
+}
+
+
+/* =========================================================
+   SLIDE COUNTER
+   ========================================================= */
+
+.slide-counter {
+  font-family:
+    'JetBrains Mono',
+    monospace;
+
+  font-size: 12px;
+
+  color: var(--text-dim);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+
+  border-radius: 4px;
+}
+
+
+/* =========================================================
+   FOOTER LINKS
+   ========================================================= */
+
+.footer-links {
+  display: flex;
+
+  gap: 12px;
+
+  flex-wrap: wrap;
+
+  margin-top: 20px;
+}
+
+.footer-links a {
+  color: var(--teal);
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+.center-text {
+  text-align: center;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+
+/* =========================================================
+   NAVIGASI MATERI
+   ========================================================= */
+
+.materi-navigation {
+  width: 100%;
+
+  text-align: center;
+
+  margin-top: 30px;
+
+  padding:
+    5px 0 15px;
+}
+
+.finish-btn {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 44px;
+
+  padding: 12px 24px;
+
+  margin: 5px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #4f46e5
+    );
+
+  color: #ffffff;
+
+  text-decoration: none;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  line-height: 1.35;
+
+  box-shadow:
+    0 5px 15px
+    rgba(37, 99, 235, .25);
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    background .25s ease;
+}
+
+.finish-btn:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(37, 99, 235, .35);
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d4ed8,
+      #4338ca
+    );
+}
+
+.finish-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.finish-btn.secondary {
+  background: transparent;
+
+  color: var(--text);
+
+  border:
+    2px solid
+    rgba(128,128,128,.35);
+
+  box-shadow: none;
+}
+
+.finish-btn.secondary:hover {
+  background:
+    rgba(128,128,128,.08);
+
+  border-color:
+    rgba(128,128,128,.6);
+
+  box-shadow: none;
+
+  color: var(--text);
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   HP
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  :root {
+    --navh: 72px;
+  }
+
+
+  /* BODY */
+
+  html,
+  body {
+    width: 100%;
+
+    height: 100%;
+    height: 100dvh;
+
+    overflow: hidden;
+  }
+
+
+  /* APP */
+
+  #app {
+    width: 100%;
+
+    height: 100%;
+    height: 100dvh;
+  }
+
+
+  /* SLIDE */
+
+  .slide {
+    top: 4px;
+
+    bottom: 0;
+
+    width: 100%;
+
+    height: calc(100% - 4px);
+
+    display: block;
+
+    overflow-y: auto;
+
+    overflow-x: hidden;
+
+    padding:
+      16px
+      14px
+      calc(
+        100px +
+        env(safe-area-inset-bottom)
+      )
+      14px;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+
+  /* SLIDE INNER */
+
+  .slide-inner {
+    width: 100%;
+
+    max-width: 100%;
+
+    margin: 0 auto;
+
+    transform: none;
+  }
+
+
+  /* HEADING */
+
+  h1 {
+    font-size:
+      clamp(22px, 7vw, 30px);
+
+    line-height: 1.2;
+
+    margin-bottom: 10px;
+  }
+
+  h2 {
+    font-size:
+      clamp(19px, 6vw, 26px);
+
+    line-height: 1.25;
+
+    margin-bottom: 8px;
+  }
+
+  h3 {
+    font-size: 16px;
+
+    line-height: 1.3;
+  }
+
+
+  /* PARAGRAPH */
+
+  p,
+  .lead {
+    font-size: 14px;
+
+    line-height: 1.55;
+  }
+
+
+  /* EYEBROW */
+
+  .eyebrow {
+    font-size: 10px;
+
+    gap: 6px;
+
+    margin-bottom: 8px;
+  }
+
+  .eyebrow .num {
+    padding: 3px 6px;
+  }
+
+
+  /* GRID */
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+  }
+
+
+  /* CARD */
+
+  .card,
+  .problem-card,
+  .quiz-card,
+  .type-card {
+    width: 100%;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    margin-bottom: 10px;
+  }
+
+
+  /* FORMULA */
+
+  .formula-box {
+    width: 100%;
+
+    overflow-x: auto;
+
+    font-size: 12px;
+
+    line-height: 1.8;
+
+    padding: 9px 10px;
+
+    white-space: nowrap;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+
+  /* SVG */
+
+  svg {
+    width: 100%;
+
+    max-width: 100%;
+
+    height: auto;
+
+    max-height: 32vh;
+  }
+
+  .svg-wrap {
+    width: 100%;
+
+    overflow: hidden;
+
+    padding: 8px;
+  }
+
+
+  /* LIST */
+
+  ul.points li {
+    font-size: 13.5px;
+
+    line-height: 1.5;
+
+    padding-left: 20px;
+
+    margin-bottom: 8px;
+  }
+
+
+  /* BADGE */
+
+  .badge {
+    font-size: 11px;
+
+    padding: 5px 9px;
+  }
+
+
+  /* BUTTON */
+
+  .btn {
+    font-size: 13px;
+
+    padding: 9px 13px;
+  }
+
+
+  /* NAV BAR */
+
+  #nav-bar {
+    min-height: 64px;
+
+    padding:
+      10px
+      12px
+      calc(
+        10px +
+        env(safe-area-inset-bottom)
+      );
+
+    gap: 7px;
+
+    background:
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(10,14,26,.92) 35%,
+        var(--bg) 100%
+      );
+  }
+
+  #nav-bar .btn {
+    font-size: 12px;
+
+    padding: 8px 11px;
+  }
+
+
+  /* DOTS */
+
+  #dots {
+    max-width: min(55vw, 320px);
+
+    gap: 4px;
+  }
+
+  .dot {
+    width: 6px;
+
+    height: 6px;
+  }
+
+  .dot.active {
+    width: 17px;
+  }
+
+
+  /* COUNTER */
+
+  .slide-counter {
+    font-size: 10px;
+  }
+
+
+  /* SCORE */
+
+  #score-panel {
+    padding: 9px 12px;
+
+    border-radius: 10px;
+  }
+
+  #score-panel .score-num {
+    font-size: 16px;
+  }
+
+
+  /* SOLUTION */
+
+  .solution-step {
+    font-size: 11px;
+
+    padding: 7px 8px;
+
+    line-height: 1.5;
+  }
+
+
+  /* QUIZ */
+
+  .quiz-opt {
+    font-size: 13px;
+
+    padding: 10px 11px;
+
+    line-height: 1.4;
+  }
+
+  .quiz-explain {
+    font-size: 12px;
+
+    line-height: 1.5;
+  }
+
+
+  /* =====================================================
+     NAVIGASI MATERI HP
+     ===================================================== */
+
+  .materi-navigation {
+    width: 100%;
+
+    text-align: center;
+
+    margin-top: 22px;
+
+    padding:
+      5px 0 15px;
+  }
+
+  .finish-btn {
+    display: flex;
+
+    width: 100%;
+
+    max-width: 360px;
+
+    min-height: 46px;
+
+    margin: 8px auto;
+
+    padding: 11px 14px;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    font-size: 13px;
+
+    line-height: 1.35;
+
+    border-radius: 11px;
+
+    box-sizing: border-box;
+  }
+
+  .finish-btn.secondary {
+    border-width: 1px;
+  }
+
+}
+
+
+/* =========================================================
+   HP KECIL
+   ========================================================= */
+
+@media (max-width: 380px) {
+
+  :root {
+    --navh: 68px;
+  }
+
+
+  .slide {
+    padding:
+      13px
+      11px
+      calc(
+        95px +
+        env(safe-area-inset-bottom)
+      )
+      11px;
+  }
+
+
+  h1 {
+    font-size: 21px;
+  }
+
+  h2 {
+    font-size: 18px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+
+
+  p,
+  .lead {
+    font-size: 13px;
+  }
+
+
+  .card {
+    padding: 11px;
+  }
+
+
+  .formula-box {
+    font-size: 11px;
+  }
+
+
+  .finish-btn {
+    font-size: 12px;
+
+    min-height: 44px;
+  }
+
+
+  #nav-bar .btn {
+    font-size: 11px;
+
+    padding: 7px 9px;
+  }
+
+}
+
+
+/* =========================================================
+   LANDSCAPE HP
+   ========================================================= */
+
+@media (max-width: 900px)
+       and (orientation: landscape) {
+
+  :root {
+    --navh: 62px;
+  }
+
+
+  .slide {
+    display: block;
+
+    padding:
+      10px
+      18px
+      calc(
+        80px +
+        env(safe-area-inset-bottom)
+      )
+      18px;
+  }
+
+
+  .slide-inner {
+    max-width: 900px;
+  }
+
+
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+
+  p,
+  .lead {
+    font-size: 13px;
+  }
+
+
+  .card {
+    padding: 11px;
+  }
+
+
+  svg {
+    max-height: 38vh;
+  }
+
+
+  .materi-navigation {
+    margin-top: 15px;
+  }
+
+
+  .finish-btn {
+    min-height: 40px;
+
+    padding:
+      8px 14px;
+
+    font-size: 12px;
+  }
+
+
+  #nav-bar {
+    padding:
+      7px
+      12px
+      calc(
+        7px +
+        env(safe-area-inset-bottom)
+      );
+  }
+
+}
+
+
+/* =========================================================
+   TOUCH DEVICE
+   ========================================================= */
+
+@media (hover: none) and (pointer: coarse) {
+
+  .finish-btn:hover,
+  .btn:hover,
+  .type-card:hover {
+    transform: none;
+  }
+
+  .finish-btn:active {
+    transform: scale(.98);
+  }
+
+}
+
+
+/* =========================================================
+   REDUCE MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    transition-duration: .01ms !important;
+
+    animation-duration: .01ms !important;
+  }
+
+}
+
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <div class="topbar">
-    <div>
-      <div class="crumb">BAB 4 · SUB-MATERI 4.3</div>
-      <div class="progress"><span id="progressBar"></span></div>
+<div id="progress-wrap"><div id="progress-bar"></div></div>
+
+<div id="app">
+
+<!-- SLIDE 0: COVER -->
+<section class="slide" data-index="0">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">BAB 4</span> TRANSFORMASI GEOMETRI · SUB-MATERI 4.3</div>
+    <h1>Refleksi <span style="color:var(--coral)">(Pencerminan)</span></h1>
+    <p class="lead" style="margin-bottom:22px;max-width:640px;">
+      Mempelajari bagaimana suatu bangun atau titik "dicerminkan" terhadap suatu garis,
+      sehingga menghasilkan bayangan yang jaraknya sama seperti benda aslinya terhadap cermin — persis seperti pantulan pada cermin datar.
+    </p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px;">
+      <span class="badge amber">⏱ 2 JP (2 × 40 menit)</span>
+      <span class="badge teal">Kurikulum Merdeka · Fase D</span>
+      <span class="badge purple">Kelas IX SMP</span>
     </div>
-    <div class="small">Rotasi & Dilatasi</div>
-  </div>
-
-  <section class="hero">
-    <div class="badges">
-      <span class="badge">⏱ 8 JP</span>
-      <span class="badge gold">🎯 Tujuan Pembelajaran</span>
+    <div class="card">
+      <h3 style="color:var(--teal);">🎯 Tujuan Pembelajaran</h3>
+      <ul class="points">
+        <li>Peserta didik mampu menjelaskan pengertian refleksi (pencerminan) pada bidang koordinat.</li>
+        <li>Peserta didik mampu menentukan bayangan hasil refleksi terhadap sumbu X, sumbu Y, garis y = x, dan garis y = −x.</li>
+        <li>Peserta didik mampu menyelesaikan soal hitung dan soal cerita kontekstual yang berkaitan dengan refleksi.</li>
+        <li>Peserta didik mampu menerapkan konsep refleksi dalam situasi kehidupan sehari-hari (cermin, simetri, teknologi).</li>
+      </ul>
     </div>
-    <h1>Rotasi dan Dilatasi</h1>
-    <p class="lead">Mari belajar bagaimana sebuah benda dapat <b>berputar</b> dan <b>berubah ukuran</b> pada bidang koordinat. Amati ilustrasi, ubah nilai, lalu kerjakan latihan untuk menguji pemahamanmu.</p>
-  </section>
-
-  <div class="tabs" role="tablist">
-    <button class="tab active" onclick="showTab('konsep',this)">📘 Konsep</button>
-    <button class="tab" onclick="showTab('rotasi',this)">🔄 Rotasi Interaktif</button>
-    <button class="tab" onclick="showTab('dilatasi',this)">🔍 Dilatasi Interaktif</button>
-    <button class="tab" onclick="showTab('contoh',this)">🧠 Contoh Soal</button>
-    <button class="tab" onclick="showTab('latihan',this)">✍️ Latihan</button>
   </div>
+</section>
 
-  <main id="konsep" class="tabpane active">
-    <div class="grid">
-      <section class="card">
-        <h2>1. Apa itu rotasi?</h2>
-        <p><b>Rotasi</b> adalah transformasi yang memutar suatu titik atau bangun terhadap pusat tertentu dengan besar sudut tertentu.</p>
-        <div class="callout">Bayangkan jarum jam, baling-baling kipas, atau posisi jarum kompas. Bentuknya tetap, tetapi posisinya berputar.</div>
-        <div class="formula">
-          Pusat O(0,0), sudut <span class="key">90° berlawanan arah jarum jam</span><br>
-          (x, y) → (−y, x)
-        </div>
-        <div class="formula">
-          Pusat O(0,0), sudut <span class="key">90° searah jarum jam</span><br>
-          (x, y) → (y, −x)
-        </div>
-        <div class="formula">
-          Pusat O(0,0), sudut <span class="key">180°</span><br>
-          (x, y) → (−x, −y)
-        </div>
-      </section>
+<!-- SLIDE 1: PENGERTIAN -->
+<section class="slide" data-index="1">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">01</span> MATERI INTI</div>
+    <h2>Pengertian Refleksi</h2>
+    <p class="lead">Refleksi adalah suatu transformasi geometri yang memindahkan setiap titik pada bidang dengan cara <b style="color:var(--text)">mencerminkannya</b> terhadap suatu garis, yang disebut <b style="color:var(--coral)">sumbu cermin (sumbu refleksi)</b>.</p>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg">
+        <line x1="200" y1="10" x2="200" y2="250" stroke="#2dd4bf" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="204" y="24" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">sumbu cermin</text>
+        <circle cx="110" cy="130" r="7" fill="#ff6b5b"/>
+        <text x="95" y="115" fill="#ff6b5b" font-family="JetBrains Mono" font-size="13">A</text>
+        <circle cx="290" cy="130" r="7" fill="#fbbf24"/>
+        <text x="298" y="115" fill="#fbbf24" font-family="JetBrains Mono" font-size="13">A'</text>
+        <line x1="110" y1="130" x2="290" y2="130" stroke="#8b93ab" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <line x1="110" y1="150" x2="130" y2="150" stroke="#8b93ab" stroke-width="1"/>
+        <line x1="130" y1="145" x2="130" y2="155" stroke="#8b93ab" stroke-width="1"/>
+        <text x="130" y="170" fill="#8b93ab" font-family="JetBrains Mono" font-size="10">jarak = jarak</text>
+        <line x1="270" y1="150" x2="290" y2="150" stroke="#8b93ab" stroke-width="1"/>
+        <line x1="270" y1="145" x2="270" y2="155" stroke="#8b93ab" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="card card2">
+      <p><b style="color:var(--text)">Ciri utama:</b> jarak titik asal (A) ke sumbu cermin <span class="mono" style="color:var(--amber)">SAMA</span> dengan jarak bayangan (A') ke sumbu cermin, dan garis yang menghubungkan A–A' <span class="mono" style="color:var(--amber)">TEGAK LURUS</span> terhadap sumbu cermin.</p>
+    </div>
+  </div>
+</section>
 
-      <section class="card">
-        <h2>2. Apa itu dilatasi?</h2>
-        <p><b>Dilatasi</b> adalah transformasi yang mengubah ukuran bangun berdasarkan faktor skala <b>k</b>.</p>
-        <div class="callout">Jika k &gt; 1, bangun membesar. Jika 0 &lt; k &lt; 1, bangun mengecil. Jika k = 1, ukuran tetap.</div>
-        <div class="formula">
-          Pusat O(0,0), faktor skala k<br>
-          (x, y) → (kx, ky)
+<!-- SLIDE 2: SIFAT -->
+<section class="slide" data-index="2">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">02</span> MATERI INTI</div>
+    <h2>Sifat-sifat Refleksi</h2>
+    <div class="grid-2">
+      <div class="type-card">
+        <h3 style="color:var(--teal);">✓ Ukuran & Bentuk Tetap</h3>
+        <p>Bangun bayangan hasil refleksi kongruen (sama dan sebangun) dengan bangun aslinya — ukuran dan bentuk tidak berubah.</p>
+      </div>
+      <div class="type-card">
+        <h3 style="color:var(--coral);">✓ Jarak ke Cermin Sama</h3>
+        <p>Setiap titik pada bangun memiliki jarak yang sama terhadap sumbu cermin dengan bayangannya.</p>
+      </div>
+      <div class="type-card">
+        <h3 style="color:var(--amber);">✓ Orientasi Terbalik</h3>
+        <p>Bayangan menghadap arah berlawanan (seperti bayangan di cermin) — disebut juga isometri yang membalik orientasi.</p>
+      </div>
+      <div class="type-card">
+        <h3 style="color:var(--purple);">✓ Tegak Lurus Sumbu</h3>
+        <p>Garis penghubung titik dan bayangannya selalu tegak lurus terhadap sumbu cermin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3: REFLEKSI SUMBU X -->
+<section class="slide" data-index="3">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">03</span> MATERI INTI</div>
+    <h2>Refleksi terhadap Sumbu X</h2>
+    <p class="lead">Titik dicerminkan terhadap garis horizontal (sumbu X). Koordinat x tetap, koordinat y berubah tanda.</p>
+    <div class="formula-box">
+      <span class="old">(x, y)</span> <span class="arrow">→ refleksi sb-X →</span> <span style="color:#e8ecf7">(x, −y)</span>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+        <line x1="10" y1="130" x2="310" y2="130" stroke="#2dd4bf" stroke-width="2"/>
+        <text x="290" y="122" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">sb-X</text>
+        <line x1="160" y1="10" x2="160" y2="250" stroke="#232c47" stroke-width="1"/>
+        <circle cx="210" cy="70" r="6" fill="#ff6b5b"/>
+        <text x="216" y="66" fill="#ff6b5b" font-family="JetBrains Mono" font-size="12">P(3,4)</text>
+        <circle cx="210" cy="190" r="6" fill="#fbbf24"/>
+        <text x="216" y="204" fill="#fbbf24" font-family="JetBrains Mono" font-size="12">P'(3,−4)</text>
+        <line x1="210" y1="76" x2="210" y2="184" stroke="#8b93ab" stroke-width="1" stroke-dasharray="4 3"/>
+      </svg>
+    </div>
+    <p style="font-size:13px;">Contoh: titik P(3, 4) direfleksikan terhadap sumbu X menjadi P'(3, −4).</p>
+  </div>
+</section>
+
+<!-- SLIDE 4: REFLEKSI SUMBU Y -->
+<section class="slide" data-index="4">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">04</span> MATERI INTI</div>
+    <h2>Refleksi terhadap Sumbu Y</h2>
+    <p class="lead">Titik dicerminkan terhadap garis vertikal (sumbu Y). Koordinat y tetap, koordinat x berubah tanda.</p>
+    <div class="formula-box">
+      <span class="old">(x, y)</span> <span class="arrow">→ refleksi sb-Y →</span> <span style="color:#e8ecf7">(−x, y)</span>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+        <line x1="160" y1="10" x2="160" y2="250" stroke="#2dd4bf" stroke-width="2"/>
+        <text x="164" y="24" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">sb-Y</text>
+        <line x1="10" y1="130" x2="310" y2="130" stroke="#232c47" stroke-width="1"/>
+        <circle cx="230" cy="80" r="6" fill="#ff6b5b"/>
+        <text x="236" y="76" fill="#ff6b5b" font-family="JetBrains Mono" font-size="12">Q(4,3)</text>
+        <circle cx="90" cy="80" r="6" fill="#fbbf24"/>
+        <text x="20" y="76" fill="#fbbf24" font-family="JetBrains Mono" font-size="12">Q'(−4,3)</text>
+        <line x1="96" y1="80" x2="224" y2="80" stroke="#8b93ab" stroke-width="1" stroke-dasharray="4 3"/>
+      </svg>
+    </div>
+    <p style="font-size:13px;">Contoh: titik Q(4, 3) direfleksikan terhadap sumbu Y menjadi Q'(−4, 3).</p>
+  </div>
+</section>
+
+<!-- SLIDE 5: REFLEKSI y=x -->
+<section class="slide" data-index="5">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">05</span> MATERI INTI</div>
+    <h2>Refleksi terhadap Garis y = x</h2>
+    <p class="lead">Titik dicerminkan terhadap garis diagonal y = x. Nilai x dan y saling bertukar tempat.</p>
+    <div class="formula-box">
+      <span class="old">(x, y)</span> <span class="arrow">→ refleksi y=x →</span> <span style="color:#e8ecf7">(y, x)</span>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20" y1="240" x2="300" y2="20" stroke="#2dd4bf" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="255" y="30" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">y = x</text>
+        <line x1="10" y1="130" x2="310" y2="130" stroke="#232c47" stroke-width="1"/>
+        <line x1="160" y1="10" x2="160" y2="250" stroke="#232c47" stroke-width="1"/>
+        <circle cx="230" cy="90" r="6" fill="#ff6b5b"/>
+        <text x="236" y="86" fill="#ff6b5b" font-family="JetBrains Mono" font-size="12">R(5,2)</text>
+        <circle cx="190" cy="50" r="6" fill="#fbbf24"/>
+        <text x="140" y="40" fill="#fbbf24" font-family="JetBrains Mono" font-size="12">R'(2,5)</text>
+        <line x1="228" y1="92" x2="192" y2="52" stroke="#8b93ab" stroke-width="1" stroke-dasharray="4 3"/>
+      </svg>
+    </div>
+    <p style="font-size:13px;">Contoh: titik R(5, 2) direfleksikan terhadap garis y = x menjadi R'(2, 5).</p>
+  </div>
+</section>
+
+<!-- SLIDE 6: REFLEKSI y=-x -->
+<section class="slide" data-index="6">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">06</span> MATERI INTI</div>
+    <h2>Refleksi terhadap Garis y = −x</h2>
+    <p class="lead">Titik dicerminkan terhadap garis diagonal y = −x. Nilai x dan y bertukar tempat, lalu keduanya berubah tanda.</p>
+    <div class="formula-box">
+      <span class="old">(x, y)</span> <span class="arrow">→ refleksi y=−x →</span> <span style="color:#e8ecf7">(−y, −x)</span>
+    </div>
+    <div class="svg-wrap">
+      <svg viewBox="0 0 320 260" xmlns="http://www.w3.org/2000/svg">
+        <line x1="20" y1="20" x2="300" y2="240" stroke="#2dd4bf" stroke-width="2" stroke-dasharray="6 4"/>
+        <text x="245" y="235" fill="#2dd4bf" font-family="JetBrains Mono" font-size="11">y = −x</text>
+        <line x1="10" y1="130" x2="310" y2="130" stroke="#232c47" stroke-width="1"/>
+        <line x1="160" y1="10" x2="160" y2="250" stroke="#232c47" stroke-width="1"/>
+        <circle cx="220" cy="70" r="6" fill="#ff6b5b"/>
+        <text x="226" y="66" fill="#ff6b5b" font-family="JetBrains Mono" font-size="12">S(3,3)</text>
+        <circle cx="100" cy="190" r="6" fill="#fbbf24"/>
+        <text x="30" y="204" fill="#fbbf24" font-family="JetBrains Mono" font-size="12">S'(−3,−3)</text>
+        <line x1="215" y1="76" x2="106" y2="184" stroke="#8b93ab" stroke-width="1" stroke-dasharray="4 3"/>
+      </svg>
+    </div>
+    <p style="font-size:13px;">Contoh: titik S(3, 3) direfleksikan terhadap garis y = −x menjadi S'(−3, −3).</p>
+  </div>
+</section>
+
+<!-- SLIDE 7: REFLEKSI x=h dan y=k -->
+<section class="slide" data-index="7">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">07</span> MATERI INTI</div>
+    <h2>Refleksi terhadap Garis x = h dan y = k</h2>
+    <p class="lead">Selain sumbu koordinat, refleksi juga bisa dilakukan terhadap garis vertikal atau horizontal sembarang.</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="color:var(--teal);">Terhadap garis x = h</h3>
+        <div class="formula-box mb-0">(x, y) → (2h − x, y)</div>
+      </div>
+      <div class="card">
+        <h3 style="color:var(--amber);">Terhadap garis y = k</h3>
+        <div class="formula-box mb-0">(x, y) → (x, 2k − y)</div>
+      </div>
+    </div>
+    <div class="card card2">
+      <p><b style="color:var(--text)">Contoh:</b> Titik T(1, 4) direfleksikan terhadap garis x = 3.<br>
+      x' = 2(3) − 1 = 5, sehingga T'(5, 4).</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8: KEHIDUPAN SEHARI-HARI -->
+<section class="slide" data-index="8">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">08</span> MATERI INTI</div>
+    <h2>Refleksi dalam Kehidupan Sehari-hari</h2>
+    <div class="grid-3">
+      <div class="type-card center-text">
+        <svg viewBox="0 0 100 100" width="70" style="margin:0 auto 10px;">
+          <rect x="15" y="48" width="70" height="4" fill="#2dd4bf"/>
+          <polygon points="30,52 35,80 25,80" fill="#ff6b5b"/>
+          <polygon points="30,48 35,20 25,20" fill="#fbbf24"/>
+        </svg>
+        <h3>Bayangan di Cermin</h3>
+        <p>Cermin datar menghasilkan bayangan simetris — prinsip dasar refleksi geometri.</p>
+      </div>
+      <div class="type-card center-text">
+        <svg viewBox="0 0 100 100" width="70" style="margin:0 auto 10px;">
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#a78bfa" stroke-width="2" stroke-dasharray="3 2"/>
+          <path d="M20,50 Q35,20 50,50" stroke="#ff6b5b" fill="none" stroke-width="3"/>
+          <path d="M20,50 Q35,80 50,50" stroke="#fbbf24" fill="none" stroke-width="3"/>
+        </svg>
+        <h3>Sayap Kupu-kupu</h3>
+        <p>Pola simetri pada makhluk hidup mengikuti prinsip refleksi terhadap sumbu tubuh.</p>
+      </div>
+      <div class="type-card center-text">
+        <svg viewBox="0 0 100 100" width="70" style="margin:0 auto 10px;">
+          <rect x="10" y="15" width="35" height="70" fill="none" stroke="#2dd4bf" stroke-width="2"/>
+          <circle cx="27" cy="35" r="4" fill="#ff6b5b"/>
+          <circle cx="73" cy="35" r="4" fill="#fbbf24"/>
+          <line x1="50" y1="10" x2="50" y2="90" stroke="#8b93ab" stroke-dasharray="3 2"/>
+        </svg>
+        <h3>Peta & Navigasi Game</h3>
+        <p>Refleksi digunakan untuk menduplikasi objek/level pada aplikasi peta dan game secara simetris.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 9: CONTOH SOAL -->
+<section class="slide" data-index="9">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">09</span> CONTOH SOAL & PEMBAHASAN</div>
+    <h2>Latihan Hitung Langsung</h2>
+
+    <div class="problem-card">
+      <div class="problem-num">SOAL 1</div>
+      <p style="color:var(--text)">Tentukan bayangan titik A(6, −2) jika direfleksikan terhadap sumbu X.</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Diketahui:</b> A(6, −2), sumbu cermin = sumbu X</div>
+        <div class="solution-step"><b>Rumus:</b> (x, y) → (x, −y)</div>
+        <div class="solution-step"><b>Substitusi:</b> A'(6, −(−2)) = A'(6, 2)</div>
+        <div class="solution-step"><b>Jawaban:</b> <span class="res">A'(6, 2)</span></div>
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-num">SOAL 2</div>
+      <p style="color:var(--text)">Tentukan bayangan titik B(−5, 3) jika direfleksikan terhadap sumbu Y.</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Diketahui:</b> B(−5, 3), sumbu cermin = sumbu Y</div>
+        <div class="solution-step"><b>Rumus:</b> (x, y) → (−x, y)</div>
+        <div class="solution-step"><b>Substitusi:</b> B'(−(−5), 3) = B'(5, 3)</div>
+        <div class="solution-step"><b>Jawaban:</b> <span class="res">B'(5, 3)</span></div>
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-num">SOAL 3</div>
+      <p style="color:var(--text)">Tentukan bayangan titik C(4, 7) jika direfleksikan terhadap garis y = x, kemudian tentukan bayangan hasilnya jika direfleksikan lagi terhadap garis y = −x.</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Langkah 1 — refleksi terhadap y = x:</b> (x,y) → (y,x)</div>
+        <div class="solution-step">C(4, 7) → C'(7, 4)</div>
+        <div class="solution-step"><b>Langkah 2 — refleksi C' terhadap y = −x:</b> (x,y) → (−y,−x)</div>
+        <div class="solution-step">C'(7, 4) → C''(−4, −7)</div>
+        <div class="solution-step"><b>Jawaban akhir:</b> <span class="res">C''(−4, −7)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 10: SOAL CERITA -->
+<section class="slide" data-index="10">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">10</span> SOAL CERITA — KEHIDUPAN NYATA</div>
+    <h2>Terapkan pada Situasi Nyata</h2>
+
+    <div class="problem-card">
+      <div class="problem-num">CERITA 1 · DRONE</div>
+      <p style="color:var(--text)">Sebuah drone berada di posisi (8, 5) pada peta koordinat lapangan (satuan meter). Operator memerintahkan drone untuk terbang ke posisi cermin dari titik tersebut terhadap garis tengah lapangan yang berimpit dengan sumbu Y. Di titik mana drone akan berada?</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Diketahui:</b> posisi drone (8, 5), cermin = sumbu Y (garis tengah lapangan)</div>
+        <div class="solution-step"><b>Rumus:</b> (x, y) → (−x, y)</div>
+        <div class="solution-step"><b>Substitusi:</b> (−8, 5)</div>
+        <div class="solution-step"><b>Jawaban:</b> Drone berada di posisi <span class="res">(−8, 5)</span>, yaitu 8 meter di sisi berlawanan garis tengah lapangan, tinggi tetap 5 meter.</div>
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-num">CERITA 2 · GAME</div>
+      <p style="color:var(--text)">Dalam sebuah game strategi, markas pemain berada di koordinat (−3, 6). Sistem game menghasilkan "peta bayangan" dengan mencerminkan seluruh markas terhadap sumbu X (garis sungai horizontal). Tentukan koordinat markas bayangan tersebut.</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Diketahui:</b> markas (−3, 6), cermin = sumbu X (sungai)</div>
+        <div class="solution-step"><b>Rumus:</b> (x, y) → (x, −y)</div>
+        <div class="solution-step"><b>Substitusi:</b> (−3, −6)</div>
+        <div class="solution-step"><b>Jawaban:</b> Markas bayangan berada di <span class="res">(−3, −6)</span>.</div>
+      </div>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-num">CERITA 3 · ROBOT & PETA</div>
+      <p style="color:var(--text)">Sebuah robot pemetaan berjalan pada lintasan diagonal ruang laboratorium yang mengikuti garis y = x. Robot berada di titik (2, 9). Untuk memeriksa area simetris di sisi lain lintasan, robot harus bergerak ke titik cerminnya terhadap garis y = x. Tentukan posisi tujuan robot.</p>
+      <button class="btn" onclick="toggleSol(this)">Tampilkan Pembahasan</button>
+      <div class="solution">
+        <div class="solution-step"><b>Diketahui:</b> posisi robot (2, 9), cermin = garis y = x</div>
+        <div class="solution-step"><b>Rumus:</b> (x, y) → (y, x)</div>
+        <div class="solution-step"><b>Substitusi:</b> (9, 2)</div>
+        <div class="solution-step"><b>Jawaban:</b> Robot bergerak menuju titik <span class="res">(9, 2)</span>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 11: AKTIVITAS INTERAKTIF -->
+<section class="slide" data-index="11">
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="num">11</span> AKTIVITAS INTERAKTIF</div>
+    <h2>Kuis Refleksi — Uji Pemahamanmu!</h2>
+
+    <div id="score-panel">
+      <span>Skor kamu</span>
+      <span class="score-num mono"><span id="score-val">0</span> / <span id="score-max">5</span></span>
+    </div>
+
+    <div class="quiz-card" data-qid="1">
+      <p style="color:var(--text);font-weight:600;margin-bottom:12px;">1. Bayangan titik K(2, −7) hasil refleksi terhadap sumbu X adalah...</p>
+      <button class="quiz-opt" onclick="answer(this,false)">A. (−2, −7)</button>
+      <button class="quiz-opt" onclick="answer(this,true)">B. (2, 7)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">C. (−2, 7)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">D. (7, 2)</button>
+      <div class="quiz-explain">Refleksi sb-X: (x,y)→(x,−y), sehingga K(2,−7) → K'(2, 7). Jawaban: <b>B</b>.</div>
+    </div>
+
+    <div class="quiz-card" data-qid="2">
+      <p style="color:var(--text);font-weight:600;margin-bottom:12px;">2. Titik L(−4, 9) direfleksikan terhadap sumbu Y. Bayangannya adalah...</p>
+      <button class="quiz-opt" onclick="answer(this,false)">A. (−4, −9)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">B. (4, −9)</button>
+      <button class="quiz-opt" onclick="answer(this,true)">C. (4, 9)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">D. (−4, 9)</button>
+      <div class="quiz-explain">Refleksi sb-Y: (x,y)→(−x,y), sehingga L(−4,9) → L'(4, 9). Jawaban: <b>C</b>.</div>
+    </div>
+
+    <div class="quiz-card" data-qid="3">
+      <p style="color:var(--text);font-weight:600;margin-bottom:12px;">3. Manakah pernyataan yang BENAR tentang refleksi?</p>
+      <button class="quiz-opt" onclick="answer(this,false)">A. Ukuran bayangan selalu berubah</button>
+      <button class="quiz-opt" onclick="answer(this,true)">B. Jarak titik ke cermin sama dengan jarak bayangan ke cermin</button>
+      <button class="quiz-opt" onclick="answer(this,false)">C. Bayangan tidak tegak lurus terhadap sumbu cermin</button>
+      <button class="quiz-opt" onclick="answer(this,false)">D. Bentuk bayangan berbeda dengan aslinya</button>
+      <div class="quiz-explain">Sifat utama refleksi: jarak titik asal ke cermin = jarak bayangan ke cermin, dan bentuk/ukuran tetap kongruen. Jawaban: <b>B</b>.</div>
+    </div>
+
+    <div class="quiz-card" data-qid="4">
+      <p style="color:var(--text);font-weight:600;margin-bottom:12px;">4. Titik M(5, 1) direfleksikan terhadap garis y = −x. Bayangannya adalah...</p>
+      <button class="quiz-opt" onclick="answer(this,false)">A. (1, 5)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">B. (5, −1)</button>
+      <button class="quiz-opt" onclick="answer(this,true)">C. (−1, −5)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">D. (−5, 1)</button>
+      <div class="quiz-explain">Refleksi y=−x: (x,y)→(−y,−x), sehingga M(5,1) → M'(−1, −5). Jawaban: <b>C</b>.</div>
+    </div>
+
+    <div class="quiz-card" data-qid="5">
+      <p style="color:var(--text);font-weight:600;margin-bottom:12px;">5. Sebuah pion catur berada di kotak (3, 3) pada papan koordinat. Bayangan pion terhadap garis x = 5 adalah...</p>
+      <button class="quiz-opt" onclick="answer(this,false)">A. (5, 3)</button>
+      <button class="quiz-opt" onclick="answer(this,true)">B. (7, 3)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">C. (3, 7)</button>
+      <button class="quiz-opt" onclick="answer(this,false)">D. (−3, 3)</button>
+      <div class="quiz-explain">Rumus x = h: x' = 2h − x = 2(5) − 3 = 7, y tetap. Hasil: (7, 3). Jawaban: <b>B</b>.</div>
+    </div>
+
+    <div class="card card2 center-text" id="quiz-result" style="display:none;">
+      <h3 id="quiz-result-text" style="color:var(--teal);"></h3>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 12: RANGKUMAN -->
+<section class="slide" data-index="12">
+  <div class="slide-inner">
+
+    <div class="eyebrow">
+      <span class="num">12</span> RANGKUMAN & PENUTUP
+    </div>
+
+    <h2>Poin-poin Kunci</h2>
+
+    <div class="grid-2">
+
+      <!-- RUMUS REFLEKSI -->
+      <div class="card">
+        <h3 style="color:var(--teal);">Rumus Refleksi</h3>
+
+        <div class="formula-box mb-0" style="font-size:13px;line-height:2;">
+          Sb-X: (x,y) → (x,−y)<br>
+          Sb-Y: (x,y) → (−x,y)<br>
+          y=x: (x,y) → (y,x)<br>
+          y=−x: (x,y) → (−y,−x)<br>
+          x=h: (x,y) → (2h−x, y)<br>
+          y=k: (x,y) → (x, 2k−y)
         </div>
-        <ul>
-          <li><b>k = 2</b> → dua kali lebih besar.</li>
-          <li><b>k = ½</b> → menjadi setengah ukuran.</li>
-          <li><b>k = 3</b> → tiga kali lebih besar.</li>
+      </div>
+
+      <!-- SIFAT REFLEKSI -->
+      <div class="card">
+        <h3 style="color:var(--coral);">Sifat Penting</h3>
+
+        <ul class="points">
+          <li>Bentuk dan ukuran bayangan kongruen dengan bangun asli.</li>
+          <li>Jarak titik ke cermin = jarak bayangan ke cermin.</li>
+          <li>Garis penghubung titik dan bayangan tegak lurus sumbu cermin.</li>
+          <li>Orientasi bayangan terbalik seperti pantulan cermin.</li>
         </ul>
-      </section>
+      </div>
 
-      <section class="card full">
-        <h2>3. Ilustrasi konkret di sekitar kita</h2>
-        <div class="grid">
-          <div>
-            <div class="visual">
-              <svg viewBox="0 0 500 250" aria-label="Ilustrasi rotasi kipas">
-                <rect x="0" y="0" width="500" height="250" rx="15" fill="#0b1429"/>
-                <circle cx="250" cy="125" r="30" fill="#263b69"/>
-                <g fill="#5b8cff" opacity=".9">
-                  <ellipse cx="250" cy="55" rx="25" ry="70"/>
-                  <ellipse cx="320" cy="125" rx="70" ry="25"/>
-                  <ellipse cx="250" cy="195" rx="25" ry="70"/>
-                  <ellipse cx="180" cy="125" rx="70" ry="25"/>
-                </g>
-                <circle cx="250" cy="125" r="12" fill="#ffbf3f"/>
-                <text x="250" y="235" text-anchor="middle" fill="#dbe5ff" font-size="18">Baling-baling berputar = rotasi</text>
-              </svg>
-            </div>
-          </div>
-          <div>
-            <div class="visual">
-              <svg viewBox="0 0 500 250" aria-label="Ilustrasi dilatasi kamera">
-                <rect width="500" height="250" rx="15" fill="#0b1429"/>
-                <rect x="90" y="80" width="120" height="90" rx="16" fill="#35e0d0" opacity=".55"/>
-                <circle cx="150" cy="125" r="28" fill="#101a32" stroke="#35e0d0" stroke-width="6"/>
-                <path d="M225 125 H285" stroke="#ffbf3f" stroke-width="7" stroke-dasharray="8 8"/>
-                <rect x="300" y="50" width="170" height="150" rx="20" fill="#35e0d0" opacity=".55"/>
-                <circle cx="385" cy="125" r="48" fill="#101a32" stroke="#35e0d0" stroke-width="8"/>
-                <text x="250" y="232" text-anchor="middle" fill="#dbe5ff" font-size="18">Ukuran berubah = dilatasi</text>
-              </svg>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
-  </main>
 
-  <main id="rotasi" class="tabpane">
-    <section class="card">
-      <h2>🔄 Simulator Rotasi</h2>
-      <p>Pilih titik, pusat, dan sudut. Tekan <b>Putar</b> untuk melihat hasilnya.</p>
-      <div class="controls">
-        <div class="control"><label>Titik X</label><input id="rx" type="number" value="3"></div>
-        <div class="control"><label>Titik Y</label><input id="ry" type="number" value="1"></div>
-        <div class="control"><label>Pusat rotasi</label><select id="rcenter"><option value="origin">O(0,0)</option><option value="custom">Pusat P(1,1)</option></select></div>
-      </div>
-      <div class="control" style="margin-top:12px">
-        <label>Sudut rotasi: <b id="angleLabel">90°</b></label>
-        <input id="rangle" type="range" min="-180" max="180" step="90" value="90" oninput="angleLabel.textContent=this.value+'°'">
-        <div class="small">Nilai positif = berlawanan arah jarum jam; negatif = searah jarum jam.</div>
-      </div>
-      <div class="btnrow"><button class="btn" onclick="rotatePoint()">↻ Putar</button><button class="btn secondary" onclick="resetRot()">Reset</button></div>
-      <div class="result" id="rotResult">Hasil akan muncul di sini.</div>
-      <div class="visual" style="margin-top:15px">
-        <svg id="rotSvg" viewBox="0 0 600 360"></svg>
-      </div>
-    </section>
-  </main>
+    <!-- INGAT SELALU -->
+    <div class="card card2">
+      <h3 style="color:var(--amber);">💡 Ingat Selalu</h3>
 
-  <main id="dilatasi" class="tabpane">
-    <section class="card">
-      <h2>🔍 Simulator Dilatasi</h2>
-      <p>Ubah faktor skala dan amati bagaimana titik bergerak menjauh atau mendekati pusat.</p>
-      <div class="controls">
-        <div class="control"><label>Titik X</label><input id="dx" type="number" value="2"></div>
-        <div class="control"><label>Titik Y</label><input id="dy" type="number" value="3"></div>
-        <div class="control"><label>Faktor skala k</label><input id="dk" type="number" value="2" step="0.5"></div>
-      </div>
-      <div class="btnrow"><button class="btn" onclick="dilatePoint()">🔎 Dilatasikan</button><button class="btn secondary" onclick="resetDil()">Reset</button></div>
-      <div class="result" id="dilResult">Hasil akan muncul di sini.</div>
-      <div class="visual" style="margin-top:15px">
-        <svg id="dilSvg" viewBox="0 0 600 360"></svg>
-      </div>
-    </section>
-  </main>
+      <p>
+        Refleksi banyak dijumpai di sekitar kita — bayangan pada cermin
+        dan air, sayap kupu-kupu, hingga fitur mirror pada aplikasi
+        desain dan game. Memahami rumusnya membantumu menyelesaikan
+        masalah posisi dan simetri secara cepat dan tepat.
+      </p>
+    </div>
 
-  <main id="contoh" class="tabpane">
-    <section class="card">
-      <h2>🧠 Contoh Soal 1 — Rotasi</h2>
-      <p>Titik A(3, 2) diputar 90° berlawanan arah jarum jam terhadap O(0,0). Tentukan A'.</p>
-      <ol class="steps">
-        <li><span class="num">1</span><div>Gunakan aturan: <b>(x,y) → (−y,x)</b>.</div></li>
-        <li><span class="num">2</span><div>Substitusi A(3,2): <b>(3,2) → (−2,3)</b>.</div></li>
-        <li><span class="num">3</span><div>Jadi, koordinat bayangan adalah <b>A'(−2,3)</b>.</div></li>
-      </ol>
-    </section>
+    <!-- NAVIGASI -->
+    <div class="materi-navigation">
 
-    <section class="card">
-      <h2>🧠 Contoh Soal 2 — Dilatasi</h2>
-      <p>Titik B(2,3) didilatasikan terhadap O(0,0) dengan faktor skala k = 2. Tentukan B'.</p>
-      <ol class="steps">
-        <li><span class="num">1</span><div>Gunakan aturan: <b>(x,y) → (kx,ky)</b>.</div></li>
-        <li><span class="num">2</span><div>Substitusi: <b>(2,3) → (2×2, 2×3)</b>.</div></li>
-        <li><span class="num">3</span><div>Jadi, <b>B'(4,6)</b>.</div></li>
-      </ol>
-    </section>
+  <a href="materi-4.4.html" class="finish-btn">
+    Lanjut ke Materi 4.4: Rotasi →
+  </a>
 
-    <section class="card full">
-      <h2>💡 Tips cepat</h2>
-      <div class="grid">
-        <div class="callout"><b>Rotasi 90°:</b> tukar x dan y, lalu beri tanda pada salah satu koordinat.</div>
-        <div class="callout"><b>Dilatasi:</b> kalikan kedua koordinat dengan faktor skala k.</div>
-      </div>
-    </section>
-  </main>
+  <a href="bab4.html" class="finish-btn secondary">
+    ← Kembali ke Daftar Bab
+  </a>
 
-  <main id="latihan" class="tabpane">
-    <section class="card">
-      <h2>✍️ Latihan Interaktif</h2>
-      <p>Kerjakan semua soal. Pilihan akan langsung diberi umpan balik.</p>
-      <div id="quiz"></div>
-      <div class="btnrow"><button class="btn success" onclick="finishQuiz()">📊 Lihat Nilai</button><button class="btn secondary" onclick="resetQuiz()">↺ Ulangi</button></div>
-      <div id="score" class="result hidden"></div>
-    </section>
-  </main>
+</div>
 
-  <div class="footer-nav">
-    <button class="btn secondary" onclick="prevTab()">← Sebelumnya</button>
-    <button class="btn" onclick="nextTab()">Selanjutnya →</button>
   </div>
+</section>
+
+</div>
+
+<div id="nav-bar">
+  <button class="btn" id="btn-prev" onclick="go(-1)">← Sebelumnya</button>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+    <div id="dots"></div>
+    <span class="slide-counter mono" id="counter">1 / 13</span>
+  </div>
+  <button class="btn solid" id="btn-next" onclick="go(1)">Selanjutnya →</button>
 </div>
 
 <script>
-const tabs=['konsep','rotasi','dilatasi','contoh','latihan'];
-let current=0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
 
-function showTab(id,btn){
-  document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  current=tabs.indexOf(id);
-  updateProgress();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function updateProgress(){document.getElementById('progressBar').style.width=((current)/(tabs.length-1)*100)+'%'}
-function nextTab(){if(current<tabs.length-1){current++; activateByIndex()} }
-function prevTab(){if(current>0){current--; activateByIndex()} }
-function activateByIndex(){
-  const btn=document.querySelectorAll('.tab')[current];
-  showTab(tabs[current],btn);
+const dotsWrap = document.getElementById('dots');
+for(let i=0;i<total;i++){
+  const d = document.createElement('div');
+  d.className='dot';
+  d.onclick=()=>{current=i;render();};
+  dotsWrap.appendChild(d);
 }
 
-function esc(v){return Number.isFinite(v)?v.toFixed(2).replace(/\.00$/,''):v}
-
-function drawGrid(svgId, pointA, pointB, center=[0,0], labelA='A', labelB="A'"){
-  const svg=document.getElementById(svgId), W=600,H=360;
-  const max=Math.max(5,Math.abs(pointA[0]),Math.abs(pointA[1]),Math.abs(pointB[0]),Math.abs(pointB[1]),Math.abs(center[0]),Math.abs(center[1]))+1;
-  const sx=W/2, sy=H/2, scale=Math.min((W-70)/(2*max),(H-60)/(2*max));
-  const tx=x=>sx+x*scale, ty=y=>sy-y*scale;
-  let s=`<rect width="${W}" height="${H}" rx="15" fill="#081022"/>`;
-  for(let i=-Math.floor(max);i<=Math.floor(max);i++){
-    s+=`<line x1="${tx(i)}" y1="20" x2="${tx(i)}" y2="${H-20}" stroke="#182746" stroke-width="1"/>`;
-    s+=`<line x1="30" y1="${ty(i)}" x2="${W-30}" y2="${ty(i)}" stroke="#182746" stroke-width="1"/>`;
-  }
-  s+=`<line x1="30" y1="${ty(0)}" x2="${W-30}" y2="${ty(0)}" stroke="#7283a8" stroke-width="2"/>`;
-  s+=`<line x1="${tx(0)}" y1="20" x2="${tx(0)}" y2="${H-20}" stroke="#7283a8" stroke-width="2"/>`;
-  s+=`<line x1="${tx(center[0])}" y1="${ty(center[1])}" x2="${tx(pointA[0])}" y2="${ty(pointA[1])}" stroke="#ffbf3f" stroke-width="2" stroke-dasharray="7 6"/>`;
-  s+=`<circle cx="${tx(center[0])}" cy="${ty(center[1])}" r="6" fill="#ffbf3f"/><text x="${tx(center[0])+8}" y="${ty(center[1])-8}" fill="#ffcf69">Pusat</text>`;
-  s+=`<circle cx="${tx(pointA[0])}" cy="${ty(pointA[1])}" r="8" fill="#5b8cff"/><text x="${tx(pointA[0])+10}" y="${ty(pointA[1])-10}" fill="#dbe5ff" font-weight="700">${labelA} (${esc(pointA[0])}, ${esc(pointA[1])})</text>`;
-  s+=`<circle cx="${tx(pointB[0])}" cy="${ty(pointB[1])}" r="9" fill="#35e0d0"/><text x="${tx(pointB[0])+10}" y="${ty(pointB[1])-10}" fill="#bafff6" font-weight="700">${labelB} (${esc(pointB[0])}, ${esc(pointB[1])})</text>`;
-  svg.innerHTML=s;
-}
-
-function rotatePoint(){
-  const x=+document.getElementById('rx').value, y=+document.getElementById('ry').value;
-  const a=+document.getElementById('rangle').value;
-  const custom=document.getElementById('rcenter').value==='custom';
-  const cx=custom?1:0, cy=custom?1:0, rad=a*Math.PI/180;
-  const X=x-cx,Y=y-cy;
-  const xp=cx+X*Math.cos(rad)-Y*Math.sin(rad);
-  const yp=cy+X*Math.sin(rad)+Y*Math.cos(rad);
-  document.getElementById('rotResult').innerHTML=`<b>A(${x}, ${y})</b> diputar ${a}° terhadap P(${cx}, ${cy}) → <b>A'(${esc(xp)}, ${esc(yp)})</b>.`;
-  drawGrid('rotSvg',[x,y],[xp,yp],[cx,cy]);
-}
-function resetRot(){
-  rx.value=3; ry.value=1; rangle.value=90; angleLabel.textContent='90°'; rcenter.value='origin'; rotatePoint();
-}
-function dilatePoint(){
-  const x=+document.getElementById('dx').value,y=+document.getElementById('dy').value,k=+document.getElementById('dk').value;
-  const xp=k*x,yp=k*y;
-  let meaning=k>1?'membesar':k>0&&k<1?'mengecil':k===1?'tetap':'berubah arah karena k negatif';
-  document.getElementById('dilResult').innerHTML=`<b>B(${x}, ${y})</b> dengan k=${k} → <b>B'(${esc(xp)}, ${esc(yp)})</b>. Bangun <b>${meaning}</b>.`;
-  drawGrid('dilSvg',[x,y],[xp,yp],[0,0],'B',"B'");
-}
-function resetDil(){dx.value=2;dy.value=3;dk.value=2;dilatePoint()}
-
-const questions=[
- {q:'Titik A(3,2) diputar 90° berlawanan arah jarum jam terhadap O(0,0). Hasilnya?',o:['(2,−3)','(−2,3)','(−3,−2)','(3,−2)'],a:1,e:'Untuk 90° berlawanan arah jarum jam: (x,y) → (−y,x).'},
- {q:'Titik B(2,3) didilatasikan dengan k=2 terhadap O(0,0). Hasilnya?',o:['(4,6)','(1,1.5)','(2,6)','(6,4)'],a:0,e:'Kalikan kedua koordinat dengan 2: (2×2, 3×2) = (4,6).'},
- {q:'Jika k=1/2 pada dilatasi berpusat di O(0,0), maka bangun...',o:['menjadi dua kali lebih besar','menjadi setengah ukuran','berputar 90°','tidak berubah bentuk dan posisi'],a:1,e:'Faktor skala 1/2 membuat setiap jarak dari pusat menjadi setengah.'},
- {q:'Rotasi 180° terhadap O(0,0) menggunakan aturan...',o:['(x,y) → (y,x)','(x,y) → (−y,x)','(x,y) → (−x,−y)','(x,y) → (2x,2y)'],a:2,e:'Rotasi 180° mengubah tanda kedua koordinat.'},
- {q:'Titik C(−2,4) didilatasikan dengan k=3. Koordinat C\' adalah...',o:['(−6,12)','(−2,12)','(6,−12)','(1,2)'],a:0,e:'(−2×3, 4×3) = (−6,12).'}
-];
-
-function buildQuiz(){
-  const qbox=document.getElementById('quiz'); qbox.innerHTML='';
-  questions.forEach((q,i)=>{
-    const d=document.createElement('div'); d.className='card';
-    d.innerHTML=`<div class="quiz-q">${i+1}. ${q.q}</div>`+
-      q.o.map((x,j)=>`<button class="option" onclick="answer(${i},${j},this)">${String.fromCharCode(65+j)}. ${x}</button>`).join('')+
-      `<div id="exp${i}" class="explain"></div>`;
-    qbox.appendChild(d);
+function render(){
+  slides.forEach((s,i)=>{
+    s.classList.toggle('active', i===current);
+    if(i===current) s.scrollTop = 0;
   });
+  requestAnimationFrame(()=>requestAnimationFrame(fitActiveSlide));
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===current);
+    d.classList.toggle('done', i<current);
+  });
+  document.getElementById('progress-bar').style.width = ((current+1)/total*100)+'%';
+  document.getElementById('counter').textContent = (current+1)+' / '+total;
+  document.getElementById('btn-prev').disabled = current===0;
+  document.getElementById('btn-next').disabled = current===total-1;
+  document.getElementById('btn-next').textContent = current===total-1 ? 'Selesai ✓' : 'Selanjutnya →';
 }
-const answered={};
-function answer(i,j,el){
-  if(answered[i]!==undefined)return;
-  answered[i]=j;
-  const buttons=el.parentElement.querySelectorAll('.option');
-  buttons.forEach((b,k)=>{if(k===questions[i].a)b.classList.add('correct')});
-  if(j!==questions[i].a)el.classList.add('wrong');
-  const ex=document.getElementById('exp'+i);ex.classList.add('show');ex.innerHTML=(j===questions[i].a?'✅ Benar! ':'❌ Belum tepat. ')+questions[i].e;
-}
-function finishQuiz(){
-  const done=Object.keys(answered).length;
-  if(done<questions.length){document.getElementById('score').classList.remove('hidden');document.getElementById('score').innerHTML=`Kerjakan semua soal dulu. Baru ${done}/${questions.length} yang dijawab.`;return}
-  const correct=questions.reduce((n,q,i)=>n+(answered[i]===q.a),0);
-  const nilai=correct/questions.length*100;
-  const msg=nilai>=80?'Hebat! Pemahamanmu sudah sangat baik.':nilai>=60?'Bagus! Pelajari kembali bagian yang masih keliru.':'Tetap semangat! Baca konsep dan contoh, lalu coba lagi.';
-  const s=document.getElementById('score');s.classList.remove('hidden');s.innerHTML=`<span class="score">Nilai: ${nilai}</span><br>${correct} benar dari ${questions.length} soal. ${msg}`;
-}
-function resetQuiz(){Object.keys(answered).forEach(k=>delete answered[k]);buildQuiz();document.getElementById('score').classList.add('hidden')}
 
-buildQuiz(); resetRot(); resetDil(); updateProgress();
+function go(dir){
+  const next = current+dir;
+  if(next<0||next>=total) return;
+  current = next;
+  render();
+}
+
+render();
+
+// Hitung tinggi nav-bar secara dinamis (dots bisa membungkus di layar kecil)
+function updateNavHeight(){
+  const navBar = document.getElementById('nav-bar');
+  const h = navBar.offsetHeight;
+  document.documentElement.style.setProperty('--navh', h+'px');
+}
+
+// Auto-fit: skalakan konten slide aktif agar selalu pas di tinggi layar (tanpa scroll)
+const MIN_SCALE = 0.82; // batas minimum agar teks tidak jadi terlalu kecil; sisa overflow ditangani lewat scroll
+const MAX_SCALE = 1.35; // batas maksimum saat konten jauh lebih pendek dari layar (mengisi ruang kosong)
+function fitActiveSlide(){
+  const slide = document.querySelector('.slide.active');
+  if(!slide) return;
+  const inner = slide.querySelector('.slide-inner');
+  if(!inner) return;
+
+  inner.style.transform = 'scale(1)';
+  // beri waktu browser reflow sebelum mengukur
+  const availH = slide.clientHeight - 4;
+  const availW = slide.clientWidth;
+  const contentH = inner.scrollHeight;
+  const contentW = inner.scrollWidth;
+
+  if(availH <= 0 || contentH <= 0) return;
+
+  // Skala berdasarkan tinggi (boleh mengecil ATAU membesar untuk mengisi ruang)
+  let scale = availH / contentH;
+
+  // Jangan sampai melebar melewati lebar slide saat membesar
+  if(contentW > 0){
+    scale = Math.min(scale, availW / contentW);
+  }
+
+  scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale));
+
+  if(Math.abs(scale - 1) > 0.02){
+    inner.style.transform = 'scale('+scale+')';
+  }
+}
+
+function updateAndFit(){
+  updateNavHeight();
+  requestAnimationFrame(()=>requestAnimationFrame(fitActiveSlide));
+}
+
+updateAndFit();
+window.addEventListener('load', updateAndFit);
+if(document.fonts && document.fonts.ready){ document.fonts.ready.then(updateAndFit); }
+window.addEventListener('resize', updateAndFit);
+window.addEventListener('orientationchange', ()=>setTimeout(updateAndFit,150));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', updateAndFit);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowRight') go(1);
+  if(e.key==='ArrowLeft') go(-1);
+});
+
+// Touch swipe navigation
+let touchStartX = 0, touchStartY = 0;
+document.getElementById('app').addEventListener('touchstart',(e)=>{
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+},{passive:true});
+document.getElementById('app').addEventListener('touchend',(e)=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)){
+    if(dx<0) go(1); else go(-1);
+  }
+},{passive:true});
+
+// Toggle pembahasan
+function toggleSol(btn){
+  const sol = btn.nextElementSibling;
+  sol.classList.toggle('open');
+  btn.textContent = sol.classList.contains('open') ? 'Sembunyikan Pembahasan' : 'Tampilkan Pembahasan';
+  setTimeout(fitActiveSlide, 420);
+}
+
+// Quiz logic
+let score = 0;
+let answered = new Set();
+document.getElementById('score-max').textContent = document.querySelectorAll('.quiz-card').length;
+
+function answer(btn, isCorrect){
+  const card = btn.closest('.quiz-card');
+  const qid = card.dataset.qid;
+  if(answered.has(qid)) return;
+  answered.add(qid);
+
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect){
+    opts.forEach(o=>{ if(o.onclick.toString().includes('true')) o.classList.add('correct'); });
+  }
+  card.querySelector('.quiz-explain').classList.add('show');
+
+  if(isCorrect){ score++; document.getElementById('score-val').textContent = score; }
+
+  if(answered.size === document.querySelectorAll('.quiz-card').length){
+    const resultBox = document.getElementById('quiz-result');
+    const resultText = document.getElementById('quiz-result-text');
+    const maxScore = document.querySelectorAll('.quiz-card').length;
+    let msg = '';
+    if(score===maxScore) msg = '🏆 Sempurna! Kamu sudah sangat menguasai konsep Refleksi.';
+    else if(score>=maxScore*0.6) msg = '👍 Bagus! Sebagian besar jawabanmu benar. Ulangi lagi materi yang masih keliru.';
+    else msg = '📘 Yuk baca ulang materi Refleksi, lalu coba lagi kuisnya!';
+    resultText.textContent = 'Skor akhir: '+score+' / '+maxScore+' — '+msg;
+    resultBox.style.display='block';
+  }
+  requestAnimationFrame(()=>requestAnimationFrame(fitActiveSlide));
+}
 </script>
+
 </body>
 </html>
