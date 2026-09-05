@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Evaluasi Bab 4 — Bentuk Aljabar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F6F3;
+    --surface:#FFFFFF;
+    --surface-alt:#EAF1EC;
+    --ink:#1B2A28;
+    --ink-soft:#4B5D59;
+    --ink-faint:#7C8C88;
+    --accent:#2F6F5E;
+    --accent-dark:#234F43;
+    --accent-soft:#DCEEE7;
+    --accent2:#E2703A;
+    --accent2-soft:#FBE4D6;
+    --correct:#2F8F5B;
+    --correct-soft:#E1F4E8;
+    --incorrect:#D6483C;
+    --incorrect-soft:#FBE3E0;
+    --border:#D8E3DE;
+    --shadow: 0 18px 40px -20px rgba(27,42,40,0.35);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Lexend', sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(47,111,94,0.07), transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(226,112,58,0.08), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk', sans-serif;}
+
+  .app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px 108px;
+  }
+
+  .deck{
+    position:relative;
+    width:100%;
+    max-width:760px;
+  }
+
+  .slide{
+    display:none;
+    background:var(--surface);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+    padding:40px 40px 34px;
+    min-height:460px;
+    animation:riseIn .38s ease;
+  }
+  .slide.active{display:block;}
+
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  @media (max-width:600px){
+    .slide{padding:26px 20px 26px; min-height:420px;}
+    .app{padding:16px 10px 118px;}
+  }
+
+  /* ---------- top meta strip on question/essay/key slides ---------- */
+  .slide-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .meta-left{
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .meta-left strong{color:var(--ink);}
+  .tag{
+    display:inline-block;
+    padding:5px 13px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    background:var(--accent-soft);
+    color:var(--accent-dark);
+  }
+  .tag.tag-essay{background:var(--accent2-soft); color:#8A3A18;}
+
+  /* ---------- cover slide ---------- */
+  .cover-slide{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding-top:44px;
+  }
+  .tile-graphic{width:190px; height:auto; margin-bottom:22px;}
+  .tile-x2{fill:var(--accent);}
+  .tile-x{fill:var(--accent2);}
+  .tile-1{fill:var(--ink);}
+  .tile-label{fill:#fff; font-family:'Space Grotesk', sans-serif; font-weight:600;}
+
+  .cover-slide .subject-line{
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .cover-slide h1{
+    font-size:clamp(26px,5vw,34px);
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .cover-slide h2{
+    font-size:18px;
+    font-weight:500;
+    color:var(--accent-dark);
+    margin:0 0 26px;
+  }
+  .cover-stats{
+    display:flex;
+    gap:14px;
+    margin-bottom:32px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .stat-card{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 22px;
+    min-width:140px;
+  }
+  .stat-num{
+    display:block;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .stat-label{font-size:13px; color:var(--ink-soft);}
+
+  .btn{
+    font-family:'Lexend', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    border:none;
+    border-radius:999px;
+    padding:14px 30px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 12px 24px -10px rgba(47,111,94,0.55);
+  }
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-secondary{
+    background:var(--surface-alt);
+    color:var(--ink);
+  }
+  .btn-secondary:hover{background:var(--border);}
+  .btn-outline{
+    background:transparent;
+    color:var(--accent-dark);
+    border:1.5px solid var(--accent);
+  }
+  .btn-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:12px;
+  }
+
+  /* ---------- MC slide ---------- */
+  .question-text{
+    font-size:19px;
+    font-weight:500;
+    line-height:1.5;
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .option-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-align:left;
+    width:100%;
+    padding:14px 18px;
+    border-radius:var(--radius-md);
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    font-family:'Lexend', sans-serif;
+    font-size:15.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .option-btn:hover:not(:disabled){
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .option-letter{
+    flex:0 0 30px;
+    height:30px;
+    border-radius:50%;
+    background:var(--surface-alt);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .option-btn.correct{
+    border-color:var(--correct);
+    background:var(--correct-soft);
+  }
+  .option-btn.correct .option-letter{background:var(--correct); color:#fff;}
+  .option-btn.incorrect{
+    border-color:var(--incorrect);
+    background:var(--incorrect-soft);
+  }
+  .option-btn.incorrect .option-letter{background:var(--incorrect); color:#fff;}
+  .option-btn:disabled{cursor:default;}
+  .option-btn.dim{opacity:0.55;}
+
+  .feedback{
+    margin-top:18px;
+    padding:16px 18px;
+    border-radius:var(--radius-md);
+    font-size:14.5px;
+    line-height:1.55;
+    display:none;
+  }
+  .feedback.show{display:block; animation:riseIn .3s ease;}
+  .feedback.correct-fb{background:var(--correct-soft); color:#1F5C3C;}
+  .feedback.incorrect-fb{background:var(--incorrect-soft); color:#8C2E25;}
+  .feedback .fb-title{
+    font-weight:700;
+    display:block;
+    margin-bottom:6px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+
+  /* ---------- essay slide ---------- */
+  textarea.essay-input{
+    width:100%;
+    min-height:120px;
+    padding:14px 16px;
+    border-radius:var(--radius-md);
+    border:1.5px solid var(--border);
+    font-family:'Lexend', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    resize:vertical;
+    margin-bottom:18px;
+  }
+  textarea.essay-input:focus{outline:none; border-color:var(--accent);}
+  .score-box{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .score-box label{font-size:14.5px; color:var(--ink-soft); font-weight:500;}
+  .score-box input[type="number"]{
+    width:74px;
+    padding:8px 10px;
+    border-radius:var(--radius-sm);
+    border:1.5px solid var(--border);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    text-align:center;
+  }
+  .score-box input[type="number"]:focus{outline:none; border-color:var(--accent);}
+  .score-max{font-size:14px; color:var(--ink-faint);}
+
+  /* ---------- key/discussion slide ---------- */
+  .key-section-title{
+    font-size:16px;
+    font-weight:700;
+    color:var(--accent-dark);
+    margin:26px 0 10px;
+  }
+  .key-section-title:first-of-type{margin-top:0;}
+  .accordion-item{
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-md);
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .accordion-head{
+    width:100%;
+    text-align:left;
+    background:var(--surface);
+    border:none;
+    padding:13px 16px;
+    font-family:'Lexend', sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .accordion-head:hover{background:var(--surface-alt);}
+  .accordion-head .chev{transition:transform .2s ease; color:var(--ink-faint);}
+  .accordion-item.open .chev{transform:rotate(180deg);}
+  .accordion-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease;
+    background:var(--surface-alt);
+  }
+  .accordion-item.open .accordion-body{max-height:600px;}
+  .accordion-body-inner{padding:14px 16px 16px; font-size:14px; line-height:1.6; color:var(--ink-soft);}
+  .accordion-body-inner .jawaban-benar{color:var(--accent-dark); font-weight:600;}
+
+  /* ---------- results slide ---------- */
+  .result-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:12px;
+    margin:22px 0 26px;
+  }
+  .result-card{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+  }
+  .result-card .r-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .result-card .r-label{font-size:13px; color:var(--ink-soft);}
+  .final-score-band{
+    text-align:center;
+    padding:26px 20px;
+    border-radius:var(--radius-lg);
+    background:linear-gradient(135deg, var(--accent-soft), var(--accent2-soft));
+    margin-bottom:20px;
+  }
+  .final-score-band .fs-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:52px;
+    font-weight:700;
+    color:var(--accent-dark);
+    line-height:1;
+  }
+  .final-score-band .fs-cat{
+    display:inline-block;
+    margin-top:10px;
+    padding:6px 16px;
+    border-radius:999px;
+    background:var(--surface);
+    font-weight:700;
+    font-size:14px;
+  }
+  .final-score-band .fs-msg{
+    margin-top:14px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+  /* ---------- bottom nav ---------- */
+  .nav-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, rgba(242,246,243,0.97), rgba(242,246,243,0.85));
+    backdrop-filter:blur(6px);
+  }
+  .nav-btn{
+    flex:0 0 auto;
+    width:44px; height:44px;
+    border-radius:50%;
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    color:var(--ink);
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .nav-btn:hover:not(:disabled){border-color:var(--accent); color:var(--accent-dark);}
+  .nav-btn:disabled{opacity:0.35; cursor:default;}
+  .dots{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    max-width:min(52vw, 420px);
+    padding:4px 2px;
+    scrollbar-width:none;
+  }
+  .dots::-webkit-scrollbar{display:none;}
+  .dot{
+    flex:0 0 auto;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--border);
+    border:none;
+    cursor:pointer;
+    padding:0;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .dot.current{background:var(--accent); transform:scale(1.35);}
+  .dot.answered{background:var(--accent2);}
+
+  @media (max-width:600px){
+    .result-grid{grid-template-columns:1fr 1fr;}
+    .cover-stats{gap:10px;}
+    .stat-card{min-width:120px; padding:14px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="deck" id="deck"></div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" aria-label="Slide sebelumnya">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn" aria-label="Slide berikutnya">›</button>
+</div>
+
+<script>
+/* =========================================================
+   1. DATA MATERI — diisi sekali di sini
+   ========================================================= */
+const MATERI = {
+  mapel: "Matematika",
+  kelasFase: "Kelas 7 / Fase D",
+  babNomor: 4,
+  babNama: "Bentuk Aljabar",
+  namaEvaluasi: "Evaluasi Bab 4"
+};
+
+/* URL tombol akhir — ganti sesuai kebutuhan, jangan hardcode di HTML */
+const NEXT_BAB_URL = "#";
+const DASHBOARD_URL = "#";
+
+/* =========================================================
+   2. BANK SOAL — pilihan ganda
+   ========================================================= */
+const questions = [
+  {
+    question: "Diketahui bentuk aljabar 5x + 3. Bagian yang disebut variabel adalah…",
+    options: ["5", "x", "3", "5x"],
+    answer: 1,
+    discussion: "Variabel adalah lambang huruf yang mewakili bilangan yang belum diketahui nilainya. Pada 5x + 3, lambang tersebut adalah x."
+  },
+  {
+    question: "Koefisien dari suku 7y pada bentuk aljabar 7y − 4 adalah…",
+    options: ["7", "−4", "y", "−4y"],
+    answer: 0,
+    discussion: "Koefisien adalah angka yang terletak tepat di depan variabel. Pada suku 7y, koefisiennya adalah 7."
+  },
+  {
+    question: "Konstanta pada bentuk aljabar 3x² + 2x − 9 adalah…",
+    options: ["3", "2", "−9", "x²"],
+    answer: 2,
+    discussion: "Konstanta adalah suku yang tidak memuat variabel. Pada bentuk tersebut, konstantanya adalah −9."
+  },
+  {
+    question: "Bentuk aljabar 4x + 5y − 2 terdiri atas berapa suku?",
+    options: ["1 suku", "2 suku", "3 suku", "4 suku"],
+    answer: 2,
+    discussion: "Suku dipisahkan oleh tanda + atau −. Bentuk tersebut memiliki tiga suku, yaitu 4x, 5y, dan −2."
+  },
+  {
+    question: "Pasangan suku sejenis ditunjukkan oleh…",
+    options: ["3x dan 3x²", "5xy dan 5x", "2x dan 6x", "4y dan 4x"],
+    answer: 2,
+    discussion: "Suku sejenis memiliki variabel dan pangkat yang sama. 2x dan 6x sama-sama memuat variabel x berpangkat satu, sehingga sejenis."
+  },
+  {
+    question: "Bentuk sederhana dari 4x + 3x − 2x adalah…",
+    options: ["9x", "5x", "x", "5x²"],
+    answer: 1,
+    discussion: "Karena semua suku sejenis, koefisiennya cukup dijumlahkan/dikurangkan: 4 + 3 − 2 = 5, sehingga hasilnya 5x."
+  },
+  {
+    question: "Hasil penjumlahan (3x + 5) + (2x − 7) adalah…",
+    options: ["5x − 2", "5x + 2", "x − 2", "5x − 2y"],
+    answer: 0,
+    discussion: "Kelompokkan suku sejenis: (3x + 2x) + (5 − 7) = 5x − 2."
+  },
+  {
+    question: "Hasil pengurangan (6x + 4) − (2x − 3) adalah…",
+    options: ["4x + 1", "4x + 7", "8x + 1", "4x − 7"],
+    answer: 1,
+    discussion: "Setiap suku dalam kurung kedua berubah tanda saat dikurangkan: 6x − 2x = 4x, dan 4 − (−3) = 7, sehingga hasilnya 4x + 7."
+  },
+  {
+    question: "Bentuk sederhana dari (5x − 3y) + (2x + 7y) − (x − 2y) adalah…",
+    options: ["6x + 6y", "6x − 6y", "4x + 6y", "6x + 2y"],
+    answer: 0,
+    discussion: "Kelompokkan suku x: 5x + 2x − x = 6x. Kelompokkan suku y: −3y + 7y + 2y = 6y. Hasilnya 6x + 6y."
+  },
+  {
+    question: "Hasil dari 3(2x + 5) adalah…",
+    options: ["6x + 5", "6x + 15", "5x + 15", "6x + 8"],
+    answer: 1,
+    discussion: "Gunakan sifat distributif: 3 × 2x = 6x dan 3 × 5 = 15, sehingga hasilnya 6x + 15."
+  },
+  {
+    question: "Hasil perkalian 2x(x + 4) adalah…",
+    options: ["2x² + 8x", "2x + 8x", "2x² + 4x", "2x + 4"],
+    answer: 0,
+    discussion: "Kalikan 2x dengan setiap suku dalam kurung: 2x × x = 2x², dan 2x × 4 = 8x, sehingga hasilnya 2x² + 8x."
+  },
+  {
+    question: "Faktor persekutuan terbesar (FPB) dari suku 6x² dan 9x adalah…",
+    options: ["3", "3x", "x", "6x"],
+    answer: 1,
+    discussion: "FPB dari koefisien 6 dan 9 adalah 3, sedangkan FPB dari x² dan x adalah x. Gabungannya menjadi 3x."
+  },
+  {
+    question: "Umur Andi sekarang dinyatakan sebagai x tahun. Lima tahun lagi, umur Andi adalah…",
+    options: ["x − 5", "5x", "x + 5", "5 − x"],
+    answer: 2,
+    discussion: "\"Lima tahun lagi\" berarti umur sekarang ditambah 5, sehingga bentuk aljabarnya x + 5."
+  },
+  {
+    question: "Jika bentuk aljabar 2x + 7 dan diketahui x = 4, maka nilai bentuk aljabar tersebut adalah…",
+    options: ["11", "13", "15", "9"],
+    answer: 2,
+    discussion: "Substitusikan x = 4: 2(4) + 7 = 8 + 7 = 15."
+  },
+  {
+    question: "Seorang siswa menyederhanakan 3x + 2x² menjadi 5x³. Kesalahan yang dilakukan siswa tersebut adalah…",
+    options: [
+      "Salah menjumlahkan koefisien",
+      "Menjumlahkan suku yang tidak sejenis",
+      "Salah menentukan konstanta",
+      "Salah menentukan variabel"
+    ],
+    answer: 1,
+    discussion: "3x dan 2x² bukan suku sejenis karena pangkat variabelnya berbeda (pangkat 1 dan pangkat 2), sehingga keduanya tidak dapat langsung dijumlahkan."
+  }
+];
+
+/* =========================================================
+   3. BANK SOAL — esai
+   ========================================================= */
+const essayQuestions = [
+  {
+    question: "Perhatikan bentuk aljabar 4x + 7y − 10. Jelaskan apa yang dimaksud dengan suku, variabel, koefisien, dan konstanta pada bentuk aljabar tersebut!",
+    answerGuide: "Suku adalah bagian yang dipisahkan tanda + atau −, yaitu 4x, 7y, dan −10. Variabel adalah lambang x dan y. Koefisien adalah 4 (untuk x) dan 7 (untuk y). Konstanta adalah −10.",
+    maxScore: 20
+  },
+  {
+    question: "Sederhanakan bentuk aljabar berikut: 6a + 3b − 2a + 5b",
+    answerGuide: "Kelompokkan suku sejenis: (6a − 2a) + (3b + 5b) = 4a + 8b.",
+    maxScore: 20
+  },
+  {
+    question: "Tentukan hasil dari (4x + 3) + (2x − 6) − (x + 1). Tuliskan langkah penyelesaiannya!",
+    answerGuide: "4x + 3 + 2x − 6 − x − 1 = (4 + 2 − 1)x + (3 − 6 − 1) = 5x − 4.",
+    maxScore: 20
+  },
+  {
+    question: "Pak Budi memiliki kebun berbentuk persegi panjang dengan panjang (x + 6) meter dan lebar x meter. Nyatakan keliling kebun tersebut dalam bentuk aljabar yang paling sederhana!",
+    answerGuide: "Keliling = 2 × (panjang + lebar) = 2 × ((x + 6) + x) = 2 × (2x + 6) = 4x + 12.",
+    maxScore: 20
+  },
+  {
+    question: "Jelaskan mengapa 5x dan 5x² tidak dapat dijumlahkan menjadi satu suku! Kaitkan jawabanmu dengan pengertian suku sejenis.",
+    answerGuide: "5x dan 5x² memiliki variabel x dengan pangkat yang berbeda (pangkat 1 dan pangkat 2), sehingga keduanya bukan suku sejenis. Suku sejenis harus memiliki variabel dan pangkat yang sama agar bisa dijumlahkan atau dikurangkan.",
+    maxScore: 20
+  }
+];
+
+/* =========================================================
+   4. STATE
+   ========================================================= */
+const state = {
+  current: 0,
+  mcAnswered: new Array(questions.length).fill(null),
+  essayScores: new Array(essayQuestions.length).fill(0)
+};
+
+const totalEssayMax = essayQuestions.reduce((s, q) => s + q.maxScore, 0);
+
+/* slide index map */
+const SLIDE = {
+  COVER: 0,
+  MC_START: 1,
+  get MC_END() { return SLIDE.MC_START + questions.length - 1; },
+  get ESSAY_START() { return SLIDE.MC_END + 1; },
+  get ESSAY_END() { return SLIDE.ESSAY_START + essayQuestions.length - 1; },
+  get KEY() { return SLIDE.ESSAY_END + 1; },
+  get RESULT() { return SLIDE.KEY + 1; },
+  get TOTAL() { return SLIDE.RESULT + 1; }
+};
+
+/* =========================================================
+   5. SLIDE BUILDERS
+   Catatan penting: hanya SATU elemen .slide yang pernah
+   dimasukkan ke dalam #deck pada satu waktu. Slide lama selalu
+   dihapus (deck.innerHTML = "") sebelum slide baru ditambahkan,
+   sehingga tidak mungkin ada slide lain yang ikut tampil atau
+   menumpuk saat discroll.
+   ========================================================= */
+const deck = document.getElementById("deck");
+const dotsWrap = document.getElementById("dots");
+
+function tileGraphicSVG() {
+  return `
+  <svg class="tile-graphic" viewBox="0 0 232 92" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi ubin aljabar x kuadrat, x, dan satu">
+    <rect class="tile-x2" x="4" y="4" width="80" height="80" rx="12"></rect>
+    <text class="tile-label" x="44" y="55" font-size="30" text-anchor="middle">x²</text>
+    <rect class="tile-x" x="98" y="34" width="80" height="50" rx="10"></rect>
+    <text class="tile-label" x="138" y="66" font-size="24" text-anchor="middle">x</text>
+    <rect class="tile-1" x="190" y="56" width="30" height="30" rx="7"></rect>
+    <text class="tile-label" x="205" y="77" font-size="16" text-anchor="middle">1</text>
+  </svg>`;
+}
+
+function letterFor(i) { return ["A", "B", "C", "D", "E", "F"][i]; }
+
+function buildCoverSlide() {
+  const el = document.createElement("section");
+  el.className = "slide cover-slide";
+  el.innerHTML = `
+    ${tileGraphicSVG()}
+    <p class="subject-line">${MATERI.mapel} &nbsp;·&nbsp; ${MATERI.kelasFase}</p>
+    <h1>Bab ${MATERI.babNomor}: ${MATERI.babNama}</h1>
+    <h2>${MATERI.namaEvaluasi}</h2>
+    <div class="cover-stats">
+      <div class="stat-card">
+        <span class="stat-num">${questions.length}</span>
+        <span class="stat-label">Soal pilihan ganda</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">${essayQuestions.length}</span>
+        <span class="stat-label">Soal esai</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="startBtn">🚀 Mulai evaluasi</button>
+  `;
+  el.querySelector("#startBtn").addEventListener("click", () => goTo(SLIDE.MC_START));
+  return el;
+}
+
+function buildMCSlide(qIndex) {
+  const q = questions[qIndex];
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  const optionsHTML = q.options.map((opt, i) => `
+    <button class="option-btn" data-opt="${i}">
+      <span class="option-letter">${letterFor(i)}</span>
+      <span>${opt}</span>
+    </button>
+  `).join("");
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left">Pilihan ganda &nbsp;<strong>${qIndex + 1}</strong> / ${questions.length}</span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <p class="question-text">${qIndex + 1}. ${q.question}</p>
+    <div class="options">${optionsHTML}</div>
+    <div class="feedback" id="feedback-${qIndex}"></div>
+  `;
+
+  const buttons = el.querySelectorAll(".option-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => handleMCAnswer(qIndex, parseInt(btn.dataset.opt), el));
+  });
+
+  if (state.mcAnswered[qIndex] !== null) {
+    applyMCResultUI(qIndex, el);
+  }
+  return el;
+}
+
+function handleMCAnswer(qIndex, chosen, slideEl) {
+  if (state.mcAnswered[qIndex] !== null) return;
+  state.mcAnswered[qIndex] = chosen;
+  applyMCResultUI(qIndex, slideEl);
+  refreshDots();
+}
+
+function applyMCResultUI(qIndex, slideEl) {
+  const q = questions[qIndex];
+  const chosen = state.mcAnswered[qIndex];
+  const buttons = slideEl.querySelectorAll(".option-btn");
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add("correct");
+    if (i === chosen && chosen !== q.answer) btn.classList.add("incorrect");
+    if (i !== q.answer && i !== chosen) btn.classList.add("dim");
+  });
+  const fb = slideEl.querySelector(`#feedback-${qIndex}`);
+  const isCorrect = chosen === q.answer;
+  fb.classList.add("show", isCorrect ? "correct-fb" : "incorrect-fb");
+  fb.innerHTML = `
+    <span class="fb-title">${isCorrect ? "Benar!" : "Belum tepat"}</span>
+    ${isCorrect ? "" : `Jawaban yang benar adalah <strong>${letterFor(q.answer)}. ${q.options[q.answer]}</strong>.<br>`}
+    ${q.discussion}
+  `;
+}
+
+function buildEssaySlide(eIndex) {
+  const q = essayQuestions[eIndex];
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left">Esai &nbsp;<strong>${eIndex + 1}</strong> / ${essayQuestions.length}</span>
+      <span class="tag tag-essay">${MATERI.babNama}</span>
+    </div>
+    <p class="question-text">${eIndex + 1}. ${q.question}</p>
+    <textarea class="essay-input" placeholder="Tulis jawabanmu di sini…" data-essay="${eIndex}">${state.essayTexts[eIndex] || ""}</textarea>
+    <div class="score-box">
+      <label for="score-${eIndex}">Skor dari guru</label>
+      <input type="number" id="score-${eIndex}" min="0" max="${q.maxScore}" value="${state.essayScores[eIndex]}" data-score="${eIndex}">
+      <span class="score-max">dari maksimum ${q.maxScore}</span>
+    </div>
+  `;
+
+  const textarea = el.querySelector(`[data-essay="${eIndex}"]`);
+  textarea.addEventListener("input", () => {
+    state.essayTexts[eIndex] = textarea.value;
+  });
+
+  const scoreInput = el.querySelector(`[data-score="${eIndex}"]`);
+  scoreInput.addEventListener("input", () => {
+    let val = parseInt(scoreInput.value);
+    if (isNaN(val)) val = 0;
+    val = Math.max(0, Math.min(q.maxScore, val));
+    state.essayScores[eIndex] = val;
+  });
+
+  return el;
+}
+
+function buildKeySlide() {
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  const mcItems = questions.map((q, i) => `
+    <div class="accordion-item" data-acc>
+      <button class="accordion-head" type="button">
+        <span>Soal ${i + 1}</span>
+        <span class="chev">⌄</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner">
+          <p>Kunci: <span class="jawaban-benar">${letterFor(q.answer)}. ${q.options[q.answer]}</span></p>
+          <p>${q.discussion}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  const essayItems = essayQuestions.map((q, i) => `
+    <div class="accordion-item" data-acc>
+      <button class="accordion-head" type="button">
+        <span>Soal ${i + 1}</span>
+        <span class="chev">⌄</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner">
+          <p>Pedoman jawaban:</p>
+          <p>${q.answerGuide}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left"><strong>🔑 Kunci jawaban &amp; pembahasan</strong></span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <p class="key-section-title">Pilihan ganda</p>
+    ${mcItems}
+    <p class="key-section-title">Esai</p>
+    ${essayItems}
+  `;
+
+  el.querySelectorAll("[data-acc]").forEach(item => {
+    const head = item.querySelector(".accordion-head");
+    head.addEventListener("click", () => item.classList.toggle("open"));
+  });
+
+  return el;
+}
+
+function buildResultSlide() {
+  const total = questions.length;
+  const benar = state.mcAnswered.reduce((s, a, i) => s + (a === questions[i].answer ? 1 : 0), 0);
+  const salah = state.mcAnswered.filter(a => a !== null).length - benar;
+  const nilaiPG = total > 0 ? (benar / total) * 100 : 0;
+
+  const skorEsaiTotal = state.essayScores.reduce((s, v) => s + v, 0);
+  const nilaiEsai = totalEssayMax > 0 ? (skorEsaiTotal / totalEssayMax) * 100 : 0;
+
+  const nilaiAkhir = Math.round((nilaiPG + nilaiEsai) / 2);
+
+  let kategori, pesan;
+  if (nilaiAkhir >= 85) {
+    kategori = "Sangat baik";
+    pesan = "Pemahaman terhadap materi sudah sangat baik. Pertahankan dan lanjutkan ke materi berikutnya.";
+  } else if (nilaiAkhir >= 70) {
+    kategori = "Baik";
+    pesan = "Pemahaman sudah baik, tetapi masih ada beberapa bagian yang perlu diperkuat.";
+  } else if (nilaiAkhir >= 55) {
+    kategori = "Cukup";
+    pesan = "Beberapa konsep sudah dipahami, tetapi perlu latihan tambahan.";
+  } else {
+    kategori = "Perlu bimbingan";
+    pesan = "Pelajari kembali submateri yang belum dikuasai dan lakukan latihan ulang.";
+  }
+
+  const el = document.createElement("section");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left"><strong>Hasil evaluasi</strong></span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <div class="final-score-band">
+      <div class="fs-num">${nilaiAkhir}</div>
+      <span class="fs-cat">${kategori}</span>
+      <p class="fs-msg">${pesan}</p>
+    </div>
+    <div class="result-grid">
+      <div class="result-card"><span class="r-num">${benar}</span><span class="r-label">Jumlah benar</span></div>
+      <div class="result-card"><span class="r-num">${salah}</span><span class="r-label">Jumlah salah</span></div>
+      <div class="result-card"><span class="r-num">${nilaiPG.toFixed(1)}</span><span class="r-label">Nilai pilihan ganda</span></div>
+      <div class="result-card"><span class="r-num">${nilaiEsai.toFixed(1)}</span><span class="r-label">Nilai esai</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="restartBtn">🔄 Ulangi evaluasi</button>
+      <button class="btn btn-outline" id="dashboardBtn">📚 Kembali ke dashboard</button>
+      <button class="btn btn-primary" id="nextBabBtn">➡️ Bab berikutnya</button>
+    </div>
+  `;
+
+  el.querySelector("#restartBtn").addEventListener("click", restartEvaluation);
+  el.querySelector("#dashboardBtn").addEventListener("click", () => { window.location.href = DASHBOARD_URL; });
+  el.querySelector("#nextBabBtn").addEventListener("click", () => { window.location.href = NEXT_BAB_URL; });
+
+  return el;
+}
+
+/* =========================================================
+   6. RENDER DISPATCH — hanya satu slide masuk ke #deck
+   ========================================================= */
+function renderCurrentSlide() {
+  deck.innerHTML = "";
+  const i = state.current;
+  let el;
+  if (i === SLIDE.COVER) {
+    el = buildCoverSlide();
+  } else if (i >= SLIDE.MC_START && i <= SLIDE.MC_END) {
+    el = buildMCSlide(i - SLIDE.MC_START);
+  } else if (i >= SLIDE.ESSAY_START && i <= SLIDE.ESSAY_END) {
+    el = buildEssaySlide(i - SLIDE.ESSAY_START);
+  } else if (i === SLIDE.KEY) {
+    el = buildKeySlide();
+  } else {
+    el = buildResultSlide();
+  }
+  el.classList.add("active");
+  deck.appendChild(el);
+}
+
+function buildDots() {
+  dotsWrap.innerHTML = "";
+  for (let i = 0; i < SLIDE.TOTAL; i++) {
+    const dot = document.createElement("button");
+    dot.className = "dot";
+    dot.setAttribute("aria-label", "Ke slide " + (i + 1));
+    dot.addEventListener("click", () => goTo(i));
+    dotsWrap.appendChild(dot);
+  }
+  refreshDots();
+}
+
+function refreshDots() {
+  const dots = dotsWrap.querySelectorAll(".dot");
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("current", i === state.current);
+    let answered = false;
+    if (i >= SLIDE.MC_START && i <= SLIDE.MC_END) {
+      answered = state.mcAnswered[i - SLIDE.MC_START] !== null;
+    }
+    dot.classList.toggle("answered", answered);
+  });
+}
+
+/* =========================================================
+   7. NAVIGATION
+   ========================================================= */
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function goTo(index) {
+  if (index < 0 || index >= SLIDE.TOTAL) return;
+  state.current = index;
+  renderCurrentSlide();
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === SLIDE.TOTAL - 1;
+  refreshDots();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+prevBtn.addEventListener("click", () => goTo(state.current - 1));
+nextBtn.addEventListener("click", () => goTo(state.current + 1));
+
+function restartEvaluation() {
+  state.current = 0;
+  state.mcAnswered = new Array(questions.length).fill(null);
+  state.essayScores = new Array(essayQuestions.length).fill(0);
+  state.essayTexts = new Array(essayQuestions.length).fill("");
+  goTo(0);
+}
+
+/* =========================================================
+   8. INIT
+   ========================================================= */
+state.essayTexts = new Array(essayQuestions.length).fill("");
+buildDots();
+goTo(0);
+</script>
+</body>
+</html>

@@ -3,687 +3,386 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Evaluasi Bab 3 — Bangun Ruang</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Evaluasi Pembelajaran</title>
 <style>
-    :root{
-        --bg-0:#0a1424;
-        --bg-1:#132540;
-        --bg-2:#1a2f52;
-        --bg-3:#213a63;
-        --line:#2c4568;
-        --line-soft:rgba(180,200,230,.08);
-        --gold:#f5b942;
-        --gold-deep:#d99a1f;
-        --ink:#eef3fb;
-        --ink-dim:#93a8c4;
-        --green:#4ade80;
-        --red:#f87171;
-        --teal:#5eead4;
-        --radius:14px;
-    }
-    *{ margin:0; padding:0; box-sizing:border-box; }
-
-    body{
-        font-family:'Inter',sans-serif;
-        background:
-            radial-gradient(circle at 15% 10%, rgba(94,234,212,.06), transparent 40%),
-            radial-gradient(circle at 85% 90%, rgba(245,185,66,.06), transparent 40%),
-            linear-gradient(160deg, var(--bg-0) 0%, #0d1a30 60%, var(--bg-0) 100%);
-        min-height:100vh;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        padding:24px;
-        color:var(--ink);
-    }
-
-    .container{
-        width:100%;
-        max-width:1040px;
-        background:var(--bg-1);
-        border-radius:24px;
-        box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.03) inset;
-        overflow:hidden;
-        border:1px solid var(--line);
-    }
-
-    /* top meta bar */
-    .meta-bar{
-        display:flex; align-items:center; justify-content:space-between;
-        padding:14px 28px;
-        border-bottom:1px solid var(--line);
-        background:rgba(255,255,255,.015);
-    }
-    .meta-brand{
-        display:flex; align-items:center; gap:10px;
-        font-family:'JetBrains Mono',monospace;
-        font-size:11.5px; letter-spacing:.12em; text-transform:uppercase;
-        color:var(--ink-dim);
-    }
-    .meta-brand .dot{ width:6px; height:6px; border-radius:50%; background:var(--gold); }
-    .meta-brand b{ color:var(--ink); font-weight:600; }
-    .progress-bar{
-        flex:1; max-width:220px; margin-left:24px;
-        height:5px; background:var(--bg-3); border-radius:10px; overflow:hidden;
-    }
-    .progress-fill{
-        height:100%; width:0%;
-        background:linear-gradient(90deg, var(--gold-deep), var(--gold));
-        border-radius:10px; transition:width .35s ease;
-    }
-
-    .slide-container{
-        position:relative;
-        width:100%;
-        aspect-ratio:16/9;
-        display:flex; align-items:center; justify-content:center;
-        overflow:hidden;
-        background:
-            repeating-linear-gradient(0deg, var(--line-soft) 0 1px, transparent 1px 34px),
-            repeating-linear-gradient(90deg, var(--line-soft) 0 1px, transparent 1px 34px),
-            linear-gradient(to bottom, var(--bg-1), var(--bg-2));
-    }
-
-    .slide{
-        display:none;
-        width:100%; height:100%;
-        padding:52px 56px;
-        text-align:center;
-        animation:slideIn .45s ease;
-        overflow-y:auto;
-    }
-    .slide.active{ display:flex; flex-direction:column; justify-content:center; }
-
-    @keyframes slideIn{
-        from{ opacity:0; transform:translateY(10px); }
-        to{ opacity:1; transform:translateY(0); }
-    }
-
-    .eyebrow{
-        display:inline-flex; align-items:center; gap:8px; align-self:center;
-        font-family:'JetBrains Mono',monospace; font-size:11.5px;
-        letter-spacing:.14em; text-transform:uppercase; color:var(--teal);
-        margin-bottom:14px;
-    }
-    .eyebrow .pill{
-        border:1px solid var(--teal); border-radius:20px; padding:3px 10px; color:var(--teal);
-    }
-
-    .slide h1{
-        font-family:'Outfit',sans-serif; font-weight:800;
-        font-size:2.7rem; letter-spacing:-.01em;
-        color:var(--ink); margin-bottom:12px;
-    }
-    .slide h1 .accent{ color:var(--gold); }
-    .slide h2{
-        font-family:'Outfit',sans-serif; font-weight:700;
-        font-size:1.9rem; color:var(--ink); margin-bottom:22px;
-    }
-    .slide h3{
-        font-family:'Outfit',sans-serif; font-weight:600;
-        font-size:1.25rem; color:var(--teal); margin:18px 0 12px 0; text-align:left;
-    }
-    .slide p{
-        font-size:1.02rem; color:var(--ink-dim); line-height:1.65; margin:10px 0;
-    }
-    .subtitle{ font-size:1.05rem; color:var(--ink-dim); margin:4px 0; }
-
-    /* Hero wireframe (signature element) */
-    .hero-shapes{
-        display:flex; justify-content:center; gap:34px; margin:22px 0 6px 0;
-    }
-    .hero-shapes svg{ width:58px; height:58px; opacity:.9; }
-    .hero-shapes .cube{ animation:spin 9s linear infinite; transform-origin:center; }
-    @media (prefers-reduced-motion: reduce){ .hero-shapes .cube{ animation:none; } }
-    @keyframes spin{ from{ transform:rotateY(0deg); } to{ transform:rotateY(360deg); } }
-
-    /* Info / structure cards */
-    .info-grid{
-        display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:26px 0 8px 0;
-    }
-    .info-card{
-        background:var(--bg-3); border:1px solid var(--line);
-        border-radius:12px; padding:18px 14px; text-align:left;
-        position:relative; overflow:hidden;
-    }
-    .info-card::before{
-        content:""; position:absolute; top:0; left:0; right:0; height:2px;
-        background:linear-gradient(90deg, var(--gold-deep), var(--gold));
-    }
-    .info-card .ic-label{
-        font-family:'JetBrains Mono',monospace; font-size:10.5px; text-transform:uppercase;
-        letter-spacing:.1em; color:var(--ink-dim); margin-bottom:8px;
-    }
-    .info-card .ic-value{
-        font-family:'Outfit',sans-serif; font-weight:700; font-size:1.25rem; color:var(--gold);
-    }
-    .info-card .ic-desc{ font-size:.82rem; color:var(--ink-dim); margin-top:4px; line-height:1.4; }
-
-    .note-strip{
-        margin-top:20px; padding:12px 16px; border-radius:10px;
-        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.35);
-        font-size:.92rem; color:var(--gold); text-align:left;
-        display:flex; align-items:center; gap:10px;
-    }
-
-    .app-grid{
-        display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:24px 0;
-    }
-    .app-card{
-        background:var(--bg-3); border:1px solid var(--line); border-radius:12px;
-        padding:18px; text-align:left;
-    }
-    .app-card h4{ font-family:'Outfit',sans-serif; color:var(--gold); font-size:1.02rem; margin-bottom:6px; }
-    .app-card p{ font-size:.88rem; color:var(--ink-dim); margin:0; }
-
-    /* Question card */
-    .qcard{
-        background:linear-gradient(180deg, var(--bg-2), var(--bg-3));
-        border:1px solid var(--line); border-radius:16px;
-        padding:30px 34px; text-align:left; position:relative;
-        max-width:680px; margin:0 auto; width:100%;
-    }
-    .qcard .qnum{
-        position:absolute; top:14px; right:22px;
-        font-family:'JetBrains Mono',monospace; font-weight:600;
-        font-size:52px; color:rgba(255,255,255,.05); letter-spacing:-2px; user-select:none;
-    }
-    .qcard .qmeta{
-        font-family:'JetBrains Mono',monospace; font-size:11px;
-        letter-spacing:.1em; text-transform:uppercase; color:var(--teal);
-        display:flex; align-items:center; gap:8px; margin-bottom:10px;
-    }
-    .qcard .qmeta .pill{
-        border:1px solid var(--teal); border-radius:20px; padding:2px 9px;
-    }
-    .qcard .qtitle{
-        font-family:'Outfit',sans-serif; font-weight:600; font-size:1.35rem; color:var(--ink);
-        margin-bottom:6px;
-    }
-    .qcard .qtext{
-        font-size:1.03rem; color:var(--ink); line-height:1.65; margin:0 0 20px 0;
-    }
-    .qcard .qhint{
-        font-family:'JetBrains Mono',monospace; font-size:.82rem; color:var(--gold);
-        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.3);
-        display:inline-block; padding:6px 12px; border-radius:8px; margin-bottom:18px;
-    }
-
-    .options{ display:flex; flex-direction:column; gap:10px; }
-    .opt{
-        display:flex; align-items:center; gap:14px;
-        border:1px solid var(--line); border-radius:10px;
-        padding:12px 16px; cursor:pointer; background:rgba(255,255,255,.015);
-        transition:border-color .15s ease, background .15s ease, transform .1s ease;
-    }
-    .opt:hover{ border-color:var(--gold); background:rgba(245,185,66,.06); transform:translateX(2px); }
-    .opt .badge{
-        flex:none; width:30px; height:30px; border-radius:50%;
-        border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
-        font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--ink-dim);
-        transition:all .15s ease;
-    }
-    .opt .otext{ font-size:.98rem; color:var(--ink); line-height:1.5; }
-    .opt.selected{ border-color:var(--gold); background:rgba(245,185,66,.1); }
-    .opt.selected .badge{ background:var(--gold); border-color:var(--gold); color:#241705; }
-
-    /* Essay list */
-    .essay-list{ display:flex; flex-direction:column; gap:16px; max-width:700px; margin:0 auto; width:100%; }
-    .essay-item{
-        background:var(--bg-3); border:1px solid var(--line); border-left:3px solid var(--gold);
-        border-radius:10px; padding:18px 20px; text-align:left;
-    }
-    .essay-item .en{
-        font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
-        text-transform:uppercase; color:var(--gold); margin-bottom:6px;
-    }
-    .essay-item p{ margin:0; color:var(--ink); font-size:.98rem; line-height:1.6; }
-
-    /* Answer key */
-    .lock-card{
-        max-width:520px; margin:0 auto; background:var(--bg-3);
-        border:1px dashed var(--line); border-radius:16px; padding:34px 30px;
-        display:flex; flex-direction:column; align-items:center; gap:14px;
-    }
-    .lock-icon{ width:36px; height:36px; opacity:.85; }
-    .btn{
-        font-family:'JetBrains Mono',monospace; font-size:12.5px; letter-spacing:.06em;
-        text-transform:uppercase; padding:12px 22px; border-radius:9px; cursor:pointer;
-        border:1px solid var(--line); background:transparent; color:var(--ink);
-        transition:all .15s ease;
-    }
-    .btn:hover{ border-color:var(--gold); color:var(--gold); }
-    .btn.primary{
-        background:linear-gradient(135deg, var(--gold-deep), var(--gold));
-        border-color:var(--gold); color:#241705; font-weight:700;
-        box-shadow:0 10px 24px rgba(245,185,66,.22);
-    }
-    .btn.primary:hover{ color:#241705; filter:brightness(1.06); transform:translateY(-1px); }
-    .btn:disabled{ opacity:.3; cursor:not-allowed; }
-    .btn:disabled:hover{ border-color:var(--line); color:var(--ink); transform:none; }
-
-    .key-body{ display:none; max-width:700px; margin:0 auto; width:100%; }
-    .key-body.shown{ display:block; }
-
-    .score-banner{
-        display:flex; align-items:baseline; justify-content:center; gap:12px;
-        background:rgba(245,185,66,.08); border:1px solid rgba(245,185,66,.3);
-        border-radius:14px; padding:18px; margin-bottom:22px;
-    }
-    .score-banner .num{ font-family:'Outfit',sans-serif; font-weight:800; font-size:2.1rem; color:var(--gold); }
-    .score-banner .label{ font-family:'JetBrains Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim); }
-
-    .key-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:26px; }
-    .key-chip{
-        border:1px solid var(--line); border-radius:9px; padding:10px 6px; text-align:center;
-        font-family:'JetBrains Mono',monospace; background:rgba(255,255,255,.02);
-    }
-    .key-chip .qn{ display:block; font-size:10.5px; color:var(--ink-dim); margin-bottom:4px; }
-    .key-chip .ans{ font-weight:600; font-size:14px; color:var(--ink); }
-    .key-chip.correct{ border-color:var(--green); background:rgba(74,222,128,.08); }
-    .key-chip.correct .ans{ color:var(--green); }
-    .key-chip.wrong{ border-color:var(--red); background:rgba(248,113,113,.08); }
-    .key-chip.wrong .ans{ color:var(--red); }
-
-    .essay-key-item{
-        text-align:left; border-left:3px solid var(--teal); padding:12px 16px; margin-bottom:12px;
-        background:rgba(94,234,212,.05); border-radius:0 8px 8px 0;
-    }
-    .essay-key-item .ekn{
-        font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--teal);
-        text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px;
-    }
-    .essay-key-item p{ margin:0; font-size:.92rem; color:var(--ink-dim); line-height:1.55; }
-
-    /* Criteria */
-    .criteria-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:22px 0; max-width:680px; margin-left:auto; margin-right:auto; }
-    .criteria-box{
-        background:var(--bg-3); border:1px solid var(--line); border-radius:12px; padding:20px; text-align:left;
-    }
-    .criteria-box .ct{ font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:8px; }
-    .criteria-box .cv{ font-family:'Outfit',sans-serif; font-weight:800; font-size:1.7rem; color:var(--gold); margin-bottom:6px; }
-    .criteria-box .cd{ font-size:.85rem; color:var(--ink-dim); line-height:1.5; }
-
-    .total-row{
-        display:flex; justify-content:space-between; align-items:center;
-        max-width:680px; margin:0 auto; border-top:1px dashed var(--line); padding-top:18px;
-    }
-    .total-row .tt{ font-family:'JetBrains Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:.1em; color:var(--ink-dim); }
-    .total-row .tv{ font-family:'Outfit',sans-serif; font-weight:800; font-size:2.2rem; color:var(--gold); }
-
-    .finish-btn{
-        margin-top:26px; align-self:center;
-        display:inline-flex; align-items:center; gap:10px;
-        background:linear-gradient(135deg, var(--gold-deep), var(--gold));
-        color:#241705; border:none; text-decoration:none;
-        font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem;
-        padding:14px 28px; border-radius:11px; cursor:pointer;
-        box-shadow:0 12px 28px rgba(245,185,66,.28);
-        transition:transform .15s ease, box-shadow .15s ease;
-    }
-    .finish-btn:hover{ transform:translateY(-2px); box-shadow:0 16px 34px rgba(245,185,66,.38); }
-
-    /* Controls */
-    .controls{
-        display:flex; justify-content:space-between; align-items:center;
-        padding:16px 28px; background:var(--bg-0); border-top:1px solid var(--line);
-    }
-    .nav-btn{
-        font-family:'Outfit',sans-serif; font-weight:600; font-size:.92rem;
-        padding:11px 22px; border-radius:10px; cursor:pointer;
-        background:var(--bg-3); color:var(--ink); border:1px solid var(--line);
-        transition:all .15s ease;
-    }
-    .nav-btn:hover{ border-color:var(--gold); color:var(--gold); }
-    .nav-btn:disabled{ opacity:.35; cursor:not-allowed; }
-    .nav-btn:disabled:hover{ border-color:var(--line); color:var(--ink); }
-    .slide-counter{
-        font-family:'JetBrains Mono',monospace; font-size:.9rem; color:var(--gold); font-weight:600;
-    }
-
-    ::-webkit-scrollbar{ width:8px; }
-    ::-webkit-scrollbar-thumb{ background:var(--line); border-radius:4px; }
-
-    @media (max-width:760px){
-        .slide{ padding:34px 22px; }
-        .slide h1{ font-size:2rem; }
-        .slide h2{ font-size:1.4rem; }
-        .info-grid{ grid-template-columns:repeat(2,1fr); }
-        .app-grid{ grid-template-columns:1fr; }
-        .criteria-grid{ grid-template-columns:1fr; }
-        .key-grid{ grid-template-columns:repeat(3,1fr); }
-        .qcard{ padding:22px 20px; }
-        .qcard .qnum{ font-size:36px; }
-        .controls{ padding:12px 16px; }
-        .progress-bar{ max-width:100px; margin-left:12px; }
-        .hero-shapes svg{ width:44px; height:44px; }
-    }
+:root{
+  --primary:#2563eb;--primary2:#1d4ed8;--secondary:#0f172a;--accent:#06b6d4;
+  --success:#16a34a;--danger:#dc2626;--warning:#d97706;--bg:#f4f7fb;
+  --card:#fff;--text:#172033;--muted:#64748b;--line:#e2e8f0;
+  --shadow:0 14px 40px rgba(15,23,42,.10);--radius:22px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--text);background:linear-gradient(135deg,#eef5ff,#f8fbff)}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.header-inner{max-width:1180px;margin:auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--accent));display:grid;place-items:center;color:#fff;font-size:23px;box-shadow:0 8px 20px rgba(37,99,235,.25)}
+.brand{min-width:0}.brand strong{display:block;font-size:15px}.brand span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.progress-wrap{margin-left:auto;width:min(360px,40vw)}
+.progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px}
+.progress{height:8px;background:#e8eef8;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--accent));transition:.35s}
+main{width:min(1080px,calc(100% - 28px));margin:28px auto 40px;flex:1}
+.slide{display:none;animation:fade .3s ease}.slide.active{display:block}
+@keyframes fade{from{opacity:.25;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cover{min-height:calc(100vh - 170px);display:grid;place-items:center}
+.cover-card{width:min(820px,100%);padding:clamp(28px,6vw,64px);background:var(--card);border:1px solid var(--line);border-radius:32px;box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+.cover-card:before{content:"";position:absolute;inset:-100px -80px auto auto;width:260px;height:260px;background:rgba(6,182,212,.12);border-radius:50%}
+.cover-icon{width:86px;height:86px;margin:0 auto 20px;border-radius:26px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:42px;box-shadow:0 15px 35px rgba(37,99,235,.25)}
+.kicker{text-transform:uppercase;letter-spacing:2px;color:var(--primary);font-weight:800;font-size:12px}
+h1{font-size:clamp(30px,6vw,56px);line-height:1.05;margin:12px 0}
+h2{font-size:clamp(23px,4vw,34px);margin:0 0 8px}.subtitle{color:var(--muted);font-size:16px}
+.meta{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:25px 0}.pill{padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:#f8fafc;color:#475569;font-size:13px;font-weight:700}
+.btn{border:0;border-radius:14px;padding:13px 18px;font-weight:800;transition:.2s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{transform:translateY(-1px)}.btn-primary{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 8px 20px rgba(37,99,235,.22)}
+.btn-secondary{background:#fff;border:1px solid var(--line);color:var(--secondary)}
+.btn-success{background:var(--success);color:#fff}.btn-danger{background:#fee2e2;color:#991b1b}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(20px,4vw,34px)}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:18px}.number{font-size:13px;color:var(--primary);font-weight:900;text-transform:uppercase;letter-spacing:1px}
+.question{font-size:clamp(19px,3vw,27px);line-height:1.5;font-weight:750;margin:8px 0 24px}
+.options{display:grid;gap:12px}.option{width:100%;text-align:left;padding:15px 16px;border:2px solid var(--line);border-radius:15px;background:#fff;display:flex;gap:12px;align-items:flex-start;color:var(--text);transition:.2s}
+.option:hover:not(:disabled){border-color:#93c5fd;background:#f8fbff;transform:translateX(2px)}
+.option:disabled{cursor:default}.letter{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:#eff6ff;color:var(--primary);display:grid;place-items:center;font-weight:900}
+.option.correct{border-color:#86efac;background:#f0fdf4}.option.correct .letter{background:#dcfce7;color:#15803d}
+.option.wrong{border-color:#fca5a5;background:#fef2f2}.option.wrong .letter{background:#fee2e2;color:#b91c1c}
+.feedback{display:none;margin-top:18px;padding:16px;border-radius:16px;border:1px solid}.feedback.show{display:block}.feedback.good{background:#f0fdf4;border-color:#bbf7d0;color:#166534}.feedback.bad{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.feedback strong{display:block;margin-bottom:5px}.discussion{margin-top:9px;color:inherit;line-height:1.6}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:20px}.nav .btn{min-width:135px}
+.dots{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:18px auto 0;max-width:900px}.dot{width:10px;height:10px;border-radius:50%;border:0;background:#cbd5e1;padding:0}.dot.active{background:var(--primary);transform:scale(1.25)}.dot.done{background:#86efac}
+.essay-list{display:grid;gap:18px}.essay-box{border:1px solid var(--line);border-radius:18px;padding:18px;background:#fbfdff}.essay-q{font-weight:800;line-height:1.5;margin-bottom:12px}.essay-box textarea{width:100%;min-height:120px;resize:vertical;border:1px solid #cbd5e1;border-radius:12px;padding:13px;outline:none}.essay-box textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px #dbeafe}.score-row{display:flex;align-items:center;gap:10px;margin-top:10px}.score-row input{width:100px;padding:9px;border:1px solid var(--line);border-radius:10px}.score-max{color:var(--muted);font-size:13px}
+.essay-save{margin-top:18px}.note{font-size:13px;color:var(--muted);line-height:1.6}
+.accordion{border:1px solid var(--line);border-radius:15px;overflow:hidden;margin-bottom:10px}.acc-head{width:100%;border:0;background:#f8fafc;padding:15px 17px;text-align:left;font-weight:800;display:flex;justify-content:space-between}.acc-body{display:none;padding:17px;line-height:1.65;border-top:1px solid var(--line);background:#fff}.accordion.open .acc-body{display:block}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0}.stat{padding:18px;border:1px solid var(--line);border-radius:17px;background:#f8fafc}.stat span{font-size:12px;color:var(--muted);display:block}.stat b{display:block;font-size:26px;margin-top:5px}.score-big{text-align:center;padding:28px;border-radius:22px;background:linear-gradient(135deg,#eff6ff,#ecfeff);border:1px solid #bfdbfe}.score-big .value{font-size:64px;font-weight:950;color:var(--primary);line-height:1}.category{display:inline-block;margin-top:10px;padding:8px 15px;border-radius:999px;background:#fff;font-weight:900}
+.analysis{padding:18px;border-radius:17px;background:#f8fafc;border:1px solid var(--line);line-height:1.7}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.review-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}.review-item{border:1px solid var(--line);border-radius:14px;padding:13px;background:#fff}.review-item b{display:block;margin-bottom:5px}
+.hidden{display:none!important}
+footer{text-align:center;color:#94a3b8;font-size:12px;padding:18px}
+@media(max-width:700px){
+ .progress-wrap{display:none}.header-inner{padding:11px 14px}main{width:min(100% - 18px,1080px);margin-top:16px}
+ .cover-card{border-radius:24px}.result-grid,.review-grid{grid-template-columns:1fr}.nav .btn{min-width:0;flex:1}
+ .question{font-size:20px}.option{padding:13px}.card{padding:18px}
+}
 </style>
 </head>
 <body>
-<div class="container">
-    <div class="meta-bar">
-        <div class="meta-brand"><span class="dot"></span>Matematika <b>·</b> Bab 3 — Bangun Ruang</div>
-        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-        <span class="slide-counter"><span id="currentSlide">1</span>/<span id="totalSlides">15</span></span>
+<div class="app">
+<header>
+  <div class="header-inner">
+    <div class="logo">∑</div>
+    <div class="brand">
+      <strong id="headerSubject">MATEMATIKA</strong>
+      <span id="headerChapter">Evaluasi Pembelajaran</span>
     </div>
-
-    <div class="slide-container">
-
-        <!-- Slide 1: Judul -->
-        <div class="slide active">
-            <div class="eyebrow"><span class="pill">Evaluasi</span> Kelas VI · Semester Genap</div>
-            <h1>Evaluasi <span class="accent">Bab 3</span><br>Bangun Ruang</h1>
-            <p class="subtitle">Unsur & sifat · Luas permukaan · Volume · Penerapan kontekstual</p>
-            <div class="hero-shapes">
-                <svg class="cube" viewBox="0 0 64 64" fill="none"><path d="M12 20 L32 10 L52 20 L52 44 L32 54 L12 44 Z" stroke="#f5b942" stroke-width="1.6"/><path d="M12 20 L32 30 L52 20" stroke="#f5b942" stroke-width="1.6"/><path d="M32 30 L32 54" stroke="#f5b942" stroke-width="1.6"/></svg>
-                <svg viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="16" rx="18" ry="7" stroke="#5eead4" stroke-width="1.6"/><path d="M14 16 L14 44 A18 7 0 0 0 50 44 L50 16" stroke="#5eead4" stroke-width="1.6"/></svg>
-                <svg viewBox="0 0 64 64" fill="none"><ellipse cx="32" cy="48" rx="18" ry="7" stroke="#eef3fb" stroke-width="1.6"/><path d="M32 6 L14 48" stroke="#eef3fb" stroke-width="1.6"/><path d="M32 6 L50 48" stroke="#eef3fb" stroke-width="1.6"/></svg>
-                <svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="20" stroke="#f5b942" stroke-width="1.6"/><ellipse cx="32" cy="32" rx="20" ry="7" stroke="#f5b942" stroke-width="1" opacity=".5"/></svg>
-            </div>
-        </div>
-
-        <!-- Slide 2: Struktur Evaluasi -->
-        <div class="slide">
-            <div class="eyebrow"><span class="pill">Ringkasan</span></div>
-            <h2>Struktur Evaluasi</h2>
-            <div class="info-grid">
-                <div class="info-card">
-                    <div class="ic-label">Bagian A</div>
-                    <div class="ic-value">10 soal</div>
-                    <div class="ic-desc">Pilihan ganda · 6 poin / soal</div>
-                </div>
-                <div class="info-card">
-                    <div class="ic-label">Bagian B</div>
-                    <div class="ic-value">5 soal</div>
-                    <div class="ic-desc">Esai · 8 poin / soal</div>
-                </div>
-                <div class="info-card">
-                    <div class="ic-label">Skor maksimal</div>
-                    <div class="ic-value">100 poin</div>
-                    <div class="ic-desc">PG 60 + Esai 40</div>
-                </div>
-                <div class="info-card">
-                    <div class="ic-label">Waktu</div>
-                    <div class="ic-value">60 menit</div>
-                    <div class="ic-desc">Kerjakan dengan teliti</div>
-                </div>
-            </div>
-            <div class="note-strip">💡 Kunci jawaban tersembunyi dan baru tersedia di bagian akhir evaluasi.</div>
-        </div>
-
-        <!-- Slide 3-12: PG 1-10 (dibangun oleh JavaScript) -->
-
-        <!-- Slide 13: Esai -->
-        <div class="slide" id="essaySlide">
-            <div class="eyebrow"><span class="pill">Bagian B</span> Soal Esai</div>
-            <h2>Jawablah dengan langkah yang jelas</h2>
-            <div class="essay-list" id="essayContainer"></div>
-        </div>
-
-        <!-- Slide 14: Kunci Jawaban -->
-        <div class="slide" id="keySlide">
-            <div class="eyebrow"><span class="pill">Bagian C</span> Kunci Jawaban</div>
-            <h2>Kunci Jawaban</h2>
-            <div class="lock-card" id="lockNote">
-                <svg class="lock-icon" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#f5b942" stroke-width="1.6"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#f5b942" stroke-width="1.6"/></svg>
-                <p style="margin:0;">Kunci jawaban disembunyikan. Klik tombol di bawah untuk menampilkannya beserta skor pilihan gandamu.</p>
-                <button class="btn primary" id="revealBtn">Tampilkan Kunci Jawaban</button>
-            </div>
-            <div class="key-body" id="keyBody">
-                <div class="score-banner">
-                    <span class="num" id="pgScore">0/60</span>
-                    <span class="label">Skor Pilihan Ganda</span>
-                </div>
-                <div class="key-grid" id="keyGrid"></div>
-                <h3>Contoh Penyelesaian Esai</h3>
-                <div id="essayKeyContainer"></div>
-            </div>
-        </div>
-
-        <!-- Slide 15: Kriteria Penilaian & Selesai -->
-        <div class="slide">
-            <div class="eyebrow"><span class="pill">Penutup</span> Kriteria Penilaian</div>
-            <h2>Perhitungan Skor Akhir</h2>
-            <div class="criteria-grid">
-                <div class="criteria-box">
-                    <div class="ct">Pilihan Ganda</div>
-                    <div class="cv">10 × 6</div>
-                    <div class="cd">10 soal, tiap jawaban benar bernilai 6 poin. Jawaban salah/kosong bernilai 0.</div>
-                </div>
-                <div class="criteria-box">
-                    <div class="ct">Esai</div>
-                    <div class="cv">5 × 8</div>
-                    <div class="cd">5 soal, tiap jawaban bernilai maksimal 8 poin (proses 4 + hasil akhir 4).</div>
-                </div>
-            </div>
-            <div class="total-row">
-                <span class="tt">Skor Total Maksimal</span>
-                <span class="tv">100</span>
-            </div>
-            <a class="finish-btn" href="bab3.html" id="finishBtn">Selesai — Kembali ke Bab 3 →</a>
-        </div>
-
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progressText">Belum dimulai</span><span id="progressPercent">0%</span></div>
+      <div class="progress"><i id="progressBar"></i></div>
     </div>
+  </div>
+</header>
 
-    <div class="controls">
-        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← Sebelumnya</button>
-        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">Berikutnya →</button>
-    </div>
+<main id="slides"></main>
+<div class="dots" id="dots"></div>
+<footer id="footer">Evaluasi pembelajaran interaktif • HTML5 + CSS3 + JavaScript</footer>
 </div>
 
 <script>
-    // ---------- DATA ----------
-    const pgQuestions = [
-        {
-            q: "Sebuah kubus memiliki jumlah rusuk sebanyak ...",
-            opts: ["6", "8", "12", "10"],
-            correct: 2,
-            section: "Unsur & Sifat Bangun Ruang"
-        },
-        {
-            q: "Bangun ruang yang memiliki alas berbentuk segiempat dan sisi-sisi tegak berbentuk segitiga yang bertemu di satu titik puncak disebut ...",
-            opts: ["Prisma", "Limas", "Tabung", "Kerucut"],
-            correct: 1,
-            section: "Unsur & Sifat Bangun Ruang"
-        },
-        {
-            q: "Unsur pada tabung yang menghubungkan titik pusat lingkaran alas dengan sisi lingkaran alas disebut ...",
-            opts: ["Diameter", "Jari-jari", "Tinggi", "Sisi lengkung"],
-            correct: 1,
-            section: "Unsur & Sifat Bangun Ruang"
-        },
-        {
-            q: "Berikut ini yang bukan merupakan sifat bola adalah ...",
-            opts: ["Memiliki 1 sisi", "Tidak memiliki rusuk", "Tidak memiliki titik sudut", "Memiliki 2 titik sudut"],
-            correct: 3,
-            section: "Unsur & Sifat Bangun Ruang"
-        },
-        {
-            q: "Kerucut memiliki jumlah sisi sebanyak ...",
-            opts: ["1", "2", "3", "4"],
-            correct: 1,
-            section: "Unsur & Sifat Bangun Ruang"
-        },
-        {
-            q: "Rumus luas permukaan kubus dengan panjang rusuk s adalah ...",
-            opts: ["s³", "6s²", "4s²", "s²"],
-            correct: 1,
-            section: "Luas Permukaan"
-        },
-        {
-            q: "Sebuah balok berukuran panjang 8 cm, lebar 5 cm, dan tinggi 4 cm. Luas permukaan balok tersebut adalah ...",
-            opts: ["184 cm²", "164 cm²", "144 cm²", "204 cm²"],
-            correct: 0,
-            section: "Luas Permukaan",
-            hint: "L = 2(pl + pt + lt)"
-        },
-        {
-            q: "Volume kubus dengan panjang rusuk 7 cm adalah ...",
-            opts: ["343 cm³", "294 cm³", "147 cm³", "441 cm³"],
-            correct: 0,
-            section: "Volume",
-            hint: "V = s³"
-        },
-        {
-            q: "Sebuah tabung memiliki jari-jari alas 7 cm dan tinggi 10 cm (π = 22/7). Volume tabung tersebut adalah ...",
-            opts: ["1.540 cm³", "1.450 cm³", "1.045 cm³", "1.504 cm³"],
-            correct: 0,
-            section: "Volume",
-            hint: "V = π r² t"
-        },
-        {
-            q: "Sebuah bak mandi berbentuk balok berukuran 60 cm × 50 cm × 40 cm akan diisi air hingga penuh. Volume air yang dibutuhkan adalah ...",
-            opts: ["100 liter", "110 liter", "120 liter", "130 liter"],
-            correct: 2,
-            section: "Penerapan Bangun Ruang",
-            hint: "1 liter = 1.000 cm³"
-        }
-    ];
+/* ==========================================================
+   DATA MATERI — CUKUP UBAH BAGIAN INI.
+   Tidak perlu mengubah HTML/CSS/JavaScript di bawahnya.
+   ========================================================== */
+const DATA_MATERI = {
+  mataPelajaran: "MATEMATIKA",
+  kelasFase: "KELAS 9 / FASE D",
+  bab: "Bab 5 Kekongruenan pada Bangun Datar",
+  submateri: [
+    "Konsep kekongruenan bangun datar",
+    "Syarat dan sifat bangun datar kongruen",
+    "Kekongruenan pada segitiga",
+    "Menentukan pasangan sisi dan sudut yang bersesuaian",
+    "Penerapan kekongruenan dalam masalah kontekstual"
+  ],
+  jumlahPG: 15,
+  jumlahEsai: 5,
+  urlBab: "bab5.html"
+};
 
-    const essayQuestions = [
-        {
-            q: "Sebutkan minimal 4 unsur limas segiempat beserta penjelasan singkatnya!",
-            key: "Unsur limas segiempat: (1) titik puncak — titik pertemuan semua sisi tegak; (2) rusuk alas — 4 rusuk pembentuk alas; (3) rusuk tegak — rusuk yang menghubungkan titik sudut alas dengan titik puncak; (4) sisi alas — bidang segiempat di bagian bawah; (5) sisi tegak — 4 bidang segitiga."
-        },
-        {
-            q: "Sebuah balok memiliki panjang 12 cm, lebar 6 cm, dan tinggi 5 cm. Hitunglah luas permukaan balok tersebut beserta langkah-langkahnya!",
-            key: "L = 2(pl + pt + lt) = 2((12×6)+(12×5)+(6×5)) = 2(72+60+30) = 2×162 = 324 cm²."
-        },
-        {
-            q: "Sebuah kerucut memiliki diameter alas 14 cm dan tinggi 15 cm (π = 22/7). Hitunglah volume kerucut tersebut!",
-            key: "r = 7 cm. V = 1/3 × π × r² × t = 1/3 × 22/7 × 49 × 15 = 1/3 × 2.310 = 770 cm³."
-        },
-        {
-            q: "Sebuah prisma segitiga memiliki alas berbentuk segitiga siku-siku dengan panjang alas 6 cm dan tinggi segitiga 8 cm, serta tinggi prisma 15 cm. Hitunglah volume prisma tersebut!",
-            key: "Luas alas = 1/2 × 6 × 8 = 24 cm². V = luas alas × tinggi prisma = 24 × 15 = 360 cm³."
-        },
-        {
-            q: "Pak Budi membuat tangki air berbentuk tabung dengan jari-jari 21 cm dan tinggi 50 cm (π = 22/7) untuk menampung air hujan. Tentukan volume tangki tersebut dalam liter, lalu hitung berapa liter air yang tertampung jika tangki hanya diisi 3/4 bagian!",
-            key: "V = π r² t = 22/7 × 441 × 50 = 22 × 63 × 50 = 69.300 cm³ = 69,3 liter. Jika diisi 3/4 bagian: 3/4 × 69,3 = 51,975 liter ≈ 51,98 liter."
-        }
-    ];
+/* ==========================================================
+   URL NAVIGASI — CUKUP UBAH DUA BARIS INI.
+   ========================================================== */
+const NEXT_BAB_URL = "[URL BAB BERIKUTNYA]";
+const DASHBOARD_URL = "[URL DASHBOARD]";
 
-    const letters = ["A", "B", "C", "D"];
-    const userAnswers = new Array(pgQuestions.length).fill(null);
+/* ==========================================================
+   BANK SOAL
+   Untuk bab/materi lain, cukup ganti DATA_MATERI dan array
+   questions/essayQuestions. Mesin slide, nilai, navigasi,
+   hasil, dan analisis tetap otomatis.
+   ========================================================== */
+const questions = [
+ {question:"Dua bangun datar dikatakan kongruen apabila ....",options:["memiliki luas yang sama","memiliki bentuk dan ukuran yang sama","memiliki keliling yang sama saja","memiliki salah satu sisi yang sama"],answer:1,discussion:"Bangun kongruen memiliki bentuk dan ukuran yang sama. Jika salah satu bangun ditempatkan di atas bangun lainnya dengan tepat, keduanya dapat berimpit."},
+ {question:"Jika dua segitiga kongruen, pernyataan yang selalu benar adalah ....",options:["luas keduanya pasti berbeda","sisi-sisi yang bersesuaian sama panjang","hanya satu sudutnya yang sama","kelilingnya tidak dapat dibandingkan"],answer:1,discussion:"Kongruensi menjamin semua unsur yang bersesuaian memiliki ukuran yang sama, termasuk sisi dan sudut."},
+ {question:"Segitiga ABC kongruen dengan segitiga DEF. Jika A ↔ D, B ↔ E, dan C ↔ F, maka sisi AB bersesuaian dengan ....",options:["DF","EF","DE","FE"],answer:2,discussion:"Karena A bersesuaian dengan D dan B dengan E, maka AB bersesuaian dengan DE."},
+ {question:"Dua segitiga memiliki tiga pasang sisi bersesuaian yang sama panjang. Kriteria kekongruenan yang digunakan adalah ....",options:["AAA","SAS","SSS","ASA"],answer:2,discussion:"SSS (Side-Side-Side) menyatakan dua segitiga kongruen jika ketiga pasang sisi bersesuaiannya sama panjang."},
+ {question:"Dua segitiga memiliki dua sisi bersesuaian sama panjang dan sudut apit yang sama besar. Kriteria yang tepat adalah ....",options:["SSS","SAS","AAA","SSA"],answer:1,discussion:"SAS (Side-Angle-Side) menggunakan dua sisi dan sudut yang terletak di antara kedua sisi tersebut."},
+ {question:"Jika ΔABC ≅ ΔPQR, maka sudut C bersesuaian dengan ....",options:["∠P","∠Q","∠R","∠A"],answer:2,discussion:"Urutan nama segitiga menunjukkan korespondensi A↔P, B↔Q, C↔R. Jadi ∠C bersesuaian dengan ∠R."},
+ {question:"Sebuah persegi panjang berukuran 8 cm × 5 cm dibuat pada dua lembar kertas. Kedua persegi panjang tersebut ....",options:["pasti kongruen","tidak mungkin kongruen","kongruen jika ukurannya sama","hanya kongruen jika warnanya sama"],answer:2,discussion:"Dua persegi panjang kongruen jika panjang dan lebarnya sama. Warna dan bahan bukan syarat kekongruenan."},
+ {question:"Jika dua bangun kongruen, maka keliling kedua bangun tersebut ....",options:["selalu sama","selalu berbeda","sama hanya jika luasnya berbeda","tidak dapat ditentukan"],answer:0,discussion:"Karena semua sisi bersesuaian sama panjang, jumlah seluruh sisi atau keliling kedua bangun juga sama."},
+ {question:"Sebuah segitiga memiliki sisi 5 cm, 7 cm, dan 8 cm. Segitiga lain memiliki sisi 8 cm, 5 cm, dan 7 cm. Hubungan kedua segitiga tersebut adalah ....",options:["tidak dapat dibandingkan","kongruen berdasarkan SSS","kongruen berdasarkan AAA","hanya memiliki luas sama"],answer:1,discussion:"Ketiga sisi kedua segitiga sama panjang, sehingga keduanya kongruen berdasarkan kriteria SSS."},
+ {question:"Segitiga ABC dan PQR kongruen. Jika AB = 12 cm dan sisi yang bersesuaian dengan AB adalah PQ, maka PQ = ....",options:["6 cm","10 cm","12 cm","24 cm"],answer:2,discussion:"Sisi-sisi yang bersesuaian pada bangun kongruen memiliki panjang yang sama. Jadi PQ = AB = 12 cm."},
+ {question:"Dalam sebuah desain taman, dua bagian berbentuk segitiga harus dibuat kongruen. Tujuan utamanya adalah agar kedua bagian ....",options:["memiliki warna sama","memiliki bentuk dan ukuran sama","memiliki posisi sama","memiliki luas berbeda"],answer:1,discussion:"Kongruen berarti bentuk dan ukuran sama. Posisi atau warna tidak menentukan kekongruenan."},
+ {question:"Diketahui ΔABC ≅ ΔDEF. Jika ∠A = 65° dan ∠B = 55°, besar ∠F adalah ....",options:["55°","60°","65°","70°"],answer:1,discussion:"Karena A↔D dan B↔E, maka C↔F. Sudut C = 180° − 65° − 55° = 60°. Jadi ∠F = 60°."},
+ {question:"Dua segitiga memiliki dua sudut bersesuaian sama besar dan satu sisi bersesuaian sama panjang. Kriteria yang dapat digunakan adalah ....",options:["ASA/AAS","SSS saja","SAS saja","AAA"],answer:0,discussion:"Dua sudut dan satu sisi yang bersesuaian sama dapat menentukan kekongruenan melalui ASA atau AAS, sesuai posisi sisi yang diketahui."},
+ {question:"Perhatikan dua segitiga. Segitiga I memiliki sisi 6 cm, 9 cm, 11 cm. Segitiga II memiliki sisi 6 cm, 9 cm, 10 cm. Kesimpulan yang tepat adalah ....",options:["pasti kongruen karena dua sisi sama","kongruen karena luas belum diketahui","tidak kongruen karena ada sisi bersesuaian berbeda","pasti kongruen karena keliling hampir sama"],answer:2,discussion:"Jika pasangan sisi yang bersesuaian memiliki panjang berbeda, kedua segitiga tidak kongruen. Kesamaan dua sisi saja belum cukup."},
+ {question:"Sebuah pola ubin terdiri dari dua segitiga yang saling menutupi tepat tanpa celah ketika salah satunya dipindahkan. Kesimpulan yang paling tepat adalah ....",options:["kedua segitiga kongruen","kedua segitiga hanya sebangun","kedua segitiga pasti memiliki warna sama","kedua segitiga tidak memiliki sisi bersesuaian"],answer:0,discussion:"Jika satu bangun dapat dipindahkan sehingga tepat berimpit dengan bangun lain, keduanya memiliki bentuk dan ukuran sama, sehingga kongruen."}
+];
 
-    let currentSlide = 1;
-    let totalSlides = 15;
+const essayQuestions = [
+ {question:"Jelaskan dengan bahasamu sendiri apa yang dimaksud dengan dua bangun datar kongruen. Berikan satu contoh.",answerGuide:"Bangun kongruen adalah bangun yang memiliki bentuk dan ukuran sama sehingga dapat berimpit tepat jika dipindahkan. Contoh: dua persegi dengan panjang sisi yang sama.",maxScore:10},
+ {question:"Jelaskan kriteria SSS dan SAS pada kekongruenan segitiga.",answerGuide:"SSS: tiga pasang sisi bersesuaian sama panjang. SAS: dua pasang sisi bersesuaian sama panjang dan sudut apitnya sama besar.",maxScore:10},
+ {question:"Diketahui ΔABC ≅ ΔDEF dengan A↔D, B↔E, C↔F. Jika AB = 9 cm, BC = 12 cm, dan AC = 15 cm, tentukan DE, EF, dan DF.",answerGuide:"Karena pasangan bersesuaian sama panjang: DE = AB = 9 cm, EF = BC = 12 cm, dan DF = AC = 15 cm.",maxScore:10},
+ {question:"Sebuah segitiga memiliki sudut 50° dan 60°. Segitiga lain kongruen dengannya. Tentukan sudut ketiga pada kedua segitiga dan jelaskan alasanmu.",answerGuide:"Sudut ketiga = 180° − 50° − 60° = 70°. Karena kedua segitiga kongruen, sudut-sudut bersesuaian memiliki besar yang sama.",maxScore:10},
+ {question:"Jelaskan satu contoh penggunaan konsep kekongruenan dalam kehidupan sehari-hari atau teknologi/desain, lalu jelaskan mengapa contoh tersebut memerlukan bentuk dan ukuran yang sama.",answerGuide:"Jawaban dapat berupa pola ubin, potongan rangka, template desain, komponen bangunan, dan sebagainya. Intinya, bagian yang dipasang berpasangan harus memiliki bentuk serta ukuran sama agar tepat berimpit/terpasang.",maxScore:10}
+];
 
-    // ---------- BUILD PG SLIDES ----------
-    const slideContainer = document.querySelector('.slide-container');
-    const essaySlideEl = document.getElementById('essaySlide');
+/* ==========================================================
+   MESIN APLIKASI — JANGAN PERLU DIUBAH.
+   ========================================================== */
+const slidesEl=document.getElementById("slides");
+const dotsEl=document.getElementById("dots");
+let current=0, answers=Array(questions.length).fill(null), essayScores=Array(essayQuestions.length).fill(0), started=false;
 
-    pgQuestions.forEach((item, i) => {
-        const div = document.createElement('div');
-        div.className = 'slide';
-        div.innerHTML = `
-            <div class="eyebrow"><span class="pill">Bagian A</span> Pilihan Ganda</div>
-            <div class="qcard">
-                <div class="qnum">${String(i + 1).padStart(2, '0')}</div>
-                <div class="qmeta"><span class="pill">${item.section}</span></div>
-                <div class="qtitle">Soal No. ${i + 1}</div>
-                <p class="qtext">${item.q}</p>
-                ${item.hint ? `<div class="qhint">Petunjuk rumus: ${item.hint}</div>` : ''}
-                <div class="options">
-                    ${item.opts.map((opt, oi) => `
-                        <label class="opt" data-pg="${i}" data-option="${oi}" onclick="selectPgAnswer(${i}, ${oi})">
-                            <span class="badge">${letters[oi]}</span>
-                            <span class="otext">${opt}</span>
-                        </label>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-        slideContainer.insertBefore(div, essaySlideEl);
-    });
+function safeText(v){return String(v??"");}
+function esc(v){return safeText(v).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));}
+function effectivePG(){return questions.slice(0, Math.max(0, Number(DATA_MATERI.jumlahPG)||questions.length));}
+function effectiveEssay(){return essayQuestions.slice(0, Math.max(0, Number(DATA_MATERI.jumlahEsai)||essayQuestions.length));}
 
-    function selectPgAnswer(qIndex, optIndex) {
-        userAnswers[qIndex] = optIndex;
-        const options = document.querySelectorAll(`[data-pg="${qIndex}"]`);
-        options.forEach((opt, idx) => {
-            opt.classList.toggle('selected', idx === optIndex);
-        });
-    }
+function init(){
+  document.title=`Evaluasi ${DATA_MATERI.bab}`;
+  document.getElementById("headerSubject").textContent=DATA_MATERI.mataPelajaran;
+  document.getElementById("headerChapter").textContent=DATA_MATERI.bab;
+  renderSlides();
+  renderDots();
+  showSlide(0);
+}
 
-    // ---------- BUILD ESSAY LIST ----------
-    const essayContainer = document.getElementById('essayContainer');
-    essayQuestions.forEach((item, i) => {
-        const div = document.createElement('div');
-        div.className = 'essay-item';
-        div.innerHTML = `<div class="en">Soal Esai ${i + 1}</div><p>${item.q}</p>`;
-        essayContainer.appendChild(div);
-    });
+function renderSlides(){
+  const pg=effectivePG(), es=effectiveEssay();
+  slidesEl.innerHTML="";
+  let index=0;
 
-    // ---------- BUILD ANSWER KEY ----------
-    const essayKeyContainer = document.getElementById('essayKeyContainer');
-    essayQuestions.forEach((item, i) => {
-        const div = document.createElement('div');
-        div.className = 'essay-key-item';
-        div.innerHTML = `<div class="ekn">Soal Esai ${i + 1}</div><p>${item.key}</p>`;
-        essayKeyContainer.appendChild(div);
-    });
+  slidesEl.insertAdjacentHTML("beforeend",`
+    <section class="slide active cover" data-index="${index}">
+      <div class="cover-card">
+        <div class="cover-icon">∑</div>
+        <div class="kicker">${esc(DATA_MATERI.mataPelajaran)}</div>
+        <h1>EVALUASI<br>${esc(DATA_MATERI.bab)}</h1>
+        <div class="subtitle">${esc(DATA_MATERI.kelasFase)}</div>
+        <div class="meta">
+          <span class="pill">📝 ${pg.length} Soal Pilihan Ganda</span>
+          <span class="pill">✍️ ${es.length} Soal Esai</span>
+        </div>
+        <button class="btn btn-primary" onclick="startEvaluation()">🚀 MULAI EVALUASI</button>
+        <p class="note" style="margin-top:18px">Jawablah setiap soal dengan teliti. Pilihan ganda langsung mendapat umpan balik setelah dipilih.</p>
+      </div>
+    </section>`);
 
-    function buildKeyGrid() {
-        const keyGrid = document.getElementById('keyGrid');
-        keyGrid.innerHTML = '';
-        let correctCount = 0;
-        pgQuestions.forEach((item, i) => {
-            const ua = userAnswers[i];
-            const chip = document.createElement('div');
-            let cls = 'key-chip';
-            if (ua !== null) {
-                if (ua === item.correct) { cls += ' correct'; correctCount++; }
-                else cls += ' wrong';
-            }
-            chip.className = cls;
-            chip.innerHTML = `<span class="qn">No. ${i + 1}</span><span class="ans">${letters[item.correct]}${ua !== null ? (ua === item.correct ? ' ✓' : ` ✗ (${letters[ua]})`) : ''}</span>`;
-            keyGrid.appendChild(chip);
-        });
-        document.getElementById('pgScore').textContent = `${correctCount * 6}/60`;
-    }
+  pg.forEach((q,i)=>{
+    index++;
+    const opts=q.options.map((o,j)=>`
+      <button class="option" id="opt-${i}-${j}" onclick="answerPG(${i},${j})">
+        <span class="letter">${String.fromCharCode(65+j)}</span><span>${esc(o)}</span>
+      </button>`).join("");
+    slidesEl.insertAdjacentHTML("beforeend",`
+      <section class="slide" data-index="${index}">
+        <div class="card">
+          <div class="topline"><span class="number">Pilihan Ganda • Soal ${i+1} dari ${pg.length}</span><span class="pill">${i<Math.ceil(pg.length*.34)?"Konsep":i<Math.ceil(pg.length*.67)?"Penerapan":"Penalaran"}</span></div>
+          <div class="question">${esc(q.question)}</div>
+          <div class="options">${opts}</div>
+          <div class="feedback" id="feedback-${i}"></div>
+          <div class="nav">
+            <button class="btn btn-secondary" onclick="prevSlide()">← Sebelumnya</button>
+            <button class="btn btn-primary" id="next-${i}" onclick="nextSlide()">Berikutnya →</button>
+          </div>
+        </div>
+      </section>`);
+  });
 
-    document.getElementById('revealBtn').addEventListener('click', () => {
-        buildKeyGrid();
-        document.getElementById('lockNote').style.display = 'none';
-        document.getElementById('keyBody').classList.add('shown');
-    });
+  if(es.length){
+    index++;
+    slidesEl.insertAdjacentHTML("beforeend",`
+      <section class="slide" data-index="${index}">
+        <div class="card">
+          <div class="topline"><span class="number">Bagian Esai</span><span class="pill">${es.length} Soal</span></div>
+          <h2>✍️ SOAL ESAI</h2>
+          <p class="note">Tuliskan jawaban pada kotak yang tersedia. Guru dapat memasukkan skor manual untuk setiap soal setelah siswa selesai.</p>
+          <div class="essay-list" id="essayList">${es.map((q,i)=>`
+            <div class="essay-box">
+              <div class="essay-q">${i+1}. ${esc(q.question)}</div>
+              <textarea id="essay-${i}" placeholder="Tuliskan jawabanmu di sini..."></textarea>
+              <div class="score-row">
+                <label>Skor:</label><input type="number" min="0" max="${q.maxScore}" step="1" value="0" id="score-${i}" onchange="setEssayScore(${i},this.value)">
+                <span class="score-max">maks. ${q.maxScore}</span>
+              </div>
+            </div>`).join("")}</div>
+          <div class="essay-save"><button class="btn btn-success" onclick="saveEssayAndNext()">💾 Simpan Skor & Lanjut</button></div>
+          <div class="nav"><button class="btn btn-secondary" onclick="prevSlide()">← Sebelumnya</button><button class="btn btn-primary" onclick="saveEssayAndNext()">Berikutnya →</button></div>
+        </div>
+      </section>`);
+  }
 
-    // ---------- NAVIGATION ----------
-    function changeSlide(n) {
-        const newSlide = currentSlide + n;
-        if (newSlide >= 1 && newSlide <= totalSlides) {
-            currentSlide = newSlide;
-            updateSlide();
-        }
-    }
+  index++;
+  const keyItems=pg.map((q,i)=>`
+    <div class="accordion">
+      <button class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Soal ${i+1} — Kunci: ${String.fromCharCode(65+q.answer)}</span><span>＋</span></button>
+      <div class="acc-body"><b>Pembahasan:</b><div>${esc(q.discussion)}</div></div>
+    </div>`).join("");
+  const essayItems=es.map((q,i)=>`
+    <div class="accordion">
+      <button class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Esai ${i+1} — Pedoman Jawaban</span><span>＋</span></button>
+      <div class="acc-body"><b>Pedoman:</b><div>${esc(q.answerGuide)}</div><p class="note">Skor maksimum: ${q.maxScore}</p></div>
+    </div>`).join("");
+  slidesEl.insertAdjacentHTML("beforeend",`
+    <section class="slide" data-index="${index}">
+      <div class="card">
+        <div class="topline"><span class="number">Kunci & Pembahasan</span><span class="pill">Guru / Review</span></div>
+        <h2>🔑 KUNCI JAWABAN & PEMBAHASAN</h2>
+        <p class="note">Klik setiap bagian untuk membuka kunci dan pembahasannya.</p>
+        <h3>Pilihan Ganda</h3>${keyItems}
+        ${es.length?`<h3 style="margin-top:25px">Esai</h3>${essayItems}`:""}
+        <div class="nav"><button class="btn btn-secondary" onclick="prevSlide()">← Sebelumnya</button><button class="btn btn-primary" onclick="nextSlide()">Lihat Hasil →</button></div>
+      </div>
+    </section>`);
 
-    function updateSlide() {
-        const slides = document.querySelectorAll('.slide');
-        totalSlides = slides.length;
-        document.getElementById('totalSlides').textContent = totalSlides;
+  index++;
+  slidesEl.insertAdjacentHTML("beforeend",`
+    <section class="slide" data-index="${index}">
+      <div class="card">
+        <div class="topline"><span class="number">Hasil Akhir</span><span class="pill">Otomatis</span></div>
+        <h2>📊 HASIL EVALUASI</h2>
+        <div class="score-big"><div class="value" id="finalScore">0</div><div>Nilai Akhir (0–100)</div><div class="category" id="category">Belum dihitung</div></div>
+        <div class="result-grid">
+          <div class="stat"><span>Jawaban Benar</span><b id="correctCount">0</b></div>
+          <div class="stat"><span>Jawaban Salah</span><b id="wrongCount">0</b></div>
+          <div class="stat"><span>Nilai Pilihan Ganda</span><b id="pgScore">0</b></div>
+          <div class="stat"><span>Nilai Esai</span><b id="essayScore">0</b></div>
+          <div class="stat"><span>Persentase Keberhasilan</span><b id="successPercent">0%</b></div>
+          <div class="stat"><span>Submateri</span><b id="subCount">${Array.isArray(DATA_MATERI.submateri)?DATA_MATERI.submateri.length:"0"}</b></div>
+        </div>
+        <div class="analysis" id="analysis"></div>
+        <div class="review-grid" id="reviewGrid"></div>
+        <div class="actions">
+          <button class="btn btn-primary" onclick="restart()">🔄 ULANGI EVALUASI</button>
+          <button class="btn btn-secondary" onclick="goURL(DASHBOARD_URL)">📚 KEMBALI KE DASHBOARD</button>
+          <button class="btn btn-success" onclick="goURL(NEXT_BAB_URL)">➡️ BAB BERIKUTNYA</button>
+        </div>
+      </div>
+    </section>`);
+}
 
-        slides.forEach(slide => slide.classList.remove('active'));
-        slides[currentSlide - 1].classList.add('active');
+function renderDots(){
+  dotsEl.innerHTML="";
+  const total=document.querySelectorAll(".slide").length;
+  for(let i=0;i<total;i++){
+    const b=document.createElement("button");
+    b.className="dot";b.title=`Slide ${i+1}`;b.onclick=()=>showSlide(i);b.id=`dot-${i}`;dotsEl.appendChild(b);
+  }
+}
 
-        document.getElementById('currentSlide').textContent = currentSlide;
-        document.getElementById('prevBtn').disabled = currentSlide === 1;
-        document.getElementById('nextBtn').style.display = currentSlide === totalSlides ? 'none' : 'inline-block';
-
-        const progress = (currentSlide / totalSlides) * 100;
-        document.getElementById('progressFill').style.width = progress + '%';
-
-        document.querySelector('.slide-container').scrollTop = 0;
-    }
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') changeSlide(1);
-        if (e.key === 'ArrowLeft') changeSlide(-1);
-    });
-
-    updateSlide();
+function showSlide(n){
+  const slides=[...document.querySelectorAll(".slide")];
+  if(n<0||n>=slides.length)return;
+  current=n;
+  slides.forEach((s,i)=>s.classList.toggle("active",i===n));
+  document.querySelectorAll(".dot").forEach((d,i)=>{
+    d.classList.toggle("active",i===n);
+    d.classList.toggle("done",i<n);
+  });
+  const pct=slides.length<=1?0:Math.round((n/(slides.length-1))*100);
+  document.getElementById("progressBar").style.width=pct+"%";
+  document.getElementById("progressPercent").textContent=pct+"%";
+  document.getElementById("progressText").textContent=n===0?"Belum dimulai":`Slide ${n+1} dari ${slides.length}`;
+  window.scrollTo({top:0,behavior:"smooth"});
+  if(n===slides.length-1)calculateResult();
+}
+function nextSlide(){if(current<document.querySelectorAll(".slide").length-1)showSlide(current+1)}
+function prevSlide(){if(current>0)showSlide(current-1)}
+function startEvaluation(){started=true;showSlide(1)}
+function answerPG(i,choice){
+  if(answers[i]!==null)return;
+  answers[i]=choice;
+  const q=effectivePG()[i], fb=document.getElementById(`feedback-${i}`);
+  q.options.forEach((_,j)=>{
+    const btn=document.getElementById(`opt-${i}-${j}`);
+    btn.disabled=true;
+    if(j===q.answer)btn.classList.add("correct");
+    if(j===choice && choice!==q.answer)btn.classList.add("wrong");
+  });
+  const correct=choice===q.answer;
+  fb.className=`feedback show ${correct?"good":"bad"}`;
+  fb.innerHTML=`<strong>${correct?"✓ Jawaban Benar":"✕ Jawaban Salah — Jawaban yang benar: "+String.fromCharCode(65+q.answer)}</strong><div class="discussion">${esc(q.discussion)}</div>`;
+  document.getElementById(`next-${i}`).focus();
+}
+function setEssayScore(i,v){
+  const max=effectiveEssay()[i]?.maxScore??0;
+  essayScores[i]=Math.max(0,Math.min(max,Number(v)||0));
+}
+function saveEssayAndNext(){
+  effectiveEssay().forEach((q,i)=>{
+    const el=document.getElementById(`score-${i}`);
+    if(el) setEssayScore(i,el.value);
+  });
+  nextSlide();
+}
+function calculateResult(){
+  const pg=effectivePG(), es=effectiveEssay();
+  const correct=answers.reduce((n,a,i)=>n+(a===pg[i]?.answer?1:0),0);
+  const wrong=answers.reduce((n,a)=>n+(a!==null && a!==pg[i]?.answer?1:0),0);
+  const pgRaw=pg.length?correct/pg.length:0;
+  const maxEssay=es.reduce((s,q)=>s+q.maxScore,0);
+  const essayRaw=maxEssay?essayScores.slice(0,es.length).reduce((s,v)=>s+Number(v||0),0)/maxEssay:0;
+  /* Bobot otomatis: PG 70%, esai 30% jika kedua bagian ada.
+     Jika salah satu bagian tidak ada, bagian yang tersedia menjadi 100%. */
+  const pgWeight=pg.length&&es.length?.7:pg.length?1:0;
+  const essayWeight=pg.length&&es.length?.3:es.length?1:0;
+  const pgVal=pgRaw*100*pgWeight;
+  const essayVal=essayRaw*100*essayWeight;
+  const final=Math.round((pgVal+essayVal)*100)/100;
+  const success=pg.length?Math.round((correct/pg.length)*100):0;
+  let category,analysis,motivation;
+  if(final>=85){category="Sangat Baik";analysis="Pemahaman terhadap materi sudah sangat baik. Pertahankan kemampuanmu dan lanjutkan ke materi berikutnya.";motivation="Hebat! Terus pertahankan ketelitian dan kemampuan penalaranmu."}
+  else if(final>=70){category="Baik";analysis="Pemahaman sudah baik, tetapi masih terdapat beberapa bagian yang perlu diperkuat.";motivation="Bagus! Periksa kembali soal yang belum tepat agar pemahamanmu semakin kuat."}
+  else if(final>=55){category="Cukup";analysis="Beberapa konsep sudah dipahami, tetapi perlu latihan tambahan dan penguatan pada bagian yang masih keliru.";motivation="Tetap semangat. Latihan bertahap akan membantu meningkatkan penguasaan konsep."}
+  else{category="Perlu Bimbingan";analysis="Pelajari kembali submateri yang belum dikuasai dan lakukan latihan ulang secara bertahap.";motivation="Jangan menyerah. Mulai dari konsep dasar, lalu kerjakan latihan kembali dengan teliti."}
+  document.getElementById("correctCount").textContent=correct;
+  document.getElementById("wrongCount").textContent=wrong;
+  document.getElementById("pgScore").textContent=pgVal.toFixed(2);
+  document.getElementById("essayScore").textContent=essayVal.toFixed(2);
+  document.getElementById("finalScore").textContent=final.toFixed(2);
+  document.getElementById("successPercent").textContent=success+"%";
+  document.getElementById("category").textContent=category;
+  document.getElementById("analysis").innerHTML=`<b>Analisis Hasil: ${category}</b><br>${analysis}<br><br><b>Motivasi:</b> ${motivation}`;
+  const review=pg.map((q,i)=>{
+    const status=answers[i]===null?"Belum dijawab":answers[i]===q.answer?"Benar":"Salah";
+    return `<div class="review-item"><b>Soal ${i+1}: ${status}</b><span>${answers[i]===null?"Belum ada jawaban":`Jawaban ${String.fromCharCode(65+answers[i])} • Kunci ${String.fromCharCode(65+q.answer)}`}</span></div>`;
+  }).join("");
+  document.getElementById("reviewGrid").innerHTML=review;
+}
+function restart(){
+  answers=Array(effectivePG().length).fill(null);
+  essayScores=Array(effectiveEssay().length).fill(0);
+  started=false;
+  renderSlides();renderDots();showSlide(0);
+}
+function goURL(url){
+  if(!url || url.startsWith("[")){alert("Silakan isi URL tujuan pada bagian NEXT_BAB_URL atau DASHBOARD_URL di DATA NAVIGASI.");return}
+  window.location.href=url;
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight")nextSlide();
+  if(e.key==="ArrowLeft")prevSlide();
+});
+init();
 </script>
 </body>
 </html>

@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Evaluasi Bab 5 — Aritmetika Sosial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F2F6F3;
+    --surface:#FFFFFF;
+    --surface-alt:#EAF1EC;
+    --ink:#1B2A28;
+    --ink-soft:#4B5D59;
+    --ink-faint:#7C8C88;
+    --accent:#2F6F5E;
+    --accent-dark:#234F43;
+    --accent-soft:#DCEEE7;
+    --accent2:#E2703A;
+    --accent2-soft:#FBE4D6;
+    --correct:#2F8F5B;
+    --correct-soft:#E1F4E8;
+    --incorrect:#D6483C;
+    --incorrect-soft:#FBE3E0;
+    --border:#D8E3DE;
+    --shadow: 0 18px 40px -20px rgba(27,42,40,0.35);
+    --radius-lg: 22px;
+    --radius-md: 14px;
+    --radius-sm: 9px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Lexend', sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(47,111,94,0.07), transparent 45%),
+      radial-gradient(circle at 88% 92%, rgba(226,112,58,0.08), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk', sans-serif;}
+
+  .app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:28px 16px 108px;
+  }
+
+  .deck{
+    position:relative;
+    width:100%;
+    max-width:760px;
+  }
+
+  .slide{
+    display:none;
+    background:var(--surface);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+    padding:40px 40px 34px;
+    min-height:460px;
+    animation:riseIn .38s ease;
+  }
+  .slide.active{display:block;}
+
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  @media (max-width:600px){
+    .slide{padding:26px 20px 26px; min-height:420px;}
+    .app{padding:16px 10px 118px;}
+  }
+
+  /* ---------- top meta strip on question/essay/key slides ---------- */
+  .slide-meta{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .meta-left{
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .meta-left strong{color:var(--ink);}
+  .tag{
+    display:inline-block;
+    padding:5px 13px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    background:var(--accent-soft);
+    color:var(--accent-dark);
+  }
+  .tag.tag-essay{background:var(--accent2-soft); color:#8A3A18;}
+
+  /* ---------- cover slide ---------- */
+  .cover-slide{
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding-top:44px;
+  }
+  .tile-graphic{width:190px; height:auto; margin-bottom:22px;}
+  .tile-x2{fill:var(--accent);}
+  .tile-x{fill:var(--accent2);}
+  .tile-1{fill:var(--ink);}
+  .tile-label{fill:#fff; font-family:'Space Grotesk', sans-serif; font-weight:600;}
+
+  .cover-slide .subject-line{
+    font-size:15px;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .cover-slide h1{
+    font-size:clamp(26px,5vw,34px);
+    margin:0 0 4px;
+    color:var(--ink);
+  }
+  .cover-slide h2{
+    font-size:18px;
+    font-weight:500;
+    color:var(--accent-dark);
+    margin:0 0 26px;
+  }
+  .cover-stats{
+    display:flex;
+    gap:14px;
+    margin-bottom:32px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .stat-card{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 22px;
+    min-width:140px;
+  }
+  .stat-num{
+    display:block;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .stat-label{font-size:13px; color:var(--ink-soft);}
+
+  .btn{
+    font-family:'Lexend', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    border:none;
+    border-radius:999px;
+    padding:14px 30px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 12px 24px -10px rgba(47,111,94,0.55);
+  }
+  .btn-primary:hover{background:var(--accent-dark);}
+  .btn-secondary{
+    background:var(--surface-alt);
+    color:var(--ink);
+  }
+  .btn-secondary:hover{background:var(--border);}
+  .btn-outline{
+    background:transparent;
+    color:var(--accent-dark);
+    border:1.5px solid var(--accent);
+  }
+  .btn-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin-top:12px;
+  }
+
+  /* ---------- MC slide ---------- */
+  .question-text{
+    font-size:19px;
+    font-weight:500;
+    line-height:1.5;
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .option-btn{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    text-align:left;
+    width:100%;
+    padding:14px 18px;
+    border-radius:var(--radius-md);
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    font-family:'Lexend', sans-serif;
+    font-size:15.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease, transform .1s ease;
+  }
+  .option-btn:hover:not(:disabled){
+    border-color:var(--accent);
+    background:var(--accent-soft);
+  }
+  .option-letter{
+    flex:0 0 30px;
+    height:30px;
+    border-radius:50%;
+    background:var(--surface-alt);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .option-btn.correct{
+    border-color:var(--correct);
+    background:var(--correct-soft);
+  }
+  .option-btn.correct .option-letter{background:var(--correct); color:#fff;}
+  .option-btn.incorrect{
+    border-color:var(--incorrect);
+    background:var(--incorrect-soft);
+  }
+  .option-btn.incorrect .option-letter{background:var(--incorrect); color:#fff;}
+  .option-btn:disabled{cursor:default;}
+  .option-btn.dim{opacity:0.55;}
+
+  .feedback{
+    margin-top:18px;
+    padding:16px 18px;
+    border-radius:var(--radius-md);
+    font-size:14.5px;
+    line-height:1.55;
+    display:none;
+  }
+  .feedback.show{display:block; animation:riseIn .3s ease;}
+  .feedback.correct-fb{background:var(--correct-soft); color:#1F5C3C;}
+  .feedback.incorrect-fb{background:var(--incorrect-soft); color:#8C2E25;}
+  .feedback .fb-title{
+    font-weight:700;
+    display:block;
+    margin-bottom:6px;
+    font-family:'Space Grotesk', sans-serif;
+  }
+
+  /* ---------- essay slide ---------- */
+  textarea.essay-input{
+    width:100%;
+    min-height:120px;
+    padding:14px 16px;
+    border-radius:var(--radius-md);
+    border:1.5px solid var(--border);
+    font-family:'Lexend', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    resize:vertical;
+    margin-bottom:18px;
+  }
+  textarea.essay-input:focus{outline:none; border-color:var(--accent);}
+  .score-box{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .score-box label{font-size:14.5px; color:var(--ink-soft); font-weight:500;}
+  .score-box input[type="number"]{
+    width:74px;
+    padding:8px 10px;
+    border-radius:var(--radius-sm);
+    border:1.5px solid var(--border);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    text-align:center;
+  }
+  .score-box input[type="number"]:focus{outline:none; border-color:var(--accent);}
+  .score-max{font-size:14px; color:var(--ink-faint);}
+
+  /* ---------- key/discussion slide ---------- */
+  .key-section-title{
+    font-size:16px;
+    font-weight:700;
+    color:var(--accent-dark);
+    margin:26px 0 10px;
+  }
+  .key-section-title:first-of-type{margin-top:0;}
+  .accordion-item{
+    border:1.5px solid var(--border);
+    border-radius:var(--radius-md);
+    margin-bottom:10px;
+    overflow:hidden;
+  }
+  .accordion-head{
+    width:100%;
+    text-align:left;
+    background:var(--surface);
+    border:none;
+    padding:13px 16px;
+    font-family:'Lexend', sans-serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .accordion-head:hover{background:var(--surface-alt);}
+  .accordion-head .chev{transition:transform .2s ease; color:var(--ink-faint);}
+  .accordion-item.open .chev{transform:rotate(180deg);}
+  .accordion-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .25s ease;
+    background:var(--surface-alt);
+  }
+  .accordion-item.open .accordion-body{max-height:600px;}
+  .accordion-body-inner{padding:14px 16px 16px; font-size:14px; line-height:1.6; color:var(--ink-soft);}
+  .accordion-body-inner .jawaban-benar{color:var(--accent-dark); font-weight:600;}
+
+  /* ---------- results slide ---------- */
+  .result-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:12px;
+    margin:22px 0 26px;
+  }
+  .result-card{
+    background:var(--surface-alt);
+    border-radius:var(--radius-md);
+    padding:16px 18px;
+  }
+  .result-card .r-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:24px;
+    font-weight:700;
+    color:var(--accent-dark);
+  }
+  .result-card .r-label{font-size:13px; color:var(--ink-soft);}
+  .final-score-band{
+    text-align:center;
+    padding:26px 20px;
+    border-radius:var(--radius-lg);
+    background:linear-gradient(135deg, var(--accent-soft), var(--accent2-soft));
+    margin-bottom:20px;
+  }
+  .final-score-band .fs-num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:52px;
+    font-weight:700;
+    color:var(--accent-dark);
+    line-height:1;
+  }
+  .final-score-band .fs-cat{
+    display:inline-block;
+    margin-top:10px;
+    padding:6px 16px;
+    border-radius:999px;
+    background:var(--surface);
+    font-weight:700;
+    font-size:14px;
+  }
+  .final-score-band .fs-msg{
+    margin-top:14px;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    line-height:1.6;
+  }
+
+  /* ---------- bottom nav ---------- */
+  .nav-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    padding:14px 16px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, rgba(242,246,243,0.97), rgba(242,246,243,0.85));
+    backdrop-filter:blur(6px);
+  }
+  .nav-btn{
+    flex:0 0 auto;
+    width:44px; height:44px;
+    border-radius:50%;
+    border:1.5px solid var(--border);
+    background:var(--surface);
+    color:var(--ink);
+    font-size:18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  .nav-btn:hover:not(:disabled){border-color:var(--accent); color:var(--accent-dark);}
+  .nav-btn:disabled{opacity:0.35; cursor:default;}
+  .dots{
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    max-width:min(52vw, 420px);
+    padding:4px 2px;
+    scrollbar-width:none;
+  }
+  .dots::-webkit-scrollbar{display:none;}
+  .dot{
+    flex:0 0 auto;
+    width:9px; height:9px;
+    border-radius:50%;
+    background:var(--border);
+    border:none;
+    cursor:pointer;
+    padding:0;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .dot.current{background:var(--accent); transform:scale(1.35);}
+  .dot.answered{background:var(--accent2);}
+
+  @media (max-width:600px){
+    .result-grid{grid-template-columns:1fr 1fr;}
+    .cover-stats{gap:10px;}
+    .stat-card{min-width:120px; padding:14px 16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="deck" id="deck"></div>
+</div>
+
+<div class="nav-bar">
+  <button class="nav-btn" id="prevBtn" aria-label="Slide sebelumnya">‹</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" id="nextBtn" aria-label="Slide berikutnya">›</button>
+</div>
+
+<script>
+/* =========================================================
+   1. DATA MATERI — diisi sekali di sini
+   ========================================================= */
+const MATERI = {
+  mapel: "Matematika",
+  kelasFase: "Kelas 7 / Fase D",
+  babNomor: 5,
+  babNama: "Aritmetika Sosial",
+  namaEvaluasi: "Evaluasi Bab 5"
+};
+
+/* URL tombol akhir — ganti sesuai kebutuhan, jangan hardcode di HTML */
+const NEXT_BAB_URL = "#";
+const DASHBOARD_URL = "#";
+
+/* =========================================================
+   2. BANK SOAL — pilihan ganda
+   ========================================================= */
+const questions = [
+  {
+    question: "Harga yang dibayarkan pedagang saat membeli barang dari produsen atau distributor disebut…",
+    options: ["Harga jual", "Harga beli", "Untung", "Diskon"],
+    answer: 1,
+    discussion: "Harga beli adalah sejumlah uang yang dikeluarkan pedagang untuk memperoleh suatu barang sebelum dijual kembali."
+  },
+  {
+    question: "Jika harga jual suatu barang lebih tinggi daripada harga belinya, maka pedagang mengalami…",
+    options: ["Rugi", "Untung", "Impas", "Diskon"],
+    answer: 1,
+    discussion: "Untung terjadi ketika harga jual lebih besar daripada harga beli."
+  },
+  {
+    question: "Rumus yang tepat untuk menghitung besar keuntungan adalah…",
+    options: [
+      "Untung = Harga beli − Harga jual",
+      "Untung = Harga jual − Harga beli",
+      "Untung = Harga jual + Harga beli",
+      "Untung = Harga beli × Harga jual"
+    ],
+    answer: 1,
+    discussion: "Keuntungan diperoleh dengan mengurangkan harga beli dari harga jual: Untung = Harga jual − Harga beli."
+  },
+  {
+    question: "Seorang pedagang membeli sepatu seharga Rp150.000 dan menjualnya seharga Rp180.000. Besar keuntungan pedagang tersebut adalah…",
+    options: ["Rp20.000", "Rp30.000", "Rp150.000", "Rp330.000"],
+    answer: 1,
+    discussion: "Untung = Harga jual − Harga beli = Rp180.000 − Rp150.000 = Rp30.000."
+  },
+  {
+    question: "Seorang pedagang membeli sepeda seharga Rp900.000 dan menjualnya seharga Rp800.000. Pedagang tersebut mengalami…",
+    options: ["Untung Rp100.000", "Rugi Rp100.000", "Untung Rp800.000", "Impas"],
+    answer: 1,
+    discussion: "Karena harga jual lebih kecil daripada harga beli, pedagang rugi sebesar Rp900.000 − Rp800.000 = Rp100.000."
+  },
+  {
+    question: "Harga beli sebuah barang Rp200.000 dan dijual dengan untung Rp40.000. Persentase keuntungan terhadap harga beli adalah…",
+    options: ["10%", "15%", "20%", "25%"],
+    answer: 2,
+    discussion: "Persentase untung = (Untung ÷ Harga beli) × 100% = (40.000 ÷ 200.000) × 100% = 20%."
+  },
+  {
+    question: "Harga beli suatu barang Rp500.000, kemudian dijual dengan rugi Rp50.000. Persentase kerugian tersebut adalah…",
+    options: ["5%", "8%", "10%", "12%"],
+    answer: 2,
+    discussion: "Persentase rugi = (Rugi ÷ Harga beli) × 100% = (50.000 ÷ 500.000) × 100% = 10%."
+  },
+  {
+    question: "Seorang pedagang membeli buku dengan harga Rp25.000 dan ingin mendapat untung 20%. Harga jual buku tersebut adalah…",
+    options: ["Rp27.000", "Rp28.000", "Rp30.000", "Rp45.000"],
+    answer: 2,
+    discussion: "Harga jual = Harga beli + (20% × Harga beli) = Rp25.000 + Rp5.000 = Rp30.000."
+  },
+  {
+    question: "Harga sebuah baju Rp150.000. Toko memberikan diskon 20%. Harga yang harus dibayar setelah diskon adalah…",
+    options: ["Rp100.000", "Rp110.000", "Rp120.000", "Rp130.000"],
+    answer: 2,
+    discussion: "Besar diskon = 20% × Rp150.000 = Rp30.000. Harga setelah diskon = Rp150.000 − Rp30.000 = Rp120.000."
+  },
+  {
+    question: "Harga awal sebuah tas Rp200.000. Tas tersebut mendapat diskon 10%, lalu dari harga setelah diskon dikenakan pajak 10%. Harga akhir yang harus dibayar adalah…",
+    options: ["Rp180.000", "Rp190.000", "Rp198.000", "Rp200.000"],
+    answer: 2,
+    discussion: "Setelah diskon 10%: Rp200.000 − Rp20.000 = Rp180.000. Pajak 10% dari Rp180.000 = Rp18.000, sehingga harga akhir = Rp180.000 + Rp18.000 = Rp198.000."
+  },
+  {
+    question: "Seorang pembeli membeli barang seharga Rp400.000 dan dikenakan pajak (PPN) 11%. Besar pajak yang harus dibayar adalah…",
+    options: ["Rp40.000", "Rp44.000", "Rp45.000", "Rp48.000"],
+    answer: 1,
+    discussion: "Pajak = 11% × Rp400.000 = Rp44.000."
+  },
+  {
+    question: "Berat kemasan atau pembungkus suatu barang disebut…",
+    options: ["Bruto", "Neto", "Tara", "Diskon"],
+    answer: 2,
+    discussion: "Tara adalah berat kemasan atau pembungkus barang, terpisah dari berat isi barangnya."
+  },
+  {
+    question: "Sekarung beras memiliki bruto 52 kg dan tara 2 kg. Berat neto beras tersebut adalah…",
+    options: ["48 kg", "50 kg", "52 kg", "54 kg"],
+    answer: 1,
+    discussion: "Neto = Bruto − Tara = 52 kg − 2 kg = 50 kg."
+  },
+  {
+    question: "Seseorang menabung Rp2.000.000 di bank dengan bunga tunggal 6% per tahun. Besar bunga yang diperoleh setelah 1 tahun adalah…",
+    options: ["Rp100.000", "Rp120.000", "Rp1.200.000", "Rp12.000"],
+    answer: 1,
+    discussion: "Bunga 1 tahun = 6% × Rp2.000.000 = Rp120.000."
+  },
+  {
+    question: "Seorang pedagang membeli 10 kg jeruk seharga Rp150.000, lalu menjualnya kembali dengan harga Rp18.000 per kg dan seluruhnya laku terjual. Pernyataan yang benar adalah…",
+    options: [
+      "Pedagang rugi Rp30.000",
+      "Pedagang untung Rp30.000",
+      "Pedagang impas",
+      "Pedagang untung Rp180.000"
+    ],
+    answer: 1,
+    discussion: "Harga jual seluruhnya = 10 × Rp18.000 = Rp180.000. Untung = Rp180.000 − Rp150.000 = Rp30.000."
+  }
+];
+
+/* =========================================================
+   3. BANK SOAL — esai
+   ========================================================= */
+const essayQuestions = [
+  {
+    question: "Seorang pedagang membeli 5 lusin pensil dengan harga Rp180.000. Pensil tersebut dijual dengan harga Rp3.500 per batang dan seluruhnya laku terjual. Tentukan untung atau rugi yang dialami pedagang beserta besarnya!",
+    answerGuide: "5 lusin = 60 pensil. Harga jual seluruhnya = 60 × Rp3.500 = Rp210.000. Untung = Rp210.000 − Rp180.000 = Rp30.000.",
+    maxScore: 20
+  },
+  {
+    question: "Harga sebuah sepatu Rp250.000 mendapat diskon 15%. Hitunglah harga yang harus dibayar pembeli setelah diskon!",
+    answerGuide: "Diskon = 15% × Rp250.000 = Rp37.500. Harga setelah diskon = Rp250.000 − Rp37.500 = Rp212.500.",
+    maxScore: 20
+  },
+  {
+    question: "Seorang pedagang membeli televisi seharga Rp2.000.000, kemudian menjualnya dan mengalami rugi 8%. Tentukan besar kerugian dan harga jual televisi tersebut!",
+    answerGuide: "Rugi = 8% × Rp2.000.000 = Rp160.000. Harga jual = Rp2.000.000 − Rp160.000 = Rp1.840.000.",
+    maxScore: 20
+  },
+  {
+    question: "Sebuah karung pupuk memiliki bruto 25 kg dengan tara 4%. Tentukan besar tara dalam kilogram dan berat neto pupuk tersebut!",
+    answerGuide: "Tara = 4% × 25 kg = 1 kg. Neto = Bruto − Tara = 25 kg − 1 kg = 24 kg.",
+    maxScore: 20
+  },
+  {
+    question: "Bu Rina menabung Rp3.000.000 di bank dengan bunga tunggal 5% per tahun. Jika Bu Rina tidak mengambil tabungannya, tentukan jumlah tabungan Bu Rina setelah 2 tahun!",
+    answerGuide: "Bunga per tahun = 5% × Rp3.000.000 = Rp150.000. Bunga selama 2 tahun = 2 × Rp150.000 = Rp300.000. Total tabungan = Rp3.000.000 + Rp300.000 = Rp3.300.000.",
+    maxScore: 20
+  }
+];
+
+/* =========================================================
+   4. STATE
+   ========================================================= */
+const state = {
+  current: 0,
+  mcAnswered: new Array(questions.length).fill(null),
+  essayScores: new Array(essayQuestions.length).fill(0)
+};
+
+const totalEssayMax = essayQuestions.reduce((s, q) => s + q.maxScore, 0);
+
+/* slide index map */
+const SLIDE = {
+  COVER: 0,
+  MC_START: 1,
+  get MC_END() { return SLIDE.MC_START + questions.length - 1; },
+  get ESSAY_START() { return SLIDE.MC_END + 1; },
+  get ESSAY_END() { return SLIDE.ESSAY_START + essayQuestions.length - 1; },
+  get KEY() { return SLIDE.ESSAY_END + 1; },
+  get RESULT() { return SLIDE.KEY + 1; },
+  get TOTAL() { return SLIDE.RESULT + 1; }
+};
+
+/* =========================================================
+   5. SLIDE BUILDERS
+   Catatan penting: hanya SATU elemen .slide yang pernah
+   dimasukkan ke dalam #deck pada satu waktu. Slide lama selalu
+   dihapus (deck.innerHTML = "") sebelum slide baru ditambahkan,
+   sehingga tidak mungkin ada slide lain yang ikut tampil atau
+   menumpuk saat discroll.
+   ========================================================= */
+const deck = document.getElementById("deck");
+const dotsWrap = document.getElementById("dots");
+
+function tileGraphicSVG() {
+  return `
+  <svg class="tile-graphic" viewBox="0 0 232 92" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi label harga, persentase diskon, dan koin">
+    <rect class="tile-x2" x="4" y="4" width="80" height="80" rx="12"></rect>
+    <text class="tile-label" x="44" y="55" font-size="24" text-anchor="middle">Rp</text>
+    <circle class="tile-x" cx="138" cy="59" r="33"></circle>
+    <text class="tile-label" x="138" y="67" font-size="22" text-anchor="middle">%</text>
+    <circle class="tile-1" cx="205" cy="71" r="15"></circle>
+    <text class="tile-label" x="205" y="76" font-size="13" text-anchor="middle">Rp</text>
+  </svg>`;
+}
+
+function letterFor(i) { return ["A", "B", "C", "D", "E", "F"][i]; }
+
+function buildCoverSlide() {
+  const el = document.createElement("section");
+  el.className = "slide cover-slide";
+  el.innerHTML = `
+    ${tileGraphicSVG()}
+    <p class="subject-line">${MATERI.mapel} &nbsp;·&nbsp; ${MATERI.kelasFase}</p>
+    <h1>Bab ${MATERI.babNomor}: ${MATERI.babNama}</h1>
+    <h2>${MATERI.namaEvaluasi}</h2>
+    <div class="cover-stats">
+      <div class="stat-card">
+        <span class="stat-num">${questions.length}</span>
+        <span class="stat-label">Soal pilihan ganda</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">${essayQuestions.length}</span>
+        <span class="stat-label">Soal esai</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="startBtn">🚀 Mulai evaluasi</button>
+  `;
+  el.querySelector("#startBtn").addEventListener("click", () => goTo(SLIDE.MC_START));
+  return el;
+}
+
+function buildMCSlide(qIndex) {
+  const q = questions[qIndex];
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  const optionsHTML = q.options.map((opt, i) => `
+    <button class="option-btn" data-opt="${i}">
+      <span class="option-letter">${letterFor(i)}</span>
+      <span>${opt}</span>
+    </button>
+  `).join("");
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left">Pilihan ganda &nbsp;<strong>${qIndex + 1}</strong> / ${questions.length}</span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <p class="question-text">${qIndex + 1}. ${q.question}</p>
+    <div class="options">${optionsHTML}</div>
+    <div class="feedback" id="feedback-${qIndex}"></div>
+  `;
+
+  const buttons = el.querySelectorAll(".option-btn");
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => handleMCAnswer(qIndex, parseInt(btn.dataset.opt), el));
+  });
+
+  if (state.mcAnswered[qIndex] !== null) {
+    applyMCResultUI(qIndex, el);
+  }
+  return el;
+}
+
+function handleMCAnswer(qIndex, chosen, slideEl) {
+  if (state.mcAnswered[qIndex] !== null) return;
+  state.mcAnswered[qIndex] = chosen;
+  applyMCResultUI(qIndex, slideEl);
+  refreshDots();
+}
+
+function applyMCResultUI(qIndex, slideEl) {
+  const q = questions[qIndex];
+  const chosen = state.mcAnswered[qIndex];
+  const buttons = slideEl.querySelectorAll(".option-btn");
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add("correct");
+    if (i === chosen && chosen !== q.answer) btn.classList.add("incorrect");
+    if (i !== q.answer && i !== chosen) btn.classList.add("dim");
+  });
+  const fb = slideEl.querySelector(`#feedback-${qIndex}`);
+  const isCorrect = chosen === q.answer;
+  fb.classList.add("show", isCorrect ? "correct-fb" : "incorrect-fb");
+  fb.innerHTML = `
+    <span class="fb-title">${isCorrect ? "Benar!" : "Belum tepat"}</span>
+    ${isCorrect ? "" : `Jawaban yang benar adalah <strong>${letterFor(q.answer)}. ${q.options[q.answer]}</strong>.<br>`}
+    ${q.discussion}
+  `;
+}
+
+function buildEssaySlide(eIndex) {
+  const q = essayQuestions[eIndex];
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left">Esai &nbsp;<strong>${eIndex + 1}</strong> / ${essayQuestions.length}</span>
+      <span class="tag tag-essay">${MATERI.babNama}</span>
+    </div>
+    <p class="question-text">${eIndex + 1}. ${q.question}</p>
+    <textarea class="essay-input" placeholder="Tulis jawabanmu di sini…" data-essay="${eIndex}">${state.essayTexts[eIndex] || ""}</textarea>
+    <div class="score-box">
+      <label for="score-${eIndex}">Skor dari guru</label>
+      <input type="number" id="score-${eIndex}" min="0" max="${q.maxScore}" value="${state.essayScores[eIndex]}" data-score="${eIndex}">
+      <span class="score-max">dari maksimum ${q.maxScore}</span>
+    </div>
+  `;
+
+  const textarea = el.querySelector(`[data-essay="${eIndex}"]`);
+  textarea.addEventListener("input", () => {
+    state.essayTexts[eIndex] = textarea.value;
+  });
+
+  const scoreInput = el.querySelector(`[data-score="${eIndex}"]`);
+  scoreInput.addEventListener("input", () => {
+    let val = parseInt(scoreInput.value);
+    if (isNaN(val)) val = 0;
+    val = Math.max(0, Math.min(q.maxScore, val));
+    state.essayScores[eIndex] = val;
+  });
+
+  return el;
+}
+
+function buildKeySlide() {
+  const el = document.createElement("section");
+  el.className = "slide";
+
+  const mcItems = questions.map((q, i) => `
+    <div class="accordion-item" data-acc>
+      <button class="accordion-head" type="button">
+        <span>Soal ${i + 1}</span>
+        <span class="chev">⌄</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner">
+          <p>Kunci: <span class="jawaban-benar">${letterFor(q.answer)}. ${q.options[q.answer]}</span></p>
+          <p>${q.discussion}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  const essayItems = essayQuestions.map((q, i) => `
+    <div class="accordion-item" data-acc>
+      <button class="accordion-head" type="button">
+        <span>Soal ${i + 1}</span>
+        <span class="chev">⌄</span>
+      </button>
+      <div class="accordion-body">
+        <div class="accordion-body-inner">
+          <p>Pedoman jawaban:</p>
+          <p>${q.answerGuide}</p>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left"><strong>🔑 Kunci jawaban &amp; pembahasan</strong></span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <p class="key-section-title">Pilihan ganda</p>
+    ${mcItems}
+    <p class="key-section-title">Esai</p>
+    ${essayItems}
+  `;
+
+  el.querySelectorAll("[data-acc]").forEach(item => {
+    const head = item.querySelector(".accordion-head");
+    head.addEventListener("click", () => item.classList.toggle("open"));
+  });
+
+  return el;
+}
+
+function buildResultSlide() {
+  const total = questions.length;
+  const benar = state.mcAnswered.reduce((s, a, i) => s + (a === questions[i].answer ? 1 : 0), 0);
+  const salah = state.mcAnswered.filter(a => a !== null).length - benar;
+  const nilaiPG = total > 0 ? (benar / total) * 100 : 0;
+
+  const skorEsaiTotal = state.essayScores.reduce((s, v) => s + v, 0);
+  const nilaiEsai = totalEssayMax > 0 ? (skorEsaiTotal / totalEssayMax) * 100 : 0;
+
+  const nilaiAkhir = Math.round((nilaiPG + nilaiEsai) / 2);
+
+  let kategori, pesan;
+  if (nilaiAkhir >= 85) {
+    kategori = "Sangat baik";
+    pesan = "Pemahaman terhadap materi sudah sangat baik. Pertahankan dan lanjutkan ke materi berikutnya.";
+  } else if (nilaiAkhir >= 70) {
+    kategori = "Baik";
+    pesan = "Pemahaman sudah baik, tetapi masih ada beberapa bagian yang perlu diperkuat.";
+  } else if (nilaiAkhir >= 55) {
+    kategori = "Cukup";
+    pesan = "Beberapa konsep sudah dipahami, tetapi perlu latihan tambahan.";
+  } else {
+    kategori = "Perlu bimbingan";
+    pesan = "Pelajari kembali submateri yang belum dikuasai dan lakukan latihan ulang.";
+  }
+
+  const el = document.createElement("section");
+  el.className = "slide";
+  el.innerHTML = `
+    <div class="slide-meta">
+      <span class="meta-left"><strong>Hasil evaluasi</strong></span>
+      <span class="tag">${MATERI.babNama}</span>
+    </div>
+    <div class="final-score-band">
+      <div class="fs-num">${nilaiAkhir}</div>
+      <span class="fs-cat">${kategori}</span>
+      <p class="fs-msg">${pesan}</p>
+    </div>
+    <div class="result-grid">
+      <div class="result-card"><span class="r-num">${benar}</span><span class="r-label">Jumlah benar</span></div>
+      <div class="result-card"><span class="r-num">${salah}</span><span class="r-label">Jumlah salah</span></div>
+      <div class="result-card"><span class="r-num">${nilaiPG.toFixed(1)}</span><span class="r-label">Nilai pilihan ganda</span></div>
+      <div class="result-card"><span class="r-num">${nilaiEsai.toFixed(1)}</span><span class="r-label">Nilai esai</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="restartBtn">🔄 Ulangi evaluasi</button>
+      <button class="btn btn-outline" id="dashboardBtn">📚 Kembali ke dashboard</button>
+      <button class="btn btn-primary" id="nextBabBtn">➡️ Bab berikutnya</button>
+    </div>
+  `;
+
+  el.querySelector("#restartBtn").addEventListener("click", restartEvaluation);
+  el.querySelector("#dashboardBtn").addEventListener("click", () => { window.location.href = DASHBOARD_URL; });
+  el.querySelector("#nextBabBtn").addEventListener("click", () => { window.location.href = NEXT_BAB_URL; });
+
+  return el;
+}
+
+/* =========================================================
+   6. RENDER DISPATCH — hanya satu slide masuk ke #deck
+   ========================================================= */
+function renderCurrentSlide() {
+  deck.innerHTML = "";
+  const i = state.current;
+  let el;
+  if (i === SLIDE.COVER) {
+    el = buildCoverSlide();
+  } else if (i >= SLIDE.MC_START && i <= SLIDE.MC_END) {
+    el = buildMCSlide(i - SLIDE.MC_START);
+  } else if (i >= SLIDE.ESSAY_START && i <= SLIDE.ESSAY_END) {
+    el = buildEssaySlide(i - SLIDE.ESSAY_START);
+  } else if (i === SLIDE.KEY) {
+    el = buildKeySlide();
+  } else {
+    el = buildResultSlide();
+  }
+  el.classList.add("active");
+  deck.appendChild(el);
+}
+
+function buildDots() {
+  dotsWrap.innerHTML = "";
+  for (let i = 0; i < SLIDE.TOTAL; i++) {
+    const dot = document.createElement("button");
+    dot.className = "dot";
+    dot.setAttribute("aria-label", "Ke slide " + (i + 1));
+    dot.addEventListener("click", () => goTo(i));
+    dotsWrap.appendChild(dot);
+  }
+  refreshDots();
+}
+
+function refreshDots() {
+  const dots = dotsWrap.querySelectorAll(".dot");
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("current", i === state.current);
+    let answered = false;
+    if (i >= SLIDE.MC_START && i <= SLIDE.MC_END) {
+      answered = state.mcAnswered[i - SLIDE.MC_START] !== null;
+    }
+    dot.classList.toggle("answered", answered);
+  });
+}
+
+/* =========================================================
+   7. NAVIGATION
+   ========================================================= */
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function goTo(index) {
+  if (index < 0 || index >= SLIDE.TOTAL) return;
+  state.current = index;
+  renderCurrentSlide();
+  prevBtn.disabled = index === 0;
+  nextBtn.disabled = index === SLIDE.TOTAL - 1;
+  refreshDots();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+prevBtn.addEventListener("click", () => goTo(state.current - 1));
+nextBtn.addEventListener("click", () => goTo(state.current + 1));
+
+function restartEvaluation() {
+  state.current = 0;
+  state.mcAnswered = new Array(questions.length).fill(null);
+  state.essayScores = new Array(essayQuestions.length).fill(0);
+  state.essayTexts = new Array(essayQuestions.length).fill("");
+  goTo(0);
+}
+
+/* =========================================================
+   8. INIT
+   ========================================================= */
+state.essayTexts = new Array(essayQuestions.length).fill("");
+buildDots();
+goTo(0);
+</script>
+</body>
+</html>

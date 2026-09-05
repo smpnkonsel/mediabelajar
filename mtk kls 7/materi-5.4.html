@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aritmetika Sosial — Diskon dan Pajak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0a0f1c;
+    --bg-1:#111a2c;
+    --bg-2:#182541;
+    --bg-3:#1f2f52;
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.16);
+    --text-hi:#f3f5fb;
+    --text-mid:#b3bdd8;
+    --text-low:#7986a8;
+    --coral:#ff8a65;
+    --coral-deep:#e8703f;
+    --teal:#2dd4bf;
+    --teal-deep:#0d9c8a;
+    --violet:#a78bfa;
+    --violet-deep:#7c5cf0;
+    --amber:#fbbf24;
+    --font-head:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:8px;
+    --shadow-soft: 0 20px 50px rgba(0,0,0,0.4);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:
+      radial-gradient(1200px 700px at 88% -8%, rgba(255,138,101,0.12), transparent 60%),
+      radial-gradient(1000px 600px at -10% 108%, rgba(45,212,191,0.10), transparent 60%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+  ::selection{ background: rgba(255,138,101,0.35); }
+  #app{ height:100vh; display:flex; flex-direction:column; }
+
+  #topbar{
+    display:flex; align-items:center; gap:16px;
+    padding:14px 22px;
+    border-bottom:1px solid var(--line);
+    background:rgba(10,15,28,0.7);
+    backdrop-filter: blur(10px);
+    z-index:20;
+  }
+  #topbar .brand{
+    font-family:var(--font-head); font-weight:600; font-size:15px;
+    color:var(--coral); white-space:nowrap; letter-spacing:.2px;
+  }
+  #topbar .brand small{ display:block; font-family:var(--font-body); font-weight:500; font-size:11px; color:var(--text-low); }
+  #progress-track{
+    flex:1; height:8px; border-radius:99px; background:var(--bg-3);
+    overflow:hidden; position:relative; border:1px solid var(--line);
+  }
+  #progress-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg, var(--coral-deep), var(--coral));
+    transition:width .45s cubic-bezier(.65,0,.35,1);
+  }
+  #slide-counter{ font-family:var(--font-mono); font-size:12.5px; color:var(--text-mid); white-space:nowrap; }
+
+  #viewport{ flex:1; position:relative; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:38px 8vw 20px;
+    overflow-y:auto;
+    opacity:0; visibility:hidden;
+    transform: translateX(40px) scale(.985);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1), visibility 0s linear .5s;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; transform: translateX(0) scale(1);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1), visibility 0s;
+    position:relative;
+  }
+  .slide-inner{ max-width:920px; width:100%; margin:auto; padding-bottom:30px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:600; color:var(--coral);
+    background:rgba(255,138,101,0.08); border:1px solid rgba(255,138,101,0.25);
+    padding:5px 12px; border-radius:99px; margin-bottom:16px;
+  }
+  h1.slide-title{ font-family:var(--font-head); font-weight:600; font-size:clamp(24px,3.6vw,40px); margin:0 0 10px; line-height:1.15;}
+  h2.slide-sub{ font-family:var(--font-body); font-weight:500; font-size:16px; color:var(--text-mid); margin:0 0 26px; line-height:1.6; max-width:70ch;}
+  p{ line-height:1.75; color:var(--text-mid); font-size:15.5px;}
+  strong{ color:var(--text-hi); font-weight:700;}
+  .highlight-coral{ color:var(--coral); }
+  .highlight-teal{ color:var(--teal); }
+  .highlight-violet{ color:var(--violet); }
+  .highlight-amber{ color:var(--amber); }
+
+  .card{
+    background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:24px 26px;
+    margin-bottom:18px;
+    box-shadow: var(--shadow-soft);
+  }
+  .card-row{ display:grid; gap:18px; }
+  .grid-2{ grid-template-columns: 1fr 1fr; }
+  @media(max-width:760px){ .grid-2{ grid-template-columns:1fr; } }
+
+  .formula-box{
+    font-family:var(--font-mono);
+    background:var(--bg-0);
+    border:1px solid var(--line-strong);
+    border-left:4px solid var(--coral);
+    border-radius:var(--radius-md);
+    padding:16px 20px;
+    color:var(--coral);
+    font-size:16px;
+    margin:14px 0;
+    overflow-x:auto;
+  }
+  .formula-box.teal{ border-left-color:var(--teal); color:var(--teal); }
+  .formula-box.violet{ border-left-color:var(--violet); color:var(--violet); }
+  .formula-box.amber{ border-left-color:var(--amber); color:var(--amber); }
+
+  .tag{
+    display:inline-block; font-size:12px; font-weight:700; padding:3px 10px;
+    border-radius:99px; margin-right:6px;
+  }
+  .tag.diskon{ background:rgba(255,138,101,0.15); color:var(--coral); border:1px solid rgba(255,138,101,0.35); }
+  .tag.pajak{ background:rgba(167,139,250,0.15); color:var(--violet); border:1px solid rgba(167,139,250,0.35); }
+  .tag.bersih{ background:rgba(45,212,191,0.15); color:var(--teal); border:1px solid rgba(45,212,191,0.35); }
+
+  .btn{
+    font-family:var(--font-body); font-weight:700; font-size:14px;
+    border:none; cursor:pointer; border-radius:99px;
+    padding:11px 22px; transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:active{ transform:scale(.96); }
+  .btn-coral{ background:linear-gradient(135deg, var(--coral), var(--coral-deep)); color:#2a1207; box-shadow:0 8px 20px rgba(255,138,101,0.25);}
+  .btn-coral:hover{ filter:brightness(1.08); }
+  .btn-outline{ background:transparent; border:1.5px solid var(--line-strong); color:var(--text-hi); }
+  .btn-outline:hover{ border-color:var(--coral); color:var(--coral); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-sm{ padding:7px 14px; font-size:12.5px; }
+
+  .accordion-item{
+    border:1px solid var(--line); border-radius:var(--radius-md); margin-bottom:10px; overflow:hidden;
+    background:var(--bg-1);
+  }
+  .accordion-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; cursor:pointer; font-weight:600; color:var(--text-hi); font-size:14.5px;
+    user-select:none;
+  }
+  .accordion-head:hover{ background:var(--bg-2); }
+  .accordion-head .chev{ transition:transform .3s ease; color:var(--coral); font-size:18px;}
+  .accordion-item.open .accordion-head .chev{ transform:rotate(180deg); }
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .accordion-item.open .accordion-body{ max-height:700px; }
+  .accordion-body-inner{ padding:0 18px 18px; color:var(--text-mid); font-size:14.5px; line-height:1.7;}
+
+  .step-list{ display:flex; flex-direction:column; gap:10px; }
+  .step-item{
+    border:1px solid var(--line); border-radius:var(--radius-md);
+    background:var(--bg-1); padding:16px 18px;
+    opacity:.4; filter:blur(1px); pointer-events:none;
+    transition: opacity .4s ease, filter .4s ease;
+  }
+  .step-item.revealed{ opacity:1; filter:blur(0); pointer-events:auto; }
+  .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%; background:var(--coral); color:#2a1207;
+    font-weight:700; font-size:13px; margin-right:10px; font-family:var(--font-head);
+  }
+  .step-title{ font-weight:700; color:var(--text-hi); font-size:14.5px; }
+
+  .slider-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:20px; }
+  .slider-row label{ font-size:13.5px; font-weight:600; color:var(--text-mid); display:flex; justify-content:space-between; }
+  .slider-row .val{ color:var(--coral); font-family:var(--font-mono); }
+  input[type=range]{
+    -webkit-appearance:none; width:100%; height:6px; border-radius:99px;
+    background:var(--bg-3); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--coral); cursor:pointer; border:3px solid var(--bg-0);
+    box-shadow:0 0 0 2px var(--coral);
+  }
+  input[type=range].teal-thumb::-webkit-slider-thumb{ background:var(--teal); box-shadow:0 0 0 2px var(--teal); }
+  input[type=range].violet-thumb::-webkit-slider-thumb{ background:var(--violet); box-shadow:0 0 0 2px var(--violet); }
+
+  .price-tag-visual{
+    display:flex; align-items:center; justify-content:center; gap:24px; flex-wrap:wrap;
+    margin-top:20px; padding:20px; background:var(--bg-0); border-radius:var(--radius-md); border:1px solid var(--line-strong);
+  }
+  .price-box{ text-align:center; }
+  .price-box .lbl{ font-size:12px; color:var(--text-low); font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px;}
+  .price-box .amt{ font-family:var(--font-mono); font-size:22px; font-weight:700; }
+  .price-box .amt.old{ color:var(--text-low); text-decoration:line-through; font-size:16px;}
+  .price-box .amt.new{ color:var(--coral); }
+  .price-box .amt.tax{ color:var(--violet); }
+  .arrow-sep{ font-size:22px; color:var(--text-low); }
+
+  .dd-pool{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; min-height:50px; }
+  .dd-item{
+    padding:10px 14px; background:var(--bg-2); border:1px solid var(--line-strong);
+    border-radius:var(--radius-sm); font-size:13.5px; cursor:grab; font-weight:600;
+    color:var(--text-hi); transition: opacity .2s ease;
+  }
+  .dd-item.dragging{ opacity:.3; }
+  .dd-zones{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:760px){ .dd-zones{ grid-template-columns:1fr; } }
+  .dd-zone{
+    min-height:130px; border:2px dashed var(--line-strong); border-radius:var(--radius-md);
+    padding:12px; font-size:12.5px; color:var(--text-low); font-weight:700;
+    display:flex; flex-direction:column; gap:8px; transition: border-color .2s ease, background .2s ease;
+  }
+  .dd-zone.over{ border-color:var(--coral); background:rgba(255,138,101,0.06); }
+  .dd-zone .zone-items{ display:flex; flex-direction:column; gap:6px; }
+  .dd-zone .dd-item{ cursor:default; font-size:12.5px; padding:8px 10px; }
+  #dd-feedback{ margin-top:16px; font-weight:700; font-size:14.5px; min-height:24px; }
+
+  .mcq{ margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .mcq:last-child{ border-bottom:none; }
+  .mcq-q{ font-weight:700; color:var(--text-hi); font-size:15px; margin-bottom:12px; }
+  .mcq-options{ display:flex; flex-direction:column; gap:8px; }
+  .mcq-opt{
+    display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border:1.5px solid var(--line-strong); border-radius:var(--radius-sm);
+    cursor:pointer; font-size:14px; color:var(--text-mid); transition: all .2s ease;
+  }
+  .mcq-opt:hover{ border-color:var(--coral); color:var(--text-hi); }
+  .mcq-opt.selected{ border-color:var(--coral); background:rgba(255,138,101,0.08); color:var(--text-hi); }
+  .mcq-opt.correct{ border-color:var(--teal); background:rgba(45,212,191,0.12); color:var(--teal); }
+  .mcq-opt.wrong{ border-color:#fb7185; background:rgba(251,113,133,0.12); color:#fb7185; }
+  .mcq-fb{ margin-top:10px; font-size:13.5px; font-weight:600; display:none; padding:10px 12px; border-radius:var(--radius-sm); }
+  .mcq-fb.show{ display:block; }
+  .mcq-fb.ok{ background:rgba(45,212,191,0.1); color:var(--teal); }
+  .mcq-fb.no{ background:rgba(251,113,133,0.1); color:#fb7185; }
+  .diff-badge{ font-family:var(--font-mono); font-size:11px; padding:3px 9px; border-radius:99px; margin-left:8px; vertical-align:middle;}
+  .diff-badge.mudah{ background:rgba(45,212,191,0.15); color:var(--teal); }
+  .diff-badge.sedang{ background:rgba(255,138,101,0.15); color:var(--coral); }
+  .diff-badge.menantang{ background:rgba(167,139,250,0.15); color:var(--violet); }
+
+  #quiz-result{ display:none; text-align:center; padding:30px; margin-top:10px; }
+  #quiz-result .score-num{ font-family:var(--font-head); font-size:56px; color:var(--coral); }
+  #quiz-result p{ color:var(--text-mid); }
+
+  textarea.reflect{
+    width:100%; min-height:120px; background:var(--bg-0); border:1px solid var(--line-strong);
+    border-radius:var(--radius-md); color:var(--text-hi); font-family:var(--font-body);
+    padding:14px 16px; font-size:14.5px; resize:vertical; outline:none;
+  }
+  textarea.reflect:focus{ border-color:var(--coral); }
+
+  .sum-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
+  .sum-list li{
+    display:flex; gap:12px; align-items:flex-start; background:var(--bg-1);
+    border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 16px;
+    font-size:14.5px; color:var(--text-mid);
+  }
+  .sum-list li .ico{ font-size:18px; }
+
+  #bottombar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:14px 22px; border-top:1px solid var(--line);
+    background:rgba(10,15,28,0.7); backdrop-filter: blur(10px);
+    z-index:20;
+  }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:50vw; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--bg-3); border:1px solid var(--line-strong); cursor:pointer; transition:all .2s ease; }
+  .dot.active{ background:var(--coral); width:22px; border-radius:99px; border-color:var(--coral); }
+  .nav-btn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong);
+    background:var(--bg-2); color:var(--text-hi); font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition: all .2s ease; flex-shrink:0;
+  }
+  .nav-btn:hover:not(:disabled){ background:var(--coral); color:#2a1207; border-color:var(--coral); }
+  .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+
+  .icon-badge{
+    width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    font-size:24px; background:linear-gradient(135deg, rgba(255,138,101,0.18), rgba(255,138,101,0.05));
+    border:1px solid rgba(255,138,101,0.3); margin-bottom:14px;
+  }
+  .icon-badge.violet{ background:linear-gradient(135deg, rgba(167,139,250,0.18), rgba(167,139,250,0.05)); border-color:rgba(167,139,250,0.3); }
+  .cover-wrap{ text-align:center; }
+  .cover-icon{ font-size:70px; margin-bottom:18px; }
+  .cover-wrap h1{ font-size:clamp(28px,5vw,52px); }
+  .badge-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:22px; }
+  .pill{ font-size:12.5px; font-weight:600; padding:7px 16px; border-radius:99px; border:1px solid var(--line-strong); color:var(--text-mid); }
+
+  table.calc-table{ width:100%; border-collapse:collapse; margin:14px 0; font-size:14px; }
+  table.calc-table th, table.calc-table td{ padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; color:var(--text-mid); }
+  table.calc-table th{ color:var(--text-hi); font-weight:700; font-size:13px; }
+  table.calc-table tr:last-child td{ border-bottom:none; font-weight:700; color:var(--text-hi); }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--bg-3); border-radius:99px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+
+  @media(max-width:640px){
+    #topbar{ padding:10px 14px; }
+    #bottombar{ padding:10px 14px; }
+    .slide{ padding:24px 5vw 14px; }
+    #dots{ display:none; }
+    .card{ padding:18px; }
+    .price-tag-visual{ gap:14px; padding:14px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div class="brand">Aritmetika Sosial <small>Diskon · Pajak</small></div>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <div id="slide-counter"><span id="cur-num">1</span> / <span id="tot-num">1</span></div>
+  </div>
+
+  <div id="viewport">
+
+    <!-- 0: COVER -->
+    <section class="slide">
+      <div class="slide-inner cover-wrap">
+        <div class="cover-icon">🏷️</div>
+        <span class="eyebrow">Bab 5 · Aritmetika Sosial</span>
+        <h1>Menghitung <span class="highlight-coral">Diskon</span> dan <span class="highlight-violet">Pajak</span></h1>
+        <h2 class="slide-sub" style="margin:14px auto 0;">Belajar menghitung besar potongan harga (diskon), pajak, dan harga akhir yang harus dibayar — seperti saat belanja di mal atau toko online.</h2>
+        <div class="badge-row">
+          <span class="pill">📘 Matematika SMP</span>
+          <span class="pill">🎯 Kurikulum Merdeka</span>
+          <span class="pill">⏱️ ± 70–100 menit</span>
+        </div>
+        <div style="margin-top:34px;">
+          <button class="btn btn-coral" onclick="goNext()">Mulai Belajar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1: APERSEPSI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧭 Apersepsi</span>
+        <h1 class="slide-title">Pernah lihat label "DISKON 20%" di toko?</h1>
+        <h2 class="slide-sub">Mari kita amati situasi ini sebelum masuk ke materi.</h2>
+        <div class="card">
+          <p>Sebuah baju di toko memiliki label harga <strong>Rp200.000</strong> dengan tulisan besar <strong class="highlight-coral">DISKON 25%</strong>. Ada juga struk belanja di supermarket yang mencantumkan tulisan <strong class="highlight-violet">PPN 11%</strong> di bagian bawah.</p>
+          <div class="formula-box">Berapa sebenarnya harga baju itu setelah diskon? Dan apa itu PPN yang tertulis di struk?</div>
+          <p>Coba pikirkan dulu, lalu klik tombol di bawah untuk melihat arahnya.</p>
+          <button class="btn btn-outline btn-sm" onclick="toggleReveal('aper-hint', this)">💡 Tunjukkan Petunjuk</button>
+          <div id="aper-hint" style="display:none; margin-top:14px;">
+            <p><strong>Diskon</strong> berarti harga barang <strong>dikurangi</strong> sebagian, sehingga kamu membayar lebih murah. Sebaliknya, <strong>pajak</strong> (seperti PPN) adalah tambahan biaya yang membuat harga menjadi <strong>lebih mahal</strong> dari harga aslinya. Keduanya sama-sama dihitung dalam bentuk persen dari suatu harga.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2: TUJUAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎯 Tujuan Pembelajaran</span>
+        <h1 class="slide-title">Setelah mempelajari materi ini, kamu akan mampu:</h1>
+        <ul class="sum-list" style="margin-top:20px;">
+          <li><span class="ico">1️⃣</span><span>Menjelaskan pengertian <strong>diskon</strong> dan <strong>pajak</strong> dalam kegiatan jual beli.</span></li>
+          <li><span class="ico">2️⃣</span><span>Menghitung besar diskon dan harga barang <strong>setelah</strong> didiskon.</span></li>
+          <li><span class="ico">3️⃣</span><span>Menghitung diskon <strong>bertingkat (diskon ganda)</strong> pada suatu transaksi.</span></li>
+          <li><span class="ico">4️⃣</span><span>Menghitung besar pajak dan harga barang <strong>termasuk</strong> pajak.</span></li>
+          <li><span class="ico">5️⃣</span><span>Menyelesaikan masalah sehari-hari yang melibatkan diskon <strong>dan</strong> pajak sekaligus.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3: KONSEP DISKON -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🏷️ Konsep Dasar</span>
+        <h1 class="slide-title">Apa itu Diskon?</h1>
+        <div class="card">
+          <div class="icon-badge">🏷️</div>
+          <p><strong>Diskon</strong> adalah potongan harga yang diberikan penjual kepada pembeli, biasanya dinyatakan dalam bentuk persen (%). Diskon membuat harga yang harus dibayar pembeli menjadi <strong>lebih murah</strong> dari harga awal.</p>
+          <div class="formula-box">Diskon = potongan harga dari harga awal (harga sebelum diskon)</div>
+          <p>Contoh: Sebuah sepatu berharga awal Rp300.000 diberi diskon 10%. Artinya, pembeli mendapat potongan sebesar 10% dari Rp300.000, yaitu Rp30.000, sehingga cukup membayar Rp270.000.</p>
+          <p style="margin-top:10px;">Istilah penting: <strong>Harga Awal / Harga Kotor</strong> (sebelum diskon) dan <strong>Harga Bersih / Harga Setelah Diskon</strong> (yang benar-benar dibayar).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4: RUMUS BESAR DISKON -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧮 Rumus</span>
+        <h1 class="slide-title">Menghitung Besar Diskon</h1>
+        <div class="card">
+          <p>Besar diskon (dalam rupiah) dihitung dengan mengalikan persentase diskon dengan harga awal.</p>
+          <div class="formula-box">Besar Diskon = Persentase Diskon × Harga Awal</div>
+          <div class="accordion-item" id="acc-diskon1">
+            <div class="accordion-head" onclick="toggleAccordion('acc-diskon1')">
+              <span>📌 Lihat contoh perhitungan</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <p>Sebuah tas berharga <strong>Rp400.000</strong> diberi diskon <strong>15%</strong>.</p>
+              <p>Besar Diskon = 15% × Rp400.000 = 0,15 × 400.000 = <strong class="highlight-coral">Rp60.000</strong></p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5: RUMUS HARGA SETELAH DISKON -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧮 Rumus</span>
+        <h1 class="slide-title">Menghitung Harga Setelah Diskon</h1>
+        <div class="card">
+          <p>Setelah mengetahui besar diskon, harga yang harus dibayar (harga bersih) dapat dihitung dengan:</p>
+          <div class="formula-box teal">Harga Setelah Diskon = Harga Awal − Besar Diskon</div>
+          <p>Ada juga cara cepat langsung dalam satu langkah, tanpa mencari besar diskon dahulu:</p>
+          <div class="formula-box teal">Harga Setelah Diskon = (100% − Persentase Diskon) × Harga Awal</div>
+          <div class="price-tag-visual">
+            <div class="price-box"><div class="lbl">Harga Awal</div><div class="amt old">Rp400.000</div></div>
+            <div class="arrow-sep">→</div>
+            <div class="price-box"><div class="lbl">Diskon 15%</div><div class="amt" style="color:var(--coral);">− Rp60.000</div></div>
+            <div class="arrow-sep">=</div>
+            <div class="price-box"><div class="lbl">Harga Bersih</div><div class="amt new">Rp340.000</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6: VISUALISASI SLIDER DISKON -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎛️ Visualisasi Interaktif</span>
+        <h1 class="slide-title">Coba Sendiri: Simulasi Diskon</h1>
+        <h2 class="slide-sub">Geser slider harga awal dan persentase diskon, lalu amati harga akhirnya.</h2>
+        <div class="card">
+          <div class="slider-row">
+            <label>Harga Awal <span class="val" id="hd-val">Rp300.000</span></label>
+            <input type="range" id="hd-slider" min="50000" max="1000000" step="10000" value="300000" oninput="updateDiskonVis()">
+          </div>
+          <div class="slider-row">
+            <label>Persentase Diskon <span class="val" id="pd-val">10%</span></label>
+            <input type="range" id="pd-slider" min="0" max="70" step="1" value="10" oninput="updateDiskonVis()">
+          </div>
+          <div class="price-tag-visual">
+            <div class="price-box"><div class="lbl">Harga Awal</div><div class="amt old" id="vis-hd-old">Rp300.000</div></div>
+            <div class="arrow-sep">→</div>
+            <div class="price-box"><div class="lbl">Potongan</div><div class="amt" id="vis-hd-potongan" style="color:var(--coral);">− Rp30.000</div></div>
+            <div class="arrow-sep">=</div>
+            <div class="price-box"><div class="lbl">Harga Bersih</div><div class="amt new" id="vis-hd-bersih">Rp270.000</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7: DISKON GANDA -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🏷️🏷️ Konsep Lanjutan</span>
+        <h1 class="slide-title">Diskon Ganda (Diskon Bertingkat)</h1>
+        <div class="card">
+          <p>Terkadang toko memberikan <strong>dua diskon sekaligus</strong>, misalnya ditulis <strong class="highlight-coral">"Diskon 20% + 10%"</strong>. Ini <strong>bukan berarti</strong> totalnya 30%!</p>
+          <p>Diskon kedua dihitung dari harga yang <strong>sudah</strong> dipotong diskon pertama, bukan dari harga awal.</p>
+          <div class="formula-box">Langkah 1: Harga setelah diskon pertama = (100% − diskon 1) × Harga Awal</div>
+          <div class="formula-box">Langkah 2: Harga setelah diskon kedua = (100% − diskon 2) × Harga setelah diskon pertama</div>
+          <div class="accordion-item" id="acc-diskon-ganda">
+            <div class="accordion-head" onclick="toggleAccordion('acc-diskon-ganda')">
+              <span>📌 Lihat contoh perhitungan diskon 20% + 10%</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <table class="calc-table">
+                <tr><th>Tahap</th><th>Perhitungan</th><th>Hasil</th></tr>
+                <tr><td>Harga awal</td><td>—</td><td>Rp500.000</td></tr>
+                <tr><td>Setelah diskon 20%</td><td>80% × 500.000</td><td>Rp400.000</td></tr>
+                <tr><td>Setelah diskon 10%</td><td>90% × 400.000</td><td>Rp360.000</td></tr>
+              </table>
+              <p>Jadi harga akhir adalah <strong class="highlight-coral">Rp360.000</strong>, bukan 500.000 dikurangi 30% (yang akan menghasilkan Rp350.000). Selisih ini penting untuk dipahami!</p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8: CONTOH SOAL DISKON TUNGGAL -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 1</span>
+        <h1 class="slide-title">Menghitung Harga Setelah Diskon Tunggal</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Sebuah jaket berharga <strong>Rp250.000</strong> mendapat diskon <strong>20%</strong>. Berapa harga yang harus dibayar pembeli?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps1')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps1" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan harga awal dan persentase diskon</span><p style="margin-top:8px;">Harga awal = Rp250.000, Diskon = 20%</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Hitung besar diskon</span><p style="margin-top:8px;">Diskon = 20% × 250.000 = <strong>Rp50.000</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung harga setelah diskon</span><p style="margin-top:8px;">Harga bersih = 250.000 − 50.000 = <strong class="highlight-coral">Rp200.000</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9: CONTOH SOAL DISKON GANDA -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 2</span>
+        <h1 class="slide-title">Menghitung Harga Setelah Diskon Ganda</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Sebuah tas travel berharga <strong>Rp600.000</strong> mendapat diskon <strong>"25% + 10%"</strong>. Berapa harga akhir yang harus dibayar?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps2')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps2" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Hitung harga setelah diskon pertama (25%)</span><p style="margin-top:8px;">75% × 600.000 = <strong>Rp450.000</strong></p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Hitung harga setelah diskon kedua (10%) dari hasil tahap 1</span><p style="margin-top:8px;">90% × 450.000 = <strong class="highlight-coral">Rp405.000</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Bandingkan dengan kesalahan umum</span><p style="margin-top:8px;">Jika dijumlah langsung jadi 35% (salah), hasilnya 65% × 600.000 = Rp390.000 — <strong>ini keliru</strong>. Jawaban yang benar tetap <strong class="highlight-coral">Rp405.000</strong>.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10: KONSEP PAJAK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧾 Konsep Dasar</span>
+        <h1 class="slide-title">Apa itu Pajak?</h1>
+        <div class="card">
+          <div class="icon-badge violet">🧾</div>
+          <p><strong>Pajak</strong> adalah sejumlah uang yang wajib dibayarkan kepada negara atas suatu transaksi jual beli. Salah satu jenis pajak yang sering kita temui adalah <strong>Pajak Pertambahan Nilai (PPN)</strong>, yang dikenakan atas pembelian barang atau jasa.</p>
+          <div class="formula-box violet">Pajak = tambahan biaya dari harga barang, dibayarkan kepada negara</div>
+          <p>Berbeda dengan diskon yang membuat harga <strong>lebih murah</strong>, pajak membuat harga yang dibayar menjadi <strong>lebih mahal</strong> dari harga barang itu sendiri.</p>
+          <p style="margin-top:10px;">Contoh: Sebuah produk elektronik seharga Rp1.000.000 dikenakan PPN 11%. Pembeli harus membayar lebih dari Rp1.000.000 karena ditambah pajaknya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11: RUMUS PAJAK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧮 Rumus</span>
+        <h1 class="slide-title">Menghitung Besar Pajak dan Harga Termasuk Pajak</h1>
+        <div class="card">
+          <div class="formula-box violet">Besar Pajak = Persentase Pajak × Harga Sebelum Pajak</div>
+          <div class="formula-box violet">Harga Termasuk Pajak = Harga Sebelum Pajak + Besar Pajak</div>
+          <p>Sama seperti diskon, ada juga cara cepat satu langkah:</p>
+          <div class="formula-box violet">Harga Termasuk Pajak = (100% + Persentase Pajak) × Harga Sebelum Pajak</div>
+          <div class="accordion-item" id="acc-pajak1">
+            <div class="accordion-head" onclick="toggleAccordion('acc-pajak1')">
+              <span>📌 Lihat contoh perhitungan</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <p>Sebuah blender berharga <strong>Rp800.000</strong> sebelum pajak, dikenakan PPN <strong>11%</strong>.</p>
+              <p>Besar Pajak = 11% × 800.000 = <strong>Rp88.000</strong></p>
+              <p>Harga Termasuk Pajak = 800.000 + 88.000 = <strong class="highlight-violet">Rp888.000</strong></p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12: HARGA NETTO VS BRUTO (before/incl tax) -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🔍 Konsep Penting</span>
+        <h1 class="slide-title">Mencari Harga Sebelum Pajak (Jika Diketahui Harga Termasuk Pajak)</h1>
+        <div class="card">
+          <p>Kadang yang diketahui justru harga yang <strong>sudah termasuk pajak</strong> (misalnya harga di struk), dan kita perlu mencari harga aslinya <strong>sebelum</strong> pajak.</p>
+          <div class="formula-box violet">Harga Sebelum Pajak = Harga Termasuk Pajak ÷ (100% + Persentase Pajak)</div>
+          <div class="accordion-item" id="acc-pajak2">
+            <div class="accordion-head" onclick="toggleAccordion('acc-pajak2')">
+              <span>📌 Lihat contoh perhitungan</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <p>Sebuah struk menunjukkan total belanja <strong>Rp222.000</strong> yang sudah termasuk PPN <strong>11%</strong>. Berapa harga barang sebelum pajak?</p>
+              <p>Harga Sebelum Pajak = 222.000 ÷ 1,11 = <strong class="highlight-violet">Rp200.000</strong></p>
+              <p>Besar pajaknya = 222.000 − 200.000 = <strong>Rp22.000</strong></p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13: VISUALISASI SLIDER PAJAK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎛️ Visualisasi Interaktif</span>
+        <h1 class="slide-title">Coba Sendiri: Simulasi Pajak</h1>
+        <h2 class="slide-sub">Geser slider harga sebelum pajak dan persentase pajak, lalu amati harga akhirnya.</h2>
+        <div class="card">
+          <div class="slider-row">
+            <label>Harga Sebelum Pajak <span class="val" id="hp-val">Rp500.000</span></label>
+            <input type="range" class="violet-thumb" id="hp-slider" min="50000" max="2000000" step="10000" value="500000" oninput="updatePajakVis()">
+          </div>
+          <div class="slider-row">
+            <label>Persentase Pajak <span class="val" id="pp-val">11%</span></label>
+            <input type="range" class="violet-thumb" id="pp-slider" min="0" max="20" step="1" value="11" oninput="updatePajakVis()">
+          </div>
+          <div class="price-tag-visual">
+            <div class="price-box"><div class="lbl">Harga Sebelum Pajak</div><div class="amt old" id="vis-hp-old">Rp500.000</div></div>
+            <div class="arrow-sep">→</div>
+            <div class="price-box"><div class="lbl">Tambahan Pajak</div><div class="amt tax" id="vis-hp-pajak">+ Rp55.000</div></div>
+            <div class="arrow-sep">=</div>
+            <div class="price-box"><div class="lbl">Harga Termasuk Pajak</div><div class="amt" style="color:var(--teal);" id="vis-hp-total">Rp555.000</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14: CONTOH SOAL PAJAK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 3</span>
+        <h1 class="slide-title">Menghitung Harga Termasuk Pajak</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Sebuah kulkas berharga <strong>Rp3.000.000</strong> sebelum pajak. Jika dikenakan PPN sebesar <strong>11%</strong>, berapa total harga yang harus dibayar pembeli?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps3')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps3" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan harga sebelum pajak dan persentase pajak</span><p style="margin-top:8px;">Harga = Rp3.000.000, Pajak = 11%</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Hitung besar pajak</span><p style="margin-top:8px;">Pajak = 11% × 3.000.000 = <strong>Rp330.000</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung harga total termasuk pajak</span><p style="margin-top:8px;">Total = 3.000.000 + 330.000 = <strong class="highlight-violet">Rp3.330.000</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15: CONTOH SOAL GABUNGAN DISKON + PAJAK -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 4 · Gabungan</span>
+        <h1 class="slide-title">Diskon dan Pajak dalam Satu Transaksi</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Sebuah sepatu berharga awal <strong>Rp700.000</strong> mendapat diskon <strong>20%</strong>. Setelah didiskon, harga tersebut masih dikenakan PPN <strong>11%</strong>. Berapa total yang harus dibayar pembeli?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps4')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps4" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Hitung harga setelah diskon terlebih dahulu</span><p style="margin-top:8px;">80% × 700.000 = <strong>Rp560.000</strong></p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Hitung pajak dari harga yang sudah didiskon</span><p style="margin-top:8px;">Pajak = 11% × 560.000 = <strong>Rp61.600</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung total akhir yang dibayar</span><p style="margin-top:8px;">Total = 560.000 + 61.600 = <strong class="highlight-coral">Rp621.600</strong></p></div>
+            <div class="step-item"><span class="step-num">4</span><span class="step-title">Ingat urutannya!</span><p style="margin-top:8px;">Diskon dihitung <strong>lebih dulu</strong> dari harga awal, baru kemudian pajak dihitung dari harga <strong>setelah</strong> diskon — bukan dari harga awal.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16: AKTIVITAS DRAG AND DROP -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎮 Aktivitas Interaktif</span>
+        <h1 class="slide-title">Kelompokkan Pernyataan Berikut</h1>
+        <h2 class="slide-sub">Seret (drag) setiap kartu ke kelompok yang tepat: berkaitan dengan Diskon atau Pajak.</h2>
+        <div class="card">
+          <div class="dd-pool" id="dd-pool">
+            <div class="dd-item" draggable="true" data-ans="diskon">Membuat harga menjadi lebih murah</div>
+            <div class="dd-item" draggable="true" data-ans="pajak">Dibayarkan kepada negara</div>
+            <div class="dd-item" draggable="true" data-ans="diskon">Sering muncul saat promo akhir tahun</div>
+            <div class="dd-item" draggable="true" data-ans="pajak">Contohnya adalah PPN</div>
+            <div class="dd-item" draggable="true" data-ans="diskon">Dihitung sebagai pengurang dari harga awal</div>
+            <div class="dd-item" draggable="true" data-ans="pajak">Membuat harga menjadi lebih mahal</div>
+          </div>
+          <div class="dd-zones">
+            <div class="dd-zone" data-zone="diskon"><span>🏷️ DISKON</span><div class="zone-items"></div></div>
+            <div class="dd-zone" data-zone="pajak"><span>🧾 PAJAK</span><div class="zone-items"></div></div>
+          </div>
+          <div id="dd-feedback"></div>
+          <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="checkDragDrop()">✅ Periksa Jawaban</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17: LATIHAN MUDAH -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 1</span>
+        <h1 class="slide-title">Latihan Mudah <span class="diff-badge mudah">MUDAH</span></h1>
+        <div class="card" id="latihan-mudah"></div>
+      </div>
+    </section>
+
+    <!-- 18: LATIHAN SEDANG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 2</span>
+        <h1 class="slide-title">Latihan Sedang <span class="diff-badge sedang">SEDANG</span></h1>
+        <div class="card" id="latihan-sedang"></div>
+      </div>
+    </section>
+
+    <!-- 19: LATIHAN MENANTANG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 3</span>
+        <h1 class="slide-title">Latihan Menantang <span class="diff-badge menantang">MENANTANG</span></h1>
+        <div class="card" id="latihan-menantang"></div>
+      </div>
+    </section>
+
+    <!-- 20: KUIS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🏁 Kuis Akhir</span>
+        <h1 class="slide-title">Uji Pemahamanmu!</h1>
+        <h2 class="slide-sub">Jawab semua soal berikut, lalu klik "Selesai & Lihat Skor" untuk melihat hasilmu.</h2>
+        <div class="card" id="kuis-container"></div>
+        <div class="card" style="text-align:center;">
+          <button class="btn btn-coral" id="kuis-submit" onclick="submitKuis()">Selesai &amp; Lihat Skor</button>
+        </div>
+        <div class="card" id="quiz-result">
+          <div class="score-num" id="score-display">0/0</div>
+          <p id="score-msg"></p>
+          <button class="btn btn-outline" onclick="resetKuis()">🔄 Ulangi Kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21: REFLEKSI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">💭 Refleksi</span>
+        <h1 class="slide-title">Sejenak, Mari Merefleksikan Pembelajaran</h1>
+        <div class="card">
+          <p>Tuliskan jawabanmu secara singkat pada kolom di bawah ini (tidak perlu dikumpulkan, ini untuk membantumu mengingat kembali):</p>
+          <p style="margin-top:14px;"><strong>1. Konsep mana yang paling mudah kamu pahami — diskon atau pajak? Mengapa?</strong></p>
+          <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+          <p style="margin-top:18px;"><strong>2. Apa kesalahan yang paling sering terjadi saat menghitung diskon ganda, dan bagaimana cara menghindarinya?</strong></p>
+          <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22: RANGKUMAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📚 Rangkuman</span>
+        <h1 class="slide-title">Yang Perlu Kamu Ingat</h1>
+        <ul class="sum-list">
+          <li><span class="ico">🏷️</span><span><strong>Diskon</strong> = potongan harga; Harga Bersih = Harga Awal − Diskon, atau (100% − %diskon) × Harga Awal.</span></li>
+          <li><span class="ico">🏷️🏷️</span><span><strong>Diskon ganda</strong> dihitung bertahap — diskon kedua dari harga setelah diskon pertama, bukan dijumlahkan langsung.</span></li>
+          <li><span class="ico">🧾</span><span><strong>Pajak</strong> = tambahan biaya; Harga Termasuk Pajak = Harga Awal + Pajak, atau (100% + %pajak) × Harga Awal.</span></li>
+          <li><span class="ico">🔍</span><span>Untuk mencari <strong>harga sebelum pajak</strong> dari harga yang sudah termasuk pajak, bagi dengan (100% + %pajak).</span></li>
+          <li><span class="ico">🔗</span><span>Jika diskon dan pajak digabung, <strong>hitung diskon dahulu</strong>, baru pajak dihitung dari harga yang sudah didiskon.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 23: PENUTUP -->
+    <section class="slide">
+      <div class="slide-inner cover-wrap">
+        <div class="cover-icon">🎉</div>
+        <h1>Selamat, Kamu Telah Menyelesaikan Bab Ini!</h1>
+        <h2 class="slide-sub" style="margin:14px auto 0;">Sekarang kamu tahu cara menghitung harga sebenarnya di balik label diskon dan struk belanja. Teruslah berlatih agar semakin cermat saat berbelanja!</h2>
+        <div style="margin-top:30px;">
+          <button class="btn btn-coral" onclick="goToSlide(0)">🔁 Ulangi dari Awal</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="bottombar">
+    <button class="nav-btn" id="prev-btn" onclick="goPrev()">‹</button>
+    <div id="dots"></div>
+    <button class="nav-btn" id="next-btn" onclick="goNext()">›</button>
+  </div>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+document.getElementById('tot-num').textContent = total;
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const d = document.createElement('div');
+  d.className='dot'; d.onclick=()=>goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+
+function renderNav(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i===current));
+  document.getElementById('cur-num').textContent = current+1;
+  document.getElementById('progress-fill').style.width = ((current+1)/total*100)+'%';
+  document.getElementById('prev-btn').disabled = current===0;
+  document.getElementById('next-btn').disabled = current===total-1;
+  document.getElementById('viewport').scrollTop = 0;
+}
+function goToSlide(i){ if(i<0||i>=total) return; current=i; renderNav(); }
+function goNext(){ if(current<total-1){ current++; renderNav(); } }
+function goPrev(){ if(current>0){ current--; renderNav(); } }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goNext();
+  if(e.key==='ArrowLeft') goPrev();
+});
+renderNav();
+
+/* ================= GENERIC HELPERS ================= */
+function toggleReveal(id, btn){
+  const el = document.getElementById(id);
+  const showing = el.style.display === 'block';
+  el.style.display = showing ? 'none' : 'block';
+  if(btn) btn.textContent = showing ? '💡 Tunjukkan Petunjuk' : '🙈 Sembunyikan Petunjuk';
+}
+function toggleAccordion(id){
+  document.getElementById(id).classList.toggle('open');
+}
+function revealSteps(containerId){
+  const items = document.querySelectorAll('#'+containerId+' .step-item');
+  let idx = 0;
+  const iv = setInterval(()=>{
+    if(idx>=items.length){ clearInterval(iv); return; }
+    items[idx].classList.add('revealed');
+    idx++;
+  }, 550);
+}
+function formatRp(n){ return 'Rp'+Math.round(n).toLocaleString('id-ID'); }
+
+/* ================= VISUALISASI DISKON ================= */
+function updateDiskonVis(){
+  const hd = parseInt(document.getElementById('hd-slider').value);
+  const pd = parseInt(document.getElementById('pd-slider').value);
+  document.getElementById('hd-val').textContent = formatRp(hd);
+  document.getElementById('pd-val').textContent = pd+'%';
+  const potongan = hd*pd/100;
+  const bersih = hd - potongan;
+  document.getElementById('vis-hd-old').textContent = formatRp(hd);
+  document.getElementById('vis-hd-potongan').textContent = '− '+formatRp(potongan);
+  document.getElementById('vis-hd-bersih').textContent = formatRp(bersih);
+}
+updateDiskonVis();
+
+/* ================= VISUALISASI PAJAK ================= */
+function updatePajakVis(){
+  const hp = parseInt(document.getElementById('hp-slider').value);
+  const pp = parseInt(document.getElementById('pp-slider').value);
+  document.getElementById('hp-val').textContent = formatRp(hp);
+  document.getElementById('pp-val').textContent = pp+'%';
+  const pajak = hp*pp/100;
+  const total = hp + pajak;
+  document.getElementById('vis-hp-old').textContent = formatRp(hp);
+  document.getElementById('vis-hp-pajak').textContent = '+ '+formatRp(pajak);
+  document.getElementById('vis-hp-total').textContent = formatRp(total);
+}
+updatePajakVis();
+
+/* ================= DRAG AND DROP ================= */
+let draggedItem = null;
+document.querySelectorAll('#dd-pool .dd-item').forEach(item=>{
+  item.addEventListener('dragstart', ()=>{ draggedItem = item; item.classList.add('dragging'); });
+  item.addEventListener('dragend', ()=>{ item.classList.remove('dragging'); });
+});
+document.querySelectorAll('.dd-zone').forEach(zone=>{
+  zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', ()=>{ zone.classList.remove('over'); });
+  zone.addEventListener('drop', (e)=>{
+    e.preventDefault(); zone.classList.remove('over');
+    if(draggedItem){ zone.querySelector('.zone-items').appendChild(draggedItem); }
+  });
+});
+function checkDragDrop(){
+  let correct=0, totalItems=0;
+  document.querySelectorAll('.dd-zone').forEach(zone=>{
+    const zoneName = zone.dataset.zone;
+    zone.querySelectorAll('.dd-item').forEach(item=>{
+      totalItems++;
+      if(item.dataset.ans === zoneName){
+        item.style.borderColor='var(--teal)'; item.style.color='var(--teal)';
+        correct++;
+      } else {
+        item.style.borderColor='#fb7185'; item.style.color='#fb7185';
+      }
+    });
+  });
+  const fb = document.getElementById('dd-feedback');
+  const poolLeft = document.querySelectorAll('#dd-pool .dd-item').length;
+  if(poolLeft>0){
+    fb.style.color='var(--coral)';
+    fb.textContent = 'Masih ada '+poolLeft+' kartu yang belum dipindahkan ke kelompok.';
+  } else {
+    fb.style.color = correct===totalItems ? 'var(--teal)' : '#fb7185';
+    fb.textContent = 'Benar '+correct+' dari '+totalItems+' kartu. '+(correct===totalItems ? '🎉 Sempurna!' : 'Coba periksa kembali kartu yang berwarna merah.');
+  }
+}
+
+/* ================= LATIHAN (MCQ) ================= */
+function buildMCQ(containerId, questions){
+  const container = document.getElementById(containerId);
+  questions.forEach((q, qi)=>{
+    const wrap = document.createElement('div'); wrap.className='mcq';
+    const qEl = document.createElement('div'); qEl.className='mcq-q'; qEl.textContent = (qi+1)+'. '+q.q;
+    wrap.appendChild(qEl);
+    const optsWrap = document.createElement('div'); optsWrap.className='mcq-options';
+    q.opts.forEach((opt, oi)=>{
+      const optEl = document.createElement('div'); optEl.className='mcq-opt'; optEl.textContent = opt;
+      optEl.onclick = ()=>{
+        if(optsWrap.dataset.answered) return;
+        optsWrap.dataset.answered = '1';
+        optsWrap.querySelectorAll('.mcq-opt').forEach((el,idx)=>{
+          if(idx===q.correct) el.classList.add('correct');
+          else if(el===optEl) el.classList.add('wrong');
+        });
+        const fb = wrap.querySelector('.mcq-fb');
+        fb.classList.add('show');
+        if(oi===q.correct){ fb.classList.add('ok'); fb.textContent = '✅ Benar! '+q.explain; }
+        else { fb.classList.add('no'); fb.textContent = '❌ Belum tepat. '+q.explain; }
+      };
+      optsWrap.appendChild(optEl);
+    });
+    wrap.appendChild(optsWrap);
+    const fbEl = document.createElement('div'); fbEl.className='mcq-fb'; wrap.appendChild(fbEl);
+    container.appendChild(wrap);
+  });
+}
+
+buildMCQ('latihan-mudah', [
+  { q:'Sebuah buku berharga Rp50.000 mendapat diskon 10%. Berapa besar diskonnya dalam rupiah?',
+    opts:['Rp5.000','Rp10.000','Rp45.000','Rp500'], correct:0,
+    explain:'Diskon = 10% × 50.000 = Rp5.000.' },
+  { q:'Diskon membuat harga barang menjadi...',
+    opts:['Lebih mahal','Lebih murah','Tetap sama','Tidak dapat ditentukan'], correct:1,
+    explain:'Diskon adalah potongan harga, sehingga membuat harga menjadi lebih murah.' },
+  { q:'Pajak (seperti PPN) membuat harga yang dibayar menjadi...',
+    opts:['Lebih murah','Lebih mahal','Tetap sama','Nol'], correct:1,
+    explain:'Pajak adalah tambahan biaya, sehingga membuat harga yang dibayar menjadi lebih mahal.' }
+]);
+
+buildMCQ('latihan-sedang', [
+  { q:'Sebuah baju berharga Rp180.000 mendapat diskon 25%. Berapa harga yang harus dibayar?',
+    opts:['Rp45.000','Rp135.000','Rp150.000','Rp155.000'], correct:1,
+    explain:'Diskon = 25% × 180.000 = 45.000. Harga bersih = 180.000 − 45.000 = Rp135.000.' },
+  { q:'Sebuah produk berharga Rp600.000 sebelum pajak, dikenakan PPN 11%. Berapa total harga yang dibayar?',
+    opts:['Rp606.000','Rp611.000','Rp660.000','Rp666.000'], correct:3,
+    explain:'Pajak = 11% × 600.000 = 66.000. Total = 600.000 + 66.000 = Rp666.000.' },
+  { q:'Manakah rumus yang benar untuk menghitung harga sebelum pajak jika diketahui harga termasuk pajak?',
+    opts:['Harga Termasuk Pajak × %Pajak','Harga Termasuk Pajak ÷ (100% + %Pajak)','Harga Termasuk Pajak − %Pajak','Harga Termasuk Pajak + %Pajak'], correct:1,
+    explain:'Harga sebelum pajak = Harga Termasuk Pajak dibagi (100% + persentase pajak).' }
+]);
+
+buildMCQ('latihan-menantang', [
+  { q:'Sebuah sepatu berharga Rp500.000 mendapat diskon ganda "10% + 5%". Berapa harga akhirnya?',
+    opts:['Rp415.000','Rp422.500','Rp427.500','Rp450.000'], correct:2,
+    explain:'Setelah diskon 10%: 90% × 500.000 = 450.000. Setelah diskon 5%: 95% × 450.000 = Rp427.500.' },
+  { q:'Sebuah struk menunjukkan total Rp266.400 sudah termasuk PPN 11%. Berapa harga barang sebelum pajak?',
+    opts:['Rp230.000','Rp235.000','Rp237.000','Rp240.000'], correct:3,
+    explain:'Harga sebelum pajak = 266.400 ÷ 1,11 = Rp240.000.' },
+  { q:'Sebuah barang berharga awal Rp1.000.000 mendapat diskon 30%, lalu harga hasil diskon dikenakan pajak 11%. Berapa total akhir yang dibayar?',
+    opts:['Rp770.000','Rp777.000','Rp781.700','Rp800.000'], correct:1,
+    explain:'Setelah diskon 30%: 70% × 1.000.000 = 700.000. Pajak 11% dari 700.000 = 77.000. Total = 700.000 + 77.000 = Rp777.000.' }
+]);
+
+/* ================= KUIS ================= */
+const kuisData = [
+  { q:'Diskon adalah...',
+    opts:['Tambahan biaya dari negara','Potongan harga dari penjual','Biaya pengiriman','Keuntungan pedagang'], correct:1,
+    explain:'Diskon adalah potongan harga yang diberikan penjual kepada pembeli.' },
+  { q:'Sebuah tas berharga Rp250.000 mendapat diskon 12%. Berapa besar diskonnya?',
+    opts:['Rp12.000','Rp25.000','Rp30.000','Rp220.000'], correct:2,
+    explain:'Diskon = 12% × 250.000 = Rp30.000.' },
+  { q:'Sebuah barang berharga Rp400.000 mendapat diskon ganda "20% + 5%". Berapa harga akhirnya?',
+    opts:['Rp300.000','Rp304.000','Rp320.000','Rp380.000'], correct:1,
+    explain:'Setelah diskon 20%: 80% × 400.000 = 320.000. Setelah diskon 5%: 95% × 320.000 = Rp304.000.' },
+  { q:'Pajak Pertambahan Nilai (PPN) menyebabkan harga yang dibayar pembeli menjadi...',
+    opts:['Lebih murah','Lebih mahal','Sama saja','Nol rupiah'], correct:1,
+    explain:'PPN adalah tambahan biaya, sehingga harga yang dibayar menjadi lebih mahal dari harga awal.' },
+  { q:'Sebuah produk seharga Rp900.000 dikenakan PPN 11%. Berapa total yang harus dibayar?',
+    opts:['Rp901.100','Rp909.900','Rp990.000','Rp999.000'], correct:3,
+    explain:'Pajak = 11% × 900.000 = 99.000. Total = 900.000 + 99.000 = Rp999.000.' },
+  { q:'Sebuah struk menunjukkan total Rp111.000 sudah termasuk PPN 11%. Berapa harga sebelum pajak?',
+    opts:['Rp98.790','Rp99.000','Rp100.000','Rp102.000'], correct:2,
+    explain:'Harga sebelum pajak = 111.000 ÷ 1,11 = Rp100.000.' },
+  { q:'Sebuah barang berharga awal Rp800.000 mendapat diskon 25%, lalu dikenakan pajak 10% dari harga setelah diskon. Berapa total akhir?',
+    opts:['Rp600.000','Rp616.000','Rp660.000','Rp680.000'], correct:2,
+    explain:'Setelah diskon 25%: 75% × 800.000 = 600.000. Pajak 10% dari 600.000 = 60.000. Total = 660.000.' }
+];
+let kuisAnswers = new Array(kuisData.length).fill(null);
+
+function buildKuis(){
+  const container = document.getElementById('kuis-container');
+  container.innerHTML = '';
+  kuisData.forEach((q, qi)=>{
+    const wrap = document.createElement('div'); wrap.className='mcq';
+    const qEl = document.createElement('div'); qEl.className='mcq-q'; qEl.textContent = (qi+1)+'. '+q.q;
+    wrap.appendChild(qEl);
+    const optsWrap = document.createElement('div'); optsWrap.className='mcq-options';
+    q.opts.forEach((opt, oi)=>{
+      const optEl = document.createElement('div'); optEl.className='mcq-opt'; optEl.textContent = opt;
+      optEl.onclick = ()=>{
+        if(document.getElementById('kuis-submit').disabled) return;
+        optsWrap.querySelectorAll('.mcq-opt').forEach(el=>el.classList.remove('selected'));
+        optEl.classList.add('selected');
+        kuisAnswers[qi] = oi;
+      };
+      optsWrap.appendChild(optEl);
+    });
+    wrap.appendChild(optsWrap);
+    container.appendChild(wrap);
+  });
+}
+buildKuis();
+
+function submitKuis(){
+  if(kuisAnswers.includes(null)){
+    alert('Jawab semua soal terlebih dahulu ya sebelum melihat skor.');
+    return;
+  }
+  let score = 0;
+  const container = document.getElementById('kuis-container');
+  const mcqs = container.querySelectorAll('.mcq');
+  mcqs.forEach((wrap, qi)=>{
+    const opts = wrap.querySelectorAll('.mcq-opt');
+    const correctIdx = kuisData[qi].correct;
+    opts.forEach((el, oi)=>{
+      el.style.pointerEvents='none';
+      if(oi===correctIdx) el.classList.add('correct');
+      else if(oi===kuisAnswers[qi]) el.classList.add('wrong');
+    });
+    if(kuisAnswers[qi]===correctIdx) score++;
+  });
+  document.getElementById('kuis-submit').disabled = true;
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('score-display').textContent = score+'/'+kuisData.length;
+  let msg;
+  const pct = score/kuisData.length;
+  if(pct===1) msg='Sempurna! Kamu benar-benar menguasai materi Diskon dan Pajak. 🎉';
+  else if(pct>=0.7) msg='Bagus sekali! Pemahamanmu sudah cukup kuat, coba tinjau kembali soal yang salah.';
+  else if(pct>=0.4) msg='Cukup baik, tapi ada beberapa konsep yang perlu dipelajari ulang.';
+  else msg='Jangan menyerah! Coba pelajari kembali materi diskon dan pajak, lalu ulangi kuis ini.';
+  document.getElementById('score-msg').textContent = msg;
+}
+function resetKuis(){
+  kuisAnswers = new Array(kuisData.length).fill(null);
+  document.getElementById('kuis-submit').disabled = false;
+  document.getElementById('quiz-result').style.display='none';
+  buildKuis();
+}
+</script>
+</body>
+</html>

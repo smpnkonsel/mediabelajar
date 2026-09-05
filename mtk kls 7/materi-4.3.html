@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penjumlahan dan Pengurangan Bentuk Aljabar — Bab 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#0d1117;
+    --bg-2:#141b29;
+    --bg-3:#1b2436;
+    --card:#182033;
+    --card-border:#2a3550;
+    --accent-1:#7c5cff;
+    --accent-2:#22d3ee;
+    --accent-3:#ff8a5c;
+    --accent-4:#4ade80;
+    --danger:#f87171;
+    --text-1:#eef1f8;
+    --text-2:#a9b3cc;
+    --text-3:#707d9c;
+    --grad-main: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    --grad-warm: linear-gradient(135deg, var(--accent-3), #ffd166);
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow-soft: 0 10px 30px rgba(0,0,0,0.35);
+    --font-title:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--text-1);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,92,255,0.18), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(34,211,238,0.14), transparent 45%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%, var(--bg-3));
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .app{
+    max-width:980px;
+    margin:0 auto;
+    padding:18px 18px 110px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  .progress-wrap{
+    position:sticky; top:0; z-index:50;
+    padding:10px 0 14px;
+    background:linear-gradient(180deg, var(--bg-1) 70%, transparent);
+  }
+  .progress-track{
+    height:8px; border-radius:99px; background:rgba(255,255,255,0.06);
+    overflow:hidden; border:1px solid var(--card-border);
+  }
+  .progress-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:var(--grad-main);
+    transition:width .4s ease;
+  }
+  .progress-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:8px; font-size:12.5px; color:var(--text-3); font-family:var(--font-mono);
+  }
+  .progress-meta .badge{
+    background:var(--card); border:1px solid var(--card-border);
+    padding:3px 10px; border-radius:99px; color:var(--text-2);
+  }
+  .stage{ flex:1; display:flex; }
+  .slide{ display:none; width:100%; animation:fadeSlide .45s ease both; }
+  .slide.active{ display:block; }
+  @keyframes fadeSlide{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.02em;
+    color:var(--accent-2); background:rgba(34,211,238,0.09);
+    border:1px solid rgba(34,211,238,0.25);
+    padding:5px 12px; border-radius:99px; margin-bottom:14px;
+  }
+  h1,h2,h3{ font-family:var(--font-title); font-weight:600; margin:0 0 10px; line-height:1.2; }
+  h1{ font-size:clamp(28px,5vw,42px); }
+  h2{ font-size:clamp(22px,4vw,30px); }
+  h3{ font-size:19px; color:var(--text-1); }
+  p{ color:var(--text-2); line-height:1.7; font-size:15.5px; }
+  .lead{ font-size:17px; color:var(--text-2); }
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius-lg); padding:22px; box-shadow:var(--shadow-soft); }
+  .card + .card{ margin-top:16px; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:680px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
+  .math{
+    font-family:var(--font-mono); background:rgba(124,92,255,0.09);
+    border:1px solid rgba(124,92,255,0.3); border-radius:12px;
+    padding:14px 18px; color:var(--text-1); font-size:16px; display:inline-block;
+  }
+  .math.big{ font-size:20px; padding:16px 20px; }
+  .btn{
+    font-family:var(--font-body); font-weight:700; font-size:14.5px;
+    padding:11px 20px; border-radius:99px; border:none; cursor:pointer;
+    color:#0d1117; background:var(--grad-main);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    box-shadow:0 6px 18px rgba(124,92,255,0.28);
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(124,92,255,0.38); }
+  .btn:active{ transform:translateY(0); }
+  .btn.ghost{ background:transparent; color:var(--text-1); border:1px solid var(--card-border); box-shadow:none; }
+  .btn.ghost:hover{ background:rgba(255,255,255,0.05); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+  .btn.warm{ background:var(--grad-warm); box-shadow:0 6px 18px rgba(255,138,92,0.28); }
+  .accordion{ border:1px solid var(--card-border); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:rgba(255,255,255,0.02); }
+  .accordion-head{ display:flex; justify-content:space-between; align-items:center; padding:14px 18px; cursor:pointer; user-select:none; font-weight:600; }
+  .accordion-head:hover{ background:rgba(255,255,255,0.03); }
+  .accordion-icon{ transition:transform .25s ease; color:var(--accent-2); font-size:18px; }
+  .accordion.open .accordion-icon{ transform:rotate(45deg); }
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; padding:0 18px; }
+  .accordion.open .accordion-body{ padding:0 18px 16px; }
+  .step-list{ list-style:none; margin:14px 0 0; padding:0; }
+  .step-list li{ display:flex; gap:12px; padding:12px 0; border-top:1px dashed var(--card-border); opacity:0; transform:translateY(8px); }
+  .step-list.revealed li{ animation:stepIn .5s ease forwards; }
+  .step-list.revealed li:nth-child(1){ animation-delay:.05s; }
+  .step-list.revealed li:nth-child(2){ animation-delay:.25s; }
+  .step-list.revealed li:nth-child(3){ animation-delay:.45s; }
+  .step-list.revealed li:nth-child(4){ animation-delay:.65s; }
+  .step-list.revealed li:nth-child(5){ animation-delay:.85s; }
+  @keyframes stepIn{ to{opacity:1; transform:translateY(0);} }
+  .step-num{
+    min-width:26px; height:26px; border-radius:50%; background:var(--grad-main);
+    color:#0d1117; font-family:var(--font-mono); font-weight:700; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .opt-btn{
+    display:block; width:100%; text-align:left; padding:13px 16px; margin-bottom:9px;
+    border-radius:12px; border:1px solid var(--card-border); background:rgba(255,255,255,0.02);
+    color:var(--text-1); font-family:var(--font-body); font-size:15px; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .opt-btn:hover{ border-color:var(--accent-2); background:rgba(34,211,238,0.06); }
+  .opt-btn.correct{ border-color:var(--accent-4); background:rgba(74,222,128,0.12); }
+  .opt-btn.wrong{ border-color:var(--danger); background:rgba(248,113,113,0.12); }
+  .opt-btn:disabled{ cursor:default; }
+  .feedback{ margin-top:10px; padding:12px 16px; border-radius:12px; font-size:14.5px; display:none; }
+  .feedback.show{ display:block; animation:fadeSlide .3s ease; }
+  .feedback.ok{ background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.35); color:#a8f0c0; }
+  .feedback.bad{ background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.35); color:#ffc0c0; }
+  .match-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:680px){ .match-wrap{ grid-template-columns:1fr; } }
+  .match-col h3{ font-size:14px; color:var(--text-3); font-family:var(--font-mono); text-transform:none; margin-bottom:10px; }
+  .match-item{
+    padding:13px 14px; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,0.02); margin-bottom:9px; cursor:pointer; font-family:var(--font-mono);
+    font-size:14.5px; transition:all .15s ease;
+  }
+  .match-item:hover{ border-color:var(--accent-2); }
+  .match-item.selected{ border-color:var(--accent-2); background:rgba(34,211,238,0.1); }
+  .match-item.matched{ border-color:var(--accent-4); background:rgba(74,222,128,0.1); cursor:default; opacity:.7; }
+  .match-item.shake{ animation:shake .35s ease; border-color:var(--danger); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+  .sort-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  @media (max-width:680px){ .sort-wrap{ grid-template-columns:1fr; } }
+  .sort-zone{ border:2px dashed var(--card-border); border-radius:var(--radius-md); padding:14px; min-height:160px; }
+  .sort-zone h3{ font-size:14px; color:var(--text-3); font-family:var(--font-mono); margin-bottom:10px; }
+  .sort-pool{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .chip{
+    padding:9px 14px; border-radius:99px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,0.03); font-family:var(--font-mono); font-size:13.5px;
+    cursor:grab; user-select:none;
+  }
+  .chip.placed{ cursor:default; }
+  .chip.correct-drop{ border-color:var(--accent-4); background:rgba(74,222,128,0.12); }
+  .chip.wrong-drop{ border-color:var(--danger); background:rgba(248,113,113,0.12); }
+  .sort-zone.dragover{ border-color:var(--accent-2); background:rgba(34,211,238,0.05); }
+  .area-viz{ display:flex; justify-content:center; margin:18px 0; flex-wrap:wrap; gap:20px; }
+  .area-viz svg{ max-width:100%; height:auto; }
+  .nav-bar{ position:fixed; bottom:0; left:0; right:0; z-index:60; background:linear-gradient(180deg, transparent, var(--bg-1) 30%); padding:18px 18px 22px; }
+  .nav-inner{ max-width:980px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width:300px; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--card-border); transition:all .2s ease; }
+  .dot.active{ width:20px; border-radius:99px; background:var(--grad-main); }
+  .cover{ text-align:center; padding:40px 10px 10px; }
+  .cover .icon-row{ display:flex; justify-content:center; gap:14px; margin-bottom:22px; font-size:34px; }
+  .cover .icon-row span{ width:64px; height:64px; border-radius:20px; display:flex; align-items:center; justify-content:center; background:var(--card); border:1px solid var(--card-border); }
+  .score-box{ text-align:center; padding:30px 20px; }
+  .score-num{ font-family:var(--font-title); font-size:56px; background:var(--grad-main); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .basket{ text-align:center; }
+  .basket-label{ font-family:var(--font-mono); font-size:13px; color:var(--text-3); margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta">
+      <span id="slideLabel" class="badge">Slide 1</span>
+      <span>Bab 4 — Bentuk Aljabar</span>
+      <span id="slideTotal" class="badge">/ 24</span>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- 0: COVER -->
+    <section class="slide active" data-slide="0">
+      <div class="cover">
+        <div class="icon-row"><span>+</span><span>−</span><span>3x</span></div>
+        <div class="eyebrow">Kurikulum Merdeka • Bab 4</div>
+        <h1>Penjumlahan dan Pengurangan Bentuk Aljabar</h1>
+        <p class="lead">Menjumlahkan dan mengurangkan suku-suku sejenis.</p>
+        <div class="card" style="margin-top:26px; text-align:left;">
+          <p style="margin:0;">Dalam pembelajaran ini kamu akan belajar mengenali suku sejenis, menjumlahkan dan mengurangkannya, menyederhanakan bentuk aljabar dengan banyak suku, hingga menyelesaikan operasi yang melibatkan tanda kurung.</p>
+        </div>
+        <button class="btn" style="margin-top:24px;" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- 1: APERSEPSI -->
+    <section class="slide" data-slide="1">
+      <div class="eyebrow">Apersepsi</div>
+      <h2>Ingat Kembali Istilah dalam Bentuk Aljabar</h2>
+      <p>Perhatikan bentuk aljabar <span class="math">4x + 3y − 2</span></p>
+      <div class="grid-3">
+        <div class="card"><h3>Suku</h3><p style="margin:0;">Bagian dari bentuk aljabar yang dipisahkan oleh tanda + atau −. Ada 3 suku: <b>4x</b>, <b>3y</b>, <b>−2</b>.</p></div>
+        <div class="card"><h3>Koefisien</h3><p style="margin:0;">Bilangan di depan variabel. Koefisien dari <b>4x</b> adalah <b>4</b>.</p></div>
+        <div class="card"><h3>Variabel</h3><p style="margin:0;">Huruf yang mewakili bilangan, misalnya <b>x</b> dan <b>y</b>.</p></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <p style="margin:0;"><b>Pertanyaan pemantik:</b> Jika Ani punya 3 apel dan 2 jeruk, lalu mendapat tambahan 5 apel, berapa total apel dan jeruk yang dimilikinya? Mengapa apel dan jeruk tidak bisa dijumlahkan langsung menjadi satu angka? Ide inilah yang mendasari konsep "suku sejenis" pada bab ini.</p>
+      </div>
+    </section>
+
+    <!-- 2: TUJUAN -->
+    <section class="slide" data-slide="2">
+      <div class="eyebrow">Tujuan Pembelajaran</div>
+      <h2>Setelah mempelajari materi ini, kamu diharapkan mampu:</h2>
+      <div class="card">
+        <ul style="color:var(--text-2); line-height:2; font-size:15.5px; padding-left:20px; margin:0;">
+          <li>Mengidentifikasi suku-suku sejenis dan bukan sejenis dalam bentuk aljabar.</li>
+          <li>Menjumlahkan suku-suku sejenis dengan benar.</li>
+          <li>Mengurangkan suku-suku sejenis dengan benar.</li>
+          <li>Menyederhanakan bentuk aljabar yang memiliki banyak suku dengan mengelompokkan suku sejenis.</li>
+          <li>Menyelesaikan penjumlahan dan pengurangan bentuk aljabar yang melibatkan tanda kurung.</li>
+          <li>Menerapkan konsep ini dalam soal cerita kehidupan sehari-hari.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3: KONSEP SUKU SEJENIS -->
+    <section class="slide" data-slide="3">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h2>Apa itu Suku Sejenis?</h2>
+      <p>Dua suku atau lebih dikatakan <b>sejenis</b> jika memiliki <b>variabel yang sama</b> dan <b>pangkat yang sama</b> pada variabel tersebut. Hanya koefisiennya yang boleh berbeda.</p>
+      <div class="card">
+        <div class="math big">3x dan 5x → sejenis (variabel x, pangkat 1)</div>
+        <div class="math big" style="margin-top:10px;">2a² dan −7a² → sejenis (variabel a, pangkat 2)</div>
+      </div>
+      <div class="accordion" id="acc-sejenis">
+        <div class="accordion-head" onclick="toggleAccordion('acc-sejenis')">
+          <span>Mengapa harus variabel dan pangkat yang sama?</span>
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          <p>Sama seperti apel hanya bisa dijumlahkan dengan apel (bukan dengan jeruk), suku <b>x</b> hanya bisa digabungkan dengan suku <b>x</b> lain. Suku <b>x</b> dan <b>x²</b> berbeda "jenis benda" walau variabelnya sama, karena pangkatnya berbeda — <b>x²</b> berarti luas (dua dimensi) sedangkan <b>x</b> berarti panjang (satu dimensi).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4: CONTOH DAN BUKAN CONTOH -->
+    <section class="slide" data-slide="4">
+      <div class="eyebrow">Contoh dan Bukan Contoh</div>
+      <h2>Sejenis vs Tidak Sejenis</h2>
+      <div class="grid-2">
+        <div class="card" style="border-color:rgba(74,222,128,0.4);">
+          <h3 style="color:#a8f0c0;">✓ Suku Sejenis</h3>
+          <p style="margin:0 0 8px;"><span class="math">6x</span> dan <span class="math">−2x</span> — variabel x, pangkat 1</p>
+          <p style="margin:0 0 8px;"><span class="math">4xy</span> dan <span class="math">9xy</span> — variabel xy sama persis</p>
+          <p style="margin:0;"><span class="math">−3p²</span> dan <span class="math">8p²</span> — variabel p, pangkat 2</p>
+        </div>
+        <div class="card" style="border-color:rgba(248,113,113,0.4);">
+          <h3 style="color:#ffc0c0;">✕ Bukan Suku Sejenis</h3>
+          <p style="margin:0 0 8px;"><span class="math">3x</span> dan <span class="math">3y</span> — variabel berbeda</p>
+          <p style="margin:0 0 8px;"><span class="math">2x</span> dan <span class="math">2x²</span> — pangkat berbeda</p>
+          <p style="margin:0;"><span class="math">5</span> dan <span class="math">5x</span> — konstanta bukan suku bervariabel</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5: LATIHAN SORTING SUKU SEJENIS -->
+    <section class="slide" data-slide="5">
+      <div class="eyebrow">Latihan Interaktif</div>
+      <h2>Kelompokkan Suku Berikut</h2>
+      <p>Klik sebuah kartu suku, lalu klik salah satu kelompok tujuan untuk menempatkannya.</p>
+      <div class="card">
+        <p style="margin:0 0 6px;">Kelompokkan berdasarkan kesejenisan dengan suku acuan <span class="math">3x</span>:</p>
+        <div class="sort-pool" id="sortPool"></div>
+        <div class="sort-wrap">
+          <div class="sort-zone" id="zoneSejenis" onclick="dropSort('zoneSejenis')"><h3>SEJENIS DENGAN 3x</h3><div id="zoneSejenisItems"></div></div>
+          <div class="sort-zone" id="zoneTidak" onclick="dropSort('zoneTidak')"><h3>TIDAK SEJENIS</h3><div id="zoneTidakItems"></div></div>
+        </div>
+        <p id="sortStatus" style="margin-top:12px; font-family:var(--font-mono); font-size:13px; color:var(--text-3);">Pilih kartu untuk memulai</p>
+        <button class="btn ghost" onclick="buildSort()" style="margin-top:8px;">Ulangi Latihan</button>
+      </div>
+    </section>
+
+    <!-- 6: KONSEP PENJUMLAHAN SUKU SEJENIS -->
+    <section class="slide" data-slide="6">
+      <div class="eyebrow">Konsep</div>
+      <h2>Menjumlahkan Suku Sejenis</h2>
+      <p>Untuk menjumlahkan suku-suku sejenis, jumlahkan koefisiennya dan biarkan variabelnya tetap sama.</p>
+      <div class="card">
+        <div class="math big">ax + bx = (a + b)x</div>
+        <p style="margin-top:14px;">Contoh sederhana:</p>
+        <div class="math">3x + 5x = (3 + 5)x = 8x</div>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Analogi:</b> 3 apel ditambah 5 apel sama dengan 8 apel. "Apel"-nya (variabelnya) tidak berubah, hanya jumlahnya (koefisiennya) yang bertambah.</p>
+      </div>
+    </section>
+
+    <!-- 7: CONTOH PENJUMLAHAN -->
+    <section class="slide" data-slide="7">
+      <div class="eyebrow">Contoh 1</div>
+      <h2>Contoh Penjumlahan Suku Sejenis</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">−4a + 9a</span></p>
+        <p><b>Petunjuk:</b> Jumlahkan koefisiennya, perhatikan tanda negatif.</p>
+        <button class="btn ghost" onclick="revealSteps('steps7')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps7">
+          <li><span class="step-num">1</span><span>Kedua suku sejenis (sama-sama variabel a pangkat 1).</span></li>
+          <li><span class="step-num">2</span><span>Jumlahkan koefisien: <span class="math">−4 + 9 = 5</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">−4a + 9a = 5a</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 8: KONSEP PENGURANGAN -->
+    <section class="slide" data-slide="8">
+      <div class="eyebrow">Konsep</div>
+      <h2>Mengurangkan Suku Sejenis</h2>
+      <p>Caranya sama seperti penjumlahan, tetapi koefisiennya dikurangkan (atau dijumlahkan dengan lawan tandanya).</p>
+      <div class="card">
+        <div class="math big">ax − bx = (a − b)x</div>
+        <p style="margin-top:14px;">Contoh sederhana:</p>
+        <div class="math">7y − 3y = (7 − 3)y = 4y</div>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Hati-hati</b> jika koefisien hasil akhirnya negatif, misalnya <span class="math">5b − 8b = −3b</span> — jumlah yang dikurangi lebih besar daripada jumlah awal.</p>
+      </div>
+    </section>
+
+    <!-- 9: CONTOH PENGURANGAN -->
+    <section class="slide" data-slide="9">
+      <div class="eyebrow">Contoh 2</div>
+      <h2>Contoh Pengurangan Suku Sejenis</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">−2b − 5b</span></p>
+        <p><b>Petunjuk:</b> Ubah menjadi penjumlahan dua bilangan negatif.</p>
+        <button class="btn ghost" onclick="revealSteps('steps9')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps9">
+          <li><span class="step-num">1</span><span>Kedua suku sejenis (variabel b pangkat 1).</span></li>
+          <li><span class="step-num">2</span><span>Jumlahkan koefisien: <span class="math">−2 + (−5) = −7</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">−2b − 5b = −7b</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 10: VISUALISASI -->
+    <section class="slide" data-slide="10">
+      <div class="eyebrow">Visualisasi</div>
+      <h2>Model Kelompok Benda Sejenis</h2>
+      <p>Geser slider untuk melihat bagaimana kelompok "x" bertambah atau berkurang saat suku sejenis dijumlahkan/dikurangkan.</p>
+      <div class="card">
+        <div style="margin:10px 0;">
+          <label style="font-family:var(--font-mono); font-size:13px; color:var(--text-3);">Kelompok pertama: <span id="g1Val">3</span>x</label>
+          <input type="range" id="g1Slider" min="1" max="8" value="3" oninput="updateBasketViz()">
+        </div>
+        <div style="margin:10px 0;">
+          <label style="font-family:var(--font-mono); font-size:13px; color:var(--text-3);">Kelompok kedua: <span id="g2Val">2</span>x</label>
+          <input type="range" id="g2Slider" min="1" max="8" value="2" oninput="updateBasketViz()">
+        </div>
+        <div style="margin:10px 0;">
+          <label style="font-family:var(--font-mono); font-size:13px; color:var(--text-3);">Operasi:</label>
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <button class="btn ghost" id="opPlus" onclick="setOp('+')">Penjumlahan (+)</button>
+            <button class="btn ghost" id="opMinus" onclick="setOp('-')">Pengurangan (−)</button>
+          </div>
+        </div>
+        <div class="area-viz" id="basketViz"></div>
+        <p style="text-align:center;" class="math big" id="basketFormula"></p>
+      </div>
+    </section>
+
+    <!-- 11: BANYAK SUKU -->
+    <section class="slide" data-slide="11">
+      <div class="eyebrow">Konsep Lanjutan</div>
+      <h2>Menyederhanakan Bentuk dengan Banyak Suku</h2>
+      <p>Jika ada lebih dari dua suku dan campuran beberapa jenis variabel, kelompokkan dahulu suku-suku yang sejenis, baru jumlahkan/kurangkan masing-masing kelompok.</p>
+      <div class="card">
+        <div class="math big">4x + 3y − 2x + 5y</div>
+        <div class="accordion" id="acc-kelompok" style="margin-top:14px;">
+          <div class="accordion-head" onclick="toggleAccordion('acc-kelompok')">
+            <span>Lihat cara mengelompokkan suku sejenis</span>
+            <span class="accordion-icon">+</span>
+          </div>
+          <div class="accordion-body">
+            <p>Kelompokkan suku dengan variabel yang sama: <span class="math">(4x − 2x) + (3y + 5y)</span>. Kemudian sederhanakan tiap kelompok: <span class="math">2x + 8y</span>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12: CONTOH BANYAK SUKU -->
+    <section class="slide" data-slide="12">
+      <div class="eyebrow">Contoh 3</div>
+      <h2>Contoh Bentuk dengan Banyak Suku</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">5a² − 3a + 2a² + 7a</span></p>
+        <p><b>Petunjuk:</b> Ada dua jenis suku di sini — suku berpangkat 2 dan suku berpangkat 1. Kelompokkan masing-masing.</p>
+        <button class="btn ghost" onclick="revealSteps('steps12')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps12">
+          <li><span class="step-num">1</span><span>Kelompokkan suku sejenis: <span class="math">(5a² + 2a²) + (−3a + 7a)</span></span></li>
+          <li><span class="step-num">2</span><span>Sederhanakan kelompok a²: <span class="math">5a² + 2a² = 7a²</span></span></li>
+          <li><span class="step-num">3</span><span>Sederhanakan kelompok a: <span class="math">−3a + 7a = 4a</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">5a² − 3a + 2a² + 7a = 7a² + 4a</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 13: LATIHAN PILGAN -->
+    <section class="slide" data-slide="13">
+      <div class="eyebrow">Latihan Interaktif</div>
+      <h2>Uji Pemahamanmu</h2>
+      <div class="card" id="q-a">
+        <p style="margin:0 0 10px;"><b>1. Hasil dari</b> <span class="math">6x + 4x</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',false)">24x</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',true)">10x</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',false)">2x</button>
+        <div class="feedback ok">Tepat! 6 + 4 = 10, sehingga hasilnya 10x.</div>
+        <div class="feedback bad">Belum tepat. Jumlahkan koefisiennya: 6 + 4 = 10.</div>
+      </div>
+      <div class="card" id="q-b">
+        <p style="margin:0 0 10px;"><b>2. Hasil dari</b> <span class="math">9y − 4y</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',false)">13y</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',true)">5y</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',false)">36y</button>
+        <div class="feedback ok">Benar! 9 − 4 = 5, sehingga hasilnya 5y.</div>
+        <div class="feedback bad">Belum tepat. Kurangkan koefisiennya: 9 − 4 = 5.</div>
+      </div>
+      <div class="card" id="q-c">
+        <p style="margin:0 0 10px;"><b>3. Hasil dari</b> <span class="math">5a + 2b − 3a</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',true)">2a + 2b</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',false)">4a + 2b</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',false)">2a + 5b</button>
+        <div class="feedback ok">Tepat! Kelompokkan suku a: 5a − 3a = 2a, suku b tetap 2b. Hasilnya 2a + 2b.</div>
+        <div class="feedback bad">Belum tepat. Hanya suku sejenis (5a dan −3a) yang bisa digabungkan, suku 2b tetap sendiri.</div>
+      </div>
+    </section>
+
+    <!-- 14: KONSEP TANDA KURUNG -->
+    <section class="slide" data-slide="14">
+      <div class="eyebrow">Konsep Penting</div>
+      <h2>Operasi dengan Tanda Kurung</h2>
+      <p>Jika ada tanda <b>minus di depan kurung</b>, setiap suku di dalam kurung harus dikalikan −1 (tandanya berbalik) saat kurung dibuka. Jika tanda <b>plus di depan kurung</b>, tanda suku di dalamnya tetap sama.</p>
+      <div class="card">
+        <div class="math big">+(a + b) = a + b</div>
+        <div class="math big" style="margin-top:10px;">−(a − b) = −a + b</div>
+      </div>
+      <div class="accordion" id="acc-kurung">
+        <div class="accordion-head" onclick="toggleAccordion('acc-kurung')">
+          <span>Mengapa tanda berbalik saat dikurangi?</span>
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          <p>Tanda minus di depan kurung berarti kurung tersebut dikalikan dengan −1. Karena (−1) × (+) = (−) dan (−1) × (−) = (+), setiap suku di dalam kurung berganti tanda ketika kurung dibuka.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15: CONTOH TANDA KURUNG -->
+    <section class="slide" data-slide="15">
+      <div class="eyebrow">Contoh 4</div>
+      <h2>Contoh Operasi dengan Tanda Kurung</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">5x − (2x − 3)</span></p>
+        <button class="btn ghost" onclick="revealSteps('steps15')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps15">
+          <li><span class="step-num">1</span><span>Buka kurung, balik tanda setiap suku di dalamnya: <span class="math">5x − 2x + 3</span></span></li>
+          <li><span class="step-num">2</span><span>Kelompokkan suku sejenis: <span class="math">(5x − 2x) + 3</span></span></li>
+          <li><span class="step-num">3</span><span>Sederhanakan: <span class="math">3x + 3</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">5x − (2x − 3) = 3x + 3</span></span></li>
+        </ol>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Soal lanjutan:</b> Sederhanakan <span class="math">(3a + 4) + (2a − 6)</span></p>
+        <button class="btn ghost" onclick="revealSteps('steps15b')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps15b">
+          <li><span class="step-num">1</span><span>Karena tanda + di depan kurung kedua, buka kurung tanpa mengubah tanda: <span class="math">3a + 4 + 2a − 6</span></span></li>
+          <li><span class="step-num">2</span><span>Kelompokkan: <span class="math">(3a + 2a) + (4 − 6)</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">5a − 2</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 16: MATCHING -->
+    <section class="slide" data-slide="16">
+      <div class="eyebrow">Latihan Interaktif</div>
+      <h2>Cocokkan Soal dengan Jawabannya</h2>
+      <p>Klik satu soal, lalu klik jawaban yang sesuai.</p>
+      <div class="card">
+        <div class="match-wrap">
+          <div class="match-col"><h3>SOAL</h3><div id="matchLeft"></div></div>
+          <div class="match-col"><h3>JAWABAN</h3><div id="matchRight"></div></div>
+        </div>
+        <p id="matchStatus" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; color:var(--text-3);">0 dari 6 pasangan benar</p>
+        <button class="btn ghost" onclick="resetMatch()" style="margin-top:6px;">Acak Ulang</button>
+      </div>
+    </section>
+
+    <!-- 17: SOAL MUDAH -->
+    <section class="slide" data-slide="17">
+      <div class="eyebrow">Latihan Bertingkat • Mudah</div>
+      <h2>Contoh Soal Tingkat Mudah</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">7p + 5p</span></p>
+        <button class="btn ghost" onclick="revealSteps('stepsE1')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE1">
+          <li><span class="step-num">1</span><span>Kedua suku sejenis (variabel p pangkat 1).</span></li>
+          <li><span class="step-num">2</span><span>Jumlahkan koefisien: <span class="math">7 + 5 = 12</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">7p + 5p = 12p</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 18: SOAL SEDANG -->
+    <section class="slide" data-slide="18">
+      <div class="eyebrow">Latihan Bertingkat • Sedang</div>
+      <h2>Contoh Soal Tingkat Sedang</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">6x + 3y − 4x + y</span></p>
+        <button class="btn ghost" onclick="revealSteps('stepsE2')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE2">
+          <li><span class="step-num">1</span><span>Kelompokkan: <span class="math">(6x − 4x) + (3y + y)</span></span></li>
+          <li><span class="step-num">2</span><span>Sederhanakan suku x: <span class="math">6x − 4x = 2x</span></span></li>
+          <li><span class="step-num">3</span><span>Sederhanakan suku y: <span class="math">3y + y = 4y</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">6x + 3y − 4x + y = 2x + 4y</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 19: SOAL MENANTANG -->
+    <section class="slide" data-slide="19">
+      <div class="eyebrow">Latihan Bertingkat • Menantang</div>
+      <h2>Contoh Soal Tingkat Menantang</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Sederhanakan <span class="math">(7x − 2) − (3x + 5)</span></p>
+        <p><b>Petunjuk:</b> Perhatikan tanda minus di depan kurung kedua — semua suku di dalamnya berbalik tanda.</p>
+        <button class="btn ghost" onclick="revealSteps('stepsE3')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE3">
+          <li><span class="step-num">1</span><span>Buka kurung kedua (balik tanda): <span class="math">7x − 2 − 3x − 5</span></span></li>
+          <li><span class="step-num">2</span><span>Kelompokkan: <span class="math">(7x − 3x) + (−2 − 5)</span></span></li>
+          <li><span class="step-num">3</span><span>Sederhanakan: <span class="math">4x − 7</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">(7x − 2) − (3x + 5) = 4x − 7</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 20: KUIS -->
+    <section class="slide" data-slide="20">
+      <div class="eyebrow">Kuis Akhir</div>
+      <h2>Uji Pemahamanmu</h2>
+      <p>Jawab seluruh soal berikut, lalu lihat skor akhirmu.</p>
+      <div id="quizContainer"></div>
+      <div class="card score-box" id="scoreBox" style="display:none;">
+        <p style="margin:0; color:var(--text-3); font-family:var(--font-mono);">SKOR AKHIR</p>
+        <div class="score-num" id="scoreNum">0/0</div>
+        <p id="scoreMsg" style="margin-top:6px;"></p>
+        <button class="btn warm" onclick="resetQuiz()">Ulangi Kuis</button>
+      </div>
+    </section>
+
+    <!-- 21: REFLEKSI -->
+    <section class="slide" data-slide="21">
+      <div class="eyebrow">Refleksi</div>
+      <h2>Coba Renungkan Kembali</h2>
+      <div class="accordion" id="ref1"><div class="accordion-head" onclick="toggleAccordion('ref1')"><span>Apakah aku sudah bisa membedakan suku sejenis dan bukan sejenis?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Coba buat 3 contoh pasangan suku sejenis dan 3 contoh pasangan bukan sejenis dari ingatanmu sendiri untuk mengecek pemahamanmu.</p></div></div>
+      <div class="accordion" id="ref2"><div class="accordion-head" onclick="toggleAccordion('ref2')"><span>Bagian mana yang masih sulit — penjumlahan, pengurangan, atau tanda kurung?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Tuliskan bagian yang masih membingungkan, lalu ulangi slide yang relevan sebelum melanjutkan.</p></div></div>
+      <div class="accordion" id="ref3"><div class="accordion-head" onclick="toggleAccordion('ref3')"><span>Apakah aku sudah teliti membuka tanda kurung yang didahului tanda minus?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Kesalahan membalik tanda adalah kesalahan paling umum dalam bab ini. Biasakan mengecek ulang tanda setiap suku setelah kurung dibuka.</p></div></div>
+    </section>
+
+    <!-- 22: RANGKUMAN -->
+    <section class="slide" data-slide="22">
+      <div class="eyebrow">Rangkuman</div>
+      <h2>Poin-Poin Penting</h2>
+      <div class="grid-2">
+        <div class="card"><h3>Suku Sejenis</h3><p style="margin:0;">Variabel dan pangkat sama.</p></div>
+        <div class="card"><h3>Penjumlahan</h3><div class="math">ax + bx = (a+b)x</div></div>
+        <div class="card"><h3>Pengurangan</h3><div class="math">ax − bx = (a−b)x</div></div>
+        <div class="card"><h3>Tanda Kurung</h3><div class="math">−(a−b) = −a+b</div></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <p style="margin:0;"><b>Langkah umum:</b> buka kurung jika ada (perhatikan tandanya), kelompokkan suku-suku sejenis, lalu jumlahkan atau kurangkan koefisiennya. Variabel dan pangkatnya tetap tidak berubah.</p>
+      </div>
+    </section>
+
+    <!-- 23: PENUTUP -->
+    <section class="slide" data-slide="23">
+      <div class="cover">
+        <div class="icon-row"><span>🎉</span><span>✓</span><span>8x</span></div>
+        <h1>Kerja Bagus!</h1>
+        <p class="lead">Kamu telah menyelesaikan pembelajaran Penjumlahan dan Pengurangan Bentuk Aljabar.</p>
+        <div class="card" style="margin-top:20px; text-align:left;">
+          <p style="margin:0;">Lanjutkan latihan secara mandiri dengan soal-soal dari buku paket. Selanjutnya kita akan mempelajari <b>perkalian bentuk aljabar</b> sebagai kelanjutan dari bab ini.</p>
+        </div>
+        <button class="btn ghost" style="margin-top:22px;" onclick="goTo(0)">↺ Kembali ke Awal</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-inner">
+    <button class="btn ghost" id="prevBtn" onclick="prevSlide()">← Sebelumnya</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn" id="nextBtn" onclick="nextSlide()">Berikutnya →</button>
+  </div>
+</div>
+
+<script>
+  const totalSlides = document.querySelectorAll('.slide').length;
+  let current = 0;
+
+  function buildDots(){
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for(let i=0;i<totalSlides;i++){
+      const d = document.createElement('div');
+      d.className = 'dot' + (i===0?' active':'');
+      dots.appendChild(d);
+    }
+  }
+
+  function goTo(index){
+    if(index < 0 || index >= totalSlides) return;
+    document.querySelectorAll('.slide')[current].classList.remove('active');
+    current = index;
+    document.querySelectorAll('.slide')[current].classList.add('active');
+    document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100)+'%';
+    document.getElementById('slideLabel').textContent = 'Slide ' + (current+1);
+    document.getElementById('slideTotal').textContent = '/ ' + totalSlides;
+    document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active', i===current));
+    document.getElementById('prevBtn').disabled = current===0;
+    document.getElementById('nextBtn').textContent = current===totalSlides-1 ? 'Selesai ✓' : 'Berikutnya →';
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+  function nextSlide(){ if(current < totalSlides-1) goTo(current+1); }
+  function prevSlide(){ if(current > 0) goTo(current-1); }
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') nextSlide();
+    if(e.key === 'ArrowLeft') prevSlide();
+  });
+
+  buildDots();
+  goTo(0);
+
+  // ACCORDION
+  function toggleAccordion(id){
+    const el = document.getElementById(id);
+    const wasOpen = el.classList.contains('open');
+    if(wasOpen){
+      el.classList.remove('open');
+      el.querySelector('.accordion-body').style.maxHeight = null;
+    } else {
+      el.classList.add('open');
+      const body = el.querySelector('.accordion-body');
+      body.style.maxHeight = body.scrollHeight + 40 + 'px';
+    }
+  }
+
+  // STEP REVEAL
+  function revealSteps(id){
+    const el = document.getElementById(id);
+    el.classList.add('revealed');
+    event.target.disabled = true;
+    event.target.textContent = 'Langkah Ditampilkan ✓';
+  }
+
+  // OPTION CHECK
+  function checkOpt(btn, cardId, isCorrect){
+    const card = document.getElementById(cardId);
+    const buttons = card.querySelectorAll('.opt-btn');
+    buttons.forEach(b=>b.disabled = true);
+    if(isCorrect){
+      btn.classList.add('correct');
+      card.querySelector('.feedback.ok').classList.add('show');
+    } else {
+      btn.classList.add('wrong');
+      card.querySelector('.feedback.bad').classList.add('show');
+      buttons.forEach(b=>{ if(b.onclick.toString().includes('true')) b.classList.add('correct'); });
+    }
+  }
+
+  // SORTING GAME (suku sejenis vs bukan)
+  const sortItems = [
+    {label:'6x', sejenis:true},
+    {label:'−2x', sejenis:true},
+    {label:'10x', sejenis:true},
+    {label:'3y', sejenis:false},
+    {label:'x²', sejenis:false},
+    {label:'7', sejenis:false}
+  ];
+  let sortSelected = null;
+  let sortCorrectCount = 0;
+
+  function shuffleArr(arr){
+    const a = [...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildSort(){
+    sortSelected = null;
+    sortCorrectCount = 0;
+    const pool = document.getElementById('sortPool');
+    pool.innerHTML = '';
+    document.getElementById('zoneSejenisItems').innerHTML = '';
+    document.getElementById('zoneTidakItems').innerHTML = '';
+    const shuffled = shuffleArr(sortItems);
+    shuffled.forEach((item, idx)=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = item.label;
+      chip.dataset.idx = idx;
+      chip.dataset.sejenis = item.sejenis;
+      chip.onclick = (e)=>{ e.stopPropagation(); selectChip(chip); };
+      pool.appendChild(chip);
+    });
+    document.getElementById('sortStatus').textContent = 'Pilih kartu untuk memulai';
+  }
+
+  function selectChip(chip){
+    if(chip.classList.contains('placed')) return;
+    document.querySelectorAll('#sortPool .chip').forEach(c=>c.style.outline='none');
+    chip.style.outline = '2px solid var(--accent-2)';
+    sortSelected = chip;
+    document.getElementById('sortStatus').textContent = 'Sekarang klik kelompok tujuan untuk "' + chip.textContent + '"';
+  }
+
+  function dropSort(zoneId){
+    if(!sortSelected) return;
+    const isSejenisZone = zoneId === 'zoneSejenis';
+    const correct = (sortSelected.dataset.sejenis === 'true') === isSejenisZone;
+    const targetList = document.getElementById(zoneId + 'Items');
+    const clone = sortSelected.cloneNode(true);
+    clone.classList.add('placed');
+    clone.classList.add(correct ? 'correct-drop' : 'wrong-drop');
+    clone.onclick = null;
+    targetList.appendChild(clone);
+    sortSelected.remove();
+    sortSelected = null;
+    if(correct) sortCorrectCount++;
+    const remaining = document.querySelectorAll('#sortPool .chip').length;
+    document.getElementById('sortStatus').textContent = remaining === 0
+      ? 'Selesai! ' + sortCorrectCount + ' dari ' + sortItems.length + ' benar.'
+      : 'Pilih kartu untuk memulai';
+  }
+  buildSort();
+
+  // AREA / BASKET VISUALIZATION
+  let currentOp = '+';
+  function setOp(op){
+    currentOp = op;
+    document.getElementById('opPlus').style.borderColor = op==='+' ? 'var(--accent-2)' : 'var(--card-border)';
+    document.getElementById('opMinus').style.borderColor = op==='-' ? 'var(--accent-2)' : 'var(--card-border)';
+    updateBasketViz();
+  }
+  function makeGroupSvg(n, color, label){
+    const cols = Math.min(n, 4);
+    const rows = Math.ceil(n/4);
+    const size = 26, gap = 8;
+    const w = cols*size + (cols-1)*gap + 20;
+    const h = rows*size + (rows-1)*gap + 34;
+    let shapes = '';
+    for(let i=0;i<n;i++){
+      const cx = 10 + (i%4)*(size+gap) + size/2;
+      const cy = 10 + Math.floor(i/4)*(size+gap) + size/2;
+      shapes += `<circle cx="${cx}" cy="${cy}" r="${size/2}" fill="${color}" opacity="0.75" stroke="${color}" stroke-width="2"></circle>`;
+    }
+    return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">${shapes}<text x="${w/2}" y="${h-6}" fill="#a9b3cc" font-size="12" text-anchor="middle" font-family="JetBrains Mono">${label}</text></svg>`;
+  }
+  function updateBasketViz(){
+    const g1 = parseInt(document.getElementById('g1Slider').value);
+    const g2 = parseInt(document.getElementById('g2Slider').value);
+    document.getElementById('g1Val').textContent = g1;
+    document.getElementById('g2Val').textContent = g2;
+    const result = currentOp === '+' ? g1+g2 : g1-g2;
+    const viz = document.getElementById('basketViz');
+    viz.innerHTML = `
+      <div class="basket">${makeGroupSvg(g1,'#7c5cff', g1+'x')}</div>
+      <div style="display:flex; align-items:center; font-family:JetBrains Mono; font-size:22px; color:#a9b3cc;">${currentOp}</div>
+      <div class="basket">${makeGroupSvg(g2,'#22d3ee', g2+'x')}</div>
+      <div style="display:flex; align-items:center; font-family:JetBrains Mono; font-size:22px; color:#a9b3cc;">=</div>
+      <div class="basket">${makeGroupSvg(Math.abs(result), result<0?'#f87171':'#4ade80', (result<0?'−':'')+Math.abs(result)+'x')}</div>
+    `;
+    document.getElementById('basketFormula').textContent = `${g1}x ${currentOp} ${g2}x = ${result}x`;
+  }
+  setOp('+');
+
+  // MATCHING GAME
+  const matchPairs = [
+    {q:'4x + 3x', a:'7x'},
+    {q:'9y − 4y', a:'5y'},
+    {q:'5a + 2b − 3a', a:'2a + 2b'},
+    {q:'7x − (2x − 4)', a:'5x + 4'},
+    {q:'(3p + 5) + (2p − 1)', a:'5p + 4'},
+    {q:'−6m + 2m', a:'−4m'}
+  ];
+  let matchSelectedLeft = null;
+  let matchedCount = 0;
+
+  function buildMatch(){
+    matchedCount = 0;
+    matchSelectedLeft = null;
+    const left = document.getElementById('matchLeft');
+    const right = document.getElementById('matchRight');
+    left.innerHTML = '';
+    right.innerHTML = '';
+    matchPairs.forEach((p,i)=>{
+      const li = document.createElement('div');
+      li.className = 'match-item';
+      li.textContent = p.q;
+      li.dataset.pair = i;
+      li.onclick = ()=>selectLeft(li, i);
+      left.appendChild(li);
+    });
+    const shuffled = shuffleArr(matchPairs.map((p,i)=>({a:p.a, pair:i})));
+    shuffled.forEach(item=>{
+      const ri = document.createElement('div');
+      ri.className = 'match-item';
+      ri.textContent = item.a;
+      ri.dataset.pair = item.pair;
+      ri.onclick = ()=>selectRight(ri, item.pair);
+      right.appendChild(ri);
+    });
+    document.getElementById('matchStatus').textContent = '0 dari ' + matchPairs.length + ' pasangan benar';
+  }
+
+  function selectLeft(el, pairIndex){
+    if(el.classList.contains('matched')) return;
+    document.querySelectorAll('#matchLeft .match-item').forEach(i=>i.classList.remove('selected'));
+    el.classList.add('selected');
+    matchSelectedLeft = {el, pairIndex};
+  }
+
+  function selectRight(el, pairIndex){
+    if(el.classList.contains('matched') || !matchSelectedLeft) return;
+    if(matchSelectedLeft.pairIndex === pairIndex){
+      matchSelectedLeft.el.classList.remove('selected');
+      matchSelectedLeft.el.classList.add('matched');
+      el.classList.add('matched');
+      matchedCount++;
+      document.getElementById('matchStatus').textContent = matchedCount + ' dari ' + matchPairs.length + ' pasangan benar';
+    } else {
+      el.classList.add('shake');
+      matchSelectedLeft.el.classList.add('shake');
+      setTimeout(()=>{
+        el.classList.remove('shake');
+        matchSelectedLeft.el.classList.remove('shake', 'selected');
+      }, 350);
+    }
+    matchSelectedLeft = null;
+  }
+
+  function resetMatch(){ buildMatch(); }
+  buildMatch();
+
+  // QUIZ
+  const quizData = [
+    {q:'Hasil dari 5x + 3x adalah...', opts:['8x','15x','2x'], correct:0, exp:'5 + 3 = 8, sehingga hasilnya 8x.'},
+    {q:'Hasil dari 8y − 3y adalah...', opts:['11y','5y','24y'], correct:1, exp:'8 − 3 = 5, sehingga hasilnya 5y.'},
+    {q:'Manakah pasangan suku sejenis?', opts:['3x dan 3y','2a² dan 5a²','4x dan 4x²'], correct:1, exp:'2a² dan 5a² sama-sama memiliki variabel a berpangkat 2, sehingga sejenis.'},
+    {q:'Hasil dari −6a + 2a adalah...', opts:['−4a','4a','−8a'], correct:0, exp:'−6 + 2 = −4, sehingga hasilnya −4a.'},
+    {q:'Hasil dari 4x + 3y − 2x + y adalah...', opts:['2x + 4y','6x + 4y','2x + 3y'], correct:0, exp:'Kelompokkan: (4x−2x)+(3y+y) = 2x + 4y.'},
+    {q:'Hasil dari 5p² − 2p + 3p² + 6p adalah...', opts:['8p² + 4p','2p² + 4p','8p² + 8p'], correct:0, exp:'Kelompokkan: (5p²+3p²)+(−2p+6p) = 8p² + 4p.'},
+    {q:'Hasil dari 6x − (2x − 5) adalah...', opts:['4x − 5','4x + 5','8x − 5'], correct:1, exp:'Buka kurung (balik tanda): 6x − 2x + 5 = 4x + 5.'},
+    {q:'Hasil dari (3a + 2) + (4a − 7) adalah...', opts:['7a − 5','7a + 5','a − 5'], correct:0, exp:'Buka kurung tanpa ubah tanda: 3a+2+4a−7 = 7a − 5.'},
+    {q:'Hasil dari −5m − 3m adalah...', opts:['−8m','8m','−2m'], correct:0, exp:'−5 + (−3) = −8, sehingga hasilnya −8m.'},
+    {q:'Hasil dari (8x − 3) − (2x + 4) adalah...', opts:['6x + 1','6x − 7','10x − 7'], correct:1, exp:'Buka kurung kedua (balik tanda): 8x−3−2x−4 = 6x − 7.'}
+  ];
+  let quizAnswered = 0;
+  let quizScore = 0;
+
+  function buildQuiz(){
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '';
+    quizAnswered = 0;
+    quizScore = 0;
+    document.getElementById('scoreBox').style.display = 'none';
+    quizData.forEach((q, qi)=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'quiz-'+qi;
+      card.innerHTML = `<p style="margin:0 0 10px;"><b>${qi+1}. ${q.q}</b></p>` +
+        q.opts.map((opt,oi)=>`<button class="opt-btn" onclick="answerQuiz(${qi},${oi},this)">${opt}</button>`).join('') +
+        `<div class="feedback" id="exp-${qi}"></div>`;
+      container.appendChild(card);
+    });
+  }
+
+  function answerQuiz(qi, oi, btn){
+    const card = document.getElementById('quiz-'+qi);
+    const buttons = card.querySelectorAll('.opt-btn');
+    if(buttons[0].disabled) return;
+    buttons.forEach(b=>b.disabled = true);
+    const correct = quizData[qi].correct;
+    const expBox = document.getElementById('exp-'+qi);
+    if(oi === correct){
+      btn.classList.add('correct');
+      quizScore++;
+      expBox.className = 'feedback ok show';
+      expBox.textContent = 'Benar! ' + quizData[qi].exp;
+    } else {
+      btn.classList.add('wrong');
+      buttons[correct].classList.add('correct');
+      expBox.className = 'feedback bad show';
+      expBox.textContent = 'Kurang tepat. ' + quizData[qi].exp;
+    }
+    quizAnswered++;
+    if(quizAnswered === quizData.length){
+      setTimeout(showScore, 400);
+    }
+  }
+
+  function showScore(){
+    const box = document.getElementById('scoreBox');
+    box.style.display = 'block';
+    document.getElementById('scoreNum').textContent = quizScore + '/' + quizData.length;
+    let msg = '';
+    const pct = quizScore/quizData.length;
+    if(pct === 1) msg = 'Sempurna! Kamu sudah menguasai penjumlahan dan pengurangan bentuk aljabar.';
+    else if(pct >= 0.7) msg = 'Bagus! Sedikit lagi untuk penguasaan penuh.';
+    else msg = 'Yuk pelajari kembali contoh-contoh sebelumnya, lalu coba lagi.';
+    document.getElementById('scoreMsg').textContent = msg;
+    box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function resetQuiz(){ buildQuiz(); }
+  buildQuiz();
+</script>
+</body>
+</html>

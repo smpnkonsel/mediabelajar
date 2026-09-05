@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bab 5 — Konsep Aritmetika Sosial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0f1a;
+    --bg-1:#111729;
+    --bg-2:#161d33;
+    --card:#1a2138;
+    --card-border:#2a3352;
+    --text-hi:#f2f4fb;
+    --text-mid:#b7c0dc;
+    --text-low:#7c86a8;
+    --coral:#ff6b6b;
+    --teal:#4ecdc4;
+    --amber:#ffd166;
+    --violet:#8b7cf6;
+    --grad-1: linear-gradient(135deg, #ff6b6b 0%, #ffd166 100%);
+    --grad-2: linear-gradient(135deg, #4ecdc4 0%, #8b7cf6 100%);
+    --grad-3: linear-gradient(135deg, #8b7cf6 0%, #ff6b6b 100%);
+    --shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    --radius: 22px;
+    --font-head:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family: var(--font-body);
+    background: radial-gradient(ellipse at top left, #171f38 0%, var(--bg-0) 55%), var(--bg-0);
+    color: var(--text-hi);
+    overflow:hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #app{ position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
+
+  #topbar{ display:flex; align-items:center; justify-content:space-between; padding:14px clamp(14px,3vw,32px); gap:14px; z-index:20; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-weight:600; font-size:clamp(13px,1.6vw,16px); color:var(--text-mid); white-space:nowrap; }
+  .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--grad-1); flex-shrink:0;}
+  #progress-wrap{ flex:1; height:8px; background:var(--bg-2); border-radius:99px; overflow:hidden; border:1px solid var(--card-border); max-width:420px; }
+  #progress-bar{ height:100%; width:0%; background:var(--grad-2); border-radius:99px; transition: width .45s cubic-bezier(.65,0,.35,1); }
+  #slide-counter{ font-family:var(--font-mono); font-size:clamp(11px,1.4vw,13px); color:var(--text-low); white-space:nowrap; }
+
+  #stage{ flex:1; position:relative; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding: clamp(14px,3vh,28px) clamp(16px,5vw,64px) clamp(90px,10vh,110px);
+    opacity:0; transform: translateX(40px) scale(.98);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1);
+    pointer-events:none; overflow-y:auto;
+  }
+  .slide.active{ opacity:1; transform: translateX(0) scale(1); pointer-events:auto; }
+  .slide.prev{ transform: translateX(-40px) scale(.98); }
+  .slide-inner{ width:100%; max-width:980px; margin:0 auto; display:flex; flex-direction:column; gap:18px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:clamp(11px,1.5vw,13px); letter-spacing:.12em; text-transform:uppercase; color:var(--teal); font-weight:500; }
+  h1.slide-title{ font-family:var(--font-head); font-weight:600; font-size:clamp(24px,4.4vw,44px); line-height:1.15; background:var(--grad-2); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  h2.section-title{ font-family:var(--font-head); font-weight:600; font-size:clamp(20px,3vw,30px); color:var(--text-hi); }
+  p.lead{ font-size:clamp(14px,1.9vw,18px); color:var(--text-mid); line-height:1.65; max-width:760px; }
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); padding:clamp(16px,2.6vw,28px); box-shadow: var(--shadow); }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:760px){ .grid2, .grid3{grid-template-columns:1fr;} }
+  .badge{ display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:12px; padding:4px 12px; border-radius:99px; background:var(--bg-2); border:1px solid var(--card-border); color:var(--text-mid); width:fit-content; }
+  .expr{ font-family:var(--font-mono); font-weight:700; letter-spacing:.02em; }
+
+  #navbar{ position:absolute; bottom:0; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:14px; padding: 14px clamp(14px,4vw,40px) 18px; background: linear-gradient(0deg, rgba(11,15,26,.92) 40%, rgba(11,15,26,0) 100%); z-index:30; }
+  .nav-btn{ display:flex; align-items:center; gap:8px; font-family:var(--font-body); font-weight:600; font-size:clamp(13px,1.6vw,15px); color:var(--text-hi); background:var(--card); border:1px solid var(--card-border); padding:10px 18px; border-radius:14px; cursor:pointer; transition: transform .15s ease, background .2s ease, opacity .2s ease; user-select:none; }
+  .nav-btn:hover{ transform:translateY(-2px); background:var(--bg-2); }
+  .nav-btn:active{ transform:translateY(0); }
+  .nav-btn.primary{ background:var(--grad-2); color:#0b0f1a; border:none; }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:46vw; }
+  .dot-i{ width:8px; height:8px; border-radius:50%; background:var(--card-border); cursor:pointer; transition: all .25s ease; flex-shrink:0; }
+  .dot-i.active{ background:var(--teal); width:22px; border-radius:5px;}
+  .dot-i.done{ background:var(--text-low); }
+  @media (max-width:640px){ #dots{display:none;} }
+
+  .reveal-btn{ font-family:var(--font-body); font-weight:700; font-size:14px; color:#0b0f1a; background:var(--amber); border:none; padding:10px 18px; border-radius:12px; cursor:pointer; transition: transform .15s ease, filter .2s ease; }
+  .reveal-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .hidden-box{ display:none; margin-top:12px; padding:14px 16px; background:var(--bg-2); border-left:3px solid var(--teal); border-radius:10px; font-size:14px; color:var(--text-mid); line-height:1.6; }
+  .hidden-box.show{ display:block; animation: fadein .35s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
+
+  .step-list{ counter-reset:step; display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+  .step-item{ display:flex; gap:14px; align-items:flex-start; background:var(--bg-2); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; }
+  .step-num{ counter-increment:step; font-family:var(--font-head); font-weight:600; width:28px; height:28px; border-radius:50%; background:var(--grad-1); color:#1a0d0d; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:13px; }
+  .step-num::before{ content: counter(step); }
+
+  input.answer-input{ font-family:var(--font-mono); font-size:15px; padding:10px 14px; border-radius:10px; border:1.5px solid var(--card-border); background:var(--bg-1); color:var(--text-hi); width:170px; outline:none; }
+  input.answer-input:focus{ border-color:var(--teal); }
+  .check-btn{ font-family:var(--font-body); font-weight:700; font-size:13px; background:var(--grad-2); color:#0b0f1a; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; margin-left:8px; }
+
+  .choice-row{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .choice-btn{ text-align:left; font-family:var(--font-body); font-size:14px; color:var(--text-hi); background:var(--bg-2); border:1.5px solid var(--card-border); padding:13px 16px; border-radius:13px; cursor:pointer; transition: all .2s ease; }
+  .choice-btn:hover{ border-color:var(--teal); transform:translateX(3px); }
+  .choice-btn.correct{ border-color:var(--teal); background:rgba(78,205,196,.15); }
+  .choice-btn.wrong{ border-color:var(--coral); background:rgba(255,107,107,.15); }
+  .choice-btn:disabled{ cursor:default; }
+
+  .feedback-msg{ font-size:14px; margin-top:10px; font-weight:600; }
+  .feedback-msg.ok{ color:var(--teal); }
+  .feedback-msg.bad{ color:var(--coral); }
+
+  .quiz-progress{ font-family:var(--font-mono); font-size:12px; color:var(--text-low); }
+  .score-ring{ width:140px; height:140px; margin:0 auto; display:flex; align-items:center; justify-content:center; position:relative; }
+  .score-ring svg{ transform:rotate(-90deg); }
+  .score-num{ position:absolute; font-family:var(--font-head); font-size:30px; font-weight:600; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--card-border); border-radius:99px; }
+  .kbd{ font-family:var(--font-mono); font-size:11px; background:var(--bg-2); border:1px solid var(--card-border); padding:2px 6px; border-radius:6px; color:var(--text-low); }
+  .icon-cover{ width:84px; height:84px; border-radius:22px; background:var(--grad-2); display:flex; align-items:center; justify-content:center; font-size:38px; box-shadow: var(--shadow); }
+  ul.plain{ padding-left:20px; color:var(--text-mid); font-size:14.5px; line-height:1.8; }
+  ul.plain li::marker{ color:var(--teal); }
+
+  /* ===== ACCORDION ===== */
+  .accordion{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .acc-item{ background:var(--bg-2); border:1px solid var(--card-border); border-radius:14px; overflow:hidden; }
+  .acc-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 18px; cursor:pointer; font-weight:700; font-size:14.5px; }
+  .acc-head .plus{ font-family:var(--font-mono); color:var(--teal); transition: transform .25s ease; font-size:18px; }
+  .acc-item.open .plus{ transform:rotate(45deg); }
+  .acc-body{ max-height:0; overflow:hidden; transition: max-height .3s ease; padding:0 18px; }
+  .acc-item.open .acc-body{ max-height:220px; padding-bottom:16px; }
+  .acc-body p{ font-size:13.5px; color:var(--text-mid); line-height:1.6; }
+
+  /* ===== SCENE ILLUSTRATION (pasar) ===== */
+  .scene-icons{ display:flex; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:10px; }
+  .scene-icon{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .scene-icon .emoji{ font-size:34px; background:var(--bg-2); border:1px solid var(--card-border); border-radius:16px; width:64px; height:64px; display:flex; align-items:center; justify-content:center; }
+  .scene-icon span.lbl{ font-size:11.5px; color:var(--text-low); font-family:var(--font-mono); }
+
+  .tf-row{ display:flex; gap:12px; margin-top:14px; flex-wrap:wrap;}
+  .tf-btn{ font-family:var(--font-body); font-weight:700; font-size:14px; padding:12px 26px; border-radius:12px; border:1.5px solid var(--card-border); background:var(--bg-2); color:var(--text-hi); cursor:pointer; transition:all .2s ease; }
+  .tf-btn.correct{ background:rgba(78,205,196,.18); border-color:var(--teal); }
+  .tf-btn.wrong{ background:rgba(255,107,107,.18); border-color:var(--coral); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="brand"><span class="dot"></span>Bab 5 · Aritmetika Sosial</div>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <div id="slide-counter"><span id="cur-num">1</span> / <span id="tot-num">1</span></div>
+  </div>
+  <div id="stage"></div>
+  <div id="navbar">
+    <button class="nav-btn" id="btnPrev">← Sebelumnya</button>
+    <div id="dots"></div>
+    <button class="nav-btn primary" id="btnNext">Berikutnya →</button>
+  </div>
+</div>
+
+<script>
+/* ======================================================
+   DATA SOAL KUIS
+====================================================== */
+const quizData = [
+  {
+    q: "Aritmetika sosial adalah cabang matematika yang mempelajari...",
+    opts: ["Bangun ruang dan volume", "Perhitungan dalam kegiatan ekonomi sehari-hari", "Persamaan garis lurus", "Sudut dan segitiga"],
+    correct: 1,
+    explain: "Aritmetika sosial mempelajari perhitungan matematis yang berkaitan dengan kegiatan ekonomi dan sosial sehari-hari, seperti jual beli, menabung, dan pajak."
+  },
+  {
+    q: "Manakah kegiatan berikut yang TIDAK termasuk penerapan aritmetika sosial?",
+    opts: ["Menghitung untung dari penjualan baju", "Menghitung bunga tabungan di bank", "Mengukur sudut segitiga siku-siku", "Menghitung diskon belanja di supermarket"],
+    correct: 2,
+    explain: "Mengukur sudut segitiga termasuk materi geometri, bukan aritmetika sosial. Aritmetika sosial berkaitan dengan transaksi ekonomi."
+  },
+  {
+    q: "Harga sebuah barang saat dibeli oleh pedagang dari produsen disebut...",
+    opts: ["Harga jual", "Harga beli", "Harga diskon", "Harga pajak"],
+    correct: 1,
+    explain: "Harga beli adalah harga saat pedagang membeli barang, sebelum dijual kembali kepada konsumen."
+  },
+  {
+    q: "Bu Sari membeli 1 karung beras seharga Rp500.000, lalu menjualnya secara eceran hingga terkumpul Rp600.000. Kegiatan Bu Sari termasuk penerapan aritmetika sosial dalam bidang...",
+    opts: ["Perbankan", "Perpajakan", "Jual beli / perdagangan", "Asuransi"],
+    correct: 2,
+    explain: "Kegiatan membeli dan menjual kembali barang untuk memperoleh keuntungan termasuk kegiatan jual beli (perdagangan)."
+  },
+  {
+    q: "Potongan harga yang diberikan penjual kepada pembeli disebut...",
+    opts: ["Bruto", "Tara", "Diskon", "Neto"],
+    correct: 2,
+    explain: "Diskon adalah potongan harga yang diberikan penjual, biasanya dinyatakan dalam persen, untuk menarik minat pembeli."
+  },
+  {
+    q: "Tambahan sejumlah uang yang diberikan bank kepada nasabah yang menabung disebut...",
+    opts: ["Pajak", "Bunga", "Diskon", "Kerugian"],
+    correct: 1,
+    explain: "Bunga adalah tambahan uang yang diberikan bank sebagai imbalan atas uang yang disimpan atau dipinjam nasabah."
+  },
+  {
+    q: "Berikut ini yang merupakan contoh nyata penerapan aritmetika sosial dalam kehidupan sehari-hari adalah...",
+    opts: ["Menghitung diagonal ruang kubus", "Menentukan besar sudut pada jam dinding", "Menghitung total belanja setelah mendapat diskon 20%", "Menentukan luas permukaan bola"],
+    correct: 2,
+    explain: "Menghitung total belanja setelah diskon adalah penerapan langsung aritmetika sosial dalam kegiatan jual beli sehari-hari."
+  },
+  {
+    q: "Aritmetika sosial penting dipelajari karena...",
+    opts: ["Hanya digunakan oleh pedagang besar", "Membantu kita bertransaksi secara cerdas dalam kehidupan sehari-hari", "Tidak berkaitan dengan kehidupan nyata", "Hanya berlaku di sekolah"],
+    correct: 1,
+    explain: "Aritmetika sosial membekali kita dengan kemampuan berhitung yang berguna dalam bertransaksi, mengelola uang, dan mengambil keputusan ekonomi sehari-hari."
+  }
+];
+
+/* ======================================================
+   BANGUN SLIDE
+====================================================== */
+const stage = document.getElementById('stage');
+let slides = [];
+let currentIndex = 0;
+
+function addSlide(html){
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.innerHTML = `<div class="slide-inner">${html}</div>`;
+  stage.appendChild(div);
+  slides.push(div);
+  return div;
+}
+
+/* ---------- 1. COVER ---------- */
+addSlide(`
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:22px; margin-top:6vh;">
+    <div class="icon-cover">💰</div>
+    <div class="eyebrow">Matematika · Kelas VII · Kurikulum Merdeka</div>
+    <h1 class="slide-title" style="font-size:clamp(28px,6vw,52px);">Bab 5 — Aritmetika Sosial</h1>
+    <p class="lead">Submateri: <b style="color:var(--text-hi)">Konsep Aritmetika Sosial</b></p>
+    <p class="lead">Materi Pokok: Pengertian Aritmetika Sosial dan Penerapannya dalam Kehidupan Sehari-hari</p>
+    <div class="badge">👉 Gunakan tombol <b>Berikutnya</b> atau tanda panah <span class="kbd">←</span> <span class="kbd">→</span> untuk menjelajah</div>
+  </div>
+`);
+
+/* ---------- 2. APERSEPSI ---------- */
+addSlide(`
+  <div class="eyebrow">Apersepsi</div>
+  <h2 class="section-title">Setiap Hari Kita Berhitung Tanpa Sadar</h2>
+  <p class="lead">Coba ingat-ingat kembali kegiatan yang pernah kamu lakukan berikut ini:</p>
+  <div class="scene-icons">
+    <div class="scene-icon"><div class="emoji">🛒</div><span class="lbl">Belanja</span></div>
+    <div class="scene-icon"><div class="emoji">🏦</div><span class="lbl">Menabung</span></div>
+    <div class="scene-icon"><div class="emoji">🏷️</div><span class="lbl">Diskon</span></div>
+    <div class="scene-icon"><div class="emoji">🧾</div><span class="lbl">Pajak</span></div>
+    <div class="scene-icon"><div class="emoji">🤝</div><span class="lbl">Jual Beli</span></div>
+  </div>
+  <div class="card" style="margin-top:6px;">
+    <p class="lead">Saat kamu membeli jajan dan menerima kembalian, saat orang tuamu menabung di bank dan mendapat bunga, atau saat kamu melihat label "diskon 30%" di toko — semua itu adalah bentuk penerapan <b style="color:var(--text-hi)">aritmetika sosial</b> dalam kehidupan sehari-hari.</p>
+  </div>
+`);
+
+/* ---------- 3. TUJUAN PEMBELAJARAN ---------- */
+addSlide(`
+  <div class="eyebrow">Tujuan Pembelajaran</div>
+  <h2 class="section-title">Setelah mempelajari bagian ini, kalian mampu:</h2>
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div>Menjelaskan pengertian aritmetika sosial.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Mengidentifikasi istilah-istilah dasar dalam aritmetika sosial.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Menyebutkan bidang-bidang kehidupan yang menerapkan aritmetika sosial.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Membedakan contoh dan bukan contoh penerapan aritmetika sosial.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Menjelaskan pentingnya mempelajari aritmetika sosial dalam kehidupan sehari-hari.</div></div>
+  </div>
+`);
+
+/* ---------- 4. PERTANYAAN PEMANTIK ---------- */
+addSlide(`
+  <div class="eyebrow">Pertanyaan Pemantik</div>
+  <h2 class="section-title">Coba pikirkan dahulu...</h2>
+  <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+    <p class="lead" style="font-size:clamp(16px,2.2vw,20px); color:var(--text-hi);">"Mengapa toko-toko sering memberi label diskon, dan bagaimana pedagang tetap bisa mendapat untung meskipun memberi potongan harga?"</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">💡 Lihat Arah Jawaban</button>
+    <div class="hidden-box">
+      Pedagang menghitung dengan cermat antara harga beli, harga jual, dan besar diskon agar tetap memperoleh keuntungan. Perhitungan seperti inilah yang dipelajari dalam <b>aritmetika sosial</b> — cabang matematika yang berkaitan langsung dengan kegiatan ekonomi sehari-hari.
+    </div>
+  </div>
+`);
+
+/* ---------- 5. KONSEP DASAR: PENGERTIAN ---------- */
+addSlide(`
+  <div class="eyebrow">Konsep Dasar</div>
+  <h2 class="section-title">Apa itu Aritmetika Sosial?</h2>
+  <div class="card">
+    <p class="lead"><b style="color:var(--text-hi)">Aritmetika sosial</b> adalah cabang ilmu matematika yang mempelajari penerapan operasi hitung (penjumlahan, pengurangan, perkalian, dan pembagian) dalam kegiatan ekonomi dan sosial di kehidupan sehari-hari, seperti kegiatan jual beli, perbankan, dan perkoperasian.</p>
+    <div class="badge" style="margin-top:14px;">📌 Kata "aritmetika" berarti perhitungan bilangan, dan "sosial" merujuk pada kegiatan bermasyarakat seperti berdagang dan bertransaksi.</div>
+  </div>
+`);
+
+/* ---------- 6. RUANG LINGKUP ---------- */
+addSlide(`
+  <div class="eyebrow">Ruang Lingkup</div>
+  <h2 class="section-title">Bidang-Bidang Penerapan Aritmetika Sosial</h2>
+  <div class="grid2">
+    <div class="card">
+      <div style="font-size:28px;">🏪</div>
+      <h3 style="font-family:var(--font-head); margin-top:8px; font-size:16px;">Jual Beli / Perdagangan</h3>
+      <p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Menghitung harga beli, harga jual, untung, rugi, dan diskon dalam transaksi barang.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;">🏦</div>
+      <h3 style="font-family:var(--font-head); margin-top:8px; font-size:16px;">Perbankan</h3>
+      <p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Menghitung bunga tabungan, bunga pinjaman, dan biaya administrasi bank.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;">🧾</div>
+      <h3 style="font-family:var(--font-head); margin-top:8px; font-size:16px;">Perpajakan</h3>
+      <p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Menghitung besar pajak yang harus dibayarkan atas suatu barang atau penghasilan.</p>
+    </div>
+    <div class="card">
+      <div style="font-size:28px;">🤲</div>
+      <h3 style="font-family:var(--font-head); margin-top:8px; font-size:16px;">Koperasi</h3>
+      <p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Menghitung simpanan, pinjaman, dan sisa hasil usaha (SHU) anggota koperasi.</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 7. ISTILAH PENTING (ACCORDION) ---------- */
+addSlide(`
+  <div class="eyebrow">Istilah Penting</div>
+  <h2 class="section-title">Kenali Dahulu Istilah-Istilah Ini</h2>
+  <p class="lead">Klik setiap istilah untuk melihat pengertian singkatnya. Istilah ini akan kamu pelajari lebih dalam pada submateri selanjutnya.</p>
+  <div class="accordion" id="accWrap"></div>
+`);
+
+/* ---------- 8. CONTOH PENERAPAN: JUAL BELI ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan · Jual Beli</div>
+  <h2 class="section-title">Ilustrasi di Pasar</h2>
+  <div class="card">
+    <p class="lead">Pak Joko membeli 10 kg jeruk dari petani seharga Rp150.000. Kemudian ia menjualnya kembali secara eceran seharga Rp18.000 per kg.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">🔎 Apa yang bisa kita hitung?</button>
+    <div class="hidden-box">
+      • Harga beli total = Rp150.000<br>
+      • Harga jual total = 10 × Rp18.000 = Rp180.000<br>
+      • Selisihnya (Rp180.000 − Rp150.000 = Rp30.000) adalah <b>keuntungan</b> Pak Joko.<br><br>
+      Inilah salah satu bentuk penerapan aritmetika sosial dalam kegiatan jual beli. Perhitungan untung dan rugi secara detail akan dipelajari pada submateri berikutnya.
+    </div>
+  </div>
+`);
+
+/* ---------- 9. CONTOH PENERAPAN: PERBANKAN ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan · Perbankan</div>
+  <h2 class="section-title">Ilustrasi Menabung di Bank</h2>
+  <div class="card">
+    <p class="lead">Ibu menabung uang di bank sebesar Rp2.000.000. Setelah satu tahun, bank memberikan tambahan (bunga) sebesar Rp100.000, sehingga tabungan ibu menjadi Rp2.100.000.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">🔎 Apa yang bisa kita hitung?</button>
+    <div class="hidden-box">
+      • Modal tabungan awal = Rp2.000.000<br>
+      • Bunga yang diterima = Rp100.000<br>
+      • Persentase bunga = (100.000 ÷ 2.000.000) × 100% = 5% per tahun<br><br>
+      Perhitungan bunga tabungan adalah salah satu penerapan aritmetika sosial dalam bidang perbankan.
+    </div>
+  </div>
+`);
+
+/* ---------- 10. CONTOH PENERAPAN: DISKON ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan · Diskon</div>
+  <h2 class="section-title">Ilustrasi Belanja dengan Diskon</h2>
+  <div class="card">
+    <p class="lead">Sebuah baju berharga Rp120.000 sedang mendapat diskon 25%. Berapa harga yang harus dibayar pembeli?</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">🔎 Apa yang bisa kita hitung?</button>
+    <div class="hidden-box">
+      • Besar diskon = 25% × Rp120.000 = Rp30.000<br>
+      • Harga setelah diskon = Rp120.000 − Rp30.000 = Rp90.000<br><br>
+      Menghitung harga setelah diskon adalah penerapan aritmetika sosial yang sangat sering kita temui saat berbelanja.
+    </div>
+  </div>
+`);
+
+/* ---------- 11. INTERAKTIF: KLASIFIKASI CONTOH VS BUKAN CONTOH ---------- */
+addSlide(`
+  <div class="eyebrow">Aktivitas Interaktif</div>
+  <h2 class="section-title">Termasuk Aritmetika Sosial atau Bukan?</h2>
+  <div class="card" id="tfGame">
+    <p class="lead" id="tfQuestion" style="font-size:clamp(16px,2.2vw,20px); text-align:center; color:var(--text-hi);"></p>
+    <div class="tf-row" style="justify-content:center;">
+      <button class="tf-btn" onclick="answerTF(true)">✅ Termasuk</button>
+      <button class="tf-btn" onclick="answerTF(false)">❌ Bukan</button>
+    </div>
+    <p id="tfFeedback" class="feedback-msg" style="text-align:center;"></p>
+    <div style="text-align:center; margin-top:10px;">
+      <button class="reveal-btn" onclick="nextTF()">Soal Berikutnya ➜</button>
+    </div>
+    <p class="quiz-progress" style="text-align:center; margin-top:8px;" id="tfProgress"></p>
+  </div>
+`);
+
+/* ---------- 12. MENGAPA PENTING ---------- */
+addSlide(`
+  <div class="eyebrow">Manfaat</div>
+  <h2 class="section-title">Mengapa Aritmetika Sosial Penting Dipelajari?</h2>
+  <ul class="plain">
+    <li>Membantu kita berbelanja secara cerdas dan mengenali diskon yang menguntungkan.</li>
+    <li>Membantu memahami cara kerja bunga tabungan dan pinjaman di bank.</li>
+    <li>Melatih kita menghitung untung dan rugi jika suatu saat berwirausaha.</li>
+    <li>Membantu memahami perhitungan pajak dalam transaksi sehari-hari.</li>
+    <li>Menumbuhkan kebiasaan mengelola uang secara bijak sejak dini.</li>
+  </ul>
+`);
+
+/* ---------- 13. CONTOH SOAL - MUDAH ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Mudah</div>
+  <h2 class="section-title">Contoh 1</h2>
+  <div class="card">
+    <p class="lead">Rina membeli buku seharga Rp15.000 dan membayar dengan uang Rp20.000. Kegiatan ini termasuk penerapan aritmetika sosial dalam bidang apa, dan istilah apa yang berkaitan dengan sisa uang yang diterima Rina?</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      Kegiatan ini termasuk bidang <b>jual beli</b>. Sisa uang yang diterima Rina (Rp20.000 − Rp15.000 = Rp5.000) disebut <b>kembalian</b>, salah satu bentuk sederhana dari transaksi sehari-hari.
+    </div>
+  </div>
+`);
+
+/* ---------- 14. CONTOH SOAL - SEDANG ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Sedang</div>
+  <h2 class="section-title">Contoh 2</h2>
+  <div class="card">
+    <p class="lead">Sebuah toko memberikan diskon 15% untuk semua produk saat perayaan HUT toko. Jelaskan mengapa kegiatan ini termasuk penerapan aritmetika sosial, dan sebutkan istilah yang terkait.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      Kegiatan ini termasuk aritmetika sosial karena melibatkan perhitungan <b>persentase potongan harga (diskon)</b> terhadap harga awal suatu barang. Konsep yang terkait: harga jual, diskon, dan harga setelah diskon.
+    </div>
+  </div>
+`);
+
+/* ---------- 15. CONTOH SOAL - MENANTANG ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Menantang</div>
+  <h2 class="section-title">Contoh 3</h2>
+  <div class="card">
+    <p class="lead">Seorang siswa berkata, "Aritmetika sosial hanya berguna untuk pedagang saja, bukan untuk pelajar." Apakah pernyataan tersebut benar? Berikan alasan dan minimal dua contoh penerapan aritmetika sosial yang relevan untuk kehidupan seorang pelajar.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      Pernyataan tersebut <b>tidak tepat</b>. Aritmetika sosial berguna bagi siapa saja, termasuk pelajar. Contohnya:<br>
+      1) Menghitung uang saku yang cukup untuk berbelanja dengan memperhitungkan diskon.<br>
+      2) Menghitung bunga tabungan pelajar di bank atau koperasi sekolah.<br>
+      Kemampuan ini membantu pelajar mengelola keuangan pribadi sejak dini.
+    </div>
+  </div>
+`);
+
+/* ---------- 16. LATIHAN INTERAKTIF: ISIAN ---------- */
+addSlide(`
+  <div class="eyebrow">Latihan Mandiri</div>
+  <h2 class="section-title">Isi Jawabanmu</h2>
+  <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+    <div>
+      <p class="lead">Istilah untuk harga saat pedagang membeli barang dari produsen disebut...</p>
+      <input type="text" class="answer-input" id="ans1" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans1','fb1', ['harga beli'])">Cek</button>
+      <div id="fb1" class="feedback-msg"></div>
+    </div>
+    <div>
+      <p class="lead">Tambahan uang yang diberikan bank kepada nasabah yang menabung disebut...</p>
+      <input type="text" class="answer-input" id="ans2" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans2','fb2', ['bunga'])">Cek</button>
+      <div id="fb2" class="feedback-msg"></div>
+    </div>
+    <div>
+      <p class="lead">Potongan harga yang diberikan penjual kepada pembeli disebut...</p>
+      <input type="text" class="answer-input" id="ans3" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans3','fb3', ['diskon'])">Cek</button>
+      <div id="fb3" class="feedback-msg"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- 17. KUIS ---------- */
+addSlide(`
+  <div class="eyebrow">Kuis Akhir</div>
+  <h2 class="section-title">Uji Pemahamanmu!</h2>
+  <div class="card" id="quizCard">
+    <p class="quiz-progress" id="quizProgress"></p>
+    <p class="lead" id="quizQuestion" style="font-size:clamp(16px,2.2vw,20px); color:var(--text-hi); margin-top:8px;"></p>
+    <div class="choice-row" id="quizChoices"></div>
+    <div id="quizExplain" class="hidden-box"></div>
+  </div>
+  <div class="card" id="quizResult" style="display:none; text-align:center;">
+    <h2 class="section-title">Hasil Kuis</h2>
+    <div class="score-ring">
+      <svg width="140" height="140">
+        <circle cx="70" cy="70" r="60" stroke="var(--bg-2)" stroke-width="12" fill="none"/>
+        <circle id="scoreCircle" cx="70" cy="70" r="60" stroke="var(--teal)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377"/>
+      </svg>
+      <div class="score-num" id="scoreNum">0%</div>
+    </div>
+    <p class="lead" id="scoreMsg" style="text-align:center; margin:12px auto 0;"></p>
+    <button class="nav-btn primary" style="margin:16px auto 0;" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+  </div>
+`);
+
+/* ---------- 18. REFLEKSI ---------- */
+addSlide(`
+  <div class="eyebrow">Refleksi</div>
+  <h2 class="section-title">Mari Berefleksi</h2>
+  <div class="card">
+    <ul class="plain">
+      <li>Apa yang dimaksud dengan aritmetika sosial menurut pemahamanmu sendiri?</li>
+      <li>Kegiatan apa dalam kesehariannmu yang berkaitan dengan aritmetika sosial?</li>
+      <li>Istilah mana yang masih terasa asing atau perlu kamu pelajari lebih lanjut?</li>
+      <li>Bagaimana aritmetika sosial dapat membantumu dalam mengelola uang saku?</li>
+    </ul>
+    <p class="lead" style="margin-top:14px;">Cobalah diskusikan jawabanmu dengan teman sebangku atau tuliskan di buku catatan.</p>
+  </div>
+`);
+
+/* ---------- 19. RANGKUMAN ---------- */
+addSlide(`
+  <div class="eyebrow">Rangkuman</div>
+  <h2 class="section-title">Yang Perlu Kamu Ingat</h2>
+  <div class="card">
+    <p class="lead"><b style="color:var(--text-hi)">Aritmetika sosial</b> adalah cabang matematika yang mempelajari perhitungan dalam kegiatan ekonomi sehari-hari, seperti jual beli, perbankan, perpajakan, dan koperasi.</p>
+  </div>
+  <div class="grid2" style="margin-top:4px;">
+    <div class="card"><b style="color:var(--teal)">Jual Beli</b><p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Harga beli, harga jual, untung, rugi, diskon.</p></div>
+    <div class="card"><b style="color:var(--amber)">Perbankan</b><p style="color:var(--text-mid); font-size:13.5px; margin-top:6px;">Bunga tabungan dan bunga pinjaman.</p></div>
+  </div>
+  <div class="card" style="margin-top:4px;">
+    <p class="lead">Mempelajari aritmetika sosial membantu kita bertransaksi secara cerdas dan mengelola keuangan dengan lebih baik dalam kehidupan sehari-hari.</p>
+  </div>
+`);
+
+/* ---------- 20. PENUTUP ---------- */
+addSlide(`
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px; margin-top:8vh;">
+    <div class="icon-cover" style="background:var(--grad-1);">🎉</div>
+    <h1 class="slide-title">Kerja Bagus!</h1>
+    <p class="lead">Kamu telah menyelesaikan pembelajaran Konsep Aritmetika Sosial. Lanjutkan ke submateri berikutnya: <b style="color:var(--text-hi)">Harga Beli, Harga Jual, Untung, dan Rugi</b>.</p>
+    <div class="badge">🙌 Sampai jumpa di pembelajaran berikutnya!</div>
+  </div>
+`);
+
+/* ======================================================
+   NAVIGASI SLIDE
+====================================================== */
+const totalSlides = slides.length;
+document.getElementById('tot-num').textContent = totalSlides;
+const dotsWrap = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-i';
+  d.onclick = () => goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+
+function updateUI(){
+  slides.forEach((s, i) => {
+    s.classList.remove('active','prev');
+    if(i === currentIndex) s.classList.add('active');
+    else if(i < currentIndex) s.classList.add('prev');
+  });
+  document.getElementById('cur-num').textContent = currentIndex + 1;
+  document.getElementById('progress-bar').style.width = ((currentIndex+1)/totalSlides*100) + '%';
+  document.querySelectorAll('.dot-i').forEach((d,i) => {
+    d.classList.toggle('active', i === currentIndex);
+    d.classList.toggle('done', i < currentIndex);
+  });
+  document.getElementById('btnPrev').disabled = currentIndex === 0;
+  document.getElementById('btnNext').textContent = currentIndex === totalSlides - 1 ? 'Selesai ✓' : 'Berikutnya →';
+  stage.scrollTop = 0;
+  slides[currentIndex].scrollTop = 0;
+}
+
+function goToSlide(i){
+  if(i < 0 || i >= totalSlides) return;
+  currentIndex = i;
+  updateUI();
+  if(i === 6) initAccordion();
+  if(i === 10) initTF();
+  if(i === 16) initQuizIfNeeded();
+}
+
+document.getElementById('btnNext').onclick = () => { if(currentIndex < totalSlides-1) goToSlide(currentIndex+1); };
+document.getElementById('btnPrev').onclick = () => { if(currentIndex > 0) goToSlide(currentIndex-1); };
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowRight') goToSlide(currentIndex+1);
+  if(e.key === 'ArrowLeft') goToSlide(currentIndex-1);
+});
+
+let touchStartX = 0;
+stage.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive:true});
+stage.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(dx > 60) goToSlide(currentIndex-1);
+  else if(dx < -60) goToSlide(currentIndex+1);
+}, {passive:true});
+
+updateUI();
+
+/* ======================================================
+   WIDGET: reveal toggle
+====================================================== */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+}
+
+/* ======================================================
+   WIDGET: accordion istilah (slide 7)
+====================================================== */
+const termData = [
+  {term:'Harga Beli', def:'Harga suatu barang saat dibeli oleh pedagang dari produsen atau distributor.'},
+  {term:'Harga Jual', def:'Harga suatu barang saat dijual kembali oleh pedagang kepada konsumen.'},
+  {term:'Untung (Laba)', def:'Selisih lebih antara harga jual dan harga beli, terjadi jika harga jual lebih tinggi.'},
+  {term:'Rugi', def:'Selisih kurang antara harga jual dan harga beli, terjadi jika harga jual lebih rendah dari harga beli.'},
+  {term:'Diskon', def:'Potongan harga yang diberikan penjual kepada pembeli, biasanya dinyatakan dalam persen.'},
+  {term:'Bunga', def:'Tambahan sejumlah uang yang diberikan bank kepada nasabah yang menabung, atau dibayarkan nasabah yang meminjam.'},
+  {term:'Pajak', def:'Sejumlah uang yang wajib dibayarkan kepada negara atas suatu penghasilan atau transaksi barang/jasa.'},
+  {term:'Bruto, Neto, Tara', def:'Bruto = berat kotor (barang + kemasan), Neto = berat bersih (barang saja), Tara = berat kemasan.'}
+];
+let accInitialized = false;
+function initAccordion(){
+  if(accInitialized) return;
+  accInitialized = true;
+  const wrap = document.getElementById('accWrap');
+  termData.forEach((t) => {
+    const item = document.createElement('div');
+    item.className = 'acc-item';
+    item.innerHTML = `
+      <div class="acc-head" onclick="this.parentElement.classList.toggle('open')">
+        <span>${t.term}</span><span class="plus">+</span>
+      </div>
+      <div class="acc-body"><p>${t.def}</p></div>
+    `;
+    wrap.appendChild(item);
+  });
+}
+
+/* ======================================================
+   WIDGET: True/False klasifikasi (slide 11)
+====================================================== */
+const tfData = [
+  {statement:'Membeli sayur di pasar dan menawar harganya', included:true},
+  {statement:'Mengukur luas lapangan sepak bola berbentuk persegi panjang', included:false},
+  {statement:'Menabung di bank dan mendapat bunga 3% per tahun', included:true},
+  {statement:'Menghitung besar sudut segitiga sama kaki', included:false},
+  {statement:'Mendapat diskon 20% saat membeli sepatu', included:true},
+  {statement:'Membayar pajak kendaraan bermotor setiap tahun', included:true},
+  {statement:'Menentukan volume sebuah balok', included:false}
+];
+let tfIndex = 0;
+let tfAnswered = false;
+function initTF(){ tfIndex = 0; tfAnswered = false; renderTF(); }
+function renderTF(){
+  const item = tfData[tfIndex];
+  document.getElementById('tfQuestion').textContent = `"${item.statement}"`;
+  document.getElementById('tfFeedback').textContent = '';
+  document.getElementById('tfFeedback').className = 'feedback-msg';
+  document.getElementById('tfProgress').textContent = `Soal ${tfIndex+1} dari ${tfData.length}`;
+  document.querySelectorAll('#tfGame .tf-btn').forEach(b => b.classList.remove('correct','wrong'));
+  tfAnswered = false;
+}
+function answerTF(guessIncluded){
+  if(tfAnswered) return;
+  tfAnswered = true;
+  const item = tfData[tfIndex];
+  const correct = guessIncluded === item.included;
+  const fb = document.getElementById('tfFeedback');
+  const btns = document.querySelectorAll('#tfGame .tf-btn');
+  btns[item.included ? 0 : 1].classList.add('correct');
+  if(!correct) btns[guessIncluded ? 0 : 1].classList.add('wrong');
+  fb.textContent = correct ? '✅ Benar!' : '❌ Belum tepat, perhatikan lagi kaitannya dengan kegiatan ekonomi.';
+  fb.className = 'feedback-msg ' + (correct ? 'ok' : 'bad');
+}
+function nextTF(){ tfIndex = (tfIndex + 1) % tfData.length; renderTF(); }
+
+/* ======================================================
+   WIDGET: isian jawaban (slide 16)
+====================================================== */
+function checkAnswer(inputId, fbId, validAnswers){
+  const val = document.getElementById(inputId).value.trim().toLowerCase().replace(/\s+/g,'');
+  const fb = document.getElementById(fbId);
+  const isCorrect = validAnswers.some(a => a.toLowerCase().replace(/\s+/g,'') === val);
+  fb.textContent = isCorrect ? '✅ Benar!' : '❌ Coba periksa lagi.';
+  fb.className = 'feedback-msg ' + (isCorrect ? 'ok' : 'bad');
+}
+
+/* ======================================================
+   WIDGET: kuis (slide 17)
+====================================================== */
+let quizIndex = 0;
+let quizScore = 0;
+let quizInitialized = false;
+function initQuizIfNeeded(){
+  if(quizInitialized) return;
+  quizInitialized = true;
+  quizIndex = 0; quizScore = 0;
+  renderQuiz();
+}
+function renderQuiz(){
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  const item = quizData[quizIndex];
+  document.getElementById('quizProgress').textContent = `Soal ${quizIndex+1} dari ${quizData.length} · Skor sementara: ${quizScore}`;
+  document.getElementById('quizQuestion').textContent = item.q;
+  const choicesWrap = document.getElementById('quizChoices');
+  choicesWrap.innerHTML = '';
+  document.getElementById('quizExplain').classList.remove('show');
+  item.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectQuizAnswer(i, btn);
+    choicesWrap.appendChild(btn);
+  });
+}
+function selectQuizAnswer(i, btn){
+  const item = quizData[quizIndex];
+  const allBtns = document.querySelectorAll('#quizChoices .choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if(i === item.correct){
+    btn.classList.add('correct');
+    quizScore++;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[item.correct].classList.add('correct');
+  }
+  const exp = document.getElementById('quizExplain');
+  exp.innerHTML = `<b>Pembahasan:</b> ${item.explain}`;
+  exp.classList.add('show');
+  setTimeout(() => {
+    if(quizIndex < quizData.length - 1){
+      quizIndex++;
+      renderQuiz();
+    } else {
+      showQuizResult();
+    }
+  }, 1800);
+}
+function showQuizResult(){
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+  const pct = Math.round((quizScore / quizData.length) * 100);
+  document.getElementById('scoreNum').textContent = pct + '%';
+  const circle = document.getElementById('scoreCircle');
+  const circumference = 377;
+  circle.style.strokeDashoffset = circumference - (circumference * pct / 100);
+  let msg = '';
+  if(pct >= 90) msg = `Luar biasa! Skor kamu ${quizScore}/${quizData.length}. Kamu sangat memahami konsep aritmetika sosial!`;
+  else if(pct >= 70) msg = `Bagus! Skor kamu ${quizScore}/${quizData.length}. Sedikit lagi untuk menguasai sepenuhnya.`;
+  else if(pct >= 50) msg = `Cukup baik. Skor kamu ${quizScore}/${quizData.length}. Coba pelajari kembali bagian yang masih sulit.`;
+  else msg = `Skor kamu ${quizScore}/${quizData.length}. Yuk, ulangi materi konsep aritmetika sosial sekali lagi!`;
+  document.getElementById('scoreMsg').textContent = msg;
+}
+function restartQuiz(){
+  quizIndex = 0; quizScore = 0;
+  renderQuiz();
+}
+</script>
+</body>
+</html>

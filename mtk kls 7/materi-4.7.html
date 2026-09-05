@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bab 4 — Substitusi Nilai ke Bentuk Aljabar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0f1a;
+    --bg-1:#111729;
+    --bg-2:#161d33;
+    --card:#1a2138;
+    --card-border:#2a3352;
+    --text-hi:#f2f4fb;
+    --text-mid:#b7c0dc;
+    --text-low:#7c86a8;
+    --coral:#ff6b6b;
+    --teal:#4ecdc4;
+    --amber:#ffd166;
+    --violet:#8b7cf6;
+    --grad-1: linear-gradient(135deg, #ff6b6b 0%, #ffd166 100%);
+    --grad-2: linear-gradient(135deg, #4ecdc4 0%, #8b7cf6 100%);
+    --grad-3: linear-gradient(135deg, #8b7cf6 0%, #ff6b6b 100%);
+    --shadow: 0 20px 50px -12px rgba(0,0,0,0.5);
+    --radius: 22px;
+    --font-head:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family: var(--font-body);
+    background: radial-gradient(ellipse at top left, #171f38 0%, var(--bg-0) 55%), var(--bg-0);
+    color: var(--text-hi);
+    overflow:hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #app{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ===== TOP BAR ===== */
+  #topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px clamp(14px,3vw,32px);
+    gap:14px;
+    z-index:20;
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(13px,1.6vw,16px);
+    color:var(--text-mid);
+    white-space:nowrap;
+  }
+  .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--grad-1); flex-shrink:0;}
+  #progress-wrap{
+    flex:1;
+    height:8px;
+    background:var(--bg-2);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid var(--card-border);
+    max-width:420px;
+  }
+  #progress-bar{
+    height:100%;
+    width:0%;
+    background:var(--grad-2);
+    border-radius:99px;
+    transition: width .45s cubic-bezier(.65,0,.35,1);
+  }
+  #slide-counter{
+    font-family:var(--font-mono);
+    font-size:clamp(11px,1.4vw,13px);
+    color:var(--text-low);
+    white-space:nowrap;
+  }
+
+  /* ===== SLIDES ===== */
+  #stage{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding: clamp(14px,3vh,28px) clamp(16px,5vw,64px) clamp(90px,10vh,110px);
+    opacity:0;
+    transform: translateX(40px) scale(.98);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1);
+    pointer-events:none;
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1;
+    transform: translateX(0) scale(1);
+    pointer-events:auto;
+  }
+  .slide.prev{
+    transform: translateX(-40px) scale(.98);
+  }
+  .slide-inner{
+    width:100%;
+    max-width:980px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:clamp(11px,1.5vw,13px);
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--teal);
+    font-weight:500;
+  }
+  h1.slide-title{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(24px,4.4vw,44px);
+    line-height:1.15;
+    background:var(--grad-2);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  h2.section-title{
+    font-family:var(--font-head);
+    font-weight:600;
+    font-size:clamp(20px,3vw,30px);
+    color:var(--text-hi);
+  }
+  p.lead{
+    font-size:clamp(14px,1.9vw,18px);
+    color:var(--text-mid);
+    line-height:1.65;
+    max-width:760px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:clamp(16px,2.6vw,28px);
+    box-shadow: var(--shadow);
+  }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:760px){ .grid2, .grid3{grid-template-columns:1fr;} }
+
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    padding:4px 12px;
+    border-radius:99px;
+    background:var(--bg-2);
+    border:1px solid var(--card-border);
+    color:var(--text-mid);
+    width:fit-content;
+  }
+
+  .expr{
+    font-family:var(--font-mono);
+    font-weight:700;
+    letter-spacing:.02em;
+  }
+
+  /* ===== NAV ===== */
+  #navbar{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding: 14px clamp(14px,4vw,40px) 18px;
+    background: linear-gradient(0deg, rgba(11,15,26,.92) 40%, rgba(11,15,26,0) 100%);
+    z-index:30;
+  }
+  .nav-btn{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-body);
+    font-weight:600;
+    font-size:clamp(13px,1.6vw,15px);
+    color:var(--text-hi);
+    background:var(--card);
+    border:1px solid var(--card-border);
+    padding:10px 18px;
+    border-radius:14px;
+    cursor:pointer;
+    transition: transform .15s ease, background .2s ease, opacity .2s ease;
+    user-select:none;
+  }
+  .nav-btn:hover{ transform:translateY(-2px); background:var(--bg-2); }
+  .nav-btn:active{ transform:translateY(0); }
+  .nav-btn.primary{ background:var(--grad-2); color:#0b0f1a; border:none; }
+  .nav-btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+
+  #dots{
+    display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:46vw;
+  }
+  .dot-i{
+    width:8px; height:8px; border-radius:50%;
+    background:var(--card-border);
+    cursor:pointer;
+    transition: all .25s ease;
+    flex-shrink:0;
+  }
+  .dot-i.active{ background:var(--teal); width:22px; border-radius:5px;}
+  .dot-i.done{ background:var(--text-low); }
+  @media (max-width:640px){ #dots{display:none;} }
+
+  /* ===== INTERACTIVE WIDGETS ===== */
+  .reveal-btn{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:14px;
+    color:#0b0f1a;
+    background:var(--amber);
+    border:none;
+    padding:10px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    transition: transform .15s ease, filter .2s ease;
+  }
+  .reveal-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+  .hidden-box{
+    display:none;
+    margin-top:12px;
+    padding:14px 16px;
+    background:var(--bg-2);
+    border-left:3px solid var(--teal);
+    border-radius:10px;
+    font-size:14px;
+    color:var(--text-mid);
+    line-height:1.6;
+  }
+  .hidden-box.show{ display:block; animation: fadein .35s ease; }
+  @keyframes fadein{ from{opacity:0; transform:translateY(-6px);} to{opacity:1; transform:translateY(0);} }
+
+  .step-list{ counter-reset:step; display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+  .step-item{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--bg-2); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px;
+  }
+  .step-num{
+    counter-increment:step;
+    font-family:var(--font-head); font-weight:600;
+    width:28px; height:28px; border-radius:50%;
+    background:var(--grad-1); color:#1a0d0d;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; font-size:13px;
+  }
+  .step-num::before{ content: counter(step); }
+
+  input.answer-input{
+    font-family:var(--font-mono);
+    font-size:15px;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--card-border);
+    background:var(--bg-1);
+    color:var(--text-hi);
+    width:140px;
+    outline:none;
+  }
+  input.answer-input:focus{ border-color:var(--teal); }
+  .check-btn{
+    font-family:var(--font-body); font-weight:700; font-size:13px;
+    background:var(--grad-2); color:#0b0f1a; border:none;
+    padding:10px 16px; border-radius:10px; cursor:pointer; margin-left:8px;
+  }
+
+  .choice-row{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+  .choice-btn{
+    text-align:left;
+    font-family:var(--font-body);
+    font-size:14px;
+    color:var(--text-hi);
+    background:var(--bg-2);
+    border:1.5px solid var(--card-border);
+    padding:13px 16px;
+    border-radius:13px;
+    cursor:pointer;
+    transition: all .2s ease;
+  }
+  .choice-btn:hover{ border-color:var(--teal); transform:translateX(3px); }
+  .choice-btn.correct{ border-color:var(--teal); background:rgba(78,205,196,.15); }
+  .choice-btn.wrong{ border-color:var(--coral); background:rgba(255,107,107,.15); }
+  .choice-btn:disabled{ cursor:default; }
+
+  .feedback-msg{ font-size:14px; margin-top:10px; font-weight:600; }
+  .feedback-msg.ok{ color:var(--teal); }
+  .feedback-msg.bad{ color:var(--coral); }
+
+  .term-box{
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:clamp(24px,5vw,40px);
+    padding:16px 26px; border-radius:16px; background:var(--bg-2);
+    border:1.5px solid var(--card-border); gap:4px; flex-wrap:wrap;
+  }
+
+  .quiz-progress{ font-family:var(--font-mono); font-size:12px; color:var(--text-low); }
+  .score-ring{
+    width:140px; height:140px; margin:0 auto;
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  .score-ring svg{ transform:rotate(-90deg); }
+  .score-num{ position:absolute; font-family:var(--font-head); font-size:30px; font-weight:600; }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--card-border); border-radius:99px; }
+
+  .kbd{
+    font-family:var(--font-mono); font-size:11px; background:var(--bg-2);
+    border:1px solid var(--card-border); padding:2px 6px; border-radius:6px; color:var(--text-low);
+  }
+
+  .icon-cover{
+    width:84px; height:84px; border-radius:22px;
+    background:var(--grad-2); display:flex; align-items:center; justify-content:center;
+    font-size:38px; box-shadow: var(--shadow);
+  }
+  ul.plain{ padding-left:20px; color:var(--text-mid); font-size:14.5px; line-height:1.8; }
+  ul.plain li::marker{ color:var(--teal); }
+
+  /* ===== SLIDER WIDGET (substitusi live) ===== */
+  .slider-row{ display:flex; align-items:center; gap:14px; margin-top:16px; flex-wrap:wrap; }
+  .slider-row label{ font-family:var(--font-mono); font-size:14px; color:var(--text-mid); min-width:70px; }
+  input[type=range]{
+    flex:1; min-width:160px;
+    -webkit-appearance:none; appearance:none;
+    height:8px; border-radius:99px; background:var(--bg-2);
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--grad-2); cursor:pointer; border:2px solid #0b0f1a;
+    box-shadow:0 0 0 3px rgba(78,205,196,.25);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:20px; height:20px; border-radius:50%;
+    background:var(--grad-2); cursor:pointer; border:2px solid #0b0f1a;
+  }
+  .slider-val{
+    font-family:var(--font-mono); font-weight:700; font-size:16px;
+    color:var(--teal); min-width:34px; text-align:center;
+    background:var(--bg-2); border-radius:8px; padding:4px 8px;
+  }
+  .result-box{
+    margin-top:18px; padding:20px; border-radius:16px;
+    background:var(--bg-2); border:1.5px dashed var(--card-border);
+    text-align:center;
+  }
+  .result-box .calc-line{ font-family:var(--font-mono); font-size:clamp(16px,2.6vw,22px); color:var(--text-mid); margin-bottom:6px; }
+  .result-box .calc-final{ font-family:var(--font-mono); font-weight:700; font-size:clamp(22px,3.4vw,32px); color:var(--amber); }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <div class="brand"><span class="dot"></span>Bab 4 · Substitusi Nilai</div>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <div id="slide-counter"><span id="cur-num">1</span> / <span id="tot-num">1</span></div>
+  </div>
+
+  <div id="stage"></div>
+
+  <div id="navbar">
+    <button class="nav-btn" id="btnPrev">← Sebelumnya</button>
+    <div id="dots"></div>
+    <button class="nav-btn primary" id="btnNext">Berikutnya →</button>
+  </div>
+</div>
+
+<script>
+/* ======================================================
+   DATA SOAL KUIS
+====================================================== */
+const quizData = [
+  {
+    q: "Jika x = 3, maka nilai dari 2x + 5 adalah...",
+    opts: ["8", "11", "13", "6"],
+    correct: 1,
+    explain: "Substitusikan x = 3: 2(3) + 5 = 6 + 5 = 11."
+  },
+  {
+    q: "Diketahui a = −2. Nilai dari 4a − 3 adalah...",
+    opts: ["−11", "5", "11", "−5"],
+    correct: 0,
+    explain: "4(−2) − 3 = −8 − 3 = −11. Perhatikan tanda negatif pada a."
+  },
+  {
+    q: "Jika x = 2 dan y = 5, maka nilai dari 3x + 2y adalah...",
+    opts: ["16", "13", "11", "19"],
+    correct: 0,
+    explain: "3(2) + 2(5) = 6 + 10 = 16."
+  },
+  {
+    q: "Nilai dari p² − 4 untuk p = 3 adalah...",
+    opts: ["5", "9", "13", "1"],
+    correct: 0,
+    explain: "p² artinya p × p = 3 × 3 = 9. Jadi 9 − 4 = 5. Perhatikan urutan operasi: pangkat dihitung dahulu."
+  },
+  {
+    q: "Jika n = −4, maka nilai dari −2n + 6 adalah...",
+    opts: ["14", "−2", "2", "−14"],
+    correct: 0,
+    explain: "−2(−4) + 6 = 8 + 6 = 14. Ingat: negatif × negatif = positif."
+  },
+  {
+    q: "Diketahui rumus keliling persegi K = 4s. Jika s = 7 cm, maka keliling persegi adalah...",
+    opts: ["11 cm", "28 cm", "21 cm", "49 cm"],
+    correct: 1,
+    explain: "K = 4s = 4 × 7 = 28 cm."
+  },
+  {
+    q: "Untuk x = 1, nilai dari 5x² + 2x − 3 adalah...",
+    opts: ["4", "0", "10", "1"],
+    correct: 0,
+    explain: "5(1)² + 2(1) − 3 = 5(1) + 2 − 3 = 5 + 2 − 3 = 4."
+  },
+  {
+    q: "Jika a = 2 dan b = −3, maka nilai dari a − b adalah...",
+    opts: ["−1", "5", "1", "−5"],
+    correct: 1,
+    explain: "a − b = 2 − (−3) = 2 + 3 = 5. Mengurangi bilangan negatif sama dengan menambah."
+  }
+];
+
+/* ======================================================
+   BANGUN SLIDE
+====================================================== */
+const stage = document.getElementById('stage');
+let slides = [];
+let currentIndex = 0;
+
+function addSlide(html){
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.innerHTML = `<div class="slide-inner">${html}</div>`;
+  stage.appendChild(div);
+  slides.push(div);
+  return div;
+}
+
+/* ---------- 1. COVER ---------- */
+addSlide(`
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:22px; margin-top:6vh;">
+    <div class="icon-cover">🔢</div>
+    <div class="eyebrow">Matematika · Kelas VII · Kurikulum Merdeka</div>
+    <h1 class="slide-title" style="font-size:clamp(28px,6vw,52px);">Bab 4 — Bentuk Aljabar</h1>
+    <p class="lead">Submateri: <b style="color:var(--text-hi)">Substitusi Nilai ke Bentuk Aljabar</b></p>
+    <p class="lead">Materi Pokok: Mengganti variabel dengan nilai tertentu dan menentukan hasilnya</p>
+    <div class="badge">👉 Gunakan tombol <b>Berikutnya</b> atau tanda panah <span class="kbd">←</span> <span class="kbd">→</span> untuk menjelajah</div>
+  </div>
+`);
+
+/* ---------- 2. APERSEPSI ---------- */
+addSlide(`
+  <div class="eyebrow">Apersepsi</div>
+  <h2 class="section-title">Mengingat Kembali Bentuk Aljabar</h2>
+  <p class="lead">Pada pertemuan sebelumnya kita telah belajar tentang variabel, konstanta, koefisien, dan suku. Sekarang, bagaimana jika nilai variabel tersebut sudah diketahui?</p>
+  <div class="card">
+    <p class="lead">Misalnya, ongkos naik ojek online dihitung dengan rumus <span class="expr" style="color:var(--teal)">2000j + 5000</span>, dengan <b style="color:var(--text-hi)">j</b> = jarak tempuh dalam km. Jika Rani menempuh jarak <b>4 km</b>, berapa ongkos yang harus ia bayar?</p>
+    <p class="lead" style="margin-top:10px; color:var(--text-hi);">Untuk menjawabnya, kita perlu <b>mengganti</b> variabel j dengan nilai 4. Proses inilah yang disebut <b style="color:var(--amber)">substitusi</b>.</p>
+  </div>
+`);
+
+/* ---------- 3. TUJUAN PEMBELAJARAN ---------- */
+addSlide(`
+  <div class="eyebrow">Tujuan Pembelajaran</div>
+  <h2 class="section-title">Setelah mempelajari bagian ini, kalian mampu:</h2>
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div>Menjelaskan pengertian substitusi nilai pada bentuk aljabar.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Mengganti variabel dengan nilai tertentu (termasuk bilangan negatif dan pecahan).</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Menghitung hasil dari bentuk aljabar setelah nilai disubstitusikan, sesuai urutan operasi hitung.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Menerapkan substitusi nilai untuk menyelesaikan masalah sehari-hari.</div></div>
+  </div>
+`);
+
+/* ---------- 4. PERTANYAAN PEMANTIK ---------- */
+addSlide(`
+  <div class="eyebrow">Pertanyaan Pemantik</div>
+  <h2 class="section-title">Coba pikirkan dahulu...</h2>
+  <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+    <p class="lead" style="font-size:clamp(16px,2.2vw,20px); color:var(--text-hi);">"Jika bentuk aljabar 3x mewakili 'tiga kali lipat suatu bilangan', berapa hasilnya jika bilangan tersebut adalah 5?"</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">💡 Lihat Arah Jawaban</button>
+    <div class="hidden-box">
+      Kita cukup mengganti x dengan 5: 3x = 3 × 5 = <b>15</b>.<br>
+      Proses mengganti variabel dengan bilangan tertentu inilah yang akan kita pelajari lebih dalam sebagai <b>substitusi nilai</b>.
+    </div>
+  </div>
+`);
+
+/* ---------- 5. KONSEP DASAR ---------- */
+addSlide(`
+  <div class="eyebrow">Konsep Dasar</div>
+  <h2 class="section-title">Apa itu Substitusi?</h2>
+  <div class="card">
+    <p class="lead"><b style="color:var(--text-hi)">Substitusi</b> adalah proses mengganti variabel (huruf) pada suatu bentuk aljabar dengan nilai bilangan tertentu, kemudian menghitung hasilnya menggunakan operasi hitung yang berlaku.</p>
+    <div style="margin-top:18px; display:flex; justify-content:center; align-items:center; gap:16px; flex-wrap:wrap;">
+      <div class="term-box">2<span style="color:var(--teal)">x</span> + 1</div>
+      <div style="font-size:26px; color:var(--text-low);">→</div>
+      <div class="term-box">2(<span style="color:var(--amber)">4</span>) + 1</div>
+      <div style="font-size:26px; color:var(--text-low);">→</div>
+      <div class="term-box" style="color:var(--coral);">9</div>
+    </div>
+    <p class="lead" style="margin-top:16px; text-align:center;">Variabel <b style="color:var(--teal)">x</b> diganti dengan <b style="color:var(--amber)">4</b>, sehingga hasil akhirnya adalah <b style="color:var(--coral)">9</b>.</p>
+  </div>
+`);
+
+/* ---------- 6. LANGKAH-LANGKAH SUBSTITUSI ---------- */
+addSlide(`
+  <div class="eyebrow">Prosedur</div>
+  <h2 class="section-title">Langkah-Langkah Melakukan Substitusi</h2>
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div>Tuliskan kembali bentuk aljabarnya.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Ganti setiap variabel dengan nilai yang diketahui (beri tanda kurung jika nilainya negatif, agar tidak tertukar dengan tanda operasi).</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Hitung sesuai urutan operasi: pangkat terlebih dahulu, kemudian perkalian/pembagian, baru penjumlahan/pengurangan.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Tuliskan hasil akhirnya.</div></div>
+  </div>
+  <div class="badge" style="margin-top:4px;">⚠️ Kesalahan umum: lupa memberi tanda kurung saat mengganti dengan bilangan negatif.</div>
+`);
+
+/* ---------- 7. CONTOH SATU VARIABEL ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan</div>
+  <h2 class="section-title">Substitusi Satu Variabel</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">5x − 4</span> jika <span class="expr" style="color:var(--teal)">x = 6</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      <div class="calc-line" style="font-family:var(--font-mono);">5x − 4 = 5(6) − 4</div>
+      <div class="calc-line" style="font-family:var(--font-mono);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 30 − 4</div>
+      <div class="calc-line" style="font-family:var(--font-mono); color:var(--amber); font-weight:700;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 26</div>
+    </div>
+  </div>
+`);
+
+/* ---------- 8. CONTOH NILAI NEGATIF ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan</div>
+  <h2 class="section-title">Substitusi dengan Nilai Negatif</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">3y + 7</span> jika <span class="expr" style="color:var(--teal)">y = −2</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      <div class="calc-line" style="font-family:var(--font-mono);">3y + 7 = 3(−2) + 7</div>
+      <div class="calc-line" style="font-family:var(--font-mono);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= −6 + 7</div>
+      <div class="calc-line" style="font-family:var(--font-mono); color:var(--amber); font-weight:700;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 1</div>
+      <p style="margin-top:8px;">Perhatikan penggunaan tanda kurung (−2) agar tidak keliru dengan tanda operasi kurang.</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 9. CONTOH DUA VARIABEL ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Penerapan</div>
+  <h2 class="section-title">Substitusi Dua Variabel</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">4a + 3b</span> jika <span class="expr" style="color:var(--teal)">a = 2</span> dan <span class="expr" style="color:var(--coral)">b = −1</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      <div class="calc-line" style="font-family:var(--font-mono);">4a + 3b = 4(2) + 3(−1)</div>
+      <div class="calc-line" style="font-family:var(--font-mono);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 8 + (−3)</div>
+      <div class="calc-line" style="font-family:var(--font-mono); color:var(--amber); font-weight:700;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 5</div>
+    </div>
+  </div>
+`);
+
+/* ---------- 10. SUBSTITUSI PADA BENTUK PANGKAT ---------- */
+addSlide(`
+  <div class="eyebrow">Perhatian Khusus</div>
+  <h2 class="section-title">Substitusi pada Bentuk Berpangkat</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">2x² + 3</span> jika <span class="expr" style="color:var(--teal)">x = 3</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      <div class="calc-line" style="font-family:var(--font-mono);">2x² + 3 = 2(3)² + 3</div>
+      <div class="calc-line" style="font-family:var(--font-mono);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2(9) + 3</div>
+      <div class="calc-line" style="font-family:var(--font-mono);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 18 + 3</div>
+      <div class="calc-line" style="font-family:var(--font-mono); color:var(--amber); font-weight:700;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 21</div>
+      <p style="margin-top:8px;">⚠️ Hitung pangkat terlebih dahulu: (3)² = 9, baru dikalikan dengan 2. Kesalahan umum: menghitung (2×3)² alih-alih 2×(3)².</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 11. INTERAKTIF: KALKULATOR SUBSTITUSI LIVE (1 variabel) ---------- */
+addSlide(`
+  <div class="eyebrow">Aktivitas Interaktif</div>
+  <h2 class="section-title">Kalkulator Substitusi — Geser dan Lihat Hasilnya!</h2>
+  <div class="card">
+    <p class="lead">Bentuk aljabar: <span class="expr" style="color:var(--text-hi); font-size:20px;">3x + 4</span></p>
+    <div class="slider-row">
+      <label>x = </label>
+      <input type="range" id="slideX1" min="-10" max="10" value="2" oninput="updateSub1()">
+      <div class="slider-val" id="valX1">2</div>
+    </div>
+    <div class="result-box">
+      <div class="calc-line" id="calcLine1">3x + 4 = 3(2) + 4</div>
+      <div class="calc-final" id="calcFinal1">= 10</div>
+    </div>
+  </div>
+`);
+
+/* ---------- 12. INTERAKTIF: KALKULATOR DUA VARIABEL ---------- */
+addSlide(`
+  <div class="eyebrow">Aktivitas Interaktif</div>
+  <h2 class="section-title">Kalkulator Substitusi — Dua Variabel</h2>
+  <div class="card">
+    <p class="lead">Bentuk aljabar: <span class="expr" style="color:var(--text-hi); font-size:20px;">2p − 3q</span></p>
+    <div class="slider-row">
+      <label>p = </label>
+      <input type="range" id="slideP" min="-10" max="10" value="4" oninput="updateSub2()">
+      <div class="slider-val" id="valP">4</div>
+    </div>
+    <div class="slider-row">
+      <label>q = </label>
+      <input type="range" id="slideQ" min="-10" max="10" value="1" oninput="updateSub2()">
+      <div class="slider-val" id="valQ">1</div>
+    </div>
+    <div class="result-box">
+      <div class="calc-line" id="calcLine2">2p − 3q = 2(4) − 3(1)</div>
+      <div class="calc-final" id="calcFinal2">= 5</div>
+    </div>
+  </div>
+`);
+
+/* ---------- 13. PENERAPAN SOAL CERITA ---------- */
+addSlide(`
+  <div class="eyebrow">Penerapan</div>
+  <h2 class="section-title">Substitusi dalam Masalah Sehari-hari</h2>
+  <div class="card">
+    <p class="lead">Ongkos taksi dihitung dengan rumus <span class="expr" style="color:var(--text-hi)">T = 3000k + 8000</span>, dengan <b>k</b> = jarak tempuh (km) dan T = total ongkos (rupiah). Berapa ongkos yang harus dibayar untuk jarak 10 km?</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">🧩 Lihat Penyelesaian</button>
+    <div class="hidden-box">
+      <div class="step-list">
+        <div class="step-item"><div class="step-num"></div><div>Substitusikan k = 10 ke dalam rumus: T = 3000(10) + 8000</div></div>
+        <div class="step-item"><div class="step-num"></div><div>Hitung perkalian terlebih dahulu: T = 30.000 + 8.000</div></div>
+        <div class="step-item"><div class="step-num"></div><div>Jumlahkan: T = 38.000</div></div>
+      </div>
+      <p style="margin-top:8px;">Jadi, ongkos taksi untuk jarak 10 km adalah <b style="color:var(--amber)">Rp38.000</b>.</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 14. CONTOH SOAL - MUDAH ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Mudah</div>
+  <h2 class="section-title">Contoh 1</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">4x + 1</span> jika <span class="expr">x = 3</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      4x + 1 = 4(3) + 1 = 12 + 1 = <b style="color:var(--amber)">13</b>
+    </div>
+  </div>
+`);
+
+/* ---------- 15. CONTOH SOAL - SEDANG ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Sedang</div>
+  <h2 class="section-title">Contoh 2</h2>
+  <div class="card">
+    <p class="lead">Tentukan nilai dari <span class="expr" style="color:var(--text-hi)">2m² − 3m + 1</span> jika <span class="expr">m = −2</span>.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      2m² − 3m + 1 = 2(−2)² − 3(−2) + 1<br>
+      = 2(4) − (−6) + 1<br>
+      = 8 + 6 + 1<br>
+      = <b style="color:var(--amber)">15</b><br>
+      <p style="margin-top:8px;">Ingat: (−2)² = (−2) × (−2) = 4 (hasil kuadrat bilangan negatif selalu positif).</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 16. CONTOH SOAL - MENANTANG ---------- */
+addSlide(`
+  <div class="eyebrow">Contoh Soal · Tingkat Menantang</div>
+  <h2 class="section-title">Contoh 3</h2>
+  <div class="card">
+    <p class="lead">Luas trapesium dirumuskan L = ½(a + b) × t. Jika a = 6 cm, b = 10 cm, dan t = 4 cm, tentukan luas trapesium tersebut.</p>
+    <button class="reveal-btn" onclick="toggleReveal(this)">Lihat Pembahasan</button>
+    <div class="hidden-box">
+      <div class="step-list">
+        <div class="step-item"><div class="step-num"></div><div>Substitusikan nilai: L = ½(6 + 10) × 4</div></div>
+        <div class="step-item"><div class="step-num"></div><div>Jumlahkan dalam kurung dahulu: L = ½(16) × 4</div></div>
+        <div class="step-item"><div class="step-num"></div><div>Hitung ½ × 16 = 8, lalu 8 × 4 = 32</div></div>
+      </div>
+      <p style="margin-top:8px;">Jadi, luas trapesium adalah <b style="color:var(--amber)">32 cm²</b>.</p>
+    </div>
+  </div>
+`);
+
+/* ---------- 17. LATIHAN INTERAKTIF: ISIAN ---------- */
+addSlide(`
+  <div class="eyebrow">Latihan Mandiri</div>
+  <h2 class="section-title">Isi Jawabanmu</h2>
+  <div class="card" style="display:flex; flex-direction:column; gap:16px;">
+    <div>
+      <p class="lead">Jika <span class="expr">x = 5</span>, berapa nilai dari <span class="expr" style="color:var(--text-hi)">2x − 3</span>?</p>
+      <input type="text" class="answer-input" id="ans1" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans1','fb1', ['7'])">Cek</button>
+      <div id="fb1" class="feedback-msg"></div>
+    </div>
+    <div>
+      <p class="lead">Jika <span class="expr">n = −3</span>, berapa nilai dari <span class="expr" style="color:var(--text-hi)">5n + 10</span>?</p>
+      <input type="text" class="answer-input" id="ans2" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans2','fb2', ['-5','−5'])">Cek</button>
+      <div id="fb2" class="feedback-msg"></div>
+    </div>
+    <div>
+      <p class="lead">Jika <span class="expr">a = 2</span> dan <span class="expr">b = 3</span>, berapa nilai dari <span class="expr" style="color:var(--text-hi)">a² + b</span>?</p>
+      <input type="text" class="answer-input" id="ans3" placeholder="Jawaban">
+      <button class="check-btn" onclick="checkAnswer('ans3','fb3', ['7'])">Cek</button>
+      <div id="fb3" class="feedback-msg"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- 18. KUIS ---------- */
+addSlide(`
+  <div class="eyebrow">Kuis Akhir</div>
+  <h2 class="section-title">Uji Pemahamanmu!</h2>
+  <div class="card" id="quizCard">
+    <p class="quiz-progress" id="quizProgress"></p>
+    <p class="lead" id="quizQuestion" style="font-size:clamp(16px,2.2vw,20px); color:var(--text-hi); margin-top:8px;"></p>
+    <div class="choice-row" id="quizChoices"></div>
+    <div id="quizExplain" class="hidden-box"></div>
+  </div>
+  <div class="card" id="quizResult" style="display:none; text-align:center;">
+    <h2 class="section-title">Hasil Kuis</h2>
+    <div class="score-ring">
+      <svg width="140" height="140">
+        <circle cx="70" cy="70" r="60" stroke="var(--bg-2)" stroke-width="12" fill="none"/>
+        <circle id="scoreCircle" cx="70" cy="70" r="60" stroke="var(--teal)" stroke-width="12" fill="none" stroke-linecap="round" stroke-dasharray="377" stroke-dashoffset="377"/>
+      </svg>
+      <div class="score-num" id="scoreNum">0%</div>
+    </div>
+    <p class="lead" id="scoreMsg" style="text-align:center; margin:12px auto 0;"></p>
+    <button class="nav-btn primary" style="margin:16px auto 0;" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+  </div>
+`);
+
+/* ---------- 19. REFLEKSI ---------- */
+addSlide(`
+  <div class="eyebrow">Refleksi</div>
+  <h2 class="section-title">Mari Berefleksi</h2>
+  <div class="card">
+    <ul class="plain">
+      <li>Apa yang dimaksud dengan substitusi nilai pada bentuk aljabar?</li>
+      <li>Kesalahan apa yang paling sering kamu lakukan saat mensubstitusi nilai negatif?</li>
+      <li>Mengapa urutan operasi hitung (pangkat, kali/bagi, tambah/kurang) penting saat melakukan substitusi?</li>
+      <li>Bisakah kamu memberi satu contoh penerapan substitusi dalam kehidupan sehari-hari?</li>
+    </ul>
+    <p class="lead" style="margin-top:14px;">Cobalah diskusikan jawabanmu dengan teman sebangku atau tuliskan di buku catatan.</p>
+  </div>
+`);
+
+/* ---------- 20. RANGKUMAN ---------- */
+addSlide(`
+  <div class="eyebrow">Rangkuman</div>
+  <h2 class="section-title">Yang Perlu Kamu Ingat</h2>
+  <div class="card">
+    <p class="lead"><b style="color:var(--text-hi)">Substitusi</b> adalah proses mengganti variabel dengan nilai tertentu, lalu menghitung hasilnya.</p>
+  </div>
+  <div class="step-list">
+    <div class="step-item"><div class="step-num"></div><div>Tuliskan kembali bentuk aljabarnya.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Ganti variabel dengan nilainya (beri kurung untuk bilangan negatif).</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Hitung sesuai urutan operasi: pangkat → kali/bagi → tambah/kurang.</div></div>
+    <div class="step-item"><div class="step-num"></div><div>Tuliskan hasil akhir.</div></div>
+  </div>
+`);
+
+/* ---------- 21. PENUTUP ---------- */
+addSlide(`
+  <div style="display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px; margin-top:8vh;">
+    <div class="icon-cover" style="background:var(--grad-1);">🎉</div>
+    <h1 class="slide-title">Kerja Bagus!</h1>
+    <p class="lead">Kamu telah menyelesaikan pembelajaran Substitusi Nilai ke Bentuk Aljabar. Lanjutkan ke submateri berikutnya: <b style="color:var(--text-hi)">Operasi Hitung Bentuk Aljabar</b>.</p>
+    <div class="badge">🙌 Sampai jumpa di pembelajaran berikutnya!</div>
+  </div>
+`);
+
+/* ======================================================
+   NAVIGASI SLIDE
+====================================================== */
+const totalSlides = slides.length;
+document.getElementById('tot-num').textContent = totalSlides;
+const dotsWrap = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot-i';
+  d.onclick = () => goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+
+function updateUI(){
+  slides.forEach((s, i) => {
+    s.classList.remove('active','prev');
+    if(i === currentIndex) s.classList.add('active');
+    else if(i < currentIndex) s.classList.add('prev');
+  });
+  document.getElementById('cur-num').textContent = currentIndex + 1;
+  document.getElementById('progress-bar').style.width = ((currentIndex+1)/totalSlides*100) + '%';
+  document.querySelectorAll('.dot-i').forEach((d,i) => {
+    d.classList.toggle('active', i === currentIndex);
+    d.classList.toggle('done', i < currentIndex);
+  });
+  document.getElementById('btnPrev').disabled = currentIndex === 0;
+  document.getElementById('btnNext').textContent = currentIndex === totalSlides - 1 ? 'Selesai ✓' : 'Berikutnya →';
+  stage.scrollTop = 0;
+  slides[currentIndex].scrollTop = 0;
+}
+
+function goToSlide(i){
+  if(i < 0 || i >= totalSlides) return;
+  currentIndex = i;
+  updateUI();
+  if(i === 17) initQuizIfNeeded();
+}
+
+document.getElementById('btnNext').onclick = () => { if(currentIndex < totalSlides-1) goToSlide(currentIndex+1); };
+document.getElementById('btnPrev').onclick = () => { if(currentIndex > 0) goToSlide(currentIndex-1); };
+
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowRight') goToSlide(currentIndex+1);
+  if(e.key === 'ArrowLeft') goToSlide(currentIndex-1);
+});
+
+/* swipe support */
+let touchStartX = 0;
+stage.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, {passive:true});
+stage.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(dx > 60) goToSlide(currentIndex-1);
+  else if(dx < -60) goToSlide(currentIndex+1);
+}, {passive:true});
+
+updateUI();
+
+/* ======================================================
+   WIDGET: reveal toggle
+====================================================== */
+function toggleReveal(btn){
+  const box = btn.nextElementSibling;
+  box.classList.toggle('show');
+}
+
+/* ======================================================
+   WIDGET: kalkulator substitusi 1 variabel (slide 11)
+====================================================== */
+function updateSub1(){
+  const x = parseInt(document.getElementById('slideX1').value);
+  document.getElementById('valX1').textContent = x;
+  const result = 3*x + 4;
+  const xDisplay = x < 0 ? `(${x})` : x;
+  document.getElementById('calcLine1').textContent = `3x + 4 = 3${xDisplay} + 4`;
+  document.getElementById('calcFinal1').textContent = `= ${result}`;
+}
+updateSub1();
+
+/* ======================================================
+   WIDGET: kalkulator substitusi 2 variabel (slide 12)
+====================================================== */
+function updateSub2(){
+  const p = parseInt(document.getElementById('slideP').value);
+  const q = parseInt(document.getElementById('slideQ').value);
+  document.getElementById('valP').textContent = p;
+  document.getElementById('valQ').textContent = q;
+  const result = 2*p - 3*q;
+  const pDisplay = p < 0 ? `(${p})` : p;
+  const qDisplay = q < 0 ? `(${q})` : q;
+  document.getElementById('calcLine2').textContent = `2p − 3q = 2${pDisplay} − 3${qDisplay}`;
+  document.getElementById('calcFinal2').textContent = `= ${result}`;
+}
+updateSub2();
+
+/* ======================================================
+   WIDGET: isian jawaban (slide 17)
+====================================================== */
+function checkAnswer(inputId, fbId, validAnswers){
+  const val = document.getElementById(inputId).value.trim().toLowerCase().replace(/\s+/g,'');
+  const fb = document.getElementById(fbId);
+  const isCorrect = validAnswers.some(a => a.toLowerCase().replace(/\s+/g,'') === val);
+  fb.textContent = isCorrect ? '✅ Benar!' : '❌ Coba periksa lagi.';
+  fb.className = 'feedback-msg ' + (isCorrect ? 'ok' : 'bad');
+}
+
+/* ======================================================
+   WIDGET: kuis (slide 18)
+====================================================== */
+let quizIndex = 0;
+let quizScore = 0;
+let quizInitialized = false;
+function initQuizIfNeeded(){
+  if(quizInitialized) return;
+  quizInitialized = true;
+  quizIndex = 0; quizScore = 0;
+  renderQuiz();
+}
+function renderQuiz(){
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('quizResult').style.display = 'none';
+  const item = quizData[quizIndex];
+  document.getElementById('quizProgress').textContent = `Soal ${quizIndex+1} dari ${quizData.length} · Skor sementara: ${quizScore}`;
+  document.getElementById('quizQuestion').textContent = item.q;
+  const choicesWrap = document.getElementById('quizChoices');
+  choicesWrap.innerHTML = '';
+  document.getElementById('quizExplain').classList.remove('show');
+  item.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectQuizAnswer(i, btn);
+    choicesWrap.appendChild(btn);
+  });
+}
+function selectQuizAnswer(i, btn){
+  const item = quizData[quizIndex];
+  const allBtns = document.querySelectorAll('#quizChoices .choice-btn');
+  allBtns.forEach(b => b.disabled = true);
+  if(i === item.correct){
+    btn.classList.add('correct');
+    quizScore++;
+  } else {
+    btn.classList.add('wrong');
+    allBtns[item.correct].classList.add('correct');
+  }
+  const exp = document.getElementById('quizExplain');
+  exp.innerHTML = `<b>Pembahasan:</b> ${item.explain}`;
+  exp.classList.add('show');
+  setTimeout(() => {
+    if(quizIndex < quizData.length - 1){
+      quizIndex++;
+      renderQuiz();
+    } else {
+      showQuizResult();
+    }
+  }, 1800);
+}
+function showQuizResult(){
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'block';
+  const pct = Math.round((quizScore / quizData.length) * 100);
+  document.getElementById('scoreNum').textContent = pct + '%';
+  const circle = document.getElementById('scoreCircle');
+  const circumference = 377;
+  circle.style.strokeDashoffset = circumference - (circumference * pct / 100);
+  let msg = '';
+  if(pct >= 90) msg = `Luar biasa! Skor kamu ${quizScore}/${quizData.length}. Kamu sangat menguasai konsep substitusi!`;
+  else if(pct >= 70) msg = `Bagus! Skor kamu ${quizScore}/${quizData.length}. Sedikit lagi untuk menguasai sepenuhnya.`;
+  else if(pct >= 50) msg = `Cukup baik. Skor kamu ${quizScore}/${quizData.length}. Coba pelajari kembali bagian yang masih sulit.`;
+  else msg = `Skor kamu ${quizScore}/${quizData.length}. Yuk, ulangi materi substitusi nilai sekali lagi!`;
+  document.getElementById('scoreMsg').textContent = msg;
+}
+function restartQuiz(){
+  quizIndex = 0; quizScore = 0;
+  renderQuiz();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perkalian Bentuk Aljabar — Bab 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#0d1117;
+    --bg-2:#141b29;
+    --bg-3:#1b2436;
+    --card:#182033;
+    --card-border:#2a3550;
+    --accent-1:#7c5cff;
+    --accent-2:#22d3ee;
+    --accent-3:#ff8a5c;
+    --accent-4:#4ade80;
+    --danger:#f87171;
+    --text-1:#eef1f8;
+    --text-2:#a9b3cc;
+    --text-3:#707d9c;
+    --grad-main: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+    --grad-warm: linear-gradient(135deg, var(--accent-3), #ffd166);
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow-soft: 0 10px 30px rgba(0,0,0,0.35);
+    --font-title:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--text-1);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,92,255,0.18), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(34,211,238,0.14), transparent 45%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-2) 60%, var(--bg-3));
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .app{
+    max-width:980px;
+    margin:0 auto;
+    padding:18px 18px 110px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  /* progress bar */
+  .progress-wrap{
+    position:sticky; top:0; z-index:50;
+    padding:10px 0 14px;
+    background:linear-gradient(180deg, var(--bg-1) 70%, transparent);
+  }
+  .progress-track{
+    height:8px; border-radius:99px; background:rgba(255,255,255,0.06);
+    overflow:hidden; border:1px solid var(--card-border);
+  }
+  .progress-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:var(--grad-main);
+    transition:width .4s ease;
+  }
+  .progress-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:8px; font-size:12.5px; color:var(--text-3); font-family:var(--font-mono);
+  }
+  .progress-meta .badge{
+    background:var(--card); border:1px solid var(--card-border);
+    padding:3px 10px; border-radius:99px; color:var(--text-2);
+  }
+
+  .stage{ flex:1; display:flex; }
+  .slide{
+    display:none;
+    width:100%;
+    animation:fadeSlide .45s ease both;
+  }
+  .slide.active{ display:block; }
+  @keyframes fadeSlide{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.02em;
+    color:var(--accent-2); background:rgba(34,211,238,0.09);
+    border:1px solid rgba(34,211,238,0.25);
+    padding:5px 12px; border-radius:99px; margin-bottom:14px;
+  }
+  h1,h2,h3{ font-family:var(--font-title); font-weight:600; margin:0 0 10px; line-height:1.2; }
+  h1{ font-size:clamp(28px,5vw,42px); }
+  h2{ font-size:clamp(22px,4vw,30px); }
+  h3{ font-size:19px; color:var(--text-1); }
+  p{ color:var(--text-2); line-height:1.7; font-size:15.5px; }
+  .lead{ font-size:17px; color:var(--text-2); }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius-lg);
+    padding:22px;
+    box-shadow:var(--shadow-soft);
+  }
+  .card + .card{ margin-top:16px; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:680px){
+    .grid-2, .grid-3{ grid-template-columns:1fr; }
+  }
+
+  .pill{
+    display:inline-block; padding:4px 12px; border-radius:99px;
+    font-size:12.5px; font-family:var(--font-mono); margin-right:6px; margin-bottom:6px;
+    border:1px solid var(--card-border); color:var(--text-2); background:rgba(255,255,255,0.03);
+  }
+
+  .math{
+    font-family:var(--font-mono); background:rgba(124,92,255,0.09);
+    border:1px solid rgba(124,92,255,0.3); border-radius:12px;
+    padding:14px 18px; color:var(--text-1); font-size:16px;
+    display:inline-block;
+  }
+  .math.big{ font-size:20px; padding:16px 20px; }
+
+  .btn{
+    font-family:var(--font-body); font-weight:700; font-size:14.5px;
+    padding:11px 20px; border-radius:99px; border:none; cursor:pointer;
+    color:#0d1117; background:var(--grad-main);
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+    box-shadow:0 6px 18px rgba(124,92,255,0.28);
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 10px 22px rgba(124,92,255,0.38); }
+  .btn:active{ transform:translateY(0); }
+  .btn.ghost{
+    background:transparent; color:var(--text-1);
+    border:1px solid var(--card-border); box-shadow:none;
+  }
+  .btn.ghost:hover{ background:rgba(255,255,255,0.05); }
+  .btn:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+  .btn.warm{ background:var(--grad-warm); box-shadow:0 6px 18px rgba(255,138,92,0.28); }
+
+  .accordion{ border:1px solid var(--card-border); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:rgba(255,255,255,0.02); }
+  .accordion-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; cursor:pointer; user-select:none; font-weight:600;
+  }
+  .accordion-head:hover{ background:rgba(255,255,255,0.03); }
+  .accordion-icon{ transition:transform .25s ease; color:var(--accent-2); font-size:18px; }
+  .accordion.open .accordion-icon{ transform:rotate(45deg); }
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; padding:0 18px; }
+  .accordion.open .accordion-body{ padding:0 18px 16px; }
+
+  .step-list{ list-style:none; margin:14px 0 0; padding:0; }
+  .step-list li{
+    display:flex; gap:12px; padding:12px 0; border-top:1px dashed var(--card-border);
+    opacity:0; transform:translateY(8px);
+  }
+  .step-list.revealed li{
+    animation:stepIn .5s ease forwards;
+  }
+  .step-list.revealed li:nth-child(1){ animation-delay:.05s; }
+  .step-list.revealed li:nth-child(2){ animation-delay:.25s; }
+  .step-list.revealed li:nth-child(3){ animation-delay:.45s; }
+  .step-list.revealed li:nth-child(4){ animation-delay:.65s; }
+  .step-list.revealed li:nth-child(5){ animation-delay:.85s; }
+  @keyframes stepIn{ to{opacity:1; transform:translateY(0);} }
+  .step-num{
+    min-width:26px; height:26px; border-radius:50%; background:var(--grad-main);
+    color:#0d1117; font-family:var(--font-mono); font-weight:700; font-size:13px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+
+  .opt-btn{
+    display:block; width:100%; text-align:left; padding:13px 16px; margin-bottom:9px;
+    border-radius:12px; border:1px solid var(--card-border); background:rgba(255,255,255,0.02);
+    color:var(--text-1); font-family:var(--font-body); font-size:15px; cursor:pointer;
+    transition:all .15s ease;
+  }
+  .opt-btn:hover{ border-color:var(--accent-2); background:rgba(34,211,238,0.06); }
+  .opt-btn.correct{ border-color:var(--accent-4); background:rgba(74,222,128,0.12); }
+  .opt-btn.wrong{ border-color:var(--danger); background:rgba(248,113,113,0.12); }
+  .opt-btn:disabled{ cursor:default; }
+
+  .feedback{ margin-top:10px; padding:12px 16px; border-radius:12px; font-size:14.5px; display:none; }
+  .feedback.show{ display:block; animation:fadeSlide .3s ease; }
+  .feedback.ok{ background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.35); color:#a8f0c0; }
+  .feedback.bad{ background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.35); color:#ffc0c0; }
+
+  .match-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media (max-width:680px){ .match-wrap{ grid-template-columns:1fr; } }
+  .match-col h3{ font-size:14px; color:var(--text-3); font-family:var(--font-mono); text-transform:none; margin-bottom:10px; }
+  .match-item{
+    padding:13px 14px; border-radius:12px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,0.02); margin-bottom:9px; cursor:pointer; font-family:var(--font-mono);
+    font-size:14.5px; transition:all .15s ease;
+  }
+  .match-item:hover{ border-color:var(--accent-2); }
+  .match-item.selected{ border-color:var(--accent-2); background:rgba(34,211,238,0.1); }
+  .match-item.matched{ border-color:var(--accent-4); background:rgba(74,222,128,0.1); cursor:default; opacity:.7; }
+  .match-item.shake{ animation:shake .35s ease; border-color:var(--danger); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+
+  .slider-box{ margin:18px 0; }
+  input[type=range]{ width:100%; accent-color:var(--accent-2); }
+  .area-viz{ display:flex; justify-content:center; margin:18px 0; }
+  .area-viz svg{ max-width:100%; height:auto; }
+
+  .nav-bar{
+    position:fixed; bottom:0; left:0; right:0; z-index:60;
+    background:linear-gradient(180deg, transparent, var(--bg-1) 30%);
+    padding:18px 18px 22px;
+  }
+  .nav-inner{
+    max-width:980px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .nav-side{ display:flex; gap:10px; }
+  .dots{ display:flex; gap:5px; flex-wrap:wrap; justify-content:center; max-width:300px; }
+  .dot{ width:7px; height:7px; border-radius:50%; background:var(--card-border); transition:all .2s ease; }
+  .dot.active{ width:20px; border-radius:99px; background:var(--grad-main); }
+
+  .cover{ text-align:center; padding:40px 10px 10px; }
+  .cover .icon-row{ display:flex; justify-content:center; gap:14px; margin-bottom:22px; font-size:34px; }
+  .cover .icon-row span{
+    width:64px; height:64px; border-radius:20px; display:flex; align-items:center; justify-content:center;
+    background:var(--card); border:1px solid var(--card-border);
+  }
+  .score-box{ text-align:center; padding:30px 20px; }
+  .score-num{ font-family:var(--font-title); font-size:56px; background:var(--grad-main); -webkit-background-clip:text; background-clip:text; color:transparent; }
+
+  .kbd{ font-family:var(--font-mono); background:rgba(255,255,255,0.06); border:1px solid var(--card-border); border-radius:6px; padding:1px 7px; font-size:12.5px; }
+
+  ::selection{ background:rgba(124,92,255,0.4); }
+  .tag-row{ margin-bottom:12px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-meta">
+      <span id="slideLabel" class="badge">Slide 1</span>
+      <span>Bab 4 — Bentuk Aljabar</span>
+      <span id="slideTotal" class="badge">/ 21</span>
+    </div>
+  </div>
+
+  <div class="stage">
+
+    <!-- SLIDE 0: COVER -->
+    <section class="slide active" data-slide="0">
+      <div class="cover">
+        <div class="icon-row"><span>✕</span><span>+</span><span>x²</span></div>
+        <div class="eyebrow">Kurikulum Merdeka • Bab 4</div>
+        <h1>Perkalian Bentuk Aljabar</h1>
+        <p class="lead">Perkalian konstanta dengan suku, dan perkalian suku aljabar dengan suku aljabar.</p>
+        <div class="card" style="margin-top:26px; text-align:left;">
+          <p style="margin:0;">Dalam pembelajaran ini kamu akan belajar mengalikan bilangan dengan bentuk aljabar, memahami sifat distributif, mengalikan suku sejenis, hingga menyelesaikan soal-soal latihan dan kuis interaktif.</p>
+        </div>
+        <button class="btn" style="margin-top:24px;" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 1: APERSEPSI -->
+    <section class="slide" data-slide="1">
+      <div class="eyebrow">Apersepsi</div>
+      <h2>Sebelum mulai, ingat kembali...</h2>
+      <p>Perhatikan bentuk aljabar berikut: <span class="math">5x + 3</span></p>
+      <div class="grid-3" style="margin-top:14px;">
+        <div class="card"><h3>Variabel</h3><p style="margin:0;">Huruf yang mewakili bilangan yang belum diketahui. Contoh: <b>x</b></p></div>
+        <div class="card"><h3>Koefisien</h3><p style="margin:0;">Bilangan yang mengalikan variabel. Pada <span class="math">5x</span>, koefisiennya adalah <b>5</b>.</p></div>
+        <div class="card"><h3>Konstanta</h3><p style="margin:0;">Suku tanpa variabel. Pada <span class="math">5x + 3</span>, konstantanya adalah <b>3</b>.</p></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <p style="margin:0 0 8px;"><b>Pertanyaan pemantik:</b></p>
+        <p style="margin:0;">Jika kamu memiliki 3 kotak, dan setiap kotak berisi <span class="math">(2x + 1)</span> permen, berapa total permen yang kamu punya jika ditulis dalam bentuk aljabar? Simpan dulu jawabanmu — kita akan menemukan caranya di slide berikut.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: TUJUAN -->
+    <section class="slide" data-slide="2">
+      <div class="eyebrow">Tujuan Pembelajaran</div>
+      <h2>Setelah mempelajari materi ini, kamu diharapkan mampu:</h2>
+      <div class="card">
+        <ul style="color:var(--text-2); line-height:2; font-size:15.5px; padding-left:20px; margin:0;">
+          <li>Mengalikan konstanta (bilangan) dengan suku tunggal maupun suku majemuk aljabar.</li>
+          <li>Menerapkan sifat distributif perkalian terhadap penjumlahan/pengurangan pada bentuk aljabar.</li>
+          <li>Mengalikan suku aljabar dengan suku aljabar (monomial × monomial).</li>
+          <li>Mengalikan suku aljabar dengan bentuk aljabar bersuku dua (monomial × binomial).</li>
+          <li>Menerapkan aturan tanda dalam operasi perkalian bentuk aljabar.</li>
+          <li>Menyelesaikan soal perkalian bentuk aljabar dalam berbagai tingkat kesulitan.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: KONSEP DASAR KONSTANTA x SUKU -->
+    <section class="slide" data-slide="3">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h2>Perkalian Konstanta dengan Suku Tunggal</h2>
+      <p>Mengalikan konstanta (bilangan) dengan suku aljabar berarti mengalikan konstanta tersebut dengan koefisien suku itu, sementara variabelnya tetap.</p>
+      <div class="card">
+        <p style="margin:0 0 10px;">Bentuk umum:</p>
+        <div class="math big">a × (b·x) = (a × b) · x</div>
+        <p style="margin-top:14px;">Contoh sederhana:</p>
+        <div class="math">4 × 3x = (4 × 3)x = 12x</div>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Ingat:</b> variabel (huruf) tidak ikut dikalikan angkanya — variabel hanya "menempel" mengikuti hasil perkalian koefisiennya. Yang berubah hanyalah koefisien di depan variabel.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: SIFAT DISTRIBUTIF -->
+    <section class="slide" data-slide="4">
+      <div class="eyebrow">Sifat Distributif</div>
+      <h2>a(b + c) = ab + ac</h2>
+      <p>Jika konstanta dikalikan dengan suku majemuk (lebih dari satu suku di dalam kurung), gunakan sifat distributif: kalikan konstanta tersebut ke <b>setiap suku</b> di dalam kurung.</p>
+      <div class="card">
+        <div class="math big">a(b + c) = a·b + a·c</div>
+        <div class="math big" style="margin-top:10px;">a(b − c) = a·b − a·c</div>
+      </div>
+      <div class="accordion" id="acc-distrib">
+        <div class="accordion-head" onclick="toggleAccordion('acc-distrib')">
+          <span>Lihat ilustrasi mengapa sifat ini berlaku</span>
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          <p>Bayangkan 3 kelompok, setiap kelompok berisi <span class="math">(x + 2)</span> buah apel. Total apel = <span class="math">3(x+2)</span>. Ini sama saja dengan 3 kelompok berisi x apel ditambah 3 kelompok berisi 2 apel: <span class="math">3x + 3(2) = 3x + 6</span>. Jadi <span class="math">3(x+2) = 3x + 6</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: CONTOH KONSTANTA x SUKU TUNGGAL -->
+    <section class="slide" data-slide="5">
+      <div class="eyebrow">Contoh 1</div>
+      <h2>Konstanta × Suku Tunggal</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">−4 × 5a</span></p>
+        <p><b>Petunjuk:</b> Kalikan angka dengan koefisien, variabel tetap. Perhatikan tanda negatifnya!</p>
+        <button class="btn ghost" onclick="revealSteps('steps5')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps5">
+          <li><span class="step-num">1</span><span>Kalikan angka: <span class="math">−4 × 5 = −20</span></span></li>
+          <li><span class="step-num">2</span><span>Variabel <b>a</b> tetap mengikuti hasil kali koefisien.</span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">−4 × 5a = −20a</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: CONTOH KONSTANTA x SUKU MAJEMUK -->
+    <section class="slide" data-slide="6">
+      <div class="eyebrow">Contoh 2</div>
+      <h2>Konstanta × Suku Majemuk (Distributif)</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">−3(2a − 4)</span></p>
+        <p><b>Petunjuk:</b> Kalikan −3 ke setiap suku di dalam kurung, jangan lupa aturan tanda.</p>
+        <button class="btn ghost" onclick="revealSteps('steps6')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps6">
+          <li><span class="step-num">1</span><span>Kalikan ke suku pertama: <span class="math">−3 × 2a = −6a</span></span></li>
+          <li><span class="step-num">2</span><span>Kalikan ke suku kedua: <span class="math">−3 × (−4) = +12</span></span></li>
+          <li><span class="step-num">3</span><span>Gabungkan hasilnya: <span class="math">−6a + 12</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">−3(2a − 4) = −6a + 12</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: LATIHAN KONSTANTA x SUKU -->
+    <section class="slide" data-slide="7">
+      <div class="eyebrow">Latihan Interaktif</div>
+      <h2>Uji Pemahamanmu: Konstanta × Suku</h2>
+      <div class="card" id="q-a">
+        <p style="margin:0 0 10px;"><b>1. Hasil dari</b> <span class="math">6 × 3x</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',false)">15x</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',true)">18x</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-a',false)">9x</button>
+        <div class="feedback ok">Tepat! 6 × 3 = 18, sehingga hasilnya 18x.</div>
+        <div class="feedback bad">Belum tepat. Kalikan dulu 6 × 3 = 18, lalu variabel x tetap.</div>
+      </div>
+      <div class="card" id="q-b">
+        <p style="margin:0 0 10px;"><b>2. Hasil dari</b> <span class="math">5(2x + 3)</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',false)">10x + 3</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',true)">10x + 15</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-b',false)">7x + 8</button>
+        <div class="feedback ok">Benar! Sifat distributif: 5×2x = 10x dan 5×3 = 15, jadi 10x + 15.</div>
+        <div class="feedback bad">Belum tepat. Kalikan 5 ke setiap suku: 5×2x dan 5×3, baru dijumlahkan.</div>
+      </div>
+      <div class="card" id="q-c">
+        <p style="margin:0 0 10px;"><b>3. Hasil dari</b> <span class="math">−2(4b − 7)</span> <b>adalah...</b></p>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',false)">−8b − 14</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',false)">8b − 14</button>
+        <button class="opt-btn" onclick="checkOpt(this,'q-c',true)">−8b + 14</button>
+        <div class="feedback ok">Tepat! −2×4b = −8b, dan −2×(−7) = +14, sehingga −8b + 14.</div>
+        <div class="feedback bad">Belum tepat. Perhatikan aturan tanda: negatif dikali negatif menghasilkan positif.</div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: VISUALISASI LUAS -->
+    <section class="slide" data-slide="8">
+      <div class="eyebrow">Visualisasi</div>
+      <h2>Model Luas Persegi Panjang</h2>
+      <p>Perkalian bentuk aljabar <span class="math">a(x + b)</span> dapat dibayangkan sebagai luas persegi panjang berukuran lebar <b>a</b> dan panjang <b>(x + b)</b>, yang terbagi menjadi dua bagian luas: <span class="math">a·x</span> dan <span class="math">a·b</span>.</p>
+      <div class="card">
+        <div class="slider-box">
+          <label style="font-family:var(--font-mono); font-size:13px; color:var(--text-3);">Geser untuk mengubah nilai a (lebar): <span id="aVal">3</span></label>
+          <input type="range" id="aSlider" min="1" max="6" value="3" oninput="updateAreaViz()">
+        </div>
+        <div class="area-viz">
+          <svg id="areaSvg" viewBox="0 0 340 160" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+        <p style="text-align:center; margin:0;" id="areaFormula" class="math">3(x + 2) = 3x + 6</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: KONSEP SUKU x SUKU -->
+    <section class="slide" data-slide="9">
+      <div class="eyebrow">Konsep Baru</div>
+      <h2>Perkalian Suku dengan Suku</h2>
+      <p>Sekarang kita mengalikan dua suku aljabar (bukan hanya bilangan dengan suku). Ada dua bagian yang dikalikan terpisah: <b>koefisien</b> dengan <b>koefisien</b>, dan <b>variabel</b> dengan <b>variabel</b>.</p>
+      <div class="card">
+        <p style="margin:0 0 10px;">Ingat aturan perpangkatan dasar: jika variabel yang sama dikalikan, pangkatnya dijumlahkan.</p>
+        <div class="math big">x × x = x²</div>
+        <p style="margin-top:14px;">Contoh:</p>
+        <div class="math">2x × 3x = (2×3)(x×x) = 6x²</div>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Jika variabelnya berbeda</b>, seperti <span class="math">a</span> dan <span class="math">b</span>, keduanya cukup ditulis berdampingan: <span class="math">a × b = ab</span>.</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: ATURAN TANDA -->
+    <section class="slide" data-slide="10">
+      <div class="eyebrow">Aturan Penting</div>
+      <h2>Aturan Tanda dalam Perkalian</h2>
+      <div class="grid-2">
+        <div class="card"><div class="math">(+) × (+) = (+)</div></div>
+        <div class="card"><div class="math">(−) × (−) = (+)</div></div>
+        <div class="card"><div class="math">(+) × (−) = (−)</div></div>
+        <div class="card"><div class="math">(−) × (+) = (−)</div></div>
+      </div>
+      <div class="accordion" id="acc-tanda" style="margin-top:16px;">
+        <div class="accordion-head" onclick="toggleAccordion('acc-tanda')">
+          <span>Cara mudah mengingat aturan tanda</span>
+          <span class="accordion-icon">+</span>
+        </div>
+        <div class="accordion-body">
+          <p>Tanda yang <b>sama</b> (sama-sama positif atau sama-sama negatif) menghasilkan <b>positif</b>. Tanda yang <b>berbeda</b> menghasilkan <b>negatif</b>. Aturan ini berlaku baik untuk perkalian bilangan maupun perkalian bentuk aljabar.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: CONTOH MONOMIAL x MONOMIAL -->
+    <section class="slide" data-slide="11">
+      <div class="eyebrow">Contoh 3</div>
+      <h2>Monomial × Monomial</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">−5p × 4p</span></p>
+        <p><b>Petunjuk:</b> Kalikan koefisien dengan koefisien, dan variabel dengan variabel (jumlahkan pangkatnya).</p>
+        <button class="btn ghost" onclick="revealSteps('steps11')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps11">
+          <li><span class="step-num">1</span><span>Kalikan koefisien: <span class="math">−5 × 4 = −20</span></span></li>
+          <li><span class="step-num">2</span><span>Kalikan variabel: <span class="math">p × p = p²</span></span></li>
+          <li><span class="step-num">3</span><span>Gabungkan: <span class="math">−20p²</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">−5p × 4p = −20p²</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: CONTOH MONOMIAL x BINOMIAL -->
+    <section class="slide" data-slide="12">
+      <div class="eyebrow">Contoh 4</div>
+      <h2>Monomial × Binomial (Distributif)</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">3x(2x + 5)</span></p>
+        <p><b>Petunjuk:</b> Sama seperti distributif sebelumnya, kalikan 3x ke setiap suku di dalam kurung.</p>
+        <button class="btn ghost" onclick="revealSteps('steps12')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps12">
+          <li><span class="step-num">1</span><span>Kalikan ke suku pertama: <span class="math">3x × 2x = 6x²</span></span></li>
+          <li><span class="step-num">2</span><span>Kalikan ke suku kedua: <span class="math">3x × 5 = 15x</span></span></li>
+          <li><span class="step-num">3</span><span>Gabungkan hasilnya (tidak dapat disederhanakan karena beda pangkat): <span class="math">6x² + 15x</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">3x(2x + 5) = 6x² + 15x</span></span></li>
+        </ol>
+      </div>
+      <div class="card">
+        <p style="margin:0;"><b>Soal lanjutan:</b> Tentukan hasil dari <span class="math">−2a(3a − 4b)</span></p>
+        <button class="btn ghost" onclick="revealSteps('steps12b')">Tampilkan Langkah Penyelesaian</button>
+        <ol class="step-list" id="steps12b">
+          <li><span class="step-num">1</span><span><span class="math">−2a × 3a = −6a²</span></span></li>
+          <li><span class="step-num">2</span><span><span class="math">−2a × (−4b) = +8ab</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">−2a(3a − 4b) = −6a² + 8ab</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: MATCHING -->
+    <section class="slide" data-slide="13">
+      <div class="eyebrow">Latihan Interaktif</div>
+      <h2>Cocokkan Soal dengan Jawabannya</h2>
+      <p>Klik satu soal, lalu klik jawaban yang sesuai.</p>
+      <div class="card">
+        <div class="match-wrap">
+          <div class="match-col">
+            <h3>SOAL</h3>
+            <div id="matchLeft"></div>
+          </div>
+          <div class="match-col">
+            <h3>JAWABAN</h3>
+            <div id="matchRight"></div>
+          </div>
+        </div>
+        <p id="matchStatus" style="margin-top:14px; font-family:var(--font-mono); font-size:13px; color:var(--text-3);">0 dari 6 pasangan benar</p>
+        <button class="btn ghost" onclick="resetMatch()" style="margin-top:6px;">Acak Ulang</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: SOAL MUDAH -->
+    <section class="slide" data-slide="14">
+      <div class="eyebrow">Latihan Bertingkat • Mudah</div>
+      <h2>Contoh Soal Tingkat Mudah</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">6 × 4x</span></p>
+        <button class="btn ghost" onclick="revealSteps('stepsE1')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE1">
+          <li><span class="step-num">1</span><span>Kalikan koefisien: <span class="math">6 × 4 = 24</span></span></li>
+          <li><span class="step-num">2</span><span>Variabel x tetap mengikuti.</span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">6 × 4x = 24x</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: SOAL SEDANG -->
+    <section class="slide" data-slide="15">
+      <div class="eyebrow">Latihan Bertingkat • Sedang</div>
+      <h2>Contoh Soal Tingkat Sedang</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">3(2x − 5)</span></p>
+        <button class="btn ghost" onclick="revealSteps('stepsE2')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE2">
+          <li><span class="step-num">1</span><span>Kalikan ke suku pertama: <span class="math">3 × 2x = 6x</span></span></li>
+          <li><span class="step-num">2</span><span>Kalikan ke suku kedua: <span class="math">3 × (−5) = −15</span></span></li>
+          <li><span class="step-num">3</span><span><b>Jawaban:</b> <span class="math">3(2x − 5) = 6x − 15</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: SOAL MENANTANG -->
+    <section class="slide" data-slide="16">
+      <div class="eyebrow">Latihan Bertingkat • Menantang</div>
+      <h2>Contoh Soal Tingkat Menantang</h2>
+      <div class="card">
+        <p style="margin:0;"><b>Soal:</b> Tentukan hasil dari <span class="math">−4x(3x − 2y + 5)</span></p>
+        <p><b>Petunjuk:</b> Ada tiga suku di dalam kurung — kalikan −4x ke setiap suku satu per satu.</p>
+        <button class="btn ghost" onclick="revealSteps('stepsE3')">Tampilkan Pembahasan</button>
+        <ol class="step-list" id="stepsE3">
+          <li><span class="step-num">1</span><span><span class="math">−4x × 3x = −12x²</span></span></li>
+          <li><span class="step-num">2</span><span><span class="math">−4x × (−2y) = +8xy</span></span></li>
+          <li><span class="step-num">3</span><span><span class="math">−4x × 5 = −20x</span></span></li>
+          <li><span class="step-num">4</span><span><b>Jawaban:</b> <span class="math">−4x(3x − 2y + 5) = −12x² + 8xy − 20x</span></span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: KUIS -->
+    <section class="slide" data-slide="17">
+      <div class="eyebrow">Kuis Akhir</div>
+      <h2>Uji Pemahamanmu</h2>
+      <p>Jawab seluruh soal berikut, lalu lihat skor akhirmu.</p>
+      <div id="quizContainer"></div>
+      <div class="card score-box" id="scoreBox" style="display:none;">
+        <p style="margin:0; color:var(--text-3); font-family:var(--font-mono);">SKOR AKHIR</p>
+        <div class="score-num" id="scoreNum">0/0</div>
+        <p id="scoreMsg" style="margin-top:6px;"></p>
+        <button class="btn warm" onclick="resetQuiz()">Ulangi Kuis</button>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: REFLEKSI -->
+    <section class="slide" data-slide="18">
+      <div class="eyebrow">Refleksi</div>
+      <h2>Coba Renungkan Kembali</h2>
+      <div class="accordion" id="ref1"><div class="accordion-head" onclick="toggleAccordion('ref1')"><span>Apakah aku sudah memahami sifat distributif a(b+c) = ab + ac?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Coba jelaskan sifat ini dengan kata-katamu sendiri kepada teman atau keluargamu. Jika kamu bisa menjelaskannya dengan lancar, artinya kamu sudah memahaminya dengan baik.</p></div></div>
+      <div class="accordion" id="ref2"><div class="accordion-head" onclick="toggleAccordion('ref2')"><span>Bagian mana yang masih terasa sulit — konstanta × suku, atau suku × suku?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Tuliskan bagian yang masih membingungkan, lalu ulangi kembali slide yang membahas bagian tersebut sebelum melanjutkan ke bab berikutnya.</p></div></div>
+      <div class="accordion" id="ref3"><div class="accordion-head" onclick="toggleAccordion('ref3')"><span>Apakah aku sudah teliti dengan aturan tanda (+ dan −)?</span><span class="accordion-icon">+</span></div><div class="accordion-body"><p>Kesalahan tanda adalah kesalahan paling umum dalam perkalian aljabar. Biasakan mengecek tanda setiap hasil kali sebelum menuliskan jawaban akhir.</p></div></div>
+    </section>
+
+    <!-- SLIDE 19: RANGKUMAN -->
+    <section class="slide" data-slide="19">
+      <div class="eyebrow">Rangkuman</div>
+      <h2>Poin-Poin Penting</h2>
+      <div class="grid-2">
+        <div class="card"><h3>Konstanta × Suku Tunggal</h3><div class="math">a × bx = (a×b)x</div></div>
+        <div class="card"><h3>Sifat Distributif</h3><div class="math">a(b+c) = ab + ac</div></div>
+        <div class="card"><h3>Suku × Suku Sejenis</h3><div class="math">x × x = x²</div></div>
+        <div class="card"><h3>Monomial × Binomial</h3><div class="math">ax(b+c) = abx + acx</div></div>
+      </div>
+      <div class="card" style="margin-top:16px;">
+        <p style="margin:0;"><b>Aturan tanda:</b> tanda sama menghasilkan positif, tanda berbeda menghasilkan negatif. Selalu kalikan koefisien dengan koefisien, dan variabel dengan variabel (jumlahkan pangkat untuk variabel yang sama).</p>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: PENUTUP -->
+    <section class="slide" data-slide="20">
+      <div class="cover">
+        <div class="icon-row"><span>🎉</span><span>✓</span><span>x²</span></div>
+        <h1>Kerja Bagus!</h1>
+        <p class="lead">Kamu telah menyelesaikan pembelajaran Perkalian Bentuk Aljabar.</p>
+        <div class="card" style="margin-top:20px; text-align:left;">
+          <p style="margin:0;">Lanjutkan latihan secara mandiri dengan mengerjakan soal-soal dari buku paket, dan jangan ragu mengulang slide sebelumnya jika ada bagian yang ingin dipelajari kembali. Selanjutnya kita akan mempelajari <b>pembagian bentuk aljabar</b>.</p>
+        </div>
+        <button class="btn ghost" style="margin-top:22px;" onclick="goTo(0)">↺ Kembali ke Awal</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-inner">
+    <button class="btn ghost" id="prevBtn" onclick="prevSlide()">← Sebelumnya</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn" id="nextBtn" onclick="nextSlide()">Berikutnya →</button>
+  </div>
+</div>
+
+<script>
+  const totalSlides = document.querySelectorAll('.slide').length;
+  let current = 0;
+
+  function buildDots(){
+    const dots = document.getElementById('dots');
+    dots.innerHTML = '';
+    for(let i=0;i<totalSlides;i++){
+      const d = document.createElement('div');
+      d.className = 'dot' + (i===0?' active':'');
+      dots.appendChild(d);
+    }
+  }
+
+  function goTo(index){
+    if(index < 0 || index >= totalSlides) return;
+    document.querySelectorAll('.slide')[current].classList.remove('active');
+    current = index;
+    document.querySelectorAll('.slide')[current].classList.add('active');
+    document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100)+'%';
+    document.getElementById('slideLabel').textContent = 'Slide ' + (current+1);
+    document.getElementById('slideTotal').textContent = '/ ' + totalSlides;
+    document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active', i===current));
+    document.getElementById('prevBtn').disabled = current===0;
+    document.getElementById('nextBtn').textContent = current===totalSlides-1 ? 'Selesai ✓' : 'Berikutnya →';
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+  function nextSlide(){ if(current < totalSlides-1) goTo(current+1); }
+  function prevSlide(){ if(current > 0) goTo(current-1); }
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'ArrowRight') nextSlide();
+    if(e.key === 'ArrowLeft') prevSlide();
+  });
+
+  buildDots();
+  goTo(0);
+
+  // ACCORDION
+  function toggleAccordion(id){
+    const el = document.getElementById(id);
+    const wasOpen = el.classList.contains('open');
+    if(wasOpen){
+      el.classList.remove('open');
+      el.querySelector('.accordion-body').style.maxHeight = null;
+    } else {
+      el.classList.add('open');
+      const body = el.querySelector('.accordion-body');
+      body.style.maxHeight = body.scrollHeight + 40 + 'px';
+    }
+  }
+
+  // STEP REVEAL
+  function revealSteps(id){
+    const el = document.getElementById(id);
+    el.classList.add('revealed');
+    event.target.disabled = true;
+    event.target.textContent = 'Langkah Ditampilkan ✓';
+  }
+
+  // OPTION CHECK (latihan konstanta x suku)
+  function checkOpt(btn, cardId, isCorrect){
+    const card = document.getElementById(cardId);
+    const buttons = card.querySelectorAll('.opt-btn');
+    buttons.forEach(b=>b.disabled = true);
+    if(isCorrect){
+      btn.classList.add('correct');
+      card.querySelector('.feedback.ok').classList.add('show');
+    } else {
+      btn.classList.add('wrong');
+      card.querySelector('.feedback.bad').classList.add('show');
+      buttons.forEach(b=>{ if(b.onclick.toString().includes('true')) b.classList.add('correct'); });
+    }
+  }
+
+  // AREA VISUALIZATION
+  function updateAreaViz(){
+    const a = parseInt(document.getElementById('aSlider').value);
+    document.getElementById('aVal').textContent = a;
+    const svg = document.getElementById('areaSvg');
+    const unit = 22;
+    const xWidth = 6 * unit; // representing variable x as fixed visual width
+    const bWidth = 2 * unit; // constant part b=2
+    const height = a * unit;
+    const totalW = xWidth + bWidth;
+    const offsetX = (340 - totalW)/2;
+    const offsetY = (160 - height)/2;
+    svg.innerHTML = `
+      <rect x="${offsetX}" y="${offsetY}" width="${xWidth}" height="${height}" fill="rgba(124,92,255,0.35)" stroke="#7c5cff" stroke-width="2" rx="6"></rect>
+      <rect x="${offsetX+xWidth}" y="${offsetY}" width="${bWidth}" height="${height}" fill="rgba(34,211,238,0.35)" stroke="#22d3ee" stroke-width="2" rx="6"></rect>
+      <text x="${offsetX + xWidth/2}" y="${offsetY + height/2 + 5}" fill="#eef1f8" font-size="13" text-anchor="middle" font-family="JetBrains Mono">${a}x</text>
+      <text x="${offsetX + xWidth + bWidth/2}" y="${offsetY + height/2 + 5}" fill="#eef1f8" font-size="13" text-anchor="middle" font-family="JetBrains Mono">${a*2}</text>
+      <text x="${offsetX + totalW/2}" y="${offsetY + height + 24}" fill="#a9b3cc" font-size="12" text-anchor="middle" font-family="JetBrains Mono">panjang = (x + 2)</text>
+    `;
+    document.getElementById('areaFormula').textContent = `${a}(x + 2) = ${a}x + ${a*2}`;
+  }
+  updateAreaViz();
+
+  // MATCHING GAME
+  const matchPairs = [
+    {q:'4 × 3x', a:'12x'},
+    {q:'−2 × 6y', a:'−12y'},
+    {q:'5(x + 2)', a:'5x + 10'},
+    {q:'−3(2a − 1)', a:'−6a + 3'},
+    {q:'2x × 4x', a:'8x²'},
+    {q:'−3p × 5p', a:'−15p²'}
+  ];
+  let matchSelectedLeft = null;
+  let matchedCount = 0;
+
+  function shuffle(arr){
+    const a = [...arr];
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function buildMatch(){
+    matchedCount = 0;
+    matchSelectedLeft = null;
+    const left = document.getElementById('matchLeft');
+    const right = document.getElementById('matchRight');
+    left.innerHTML = '';
+    right.innerHTML = '';
+    matchPairs.forEach((p,i)=>{
+      const li = document.createElement('div');
+      li.className = 'match-item';
+      li.textContent = p.q;
+      li.dataset.pair = i;
+      li.onclick = ()=>selectLeft(li, i);
+      left.appendChild(li);
+    });
+    const shuffled = shuffle(matchPairs.map((p,i)=>({a:p.a, pair:i})));
+    shuffled.forEach(item=>{
+      const ri = document.createElement('div');
+      ri.className = 'match-item';
+      ri.textContent = item.a;
+      ri.dataset.pair = item.pair;
+      ri.onclick = ()=>selectRight(ri, item.pair);
+      right.appendChild(ri);
+    });
+    document.getElementById('matchStatus').textContent = '0 dari ' + matchPairs.length + ' pasangan benar';
+  }
+
+  function selectLeft(el, pairIndex){
+    if(el.classList.contains('matched')) return;
+    document.querySelectorAll('#matchLeft .match-item').forEach(i=>i.classList.remove('selected'));
+    el.classList.add('selected');
+    matchSelectedLeft = {el, pairIndex};
+  }
+
+  function selectRight(el, pairIndex){
+    if(el.classList.contains('matched') || !matchSelectedLeft) return;
+    if(matchSelectedLeft.pairIndex === pairIndex){
+      matchSelectedLeft.el.classList.remove('selected');
+      matchSelectedLeft.el.classList.add('matched');
+      el.classList.add('matched');
+      matchedCount++;
+      document.getElementById('matchStatus').textContent = matchedCount + ' dari ' + matchPairs.length + ' pasangan benar';
+    } else {
+      el.classList.add('shake');
+      matchSelectedLeft.el.classList.add('shake');
+      setTimeout(()=>{
+        el.classList.remove('shake');
+        matchSelectedLeft.el.classList.remove('shake', 'selected');
+      }, 350);
+    }
+    matchSelectedLeft = null;
+  }
+
+  function resetMatch(){ buildMatch(); }
+  buildMatch();
+
+  // QUIZ
+  const quizData = [
+    {q:'Hasil dari 3 × 2x adalah...', opts:['5x','6x','6x²'], correct:1, exp:'3 × 2 = 6, variabel x tetap, sehingga hasilnya 6x.'},
+    {q:'Hasil dari −4 × 5a adalah...', opts:['−20a','20a','−9a'], correct:0, exp:'−4 × 5 = −20 (tanda beda menghasilkan negatif), sehingga −20a.'},
+    {q:'Hasil dari 2(x + 3) adalah...', opts:['2x + 3','2x + 6','2x + 5'], correct:1, exp:'2×x = 2x dan 2×3 = 6, sehingga 2x + 6.'},
+    {q:'Hasil dari −3(2a − 4) adalah...', opts:['−6a − 12','−6a + 12','6a + 12'], correct:1, exp:'−3×2a = −6a, dan −3×(−4) = +12, sehingga −6a + 12.'},
+    {q:'Hasil dari 2x × 3x adalah...', opts:['5x','6x','6x²'], correct:2, exp:'Koefisien 2×3=6, variabel x×x=x², sehingga 6x².'},
+    {q:'Hasil dari −5p × 4p adalah...', opts:['−20p²','20p²','−9p'], correct:0, exp:'−5×4=−20 dan p×p=p², sehingga −20p².'},
+    {q:'Hasil dari 3x(2x + 5) adalah...', opts:['6x² + 15x','6x + 15x','6x² + 5x'], correct:0, exp:'3x×2x=6x² dan 3x×5=15x, sehingga 6x² + 15x.'},
+    {q:'Hasil dari −2a(3a − 4b) adalah...', opts:['−6a² − 8ab','−6a² + 8ab','6a² + 8ab'], correct:1, exp:'−2a×3a=−6a² dan −2a×(−4b)=+8ab, sehingga −6a² + 8ab.'},
+    {q:'Hasil dari 4x × (−3y) adalah...', opts:['−12xy','12xy','−7xy'], correct:0, exp:'4×(−3)=−12, variabel x dan y digabung menjadi xy, sehingga −12xy.'},
+    {q:'Hasil dari 5x(2x − 3) adalah...', opts:['10x² − 15x','10x² + 15x','10x − 15x'], correct:0, exp:'5x×2x=10x² dan 5x×(−3)=−15x, sehingga 10x² − 15x.'}
+  ];
+  let quizAnswered = 0;
+  let quizScore = 0;
+
+  function buildQuiz(){
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '';
+    quizAnswered = 0;
+    quizScore = 0;
+    document.getElementById('scoreBox').style.display = 'none';
+    quizData.forEach((q, qi)=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.id = 'quiz-'+qi;
+      card.innerHTML = `<p style="margin:0 0 10px;"><b>${qi+1}. ${q.q}</b></p>` +
+        q.opts.map((opt,oi)=>`<button class="opt-btn" onclick="answerQuiz(${qi},${oi},this)">${opt}</button>`).join('') +
+        `<div class="feedback" id="exp-${qi}"></div>`;
+      container.appendChild(card);
+    });
+  }
+
+  function answerQuiz(qi, oi, btn){
+    const card = document.getElementById('quiz-'+qi);
+    const buttons = card.querySelectorAll('.opt-btn');
+    if(buttons[0].disabled) return;
+    buttons.forEach(b=>b.disabled = true);
+    const correct = quizData[qi].correct;
+    const expBox = document.getElementById('exp-'+qi);
+    if(oi === correct){
+      btn.classList.add('correct');
+      quizScore++;
+      expBox.className = 'feedback ok show';
+      expBox.textContent = 'Benar! ' + quizData[qi].exp;
+    } else {
+      btn.classList.add('wrong');
+      buttons[correct].classList.add('correct');
+      expBox.className = 'feedback bad show';
+      expBox.textContent = 'Kurang tepat. ' + quizData[qi].exp;
+    }
+    quizAnswered++;
+    if(quizAnswered === quizData.length){
+      setTimeout(showScore, 400);
+    }
+  }
+
+  function showScore(){
+    const box = document.getElementById('scoreBox');
+    box.style.display = 'block';
+    document.getElementById('scoreNum').textContent = quizScore + '/' + quizData.length;
+    let msg = '';
+    const pct = quizScore/quizData.length;
+    if(pct === 1) msg = 'Sempurna! Kamu sudah menguasai perkalian bentuk aljabar.';
+    else if(pct >= 0.7) msg = 'Bagus! Sedikit lagi untuk penguasaan penuh.';
+    else msg = 'Yuk pelajari kembali contoh-contoh sebelumnya, lalu coba lagi.';
+    document.getElementById('scoreMsg').textContent = msg;
+    box.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  function resetQuiz(){ buildQuiz(); }
+  buildQuiz();
+</script>
+</body>
+</html>

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aritmetika Sosial — Harga Beli, Harga Jual, Untung, dan Rugi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0b0f19;
+    --bg-1:#121828;
+    --bg-2:#1a2236;
+    --bg-3:#212b42;
+    --line: rgba(255,255,255,0.08);
+    --line-strong: rgba(255,255,255,0.16);
+    --text-hi:#f3f5fb;
+    --text-mid:#b7c0d8;
+    --text-low:#7c86a3;
+    --gold:#f5b942;
+    --gold-deep:#d99a2b;
+    --emerald:#34d399;
+    --emerald-deep:#0f9469;
+    --rose:#fb7185;
+    --rose-deep:#c8425a;
+    --azure:#5aa9ff;
+    --font-head:'Fredoka', sans-serif;
+    --font-body:'Plus Jakarta Sans', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:8px;
+    --shadow-soft: 0 20px 50px rgba(0,0,0,0.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    background:
+      radial-gradient(1200px 700px at 85% -10%, rgba(245,185,66,0.10), transparent 60%),
+      radial-gradient(1000px 600px at -10% 110%, rgba(90,169,255,0.10), transparent 60%),
+      var(--bg-0);
+    color:var(--text-hi);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+  ::selection{ background: rgba(245,185,66,0.35); }
+  #app{ height:100vh; display:flex; flex-direction:column; }
+
+  /* ===== TOP BAR ===== */
+  #topbar{
+    display:flex; align-items:center; gap:16px;
+    padding:14px 22px;
+    border-bottom:1px solid var(--line);
+    background:rgba(11,15,25,0.7);
+    backdrop-filter: blur(10px);
+    z-index:20;
+  }
+  #topbar .brand{
+    font-family:var(--font-head); font-weight:600; font-size:15px;
+    color:var(--gold); white-space:nowrap; letter-spacing:.2px;
+  }
+  #topbar .brand small{ display:block; font-family:var(--font-body); font-weight:500; font-size:11px; color:var(--text-low); }
+  #progress-track{
+    flex:1; height:8px; border-radius:99px; background:var(--bg-3);
+    overflow:hidden; position:relative; border:1px solid var(--line);
+  }
+  #progress-fill{
+    height:100%; width:0%; border-radius:99px;
+    background:linear-gradient(90deg, var(--gold-deep), var(--gold));
+    transition:width .45s cubic-bezier(.65,0,.35,1);
+  }
+  #slide-counter{ font-family:var(--font-mono); font-size:12.5px; color:var(--text-mid); white-space:nowrap; }
+
+  /* ===== SLIDE AREA ===== */
+  #viewport{ flex:1; position:relative; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:38px 8vw 20px;
+    overflow-y:auto;
+    opacity:0; visibility:hidden;
+    transform: translateX(40px) scale(.985);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1), visibility 0s linear .5s;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; transform: translateX(0) scale(1);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.65,0,.35,1), visibility 0s;
+    position:relative;
+  }
+  .slide-inner{ max-width:920px; width:100%; margin:auto; padding-bottom:30px;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; font-weight:600; color:var(--gold);
+    background:rgba(245,185,66,0.08); border:1px solid rgba(245,185,66,0.25);
+    padding:5px 12px; border-radius:99px; margin-bottom:16px;
+  }
+  h1.slide-title{ font-family:var(--font-head); font-weight:600; font-size:clamp(24px,3.6vw,40px); margin:0 0 10px; line-height:1.15;}
+  h2.slide-sub{ font-family:var(--font-body); font-weight:500; font-size:16px; color:var(--text-mid); margin:0 0 26px; line-height:1.6; max-width:70ch;}
+  p{ line-height:1.75; color:var(--text-mid); font-size:15.5px;}
+  strong{ color:var(--text-hi); font-weight:700;}
+  .highlight-gold{ color:var(--gold); }
+  .highlight-em{ color:var(--emerald); }
+  .highlight-rose{ color:var(--rose); }
+
+  /* ===== CARDS ===== */
+  .card{
+    background:linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:24px 26px;
+    margin-bottom:18px;
+    box-shadow: var(--shadow-soft);
+  }
+  .card-row{ display:grid; gap:18px; }
+  .grid-2{ grid-template-columns: 1fr 1fr; }
+  @media(max-width:760px){ .grid-2{ grid-template-columns:1fr; } }
+
+  .formula-box{
+    font-family:var(--font-mono);
+    background:var(--bg-0);
+    border:1px solid var(--line-strong);
+    border-left:4px solid var(--gold);
+    border-radius:var(--radius-md);
+    padding:16px 20px;
+    color:var(--gold);
+    font-size:16px;
+    margin:14px 0;
+    overflow-x:auto;
+  }
+  .formula-box.em{ border-left-color:var(--emerald); color:var(--emerald); }
+  .formula-box.rose{ border-left-color:var(--rose); color:var(--rose); }
+
+  .tag{
+    display:inline-block; font-size:12px; font-weight:700; padding:3px 10px;
+    border-radius:99px; margin-right:6px;
+  }
+  .tag.untung{ background:rgba(52,211,153,0.15); color:var(--emerald); border:1px solid rgba(52,211,153,0.35); }
+  .tag.rugi{ background:rgba(251,113,133,0.15); color:var(--rose); border:1px solid rgba(251,113,133,0.35); }
+  .tag.impas{ background:rgba(90,169,255,0.15); color:var(--azure); border:1px solid rgba(90,169,255,0.35); }
+
+  /* ===== BUTTONS ===== */
+  .btn{
+    font-family:var(--font-body); font-weight:700; font-size:14px;
+    border:none; cursor:pointer; border-radius:99px;
+    padding:11px 22px; transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:active{ transform:scale(.96); }
+  .btn-gold{ background:linear-gradient(135deg, var(--gold), var(--gold-deep)); color:#241a02; box-shadow:0 8px 20px rgba(245,185,66,0.25);}
+  .btn-gold:hover{ filter:brightness(1.08); }
+  .btn-outline{ background:transparent; border:1.5px solid var(--line-strong); color:var(--text-hi); }
+  .btn-outline:hover{ border-color:var(--gold); color:var(--gold); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-sm{ padding:7px 14px; font-size:12.5px; }
+
+  /* ===== ACCORDION ===== */
+  .accordion-item{
+    border:1px solid var(--line); border-radius:var(--radius-md); margin-bottom:10px; overflow:hidden;
+    background:var(--bg-1);
+  }
+  .accordion-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 18px; cursor:pointer; font-weight:600; color:var(--text-hi); font-size:14.5px;
+    user-select:none;
+  }
+  .accordion-head:hover{ background:var(--bg-2); }
+  .accordion-head .chev{ transition:transform .3s ease; color:var(--gold); font-size:18px;}
+  .accordion-item.open .accordion-head .chev{ transform:rotate(180deg); }
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .accordion-item.open .accordion-body{ max-height:600px; }
+  .accordion-body-inner{ padding:0 18px 18px; color:var(--text-mid); font-size:14.5px; line-height:1.7;}
+
+  /* ===== STEP REVEAL (Contoh Soal) ===== */
+  .step-list{ display:flex; flex-direction:column; gap:10px; }
+  .step-item{
+    border:1px solid var(--line); border-radius:var(--radius-md);
+    background:var(--bg-1); padding:16px 18px;
+    opacity:.4; filter:blur(1px); pointer-events:none;
+    transition: opacity .4s ease, filter .4s ease;
+  }
+  .step-item.revealed{ opacity:1; filter:blur(0); pointer-events:auto; }
+  .step-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:50%; background:var(--gold); color:#241a02;
+    font-weight:700; font-size:13px; margin-right:10px; font-family:var(--font-head);
+  }
+  .step-title{ font-weight:700; color:var(--text-hi); font-size:14.5px; }
+
+  /* ===== SLIDER / VISUALIZATION ===== */
+  .slider-row{ display:flex; flex-direction:column; gap:6px; margin-bottom:20px; }
+  .slider-row label{ font-size:13.5px; font-weight:600; color:var(--text-mid); display:flex; justify-content:space-between; }
+  .slider-row .val{ color:var(--gold); font-family:var(--font-mono); }
+  input[type=range]{
+    -webkit-appearance:none; width:100%; height:6px; border-radius:99px;
+    background:var(--bg-3); outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+    background:var(--gold); cursor:pointer; border:3px solid var(--bg-0);
+    box-shadow:0 0 0 2px var(--gold);
+  }
+  .bar-wrap{ display:flex; align-items:flex-end; gap:28px; height:200px; margin-top:14px; padding:0 10px; }
+  .bar-col{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .bar{ width:60%; border-radius:8px 8px 0 0; transition: height .4s cubic-bezier(.65,0,.35,1); min-height:2px; }
+  .bar.beli{ background:linear-gradient(180deg, var(--azure), #2f6fce); }
+  .bar.jual{ background:linear-gradient(180deg, var(--gold), var(--gold-deep)); }
+  .bar-label{ margin-top:8px; font-size:12.5px; color:var(--text-low); font-weight:600; }
+  .result-banner{
+    margin-top:18px; padding:16px 20px; border-radius:var(--radius-md);
+    font-weight:700; font-size:16px; text-align:center; transition: all .3s ease;
+    border:1px solid var(--line);
+  }
+  .result-banner.untung{ background:rgba(52,211,153,0.12); color:var(--emerald); border-color:rgba(52,211,153,0.4);}
+  .result-banner.rugi{ background:rgba(251,113,133,0.12); color:var(--rose); border-color:rgba(251,113,133,0.4);}
+  .result-banner.impas{ background:rgba(90,169,255,0.12); color:var(--azure); border-color:rgba(90,169,255,0.4);}
+
+  /* ===== DRAG & DROP ===== */
+  .dd-pool{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; min-height:50px; }
+  .dd-item{
+    padding:10px 14px; background:var(--bg-2); border:1px solid var(--line-strong);
+    border-radius:var(--radius-sm); font-size:13.5px; cursor:grab; font-weight:600;
+    color:var(--text-hi); transition: opacity .2s ease;
+  }
+  .dd-item.dragging{ opacity:.3; }
+  .dd-zones{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media(max-width:760px){ .dd-zones{ grid-template-columns:1fr; } }
+  .dd-zone{
+    min-height:120px; border:2px dashed var(--line-strong); border-radius:var(--radius-md);
+    padding:12px; font-size:12.5px; color:var(--text-low); font-weight:700;
+    display:flex; flex-direction:column; gap:8px; transition: border-color .2s ease, background .2s ease;
+  }
+  .dd-zone.over{ border-color:var(--gold); background:rgba(245,185,66,0.06); }
+  .dd-zone .zone-items{ display:flex; flex-direction:column; gap:6px; }
+  .dd-zone .dd-item{ cursor:default; font-size:12.5px; padding:8px 10px; }
+  #dd-feedback{ margin-top:16px; font-weight:700; font-size:14.5px; min-height:24px; }
+
+  /* ===== MCQ (Latihan / Kuis) ===== */
+  .mcq{ margin-bottom:22px; padding-bottom:20px; border-bottom:1px solid var(--line); }
+  .mcq:last-child{ border-bottom:none; }
+  .mcq-q{ font-weight:700; color:var(--text-hi); font-size:15px; margin-bottom:12px; }
+  .mcq-options{ display:flex; flex-direction:column; gap:8px; }
+  .mcq-opt{
+    display:flex; align-items:center; gap:10px; padding:11px 14px;
+    border:1.5px solid var(--line-strong); border-radius:var(--radius-sm);
+    cursor:pointer; font-size:14px; color:var(--text-mid); transition: all .2s ease;
+  }
+  .mcq-opt:hover{ border-color:var(--gold); color:var(--text-hi); }
+  .mcq-opt.selected{ border-color:var(--gold); background:rgba(245,185,66,0.08); color:var(--text-hi); }
+  .mcq-opt.correct{ border-color:var(--emerald); background:rgba(52,211,153,0.12); color:var(--emerald); }
+  .mcq-opt.wrong{ border-color:var(--rose); background:rgba(251,113,133,0.12); color:var(--rose); }
+  .mcq-fb{ margin-top:10px; font-size:13.5px; font-weight:600; display:none; padding:10px 12px; border-radius:var(--radius-sm); }
+  .mcq-fb.show{ display:block; }
+  .mcq-fb.ok{ background:rgba(52,211,153,0.1); color:var(--emerald); }
+  .mcq-fb.no{ background:rgba(251,113,133,0.1); color:var(--rose); }
+  .diff-badge{ font-family:var(--font-mono); font-size:11px; padding:3px 9px; border-radius:99px; margin-left:8px; vertical-align:middle;}
+  .diff-badge.mudah{ background:rgba(52,211,153,0.15); color:var(--emerald); }
+  .diff-badge.sedang{ background:rgba(245,185,66,0.15); color:var(--gold); }
+  .diff-badge.menantang{ background:rgba(251,113,133,0.15); color:var(--rose); }
+
+  /* ===== QUIZ SCORE ===== */
+  #quiz-result{
+    display:none; text-align:center; padding:30px; margin-top:10px;
+  }
+  #quiz-result .score-num{ font-family:var(--font-head); font-size:56px; color:var(--gold); }
+  #quiz-result p{ color:var(--text-mid); }
+
+  /* ===== REFLEKSI ===== */
+  textarea.reflect{
+    width:100%; min-height:120px; background:var(--bg-0); border:1px solid var(--line-strong);
+    border-radius:var(--radius-md); color:var(--text-hi); font-family:var(--font-body);
+    padding:14px 16px; font-size:14.5px; resize:vertical; outline:none;
+  }
+  textarea.reflect:focus{ border-color:var(--gold); }
+
+  /* ===== SUMMARY LIST ===== */
+  .sum-list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:12px; }
+  .sum-list li{
+    display:flex; gap:12px; align-items:flex-start; background:var(--bg-1);
+    border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 16px;
+    font-size:14.5px; color:var(--text-mid);
+  }
+  .sum-list li .ico{ font-size:18px; }
+
+  /* ===== BOTTOM NAV ===== */
+  #bottombar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:14px 22px; border-top:1px solid var(--line);
+    background:rgba(11,15,25,0.7); backdrop-filter: blur(10px);
+    z-index:20;
+  }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:50vw; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--bg-3); border:1px solid var(--line-strong); cursor:pointer; transition:all .2s ease; }
+  .dot.active{ background:var(--gold); width:22px; border-radius:99px; border-color:var(--gold); }
+  .nav-btn{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--line-strong);
+    background:var(--bg-2); color:var(--text-hi); font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition: all .2s ease; flex-shrink:0;
+  }
+  .nav-btn:hover:not(:disabled){ background:var(--gold); color:#241a02; border-color:var(--gold); }
+  .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+
+  /* ===== MISC ===== */
+  .icon-badge{
+    width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    font-size:24px; background:linear-gradient(135deg, rgba(245,185,66,0.18), rgba(245,185,66,0.05));
+    border:1px solid rgba(245,185,66,0.3); margin-bottom:14px;
+  }
+  .cover-wrap{ text-align:center; }
+  .cover-icon{ font-size:70px; margin-bottom:18px; }
+  .cover-wrap h1{ font-size:clamp(28px,5vw,52px); }
+  .badge-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:22px; }
+  .pill{ font-size:12.5px; font-weight:600; padding:7px 16px; border-radius:99px; border:1px solid var(--line-strong); color:var(--text-mid); }
+  .kbd{ font-family:var(--font-mono); background:var(--bg-3); border:1px solid var(--line-strong); border-radius:5px; padding:1px 7px; font-size:12px;}
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--bg-3); border-radius:99px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+
+  @media(max-width:640px){
+    #topbar{ padding:10px 14px; }
+    #bottombar{ padding:10px 14px; }
+    .slide{ padding:24px 5vw 14px; }
+    #dots{ display:none; }
+    .card{ padding:18px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topbar">
+    <div class="brand">Aritmetika Sosial <small>Harga Beli · Harga Jual · Untung · Rugi</small></div>
+    <div id="progress-track"><div id="progress-fill"></div></div>
+    <div id="slide-counter"><span id="cur-num">1</span> / <span id="tot-num">1</span></div>
+  </div>
+
+  <div id="viewport">
+
+    <!-- SLIDE 0: COVER -->
+    <section class="slide">
+      <div class="slide-inner cover-wrap">
+        <div class="cover-icon">🛍️</div>
+        <span class="eyebrow">Bab 5 · Aritmetika Sosial</span>
+        <h1>Harga Beli, Harga Jual,<br><span class="highlight-gold">Untung</span>, dan <span class="highlight-rose">Rugi</span></h1>
+        <h2 class="slide-sub" style="margin:14px auto 0;">Belajar menghitung untung dan rugi dalam kegiatan jual beli sehari-hari — dari warung kecil sampai toko online.</h2>
+        <div class="badge-row">
+          <span class="pill">📘 Matematika SMP</span>
+          <span class="pill">🎯 Kurikulum Merdeka</span>
+          <span class="pill">⏱️ ± 60–90 menit</span>
+        </div>
+        <div style="margin-top:34px;">
+          <button class="btn btn-gold" onclick="goNext()">Mulai Belajar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 1: APERSEPSI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧭 Apersepsi</span>
+        <h1 class="slide-title">Pernahkah kamu membantu orang tua berjualan?</h1>
+        <h2 class="slide-sub">Coba bayangkan situasi berikut sebelum kita masuk ke materi.</h2>
+        <div class="card">
+          <p>Bu Sari membeli 1 karung beras dari distributor seharga <strong>Rp150.000</strong>. Beras itu kemudian dijualnya kembali secara eceran, sehingga total hasil penjualannya menjadi <strong>Rp180.000</strong>.</p>
+          <div class="formula-box">Apakah Bu Sari untung atau rugi? Berapa selisihnya?</div>
+          <p>Coba pikirkan jawabanmu dulu, lalu klik tombol di bawah untuk melihat arahnya.</p>
+          <button class="btn btn-outline btn-sm" onclick="toggleReveal('aper-hint', this)">💡 Tunjukkan Petunjuk</button>
+          <div id="aper-hint" style="display:none; margin-top:14px;">
+            <p>Bandingkan <strong>uang yang dikeluarkan</strong> (untuk membeli) dengan <strong>uang yang diterima</strong> (dari hasil menjual). Jika uang yang diterima lebih besar, artinya Bu Sari mendapat kelebihan. Kelebihan inilah yang akan kita pelajari sebagai <span class="highlight-gold">keuntungan</span>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: TUJUAN PEMBELAJARAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎯 Tujuan Pembelajaran</span>
+        <h1 class="slide-title">Setelah mempelajari materi ini, kamu akan mampu:</h1>
+        <ul class="sum-list" style="margin-top:20px;">
+          <li><span class="ico">1️⃣</span><span>Menjelaskan pengertian <strong>harga beli</strong> dan <strong>harga jual</strong> dalam kegiatan jual beli.</span></li>
+          <li><span class="ico">2️⃣</span><span>Menentukan apakah suatu transaksi mengalami <strong>untung</strong>, <strong>rugi</strong>, atau <strong>impas</strong>.</span></li>
+          <li><span class="ico">3️⃣</span><span>Menghitung besar keuntungan dan kerugian beserta <strong>persentasenya</strong>.</span></li>
+          <li><span class="ico">4️⃣</span><span>Menyelesaikan masalah sehari-hari yang berkaitan dengan harga beli, harga jual, untung, dan rugi.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: KONSEP HARGA BELI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📦 Konsep Dasar</span>
+        <h1 class="slide-title">Apa itu Harga Beli?</h1>
+        <div class="card">
+          <div class="icon-badge">🧾</div>
+          <p><strong>Harga beli (HB)</strong> adalah sejumlah uang yang dikeluarkan oleh seorang pedagang untuk mendapatkan suatu barang, sebelum barang tersebut dijual kembali.</p>
+          <div class="formula-box">Harga Beli = uang yang dikeluarkan pedagang untuk membeli barang dagangan</div>
+          <p>Contoh: Seorang pedagang buah membeli 1 kotak apel dari petani seharga <strong>Rp80.000</strong>. Maka harga beli kotak apel tersebut adalah Rp80.000.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: KONSEP HARGA JUAL -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🏷️ Konsep Dasar</span>
+        <h1 class="slide-title">Apa itu Harga Jual?</h1>
+        <div class="card">
+          <div class="icon-badge">💰</div>
+          <p><strong>Harga jual (HJ)</strong> adalah sejumlah uang yang diterima oleh pedagang dari pembeli saat barang dagangannya terjual.</p>
+          <div class="formula-box em">Harga Jual = uang yang diterima pedagang saat barang terjual</div>
+          <p>Melanjutkan contoh sebelumnya, apel dari 1 kotak tersebut kemudian dijual eceran dan seluruhnya laku terjual seharga total <strong>Rp100.000</strong>. Maka harga jualnya adalah Rp100.000.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: KONSEP UNTUNG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📈 Konsep</span>
+        <h1 class="slide-title">Kapan disebut <span class="highlight-em">Untung</span>?</h1>
+        <div class="card">
+          <p>Sebuah transaksi dikatakan <strong class="highlight-em">untung</strong> jika <strong>harga jual lebih besar</strong> daripada harga beli.</p>
+          <div class="formula-box em">Syarat Untung: Harga Jual &gt; Harga Beli</div>
+          <div class="formula-box em">Untung = Harga Jual − Harga Beli</div>
+          <p>Pada contoh apel: HJ = Rp100.000 dan HB = Rp80.000, karena Rp100.000 &gt; Rp80.000 maka pedagang <strong class="highlight-em">untung</strong> sebesar Rp100.000 − Rp80.000 = <strong>Rp20.000</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: KONSEP RUGI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📉 Konsep</span>
+        <h1 class="slide-title">Kapan disebut <span class="highlight-rose">Rugi</span>?</h1>
+        <div class="card">
+          <p>Sebuah transaksi dikatakan <strong class="highlight-rose">rugi</strong> jika <strong>harga jual lebih kecil</strong> daripada harga beli.</p>
+          <div class="formula-box rose">Syarat Rugi: Harga Jual &lt; Harga Beli</div>
+          <div class="formula-box rose">Rugi = Harga Beli − Harga Jual</div>
+          <p>Misalnya, sekotak jeruk dibeli seharga Rp90.000, tetapi karena sebagian membusuk, hanya laku terjual seharga Rp70.000. Karena Rp70.000 &lt; Rp90.000, pedagang <strong class="highlight-rose">rugi</strong> sebesar Rp90.000 − Rp70.000 = <strong>Rp20.000</strong>.</p>
+          <p style="margin-top:10px;">Bagaimana jika harga jual sama persis dengan harga beli? Kondisi ini disebut <span class="tag impas">IMPAS</span> — pedagang tidak untung dan tidak rugi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: VISUALISASI INTERAKTIF -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎛️ Visualisasi Interaktif</span>
+        <h1 class="slide-title">Coba Sendiri: Untung, Rugi, atau Impas?</h1>
+        <h2 class="slide-sub">Geser slider harga beli dan harga jual, lalu amati apa yang terjadi.</h2>
+        <div class="card">
+          <div class="slider-row">
+            <label>Harga Beli <span class="val" id="hb-val">Rp100.000</span></label>
+            <input type="range" id="hb-slider" min="20000" max="200000" step="5000" value="100000" oninput="updateVis()">
+          </div>
+          <div class="slider-row">
+            <label>Harga Jual <span class="val" id="hj-val">Rp120.000</span></label>
+            <input type="range" id="hj-slider" min="20000" max="200000" step="5000" value="120000" oninput="updateVis()">
+          </div>
+          <div class="bar-wrap">
+            <div class="bar-col"><div class="bar beli" id="bar-beli"></div><div class="bar-label">Harga Beli</div></div>
+            <div class="bar-col"><div class="bar jual" id="bar-jual"></div><div class="bar-label">Harga Jual</div></div>
+          </div>
+          <div class="result-banner" id="vis-result">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: RUMUS PERSENTASE UNTUNG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧮 Rumus</span>
+        <h1 class="slide-title">Menghitung <span class="highlight-em">Persentase Untung</span></h1>
+        <div class="card">
+          <p>Persentase untung dihitung terhadap <strong>harga beli</strong>, karena harga beli adalah modal awal pedagang.</p>
+          <div class="formula-box em">Persentase Untung = (Untung ÷ Harga Beli) × 100%</div>
+          <div class="accordion-item" id="acc-untung-persen">
+            <div class="accordion-head" onclick="toggleAccordion('acc-untung-persen')">
+              <span>📌 Lihat contoh perhitungan</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <p>Pedagang membeli sepatu seharga <strong>Rp200.000</strong>, lalu menjualnya seharga <strong>Rp250.000</strong>.</p>
+              <p>Untung = Rp250.000 − Rp200.000 = <strong>Rp50.000</strong></p>
+              <p>Persentase Untung = (50.000 ÷ 200.000) × 100% = <strong class="highlight-em">25%</strong></p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 9: RUMUS PERSENTASE RUGI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🧮 Rumus</span>
+        <h1 class="slide-title">Menghitung <span class="highlight-rose">Persentase Rugi</span></h1>
+        <div class="card">
+          <p>Sama seperti persentase untung, persentase rugi juga dihitung terhadap <strong>harga beli</strong>.</p>
+          <div class="formula-box rose">Persentase Rugi = (Rugi ÷ Harga Beli) × 100%</div>
+          <div class="accordion-item" id="acc-rugi-persen">
+            <div class="accordion-head" onclick="toggleAccordion('acc-rugi-persen')">
+              <span>📌 Lihat contoh perhitungan</span><span class="chev">⌄</span>
+            </div>
+            <div class="accordion-body"><div class="accordion-body-inner">
+              <p>Pedagang membeli 1 lusin gelas seharga <strong>Rp120.000</strong>, tetapi karena 2 gelas pecah, ia hanya bisa menjualnya seharga total <strong>Rp96.000</strong>.</p>
+              <p>Rugi = Rp120.000 − Rp96.000 = <strong>Rp24.000</strong></p>
+              <p>Persentase Rugi = (24.000 ÷ 120.000) × 100% = <strong class="highlight-rose">20%</strong></p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: CONTOH SOAL 1 - UNTUNG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 1</span>
+        <h1 class="slide-title">Menentukan Untung dan Persentasenya</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Seorang pedagang membeli 50 kg mangga seharga <strong>Rp500.000</strong>. Seluruh mangga terjual habis dengan total pendapatan <strong>Rp625.000</strong>. Tentukan besar untung dan persentase untungnya!</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps1')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps1" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan Harga Beli dan Harga Jual</span><p style="margin-top:8px;">HB = Rp500.000, HJ = Rp625.000</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Bandingkan HJ dan HB</span><p style="margin-top:8px;">Karena HJ &gt; HB (625.000 &gt; 500.000), maka pedagang <strong class="highlight-em">untung</strong>.</p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung besar untung</span><p style="margin-top:8px;">Untung = HJ − HB = 625.000 − 500.000 = <strong>Rp125.000</strong></p></div>
+            <div class="step-item"><span class="step-num">4</span><span class="step-title">Hitung persentase untung</span><p style="margin-top:8px;">% Untung = (125.000 ÷ 500.000) × 100% = <strong class="highlight-em">25%</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 11: CONTOH SOAL 2 - RUGI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 2</span>
+        <h1 class="slide-title">Menentukan Rugi dan Persentasenya</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Pak Budi membeli sebuah sepeda bekas seharga <strong>Rp900.000</strong> untuk dijual kembali. Karena butuh uang cepat, ia menjualnya seharga <strong>Rp765.000</strong>. Tentukan besar rugi dan persentase ruginya!</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps2')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps2" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan Harga Beli dan Harga Jual</span><p style="margin-top:8px;">HB = Rp900.000, HJ = Rp765.000</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Bandingkan HJ dan HB</span><p style="margin-top:8px;">Karena HJ &lt; HB (765.000 &lt; 900.000), maka Pak Budi mengalami <strong class="highlight-rose">rugi</strong>.</p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung besar rugi</span><p style="margin-top:8px;">Rugi = HB − HJ = 900.000 − 765.000 = <strong>Rp135.000</strong></p></div>
+            <div class="step-item"><span class="step-num">4</span><span class="step-title">Hitung persentase rugi</span><p style="margin-top:8px;">% Rugi = (135.000 ÷ 900.000) × 100% = <strong class="highlight-rose">15%</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 12: CONTOH SOAL 3 - CARI HARGA JUAL -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 3</span>
+        <h1 class="slide-title">Mencari Harga Jual dari Persentase Untung</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Seorang pedagang membeli sebuah tas seharga <strong>Rp300.000</strong>. Ia ingin mendapatkan untung sebesar <strong>15%</strong>. Berapa harga jual yang harus ditetapkan?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps3')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps3" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan Harga Beli dan Persentase Untung</span><p style="margin-top:8px;">HB = Rp300.000, % Untung = 15%</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Hitung besar untung dalam rupiah</span><p style="margin-top:8px;">Untung = 15% × Rp300.000 = <strong>Rp45.000</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung harga jual</span><p style="margin-top:8px;">Harga Jual = Harga Beli + Untung = 300.000 + 45.000 = <strong class="highlight-em">Rp345.000</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: CONTOH SOAL 4 - CARI HARGA BELI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">✏️ Contoh Soal 4</span>
+        <h1 class="slide-title">Mencari Harga Beli dari Persentase Rugi</h1>
+        <div class="card">
+          <p><strong>Soal:</strong> Sebuah kalkulator dijual seharga <strong>Rp136.000</strong>. Harga itu membuat penjual mengalami rugi sebesar <strong>15%</strong> dari harga beli. Berapa harga beli kalkulator tersebut?</p>
+          <button class="btn btn-outline btn-sm" onclick="revealSteps('steps4')">▶ Tampilkan Langkah Penyelesaian</button>
+          <div class="step-list" id="steps4" style="margin-top:16px;">
+            <div class="step-item"><span class="step-num">1</span><span class="step-title">Tentukan Harga Jual dan Persentase Rugi</span><p style="margin-top:8px;">HJ = Rp136.000, % Rugi = 15% dari HB</p></div>
+            <div class="step-item"><span class="step-num">2</span><span class="step-title">Nyatakan HJ dalam bentuk persentase HB</span><p style="margin-top:8px;">Karena rugi 15%, maka HJ = 100% − 15% = <strong>85% dari HB</strong></p></div>
+            <div class="step-item"><span class="step-num">3</span><span class="step-title">Hitung harga beli</span><p style="margin-top:8px;">85% × HB = 136.000 → HB = 136.000 ÷ 0,85 = <strong class="highlight-rose">Rp160.000</strong></p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: AKTIVITAS DRAG AND DROP -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🎮 Aktivitas Interaktif</span>
+        <h1 class="slide-title">Kelompokkan Transaksi Berikut</h1>
+        <h2 class="slide-sub">Seret (drag) setiap kartu transaksi ke kelompok yang tepat: Untung, Rugi, atau Impas.</h2>
+        <div class="card">
+          <div class="dd-pool" id="dd-pool">
+            <div class="dd-item" draggable="true" data-ans="untung">HB Rp40.000 → HJ Rp55.000</div>
+            <div class="dd-item" draggable="true" data-ans="rugi">HB Rp75.000 → HJ Rp60.000</div>
+            <div class="dd-item" draggable="true" data-ans="impas">HB Rp100.000 → HJ Rp100.000</div>
+            <div class="dd-item" draggable="true" data-ans="untung">HB Rp250.000 → HJ Rp310.000</div>
+            <div class="dd-item" draggable="true" data-ans="rugi">HB Rp90.000 → HJ Rp72.000</div>
+          </div>
+          <div class="dd-zones">
+            <div class="dd-zone" data-zone="untung"><span>📈 UNTUNG</span><div class="zone-items"></div></div>
+            <div class="dd-zone" data-zone="rugi"><span>📉 RUGI</span><div class="zone-items"></div></div>
+            <div class="dd-zone" data-zone="impas"><span>⚖️ IMPAS</span><div class="zone-items"></div></div>
+          </div>
+          <div id="dd-feedback"></div>
+          <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="checkDragDrop()">✅ Periksa Jawaban</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 15: LATIHAN MUDAH -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 1</span>
+        <h1 class="slide-title">Latihan Mudah <span class="diff-badge mudah">MUDAH</span></h1>
+        <div class="card" id="latihan-mudah"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 16: LATIHAN SEDANG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 2</span>
+        <h1 class="slide-title">Latihan Sedang <span class="diff-badge sedang">SEDANG</span></h1>
+        <div class="card" id="latihan-sedang"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 17: LATIHAN MENANTANG -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📝 Latihan · Tahap 3</span>
+        <h1 class="slide-title">Latihan Menantang <span class="diff-badge menantang">MENANTANG</span></h1>
+        <div class="card" id="latihan-menantang"></div>
+      </div>
+    </section>
+
+    <!-- SLIDE 18: KUIS -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">🏁 Kuis Akhir</span>
+        <h1 class="slide-title">Uji Pemahamanmu!</h1>
+        <h2 class="slide-sub">Jawab semua soal berikut, lalu klik "Selesai & Lihat Skor" untuk melihat hasilmu.</h2>
+        <div class="card" id="kuis-container"></div>
+        <div class="card" style="text-align:center;">
+          <button class="btn btn-gold" id="kuis-submit" onclick="submitKuis()">Selesai &amp; Lihat Skor</button>
+        </div>
+        <div class="card" id="quiz-result">
+          <div class="score-num" id="score-display">0/0</div>
+          <p id="score-msg"></p>
+          <button class="btn btn-outline" onclick="resetKuis()">🔄 Ulangi Kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 19: REFLEKSI -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">💭 Refleksi</span>
+        <h1 class="slide-title">Sejenak, Mari Merefleksikan Pembelajaran</h1>
+        <div class="card">
+          <p>Tuliskan jawabanmu secara singkat pada kolom di bawah ini (tidak perlu dikumpulkan, ini untuk membantumu mengingat kembali):</p>
+          <p style="margin-top:14px;"><strong>1. Bagian mana dari materi ini yang paling mudah kamu pahami?</strong></p>
+          <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+          <p style="margin-top:18px;"><strong>2. Bagian mana yang masih terasa sulit dan ingin kamu pelajari lagi?</strong></p>
+          <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 20: RANGKUMAN -->
+    <section class="slide">
+      <div class="slide-inner">
+        <span class="eyebrow">📚 Rangkuman</span>
+        <h1 class="slide-title">Yang Perlu Kamu Ingat</h1>
+        <ul class="sum-list">
+          <li><span class="ico">🧾</span><span><strong>Harga Beli (HB)</strong> = uang yang dikeluarkan pedagang untuk membeli barang.</span></li>
+          <li><span class="ico">💰</span><span><strong>Harga Jual (HJ)</strong> = uang yang diterima pedagang saat barang terjual.</span></li>
+          <li><span class="ico">📈</span><span><strong>Untung</strong> terjadi jika HJ &gt; HB, besarnya = HJ − HB.</span></li>
+          <li><span class="ico">📉</span><span><strong>Rugi</strong> terjadi jika HJ &lt; HB, besarnya = HB − HJ.</span></li>
+          <li><span class="ico">⚖️</span><span><strong>Impas</strong> terjadi jika HJ = HB.</span></li>
+          <li><span class="ico">🧮</span><span><strong>Persentase Untung/Rugi</strong> dihitung dengan membagi untung/rugi terhadap <strong>harga beli</strong>, lalu dikali 100%.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SLIDE 21: PENUTUP -->
+    <section class="slide">
+      <div class="slide-inner cover-wrap">
+        <div class="cover-icon">🎉</div>
+        <h1>Selamat, Kamu Telah Menyelesaikan Bab Ini!</h1>
+        <h2 class="slide-sub" style="margin:14px auto 0;">Teruslah berlatih menghitung untung dan rugi — konsep ini sangat berguna dalam kehidupan sehari-hari, bahkan jika kamu ingin berwirausaha suatu saat nanti.</h2>
+        <div style="margin-top:30px;">
+          <button class="btn btn-gold" onclick="goToSlide(0)">🔁 Ulangi dari Awal</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="bottombar">
+    <button class="nav-btn" id="prev-btn" onclick="goPrev()">‹</button>
+    <div id="dots"></div>
+    <button class="nav-btn" id="next-btn" onclick="goNext()">›</button>
+  </div>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+document.getElementById('tot-num').textContent = total;
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const d = document.createElement('div');
+  d.className='dot'; d.onclick=()=>goToSlide(i);
+  dotsWrap.appendChild(d);
+});
+
+function renderNav(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.querySelectorAll('.dot').forEach((d,i)=> d.classList.toggle('active', i===current));
+  document.getElementById('cur-num').textContent = current+1;
+  document.getElementById('progress-fill').style.width = ((current+1)/total*100)+'%';
+  document.getElementById('prev-btn').disabled = current===0;
+  document.getElementById('next-btn').disabled = current===total-1;
+  document.getElementById('viewport').scrollTop = 0;
+}
+function goToSlide(i){ if(i<0||i>=total) return; current=i; renderNav(); }
+function goNext(){ if(current<total-1){ current++; renderNav(); } }
+function goPrev(){ if(current>0){ current--; renderNav(); } }
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goNext();
+  if(e.key==='ArrowLeft') goPrev();
+});
+renderNav();
+
+/* ================= GENERIC HELPERS ================= */
+function toggleReveal(id, btn){
+  const el = document.getElementById(id);
+  const showing = el.style.display === 'block';
+  el.style.display = showing ? 'none' : 'block';
+  if(btn) btn.textContent = showing ? '💡 Tunjukkan Petunjuk' : '🙈 Sembunyikan Petunjuk';
+}
+function toggleAccordion(id){
+  document.getElementById(id).classList.toggle('open');
+}
+function revealSteps(containerId){
+  const items = document.querySelectorAll('#'+containerId+' .step-item');
+  let idx = 0;
+  const iv = setInterval(()=>{
+    if(idx>=items.length){ clearInterval(iv); return; }
+    items[idx].classList.add('revealed');
+    idx++;
+  }, 550);
+}
+
+/* ================= VISUALISASI SLIDER ================= */
+function formatRp(n){ return 'Rp'+n.toLocaleString('id-ID'); }
+function updateVis(){
+  const hb = parseInt(document.getElementById('hb-slider').value);
+  const hj = parseInt(document.getElementById('hj-slider').value);
+  document.getElementById('hb-val').textContent = formatRp(hb);
+  document.getElementById('hj-val').textContent = formatRp(hj);
+  const maxVal = 200000;
+  document.getElementById('bar-beli').style.height = (hb/maxVal*160)+'px';
+  document.getElementById('bar-jual').style.height = (hj/maxVal*160)+'px';
+  const banner = document.getElementById('vis-result');
+  if(hj > hb){
+    const untung = hj-hb, pct = (untung/hb*100).toFixed(1);
+    banner.className = 'result-banner untung';
+    banner.textContent = '📈 UNTUNG sebesar '+formatRp(untung)+' ('+pct+'%)';
+  } else if(hj < hb){
+    const rugi = hb-hj, pct = (rugi/hb*100).toFixed(1);
+    banner.className = 'result-banner rugi';
+    banner.textContent = '📉 RUGI sebesar '+formatRp(rugi)+' ('+pct+'%)';
+  } else {
+    banner.className = 'result-banner impas';
+    banner.textContent = '⚖️ IMPAS — tidak untung dan tidak rugi';
+  }
+}
+updateVis();
+
+/* ================= DRAG AND DROP ================= */
+let draggedItem = null;
+document.querySelectorAll('#dd-pool .dd-item').forEach(item=>{
+  item.addEventListener('dragstart', ()=>{ draggedItem = item; item.classList.add('dragging'); });
+  item.addEventListener('dragend', ()=>{ item.classList.remove('dragging'); });
+});
+document.querySelectorAll('.dd-zone').forEach(zone=>{
+  zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('over'); });
+  zone.addEventListener('dragleave', ()=>{ zone.classList.remove('over'); });
+  zone.addEventListener('drop', (e)=>{
+    e.preventDefault(); zone.classList.remove('over');
+    if(draggedItem){ zone.querySelector('.zone-items').appendChild(draggedItem); draggedItem.classList.remove('correct-mark','wrong-mark'); }
+  });
+});
+function checkDragDrop(){
+  let correct=0, totalItems=0;
+  document.querySelectorAll('.dd-zone').forEach(zone=>{
+    const zoneName = zone.dataset.zone;
+    zone.querySelectorAll('.dd-item').forEach(item=>{
+      totalItems++;
+      if(item.dataset.ans === zoneName){
+        item.style.borderColor='var(--emerald)'; item.style.color='var(--emerald)';
+        correct++;
+      } else {
+        item.style.borderColor='var(--rose)'; item.style.color='var(--rose)';
+      }
+    });
+  });
+  const fb = document.getElementById('dd-feedback');
+  const poolLeft = document.querySelectorAll('#dd-pool .dd-item').length;
+  if(poolLeft>0){
+    fb.style.color='var(--gold)';
+    fb.textContent = 'Masih ada '+poolLeft+' kartu yang belum dipindahkan ke kelompok.';
+  } else {
+    fb.style.color = correct===totalItems ? 'var(--emerald)' : 'var(--rose)';
+    fb.textContent = 'Benar '+correct+' dari '+totalItems+' kartu. '+(correct===totalItems ? '🎉 Sempurna!' : 'Coba periksa kembali kartu yang berwarna merah.');
+  }
+}
+
+/* ================= LATIHAN (MCQ) ================= */
+function buildMCQ(containerId, questions){
+  const container = document.getElementById(containerId);
+  questions.forEach((q, qi)=>{
+    const wrap = document.createElement('div'); wrap.className='mcq';
+    const qEl = document.createElement('div'); qEl.className='mcq-q'; qEl.textContent = (qi+1)+'. '+q.q;
+    wrap.appendChild(qEl);
+    const optsWrap = document.createElement('div'); optsWrap.className='mcq-options';
+    q.opts.forEach((opt, oi)=>{
+      const optEl = document.createElement('div'); optEl.className='mcq-opt'; optEl.textContent = opt;
+      optEl.onclick = ()=>{
+        if(optsWrap.dataset.answered) return;
+        optsWrap.dataset.answered = '1';
+        optsWrap.querySelectorAll('.mcq-opt').forEach((el,idx)=>{
+          if(idx===q.correct) el.classList.add('correct');
+          else if(el===optEl) el.classList.add('wrong');
+        });
+        const fb = wrap.querySelector('.mcq-fb');
+        fb.classList.add('show');
+        if(oi===q.correct){ fb.classList.add('ok'); fb.textContent = '✅ Benar! '+q.explain; }
+        else { fb.classList.add('no'); fb.textContent = '❌ Belum tepat. '+q.explain; }
+      };
+      optsWrap.appendChild(optEl);
+    });
+    wrap.appendChild(optsWrap);
+    const fbEl = document.createElement('div'); fbEl.className='mcq-fb'; wrap.appendChild(fbEl);
+    container.appendChild(wrap);
+  });
+}
+
+buildMCQ('latihan-mudah', [
+  { q:'Seorang pedagang membeli buku seharga Rp15.000 dan menjualnya seharga Rp18.000. Transaksi ini disebut...',
+    opts:['Untung','Rugi','Impas','Tidak dapat ditentukan'], correct:0,
+    explain:'Karena harga jual (Rp18.000) lebih besar dari harga beli (Rp15.000), pedagang mengalami untung.' },
+  { q:'Harga beli sebuah pensil adalah Rp2.000 dan harga jualnya juga Rp2.000. Kondisi ini disebut...',
+    opts:['Untung','Rugi','Impas','Untung besar'], correct:2,
+    explain:'Karena harga jual sama dengan harga beli, maka disebut impas — tidak untung dan tidak rugi.' },
+  { q:'Rumus untuk menghitung besar untung adalah...',
+    opts:['Untung = Harga Beli − Harga Jual','Untung = Harga Jual − Harga Beli','Untung = Harga Jual + Harga Beli','Untung = Harga Beli ÷ Harga Jual'], correct:1,
+    explain:'Untung dihitung dengan mengurangkan harga beli dari harga jual (Untung = HJ − HB).' }
+]);
+
+buildMCQ('latihan-sedang', [
+  { q:'Sebuah topi dibeli seharga Rp40.000 dan dijual seharga Rp52.000. Berapa besar untungnya?',
+    opts:['Rp8.000','Rp10.000','Rp12.000','Rp92.000'], correct:2,
+    explain:'Untung = Rp52.000 − Rp40.000 = Rp12.000.' },
+  { q:'Sebuah jaket dibeli seharga Rp150.000 dan dijual seharga Rp120.000. Berapa persentase kerugiannya?',
+    opts:['15%','20%','25%','30%'], correct:1,
+    explain:'Rugi = 150.000 − 120.000 = 30.000. Persentase rugi = (30.000 ÷ 150.000) × 100% = 20%.' },
+  { q:'Harga beli suatu barang Rp60.000, dan pedagang menginginkan untung 10%. Berapa harga jual yang harus ditetapkan?',
+    opts:['Rp61.000','Rp64.000','Rp66.000','Rp70.000'], correct:2,
+    explain:'Untung = 10% × 60.000 = 6.000. Harga jual = 60.000 + 6.000 = Rp66.000.' }
+]);
+
+buildMCQ('latihan-menantang', [
+  { q:'Seorang pedagang menjual sebuah HP bekas seharga Rp1.150.000 dan mengalami untung sebesar 15%. Berapa harga beli HP tersebut?',
+    opts:['Rp950.000','Rp977.500','Rp1.000.000','Rp1.035.000'], correct:2,
+    explain:'Karena untung 15%, maka HJ = 115% dari HB. HB = 1.150.000 ÷ 1,15 = Rp1.000.000.' },
+  { q:'Sebuah barang dijual dengan rugi 20% seharga Rp160.000. Berapa harga belinya?',
+    opts:['Rp180.000','Rp190.000','Rp192.000','Rp200.000'], correct:3,
+    explain:'Karena rugi 20%, maka HJ = 80% dari HB. HB = 160.000 ÷ 0,80 = Rp200.000.' },
+  { q:'Pedagang membeli 2 barang, barang A untung Rp20.000 dari harga beli Rp100.000, barang B untung Rp15.000 dari harga beli Rp50.000. Barang mana yang persentase untungnya lebih besar?',
+    opts:['Barang A (20%)','Barang B (30%)','Sama besar','Tidak dapat dibandingkan'], correct:1,
+    explain:'% untung A = 20.000/100.000×100% = 20%. % untung B = 15.000/50.000×100% = 30%. Jadi barang B lebih besar persentase untungnya.' }
+]);
+
+/* ================= KUIS ================= */
+const kuisData = [
+  { q:'Harga yang dikeluarkan pedagang untuk mendapatkan barang dagangan disebut...',
+    opts:['Harga Jual','Harga Beli','Harga Pasar','Harga Eceran'], correct:1,
+    explain:'Harga Beli (HB) adalah uang yang dikeluarkan pedagang untuk membeli barang.' },
+  { q:'Sebuah barang dibeli Rp70.000 dan dijual Rp63.000. Transaksi ini mengalami...',
+    opts:['Untung Rp7.000','Rugi Rp7.000','Impas','Untung Rp133.000'], correct:1,
+    explain:'Karena HJ (63.000) < HB (70.000), terjadi rugi sebesar 70.000 − 63.000 = Rp7.000.' },
+  { q:'Rumus persentase untung yang benar adalah...',
+    opts:['(Untung ÷ Harga Jual) × 100%','(Untung ÷ Harga Beli) × 100%','(Harga Jual ÷ Untung) × 100%','(Harga Beli ÷ Untung) × 100%'], correct:1,
+    explain:'Persentase untung selalu dihitung terhadap harga beli, yaitu (Untung ÷ Harga Beli) × 100%.' },
+  { q:'Sebuah buku dibeli seharga Rp25.000 dan dijual dengan untung 20%. Harga jualnya adalah...',
+    opts:['Rp27.000','Rp28.000','Rp30.000','Rp45.000'], correct:2,
+    explain:'Untung = 20% × 25.000 = 5.000. Harga jual = 25.000 + 5.000 = Rp30.000.' },
+  { q:'Sebuah sepatu dijual Rp204.000 dengan kerugian 15% dari harga beli. Harga beli sepatu tersebut adalah...',
+    opts:['Rp210.000','Rp220.000','Rp234.600','Rp240.000'], correct:3,
+    explain:'HJ = 85% dari HB. HB = 204.000 ÷ 0,85 = Rp240.000.' },
+  { q:'Jika harga beli sama dengan harga jual, maka pedagang mengalami...',
+    opts:['Untung kecil','Rugi kecil','Impas','Untung besar'], correct:2,
+    explain:'Jika HB = HJ, pedagang mengalami impas — tidak untung dan tidak rugi.' }
+];
+let kuisAnswers = new Array(kuisData.length).fill(null);
+
+function buildKuis(){
+  const container = document.getElementById('kuis-container');
+  container.innerHTML = '';
+  kuisData.forEach((q, qi)=>{
+    const wrap = document.createElement('div'); wrap.className='mcq';
+    const qEl = document.createElement('div'); qEl.className='mcq-q'; qEl.textContent = (qi+1)+'. '+q.q;
+    wrap.appendChild(qEl);
+    const optsWrap = document.createElement('div'); optsWrap.className='mcq-options';
+    q.opts.forEach((opt, oi)=>{
+      const optEl = document.createElement('div'); optEl.className='mcq-opt'; optEl.textContent = opt;
+      optEl.onclick = ()=>{
+        if(document.getElementById('kuis-submit').disabled) return;
+        optsWrap.querySelectorAll('.mcq-opt').forEach(el=>el.classList.remove('selected'));
+        optEl.classList.add('selected');
+        kuisAnswers[qi] = oi;
+      };
+      optsWrap.appendChild(optEl);
+    });
+    wrap.appendChild(optsWrap);
+    container.appendChild(wrap);
+  });
+}
+buildKuis();
+
+function submitKuis(){
+  if(kuisAnswers.includes(null)){
+    alert('Jawab semua soal terlebih dahulu ya sebelum melihat skor.');
+    return;
+  }
+  let score = 0;
+  const container = document.getElementById('kuis-container');
+  const mcqs = container.querySelectorAll('.mcq');
+  mcqs.forEach((wrap, qi)=>{
+    const opts = wrap.querySelectorAll('.mcq-opt');
+    const correctIdx = kuisData[qi].correct;
+    opts.forEach((el, oi)=>{
+      el.style.pointerEvents='none';
+      if(oi===correctIdx) el.classList.add('correct');
+      else if(oi===kuisAnswers[qi]) el.classList.add('wrong');
+    });
+    if(kuisAnswers[qi]===correctIdx) score++;
+  });
+  document.getElementById('kuis-submit').disabled = true;
+  document.getElementById('quiz-result').style.display='block';
+  document.getElementById('score-display').textContent = score+'/'+kuisData.length;
+  let msg;
+  const pct = score/kuisData.length;
+  if(pct===1) msg='Sempurna! Kamu benar-benar menguasai materi Untung dan Rugi. 🎉';
+  else if(pct>=0.7) msg='Bagus sekali! Pemahamanmu sudah cukup kuat, coba tinjau kembali soal yang salah.';
+  else if(pct>=0.4) msg='Cukup baik, tapi ada beberapa konsep yang perlu dipelajari ulang.';
+  else msg='Jangan menyerah! Coba pelajari kembali materi harga beli, harga jual, untung, dan rugi, lalu ulangi kuis ini.';
+  document.getElementById('score-msg').textContent = msg;
+}
+function resetKuis(){
+  kuisAnswers = new Array(kuisData.length).fill(null);
+  document.getElementById('kuis-submit').disabled = false;
+  document.getElementById('quiz-result').style.display='none';
+  buildKuis();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BAB 4 — RELASI DAN FUNGSI | Penyajian Relasi</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#070b18;--bg2:#0d1328;--panel:#111a35;--panel2:#172344;
+  --line:#29375e;--text:#f4f7ff;--muted:#aab6d5;--accent:#6ea8ff;
+  --accent2:#8b7cff;--cyan:#47d7ff;--green:#55d98a;--yellow:#ffd166;
+  --red:#ff6b7a;--shadow:0 22px 60px rgba(0,0,0,.35);--radius:24px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 20% 0%,#182a59 0,#070b18 42%,#050811 100%);color:var(--text);font-family:"Plus Jakarta Sans",sans-serif}
+body{overflow-x:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:50;height:78px;padding:0 24px;
+  display:flex;align-items:center;gap:20px;background:rgba(7,11,24,.88);
+  backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)
+}
+.brand{min-width:240px}
+.brand small{display:block;color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase}
+.brand strong{display:block;font-family:Fredoka;font-size:20px;margin-top:2px}
+.progress-wrap{flex:1;max-width:700px;margin:auto}
+.progress-info{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}
+.progress{height:8px;background:#1a2545;border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--cyan));border-radius:inherit;transition:.35s}
+.home-btn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:13px;padding:10px 14px;font-weight:700}
+.home-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+main{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:34px 0 110px;flex:1}
+.slide{display:none;animation:enter .35s ease}
+.slide.active{display:block}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:10px}
+h1,h2,h3{font-family:Fredoka;margin:0;line-height:1.12}
+h1{font-size:clamp(38px,6vw,70px);max-width:900px}
+h2{font-size:clamp(30px,4vw,48px);margin-bottom:14px}
+h3{font-size:23px;margin-bottom:10px}
+p{color:var(--muted);line-height:1.75;margin:8px 0}
+.lead{font-size:18px;max-width:800px}
+.hero{min-height:calc(100vh - 150px);display:flex;align-items:center}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center;width:100%}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid #30477a;background:#111c3b;border-radius:99px;color:#dbe7ff;font-size:12px;font-weight:800;margin-bottom:18px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+.glow-card{
+  position:relative;min-height:390px;padding:28px;border:1px solid var(--line);border-radius:32px;
+  background:linear-gradient(145deg,rgba(28,43,81,.95),rgba(13,19,40,.96));box-shadow:var(--shadow);overflow:hidden
+}
+.glow-card:before{content:"";position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(71,215,255,.12);filter:blur(10px);right:-70px;top:-70px}
+.concept-map{position:relative;height:300px;display:flex;align-items:center;justify-content:center}
+.node{position:absolute;padding:14px 18px;border-radius:16px;background:#1b2b55;border:1px solid #3b5387;text-align:center;font-weight:800;z-index:2}
+.node.center{background:linear-gradient(135deg,#335bb8,#6752c9);box-shadow:0 0 35px rgba(110,168,255,.28)}
+.node.a{top:28px;left:25px}.node.b{top:28px;right:25px}.node.c{bottom:25px;left:25px}.node.d{bottom:25px;right:25px}
+.connector{position:absolute;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);width:130px}
+.connector.one{transform:rotate(25deg);top:100px;left:95px}.connector.two{transform:rotate(-25deg);top:100px;right:95px}
+.connector.three{transform:rotate(-25deg);bottom:98px;left:95px}.connector.four{transform:rotate(25deg);bottom:98px;right:95px}
+.card{background:linear-gradient(145deg,rgba(20,31,61,.95),rgba(13,20,40,.96));border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 14px 40px rgba(0,0,0,.2)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.callout{border-left:4px solid var(--accent);padding:17px 19px;background:#111c37;border-radius:0 16px 16px 0;margin:18px 0}
+.callout.green{border-color:var(--green)}.callout.yellow{border-color:var(--yellow)}.callout.red{border-color:var(--red)}
+.term{color:#fff;font-weight:800}
+.kicker{font-size:13px;color:var(--muted);font-weight:700}
+.list{padding-left:20px;color:var(--muted);line-height:1.9}
+.list li{margin:5px 0}
+.example{margin-top:18px;padding:20px;border:1px solid #304267;background:#0d1730;border-radius:18px}
+.mono{font-family:"JetBrains Mono",monospace}
+.math{font-family:"JetBrains Mono",monospace;color:#fff;background:#0a1124;border:1px solid #243657;padding:13px 15px;border-radius:13px;display:inline-block}
+.pills{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.pill{padding:8px 12px;border-radius:99px;background:#17274d;border:1px solid #30477a;color:#dbe7ff;font-size:12px;font-weight:700}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.btn{border:1px solid #3b5485;background:#17264a;color:#fff;border-radius:13px;padding:11px 16px;font-weight:800;transition:.2s}
+.btn:hover{transform:translateY(-2px);border-color:var(--accent)}
+.btn.primary{background:linear-gradient(135deg,#3b73e8,#6957d9);border-color:transparent}
+.btn.success{background:#153c2b;border-color:#2e8d5c}.btn.danger{background:#431c29;border-color:#884052}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.feedback{margin-top:13px;padding:12px 14px;border-radius:12px;display:none;font-size:14px;font-weight:700}
+.feedback.show{display:block}.feedback.ok{background:#123a29;color:#8af0b5;border:1px solid #287b53}.feedback.no{background:#411c28;color:#ffabb6;border:1px solid #824050}
+.choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:16px}
+.choice{padding:14px;text-align:left;border-radius:14px;border:1px solid #304267;background:#111d39;color:#eaf0ff;font-weight:700}
+.choice:hover{border-color:var(--accent);background:#17274b}.choice.selected{border-color:var(--cyan);background:#12314a}
+.choice.correct{border-color:var(--green);background:#123c2a}.choice.wrong{border-color:var(--red);background:#411c28}
+.reveal{display:none;margin-top:14px}.reveal.show{display:block}
+details{border:1px solid var(--line);background:#101a34;border-radius:15px;padding:14px 17px;margin:10px 0}
+summary{cursor:pointer;font-weight:800}
+table{width:100%;border-collapse:collapse;margin-top:15px;overflow:hidden;border-radius:14px}
+th,td{padding:12px;border:1px solid #2a3a60;text-align:left}
+th{background:#17284d;color:#fff}td{color:#c4cee5;background:#0e1830}
+.relation-board{display:grid;grid-template-columns:1fr 190px 1fr;gap:16px;align-items:center;margin-top:18px}
+.set-box{border:1px solid #3a4f7b;border-radius:20px;padding:20px;background:#0c1730;min-height:240px}
+.set-title{text-align:center;font-family:Fredoka;font-size:22px;color:#fff;margin-bottom:14px}
+.set-items{display:grid;gap:10px}
+.item{
+  padding:12px;border-radius:12px;background:#19294e;border:1px solid #30477a;text-align:center;font-weight:800;
+  transition:.3s
+}
+.item.active{background:#1b5a68;border-color:var(--cyan);box-shadow:0 0 18px rgba(71,215,255,.18)}
+.arrow-zone{height:240px;position:relative}
+.arrow-svg{width:100%;height:100%}
+.cartesian-wrap{background:#0b1429;border:1px solid #2c3e65;border-radius:18px;padding:16px;overflow:hidden}
+.cartesian{width:100%;height:auto;display:block}
+.graph-label{color:var(--muted);font-size:12px;text-align:center;margin-top:8px}
+.pair-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px}
+.pair{font-family:"JetBrains Mono";background:#17294e;border:1px solid #39517f;border-radius:10px;padding:9px 12px;color:#dce8ff}
+.stepper{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}
+.step-chip{border:1px solid #304267;background:#101a34;color:#8391b2;border-radius:99px;padding:8px 12px;font-size:12px;font-weight:800}
+.step-chip.on{background:#234e75;color:#fff;border-color:var(--cyan)}
+.step-content{min-height:120px;padding:18px;background:#0c162c;border:1px solid #26395e;border-radius:15px}
+input.answer{width:min(260px,100%);padding:13px 14px;background:#0a1226;border:1px solid #344a76;border-radius:12px;color:#fff;outline:none}
+input.answer:focus{border-color:var(--cyan)}
+.matching{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+.match-col{display:grid;gap:10px}
+.match-btn{border:1px solid #304267;background:#111d39;color:#fff;border-radius:13px;padding:13px;text-align:left;font-weight:700}
+.match-btn.selected{border-color:var(--yellow);background:#3b3215}.match-btn.matched{border-color:var(--green);background:#123c2a}
+.score-box{font-family:Fredoka;font-size:26px;padding:16px;background:#111f3f;border:1px solid #38527f;border-radius:16px;display:inline-block}
+.quiz-card{margin-top:18px}
+.quiz-number{font-size:12px;color:var(--cyan);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.quiz-options{display:grid;gap:9px;margin-top:15px}
+.quiz-option{padding:14px 16px;border-radius:13px;border:1px solid #304267;background:#111c37;color:#fff;text-align:left;font-weight:700}
+.quiz-option:hover{border-color:var(--accent)}.quiz-option.picked{border-color:var(--cyan);background:#123149}
+.quiz-option.correct{border-color:var(--green);background:#123c2a}.quiz-option.incorrect{border-color:var(--red);background:#411c28}
+.quiz-feedback{margin-top:14px;display:none;padding:14px;border-radius:13px;background:#101d39;color:#dce5fa;line-height:1.6}
+.quiz-feedback.show{display:block}
+.quiz-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+.reflect{display:grid;gap:10px}
+.reflect label{display:block;padding:15px;border:1px solid var(--line);background:#101a34;border-radius:14px;color:#dce5fa}
+.reflect input{margin-right:9px}
+.footer-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;padding:13px 20px;
+  background:rgba(6,10,22,.92);backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.08)
+}
+.nav-inner{width:min(1180px,100%);margin:auto;display:flex;align-items:center;gap:12px}
+.nav-center{flex:1;text-align:center;color:var(--muted);font-size:12px}
+.navbtn{min-width:120px}
+.toast{position:fixed;right:20px;top:95px;z-index:100;padding:13px 16px;background:#16264b;border:1px solid #3b5485;border-radius:13px;box-shadow:var(--shadow);transform:translateX(150%);transition:.3s;font-weight:700}
+.toast.show{transform:none}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+.small{font-size:12px}
+.muted{color:var(--muted)}
+.center{text-align:center}
+.big-num{font-family:Fredoka;font-size:60px;line-height:1;color:#fff}
+.stat{padding:20px;border:1px solid var(--line);background:#101a34;border-radius:18px}
+.stat strong{font-family:Fredoka;font-size:30px;display:block;margin-bottom:4px}
+@media(max-width:850px){
+  .topbar{height:auto;min-height:74px;padding:12px 15px;flex-wrap:wrap;gap:10px}
+  .brand{min-width:0;flex:1}.brand strong{font-size:17px}
+  .progress-wrap{order:3;flex-basis:100%;max-width:none}
+  main{width:min(100% - 20px,720px);padding-top:22px}
+  .hero-grid,.grid2,.grid3{grid-template-columns:1fr}
+  .hero{min-height:auto}
+  .glow-card{min-height:330px}
+  .relation-board{grid-template-columns:1fr;}.arrow-zone{height:110px}
+  .matching{grid-template-columns:1fr}
+  .choice-grid{grid-template-columns:1fr}
+  .nav-inner{gap:7px}.navbtn{min-width:0;flex:1;padding:10px 8px}.home-btn{padding:9px 10px}
+}
+@media(max-width:480px){
+  h1{font-size:40px}h2{font-size:32px}.card{padding:18px}
+  .footer-nav{padding:10px}.nav-center{font-size:10px}
+  .glow-card{padding:16px}.node{font-size:12px;padding:10px 11px}.node.a,.node.c{left:0}.node.b,.node.d{right:0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand">
+    <small id="materiTop">BAB 4 — RELASI DAN FUNGSI</small>
+    <strong id="submateriTop">Penyajian Relasi</strong>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-info"><span id="slideTitle">Pembuka</span><span id="slideCount">1 / 1</span></div>
+    <div class="progress"><i id="progressBar"></i></div>
+  </div>
+  <button class="home-btn" onclick="goTo(0)">⌂ Awal</button>
+</header>
+
+<main id="slides">
+
+<section class="slide active" data-title="Pembuka">
+  <div class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="badge"><span class="dot"></span> Media Pembelajaran Interaktif</div>
+        <div class="eyebrow" id="heroMateri">BAB 4 — RELASI DAN FUNGSI</div>
+        <h1 id="heroSub">Penyajian Relasi</h1>
+        <p class="lead">Kita akan belajar bagaimana sebuah relasi dapat disajikan dengan <b>diagram panah, diagram Cartesius, dan himpunan pasangan berurutan</b>—lalu membandingkan ketiganya secara interaktif.</p>
+        <div class="pills"><span class="pill">Konsep</span><span class="pill">Visualisasi</span><span class="pill">Latihan</span><span class="pill">Kuis</span></div>
+        <div class="btn-row"><button class="btn primary" onclick="next()">Mulai Pembelajaran →</button></div>
+      </div>
+      <div class="glow-card">
+        <div class="concept-map">
+          <div class="node a">Diagram Panah</div><div class="node b">Cartesius</div>
+          <div class="node c">Pasangan Berurutan</div><div class="node d">Makna Relasi</div>
+          <div class="connector one"></div><div class="connector two"></div><div class="connector three"></div><div class="connector four"></div>
+          <div class="node center">RELASI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Apersepsi">
+  <div class="eyebrow">01 · Apersepsi</div><h2>Relasi ada di sekitar kita</h2>
+  <p class="lead">Sebelum masuk ke bentuk matematika, perhatikan hubungan antara dua kelompok berikut.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Contoh dalam kehidupan</h3>
+      <p>Misalnya beberapa siswa memiliki makanan kesukaan yang berbeda. Kita dapat menghubungkan <b>nama siswa</b> dengan <b>makanan yang disukai</b>.</p>
+      <div class="example">
+        <div class="kicker">Kelompok siswa</div>
+        <div class="pills"><span class="pill">Ani</span><span class="pill">Budi</span><span class="pill">Citra</span></div>
+        <div class="kicker" style="margin-top:14px">Makanan</div>
+        <div class="pills"><span class="pill">Bakso</span><span class="pill">Nasi Goreng</span><span class="pill">Sate</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Pertanyaan pemantik</h3>
+      <p>Bagaimana cara kita <b>menuliskan atau menggambarkan</b> hubungan tersebut supaya orang lain mudah memahaminya?</p>
+      <details><summary>Klik untuk petunjuk</summary><p>Kita memerlukan cara penyajian yang menunjukkan anggota dari dua himpunan dan hubungan di antara mereka.</p></details>
+      <details><summary>Jawaban inti</summary><p>Relasi dapat disajikan, antara lain, menggunakan <b>diagram panah</b>, <b>diagram Cartesius</b>, dan <b>himpunan pasangan berurutan</b>.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Tujuan Pembelajaran">
+  <div class="eyebrow">02 · Tujuan</div><h2>Target belajar hari ini</h2>
+  <p class="lead">Setelah menyelesaikan pembelajaran, kamu diharapkan mampu:</p>
+  <div class="grid2">
+    <div class="card"><div class="big-num">01</div><h3>Menjelaskan relasi</h3><p>Memahami relasi sebagai hubungan antara anggota dua himpunan.</p></div>
+    <div class="card"><div class="big-num">02</div><h3>Membaca diagram panah</h3><p>Mengidentifikasi anggota domain, kodomain, serta hubungan yang ditunjukkan oleh panah.</p></div>
+    <div class="card"><div class="big-num">03</div><h3>Membaca diagram Cartesius</h3><p>Menentukan titik-titik yang mewakili pasangan anggota dua himpunan.</p></div>
+    <div class="card"><div class="big-num">04</div><h3>Menuliskan pasangan berurutan</h3><p>Mengubah informasi relasi menjadi pasangan berurutan dan memahami bahwa ketiganya dapat menyatakan relasi yang sama.</p></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Konsep Relasi">
+  <div class="eyebrow">03 · Konsep</div><h2>Apa itu relasi?</h2>
+  <div class="card">
+    <p><span class="term">Relasi</span> adalah hubungan yang memasangkan anggota suatu himpunan dengan anggota himpunan lainnya.</p>
+    <div class="callout">
+      <b>Ide utama:</b> kita memiliki dua himpunan, lalu menentukan anggota mana dari himpunan pertama yang mempunyai hubungan dengan anggota himpunan kedua.
+    </div>
+    <div class="grid3">
+      <div class="stat"><strong>Himpunan A</strong><span class="muted">Himpunan asal / anggota yang dipasangkan.</span></div>
+      <div class="stat"><strong>Relasi</strong><span class="muted">Hubungan yang mengaitkan anggota A dengan anggota B.</span></div>
+      <div class="stat"><strong>Himpunan B</strong><span class="muted">Himpunan tujuan pasangan.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Domain dan Kodomain">
+  <div class="eyebrow">04 · Istilah Penting</div><h2>Domain, kodomain, dan range</h2>
+  <div class="grid3">
+    <div class="card"><h3>Domain</h3><p>Himpunan semua anggota yang menjadi <b>asal</b> dalam relasi.</p><div class="math">A = {1, 2, 3}</div></div>
+    <div class="card"><h3>Kodomain</h3><p>Himpunan tujuan tempat anggota dari domain dipasangkan.</p><div class="math">B = {2, 4, 6, 8}</div></div>
+    <div class="card"><h3>Range</h3><p>Anggota kodomain yang <b>benar-benar mendapat pasangan</b> dari domain.</p><div class="math">R = {2, 4, 6}</div></div>
+  </div>
+  <div class="callout yellow"><b>Ingat:</b> range merupakan bagian dari kodomain. Jadi, tidak semua anggota kodomain harus terpakai dalam sebuah relasi.</div>
+</section>
+
+<section class="slide" data-title="Contoh Relasi">
+  <div class="eyebrow">05 · Contoh</div><h2>Contoh relasi: “setengah dari”</h2>
+  <div class="card">
+    <p>Misalkan:</p>
+    <div class="pills"><span class="pill mono">A = {1, 2, 3, 4}</span><span class="pill mono">B = {2, 4, 6, 8}</span></div>
+    <p style="margin-top:16px">Kita gunakan relasi <b>“setengah dari”</b>. Artinya, <span class="math">a</span> berelasi dengan <span class="math">b</span> jika <span class="math">b = 2a</span>.</p>
+    <table><thead><tr><th>Anggota A</th><th>Pasangan di B</th><th>Alasan</th></tr></thead><tbody>
+      <tr><td>1</td><td>2</td><td>2 = 2 × 1</td></tr>
+      <tr><td>2</td><td>4</td><td>4 = 2 × 2</td></tr>
+      <tr><td>3</td><td>6</td><td>6 = 2 × 3</td></tr>
+      <tr><td>4</td><td>8</td><td>8 = 2 × 4</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<section class="slide" data-title="Diagram Panah">
+  <div class="eyebrow">06 · Penyajian 1</div><h2>Diagram panah</h2>
+  <p class="lead">Diagram panah menunjukkan relasi dengan garis berarah dari anggota himpunan asal menuju anggota himpunan tujuan.</p>
+  <div class="relation-board card">
+    <div class="set-box">
+      <div class="set-title">A</div>
+      <div class="set-items">
+        <div class="item rel-a" data-v="1">1</div><div class="item rel-a" data-v="2">2</div>
+        <div class="item rel-a" data-v="3">3</div><div class="item rel-a" data-v="4">4</div>
+      </div>
+    </div>
+    <div class="arrow-zone">
+      <svg class="arrow-svg" viewBox="0 0 190 240" aria-label="Panah relasi">
+        <defs><marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><polygon points="0 0,7 3.5,0 7" fill="#47d7ff"/></marker></defs>
+        <path d="M10 28 C85 5 105 5 180 28" fill="none" stroke="#47d7ff" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M10 88 C85 65 105 65 180 88" fill="none" stroke="#47d7ff" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M10 148 C85 125 105 125 180 148" fill="none" stroke="#47d7ff" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M10 208 C85 185 105 185 180 208" fill="none" stroke="#47d7ff" stroke-width="2" marker-end="url(#arr)"/>
+      </svg>
+    </div>
+    <div class="set-box">
+      <div class="set-title">B</div>
+      <div class="set-items">
+        <div class="item rel-b" data-v="2">2</div><div class="item rel-b" data-v="4">4</div>
+        <div class="item rel-b" data-v="6">6</div><div class="item rel-b" data-v="8">8</div>
+      </div>
+    </div>
+  </div>
+  <div class="callout green"><b>Cara membaca:</b> panah dari 1 menuju 2 berarti <span class="math">1</span> berelasi dengan <span class="math">2</span> sesuai aturan “setengah dari”.</div>
+</section>
+
+<section class="slide" data-title="Interaksi Diagram Panah">
+  <div class="eyebrow">07 · Interaksi</div><h2>Temukan pasangan dari diagram</h2>
+  <p>Klik sebuah anggota di sebelah kiri. Perhatikan anggota di sebelah kanan yang menjadi pasangannya.</p>
+  <div class="card">
+    <div class="relation-board" style="grid-template-columns:1fr 1fr">
+      <div><div class="set-title">A</div><div class="set-items">
+        <button class="item" onclick="showPair(1,2,this)">1</button>
+        <button class="item" onclick="showPair(2,4,this)">2</button>
+        <button class="item" onclick="showPair(3,6,this)">3</button>
+        <button class="item" onclick="showPair(4,8,this)">4</button>
+      </div></div>
+      <div><div class="set-title">B</div><div class="set-items">
+        <div class="item" id="target2">2</div><div class="item" id="target4">4</div>
+        <div class="item" id="target6">6</div><div class="item" id="target8">8</div>
+      </div></div>
+    </div>
+    <div id="pairFeedback" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Diagram Cartesius">
+  <div class="eyebrow">08 · Penyajian 2</div><h2>Diagram Cartesius</h2>
+  <p class="lead">Relasi dapat digambarkan sebagai titik pada bidang koordinat. Setiap pasangan <span class="math">(a,b)</span> menjadi titik dengan koordinat <span class="math">x=a</span> dan <span class="math">y=b</span>.</p>
+  <div class="card">
+    <div class="cartesian-wrap">
+      <svg class="cartesian" viewBox="0 0 720 420">
+        <defs><marker id="axisArr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><polygon points="0 0,8 4,0 8" fill="#aab6d5"/></marker></defs>
+        <rect x="0" y="0" width="720" height="420" fill="#0b1429"/>
+        <g stroke="#203152" stroke-width="1">
+          <path d="M80 40V370M160 40V370M240 40V370M320 40V370M400 40V370M480 40V370M560 40V370M640 40V370"/>
+          <path d="M80 330H660M80 275H660M80 220H660M80 165H660M80 110H660M80 55H660"/>
+        </g>
+        <path d="M80 330H670" stroke="#aab6d5" stroke-width="2" marker-end="url(#axisArr)"/>
+        <path d="M80 350V40" stroke="#aab6d5" stroke-width="2" marker-end="url(#axisArr)"/>
+        <g fill="#aab6d5" font-size="14" font-family="Plus Jakarta Sans">
+          <text x="82" y="352">0</text><text x="155" y="352">1</text><text x="235" y="352">2</text><text x="315" y="352">3</text><text x="395" y="352">4</text>
+          <text x="665" y="352">x</text><text x="62" y="58">y</text>
+          <text x="38" y="334">0</text><text x="42" y="279">2</text><text x="42" y="224">4</text><text x="42" y="169">6</text><text x="42" y="114">8</text>
+        </g>
+        <g fill="#55d98a" stroke="#fff" stroke-width="2">
+          <circle cx="160" cy="275" r="7"/><circle cx="240" cy="220" r="7"/><circle cx="320" cy="165" r="7"/><circle cx="400" cy="110" r="7"/>
+        </g>
+        <g fill="#dce8ff" font-size="13" font-family="JetBrains Mono">
+          <text x="145" y="260">(1,2)</text><text x="225" y="205">(2,4)</text><text x="305" y="150">(3,6)</text><text x="385" y="95">(4,8)</text>
+        </g>
+      </svg>
+      <div class="graph-label">Titik-titik pada diagram menyatakan pasangan berurutan.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Pasangan Berurutan">
+  <div class="eyebrow">09 · Penyajian 3</div><h2>Himpunan pasangan berurutan</h2>
+  <p>Relasi yang sama dapat ditulis sebagai kumpulan pasangan berurutan. Urutan penulisan sangat penting.</p>
+  <div class="card">
+    <div class="math">{(1,2), (2,4), (3,6), (4,8)}</div>
+    <div class="grid2" style="margin-top:18px">
+      <div class="callout green"><b>Pasangan benar:</b> <span class="math">(2,4)</span> karena anggota pertama berasal dari A dan anggota kedua berasal dari B.</div>
+      <div class="callout red"><b>Jangan tertukar:</b> <span class="math">(4,2)</span> menyatakan hubungan yang berbeda dari <span class="math">(2,4)</span>.</div>
+    </div>
+    <details><summary>Mengapa disebut “berurutan”?</summary><p>Karena pasangan ditulis dalam urutan tertentu: <span class="math">(anggota A, anggota B)</span>. Posisi pertama dan kedua mempunyai makna berbeda.</p></details>
+  </div>
+</section>
+
+<section class="slide" data-title="Tiga Bentuk, Satu Relasi">
+  <div class="eyebrow">10 · Hubungan</div><h2>Tiga bentuk penyajian, satu informasi</h2>
+  <div class="grid3">
+    <div class="card"><h3>① Diagram Panah</h3><p>Menonjolkan hubungan dengan <b>arah panah</b>.</p><div class="math">1 → 2</div><div class="math">2 → 4</div></div>
+    <div class="card"><h3>② Cartesius</h3><p>Menonjolkan hubungan sebagai <b>titik koordinat</b>.</p><div class="math">(1,2)</div><div class="math">(2,4)</div></div>
+    <div class="card"><h3>③ Pasangan Berurutan</h3><p>Menonjolkan hubungan dalam <b>bentuk simbol</b>.</p><div class="math">(1,2), (2,4)</div></div>
+  </div>
+  <div class="callout"><b>Kunci:</b> jika ketiga bentuk tersebut menggambarkan pasangan yang sama, maka informasi relasinya sama walaupun tampilannya berbeda.</div>
+</section>
+
+<section class="slide" data-title="Langkah Mengubah Penyajian">
+  <div class="eyebrow">11 · Prosedur</div><h2>Ubah satu bentuk ke bentuk lain</h2>
+  <p>Gunakan langkah berikut saat mengubah penyajian relasi.</p>
+  <div class="stepper">
+    <button class="step-chip on" onclick="relationStep(1)">Langkah 1</button>
+    <button class="step-chip" onclick="relationStep(2)">Langkah 2</button>
+    <button class="step-chip" onclick="relationStep(3)">Langkah 3</button>
+    <button class="step-chip" onclick="relationStep(4)">Langkah 4</button>
+  </div>
+  <div id="relationStepContent" class="step-content"><b>Identifikasi dua himpunan.</b><p>Tentukan himpunan asal A dan himpunan tujuan B beserta anggotanya.</p></div>
+</section>
+
+<section class="slide" data-title="Contoh Lengkap">
+  <div class="eyebrow">12 · Contoh Terpandu</div><h2>Dari diagram panah ke pasangan berurutan</h2>
+  <div class="card">
+    <p>Diketahui relasi dari <span class="math">A={1,2,3}</span> ke <span class="math">B={2,4,6,8}</span> dengan pasangan:</p>
+    <div class="pills"><span class="pill">1 → 2</span><span class="pill">2 → 4</span><span class="pill">3 → 6</span></div>
+    <details><summary>Petunjuk</summary><p>Setiap panah dibaca sebagai satu pasangan: angka di pangkal panah menjadi elemen pertama.</p></details>
+    <details><summary>Langkah penyelesaian</summary><p>1 → (1,2), 2 → (2,4), dan 3 → (3,6).</p></details>
+    <details><summary>Jawaban</summary><div class="math">{(1,2),(2,4),(3,6)}</div></details>
+  </div>
+</section>
+
+<section class="slide" data-title="Latihan 1">
+  <div class="eyebrow">13 · Latihan Mudah</div><h2>Latihan: tentukan pasangan</h2>
+  <div class="card">
+    <p>Diketahui relasi “ditambah 3” dari <span class="math">A={1,2,4}</span> ke B. Pasangan yang benar untuk anggota <span class="math">2</span> adalah …</p>
+    <div class="choice-grid">
+      <button class="choice" onclick="checkChoice(this,false,'lat1')">(2, 4)</button>
+      <button class="choice" onclick="checkChoice(this,true,'lat1')">(2, 5)</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat1')">(5, 2)</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat1')">(3, 2)</button>
+    </div>
+    <div id="lat1" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Latihan 2">
+  <div class="eyebrow">14 · Latihan Sedang</div><h2>Latihan: baca pasangan berurutan</h2>
+  <div class="card">
+    <p>Suatu relasi disajikan dengan himpunan pasangan:</p>
+    <div class="math">{(1,3),(2,5),(4,5)}</div>
+    <p>Manakah pernyataan yang benar?</p>
+    <div class="choice-grid">
+      <button class="choice" onclick="checkChoice(this,false,'lat2')">4 berpasangan dengan 4</button>
+      <button class="choice" onclick="checkChoice(this,true,'lat2')">2 berpasangan dengan 5</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat2')">5 berpasangan dengan 2</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat2')">1 berpasangan dengan 5</button>
+    </div>
+    <div id="lat2" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Latihan 3">
+  <div class="eyebrow">15 · Latihan Menantang</div><h2>Uji pemahaman: ubah ke Cartesius</h2>
+  <div class="card">
+    <p>Jika relasi memiliki pasangan <span class="math">{(1,2),(2,4),(3,6)}</span>, titik manakah yang <b>tidak</b> termasuk pada diagram Cartesius relasi tersebut?</p>
+    <div class="choice-grid">
+      <button class="choice" onclick="checkChoice(this,false,'lat3')">(1,2)</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat3')">(2,4)</button>
+      <button class="choice" onclick="checkChoice(this,true,'lat3')">(3,5)</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat3')">(3,6)</button>
+    </div>
+    <div id="lat3" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Matching">
+  <div class="eyebrow">16 · Aktivitas</div><h2>Cocokkan penyajian relasi</h2>
+  <p>Klik satu kartu kiri lalu kartu kanan yang sesuai.</p>
+  <div class="card">
+    <div class="matching">
+      <div class="match-col">
+        <button class="match-btn" data-left="a" onclick="matchPick(this,'a')">1 → 3</button>
+        <button class="match-btn" data-left="b" onclick="matchPick(this,'b')">2 → 5</button>
+        <button class="match-btn" data-left="c" onclick="matchPick(this,'c')">4 → 5</button>
+      </div>
+      <div class="match-col">
+        <button class="match-btn" data-right="c" onclick="matchPick(this,'c')">(4,5)</button>
+        <button class="match-btn" data-right="a" onclick="matchPick(this,'a')">(1,3)</button>
+        <button class="match-btn" data-right="b" onclick="matchPick(this,'b')">(2,5)</button>
+      </div>
+    </div>
+    <div id="matchFeedback" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Input Jawaban">
+  <div class="eyebrow">17 · Aktivitas</div><h2>Tulis pasangan berurutan</h2>
+  <div class="card">
+    <p>Relasi menghubungkan <span class="math">1 → 4</span>. Tuliskan pasangan berurutannya tanpa spasi.</p>
+    <input class="answer" id="inputPair" placeholder="contoh: (1,4)" autocomplete="off">
+    <div class="btn-row"><button class="btn primary" onclick="checkInputPair()">Periksa Jawaban</button></div>
+    <div id="inputFeedback" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Benar atau Salah">
+  <div class="eyebrow">18 · Cek Konsep</div><h2>Benar atau salah?</h2>
+  <div class="card">
+    <p><b>Pernyataan:</b> Pada pasangan berurutan <span class="math">(3,7)</span>, angka 3 adalah anggota pertama dan angka 7 adalah anggota kedua.</p>
+    <div class="btn-row">
+      <button class="btn success" onclick="tf(true)">Benar</button>
+      <button class="btn danger" onclick="tf(false)">Salah</button>
+    </div>
+    <div id="tfFeedback" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Kesalahan Umum">
+  <div class="eyebrow">19 · Waspada</div><h2>Kesalahan yang sering terjadi</h2>
+  <div class="grid2">
+    <div class="card"><h3>❌ Menukar urutan</h3><p>Menulis <span class="math">(4,2)</span> ketika diagram menunjukkan <span class="math">2 → 4</span>.</p><div class="callout red">Perbaikan: tulis dari asal ke tujuan.</div></div>
+    <div class="card"><h3>❌ Salah membaca sumbu</h3><p>Pada Cartesius, anggota pertama menjadi koordinat <b>x</b>, anggota kedua menjadi koordinat <b>y</b>.</p><div class="callout yellow">Ingat: <span class="math">(x,y)</span>.</div></div>
+    <div class="card"><h3>❌ Menganggap kodomain = range</h3><p>Kodomain dapat memiliki anggota yang tidak mendapat pasangan.</p><div class="callout green">Range adalah anggota kodomain yang benar-benar terhubung.</div></div>
+    <div class="card"><h3>❌ Hanya menghafal gambar</h3><p>Yang penting bukan bentuk gambarnya, tetapi pasangan yang dinyatakan.</p><div class="callout">Jika pasangan sama, penyajiannya dapat berbeda tetapi relasinya sama.</div></div>
+  </div>
+</section>
+
+<section class="slide" data-title="Latihan Mandiri">
+  <div class="eyebrow">20 · Latihan Mandiri</div><h2>Uji dirimu</h2>
+  <div class="card">
+    <p>Diberikan <span class="math">A={1,2,3}</span>, <span class="math">B={3,5,7,9}</span>, dengan relasi “ditambah 2”. Pilih himpunan pasangan berurutan yang benar.</p>
+    <div class="choice-grid">
+      <button class="choice" onclick="checkChoice(this,false,'lat4')">{(1,3),(2,4),(3,5)}</button>
+      <button class="choice" onclick="checkChoice(this,true,'lat4')">{(1,3),(2,4),(3,5)}</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat4')">{(3,1),(5,2),(7,3)}</button>
+      <button class="choice" onclick="checkChoice(this,false,'lat4')">{(1,2),(2,3),(3,4)}</button>
+    </div>
+    <div id="lat4" class="feedback"></div>
+    <p class="small muted" style="margin-top:10px">Catatan: perhatikan bahwa opsi benar sengaja menuntutmu memeriksa aturan relasi dan pasangan secara teliti.</p>
+  </div>
+</section>
+
+<section class="slide" data-title="Rangkuman">
+  <div class="eyebrow">21 · Rangkuman</div><h2>Inti pembelajaran</h2>
+  <div class="grid2">
+    <div class="card"><h3>Relasi</h3><p>Hubungan yang memasangkan anggota dua himpunan.</p></div>
+    <div class="card"><h3>Diagram panah</h3><p>Relasi ditunjukkan menggunakan panah dari himpunan asal ke himpunan tujuan.</p></div>
+    <div class="card"><h3>Diagram Cartesius</h3><p>Setiap pasangan <span class="math">(a,b)</span> digambarkan sebagai titik pada bidang koordinat.</p></div>
+    <div class="card"><h3>Pasangan berurutan</h3><p>Relasi ditulis sebagai kumpulan pasangan <span class="math">(anggota A, anggota B)</span>.</p></div>
+  </div>
+  <div class="callout green"><b>Kalimat kunci:</b> satu relasi dapat disajikan dalam beberapa bentuk. Pastikan pasangan yang dinyatakan tetap sama.</div>
+</section>
+
+<section class="slide" data-title="Refleksi">
+  <div class="eyebrow">22 · Refleksi</div><h2>Apa yang sudah kamu pahami?</h2>
+  <p>Pilih pernyataan yang paling menggambarkan pemahamanmu.</p>
+  <div class="reflect">
+    <label><input type="radio" name="ref" onchange="reflectMsg()"> Saya dapat membaca diagram panah.</label>
+    <label><input type="radio" name="ref" onchange="reflectMsg()"> Saya dapat mengubah relasi menjadi pasangan berurutan.</label>
+    <label><input type="radio" name="ref" onchange="reflectMsg()"> Saya dapat menentukan titik pada diagram Cartesius.</label>
+    <label><input type="radio" name="ref" onchange="reflectMsg()"> Saya masih perlu berlatih lagi.</label>
+  </div>
+  <div id="reflectFeedback" class="feedback"></div>
+</section>
+
+<section class="slide" data-title="Kuis Akhir">
+  <div class="eyebrow">23 · Kuis Akhir</div><h2>Kuis pemahaman</h2>
+  <div class="card quiz-card">
+    <div id="quizArea"></div>
+    <div class="quiz-nav">
+      <button class="btn" id="quizPrev" onclick="quizPrev()">← Sebelumnya</button>
+      <span class="score-box" id="quizScore">0 / 0</span>
+      <button class="btn primary" id="quizNext" onclick="quizNext()">Berikutnya →</button>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-title="Hasil Kuis">
+  <div class="hero">
+    <div class="card center" style="width:100%;padding:42px">
+      <div class="eyebrow">24 · Selesai</div>
+      <h2>Kamu sudah menyelesaikan pembelajaran 🎉</h2>
+      <p>Berikut hasil kuis akhir dan pesan untuk langkah selanjutnya.</p>
+      <div class="score-box" style="font-size:40px;margin:18px 0" id="finalScore">0 / 0</div>
+      <p id="finalMessage"></p>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn primary" onclick="resetQuiz();goTo(23)">↻ Ulangi Kuis</button>
+        <button class="btn" onclick="goTo(0)">⌂ Kembali ke Awal</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="footer-nav">
+  <div class="nav-inner">
+    <button class="btn navbtn" id="prevBtn" onclick="prev()">← Sebelumnya</button>
+    <div class="nav-center"><span id="bottomTitle">Pembuka</span></div>
+    <button class="btn primary navbtn" id="nextBtn" onclick="next()">Berikutnya →</button>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<canvas id="confetti" class="confetti"></canvas>
+
+<script>
+/* ============================================================
+   SUMBER KONTEN — cukup ubah bagian ini jika materi diganti.
+   ============================================================ */
+const CONFIG = {
+  MATERI: "BAB 4 — RELASI DAN FUNGSI",
+  SUBMATERI: "Penyajian Relasi",
+  MATERI_POKOK: "Diagram panah, diagram Cartesius, dan himpunan pasangan berurutan"
+};
+
+document.title = CONFIG.MATERI + " | " + CONFIG.SUBMATERI;
+document.getElementById("materiTop").textContent = CONFIG.MATERI;
+document.getElementById("submateriTop").textContent = CONFIG.SUBMATERI;
+document.getElementById("heroMateri").textContent = CONFIG.MATERI;
+document.getElementById("heroSub").textContent = CONFIG.SUBMATERI;
+
+const slides = [...document.querySelectorAll(".slide")];
+let current = 0;
+
+function updateNav(){
+  slides.forEach((s,i)=>s.classList.toggle("active",i===current));
+  const title = slides[current].dataset.title || "";
+  document.getElementById("slideTitle").textContent = title;
+  document.getElementById("bottomTitle").textContent = title;
+  document.getElementById("slideCount").textContent = `${current+1} / ${slides.length}`;
+  document.getElementById("progressBar").style.width = `${((current+1)/slides.length)*100}%`;
+  document.getElementById("prevBtn").disabled = current===0;
+  document.getElementById("nextBtn").disabled = current===slides.length-1;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function goTo(i){current=Math.max(0,Math.min(slides.length-1,i));updateNav()}
+function next(){if(current<slides.length-1)goTo(current+1)}
+function prev(){if(current>0)goTo(current-1)}
+document.addEventListener("keydown",e=>{
+  if(["INPUT","TEXTAREA"].includes(document.activeElement.tagName)) return;
+  if(e.key==="ArrowRight") next();
+  if(e.key==="ArrowLeft") prev();
+  if(e.key==="Home") goTo(0);
+});
+
+function showPair(a,b,el){
+  document.querySelectorAll(".relation-board .item").forEach(x=>x.classList.remove("active"));
+  el.classList.add("active");
+  document.querySelectorAll("#target2,#target4,#target6,#target8").forEach(x=>x.classList.remove("active"));
+  document.getElementById("target"+b).classList.add("active");
+  const f=document.getElementById("pairFeedback");
+  f.className="feedback show ok";
+  f.textContent=`Benar. ${a} dipasangkan dengan ${b}, sehingga pasangan berurutannya adalah (${a},${b}).`;
+}
+
+function checkChoice(el,correct,id){
+  const box=document.getElementById(id);
+  const parent=el.parentElement;
+  parent.querySelectorAll(".choice").forEach(x=>x.classList.remove("correct","wrong"));
+  el.classList.add(correct?"correct":"wrong");
+  box.className="feedback show "+(correct?"ok":"no");
+  box.textContent=correct?"✓ Benar! Periksa aturan relasi dan urutan pasangan dengan teliti.":"✗ Belum tepat. Coba baca kembali aturan relasi dan posisi anggota pertama-kedua.";
+}
+
+function relationStep(n){
+  const chips=document.querySelectorAll(".step-chip");
+  chips.forEach((c,i)=>c.classList.toggle("on",i===n-1));
+  const texts=[
+    ["Identifikasi dua himpunan.","Tentukan himpunan asal A dan himpunan tujuan B beserta anggotanya."],
+    ["Tentukan hubungan.","Cari pasangan anggota A dan B yang memenuhi aturan relasi."],
+    ["Tulis pasangan.","Untuk setiap hubungan, tuliskan (anggota A, anggota B)."],
+    ["Pilih visualisasi.","Pasangan tersebut dapat digambarkan sebagai panah atau titik Cartesius."]
+  ];
+  document.getElementById("relationStepContent").innerHTML=`<b>${texts[n-1][0]}</b><p>${texts[n-1][1]}</p>`;
+}
+
+let matchFirst=null;
+function matchPick(btn,key){
+  if(btn.dataset.left){
+    document.querySelectorAll("[data-left]").forEach(x=>x.classList.remove("selected"));
+    btn.classList.add("selected");matchFirst=key;return;
+  }
+  if(btn.dataset.right && matchFirst){
+    const feedback=document.getElementById("matchFeedback");
+    if(matchFirst===key){
+      btn.classList.add("matched");
+      const left=document.querySelector(`[data-left="${key}"]`);
+      left.classList.add("matched");
+      feedback.className="feedback show ok";feedback.textContent="✓ Cocok! Pasangan dari panah tersebut sesuai dengan pasangan berurutan.";
+      matchFirst=null;
+    }else{
+      feedback.className="feedback show no";feedback.textContent="✗ Belum cocok. Ingat, angka pertama pada panah menjadi angka pertama pada pasangan.";
+    }
+  }
+}
+function checkInputPair(){
+  const val=document.getElementById("inputPair").value.replace(/\s/g,"");
+  const f=document.getElementById("inputFeedback");
+  const ok=val==="(1,4)" || val==="{(1,4)}";
+  f.className="feedback show "+(ok?"ok":"no");
+  f.textContent=ok?"✓ Tepat! 1 → 4 ditulis sebagai (1,4).":"✗ Belum tepat. Ingat: (anggota asal, anggota tujuan).";
+}
+function tf(answer){
+  const f=document.getElementById("tfFeedback");
+  const ok=answer===true;
+  f.className="feedback show "+(ok?"ok":"no");
+  f.textContent=ok?"✓ Benar. Pasangan (3,7) memang memiliki 3 sebagai anggota pertama dan 7 sebagai anggota kedua.":"✗ Salah. Pernyataan tersebut benar.";
+}
+function reflectMsg(){
+  const f=document.getElementById("reflectFeedback");
+  f.className="feedback show ok";
+  f.textContent="Refleksi tersimpan secara lokal di halaman ini. Jika masih ragu, ulangi slide contoh dan latihan sebelum mengerjakan kuis.";
+}
+function toast(msg){
+  const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");
+  clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ---------------- KUIS ---------------- */
+const quiz=[
+ {q:"Relasi dari A ke B memasangkan anggota A dengan …",o:["anggota A lainnya","anggota himpunan B","semua bilangan","titik asal"],a:1,e:"Relasi menghubungkan anggota himpunan asal dengan anggota himpunan tujuan."},
+ {q:"Jika diagram panah menunjukkan 2 → 6, pasangan berurutannya adalah …",o:["(6,2)","(2,6)","(2,2)","(6,6)"],a:1,e:"Anggota asal ditulis pertama, sehingga 2 → 6 menjadi (2,6)."},
+ {q:"Pasangan (3,8) pada diagram Cartesius berarti titik tersebut memiliki koordinat …",o:["x=8, y=3","x=3, y=8","x=3, y=3","x=8, y=8"],a:1,e:"Pada pasangan (x,y), angka pertama adalah koordinat x dan angka kedua koordinat y."},
+ {q:"Diberikan {(1,4),(2,5),(3,6)}. Pasangan yang benar adalah …",o:["1 berpasangan dengan 5","2 berpasangan dengan 5","6 berpasangan dengan 3","4 berpasangan dengan 2"],a:1,e:"Pasangan (2,5) menyatakan 2 berhubungan dengan 5."},
+ {q:"Manakah yang merupakan bentuk penyajian relasi?",o:["Diagram panah","Diagram Cartesius","Himpunan pasangan berurutan","Semua benar"],a:3,e:"Ketiganya merupakan cara penyajian relasi."},
+ {q:"Jika kodomain B={2,4,6,8} dan relasi menghasilkan pasangan {(1,2),(2,4),(3,6)}, range-nya adalah …",o:["{2,4,6}","{2,4,6,8}","{1,2,3}","{8}"],a:0,e:"Range berisi anggota kodomain yang benar-benar mendapat pasangan, yaitu 2, 4, dan 6."},
+ {q:"Relasi dengan pasangan {(1,3),(2,5)} pada diagram Cartesius digambarkan oleh titik …",o:["(3,1) dan (5,2)","(1,3) dan (2,5)","(1,2) dan (3,5)","(2,1) dan (5,3)"],a:1,e:"Pasangan berurutan langsung menjadi koordinat titik."},
+ {q:"Jika aturan relasi adalah “ditambah 4”, pasangan yang benar untuk 5 adalah …",o:["(5,1)","(1,5)","(5,9)","(9,5)"],a:2,e:"5 + 4 = 9, sehingga pasangan yang benar adalah (5,9)."}
+];
+let quizIndex=0, quizAnswers=Array(quiz.length).fill(null);
+
+function renderQuiz(){
+  const q=quiz[quizIndex], area=document.getElementById("quizArea");
+  area.innerHTML=`
+    <div class="quiz-number">Soal ${quizIndex+1} dari ${quiz.length}</div>
+    <h3 style="margin-top:9px">${q.q}</h3>
+    <div class="quiz-options">
+      ${q.o.map((x,i)=>`<button class="quiz-option ${quizAnswers[quizIndex]===i?"picked":""}" onclick="answerQuiz(${i})">${String.fromCharCode(65+i)}. ${x}</button>`).join("")}
+    </div>
+    <div class="quiz-feedback ${quizAnswers[quizIndex]!==null?"show":""}" id="quizFeedback">
+      ${quizAnswers[quizIndex]!==null ? ((quizAnswers[quizIndex]===q.a?"✓ Benar. ":"✗ Belum tepat. ")+q.e) : ""}
+    </div>`;
+  document.getElementById("quizPrev").disabled=quizIndex===0;
+  document.getElementById("quizNext").textContent=quizIndex===quiz.length-1?"Lihat Hasil →":"Berikutnya →";
+  const score=quizAnswers.filter((x,i)=>x===quiz[i].a).length;
+  document.getElementById("quizScore").textContent=`${score} / ${quiz.length}`;
+}
+function answerQuiz(i){
+  quizAnswers[quizIndex]=i;renderQuiz();
+}
+function quizPrev(){if(quizIndex>0){quizIndex--;renderQuiz()}}
+function quizNext(){
+  if(quizIndex<quiz.length-1){quizIndex++;renderQuiz();return}
+  const score=quizAnswers.filter((x,i)=>x===quiz[i].a).length;
+  document.getElementById("finalScore").textContent=`${score} / ${quiz.length}`;
+  const pct=score/quiz.length*100;
+  document.getElementById("finalMessage").textContent=
+    pct>=87.5?"Sangat baik! Pemahamanmu tentang penyajian relasi sudah kuat. 🌟":
+    pct>=75?"Bagus! Sedikit latihan lagi akan membuat pemahamanmu semakin mantap. 👍":
+    pct>=60?"Cukup baik. Ulangi contoh dan latihan pada bagian yang masih membingungkan. 💪":
+    "Tidak apa-apa. Pelajari kembali konsep dasar, lalu coba kuis sekali lagi. 🌱";
+  if(pct>=75)confetti();
+  goTo(24);
+}
+function resetQuiz(){
+  quizIndex=0;quizAnswers=Array(quiz.length).fill(null);renderQuiz();
+}
+function confetti(){
+  const c=document.getElementById("confetti"),ctx=c.getContext("2d");
+  c.width=innerWidth;c.height=innerHeight;
+  const pieces=Array.from({length:100},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.2,v:2+Math.random()*4,r:3+Math.random()*5,a:Math.random()*Math.PI*2}));
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pieces.forEach(p=>{p.y+=p.v;p.a+=.08;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=["#6ea8ff","#55d98a","#ffd166","#ff6b7a","#8b7cff","#47d7ff"][Math.floor(Math.random()*6)];ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.8);ctx.restore()});
+    if(frame++<150)requestAnimationFrame(draw);else ctx.clearRect(0,0,c.width,c.height);
+  }draw();
+}
+window.addEventListener("resize",()=>{const c=document.getElementById("confetti");c.width=innerWidth;c.height=innerHeight});
+updateNav();renderQuiz();
+</script>
+</div>
+</body>
+</html>
