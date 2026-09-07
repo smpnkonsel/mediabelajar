@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Skala dan Perbandingan — Bab 6 Kesebangunan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1220;
+    --bg-elev:#101B30;
+    --card:#152238;
+    --card-hover:#1A2C48;
+    --card-border:rgba(255,255,255,0.08);
+    --accent:#4FD1C5;
+    --accent-soft:rgba(79,209,197,0.12);
+    --accent-2:#F5A623;
+    --accent-2-soft:rgba(245,166,35,0.12);
+    --text:#E9EEF7;
+    --text-dim:#8C9AB8;
+    --text-faint:#5F6E8C;
+    --danger:#F0655A;
+    --danger-soft:rgba(240,101,90,0.12);
+    --success:#45D18A;
+    --success-soft:rgba(69,209,138,0.12);
+    --radius:18px;
+    --radius-sm:10px;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    font-family:'Plus Jakarta Sans', sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-track{ background:transparent; }
+  ::-webkit-scrollbar-thumb{ background:var(--card-border); border-radius:8px; }
+
+  .app{ display:flex; flex-direction:column; height:100vh; position:relative; }
+
+  /* progress bar styled like a scale/ruler */
+  .progress-wrap{ height:8px; background:var(--bg-elev); position:relative; flex-shrink:0; }
+  .progress-bar{
+    height:100%; width:4.76%;
+    background-image:
+      repeating-linear-gradient(90deg, rgba(11,18,32,0.35) 0 1px, transparent 1px 10px),
+      linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  .slides{ flex:1; position:relative; overflow:hidden; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding:52px 72px 40px;
+    overflow-y:auto;
+    opacity:0; visibility:hidden; pointer-events:none;
+    transform:translateY(14px);
+    transition:opacity .4s ease, transform .4s ease;
+    z-index:1;
+  }
+  .slide.active{ opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0); z-index:2; }
+
+  .slide-inner{ max-width:920px; width:100%; margin:auto; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    letter-spacing:.03em;
+    color:var(--accent);
+    background:var(--accent-soft);
+    padding:5px 12px;
+    border-radius:20px;
+    display:inline-block;
+    margin-bottom:18px;
+  }
+
+  h1.slide-title{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:2.3rem;
+    line-height:1.2;
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  h2.slide-title{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.9rem;
+    line-height:1.25;
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  p.slide-sub{ color:var(--text-dim); font-size:1.05rem; margin:0 0 30px; max-width:640px; line-height:1.6; }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:26px 30px;
+    margin-bottom:20px;
+  }
+
+  .formula{
+    font-family:'JetBrains Mono', monospace;
+    background:var(--bg-elev);
+    border-left:3px solid var(--accent-2);
+    padding:16px 20px;
+    border-radius:8px;
+    font-size:1.05rem;
+    margin:16px 0;
+    color:var(--text);
+    overflow-x:auto;
+  }
+  .formula .op{ color:var(--accent-2); margin:0 8px; }
+  .formula .val{ color:var(--accent); }
+
+  /* nav */
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 32px; background:var(--bg-elev); border-top:1px solid var(--card-border);
+    flex-shrink:0; gap:16px;
+  }
+  .nav-btn{
+    background:var(--card); color:var(--text); border:1px solid var(--card-border);
+    padding:11px 22px; border-radius:12px; font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:600; font-size:.92rem; cursor:pointer; transition:.2s;
+  }
+  .nav-btn:hover:not(:disabled){ border-color:var(--accent); color:var(--accent); background:var(--card-hover); }
+  .nav-btn:disabled{ opacity:.3; cursor:not-allowed; }
+  .nav-center{ display:flex; align-items:center; gap:14px; }
+  .slide-counter{ font-family:'JetBrains Mono',monospace; color:var(--text-dim); font-size:.85rem; min-width:64px; text-align:center; }
+  .home-btn{ background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:.85rem; font-family:'Plus Jakarta Sans',sans-serif; }
+  .home-btn:hover{ color:var(--accent); }
+
+  /* buttons general */
+  .btn{
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; font-size:.9rem;
+    padding:11px 20px; border-radius:10px; border:1px solid var(--accent);
+    background:var(--accent-soft); color:var(--accent); cursor:pointer; transition:.2s;
+  }
+  .btn:hover{ background:var(--accent); color:#08141C; }
+  .btn.secondary{ border-color:var(--card-border); background:var(--card); color:var(--text-dim); }
+  .btn.secondary:hover{ border-color:var(--accent-2); color:var(--accent-2); background:var(--card-hover); }
+
+  /* reveal accordion */
+  .reveal{ margin:10px 0; }
+  .reveal-btn{
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; font-size:.88rem;
+    background:var(--card); border:1px solid var(--card-border); color:var(--accent);
+    padding:10px 18px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:8px;
+    transition:.2s;
+  }
+  .reveal-btn:hover{ border-color:var(--accent); background:var(--card-hover); }
+  .reveal-btn .chev{ transition:transform .3s; font-size:.75rem; }
+  .reveal-btn.open .chev{ transform:rotate(90deg); }
+  .reveal-content{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .reveal-content.open{ max-height:600px; }
+  .reveal-content-inner{ padding:16px 4px 6px; color:var(--text-dim); line-height:1.7; }
+  .reveal-content-inner .formula{ margin:12px 0; }
+
+  /* checklist (tujuan pembelajaran) */
+  .checklist{ display:flex; flex-direction:column; gap:12px; }
+  .check-item{
+    display:flex; align-items:flex-start; gap:14px; padding:16px 18px;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px;
+    cursor:pointer; transition:.2s;
+  }
+  .check-item:hover{ border-color:var(--accent); }
+  .check-item.checked{ border-color:var(--success); background:var(--success-soft); }
+  .check-box{
+    width:22px; height:22px; border-radius:6px; border:2px solid var(--text-faint);
+    flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center;
+    transition:.2s; font-size:.8rem; color:transparent;
+  }
+  .check-item.checked .check-box{ border-color:var(--success); background:var(--success); color:#08241a; }
+  .check-item span.label{ color:var(--text); line-height:1.5; }
+
+  /* grid */
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+
+  /* input check */
+  .input-check{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:16px 0; }
+  .input-check input{
+    background:var(--bg-elev); border:1px solid var(--card-border); color:var(--text);
+    padding:11px 14px; border-radius:10px; font-family:'JetBrains Mono',monospace; font-size:1rem;
+    width:160px;
+  }
+  .input-check input:focus{ outline:none; border-color:var(--accent); }
+  .feedback{ margin-top:10px; padding:10px 14px; border-radius:10px; font-size:.9rem; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--success-soft); color:var(--success); }
+  .feedback.wrong{ background:var(--danger-soft); color:var(--danger); }
+  .feedback.warn{ background:var(--accent-2-soft); color:var(--accent-2); }
+
+  /* tabs (latihan bertahap) */
+  .tabs{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+  .tab-btn{
+    padding:10px 20px; border-radius:24px; border:1px solid var(--card-border); background:var(--card);
+    color:var(--text-dim); font-weight:700; font-size:.85rem; cursor:pointer; transition:.2s;
+  }
+  .tab-btn.active{ background:var(--accent); color:#08141C; border-color:var(--accent); }
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  /* flip cards */
+  .flip-card{ perspective:1200px; height:170px; cursor:pointer; }
+  .flip-inner{
+    position:relative; width:100%; height:100%; transition:transform .55s cubic-bezier(.4,0,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flip-card.flipped .flip-inner{ transform:rotateY(180deg); }
+  .flip-front, .flip-back{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:16px;
+    border:1px solid var(--card-border); padding:18px; display:flex; flex-direction:column;
+    justify-content:center; align-items:center; text-align:center; gap:8px;
+  }
+  .flip-front{ background:var(--card); }
+  .flip-back{ background:var(--bg-elev); transform:rotateY(180deg); color:var(--text-dim); font-size:.85rem; line-height:1.5; }
+  .flip-front .icon-box{ width:44px; height:44px; }
+  .flip-front .icon-label{ font-weight:700; color:var(--text); font-size:.92rem; }
+  .flip-hint{ font-size:.7rem; color:var(--text-faint); margin-top:2px; }
+
+  /* quiz */
+  .quiz-shell{ width:100%; }
+  .quiz-progress{ font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:.8rem; margin-bottom:14px; }
+  .quiz-question{ font-size:1.15rem; color:var(--text); margin-bottom:20px; line-height:1.5; font-weight:600; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-opt{
+    text-align:left; padding:14px 18px; border-radius:12px; border:1px solid var(--card-border);
+    background:var(--card); color:var(--text); font-family:'Plus Jakarta Sans',sans-serif; font-size:.95rem;
+    cursor:pointer; transition:.2s;
+  }
+  .quiz-opt:hover:not(:disabled){ border-color:var(--accent); background:var(--card-hover); }
+  .quiz-opt:disabled{ cursor:default; }
+  .quiz-opt.correct{ border-color:var(--success); background:var(--success-soft); color:var(--success); }
+  .quiz-opt.wrong{ border-color:var(--danger); background:var(--danger-soft); color:var(--danger); }
+  .quiz-explain{ margin-top:20px; max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .quiz-explain.show{ max-height:400px; }
+  .quiz-explain-inner{ background:var(--bg-elev); border-radius:12px; padding:16px 18px; color:var(--text-dim); line-height:1.6; }
+  .next-q-btn{ margin-top:14px; }
+  .quiz-result{ text-align:center; padding:20px 0; }
+  .quiz-score{ font-family:'Fredoka',sans-serif; font-size:3rem; color:var(--accent); margin:8px 0; }
+
+  /* slider sim */
+  .sim-box{ display:flex; gap:32px; align-items:center; flex-wrap:wrap; }
+  .sim-visual{
+    width:220px; height:150px; background:var(--bg-elev); border-radius:12px; border:1px solid var(--card-border);
+    display:flex; align-items:center; justify-content:center; position:relative; flex-shrink:0;
+  }
+  #modelRect{ background:var(--accent-2-soft); border:2px solid var(--accent-2); border-radius:4px; transition:width .15s, height .15s; }
+  .sim-controls{ flex:1; min-width:240px; }
+  .sim-controls input[type=range]{ width:100%; accent-color:var(--accent); margin:12px 0; }
+  .sim-readout{ display:flex; gap:24px; margin-top:10px; flex-wrap:wrap; }
+  .sim-readout div{ background:var(--card); padding:10px 16px; border-radius:10px; border:1px solid var(--card-border); }
+  .sim-readout .num{ font-family:'JetBrains Mono',monospace; color:var(--accent); font-size:1.15rem; font-weight:700; }
+  .sim-readout .lbl{ color:var(--text-faint); font-size:.75rem; }
+
+  /* hero */
+  .hero-wrap{ display:flex; align-items:center; gap:48px; flex-wrap:wrap; justify-content:center; }
+  .hero-svg{ width:320px; max-width:90vw; }
+  .hero-text{ max-width:420px; }
+
+  svg text{ font-family:'JetBrains Mono', monospace; }
+
+  .icon-box svg{ width:100%; height:100%; }
+
+  /* keyboard hint */
+  .kbd-hint{ position:fixed; bottom:78px; right:24px; color:var(--text-faint); font-size:.72rem; font-family:'JetBrains Mono',monospace; opacity:.6; }
+
+  @media (max-width: 860px){
+    .slide{ padding:36px 22px 30px; }
+    h1.slide-title{ font-size:1.7rem; }
+    h2.slide-title{ font-size:1.5rem; }
+    .grid-2, .grid-3{ grid-template-columns:1fr; }
+    .nav{ padding:12px 16px; }
+    .nav-btn{ padding:10px 14px; font-size:.82rem; }
+    .kbd-hint{ display:none; }
+    .sim-box{ flex-direction:column; }
+    .hero-wrap{ gap:24px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="slides" id="slides">
+
+    <!-- 1. COVER -->
+    <section class="slide active" data-slide="0">
+      <div class="slide-inner">
+        <div class="hero-wrap">
+          <svg class="hero-svg" viewBox="0 0 320 220">
+            <rect x="10" y="10" width="300" height="200" rx="14" stroke="var(--accent)" stroke-width="2" fill="rgba(79,209,197,0.04)"/>
+            <g stroke="rgba(79,209,197,0.16)" stroke-width="1">
+              <line x1="10" y1="63" x2="310" y2="63"/>
+              <line x1="10" y1="116" x2="310" y2="116"/>
+              <line x1="90" y1="10" x2="90" y2="169"/>
+              <line x1="170" y1="10" x2="170" y2="169"/>
+              <line x1="250" y1="10" x2="250" y2="169"/>
+            </g>
+            <path d="M95 128 L160 82 L225 128" stroke="var(--accent-2)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="112" y="128" width="96" height="52" stroke="var(--accent-2)" stroke-width="3" fill="none"/>
+            <line x1="160" y1="128" x2="160" y2="180" stroke="var(--accent-2)" stroke-width="1.5"/>
+            <g transform="translate(50,192)">
+              <line x1="0" y1="0" x2="120" y2="0" stroke="var(--text)" stroke-width="2"/>
+              <line x1="0" y1="-5" x2="0" y2="5" stroke="var(--text)" stroke-width="2"/>
+              <line x1="60" y1="-5" x2="60" y2="5" stroke="var(--text)" stroke-width="2"/>
+              <line x1="120" y1="-5" x2="120" y2="5" stroke="var(--text)" stroke-width="2"/>
+              <text x="-3" y="18" font-size="9" fill="var(--text-dim)">0</text>
+              <text x="52" y="18" font-size="9" fill="var(--text-dim)">50 m</text>
+              <text x="106" y="18" font-size="9" fill="var(--text-dim)">100 m</text>
+            </g>
+          </svg>
+          <div class="hero-text">
+            <span class="eyebrow">BAB 6 · KESEBANGUNAN</span>
+            <h1 class="slide-title" style="font-size:2.7rem;">Skala dan Perbandingan</h1>
+            <p class="slide-sub" style="margin-bottom:26px;">Belajar memahami bagaimana peta, denah, dan maket bisa menampilkan ukuran raksasa di atas kertas kecil — tanpa mengubah bentuk aslinya sedikit pun.</p>
+            <button class="btn" onclick="goNext()">Mulai Belajar →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. APERSEPSI -->
+    <section class="slide" data-slide="1">
+      <div class="slide-inner">
+        <span class="eyebrow">APERSEPSI</span>
+        <h2 class="slide-title">Pernah memperhatikan hal ini?</h2>
+        <p class="slide-sub">Amati dua situasi berikut, lalu pikirkan pertanyaannya sebelum membuka jawabannya.</p>
+        <div class="grid-2">
+          <div class="card">
+            <strong style="color:var(--text)">Peta Indonesia</strong>
+            <p style="color:var(--text-dim); line-height:1.6; margin-top:8px;">Wilayah Indonesia membentang lebih dari 1,9 juta km², tetapi bisa digambar utuh di selembar kertas A4.</p>
+          </div>
+          <div class="card">
+            <strong style="color:var(--text)">Maket Gedung</strong>
+            <p style="color:var(--text-dim); line-height:1.6; margin-top:8px;">Gedung setinggi puluhan meter bisa dibuat menjadi maket mini yang cukup digenggam satu tangan.</p>
+          </div>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Bagaimana caranya itu bisa terjadi?</button>
+          <div class="reveal-content">
+            <div class="reveal-content-inner">
+              Rahasianya terletak pada <strong style="color:var(--accent)">skala</strong> — sebuah perbandingan khusus yang menjaga agar bentuk gambar tetap <em>sebangun</em> (proporsional) dengan ukuran aslinya, walau ukurannya diperkecil ribuan hingga jutaan kali. Konsep inilah yang akan kita pelajari sepanjang bab ini.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TUJUAN PEMBELAJARAN -->
+    <section class="slide" data-slide="2">
+      <div class="slide-inner">
+        <span class="eyebrow">TUJUAN PEMBELAJARAN</span>
+        <h2 class="slide-title">Setelah belajar bagian ini, kamu dapat:</h2>
+        <p class="slide-sub">Klik setiap poin untuk menandainya sebagai target belajarmu hari ini.</p>
+        <div class="checklist">
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menjelaskan pengertian skala dan perbandingan.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menentukan perbandingan sisi-sisi yang bersesuaian pada bangun yang sebangun.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menentukan faktor skala dari dua bangun yang sebangun.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menghitung ukuran sebenarnya suatu objek dari gambar, denah, atau peta berskala.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menghitung ukuran pada gambar atau model dari ukuran sebenarnya dan skalanya.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Menerapkan konsep skala untuk menyelesaikan masalah kehidupan sehari-hari.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. PENGERTIAN SKALA -->
+    <section class="slide" data-slide="3">
+      <div class="slide-inner">
+        <span class="eyebrow">KONSEP DASAR</span>
+        <h2 class="slide-title">Pengertian Skala</h2>
+        <p class="slide-sub">Skala adalah perbandingan antara ukuran pada gambar (atau model) dengan ukuran sebenarnya, dengan satuan yang sudah disamakan.</p>
+        <div class="formula">Skala <span class="op">=</span> ukuran pada gambar <span class="op">:</span> ukuran sebenarnya</div>
+        <div class="card">
+          Sebagai contoh, sebuah peta bertuliskan skala <strong style="color:var(--accent)">1 : 100.000</strong>. Artinya, setiap <strong>1 cm</strong> pada peta itu mewakili jarak sesungguhnya sepanjang <strong>100.000 cm</strong>, atau setara dengan <strong>1 km</strong> di dunia nyata.
+        </div>
+        <div class="card" style="background:var(--bg-elev); border-style:dashed;">
+          <span style="color:var(--text-faint); font-size:.85rem;">Ingat: kedua ukuran dalam skala harus memakai <strong>satuan yang sama</strong> sebelum dibandingkan, dan biasanya ditulis dalam bentuk paling sederhana.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PENGERTIAN PERBANDINGAN -->
+    <section class="slide" data-slide="4">
+      <div class="slide-inner">
+        <span class="eyebrow">KONSEP DASAR</span>
+        <h2 class="slide-title">Pengertian Perbandingan</h2>
+        <p class="slide-sub">Perbandingan (rasio) adalah cara membandingkan dua besaran sejenis, ditulis dalam bentuk <em>a : b</em> atau pecahan <em>a/b</em>.</p>
+        <div class="formula">a <span class="op">:</span> b <span class="op">↔</span> <span class="val">a</span> / <span class="val">b</span></div>
+        <div class="card">
+          Contoh: di dalam kelas terdapat 12 siswa laki-laki dan 18 siswa perempuan. Perbandingan siswa laki-laki terhadap perempuan adalah <strong style="color:var(--accent)">12 : 18</strong>, yang jika disederhanakan (dibagi 6) menjadi <strong style="color:var(--accent)">2 : 3</strong>.
+        </div>
+        <div class="card" style="background:var(--bg-elev); border-style:dashed;">
+          <span style="color:var(--text-faint); font-size:.85rem;">Perbandingan selalu disederhanakan dengan membagi kedua nilai dengan FPB (Faktor Persekutuan Terbesar) keduanya.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. HUBUNGAN SKALA & PERBANDINGAN -->
+    <section class="slide" data-slide="5">
+      <div class="slide-inner">
+        <span class="eyebrow">MENGHUBUNGKAN KONSEP</span>
+        <h2 class="slide-title">Skala adalah Perbandingan Khusus</h2>
+        <p class="slide-sub">Skala sebenarnya adalah bentuk perbandingan, tetapi dengan syarat: kedua ukuran memakai satuan yang sama dan hasilnya disederhanakan sampai bentuk paling kecil.</p>
+        <div class="card">
+          <p style="color:var(--text-dim); margin:0 0 12px;">Contoh: sebuah gambar berukuran <strong style="color:var(--text)">5 cm</strong> mewakili ukuran sebenarnya <strong style="color:var(--text)">500 cm</strong>.</p>
+          <div class="formula" id="simplifyBox">5 cm <span class="op">:</span> 500 cm</div>
+          <button class="btn secondary" onclick="simplifyRatio()">Sederhanakan Perbandingan</button>
+          <div class="feedback show" id="simplifyResult" style="display:none; margin-top:14px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SISI BERSESUAIAN -->
+    <section class="slide" data-slide="6">
+      <div class="slide-inner">
+        <span class="eyebrow">KESEBANGUNAN</span>
+        <h2 class="slide-title">Perbandingan Sisi-Sisi yang Bersesuaian</h2>
+        <p class="slide-sub">Dua bangun dikatakan sebangun jika bentuknya sama dan sisi-sisi yang bersesuaian memiliki perbandingan yang senilai (sama). Klik pasangan sisi untuk melihat perbandingannya.</p>
+        <div class="card" style="display:flex; justify-content:center;">
+          <svg viewBox="0 0 380 160" style="width:100%; max-width:420px;">
+            <rect x="20" y="30" width="100" height="65" fill="none" stroke="var(--accent)" stroke-width="3" class="hoverside" onclick="showRatio('r1')"/>
+            <text x="70" y="115" fill="var(--text-dim)" font-size="11" text-anchor="middle">Persegi panjang A</text>
+            <text x="70" y="24" fill="var(--accent)" font-size="11" text-anchor="middle">8 cm</text>
+            <text x="10" y="66" fill="var(--accent-2)" font-size="11">5</text>
+            <rect x="220" y="10" width="150" height="97.5" fill="none" stroke="var(--accent)" stroke-width="3" class="hoverside" onclick="showRatio('r1')"/>
+            <text x="295" y="4" fill="var(--accent)" font-size="11" text-anchor="middle">12 cm</text>
+            <text x="295" y="125" fill="var(--text-dim)" font-size="11" text-anchor="middle">Persegi panjang B (sebangun)</text>
+            <text x="210" y="62" fill="var(--accent-2)" font-size="11">7,5</text>
+          </svg>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" id="ratioBtn" onclick="toggleReveal(this)"><span class="chev">▶</span> Lihat perbandingan sisi bersesuaian</button>
+          <div class="reveal-content">
+            <div class="reveal-content-inner">
+              <div class="formula">panjang A <span class="op">:</span> panjang B <span class="op">=</span> lebar A <span class="op">:</span> lebar B</div>
+              <div class="formula">8 <span class="op">:</span> 12 <span class="op">=</span> 5 <span class="op">:</span> 7,5 &nbsp;&nbsp;→&nbsp;&nbsp; keduanya senilai dengan <span class="val">2 : 3</span></div>
+              Karena semua pasangan sisi yang bersesuaian memiliki perbandingan yang sama, kedua persegi panjang tersebut sebangun.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. CONTOH SOAL SISI BERSESUAIAN -->
+    <section class="slide" data-slide="7">
+      <div class="slide-inner">
+        <span class="eyebrow">CONTOH SOAL</span>
+        <h2 class="slide-title">Menghitung Sisi yang Bersesuaian</h2>
+        <div class="card">
+          <strong style="color:var(--text)">Soal:</strong>
+          <p style="color:var(--text-dim); line-height:1.7; margin-top:8px;">Persegi panjang A memiliki panjang 8 cm dan lebar 5 cm. Persegi panjang B sebangun dengan persegi panjang A dan memiliki panjang 12 cm. Tentukan lebar persegi panjang B.</p>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Petunjuk</button>
+          <div class="reveal-content"><div class="reveal-content-inner">Karena kedua bangun sebangun, perbandingan sisi yang bersesuaian bernilai sama. Bandingkan panjang A dengan panjang B, lalu samakan dengan perbandingan lebar A dan lebar B.</div></div>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Langkah Penyelesaian</button>
+          <div class="reveal-content"><div class="reveal-content-inner">
+            <div class="formula">panjang A / panjang B <span class="op">=</span> lebar A / lebar x</div>
+            <div class="formula">8 / 12 <span class="op">=</span> 5 / x</div>
+            <div class="formula">8x <span class="op">=</span> 60 &nbsp;→&nbsp; x <span class="op">=</span> <span class="val">7,5</span></div>
+          </div></div>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Jawaban & Pembahasan</button>
+          <div class="reveal-content"><div class="reveal-content-inner">Lebar persegi panjang B adalah <strong style="color:var(--accent)">7,5 cm</strong>. Perbandingan panjang dan lebar keduanya tetap senilai, yaitu 2 : 3, sehingga bentuk kedua persegi panjang benar-benar sebangun.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. FAKTOR SKALA -->
+    <section class="slide" data-slide="8">
+      <div class="slide-inner">
+        <span class="eyebrow">KONSEP</span>
+        <h2 class="slide-title">Menentukan Faktor Skala</h2>
+        <p class="slide-sub">Faktor skala adalah nilai perbandingan antara ukuran bangun hasil (model/gambar) terhadap ukuran bangun asli, setelah satuannya disamakan.</p>
+        <div class="formula">Faktor skala (k) <span class="op">=</span> ukuran model <span class="op">:</span> ukuran asli</div>
+        <div class="card">
+          Jika faktor skala <strong style="color:var(--accent)">k &lt; 1</strong>, artinya bangun hasil <strong>diperkecil</strong> dari aslinya (seperti pada peta, denah, dan maket). Jika <strong style="color:var(--accent)">k &gt; 1</strong>, artinya bangun hasil <strong>diperbesar</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. CONTOH FAKTOR SKALA -->
+    <section class="slide" data-slide="9">
+      <div class="slide-inner">
+        <span class="eyebrow">CONTOH SOAL</span>
+        <h2 class="slide-title">Menghitung Faktor Skala</h2>
+        <div class="card">
+          <strong style="color:var(--text)">Soal:</strong>
+          <p style="color:var(--text-dim); line-height:1.7; margin-top:8px;">Sebuah mobil sebenarnya memiliki panjang 4 meter. Mobil tersebut dibuat menjadi model miniatur dengan panjang 20 cm. Tentukan faktor skala model mobil tersebut.</p>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Langkah Penyelesaian</button>
+          <div class="reveal-content"><div class="reveal-content-inner">
+            <div class="formula">Samakan satuan: 4 m <span class="op">=</span> 400 cm</div>
+            <div class="formula">k <span class="op">=</span> ukuran model / ukuran asli <span class="op">=</span> 20 / 400</div>
+            <div class="formula">k <span class="op">=</span> <span class="val">1 / 20</span> &nbsp;atau ditulis&nbsp; <span class="val">1 : 20</span></div>
+          </div></div>
+        </div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Jawaban</button>
+          <div class="reveal-content"><div class="reveal-content-inner">Faktor skala model mobil tersebut adalah <strong style="color:var(--accent)">1 : 20</strong>. Artinya setiap 1 cm pada model mewakili 20 cm pada mobil sesungguhnya.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. SIMULASI UKURAN SEBENARNYA (SLIDER) -->
+    <section class="slide" data-slide="10">
+      <div class="slide-inner">
+        <span class="eyebrow">SIMULASI INTERAKTIF</span>
+        <h2 class="slide-title">Menentukan Ukuran Berdasarkan Skala</h2>
+        <p class="slide-sub">Sebuah denah rumah dibuat dengan skala <strong style="color:var(--accent)">1 : 200</strong>. Geser slider untuk mengubah panjang rumah pada denah, lalu amati bagaimana panjang rumah sebenarnya ikut berubah.</p>
+        <div class="formula">ukuran sebenarnya <span class="op">=</span> ukuran pada gambar <span class="op">×</span> 200</div>
+        <div class="card sim-box">
+          <div class="sim-visual"><div id="modelRect" style="width:32px; height:20px;"></div></div>
+          <div class="sim-controls">
+            <label style="color:var(--text-dim); font-size:.85rem;">Panjang pada denah (cm)</label>
+            <input type="range" id="skalaSlider" min="1" max="10" step="0.5" value="4" oninput="updateSliderSim()">
+            <div class="sim-readout">
+              <div><div class="num" id="ukuranGambar">4</div><div class="lbl">cm pada denah</div></div>
+              <div><div class="num" id="ukuranAsliCm">800</div><div class="lbl">cm sebenarnya</div></div>
+              <div><div class="num" id="ukuranAsliM">8</div><div class="lbl">meter sebenarnya</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. CONTOH UKURAN SEBENARNYA (PETA) -->
+    <section class="slide" data-slide="11">
+      <div class="slide-inner">
+        <span class="eyebrow">CONTOH SOAL</span>
+        <h2 class="slide-title">Ukuran Sebenarnya dari Peta</h2>
+        <div class="card">
+          <strong style="color:var(--text)">Soal:</strong>
+          <p style="color:var(--text-dim); line-height:1.7; margin-top:8px;">Sebuah peta memiliki skala 1 : 2.500.000. Jarak Kota A ke Kota B pada peta adalah 4 cm. Berapa jarak sebenarnya Kota A ke Kota B, dalam satuan kilometer?</p>
+        </div>
+        <div class="input-check">
+          <input type="number" id="ans12" placeholder="Jarak (km)">
+          <button class="btn" onclick="checkAns12()">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="fb12"></div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Lihat Pembahasan</button>
+          <div class="reveal-content"><div class="reveal-content-inner">
+            <div class="formula">jarak sebenarnya <span class="op">=</span> 4 cm <span class="op">×</span> 2.500.000</div>
+            <div class="formula">jarak sebenarnya <span class="op">=</span> 10.000.000 cm <span class="op">=</span> <span class="val">100 km</span></div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. UKURAN PADA GAMBAR (KONSEP KEBALIKAN) -->
+    <section class="slide" data-slide="12">
+      <div class="slide-inner">
+        <span class="eyebrow">KONSEP KEBALIKAN</span>
+        <h2 class="slide-title">Menentukan Ukuran pada Gambar atau Model</h2>
+        <p class="slide-sub">Jika ukuran sebenarnya dan skalanya diketahui, ukuran pada gambar dapat dicari dengan mengalikan ukuran sebenarnya dengan skalanya.</p>
+        <div class="formula">ukuran pada gambar <span class="op">=</span> ukuran sebenarnya <span class="op">×</span> skala</div>
+        <div class="card" style="background:var(--bg-elev); border-style:dashed;">
+          <span style="color:var(--text-faint); font-size:.85rem;">Rumus ini adalah kebalikan dari rumus mencari ukuran sebenarnya. Pastikan satuan ukuran sebenarnya sudah disamakan dengan satuan skala sebelum dikalikan.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. CONTOH UKURAN PADA GAMBAR -->
+    <section class="slide" data-slide="13">
+      <div class="slide-inner">
+        <span class="eyebrow">CONTOH SOAL</span>
+        <h2 class="slide-title">Menghitung Ukuran pada Peta</h2>
+        <div class="card">
+          <strong style="color:var(--text)">Soal:</strong>
+          <p style="color:var(--text-dim); line-height:1.7; margin-top:8px;">Jarak sebenarnya antara dua kota adalah 150 km. Peta digambar dengan skala 1 : 3.000.000. Berapa jarak kedua kota tersebut pada peta, dalam satuan sentimeter?</p>
+        </div>
+        <div class="input-check">
+          <input type="number" id="ans14" placeholder="Jarak (cm)">
+          <button class="btn" onclick="checkAns14()">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="fb14"></div>
+        <div class="reveal">
+          <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Lihat Pembahasan</button>
+          <div class="reveal-content"><div class="reveal-content-inner">
+            <div class="formula">150 km <span class="op">=</span> 15.000.000 cm</div>
+            <div class="formula">jarak pada peta <span class="op">=</span> 15.000.000 <span class="op">÷</span> 3.000.000</div>
+            <div class="formula">jarak pada peta <span class="op">=</span> <span class="val">5 cm</span></div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. LATIHAN BERTAHAP -->
+    <section class="slide" data-slide="14">
+      <div class="slide-inner">
+        <span class="eyebrow">LATIHAN</span>
+        <h2 class="slide-title">Latihan Bertahap</h2>
+        <p class="slide-sub">Kerjakan mulai dari tingkat mudah, lalu lanjutkan ke tingkat yang lebih menantang.</p>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('mudah', this)">🟢 Mudah</button>
+          <button class="tab-btn" onclick="switchTab('sedang', this)">🟡 Sedang</button>
+          <button class="tab-btn" onclick="switchTab('menantang', this)">🔴 Menantang</button>
+        </div>
+
+        <div class="tab-panel active" id="panel-mudah">
+          <div class="card">Sebuah peta memiliki skala 1 : 500.000. Jarak dua kota pada peta adalah 3 cm. Berapa jarak sebenarnya dua kota tersebut, dalam kilometer?</div>
+          <div class="input-check"><input type="number" id="ansMudah" placeholder="Jarak (km)"><button class="btn" onclick="checkLatihan('ansMudah','fbMudah',15,'km')">Periksa</button></div>
+          <div class="feedback" id="fbMudah"></div>
+        </div>
+
+        <div class="tab-panel" id="panel-sedang">
+          <div class="card">Denah sebuah rumah dibuat dengan skala 1 : 150. Jika panjang rumah sebenarnya 9 meter, berapa panjang rumah pada denah, dalam sentimeter?</div>
+          <div class="input-check"><input type="number" id="ansSedang" placeholder="Panjang (cm)"><button class="btn" onclick="checkLatihan('ansSedang','fbSedang',6,'cm')">Periksa</button></div>
+          <div class="feedback" id="fbSedang"></div>
+        </div>
+
+        <div class="tab-panel" id="panel-menantang">
+          <div class="card">Persegi panjang P memiliki panjang 10 cm dan lebar 6 cm. Persegi panjang Q sebangun dengan P dan memiliki panjang 25 cm. Berapa lebar persegi panjang Q, dalam sentimeter?</div>
+          <div class="input-check"><input type="number" id="ansMenantang" placeholder="Lebar Q (cm)"><button class="btn" onclick="checkLatihan('ansMenantang','fbMenantang',15,'cm')">Periksa</button></div>
+          <div class="feedback" id="fbMenantang"></div>
+          <div class="reveal">
+            <button class="reveal-btn" onclick="toggleReveal(this)"><span class="chev">▶</span> Lihat Pembahasan</button>
+            <div class="reveal-content"><div class="reveal-content-inner">
+              <div class="formula">faktor skala <span class="op">=</span> 25 / 10 <span class="op">=</span> 2,5</div>
+              <div class="formula">lebar Q <span class="op">=</span> 6 <span class="op">×</span> 2,5 <span class="op">=</span> <span class="val">15 cm</span></div>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. PENERAPAN SEHARI-HARI -->
+    <section class="slide" data-slide="15">
+      <div class="slide-inner">
+        <span class="eyebrow">PENERAPAN</span>
+        <h2 class="slide-title">Skala dalam Kehidupan Sehari-hari</h2>
+        <p class="slide-sub">Klik setiap kartu untuk melihat bagaimana skala digunakan dalam contoh nyata di sekitar kita.</p>
+        <div class="grid-3">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><path d="M6 10 L18 6 L30 10 L42 6 L42 38 L30 42 L18 38 L6 42 Z" stroke="var(--accent-2)" fill="none" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 6 L18 38 M30 10 L30 42" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="3 3"/></svg></div>
+                <div class="icon-label">Peta</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Peta menggunakan skala agar jarak antarwilayah yang sangat luas bisa ditampilkan secara proporsional di atas kertas.</div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><path d="M6 24 L24 8 L42 24" stroke="var(--accent)" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="12" y="24" width="24" height="16" stroke="var(--accent)" fill="none" stroke-width="2.5"/></svg></div>
+                <div class="icon-label">Denah Rumah</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Denah rumah dibuat berskala agar tukang bangunan tahu ukuran ruangan sebenarnya hanya dari selembar gambar.</div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="34" stroke="var(--accent)" fill="none" stroke-width="2.5"/><line x1="10" y1="18" x2="38" y2="18" stroke="var(--accent)" stroke-width="1.5"/><line x1="10" y1="28" x2="38" y2="28" stroke="var(--accent)" stroke-width="1.5"/><line x1="20" y1="8" x2="20" y2="42" stroke="var(--accent)" stroke-width="1.5"/></svg></div>
+                <div class="icon-label">Maket Bangunan</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Maket memperkecil gedung sesungguhnya dengan faktor skala tertentu sehingga tetap mudah dipelajari bentuknya.</div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><path d="M6 30 L10 18 L34 18 L40 30" stroke="var(--accent-2)" fill="none" stroke-width="2.5" stroke-linejoin="round"/><rect x="4" y="30" width="40" height="8" rx="3" stroke="var(--accent-2)" fill="none" stroke-width="2.5"/><circle cx="14" cy="40" r="4" stroke="var(--accent-2)" fill="none" stroke-width="2.5"/><circle cx="34" cy="40" r="4" stroke="var(--accent-2)" fill="none" stroke-width="2.5"/></svg></div>
+                <div class="icon-label">Model Kendaraan</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Miniatur mobil atau pesawat dibuat dengan faktor skala tetap, misalnya 1 : 20, agar setiap detail tetap proporsional.</div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><rect x="8" y="6" width="22" height="28" stroke="var(--accent)" fill="none" stroke-width="2.5"/><rect x="18" y="16" width="22" height="28" stroke="var(--accent-2)" fill="none" stroke-width="2.5"/></svg></div>
+                <div class="icon-label">Perbesaran Fotokopi</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Mesin fotokopi memperbesar atau memperkecil dokumen menggunakan persentase skala, misalnya 150% atau 70%.</div>
+            </div>
+          </div>
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-inner">
+              <div class="flip-front">
+                <div class="icon-box"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" stroke="var(--accent)" fill="none" stroke-width="2.5"/><ellipse cx="24" cy="24" rx="8" ry="18" stroke="var(--accent)" fill="none" stroke-width="1.5"/><line x1="6" y1="24" x2="42" y2="24" stroke="var(--accent)" stroke-width="1.5"/></svg></div>
+                <div class="icon-label">Globe / Atlas</div>
+                <div class="flip-hint">klik untuk info</div>
+              </div>
+              <div class="flip-back">Globe menggunakan skala sangat kecil untuk menampilkan seluruh permukaan Bumi dalam bentuk bola mini.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17. KUIS -->
+    <section class="slide" data-slide="16">
+      <div class="slide-inner quiz-shell">
+        <span class="eyebrow">KUIS AKHIR</span>
+        <h2 class="slide-title">Uji Pemahamanmu</h2>
+        <p class="slide-sub">Jawab 10 soal berikut untuk mengukur pemahamanmu tentang skala dan perbandingan.</p>
+        <div class="card" id="quizContainer"></div>
+      </div>
+    </section>
+
+    <!-- 18. REFLEKSI -->
+    <section class="slide" data-slide="17">
+      <div class="slide-inner">
+        <span class="eyebrow">REFLEKSI</span>
+        <h2 class="slide-title">Sejauh Mana Pemahamanmu?</h2>
+        <p class="slide-sub">Klik pernyataan yang sesuai dengan kondisimu saat ini.</p>
+        <div class="checklist">
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Saya sudah bisa membedakan pengertian skala dan perbandingan.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Saya sudah bisa menentukan perbandingan sisi bersesuaian pada bangun sebangun.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Saya sudah bisa menghitung ukuran sebenarnya dari sebuah gambar berskala.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Saya sudah bisa menghitung ukuran pada gambar dari ukuran sebenarnya.</span></div>
+          <div class="check-item" onclick="this.classList.toggle('checked')"><div class="check-box">✓</div><span class="label">Masih ada bagian yang perlu saya pelajari ulang.</span></div>
+        </div>
+        <div class="card" style="margin-top:22px;">
+          <label style="color:var(--text-dim); font-size:.9rem;">Tuliskan satu hal baru yang kamu pelajari hari ini (opsional):</label>
+          <textarea style="width:100%; margin-top:10px; background:var(--bg-elev); border:1px solid var(--card-border); border-radius:10px; color:var(--text); padding:12px; font-family:'Plus Jakarta Sans',sans-serif; min-height:80px;" placeholder="Tulis di sini..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19. RANGKUMAN -->
+    <section class="slide" data-slide="18">
+      <div class="slide-inner">
+        <span class="eyebrow">RANGKUMAN</span>
+        <h2 class="slide-title">Rumus-Rumus Penting</h2>
+        <div class="card"><div class="formula">Skala <span class="op">=</span> ukuran pada gambar <span class="op">:</span> ukuran sebenarnya</div></div>
+        <div class="card"><div class="formula">Ukuran sebenarnya <span class="op">=</span> ukuran pada gambar <span class="op">÷</span> skala</div></div>
+        <div class="card"><div class="formula">Ukuran pada gambar <span class="op">=</span> ukuran sebenarnya <span class="op">×</span> skala</div></div>
+        <div class="card"><div class="formula">Faktor skala (k) <span class="op">=</span> ukuran hasil <span class="op">:</span> ukuran asli</div></div>
+        <div class="card">Pada bangun-bangun yang sebangun, semua pasangan sisi yang bersesuaian memiliki perbandingan yang <strong style="color:var(--accent)">senilai</strong>.</div>
+      </div>
+    </section>
+
+    <!-- 20. PENUTUP -->
+    <section class="slide" data-slide="19">
+      <div class="slide-inner" style="text-align:center;">
+        <span class="eyebrow" style="margin-bottom:22px;">PENUTUP</span>
+        <h1 class="slide-title">Kerja Bagus! 🎉</h1>
+        <p class="slide-sub" style="margin:0 auto 30px;">Kamu telah menyelesaikan seluruh materi Skala dan Perbandingan pada Bab 6 — Kesebangunan. Teruslah berlatih agar semakin terampil menghitung skala dalam berbagai konteks kehidupan sehari-hari.</p>
+        <button class="btn" onclick="goHome()">⏮ Ulangi dari Awal</button>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn" id="prevBtn" onclick="goPrev()">‹ Sebelumnya</button>
+    <div class="nav-center">
+      <button class="home-btn" onclick="goHome()">⏮ Awal</button>
+      <span class="slide-counter" id="slideCounter">1 / 20</span>
+    </div>
+    <button class="nav-btn" id="nextBtn" onclick="goNext()">Berikutnya ›</button>
+  </div>
+  <div class="kbd-hint">← → untuk navigasi</div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  function showSlide(i){
+    current = Math.max(0, Math.min(total - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressBar').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    slides[current].scrollTop = 0;
+  }
+  function goNext(){ if (current < total - 1) showSlide(current + 1); }
+  function goPrev(){ if (current > 0) showSlide(current - 1); }
+  function goHome(){ showSlide(0); }
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight') goNext();
+    if (e.key === 'ArrowLeft') goPrev();
+  });
+
+  showSlide(0);
+
+  /* ---------- Reveal accordion ---------- */
+  function toggleReveal(btn){
+    btn.classList.toggle('open');
+    const content = btn.nextElementSibling;
+    content.classList.toggle('open');
+  }
+
+  /* ---------- Slide 6: simplify ratio ---------- */
+  function simplifyRatio(){
+    document.getElementById('simplifyBox').innerHTML = '5 cm <span class="op">÷ 5</span> : 500 cm <span class="op">÷ 5</span> &nbsp;=&nbsp; <span class="val">1 : 100</span>';
+    const r = document.getElementById('simplifyResult');
+    r.style.display = 'block';
+    r.className = 'feedback show correct';
+    r.textContent = 'Skala gambar tersebut adalah 1 : 100 — bentuk paling sederhana dari perbandingan 5 : 500.';
+  }
+
+  /* ---------- Slide 7: show ratio (decorative trigger) ---------- */
+  function showRatio(){
+    const btn = document.getElementById('ratioBtn');
+    if (!btn.classList.contains('open')) toggleReveal(btn);
+  }
+
+  /* ---------- Slide 11: slider simulation ---------- */
+  function updateSliderSim(){
+    const slider = document.getElementById('skalaSlider');
+    const g = parseFloat(slider.value);
+    const skalaFaktor = 200;
+    const asliCm = g * skalaFaktor;
+    document.getElementById('ukuranGambar').textContent = g;
+    document.getElementById('ukuranAsliCm').textContent = asliCm.toLocaleString('id-ID');
+    document.getElementById('ukuranAsliM').textContent = (asliCm / 100).toFixed(1).replace('.', ',');
+    const rect = document.getElementById('modelRect');
+    rect.style.width = (g * 16) + 'px';
+    rect.style.height = (g * 10) + 'px';
+  }
+  updateSliderSim();
+
+  /* ---------- Slide 12 & 14: input-check examples ---------- */
+  function checkAns12(){
+    const val = parseFloat(document.getElementById('ans12').value);
+    const fb = document.getElementById('fb12');
+    fb.classList.add('show');
+    if (isNaN(val)) { fb.className = 'feedback show warn'; fb.textContent = 'Isi jawabanmu terlebih dahulu.'; return; }
+    if (Math.abs(val - 100) < 0.5) { fb.className = 'feedback show correct'; fb.textContent = 'Benar! Jarak sebenarnya adalah 100 km.'; }
+    else { fb.className = 'feedback show wrong'; fb.textContent = 'Belum tepat. Periksa kembali langkah perhitunganmu, lalu coba lagi.'; }
+  }
+  function checkAns14(){
+    const val = parseFloat(document.getElementById('ans14').value);
+    const fb = document.getElementById('fb14');
+    fb.classList.add('show');
+    if (isNaN(val)) { fb.className = 'feedback show warn'; fb.textContent = 'Isi jawabanmu terlebih dahulu.'; return; }
+    if (Math.abs(val - 5) < 0.2) { fb.className = 'feedback show correct'; fb.textContent = 'Benar! Jarak pada peta adalah 5 cm.'; }
+    else { fb.className = 'feedback show wrong'; fb.textContent = 'Belum tepat. Periksa kembali langkah perhitunganmu, lalu coba lagi.'; }
+  }
+
+  /* ---------- Slide 15: latihan bertahap ---------- */
+  function switchTab(name, btn){
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+  }
+  function checkLatihan(inputId, fbId, correctVal, unit){
+    const val = parseFloat(document.getElementById(inputId).value);
+    const fb = document.getElementById(fbId);
+    fb.classList.add('show');
+    if (isNaN(val)) { fb.className = 'feedback show warn'; fb.textContent = 'Isi jawabanmu terlebih dahulu.'; return; }
+    if (Math.abs(val - correctVal) < 0.3) { fb.className = 'feedback show correct'; fb.textContent = 'Benar! Jawabannya adalah ' + correctVal + ' ' + unit + '.'; }
+    else { fb.className = 'feedback show wrong'; fb.textContent = 'Belum tepat, coba periksa kembali perhitunganmu.'; }
+  }
+
+  /* ---------- Slide 17: quiz ---------- */
+  const quizData = [
+    { q: 'Skala 1 : 250.000 pada peta berarti...', options: ['1 cm pada peta = 250.000 cm sebenarnya', '250.000 cm pada peta = 1 cm sebenarnya', '1 km pada peta = 250.000 km sebenarnya', 'Peta diperbesar 250.000 kali'], correct: 0, explain: 'Skala dibaca sebagai ukuran pada gambar : ukuran sebenarnya, jadi 1 cm pada peta setara 250.000 cm di dunia nyata.' },
+    { q: 'Sebuah denah memiliki skala 1 : 300. Jika panjang pada denah 5 cm, berapa panjang sebenarnya?', options: ['60 cm', '300 cm', '1.500 cm (15 m)', '5 cm'], correct: 2, explain: 'Ukuran sebenarnya = ukuran gambar × skala = 5 × 300 = 1.500 cm, atau setara 15 meter.' },
+    { q: 'Dua bangun sebangun memiliki sisi bersesuaian 4 cm dan 10 cm. Faktor skala dari bangun kecil ke bangun besar adalah...', options: ['1 : 2,5', '2,5 : 1', '4 : 10 saja tanpa disederhanakan', '1 : 4'], correct: 1, explain: 'Faktor skala = ukuran hasil : ukuran asli = 10 : 4 = 2,5 : 1, karena bangun diperbesar dari 4 cm menjadi 10 cm.' },
+    { q: 'Sebuah maket gedung dibuat dengan skala 1 : 100. Jika tinggi gedung sebenarnya 25 m, berapa tinggi maketnya?', options: ['2,5 cm', '25 cm', '250 cm', '0,25 cm'], correct: 1, explain: '25 m = 2.500 cm. Tinggi maket = 2.500 ÷ 100 = 25 cm.' },
+    { q: 'Rumus yang tepat untuk mencari ukuran sebenarnya jika diketahui ukuran gambar dan skala adalah...', options: ['ukuran sebenarnya = ukuran gambar × skala', 'ukuran sebenarnya = skala ÷ ukuran gambar', 'ukuran sebenarnya = ukuran gambar ÷ skala', 'ukuran sebenarnya = ukuran gambar − skala'], correct: 0, explain: 'Karena skala = gambar : sebenarnya, maka sebenarnya = gambar ÷ (gambar/sebenarnya) yang secara praktis dihitung dengan ukuran gambar dikalikan angka pembanding skala (misalnya ×200 untuk skala 1:200).' },
+    { q: 'Peta berskala 1 : 1.000.000. Jarak dua kota pada peta 7 cm. Jarak sebenarnya adalah...', options: ['7 km', '70 km', '700 km', '7.000 km'], correct: 1, explain: 'Jarak sebenarnya = 7 × 1.000.000 cm = 7.000.000 cm = 70 km.' },
+    { q: 'Benar atau salah: Skala adalah perbandingan dua ukuran sejenis yang satuannya telah disamakan.', options: ['Benar', 'Salah'], correct: 0, explain: 'Benar. Skala membandingkan ukuran gambar dan ukuran sebenarnya, dan kedua ukuran itu harus dalam satuan yang sama sebelum dibandingkan.' },
+    { q: 'Benar atau salah: Pada dua segitiga yang sebangun, semua sisi yang bersesuaian memiliki perbandingan yang sama.', options: ['Benar', 'Salah'], correct: 0, explain: 'Benar. Itulah ciri utama dua bangun yang sebangun — seluruh pasangan sisi bersesuaian berbanding senilai.' },
+    { q: 'Manakah yang BUKAN merupakan penerapan skala dalam kehidupan sehari-hari?', options: ['Peta wilayah', 'Denah rumah', 'Maket gedung', 'Resep masakan untuk 4 porsi'], correct: 3, explain: 'Resep masakan mengatur jumlah bahan, bukan perbandingan ukuran gambar terhadap ukuran sebenarnya, sehingga bukan penerapan skala.' },
+    { q: 'Jika ukuran pada gambar 8 cm dan ukuran sebenarnya 400 cm, maka skala gambar tersebut adalah...', options: ['1 : 50', '1 : 8', '8 : 1', '1 : 400'], correct: 0, explain: 'Skala = 8 : 400. Kedua nilai dibagi 8 sehingga menjadi 1 : 50.' }
+  ];
+  let quizIndex = 0;
+  let quizScore = 0;
+
+  function renderQuiz(){
+    const item = quizData[quizIndex];
+    const container = document.getElementById('quizContainer');
+    let optionsHtml = '';
+    item.options.forEach((opt, i) => {
+      optionsHtml += '<button class="quiz-opt" data-i="' + i + '">' + opt + '</button>';
+    });
+    container.innerHTML =
+      '<p class="quiz-progress">Soal ' + (quizIndex + 1) + ' dari ' + quizData.length + ' &nbsp;·&nbsp; Skor sementara: ' + quizScore + '</p>' +
+      '<p class="quiz-question">' + item.q + '</p>' +
+      '<div class="quiz-options">' + optionsHtml + '</div>' +
+      '<div class="quiz-explain" id="quizExplain"></div>';
+    container.querySelectorAll('.quiz-opt').forEach(function(btn){
+      btn.addEventListener('click', function(){ selectAnswer(parseInt(btn.dataset.i)); });
+    });
+  }
+
+  function selectAnswer(i){
+    const item = quizData[quizIndex];
+    const buttons = document.querySelectorAll('.quiz-opt');
+    buttons.forEach(function(b){ b.disabled = true; });
+    if (i === item.correct) {
+      buttons[i].classList.add('correct');
+      quizScore++;
+    } else {
+      buttons[i].classList.add('wrong');
+      buttons[item.correct].classList.add('correct');
+    }
+    const explainBox = document.getElementById('quizExplain');
+    const isLast = quizIndex === quizData.length - 1;
+    explainBox.innerHTML =
+      '<div class="quiz-explain-inner">' + item.explain + '</div>' +
+      '<button class="btn next-q-btn" onclick="nextQuiz()">' + (isLast ? 'Lihat Hasil' : 'Soal Berikutnya →') + '</button>';
+    explainBox.classList.add('show');
+  }
+
+  function nextQuiz(){
+    quizIndex++;
+    if (quizIndex < quizData.length) { renderQuiz(); }
+    else { showQuizResult(); }
+  }
+
+  function showQuizResult(){
+    const container = document.getElementById('quizContainer');
+    const pct = Math.round((quizScore / quizData.length) * 100);
+    let msg = 'Terus berlatih ya, kamu pasti bisa!';
+    if (pct >= 80) msg = 'Luar biasa! Pemahamanmu tentang skala sudah sangat baik.';
+    else if (pct >= 60) msg = 'Bagus! Sedikit lagi kamu akan menguasai materi ini dengan sempurna.';
+    container.innerHTML =
+      '<div class="quiz-result">' +
+      '<h3 style="font-family:Fredoka,sans-serif; color:var(--text); margin:0;">Hasil Kuismu</h3>' +
+      '<div class="quiz-score">' + quizScore + ' / ' + quizData.length + '</div>' +
+      '<p style="color:var(--text-dim);">' + pct + '% jawaban benar — ' + msg + '</p>' +
+      '<button class="btn secondary" onclick="restartQuiz()">↺ Ulangi Kuis</button>' +
+      '</div>';
+  }
+
+  function restartQuiz(){
+    quizIndex = 0;
+    quizScore = 0;
+    renderQuiz();
+  }
+
+  renderQuiz();
+</script>
+</body>
+</html>

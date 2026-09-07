@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Penerapan Kesebangunan — Bab 6 Kesebangunan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0a0d14;
+    --bg-1:#111624;
+    --bg-2:#171d30;
+    --card:#1a2036;
+    --card-soft:#151a2c;
+    --border:rgba(148,163,214,0.14);
+    --border-strong:rgba(148,163,214,0.28);
+    --text-hi:#eef1fb;
+    --text-mid:#aab2cc;
+    --text-low:#7680a0;
+    --accent-1:#7c6bf2;
+    --accent-2:#28c7d6;
+    --accent-3:#f5a524;
+    --success:#33d6a6;
+    --error:#f2617a;
+    --grad-main:linear-gradient(135deg,#7c6bf2 0%,#28c7d6 100%);
+    --grad-warm:linear-gradient(135deg,#f5a524 0%,#f2617a 100%);
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --shadow-soft:0 10px 40px rgba(0,0,0,0.35);
+    --font-title:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(124,107,242,0.18), transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(40,199,214,0.14), transparent 50%),
+      var(--bg-0);
+    color:var(--text-hi);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,h4{font-family:var(--font-title); margin:0; font-weight:600; letter-spacing:0.2px;}
+  p{margin:0; line-height:1.65; color:var(--text-mid);}
+  code, .mono{font-family:var(--font-mono);}
+  ::selection{background:var(--accent-1); color:#fff;}
+
+  /* ---------- APP SHELL ---------- */
+  .app{
+    max-width:980px;
+    margin:0 auto;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    padding:18px 18px 110px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:10px 4px 18px;
+  }
+  .topbar .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:var(--font-title);
+    font-size:15px;
+    color:var(--text-mid);
+    white-space:nowrap;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--grad-main);flex-shrink:0;}
+  .progress-track{
+    flex:1;
+    height:8px;
+    background:var(--bg-2);
+    border-radius:99px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--grad-main);
+    border-radius:99px;
+    transition:width .45s cubic-bezier(.65,0,.35,1);
+  }
+  .slide-counter{
+    font-family:var(--font-mono);
+    font-size:12.5px;
+    color:var(--text-low);
+    white-space:nowrap;
+    min-width:58px;
+    text-align:right;
+  }
+
+  /* ---------- SLIDES ---------- */
+  .stage{
+    flex:1;
+    position:relative;
+    display:flex;
+  }
+  .slide{
+    display:none;
+    width:100%;
+    animation:riseIn .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .slide.active{display:block;}
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--accent-2);
+    font-weight:600;
+    margin-bottom:10px;
+  }
+  .eyebrow .num{
+    font-family:var(--font-mono);
+    background:rgba(40,199,214,0.12);
+    border:1px solid rgba(40,199,214,0.3);
+    padding:2px 8px;
+    border-radius:99px;
+  }
+  .slide h2.title{font-size:clamp(22px,4.2vw,32px); margin-bottom:6px; color:var(--text-hi);}
+  .slide .lede{font-size:15.5px; color:var(--text-mid); margin-bottom:22px; max-width:640px;}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:22px;
+    box-shadow:var(--shadow-soft);
+  }
+  .card + .card{margin-top:16px;}
+  .card-soft{
+    background:var(--card-soft);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:18px;
+  }
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;}
+  @media(max-width:720px){ .grid2, .grid3{grid-template-columns:1fr;} }
+
+  /* ---------- COVER ---------- */
+  .cover{
+    min-height:62vh;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:center;
+    text-align:left;
+    padding:20px 6px;
+  }
+  .cover .chapter-tag{
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--accent-3);
+    background:rgba(245,165,36,0.1);
+    border:1px solid rgba(245,165,36,0.3);
+    padding:5px 12px;
+    border-radius:99px;
+    margin-bottom:22px;
+  }
+  .cover h1{
+    font-size:clamp(34px,7vw,58px);
+    line-height:1.05;
+    background:var(--grad-main);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin-bottom:14px;
+  }
+  .cover .sub{font-size:clamp(16px,2.4vw,20px); color:var(--text-mid); max-width:600px; margin-bottom:32px;}
+  .cover-meta{display:flex; gap:24px; flex-wrap:wrap; margin-bottom:36px;}
+  .cover-meta .item{display:flex; flex-direction:column; gap:2px;}
+  .cover-meta .item .k{font-size:11.5px; color:var(--text-low); text-transform:uppercase; letter-spacing:0.6px;}
+  .cover-meta .item .v{font-family:var(--font-title); font-size:16px; color:var(--text-hi);}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:15px;
+    border:none;
+    cursor:pointer;
+    border-radius:99px;
+    padding:13px 26px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.96);}
+  .btn-primary{background:var(--grad-main); color:#fff; box-shadow:0 8px 24px rgba(124,107,242,0.35);}
+  .btn-primary:hover{box-shadow:0 10px 30px rgba(124,107,242,0.5);}
+  .btn-ghost{background:transparent; color:var(--text-hi); border:1px solid var(--border-strong);}
+  .btn-ghost:hover{background:rgba(255,255,255,0.04);}
+  .btn-warm{background:var(--grad-warm); color:#fff; box-shadow:0 8px 24px rgba(242,97,122,0.3);}
+  .btn:disabled{opacity:0.35; cursor:not-allowed; transform:none;}
+  .btn-sm{padding:8px 16px; font-size:13px;}
+
+  /* ---------- ACCORDION ---------- */
+  .acc-item{border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:10px; overflow:hidden; background:var(--card-soft);}
+  .acc-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:15px 18px; cursor:pointer; font-family:var(--font-title); font-size:15.5px; color:var(--text-hi);
+    gap:12px;
+  }
+  .acc-head .chev{transition:transform .3s ease; color:var(--accent-2); flex-shrink:0;}
+  .acc-item.open .chev{transform:rotate(180deg);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .acc-item.open .acc-body{max-height:600px;}
+  .acc-body-in{padding:0 18px 18px; font-size:14.5px;}
+
+  /* ---------- REVEAL ---------- */
+  .reveal-content{max-height:0; overflow:hidden; transition:max-height .5s ease; opacity:0;}
+  .reveal-content.show{max-height:1200px; opacity:1; margin-top:14px;}
+
+  /* ---------- FORMS ---------- */
+  .field-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:14px 0;}
+  input[type=number], input[type=text]{
+    background:var(--bg-1);
+    border:1px solid var(--border-strong);
+    color:var(--text-hi);
+    font-family:var(--font-mono);
+    font-size:15px;
+    padding:11px 14px;
+    border-radius:var(--radius-sm);
+    width:140px;
+    outline:none;
+    transition:border-color .2s ease;
+  }
+  input[type=number]:focus, input[type=text]:focus{border-color:var(--accent-2);}
+  .unit-label{color:var(--text-low); font-size:14px;}
+  .feedback{margin-top:12px; font-size:14.5px; font-weight:600; display:none; padding:10px 14px; border-radius:var(--radius-sm);}
+  .feedback.show{display:block;}
+  .feedback.ok{background:rgba(51,214,166,0.12); color:var(--success); border:1px solid rgba(51,214,166,0.35);}
+  .feedback.bad{background:rgba(242,97,122,0.12); color:var(--error); border:1px solid rgba(242,97,122,0.35);}
+
+  input[type=range]{
+    width:100%;
+    accent-color:var(--accent-2);
+    height:6px;
+  }
+
+  /* ---------- BADGES / TAGS ---------- */
+  .tag{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:700; padding:4px 10px; border-radius:99px;
+  }
+  .tag-easy{background:rgba(51,214,166,0.14); color:var(--success);}
+  .tag-med{background:rgba(245,165,36,0.14); color:var(--accent-3);}
+  .tag-hard{background:rgba(242,97,122,0.14); color:var(--error);}
+
+  /* ---------- ICON CARDS ---------- */
+  .icon-card{
+    background:var(--card-soft); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:16px; cursor:pointer; transition:transform .2s ease, border-color .2s ease;
+  }
+  .icon-card:hover{transform:translateY(-3px); border-color:var(--border-strong);}
+  .icon-card .ic{font-size:26px; margin-bottom:8px; display:block;}
+  .icon-card h4{font-size:14.5px; margin-bottom:6px; color:var(--text-hi);}
+  .icon-card p{font-size:13px;}
+  .icon-card .detail{max-height:0; overflow:hidden; transition:max-height .35s ease; font-size:13px;}
+  .icon-card.open .detail{max-height:300px; margin-top:8px;}
+
+  /* ---------- STEPS ---------- */
+  .steps{counter-reset:step; margin-top:16px;}
+  .step{
+    display:flex; gap:14px; padding:14px 0; border-bottom:1px dashed var(--border);
+  }
+  .step:last-child{border-bottom:none;}
+  .step .num{
+    counter-increment:step;
+    font-family:var(--font-title); font-weight:700; font-size:14px;
+    width:32px; height:32px; border-radius:50%;
+    background:var(--grad-main); color:#fff;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .step .num::before{content:counter(step);}
+  .step-body h4{font-size:14.5px; margin-bottom:3px; color:var(--text-hi);}
+  .step-body p{font-size:13.5px;}
+
+  /* ---------- QUIZ ---------- */
+  .quiz-shell{max-width:680px;}
+  .quiz-progress{display:flex; gap:6px; margin-bottom:18px; flex-wrap:wrap;}
+  .quiz-progress .qdot{width:26px; height:6px; border-radius:99px; background:var(--bg-2); transition:background .3s;}
+  .quiz-progress .qdot.done{background:var(--success);}
+  .quiz-progress .qdot.current{background:var(--accent-2);}
+  .quiz-q{font-family:var(--font-title); font-size:18px; margin-bottom:16px; color:var(--text-hi);}
+  .quiz-opt{
+    display:block; width:100%; text-align:left;
+    background:var(--card-soft); border:1px solid var(--border);
+    color:var(--text-hi); font-family:var(--font-body); font-size:14.5px;
+    padding:14px 16px; border-radius:var(--radius-sm); margin-bottom:10px; cursor:pointer;
+    transition:all .2s ease;
+  }
+  .quiz-opt:hover{border-color:var(--border-strong);}
+  .quiz-opt.correct{background:rgba(51,214,166,0.14); border-color:var(--success); color:var(--success);}
+  .quiz-opt.wrong{background:rgba(242,97,122,0.14); border-color:var(--error); color:var(--error);}
+  .quiz-opt:disabled{cursor:default;}
+  .quiz-explain{
+    background:var(--bg-1); border-left:3px solid var(--accent-2); border-radius:8px;
+    padding:12px 14px; font-size:13.5px; margin-top:6px; display:none;
+  }
+  .quiz-explain.show{display:block;}
+  .quiz-score-ring{
+    width:150px; height:150px; margin:0 auto 20px; position:relative;
+  }
+  .quiz-score-ring svg{transform:rotate(-90deg);}
+  .quiz-score-num{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-title); font-size:30px; color:var(--text-hi);
+  }
+
+  /* ---------- NAV ---------- */
+  .navbar{
+    position:fixed; bottom:0; left:0; right:0;
+    display:flex; justify-content:center;
+    padding:16px 18px calc(16px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg, transparent, rgba(10,13,20,0.92) 30%);
+    z-index:50;
+  }
+  .navbar-inner{
+    max-width:980px; width:100%;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:rgba(20,24,40,0.85);
+    backdrop-filter:blur(14px);
+    border:1px solid var(--border-strong);
+    border-radius:99px;
+    padding:8px 8px 8px 8px;
+  }
+  .nav-dots{
+    display:flex; gap:5px; overflow-x:auto; flex:1; padding:0 8px; scrollbar-width:none;
+  }
+  .nav-dots::-webkit-scrollbar{display:none;}
+  .nav-dot{
+    width:7px; height:7px; border-radius:50%; background:var(--bg-2); flex-shrink:0; cursor:pointer;
+    border:1px solid var(--border); transition:all .2s ease;
+  }
+  .nav-dot.active{background:var(--accent-2); width:20px; border-radius:99px;}
+  .nav-btn{
+    width:42px; height:42px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--grad-main); color:#fff; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; font-size:18px; transition:transform .15s ease, opacity .15s ease;
+  }
+  .nav-btn:active{transform:scale(0.9);}
+  .nav-btn:disabled{opacity:0.3; cursor:not-allowed;}
+  .nav-btn.ghost{background:var(--bg-2); color:var(--text-mid);}
+
+  /* ---------- SVG helpers ---------- */
+  .diagram-wrap{
+    background:var(--bg-1); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:14px; display:flex; justify-content:center; margin:16px 0;
+  }
+  .diagram-wrap svg{max-width:100%; height:auto;}
+
+  ul.plain{margin:0; padding-left:20px;}
+  ul.plain li{margin-bottom:8px; font-size:14.5px; color:var(--text-mid);}
+  .hl{color:var(--accent-2); font-weight:700;}
+  .warm{color:var(--accent-3); font-weight:700;}
+
+  @media(max-width:600px){
+    .app{padding:14px 12px 120px;}
+    .card{padding:16px;}
+    .field-row{gap:8px;}
+    input[type=number], input[type=text]{width:110px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span><span>Bab 6 · Kesebangunan</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 27</div>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- 0: COVER -->
+    <section class="slide active">
+      <div class="cover">
+        <div class="chapter-tag">MATEMATIKA · KURIKULUM MERDEKA · FASE D</div>
+        <h1>Penerapan<br>Kesebangunan</h1>
+        <p class="sub">Bagaimana caranya mengukur tinggi pohon tanpa memanjatnya, atau lebar sungai tanpa menyeberanginya? Jawabannya ada pada konsep kesebangunan.</p>
+        <div class="cover-meta">
+          <div class="item"><span class="k">Bab</span><span class="v">6 — Kesebangunan</span></div>
+          <div class="item"><span class="k">Submateri</span><span class="v">Penerapan Kesebangunan</span></div>
+          <div class="item"><span class="k">Estimasi</span><span class="v">2 × 40 menit</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
+      </div>
+    </section>
+
+    <!-- 1: APERSEPSI -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">01</span> APERSEPSI</div>
+      <h2 class="title">Pernahkah kamu bertanya-tanya...</h2>
+      <p class="lede">Sebelum masuk ke materi, coba renungkan tiga pertanyaan berikut. Klik tiap kartu untuk melihat gambaran jawabannya.</p>
+      <div class="grid3">
+        <div class="icon-card" onclick="this.classList.toggle('open')">
+          <span class="ic">🌳</span>
+          <h4>Mengukur tinggi pohon</h4>
+          <p>Tanpa memanjat atau alat canggih, bagaimana caranya?</p>
+          <div class="detail"><p>Ternyata cukup dengan tongkat, bayangan, dan sedikit perbandingan — inilah yang akan kita pelajari!</p></div>
+        </div>
+        <div class="icon-card" onclick="this.classList.toggle('open')">
+          <span class="ic">🗺️</span>
+          <h4>Membaca peta</h4>
+          <p>Kenapa jarak 1 cm di peta bisa berarti puluhan kilometer di dunia nyata?</p>
+          <div class="detail"><p>Karena peta dibuat sebangun dengan wilayah aslinya, hanya diperkecil dengan skala tertentu.</p></div>
+        </div>
+        <div class="icon-card" onclick="this.classList.toggle('open')">
+          <span class="ic">📷</span>
+          <h4>Mencetak foto</h4>
+          <p>Kenapa foto yang diperbesar tidak terlihat "gepeng" atau "gendut"?</p>
+          <div class="detail"><p>Karena ukurannya diperbesar secara sebangun — perbandingan panjang dan lebarnya tetap sama.</p></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <p><span class="hl">Ternyata,</span> kesebangunan bukan cuma konsep di buku matematika — ia bekerja di sekitar kita setiap hari, dari peta digital di ponsel hingga desain arsitektur gedung pencakar langit.</p>
+      </div>
+    </section>
+
+    <!-- 2: TUJUAN -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">02</span> TUJUAN PEMBELAJARAN</div>
+      <h2 class="title">Setelah mempelajari bagian ini, kamu akan mampu:</h2>
+      <div class="card">
+        <div class="steps">
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Mengenali penerapan kesebangunan</h4><p>Mengidentifikasi situasi kehidupan sehari-hari yang memanfaatkan konsep kesebangunan.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Mengukur secara tidak langsung</h4><p>Menghitung tinggi benda dan jarak yang sulit diukur langsung menggunakan prinsip segitiga sebangun.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Menerapkan pada peta, foto, dan model</h4><p>Menghitung skala dan ukuran sebenarnya pada peta, denah, foto, serta model/maket.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Menyelesaikan masalah kontekstual</h4><p>Merancang dan menyelesaikan soal cerita kesebangunan dengan langkah yang sistematis.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3: KONSEP DASAR REVIEW -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">03</span> MENGINGAT KEMBALI</div>
+      <h2 class="title">Syarat Dua Bangun Sebangun</h2>
+      <p class="lede">Sebelum menerapkan, kita ingat dulu dua syarat wajib agar dua bangun dikatakan sebangun.</p>
+      <div class="grid2">
+        <div class="card">
+          <h4 style="margin-bottom:10px; color:var(--accent-2);">1. Sudut-sudut bersesuaian sama besar</h4>
+          <div class="diagram-wrap">
+            <svg viewBox="0 0 260 140" width="260">
+              <polygon points="20,120 110,120 60,30" fill="none" stroke="#7c6bf2" stroke-width="2.5"/>
+              <polygon points="150,120 250,120 210,45" fill="none" stroke="#28c7d6" stroke-width="2.5"/>
+              <text x="55" y="20" fill="#aab2cc" font-size="11" font-family="JetBrains Mono">A</text>
+              <text x="185" y="35" fill="#aab2cc" font-size="11" font-family="JetBrains Mono">A'</text>
+            </svg>
+          </div>
+          <p>Setiap sudut yang bersesuaian pada dua bangun memiliki ukuran yang sama persis.</p>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:10px; color:var(--accent-3);">2. Sisi-sisi bersesuaian sebanding</h4>
+          <div class="card-soft" style="text-align:center; font-family:var(--font-mono); font-size:16px; margin-top:10px;">
+            AB/A'B' = BC/B'C' = CA/C'A' = k
+          </div>
+          <p style="margin-top:10px;">Rasio tiap pasang sisi yang bersesuaian bernilai sama — nilai ini disebut <span class="hl">rasio/faktor skala (k)</span>.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-top:16px; background:linear-gradient(135deg, rgba(124,107,242,0.1), rgba(40,199,214,0.08));">
+        <p>💡 Kedua syarat inilah yang menjadi <span class="hl">dasar semua penerapan</span> kesebangunan yang akan kita pelajari — mulai dari mengukur tinggi pohon hingga membaca peta.</p>
+      </div>
+    </section>
+
+    <!-- 4: KESEBANGUNAN DALAM KEHIDUPAN SEHARI-HARI -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">04</span> KONSEP</div>
+      <h2 class="title">Kesebangunan dalam Kehidupan Sehari-hari</h2>
+      <p class="lede">Klik tiap kartu untuk melihat contoh penerapannya. Kita akan mempelajari masing-masing secara lebih mendalam di slide berikutnya.</p>
+      <div class="grid3">
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">📏</span><h4>Pengukuran tidak langsung</h4><p>Tinggi benda & jarak yang sulit dijangkau.</p><div class="detail"><p>Menggunakan tongkat, bayangan, atau metode segitiga sebangun.</p></div></div>
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">☀️</span><h4>Bayangan benda</h4><p>Panjang bayangan sebanding dengan tinggi benda.</p><div class="detail"><p>Berlaku saat benda-benda berdiri tegak pada waktu dan lokasi yang sama.</p></div></div>
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">🗺️</span><h4>Peta & denah</h4><p>Skala menghubungkan ukuran peta dan ukuran asli.</p><div class="detail"><p>1 cm di peta bisa mewakili ratusan meter hingga puluhan kilometer di dunia nyata.</p></div></div>
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">🖼️</span><h4>Foto & model</h4><p>Pembesaran/pengecilan yang tetap proporsional.</p><div class="detail"><p>Foto cetak, maket bangunan, dan model pesawat semuanya sebangun dengan aslinya.</p></div></div>
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">🎨</span><h4>Desain & pola</h4><p>Motif batik, ubin, dan ornamen berulang.</p><div class="detail"><p>Pola yang diperbesar tetap mempertahankan proporsi setiap bagiannya.</p></div></div>
+        <div class="icon-card" onclick="this.classList.toggle('open')"><span class="ic">🧩</span><h4>Masalah kontekstual</h4><p>Situasi nyata yang butuh strategi penyelesaian.</p><div class="detail"><p>Menggabungkan semua konsep di atas untuk memecahkan masalah sehari-hari.</p></div></div>
+      </div>
+    </section>
+
+    <!-- 5: TINGGI BENDA - KONSEP -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">05</span> PENGUKURAN TIDAK LANGSUNG</div>
+      <h2 class="title">Mengukur Tinggi Benda Secara Tidak Langsung</h2>
+      <p class="lede">Untuk mengukur benda yang sangat tinggi (pohon, tiang listrik, gedung), kita bisa memanfaatkan bayangannya pada saat matahari bersinar.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 460 220" width="460">
+          <line x1="20" y1="200" x2="440" y2="200" stroke="#2a3252" stroke-width="2"/>
+          <line x1="70" y1="200" x2="70" y2="70" stroke="#28c7d6" stroke-width="4"/>
+          <line x1="70" y1="200" x2="130" y2="200" stroke="#28c7d6" stroke-width="3" stroke-dasharray="4 3"/>
+          <line x1="130" y1="200" x2="70" y2="70" stroke="#4b5580" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text x="45" y="140" fill="#28c7d6" font-size="12" font-family="JetBrains Mono">tongkat</text>
+          <text x="80" y="215" fill="#7680a0" font-size="11" font-family="JetBrains Mono">bayangan tongkat</text>
+          <path d="M270,200 C260,120 275,70 300,40" fill="none" stroke="#7c6bf2" stroke-width="5" stroke-linecap="round"/>
+          <line x1="300" y1="40" x2="300" y2="30" stroke="#7c6bf2" stroke-width="0"/>
+          <line x1="270" y1="200" x2="410" y2="200" stroke="#7c6bf2" stroke-width="3" stroke-dasharray="4 3"/>
+          <line x1="410" y1="200" x2="300" y2="40" stroke="#4b5580" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text x="290" y="30" fill="#7c6bf2" font-size="12" font-family="JetBrains Mono">pohon</text>
+          <text x="300" y="215" fill="#7680a0" font-size="11" font-family="JetBrains Mono">bayangan pohon</text>
+          <circle cx="440" cy="205" r="14" fill="#f5a524" opacity="0.85"/>
+          <text x="430" y="196" fill="#f5a524" font-size="14">☀</text>
+        </svg>
+      </div>
+      <div class="card">
+        <p>Karena sinar matahari datang dengan <span class="hl">sudut yang sama</span> untuk semua benda pada waktu dan lokasi yang sama, segitiga yang dibentuk tongkat-bayangan dan pohon-bayangan menjadi <span class="hl">sebangun (sudut sama, sisi sebanding)</span>.</p>
+        <div class="card-soft" style="margin-top:14px; text-align:center; font-family:var(--font-mono); font-size:16px;">
+          tinggi tongkat / bayangan tongkat &nbsp;=&nbsp; tinggi pohon / bayangan pohon
+        </div>
+      </div>
+    </section>
+
+    <!-- 6: CONTOH SOAL TINGGI POHON -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">06</span> CONTOH SOAL</div>
+      <h2 class="title">Menghitung Tinggi Pohon</h2>
+      <div class="card">
+        <p><b style="color:var(--text-hi);">Soal:</b> Sebuah tongkat sepanjang <span class="hl">1,5 m</span> ditancapkan tegak lurus dan menghasilkan bayangan sepanjang <span class="hl">2 m</span>. Pada saat yang sama, bayangan sebuah pohon berukuran <span class="hl">12 m</span>. Berapakah tinggi pohon tersebut?</p>
+
+        <div class="acc-item" style="margin-top:16px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>💡 Petunjuk</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Gunakan perbandingan: tinggi tongkat dibagi bayangan tongkat = tinggi pohon dibagi bayangan pohon.</p></div></div>
+        </div>
+
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Langkah Penyelesaian</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>Misalkan tinggi pohon = h.</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>Susun perbandingan: 1,5 / 2 = h / 12</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>Kalikan silang: 2 × h = 1,5 × 12</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>2h = 18, sehingga h = 9</p></div></div>
+            </div>
+          </div></div>
+        </div>
+
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>✅ Jawaban & Pembahasan</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Tinggi pohon adalah <span class="hl">9 meter</span>. Perhatikan bahwa rasio tongkat terhadap bayangannya (1,5 : 2) sama dengan rasio pohon terhadap bayangannya (9 : 12) — keduanya senilai 3 : 4, membuktikan kedua segitiga sebangun.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7: LATIHAN TINGGI BENDA -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">07</span> LATIHAN INTERAKTIF</div>
+      <h2 class="title">Coba Sendiri: Tinggi Tiang Bendera</h2>
+      <div class="card">
+        <p>Sebuah tongkat 1 m memiliki bayangan 1,2 m. Pada saat yang sama, bayangan sebuah tiang bendera berukuran 6 m. Berapa tinggi tiang bendera tersebut?</p>
+        <div class="field-row">
+          <input type="number" id="ex1" step="0.01" placeholder="tinggi">
+          <span class="unit-label">meter</span>
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex1',5,'ex1fb','m',0.05)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex1fb"></div>
+      </div>
+    </section>
+
+    <!-- 8: JARAK - KONSEP -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">08</span> PENGUKURAN TIDAK LANGSUNG</div>
+      <h2 class="title">Mengukur Jarak yang Sulit Diukur Langsung</h2>
+      <p class="lede">Bagaimana mengukur lebar sungai tanpa menyeberang? Gunakan dua segitiga sebangun yang dibentuk dari titik bidik di daratan.</p>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 460 220" width="460">
+          <rect x="0" y="60" width="460" height="40" fill="#173040" opacity="0.5"/>
+          <text x="200" y="85" fill="#28c7d6" font-size="12" font-family="JetBrains Mono">SUNGAI</text>
+          <circle cx="60" cy="40" r="5" fill="#7c6bf2"/>
+          <text x="30" y="30" fill="#7c6bf2" font-size="12" font-family="JetBrains Mono">A (pohon)</text>
+          <circle cx="60" cy="110" r="5" fill="#f5a524"/>
+          <text x="30" y="130" fill="#f5a524" font-size="12" font-family="JetBrains Mono">B</text>
+          <circle cx="180" cy="150" r="5" fill="#f5a524"/>
+          <text x="185" y="145" fill="#f5a524" font-size="12" font-family="JetBrains Mono">C</text>
+          <circle cx="300" cy="190" r="5" fill="#f5a524"/>
+          <text x="270" y="210" fill="#f5a524" font-size="12" font-family="JetBrains Mono">D</text>
+          <circle cx="330" cy="120" r="5" fill="#33d6a6"/>
+          <text x="335" y="115" fill="#33d6a6" font-size="12" font-family="JetBrains Mono">E</text>
+          <line x1="60" y1="40" x2="330" y2="120" stroke="#4b5580" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <line x1="60" y1="40" x2="60" y2="110" stroke="#7680a0" stroke-width="2"/>
+          <line x1="60" y1="110" x2="180" y2="150" stroke="#7680a0" stroke-width="2"/>
+          <line x1="180" y1="150" x2="300" y2="190" stroke="#7680a0" stroke-width="2"/>
+          <line x1="300" y1="190" x2="330" y2="120" stroke="#33d6a6" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="card">
+        <p>Surveyor berdiri di <b>B</b>, tepat di seberang pohon <b>A</b>. Ia berjalan menyusuri tepi sungai ke <b>C</b>, lalu ke <b>D</b>. Dari <b>D</b>, ia bergerak tegak lurus jalur BD hingga titik <b>E</b>, tempat garis pandang ke <b>A</b> segaris dengan <b>C</b>.</p>
+        <p style="margin-top:10px;">Karena sudut di <b>C</b> saling bertolak belakang dan sudut di <b>B</b> serta <b>D</b> sama-sama siku-siku, maka <span class="hl">segitiga ABC sebangun dengan segitiga EDC</span>, sehingga:</p>
+        <div class="card-soft" style="margin-top:12px; text-align:center; font-family:var(--font-mono); font-size:16px;">
+          AB / ED &nbsp;=&nbsp; BC / DC
+        </div>
+      </div>
+    </section>
+
+    <!-- 9: CONTOH SOAL LEBAR SUNGAI -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">09</span> CONTOH SOAL</div>
+      <h2 class="title">Menghitung Lebar Sungai</h2>
+      <div class="card">
+        <p><b style="color:var(--text-hi);">Soal:</b> Dari metode di atas, diperoleh BC = <span class="hl">3 m</span>, DC = <span class="hl">6 m</span>, dan ED = <span class="hl">8 m</span>. Berapa lebar sungai (AB)?</p>
+
+        <div class="acc-item" style="margin-top:16px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>💡 Petunjuk</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Gunakan perbandingan AB/ED = BC/DC, lalu cari AB.</p></div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Langkah Penyelesaian</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>AB / 8 = 3 / 6</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>AB = (3 × 8) / 6</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>AB = 24 / 6 = 4</p></div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>✅ Jawaban</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Lebar sungai adalah <span class="hl">4 meter</span> — dihitung tanpa perlu menyeberang sama sekali!</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10: LATIHAN JARAK -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">10</span> LATIHAN INTERAKTIF</div>
+      <h2 class="title">Coba Sendiri: Lebar Kolam</h2>
+      <div class="card">
+        <p>Dengan metode segitiga sebangun yang sama, diperoleh BC = 2 m, DC = 5 m, dan ED = 10 m. Berapa lebar kolam (AB)?</p>
+        <div class="field-row">
+          <input type="number" id="ex2" step="0.01" placeholder="lebar">
+          <span class="unit-label">meter</span>
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex2',4,'ex2fb','m',0.05)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex2fb"></div>
+      </div>
+    </section>
+
+    <!-- 11: BAYANGAN BENDA - KONSEP + SIMULASI -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">11</span> PENERAPAN PADA BAYANGAN</div>
+      <h2 class="title">Penerapan pada Bayangan Benda</h2>
+      <p class="lede">Pada waktu dan lokasi yang sama, panjang bayangan benda-benda yang berdiri tegak akan <span class="hl">sebanding dengan tingginya</span> — meskipun panjang bayangan berubah sepanjang hari.</p>
+      <div class="card">
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 460 200" id="shadowSvg" width="460">
+            <line x1="10" y1="180" x2="450" y2="180" stroke="#2a3252" stroke-width="2"/>
+            <line id="pole1" x1="90" y1="180" x2="90" y2="100" stroke="#28c7d6" stroke-width="6" stroke-linecap="round"/>
+            <line id="shadow1" x1="90" y1="180" x2="150" y2="180" stroke="#28c7d6" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+            <text x="70" y="90" fill="#28c7d6" font-size="11" font-family="JetBrains Mono">4 m</text>
+            <line id="pole2" x1="300" y1="180" x2="300" y2="60" stroke="#7c6bf2" stroke-width="6" stroke-linecap="round"/>
+            <line id="shadow2" x1="300" y1="180" x2="390" y2="180" stroke="#7c6bf2" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+            <text x="280" y="50" fill="#7c6bf2" font-size="11" font-family="JetBrains Mono">10 m</text>
+          </svg>
+        </div>
+        <p style="text-align:center; font-size:13px; color:var(--text-low);">Geser slider untuk mengubah "waktu" — perhatikan bayangan berubah, namun rasionya tetap sama.</p>
+        <input type="range" id="timeSlider" min="50" max="200" value="100" oninput="updateShadow(this.value)">
+        <div class="card-soft" style="margin-top:14px; text-align:center;">
+          <span class="mono" id="shadowReadout">bayangan tiang 4m = 6.0 m &nbsp;|&nbsp; bayangan tiang 10m = 15.0 m &nbsp;|&nbsp; rasio tetap = 2 : 5</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12: CONTOH SOAL BAYANGAN -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">12</span> CONTOH SOAL</div>
+      <h2 class="title">Menghitung Tinggi Gedung dari Bayangannya</h2>
+      <div class="card">
+        <p><b style="color:var(--text-hi);">Soal:</b> Pada pukul yang sama, tiang bendera setinggi <span class="hl">4 m</span> memiliki bayangan sepanjang <span class="hl">5 m</span>. Sebuah gedung di dekatnya memiliki bayangan sepanjang <span class="hl">15 m</span>. Berapa tinggi gedung tersebut?</p>
+        <div class="acc-item" style="margin-top:16px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Langkah Penyelesaian</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>4 / 5 = h / 15</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>h = (4 × 15) / 5</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>h = 60 / 5 = 12</p></div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>✅ Jawaban</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Tinggi gedung adalah <span class="hl">12 meter</span>.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13: PETA DAN DENAH - KONSEP + KALKULATOR -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">13</span> PENERAPAN PADA PETA & DENAH</div>
+      <h2 class="title">Skala pada Peta dan Denah</h2>
+      <p class="lede">Peta adalah gambar yang sebangun dengan wilayah aslinya, hanya diperkecil dengan <span class="hl">skala</span> tertentu.</p>
+      <div class="card">
+        <div class="card-soft" style="text-align:center; font-family:var(--font-mono); font-size:16px;">
+          skala &nbsp;=&nbsp; jarak pada peta &nbsp;:&nbsp; jarak sebenarnya
+        </div>
+        <p style="margin-top:14px;">Contoh: skala <span class="hl">1 : 500.000</span> berarti setiap 1 cm di peta mewakili 500.000 cm (= 5 km) jarak sebenarnya.</p>
+
+        <h4 style="margin:20px 0 10px; color:var(--accent-2);">🧮 Kalkulator Skala Interaktif</h4>
+        <div class="field-row">
+          <span class="unit-label">Skala 1 :</span>
+          <input type="number" id="scaleDenom" placeholder="500000" value="500000">
+        </div>
+        <div class="field-row">
+          <input type="number" id="mapDist" placeholder="jarak peta" step="0.1">
+          <span class="unit-label">cm di peta</span>
+          <button class="btn btn-ghost btn-sm" onclick="calcActual()">Hitung Jarak Sebenarnya →</button>
+        </div>
+        <div class="feedback show" id="actualResult" style="background:rgba(40,199,214,0.1); color:var(--accent-2); border:1px solid rgba(40,199,214,0.3);">Masukkan angka untuk melihat hasil.</div>
+      </div>
+    </section>
+
+    <!-- 14: CONTOH SOAL PETA -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">14</span> CONTOH SOAL</div>
+      <h2 class="title">Menghitung Jarak Sebenarnya dari Peta</h2>
+      <div class="card">
+        <p><b style="color:var(--text-hi);">Soal:</b> Skala sebuah peta adalah <span class="hl">1 : 2.500.000</span>. Jarak dua kota pada peta terukur <span class="hl">6 cm</span>. Berapa jarak sebenarnya kedua kota tersebut?</p>
+        <div class="acc-item" style="margin-top:16px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Langkah Penyelesaian</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>Jarak sebenarnya = jarak peta × penyebut skala</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>= 6 × 2.500.000 = 15.000.000 cm</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>Ubah ke km: 15.000.000 cm ÷ 100.000 = 150 km</p></div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>✅ Jawaban</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Jarak sebenarnya adalah <span class="hl">150 km</span>.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15: LATIHAN PETA -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">15</span> LATIHAN INTERAKTIF</div>
+      <h2 class="title">Coba Sendiri: Denah Rumah</h2>
+      <div class="card">
+        <p>Sebuah denah rumah dibuat dengan skala 1 : 100. Panjang ruang tamu pada denah adalah 5 cm. Berapa panjang ruang tamu sebenarnya (dalam meter)?</p>
+        <div class="field-row">
+          <input type="number" id="ex3" step="0.01" placeholder="panjang">
+          <span class="unit-label">meter</span>
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex3',5,'ex3fb','m',0.05)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex3fb"></div>
+      </div>
+    </section>
+
+    <!-- 16: FOTO DAN MODEL - KONSEP -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">16</span> PENERAPAN PADA FOTO & MODEL</div>
+      <h2 class="title">Penerapan pada Foto dan Model</h2>
+      <p class="lede">Saat foto dicetak lebih besar/kecil, atau saat membuat model/maket, ukurannya harus tetap <span class="hl">sebangun</span> dengan aslinya agar tidak terlihat "gepeng" atau "gendut".</p>
+      <div class="grid2">
+        <div class="card">
+          <h4 style="margin-bottom:10px; color:var(--accent-2);">📷 Foto</h4>
+          <p>Jika lebar foto asli 4 cm dan tinggi 6 cm, lalu dicetak dengan lebar 10 cm, maka tingginya harus:</p>
+          <div class="card-soft" style="margin-top:10px; text-align:center; font-family:var(--font-mono);">4/10 = 6/h → h = 15 cm</div>
+        </div>
+        <div class="card">
+          <h4 style="margin-bottom:10px; color:var(--accent-3);">🏠 Model/Maket</h4>
+          <p>Model rumah berskala 1 : 50. Jika tinggi model 8 cm, maka tinggi rumah sebenarnya:</p>
+          <div class="card-soft" style="margin-top:10px; text-align:center; font-family:var(--font-mono);">8 × 50 = 400 cm = 4 m</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17: CONTOH SOAL FOTO/MODEL -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">17</span> CONTOH SOAL</div>
+      <h2 class="title">Memperbesar Foto secara Proporsional</h2>
+      <div class="card">
+        <p><b style="color:var(--text-hi);">Soal:</b> Sebuah foto berukuran asli lebar <span class="hl">5 cm</span> dan tinggi <span class="hl">8 cm</span> akan dicetak diperbesar dengan lebar <span class="hl">10 cm</span>. Agar tetap sebangun, berapa tinggi foto yang baru?</p>
+        <div class="acc-item" style="margin-top:16px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Langkah Penyelesaian</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>5 / 10 = 8 / h</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>h = (8 × 10) / 5</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>h = 80 / 5 = 16</p></div></div>
+            </div>
+          </div></div>
+        </div>
+        <div class="acc-item">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>✅ Jawaban</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Tinggi foto yang baru adalah <span class="hl">16 cm</span>, dengan faktor pembesaran 2 kali dari ukuran asli.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18: DESAIN DAN POLA -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">18</span> PENERAPAN PADA DESAIN & POLA</div>
+      <h2 class="title">Penerapan pada Desain dan Pola</h2>
+      <p class="lede">Motif batik, ubin lantai, dan ornamen arsitektur sering diperbesar/diperkecil — namun proporsi tiap bagiannya harus tetap sama agar pola tetap indah dan seimbang.</p>
+      <div class="card">
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 400 160" width="400">
+            <g id="patternSmall" transform="translate(60,80)">
+              <polygon points="0,-20 20,0 0,20 -20,0" fill="none" stroke="#28c7d6" stroke-width="2.5"/>
+            </g>
+            <g id="patternLarge" transform="translate(260,80) scale(1)">
+              <polygon points="0,-20 20,0 0,20 -20,0" fill="none" stroke="#7c6bf2" stroke-width="2.5"/>
+            </g>
+          </svg>
+        </div>
+        <p style="text-align:center; font-size:13px; color:var(--text-low);">Geser untuk memperbesar motif kanan — bentuknya tetap sebangun dengan motif kiri.</p>
+        <input type="range" id="patternSlider" min="100" max="250" value="100" oninput="updatePattern(this.value)">
+        <div class="card-soft" style="margin-top:14px; text-align:center;">
+          <span class="mono" id="patternReadout">sisi motif kiri = 2 cm &nbsp;|&nbsp; sisi motif kanan = 2.0 cm &nbsp;|&nbsp; rasio = 1 : 1</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19: STRATEGI MASALAH KONTEKSTUAL -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">19</span> STRATEGI PENYELESAIAN</div>
+      <h2 class="title">Menyelesaikan Masalah Kontekstual Kesebangunan</h2>
+      <p class="lede">Apa pun jenis soalnya — tinggi benda, jarak, peta, atau foto — gunakan strategi umum berikut.</p>
+      <div class="card">
+        <div class="steps">
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Pahami situasi</h4><p>Baca soal dengan cermat, kenali apa yang diketahui dan apa yang ditanyakan.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Gambarkan sketsa</h4><p>Buat sketsa sederhana untuk melihat dua segitiga atau dua bangun yang sebangun.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Pasangkan bagian yang bersesuaian</h4><p>Tentukan pasangan sisi mana yang sebanding satu sama lain.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Susun perbandingan (proporsi)</h4><p>Tulis persamaan perbandingan dari sisi-sisi yang bersesuaian.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Selesaikan dengan perkalian silang</h4><p>Hitung nilai yang ditanyakan menggunakan perkalian silang.</p></div></div>
+          <div class="step"><div class="num"></div><div class="step-body"><h4>Periksa kembali</h4><p>Pastikan satuan konsisten dan hasilnya masuk akal secara logis.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20: LATIHAN KONTEKSTUAL MUDAH -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">20</span> LATIHAN KONTEKSTUAL <span class="tag tag-easy" style="margin-left:8px;">MUDAH</span></div>
+      <h2 class="title">Tinggi Pohon Mangga</h2>
+      <div class="card">
+        <p>Sebuah tongkat 1 m memiliki bayangan 1,2 m. Bayangan pohon mangga di sampingnya berukuran 6 m. Berapa tinggi pohon mangga tersebut?</p>
+        <div class="field-row">
+          <input type="number" id="ex4" step="0.01" placeholder="tinggi">
+          <span class="unit-label">meter</span>
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex4',5,'ex4fb','m',0.05)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex4fb"></div>
+      </div>
+    </section>
+
+    <!-- 21: LATIHAN KONTEKSTUAL SEDANG -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">21</span> LATIHAN KONTEKSTUAL <span class="tag tag-med" style="margin-left:8px;">SEDANG</span></div>
+      <h2 class="title">Tinggi Menara Sinyal</h2>
+      <div class="card">
+        <p>Sebuah tiang setinggi 3 m memiliki bayangan 4 m pada saat yang sama sebuah menara sinyal di dekatnya memiliki bayangan 60 m. Berapa tinggi menara sinyal tersebut?</p>
+        <div class="field-row">
+          <input type="number" id="ex5" step="0.01" placeholder="tinggi">
+          <span class="unit-label">meter</span>
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex5',45,'ex5fb','m',0.5)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex5fb"></div>
+      </div>
+    </section>
+
+    <!-- 22: LATIHAN KONTEKSTUAL MENANTANG -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">22</span> LATIHAN KONTEKSTUAL <span class="tag tag-hard" style="margin-left:8px;">MENANTANG</span></div>
+      <h2 class="title">Menentukan Skala Peta Baru</h2>
+      <div class="card">
+        <p>Jarak dua desa pada sebuah peta berskala 1 : 150.000 adalah 8 cm. Peta tersebut kemudian digambar ulang dengan ukuran lebih besar sehingga jarak dua desa itu pada peta baru menjadi 12 cm (jarak sebenarnya tidak berubah). Berapa skala peta yang baru? (Tuliskan penyebutnya saja, misal untuk 1:80000 tulis 80000)</p>
+        <div class="acc-item" style="margin-top:14px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>💡 Petunjuk</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in"><p>Cari dulu jarak sebenarnya dari peta lama, baru gunakan jarak peta yang baru untuk menentukan skala barunya.</p></div></div>
+        </div>
+        <div class="field-row">
+          <span class="unit-label">Skala baru = 1 :</span>
+          <input type="number" id="ex6" step="1" placeholder="penyebut">
+          <button class="btn btn-primary btn-sm" onclick="checkEx('ex6',100000,'ex6fb','',500)">Periksa Jawaban</button>
+        </div>
+        <div class="feedback" id="ex6fb"></div>
+        <div class="acc-item" style="margin-top:14px;">
+          <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>🪜 Lihat Pembahasan Lengkap</span><span class="chev">▾</span></div>
+          <div class="acc-body"><div class="acc-body-in">
+            <div class="steps">
+              <div class="step"><div class="num"></div><div class="step-body"><p>Jarak sebenarnya = 8 × 150.000 = 1.200.000 cm = 12 km.</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>Skala baru = jarak peta baru : jarak sebenarnya = 12 : 1.200.000</p></div></div>
+              <div class="step"><div class="num"></div><div class="step-body"><p>Sederhanakan: 1 : 100.000</p></div></div>
+            </div>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23: KUIS -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">23</span> KUIS AKHIR</div>
+      <h2 class="title">Uji Pemahamanmu</h2>
+      <p class="lede">8 soal pilihan ganda untuk menguji pemahamanmu tentang penerapan kesebangunan.</p>
+      <div class="card quiz-shell" id="quizCard">
+        <div class="quiz-progress" id="quizProgress"></div>
+        <div id="quizBody"></div>
+      </div>
+    </section>
+
+    <!-- 24: REFLEKSI -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">24</span> REFLEKSI</div>
+      <h2 class="title">Refleksi Diri</h2>
+      <p class="lede">Klik pernyataan yang sesuai dengan kondisimu saat ini.</p>
+      <div class="card">
+        <div id="reflectionList">
+          <div class="acc-item">
+            <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Saya bisa menjelaskan cara mengukur tinggi benda menggunakan bayangan.</span><span class="chev">▾</span></div>
+            <div class="acc-body"><div class="acc-body-in"><p>Coba jelaskan kembali dengan kata-katamu sendiri ke teman sebangku, atau buka kembali slide 5–7 jika masih ragu.</p></div></div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Saya memahami cara menghitung jarak menggunakan metode segitiga sebangun.</span><span class="chev">▾</span></div>
+            <div class="acc-body"><div class="acc-body-in"><p>Ulangi contoh soal "lebar sungai" pada slide 9 sambil menggambar sketsa sendiri.</p></div></div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Saya bisa menghitung jarak sebenarnya dari skala peta.</span><span class="chev">▾</span></div>
+            <div class="acc-body"><div class="acc-body-in"><p>Coba kalkulator skala interaktif di slide 13 dengan angka yang berbeda-beda.</p></div></div>
+          </div>
+          <div class="acc-item">
+            <div class="acc-head" onclick="this.parentElement.classList.toggle('open')"><span>Saya dapat menyelesaikan soal cerita kesebangunan secara sistematis.</span><span class="chev">▾</span></div>
+            <div class="acc-body"><div class="acc-body-in"><p>Latih kembali langkah-langkah pada slide 19, lalu coba latihan soal menantang di slide 22.</p></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 25: RANGKUMAN -->
+    <section class="slide">
+      <div class="eyebrow"><span class="num">25</span> RANGKUMAN</div>
+      <h2 class="title">Rangkuman Materi</h2>
+      <div class="card">
+        <ul class="plain">
+          <li><span class="hl">Kesebangunan</span> digunakan untuk mengukur benda/jarak yang sulit diukur langsung, dengan memanfaatkan bayangan atau titik bidik yang membentuk segitiga sebangun.</li>
+          <li>Rumus dasar: <span class="mono">tinggi₁ / bayangan₁ = tinggi₂ / bayangan₂</span></li>
+          <li>Pada <span class="hl">peta dan denah</span>, skala menghubungkan jarak peta dan jarak sebenarnya: <span class="mono">skala = jarak peta : jarak sebenarnya</span></li>
+          <li>Pada <span class="hl">foto dan model</span>, pembesaran/pengecilan harus proporsional agar tetap sebangun dengan aslinya.</li>
+          <li>Pada <span class="hl">desain dan pola</span>, motif yang diperbesar/diperkecil harus mempertahankan proporsi setiap bagiannya.</li>
+          <li>Strategi umum: pahami soal → sketsa → pasangkan bagian bersesuaian → susun proporsi → hitung → periksa kembali.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 26: PENUTUP -->
+    <section class="slide">
+      <div class="cover">
+        <div class="chapter-tag">SELESAI</div>
+        <h1 style="font-size:clamp(28px,5.5vw,44px);">Kerja Bagus!</h1>
+        <p class="sub">Kamu telah menyelesaikan pembelajaran Penerapan Kesebangunan. Konsep ini akan terus muncul — dalam peta digital, desain, fotografi, hingga arsitektur. Selamat belajar terus!</p>
+        <button class="btn btn-warm" onclick="goTo(0)">↺ Ulangi dari Awal</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="navbar">
+  <div class="navbar-inner">
+    <button class="nav-btn ghost" id="prevBtn" onclick="prevSlide()">‹</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-btn" id="nextBtn" onclick="nextSlide()">›</button>
+  </div>
+</div>
+
+<script>
+/* ============ NAVIGATION ENGINE ============ */
+var slides = document.querySelectorAll('.slide');
+var total = slides.length;
+var current = 0;
+
+var dotsWrap = document.getElementById('navDots');
+for (var i = 0; i < total; i++) {
+  var d = document.createElement('div');
+  d.className = 'nav-dot';
+  d.setAttribute('data-i', i);
+  d.onclick = (function(idx){ return function(){ goTo(idx); }; })(i);
+  dotsWrap.appendChild(d);
+}
+
+function render(){
+  for (var i = 0; i < total; i++){
+    slides[i].classList.toggle('active', i === current);
+  }
+  var dots = dotsWrap.querySelectorAll('.nav-dot');
+  for (var j = 0; j < dots.length; j++){
+    dots[j].classList.toggle('active', j === current);
+  }
+  document.getElementById('progressFill').style.width = ((current) / (total - 1) * 100) + '%';
+  document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === total - 1;
+
+  var activeDot = dotsWrap.querySelector('.nav-dot.active');
+  if (activeDot && activeDot.scrollIntoView) {
+    activeDot.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+  }
+  window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+}
+
+function goTo(n){
+  if (n < 0 || n >= total) return;
+  current = n;
+  render();
+}
+function nextSlide(){ if (current < total - 1){ current++; render(); } }
+function prevSlide(){ if (current > 0){ current--; render(); } }
+
+document.addEventListener('keydown', function(e){
+  var tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight') nextSlide();
+  if (e.key === 'ArrowLeft') prevSlide();
+});
+
+render();
+
+/* ============ GENERIC ANSWER CHECKER ============ */
+function checkEx(inputId, correct, fbId, unit, tol){
+  var val = parseFloat(document.getElementById(inputId).value);
+  var fb = document.getElementById(fbId);
+  if (isNaN(val)){
+    fb.className = 'feedback show bad';
+    fb.textContent = 'Isi jawabanmu terlebih dahulu ya.';
+    return;
+  }
+  if (Math.abs(val - correct) <= tol){
+    fb.className = 'feedback show ok';
+    fb.textContent = '✅ Benar! Jawabannya ' + correct + (unit ? ' ' + unit : '') + '.';
+  } else {
+    fb.className = 'feedback show bad';
+    fb.textContent = '❌ Belum tepat, coba periksa kembali perhitunganmu. Gunakan perbandingan tinggi/bayangan.';
+  }
+}
+
+/* ============ SCALE CALCULATOR ============ */
+function calcActual(){
+  var scale = parseFloat(document.getElementById('scaleDenom').value);
+  var mapCm = parseFloat(document.getElementById('mapDist').value);
+  var out = document.getElementById('actualResult');
+  if (isNaN(scale) || isNaN(mapCm) || scale <= 0){
+    out.textContent = 'Masukkan angka skala dan jarak peta yang valid.';
+    return;
+  }
+  var actualCm = mapCm * scale;
+  var actualKm = actualCm / 100000;
+  var actualM = actualCm / 100;
+  var display = actualKm >= 1 ? actualKm.toFixed(2) + ' km' : actualM.toFixed(2) + ' m';
+  out.textContent = 'Jarak sebenarnya = ' + mapCm + ' cm × ' + scale + ' = ' + actualCm.toLocaleString('id-ID') + ' cm ≈ ' + display;
+}
+
+/* ============ SHADOW SIMULATION ============ */
+function updateShadow(val){
+  var factor = val / 100;
+  var s1 = 6 * factor;
+  var s2 = 15 * factor;
+  var pxPerM = 15;
+  document.getElementById('shadow1').setAttribute('x2', 90 + s1 * pxPerM);
+  document.getElementById('shadow2').setAttribute('x2', 300 + s2 * pxPerM);
+  document.getElementById('shadowReadout').textContent =
+    'bayangan tiang 4m = ' + s1.toFixed(1) + ' m  |  bayangan tiang 10m = ' + s2.toFixed(1) + ' m  |  rasio tetap = 2 : 5';
+}
+
+/* ============ PATTERN SLIDER ============ */
+function updatePattern(val){
+  var scale = val / 100;
+  document.getElementById('patternLarge').setAttribute('transform', 'translate(260,80) scale(' + scale + ')');
+  var sideSmall = 2;
+  var sideLarge = (2 * scale).toFixed(1);
+  var ratio = scale.toFixed(2);
+  document.getElementById('patternReadout').textContent =
+    'sisi motif kiri = ' + sideSmall + ' cm  |  sisi motif kanan = ' + sideLarge + ' cm  |  rasio = 1 : ' + ratio;
+}
+
+/* ============ QUIZ ENGINE ============ */
+var quizData = [
+  {
+    q: "Dua bangun dikatakan sebangun jika...",
+    options: [
+      "Sudut-sudut bersesuaian sama besar dan sisi-sisi bersesuaian sebanding",
+      "Luasnya sama persis",
+      "Kelilingnya sama persis",
+      "Warnanya sama"
+    ],
+    correct: 0,
+    explain: "Syarat kesebangunan adalah sudut-sudut yang bersesuaian sama besar DAN sisi-sisi yang bersesuaian memiliki perbandingan (rasio) yang sama."
+  },
+  {
+    q: "Sebuah tongkat 2 m memiliki bayangan 3 m. Pada saat yang sama, bayangan sebuah pohon 9 m. Berapa tinggi pohon?",
+    options: ["4,5 m", "6 m", "7 m", "9 m"],
+    correct: 1,
+    explain: "2/3 = h/9, sehingga h = (2×9)/3 = 6 m."
+  },
+  {
+    q: "Metode segitiga sebangun dengan titik bidik di daratan sering digunakan untuk mengukur...",
+    options: ["Berat suatu benda", "Lebar sungai yang sulit diseberangi", "Volume air", "Massa jenis benda"],
+    correct: 1,
+    explain: "Metode ini memungkinkan kita menghitung lebar sungai (jarak) tanpa harus menyeberanginya."
+  },
+  {
+    q: "Skala sebuah peta adalah 1 : 500.000. Jarak dua kota pada peta 4 cm. Berapa jarak sebenarnya?",
+    options: ["2 km", "20 km", "200 km", "2.000 km"],
+    correct: 1,
+    explain: "4 × 500.000 = 2.000.000 cm = 20 km."
+  },
+  {
+    q: "Pada waktu dan lokasi yang sama, panjang bayangan benda-benda yang berdiri tegak akan...",
+    options: [
+      "Selalu sama panjang untuk semua benda",
+      "Sebanding dengan tinggi bendanya",
+      "Tidak berhubungan dengan tinggi benda",
+      "Berbanding terbalik dengan tinggi benda"
+    ],
+    correct: 1,
+    explain: "Karena sudut datang sinar matahari sama untuk semua benda pada saat dan lokasi yang sama, bayangan sebanding dengan tinggi benda (segitiga sebangun)."
+  },
+  {
+    q: "Foto asli berukuran lebar 5 cm dan tinggi 8 cm diperbesar menjadi lebar 10 cm. Berapa tinggi foto yang baru agar tetap sebangun?",
+    options: ["10 cm", "13 cm", "16 cm", "20 cm"],
+    correct: 2,
+    explain: "5/10 = 8/h, sehingga h = (8×10)/5 = 16 cm."
+  },
+  {
+    q: "Sebuah model pesawat berskala 1 : 48. Jika panjang model 25 cm, berapa panjang pesawat sebenarnya?",
+    options: ["1,2 m", "4,8 m", "12 m", "120 m"],
+    correct: 2,
+    explain: "25 × 48 = 1.200 cm = 12 m."
+  },
+  {
+    q: "Ciri utama penerapan kesebangunan pada desain/pola (misalnya motif batik) adalah...",
+    options: [
+      "Warna setiap bagian pola harus identik",
+      "Perbandingan ukuran setiap bagian pola tetap sama meski diperbesar/diperkecil",
+      "Jumlah bagian pola harus genap",
+      "Pola harus berbentuk lingkaran"
+    ],
+    correct: 1,
+    explain: "Saat pola diperbesar/diperkecil, proporsi (perbandingan) antar bagian pola harus tetap sama agar bentuknya tidak berubah/distorsi."
+  }
+];
+
+var qIndex = 0;
+var qScore = 0;
+var qAnswered = false;
+
+function renderQuizProgress(){
+  var wrap = document.getElementById('quizProgress');
+  wrap.innerHTML = '';
+  for (var i = 0; i < quizData.length; i++){
+    var dot = document.createElement('div');
+    dot.className = 'qdot' + (i < qIndex ? ' done' : (i === qIndex ? ' current' : ''));
+    wrap.appendChild(dot);
+  }
+}
+
+function renderQuestion(){
+  qAnswered = false;
+  renderQuizProgress();
+  var body = document.getElementById('quizBody');
+  var item = quizData[qIndex];
+  var html = '<div class="quiz-q">Soal ' + (qIndex+1) + ' dari ' + quizData.length + '<br>' + item.q + '</div>';
+  for (var i = 0; i < item.options.length; i++){
+    html += '<button class="quiz-opt" onclick="answerQuiz(' + i + ')">' + item.options[i] + '</button>';
+  }
+  html += '<div class="quiz-explain" id="quizExplain">' + item.explain + '</div>';
+  html += '<div style="margin-top:16px; text-align:right;"><button class="btn btn-primary btn-sm" id="quizNextBtn" style="display:none;" onclick="nextQuizQuestion()">' +
+          (qIndex === quizData.length - 1 ? 'Lihat Skor' : 'Soal Berikutnya →') + '</button></div>';
+  body.innerHTML = html;
+}
+
+function answerQuiz(choice){
+  if (qAnswered) return;
+  qAnswered = true;
+  var item = quizData[qIndex];
+  var opts = document.querySelectorAll('#quizBody .quiz-opt');
+  for (var i = 0; i < opts.length; i++){
+    opts[i].disabled = true;
+    if (i === item.correct) opts[i].classList.add('correct');
+    else if (i === choice) opts[i].classList.add('wrong');
+  }
+  if (choice === item.correct) qScore++;
+  document.getElementById('quizExplain').classList.add('show');
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+}
+
+function nextQuizQuestion(){
+  qIndex++;
+  if (qIndex < quizData.length){
+    renderQuestion();
+  } else {
+    renderQuizResult();
+  }
+}
+
+function renderQuizResult(){
+  var pct = Math.round((qScore / quizData.length) * 100);
+  var circumference = 2 * Math.PI * 60;
+  var offset = circumference - (circumference * pct / 100);
+  var color = pct >= 75 ? '#33d6a6' : (pct >= 50 ? '#f5a524' : '#f2617a');
+  var msg = pct >= 75 ? 'Luar biasa! Kamu sudah menguasai materi ini. 🎉' :
+            pct >= 50 ? 'Cukup baik! Coba ulas kembali bagian yang masih keliru. 💪' :
+            'Jangan menyerah, buka kembali materi dan coba lagi. 🌱';
+  document.getElementById('quizProgress').innerHTML = '';
+  document.getElementById('quizBody').innerHTML =
+    '<div style="text-align:center; padding:10px 0 6px;">' +
+      '<div class="quiz-score-ring"><svg width="150" height="150" viewBox="0 0 150 150">' +
+        '<circle cx="75" cy="75" r="60" fill="none" stroke="#1a2036" stroke-width="12"/>' +
+        '<circle cx="75" cy="75" r="60" fill="none" stroke="' + color + '" stroke-width="12" stroke-linecap="round" ' +
+          'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"/>' +
+      '</svg><div class="quiz-score-num">' + pct + '%</div></div>' +
+      '<h3 style="margin-bottom:8px;">Skor kamu: ' + qScore + ' / ' + quizData.length + '</h3>' +
+      '<p style="max-width:380px; margin:0 auto 22px;">' + msg + '</p>' +
+      '<button class="btn btn-primary" onclick="restartQuiz()">↺ Ulangi Kuis</button>' +
+    '</div>';
+}
+
+function restartQuiz(){
+  qIndex = 0;
+  qScore = 0;
+  renderQuestion();
+}
+
+renderQuestion();
+</script>
+</body>
+</html>

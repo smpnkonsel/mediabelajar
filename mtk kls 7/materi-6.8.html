@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menentukan Sudut yang Tidak Diketahui — Kesebangunan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#080b14;
+  --bg-1:#0d1220;
+  --bg-2:#141b30;
+  --bg-3:#1b2440;
+  --bg-card:#182040;
+  --border:rgba(255,255,255,.09);
+  --border-strong:rgba(255,255,255,.16);
+  --text-1:#eef1fa;
+  --text-2:#a6b0cc;
+  --text-3:#6d7796;
+  --amber:#ffb454;
+  --amber-dim:rgba(255,180,84,.14);
+  --teal:#4fd6c4;
+  --teal-dim:rgba(79,214,196,.14);
+  --rose:#ff7085;
+  --rose-dim:rgba(255,112,133,.14);
+  --green:#6ee7b7;
+  --green-dim:rgba(110,231,183,.14);
+  --violet:#b39ddb;
+  --font-head:'Fredoka',sans-serif;
+  --font-body:'Plus Jakarta Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius-lg:22px;
+  --radius-md:14px;
+  --radius-sm:9px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255,180,84,.10), transparent 42%),
+    radial-gradient(circle at 88% 82%, rgba(79,214,196,.10), transparent 45%),
+    linear-gradient(160deg,var(--bg-0),var(--bg-1) 45%,var(--bg-0));
+  color:var(--text-1);
+  font-family:var(--font-body);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  height:100vh;
+}
+h1,h2,h3{font-family:var(--font-head);font-weight:600;margin:0 0 .5rem;line-height:1.25;}
+p{line-height:1.65;color:var(--text-2);margin:0 0 .9rem;}
+.mono{font-family:var(--font-mono);}
+::selection{background:var(--amber);color:#1a1204;}
+
+/* ---------- top bar ---------- */
+.topbar{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 22px;
+  border-bottom:1px solid var(--border);
+  background:rgba(8,11,20,.55);
+  backdrop-filter:blur(10px);
+  flex-shrink:0;
+}
+.topbar .brand{font-family:var(--font-head);font-size:.95rem;color:var(--text-1);white-space:nowrap;}
+.topbar .brand span{color:var(--amber);}
+.progress-track{
+  flex:1;height:7px;border-radius:99px;background:var(--bg-3);overflow:hidden;
+  border:1px solid var(--border);
+}
+.progress-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--teal),var(--amber));
+  width:0%;transition:width .35s ease;
+}
+.slide-count{font-family:var(--font-mono);font-size:.78rem;color:var(--text-3);white-space:nowrap;min-width:52px;text-align:right;}
+
+/* ---------- slide viewport ---------- */
+.viewport{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:26px 22px;
+  overflow:hidden;
+  position:relative;
+}
+.slide{
+  display:none;
+  width:100%;
+  max-width:920px;
+  max-height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:8px 6px 18px;
+  animation:fadeUp .38s ease;
+}
+.slide::-webkit-scrollbar{width:7px;}
+.slide::-webkit-scrollbar-thumb{background:var(--bg-3);border-radius:99px;}
+.slide.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+.eyebrow-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.02em;
+  color:var(--amber);background:var(--amber-dim);
+  border:1px solid rgba(255,180,84,.3);
+  padding:5px 12px;border-radius:99px;margin-bottom:14px;
+}
+.eyebrow-tag.teal{color:var(--teal);background:var(--teal-dim);border-color:rgba(79,214,196,.3);}
+.eyebrow-tag.rose{color:var(--rose);background:var(--rose-dim);border-color:rgba(255,112,133,.3);}
+
+.card{
+  background:linear-gradient(180deg,var(--bg-card),var(--bg-2));
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:26px 28px;
+  margin-bottom:18px;
+}
+.card.tight{padding:18px 20px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:720px){.grid-2{grid-template-columns:1fr;}}
+
+/* ---------- slide 1 : cover ---------- */
+.cover-wrap{text-align:center;padding-top:6vh;}
+.cover-badge{
+  width:86px;height:86px;margin:0 auto 22px;border-radius:26px;
+  background:linear-gradient(135deg,var(--amber),var(--teal));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-size:2rem;color:#0a0d16;
+  box-shadow:0 18px 40px -12px rgba(255,180,84,.4);
+}
+.cover-wrap h1{font-size:2.35rem;background:linear-gradient(90deg,#fff,var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.cover-wrap .sub{font-size:1.05rem;color:var(--text-2);max-width:560px;margin:0 auto 22px;}
+.chip-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:30px;}
+.chip{
+  font-size:.82rem;padding:7px 15px;border-radius:99px;
+  background:var(--bg-3);border:1px solid var(--border);color:var(--text-2);
+}
+.start-btn{
+  font-family:var(--font-head);font-size:1rem;color:#0a0d16;
+  background:linear-gradient(90deg,var(--amber),#ffd28a);
+  border:none;padding:14px 34px;border-radius:99px;cursor:pointer;
+  box-shadow:0 14px 30px -10px rgba(255,180,84,.55);
+  transition:transform .18s ease;
+}
+.start-btn:hover{transform:translateY(-2px);}
+
+/* ---------- generic components ---------- */
+.reveal-btn{
+  font-family:var(--font-body);font-weight:600;font-size:.88rem;
+  color:#0a0d16;background:var(--teal);border:none;
+  padding:10px 20px;border-radius:99px;cursor:pointer;
+  transition:transform .15s ease, filter .15s ease;
+}
+.reveal-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+.reveal-btn.amber{background:var(--amber);}
+.reveal-btn.ghost{
+  background:transparent;color:var(--text-1);border:1px solid var(--border-strong);
+}
+.hidden-block{display:none;margin-top:14px;animation:fadeUp .3s ease;}
+.hidden-block.show{display:block;}
+
+.accordion{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:12px;}
+.accordion summary{
+  list-style:none;cursor:pointer;padding:15px 18px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--bg-3);font-weight:600;color:var(--text-1);
+}
+.accordion summary::-webkit-details-marker{display:none;}
+.accordion summary .arrow{transition:transform .25s ease;color:var(--amber);font-family:var(--font-mono);}
+.accordion[open] summary .arrow{transform:rotate(90deg);}
+.accordion .acc-body{padding:16px 18px 18px;background:var(--bg-2);border-top:1px solid var(--border);}
+
+.term-list{list-style:none;padding:0;margin:0;}
+.term-list li{
+  display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border);
+}
+.term-list li:last-child{border-bottom:none;}
+.term-list b{color:var(--text-1);min-width:150px;flex-shrink:0;}
+
+.formula-box{
+  font-family:var(--font-mono);font-size:1.05rem;color:var(--amber);
+  background:var(--bg-1);border:1px solid rgba(255,180,84,.28);
+  border-radius:var(--radius-md);padding:14px 18px;margin:12px 0;
+  text-align:center;letter-spacing:.02em;
+}
+
+/* MC options */
+.mc-grid{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+.mc-option{
+  text-align:left;padding:13px 16px;border-radius:var(--radius-md);
+  border:1px solid var(--border-strong);background:var(--bg-3);
+  color:var(--text-1);cursor:pointer;font-family:var(--font-body);font-size:.94rem;
+  transition:background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.mc-option:hover{border-color:var(--teal);transform:translateX(2px);}
+.mc-option.correct{background:var(--green-dim);border-color:var(--green);color:var(--green);}
+.mc-option.wrong{background:var(--rose-dim);border-color:var(--rose);color:var(--rose);}
+.mc-option[disabled]{cursor:default;}
+.feedback-line{margin-top:10px;font-size:.88rem;font-weight:600;display:none;}
+.feedback-line.show{display:block;}
+.feedback-line.ok{color:var(--green);}
+.feedback-line.no{color:var(--rose);}
+
+/* step example */
+.step-item{
+  border-left:3px solid var(--bg-3);padding:4px 0 4px 18px;margin-bottom:6px;
+  opacity:.35;transition:opacity .3s ease, border-color .3s ease;
+}
+.step-item.active-step{opacity:1;border-color:var(--teal);}
+.step-item .step-label{font-family:var(--font-mono);font-size:.72rem;color:var(--teal);letter-spacing:.03em;}
+
+/* SVG figure frame */
+.figure-frame{
+  background:var(--bg-1);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:14px;display:flex;justify-content:center;margin:14px 0;
+}
+.figure-frame svg{max-width:100%;height:auto;}
+
+/* pairs matching */
+.pair-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.pair-btn{
+  padding:9px 16px;border-radius:99px;border:1px solid var(--border-strong);
+  background:var(--bg-3);color:var(--text-1);cursor:pointer;font-size:.85rem;
+  font-family:var(--font-mono);
+}
+.pair-btn.matched-amber{background:var(--amber-dim);border-color:var(--amber);color:var(--amber);}
+.pair-btn.matched-teal{background:var(--teal-dim);border-color:var(--teal);color:var(--teal);}
+.pair-btn.matched-violet{background:rgba(179,157,219,.16);border-color:var(--violet);color:var(--violet);}
+
+/* slider block */
+.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;}
+.slider-row label{width:96px;flex-shrink:0;font-size:.86rem;color:var(--text-2);}
+.slider-row input[type=range]{flex:1;accent-color:var(--amber);}
+.slider-val{font-family:var(--font-mono);color:var(--amber);width:52px;text-align:right;}
+
+/* difficulty tag */
+.diff-tag{
+  display:inline-block;font-size:.72rem;font-family:var(--font-mono);
+  padding:4px 11px;border-radius:99px;margin-bottom:10px;
+}
+.diff-easy{background:var(--green-dim);color:var(--green);}
+.diff-med{background:var(--amber-dim);color:var(--amber);}
+.diff-hard{background:var(--rose-dim);color:var(--rose);}
+
+/* reflection buttons */
+.reflect-row{display:flex;flex-wrap:wrap;gap:10px;}
+.reflect-btn{
+  flex:1;min-width:150px;padding:16px;border-radius:var(--radius-md);
+  border:1px solid var(--border-strong);background:var(--bg-3);color:var(--text-1);
+  cursor:pointer;font-family:var(--font-body);font-size:.9rem;text-align:center;
+}
+.reflect-btn.picked{border-color:var(--amber);background:var(--amber-dim);color:var(--amber);}
+
+/* quiz */
+#quiz-area .q-block{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+#quiz-area .q-block:last-child{border-bottom:none;}
+.q-num{font-family:var(--font-mono);color:var(--teal);font-size:.78rem;margin-bottom:6px;}
+.quiz-result{
+  text-align:center;padding:26px;border-radius:var(--radius-lg);
+  background:linear-gradient(180deg,var(--bg-card),var(--bg-2));border:1px solid var(--border);
+}
+.quiz-score{font-family:var(--font-head);font-size:2.6rem;color:var(--amber);}
+
+/* summary list */
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media (max-width:720px){.sum-grid{grid-template-columns:1fr;}}
+.sum-card{
+  background:var(--bg-3);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:16px 18px;
+}
+.sum-card .num{font-family:var(--font-mono);color:var(--amber);font-size:.78rem;}
+
+/* ---------- bottom nav ---------- */
+.bottombar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:14px 22px;border-top:1px solid var(--border);
+  background:rgba(8,11,20,.55);backdrop-filter:blur(10px);flex-shrink:0;
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;
+  font-family:var(--font-body);font-weight:600;font-size:.9rem;
+  background:var(--bg-3);color:var(--text-1);border:1px solid var(--border-strong);
+  padding:10px 20px;border-radius:99px;cursor:pointer;transition:background .15s ease;
+}
+.nav-btn:hover:not(:disabled){background:var(--bg-2);border-color:var(--teal);}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed;}
+.nav-btn.primary{background:linear-gradient(90deg,var(--teal),#7be6d8);color:#08130f;border:none;}
+.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:340px;justify-content:center;}
+.dot{width:7px;height:7px;border-radius:99px;background:var(--bg-3);border:1px solid var(--border);cursor:pointer;transition:background .2s ease,transform .2s ease;}
+.dot.on{background:var(--amber);transform:scale(1.35);border-color:var(--amber);}
+.home-btn{
+  background:transparent;border:1px solid var(--border-strong);color:var(--text-3);
+  width:40px;height:40px;border-radius:99px;cursor:pointer;font-size:1rem;flex-shrink:0;
+}
+.home-btn:hover{color:var(--amber);border-color:var(--amber);}
+
+@media (max-width:640px){
+  .topbar .brand{display:none;}
+  .dots{display:none;}
+  .nav-btn span.label{display:none;}
+  .nav-btn{padding:10px 14px;}
+  .cover-wrap h1{font-size:1.7rem;}
+  .card{padding:18px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">Bab 6 · <span>Kesebangunan</span></div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="slide-count"><span id="curNum">1</span>/<span id="totalNum">1</span></div>
+</div>
+
+<div class="viewport" id="viewport">
+
+<!-- SLIDE 1 : COVER -->
+<section class="slide" data-title="Pembuka">
+  <div class="cover-wrap">
+    <div class="cover-badge">∠</div>
+    <div class="eyebrow-tag">Bab 6 — Kesebangunan</div>
+    <h1>Menentukan Sudut yang Tidak Diketahui</h1>
+    <p class="sub">Belajar menentukan besar sudut pada bangun-bangun yang sebangun, dengan memanfaatkan sifat sudut bersesuaian dan hubungan sudut pada segitiga.</p>
+    <div class="chip-row">
+      <span class="chip">Sudut bersesuaian</span>
+      <span class="chip">Sifat kesebangunan</span>
+      <span class="chip">Jumlah sudut segitiga</span>
+      <span class="chip">Segitiga sebangun</span>
+      <span class="chip">Masalah kontekstual</span>
+    </div>
+    <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+  </div>
+</section>
+
+<!-- SLIDE 2 : APERSEPSI -->
+<section class="slide" data-title="Apersepsi">
+  <div class="eyebrow-tag teal">Apersepsi</div>
+  <h2>Sebelum mulai, ingat-ingat dulu yuk...</h2>
+  <p>Pada pertemuan sebelumnya, kalian sudah belajar tentang bangun-bangun yang sebangun. Coba jawab pertanyaan berikut di dalam hati, lalu klik tombol untuk melihat jawabannya.</p>
+  <div class="card tight">
+    <p style="color:var(--text-1);font-weight:600;">Dua bangun datar dikatakan sebangun jika memenuhi dua syarat. Apa sajakah itu?</p>
+    <button class="reveal-btn" onclick="toggleReveal('ap1')">Tampilkan Jawaban</button>
+    <div class="hidden-block" id="ap1">
+      <ul class="term-list">
+        <li><b>Syarat 1</b><span>Panjang sisi-sisi yang bersesuaian memiliki perbandingan yang sama (sebanding).</span></li>
+        <li><b>Syarat 2</b><span>Besar sudut-sudut yang bersesuaian sama besar.</span></li>
+      </ul>
+      <p style="margin-top:10px;">Nah, pada pertemuan ini kita akan fokus pada <b style="color:var(--amber);">syarat kedua</b>: bagaimana cara memakai sifat "sudut bersesuaian sama besar" itu untuk mencari sudut yang belum diketahui.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 3 : TUJUAN PEMBELAJARAN -->
+<section class="slide" data-title="Tujuan Pembelajaran">
+  <div class="eyebrow-tag">Tujuan Pembelajaran</div>
+  <h2>Setelah pembelajaran ini, kalian dapat:</h2>
+  <div class="card">
+    <ul class="term-list">
+      <li><b>01</b><span>Mengidentifikasi pasangan sudut-sudut yang bersesuaian pada dua bangun sebangun.</span></li>
+      <li><b>02</b><span>Menjelaskan sifat kesamaan besar sudut pada bangun-bangun yang sebangun.</span></li>
+      <li><b>03</b><span>Menentukan besar sudut yang belum diketahui pada bangun sebangun menggunakan sifat kesesuaian sudut.</span></li>
+      <li><b>04</b><span>Menggunakan hubungan sudut pada segitiga (jumlah sudut 180°, sudut berpelurus, dan sudut bertolak belakang) untuk melengkapi informasi sudut.</span></li>
+      <li><b>05</b><span>Menentukan sudut pada segitiga-segitiga yang sebangun dengan menggabungkan kedua sifat di atas.</span></li>
+      <li><b>06</b><span>Menyelesaikan masalah kontekstual sehari-hari yang melibatkan sudut pada bangun sebangun.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SLIDE 4 : KONSEP - SUDUT BERSESUAIAN -->
+<section class="slide" data-title="Konsep: Sudut Bersesuaian">
+  <div class="eyebrow-tag">Konsep 1</div>
+  <h2>Sudut-Sudut yang Bersesuaian</h2>
+  <p>Ketika dua bangun sebangun digambar, setiap sudut pada bangun pertama memiliki "pasangan" sudut pada bangun kedua yang menempati posisi yang sama secara struktural. Pasangan sudut inilah yang disebut <b style="color:var(--text-1);">sudut-sudut bersesuaian</b>.</p>
+  <div class="figure-frame">
+    <svg viewBox="0 0 560 240" xmlns="http://www.w3.org/2000/svg">
+      <!-- triangle 1 -->
+      <polygon points="40,190 190,190 100,55" fill="none" stroke="#4fd6c4" stroke-width="3"/>
+      <path d="M 55 190 A 20 20 0 0 1 66 174" fill="none" stroke="#ffb454" stroke-width="2.5"/>
+      <path d="M 172 190 A 20 20 0 0 0 156 176" fill="none" stroke="#ff7085" stroke-width="2.5"/>
+      <path d="M 92 68 A 18 18 0 0 1 110 68" fill="none" stroke="#b39ddb" stroke-width="2.5"/>
+      <text x="35" y="205" fill="#eef1fa" font-size="15" font-family="Fredoka">A</text>
+      <text x="185" y="205" fill="#eef1fa" font-size="15" font-family="Fredoka">B</text>
+      <text x="94" y="45" fill="#eef1fa" font-size="15" font-family="Fredoka">C</text>
+      <!-- arrow -->
+      <path d="M 230 130 L 300 130" stroke="#6d7796" stroke-width="2" marker-end="url(#arrow)"/>
+      <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6d7796"/></marker></defs>
+      <text x="238" y="118" fill="#6d7796" font-size="12" font-family="'Plus Jakarta Sans'">diperbesar</text>
+      <!-- triangle 2 (scaled x1.6) -->
+      <polygon points="330,220 570,220 420,20" fill="none" stroke="#4fd6c4" stroke-width="3"/>
+      <path d="M 354 220 A 26 26 0 0 1 369.6 197.6" fill="none" stroke="#ffb454" stroke-width="2.5"/>
+      <path d="M 546.8 220 A 26 26 0 0 0 524.8 200.4" fill="none" stroke="#ff7085" stroke-width="2.5"/>
+      <path d="M 394.8 32.8 A 22 22 0 0 1 418.8 32.8" fill="none" stroke="#b39ddb" stroke-width="2.5"/>
+      <text x="320" y="238" fill="#eef1fa" font-size="15" font-family="Fredoka">P</text>
+      <text x="565" y="238" fill="#eef1fa" font-size="15" font-family="Fredoka">Q</text>
+      <text x="418" y="12" fill="#eef1fa" font-size="15" font-family="Fredoka">R</text>
+    </svg>
+  </div>
+  <p style="text-align:center;font-size:.85rem;">Segitiga <b class="mono" style="color:var(--text-1);">ABC</b> sebangun dengan segitiga <b class="mono" style="color:var(--text-1);">PQR</b>. Warna arsir sudut menunjukkan pasangan sudut yang bersesuaian: <span style="color:var(--amber);">∠A ↔ ∠P</span>, <span style="color:var(--rose);">∠B ↔ ∠Q</span>, <span style="color:var(--violet);">∠C ↔ ∠R</span>.</p>
+  <div class="card tight">
+    <p style="margin:0;color:var(--text-1);">💡 Cara mudah mengenali sudut bersesuaian: lihat <b>urutan huruf</b> pada nama bangun. Jika ditulis △ABC ~ △PQR, maka huruf pada urutan yang sama otomatis bersesuaian (A↔P, B↔Q, C↔R).</p>
+  </div>
+</section>
+
+<!-- SLIDE 5 : INTERAKTIF PASANGAN SUDUT -->
+<section class="slide" data-title="Interaktif: Pasangkan Sudut">
+  <div class="eyebrow-tag teal">Aktivitas Interaktif</div>
+  <h2>Cocokkan Pasangan Sudut Bersesuaian</h2>
+  <p>Diketahui <span class="mono">△KLM ~ △XYZ</span>. Klik satu sudut dari kolom kiri, lalu klik pasangannya dari kolom kanan.</p>
+  <div class="grid-2">
+    <div class="card tight">
+      <p style="color:var(--text-1);font-weight:600;margin-bottom:6px;">△KLM</p>
+      <div class="pair-row" id="pairLeft">
+        <button class="pair-btn" data-pair="1" onclick="pickPair(this,'left')">∠K</button>
+        <button class="pair-btn" data-pair="2" onclick="pickPair(this,'left')">∠L</button>
+        <button class="pair-btn" data-pair="3" onclick="pickPair(this,'left')">∠M</button>
+      </div>
+    </div>
+    <div class="card tight">
+      <p style="color:var(--text-1);font-weight:600;margin-bottom:6px;">△XYZ</p>
+      <div class="pair-row" id="pairRight">
+        <button class="pair-btn" data-pair="2" onclick="pickPair(this,'right')">∠Y</button>
+        <button class="pair-btn" data-pair="3" onclick="pickPair(this,'right')">∠Z</button>
+        <button class="pair-btn" data-pair="1" onclick="pickPair(this,'right')">∠X</button>
+      </div>
+    </div>
+  </div>
+  <p class="feedback-line" id="pairFeedback"></p>
+  <p id="pairProgress" style="font-size:.82rem;color:var(--text-3);">Pasangan ditemukan: 0/3</p>
+</section>
+
+<!-- SLIDE 6 : KONSEP - KESAMAAN SUDUT -->
+<section class="slide" data-title="Konsep: Kesamaan Sudut">
+  <div class="eyebrow-tag">Konsep 2</div>
+  <h2>Kesamaan Besar Sudut pada Bangun Sebangun</h2>
+  <p>Sifat utama yang akan sering kita pakai:</p>
+  <div class="formula-box">Jika bangun 1 ~ bangun 2, maka sudut-sudut yang bersesuaian sama besar</div>
+  <p>Untuk segitiga <span class="mono">ABC ~ DEF</span>, sifat ini ditulis:</p>
+  <div class="formula-box">∠A = ∠D &nbsp;&nbsp;|&nbsp;&nbsp; ∠B = ∠E &nbsp;&nbsp;|&nbsp;&nbsp; ∠C = ∠F</div>
+  <details class="accordion">
+    <summary>Mengapa sudut bersesuaian harus sama besar? <span class="arrow">›</span></summary>
+    <div class="acc-body">
+      <p style="margin:0;">Kesebangunan berarti dua bangun memiliki <b style="color:var(--text-1);">bentuk yang persis sama</b>, hanya berbeda ukuran (diperbesar/diperkecil secara seragam). Karena bentuknya sama, "kemiringan" setiap sudut di setiap pojok juga harus sama — hanya panjang sisinya yang berubah mengikuti faktor skala.</p>
+    </div>
+  </details>
+  <details class="accordion">
+    <summary>Apakah faktor skala memengaruhi besar sudut? <span class="arrow">›</span></summary>
+    <div class="acc-body">
+      <p style="margin:0;">Tidak. Faktor skala hanya memengaruhi <b style="color:var(--text-1);">panjang sisi</b>, bukan besar sudut. Sudut tetap sama besar walaupun bangunnya diperbesar 2x, 5x, atau bahkan 100x.</p>
+    </div>
+  </details>
+</section>
+
+<!-- SLIDE 7 : CONTOH 1 -->
+<section class="slide" data-title="Contoh 1: Menerapkan Kesesuaian Sudut">
+  <div class="eyebrow-tag rose">Contoh Soal 1</div>
+  <h2>Menerapkan Langsung Sifat Kesesuaian Sudut</h2>
+  <div class="card">
+    <p style="color:var(--text-1);"><b>Soal:</b> Diketahui layang-layang hias <span class="mono">ABCD ~ PQRS</span> dengan ∠A=118°, ∠B=62°, ∠C=118°, dan ∠D=62°. Tentukan besar ∠Q dan ∠S.</p>
+    <button class="reveal-btn amber" onclick="toggleReveal('c1-hint')">Lihat Petunjuk</button>
+    <div class="hidden-block" id="c1-hint">
+      <p>💡 Petunjuk: perhatikan urutan huruf pada <span class="mono">ABCD ~ PQRS</span>. Huruf keberapa A? Huruf keberapa Q? Cocokkan urutannya.</p>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('c1-step')" style="margin-top:8px;">Lihat Langkah Penyelesaian</button>
+    <div class="hidden-block" id="c1-step">
+      <div class="step-item active-step"><span class="step-label">LANGKAH 1</span><p style="margin:2px 0 0;">Tentukan korespondensi huruf: A↔P, B↔Q, C↔R, D↔S.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 2</span><p style="margin:2px 0 0;">∠Q bersesuaian dengan ∠B, dan ∠S bersesuaian dengan ∠D.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 3</span><p style="margin:2px 0 0;">Karena sudut bersesuaian sama besar: ∠Q = ∠B = 62°, dan ∠S = ∠D = 62°.</p></div>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('c1-ans')" style="margin-top:8px;background:var(--green);">Lihat Jawaban</button>
+    <div class="hidden-block" id="c1-ans">
+      <div class="formula-box">∠Q = 62°  dan  ∠S = 62°</div>
+    </div>
+  </div>
+</section>
+
+<!-- SLIDE 8 : LANGKAH UMUM -->
+<section class="slide" data-title="Langkah Umum">
+  <div class="eyebrow-tag">Konsep 3</div>
+  <h2>Langkah Dasar Menentukan Sudut yang Belum Diketahui</h2>
+  <div class="card">
+    <div class="step-item active-step"><span class="step-label">01</span><p style="margin:2px 0 0;">Pastikan dua bangun benar-benar sebangun (biasanya sudah diberi tanda "~" pada soal).</p></div>
+    <div class="step-item active-step"><span class="step-label">02</span><p style="margin:2px 0 0;">Tentukan pasangan sudut yang bersesuaian, biasanya dari urutan huruf nama bangun.</p></div>
+    <div class="step-item active-step"><span class="step-label">03</span><p style="margin:2px 0 0;">Gunakan sifat: sudut bersesuaian sama besar → tulis persamaannya.</p></div>
+    <div class="step-item active-step"><span class="step-label">04</span><p style="margin:2px 0 0;">Jika sudut belum bisa langsung ditentukan, gunakan hubungan sudut lain (misalnya jumlah sudut segitiga = 180°) sebagai bantuan.</p></div>
+    <div class="step-item active-step"><span class="step-label">05</span><p style="margin:2px 0 0;">Tuliskan kesimpulan besar sudut yang dicari.</p></div>
+  </div>
+</section>
+
+<!-- SLIDE 9 : QUICK CHECK -->
+<section class="slide" data-title="Cek Pemahaman">
+  <div class="eyebrow-tag teal">Cek Pemahaman Cepat</div>
+  <h2>Uji dulu pemahamanmu</h2>
+  <div class="card">
+    <p style="color:var(--text-1);">Diketahui <span class="mono">△DEF ~ △RST</span>. Sudut manakah yang bersesuaian dengan ∠E?</p>
+    <div class="mc-grid" id="qc1">
+      <button class="mc-option" onclick="answerMC(this,false,'qc1')">∠R</button>
+      <button class="mc-option" onclick="answerMC(this,true,'qc1')">∠S</button>
+      <button class="mc-option" onclick="answerMC(this,false,'qc1')">∠T</button>
+      <button class="mc-option" onclick="answerMC(this,false,'qc1')">∠D</button>
+    </div>
+    <p class="feedback-line" id="qc1-fb"></p>
+  </div>
+</section>
+
+<!-- SLIDE 10 : KONSEP - HUBUNGAN SUDUT SEGITIGA -->
+<section class="slide" data-title="Konsep: Hubungan Sudut Segitiga">
+  <div class="eyebrow-tag">Konsep 4</div>
+  <h2>Hubungan Sudut pada Segitiga</h2>
+  <p>Selain sifat kesebangunan, kita juga membutuhkan beberapa sifat sudut dasar berikut untuk melengkapi informasi sudut yang belum diketahui.</p>
+  <details class="accordion" open>
+    <summary>Jumlah sudut dalam segitiga <span class="arrow">›</span></summary>
+    <div class="acc-body">
+      <div class="formula-box">∠A + ∠B + ∠C = 180°</div>
+      <p style="margin:0;">Jumlah ketiga sudut dalam sebuah segitiga selalu 180°, berlaku untuk segitiga jenis apa pun.</p>
+    </div>
+  </details>
+  <details class="accordion">
+    <summary>Sudut berpelurus (saling bersuplemen) <span class="arrow">›</span></summary>
+    <div class="acc-body">
+      <div class="formula-box">∠1 + ∠2 = 180°</div>
+      <p style="margin:0;">Dua sudut yang bersisian dan membentuk garis lurus, jumlahnya 180°. Sering muncul saat sisi segitiga diperpanjang.</p>
+    </div>
+  </details>
+  <details class="accordion">
+    <summary>Sudut bertolak belakang <span class="arrow">›</span></summary>
+    <div class="acc-body">
+      <div class="formula-box">∠1 = ∠2</div>
+      <p style="margin:0;">Dua sudut yang terbentuk dari perpotongan dua garis lurus dan saling berhadapan, besarnya selalu sama.</p>
+    </div>
+  </details>
+</section>
+
+<!-- SLIDE 11 : VISUALISASI SLIDER SEGITIGA -->
+<section class="slide" data-title="Visualisasi: Jumlah Sudut Segitiga">
+  <div class="eyebrow-tag teal">Visualisasi Interaktif</div>
+  <h2>Geser sudut, lihat perubahannya!</h2>
+  <p>Geser slider ∠A dan ∠B, perhatikan bagaimana bentuk segitiga berubah dan bagaimana ∠C otomatis menyesuaikan agar jumlah tetap 180°.</p>
+  <div class="card">
+    <div class="figure-frame">
+      <svg viewBox="0 0 400 260" id="triSVG" xmlns="http://www.w3.org/2000/svg">
+        <polygon id="triShape" points="60,220 340,220 200,90" fill="rgba(79,214,196,.12)" stroke="#4fd6c4" stroke-width="3"/>
+        <text id="labelA" x="45" y="240" fill="#eef1fa" font-size="14" font-family="Fredoka">A</text>
+        <text id="labelB" x="335" y="240" fill="#eef1fa" font-size="14" font-family="Fredoka">B</text>
+        <text id="labelC" x="195" y="80" fill="#eef1fa" font-size="14" font-family="Fredoka">C</text>
+        <text id="valA" x="80" y="212" fill="#ffb454" font-size="12" font-family="JetBrains Mono">50°</text>
+        <text id="valB" x="288" y="212" fill="#ffb454" font-size="12" font-family="JetBrains Mono">50°</text>
+        <text id="valC" x="185" y="105" fill="#ffb454" font-size="12" font-family="JetBrains Mono">80°</text>
+      </svg>
+    </div>
+    <div class="slider-row">
+      <label>∠A</label>
+      <input type="range" id="sliderA" min="20" max="140" value="50" oninput="updateTriangle()">
+      <span class="slider-val" id="sliderAval">50°</span>
+    </div>
+    <div class="slider-row">
+      <label>∠B</label>
+      <input type="range" id="sliderB" min="20" max="140" value="50" oninput="updateTriangle()">
+      <span class="slider-val" id="sliderBval">50°</span>
+    </div>
+    <div class="formula-box">∠C = 180° − ∠A − ∠B = <span id="valCbig">80°</span></div>
+  </div>
+</section>
+
+<!-- SLIDE 12 : CONTOH 2 -->
+<section class="slide" data-title="Contoh 2: Jumlah Sudut Segitiga">
+  <div class="eyebrow-tag rose">Contoh Soal 2</div>
+  <h2>Menggunakan Jumlah Sudut Segitiga</h2>
+  <div class="card">
+    <p style="color:var(--text-1);"><b>Soal:</b> Pada segitiga KLM, diketahui ∠K = 48° dan ∠L = 65°. Tentukan besar ∠M.</p>
+    <button class="reveal-btn amber" onclick="toggleReveal('c2-hint')">Lihat Petunjuk</button>
+    <div class="hidden-block" id="c2-hint"><p>💡 Ingat sifat jumlah sudut dalam segitiga.</p></div>
+    <button class="reveal-btn" onclick="toggleReveal('c2-step')" style="margin-top:8px;">Lihat Langkah Penyelesaian</button>
+    <div class="hidden-block" id="c2-step">
+      <div class="step-item active-step"><span class="step-label">LANGKAH 1</span><p style="margin:2px 0 0;">∠K + ∠L + ∠M = 180°</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 2</span><p style="margin:2px 0 0;">48° + 65° + ∠M = 180°</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 3</span><p style="margin:2px 0 0;">113° + ∠M = 180°</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 4</span><p style="margin:2px 0 0;">∠M = 180° − 113° = 67°</p></div>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('c2-ans')" style="margin-top:8px;background:var(--green);">Lihat Jawaban</button>
+    <div class="hidden-block" id="c2-ans"><div class="formula-box">∠M = 67°</div></div>
+  </div>
+</section>
+
+<!-- SLIDE 13 : KONSEP - GABUNGAN -->
+<section class="slide" data-title="Konsep: Segitiga Sebangun">
+  <div class="eyebrow-tag">Konsep 5</div>
+  <h2>Menentukan Sudut pada Segitiga Sebangun</h2>
+  <p>Kadang, sebuah sudut tidak bisa langsung ditemukan hanya dengan sifat kesebangunan saja — kita perlu <b style="color:var(--text-1);">menggabungkan dua sifat</b>:</p>
+  <div class="card tight">
+    <ol style="color:var(--text-2);line-height:1.8;padding-left:20px;margin:0;">
+      <li>Sifat jumlah sudut segitiga (180°) → untuk mencari sudut yang belum diketahui di dalam satu segitiga.</li>
+      <li>Sifat kesesuaian sudut pada bangun sebangun → untuk memindahkan nilai sudut itu ke segitiga pasangannya.</li>
+    </ol>
+  </div>
+  <p>Pola pikirnya: <span class="mono" style="color:var(--amber);">cari dulu di segitiga yang datanya lengkap → baru pindahkan ke segitiga sebangunnya.</span></p>
+</section>
+
+<!-- SLIDE 14 : CONTOH 3 -->
+<section class="slide" data-title="Contoh 3: Gabungan Dua Sifat">
+  <div class="eyebrow-tag rose">Contoh Soal 3</div>
+  <h2>Menggabungkan Jumlah Sudut dan Kesesuaian Sudut</h2>
+  <div class="card">
+    <p style="color:var(--text-1);"><b>Soal:</b> Diketahui <span class="mono">△PQR ~ △STU</span> dengan korespondensi P↔S, Q↔T, R↔U. Jika ∠P = 50° dan ∠Q = 70°, tentukan besar ∠U.</p>
+    <button class="reveal-btn amber" onclick="toggleReveal('c3-hint')">Lihat Petunjuk</button>
+    <div class="hidden-block" id="c3-hint"><p>💡 ∠U bersesuaian dengan sudut mana di segitiga PQR? Sudut itu belum diketahui secara langsung — cari dulu dengan sifat jumlah sudut segitiga.</p></div>
+    <button class="reveal-btn" onclick="toggleReveal('c3-step')" style="margin-top:8px;">Lihat Langkah Penyelesaian</button>
+    <div class="hidden-block" id="c3-step">
+      <div class="step-item active-step"><span class="step-label">LANGKAH 1</span><p style="margin:2px 0 0;">∠U bersesuaian dengan ∠R (karena R↔U).</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 2</span><p style="margin:2px 0 0;">Cari ∠R dulu: ∠P + ∠Q + ∠R = 180° → 50° + 70° + ∠R = 180°.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 3</span><p style="margin:2px 0 0;">∠R = 180° − 120° = 60°.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 4</span><p style="margin:2px 0 0;">Karena ∠U bersesuaian dengan ∠R, maka ∠U = ∠R = 60°.</p></div>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('c3-ans')" style="margin-top:8px;background:var(--green);">Lihat Jawaban</button>
+    <div class="hidden-block" id="c3-ans"><div class="formula-box">∠U = 60°</div></div>
+  </div>
+</section>
+
+<!-- SLIDE 15 : KONSEP - KONTEKSTUAL -->
+<section class="slide" data-title="Konsep: Masalah Kontekstual">
+  <div class="eyebrow-tag">Konsep 6</div>
+  <h2>Sudut pada Bangun Sebangun di Kehidupan Sehari-hari</h2>
+  <p>Kesebangunan sering muncul pada situasi nyata, misalnya:</p>
+  <div class="grid-2">
+    <div class="card tight"><p style="margin:0;color:var(--text-1);">🏠 Denah/maket rumah yang sebangun dengan bangunan aslinya</p></div>
+    <div class="card tight"><p style="margin:0;color:var(--text-1);">🖼️ Foto yang dicetak dengan ukuran diperbesar tetapi bentuknya tetap sama</p></div>
+    <div class="card tight"><p style="margin:0;color:var(--text-1);">🚦 Rambu atau logo yang dibuat ulang dalam ukuran berbeda</p></div>
+    <div class="card tight"><p style="margin:0;color:var(--text-1);">🗺️ Peta dengan skala tertentu terhadap wilayah aslinya</p></div>
+  </div>
+  <p>Pada semua contoh ini, <b style="color:var(--text-1);">sudut-sudut tetap sama besar</b> walau ukurannya berubah — inilah yang membuat sifat kesesuaian sudut sangat berguna untuk memecahkan masalah kontekstual.</p>
+</section>
+
+<!-- SLIDE 16 : CONTOH 4 KONTEKSTUAL -->
+<section class="slide" data-title="Contoh 4: Soal Kontekstual">
+  <div class="eyebrow-tag rose">Contoh Soal 4 — Kontekstual</div>
+  <h2>Maket Atap Gedung</h2>
+  <div class="card">
+    <p style="color:var(--text-1);"><b>Soal:</b> Seorang arsitek membuat maket atap gedung berbentuk segitiga yang sebangun dengan rangka atap aslinya. Pada rangka atap asli, dua sudutnya diketahui berukuran 72° dan 58°. Berapakah besar sudut pada maket yang bersesuaian dengan sudut ketiga rangka atap asli?</p>
+    <button class="reveal-btn amber" onclick="toggleReveal('c4-hint')">Lihat Petunjuk</button>
+    <div class="hidden-block" id="c4-hint"><p>💡 Cari dulu sudut ketiga pada rangka atap asli, baru gunakan sifat kesesuaian sudut untuk maket.</p></div>
+    <button class="reveal-btn" onclick="toggleReveal('c4-step')" style="margin-top:8px;">Lihat Langkah Penyelesaian</button>
+    <div class="hidden-block" id="c4-step">
+      <div class="step-item active-step"><span class="step-label">LANGKAH 1</span><p style="margin:2px 0 0;">Sudut ketiga rangka asli = 180° − 72° − 58° = 50°.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 2</span><p style="margin:2px 0 0;">Karena maket sebangun dengan rangka asli, sudut yang bersesuaian sama besar.</p></div>
+      <div class="step-item active-step"><span class="step-label">LANGKAH 3</span><p style="margin:2px 0 0;">Maka sudut pada maket tersebut juga = 50°.</p></div>
+    </div>
+    <button class="reveal-btn" onclick="toggleReveal('c4-ans')" style="margin-top:8px;background:var(--green);">Lihat Jawaban</button>
+    <div class="hidden-block" id="c4-ans"><div class="formula-box">Sudut pada maket = 50°</div></div>
+  </div>
+</section>
+
+<!-- SLIDE 17 : LATIHAN MUDAH -->
+<section class="slide" data-title="Latihan: Mudah">
+  <span class="diff-tag diff-easy">Tingkat: Mudah</span>
+  <h2>Latihan 1</h2>
+  <div class="card">
+    <p style="color:var(--text-1);">Diketahui <span class="mono">△ABC ~ △MNO</span> dengan A↔M, B↔N, C↔O. Jika ∠A = 40°, berapakah besar ∠M?</p>
+    <div class="mc-grid" id="lat1">
+      <button class="mc-option" onclick="answerMC(this,true,'lat1')">40°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat1')">140°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat1')">50°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat1')">90°</button>
+    </div>
+    <p class="feedback-line" id="lat1-fb"></p>
+  </div>
+  <div class="card">
+    <p style="color:var(--text-1);">Jumlah sudut dalam sebuah segitiga selalu sama dengan...</p>
+    <div class="mc-grid" id="lat2">
+      <button class="mc-option" onclick="answerMC(this,false,'lat2')">90°</button>
+      <button class="mc-option" onclick="answerMC(this,true,'lat2')">180°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat2')">270°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat2')">360°</button>
+    </div>
+    <p class="feedback-line" id="lat2-fb"></p>
+  </div>
+</section>
+
+<!-- SLIDE 18 : LATIHAN SEDANG -->
+<section class="slide" data-title="Latihan: Sedang">
+  <span class="diff-tag diff-med">Tingkat: Sedang</span>
+  <h2>Latihan 2</h2>
+  <div class="card">
+    <p style="color:var(--text-1);">Dalam segitiga XYZ, ∠X = 55° dan ∠Y = 82°. Besar ∠Z adalah...</p>
+    <div class="mc-grid" id="lat3">
+      <button class="mc-option" onclick="answerMC(this,false,'lat3')">137°</button>
+      <button class="mc-option" onclick="answerMC(this,true,'lat3')">43°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat3')">53°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat3')">27°</button>
+    </div>
+    <p class="feedback-line" id="lat3-fb"></p>
+  </div>
+  <div class="card">
+    <p style="color:var(--text-1);"><span class="mono">△DEF ~ △GHI</span> dengan D↔G, E↔H, F↔I. Diketahui ∠D = 63° dan ∠E = 74°. Besar ∠I adalah...</p>
+    <div class="mc-grid" id="lat4">
+      <button class="mc-option" onclick="answerMC(this,false,'lat4')">63°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat4')">74°</button>
+      <button class="mc-option" onclick="answerMC(this,true,'lat4')">43°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat4')">137°</button>
+    </div>
+    <p class="feedback-line" id="lat4-fb"></p>
+  </div>
+</section>
+
+<!-- SLIDE 19 : LATIHAN MENANTANG -->
+<section class="slide" data-title="Latihan: Menantang">
+  <span class="diff-tag diff-hard">Tingkat: Menantang</span>
+  <h2>Latihan 3 — Kontekstual</h2>
+  <div class="card">
+    <p style="color:var(--text-1);">Sebuah taman berbentuk segitiga akan dibuat replika miniaturnya (sebangun) untuk dipajang di pameran kota. Pada taman asli, dua sudutnya berukuran 47° dan 96°. Replika miniatur memiliki korespondensi sudut yang sama. Tentukan besar sudut ketiga pada replika miniatur tersebut.</p>
+    <div class="mc-grid" id="lat5">
+      <button class="mc-option" onclick="answerMC(this,false,'lat5')">143°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat5')">49°</button>
+      <button class="mc-option" onclick="answerMC(this,true,'lat5')">37°</button>
+      <button class="mc-option" onclick="answerMC(this,false,'lat5')">53°</button>
+    </div>
+    <p class="feedback-line" id="lat5-fb"></p>
+    <details class="accordion" style="margin-top:14px;">
+      <summary>Lihat pembahasan <span class="arrow">›</span></summary>
+      <div class="acc-body">
+        <p style="margin:0;">Sudut ketiga taman asli = 180° − 47° − 96° = 37°. Karena replika sebangun dengan taman asli, sudut yang bersesuaian sama besar, sehingga sudut ketiga pada replika juga 37°.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- SLIDE 20 : KUIS -->
+<section class="slide" data-title="Kuis">
+  <div class="eyebrow-tag rose">Kuis Akhir</div>
+  <h2>Uji Pemahamanmu</h2>
+  <p>Jawab seluruh soal di bawah ini, lalu klik "Selesai & Lihat Skor" untuk melihat hasilmu.</p>
+  <div id="quiz-area"></div>
+  <button class="reveal-btn amber" style="margin-top:6px;" onclick="finishQuiz()">Selesai & Lihat Skor</button>
+  <div id="quiz-result-area" style="margin-top:18px;"></div>
+</section>
+
+<!-- SLIDE 21 : REFLEKSI -->
+<section class="slide" data-title="Refleksi">
+  <div class="eyebrow-tag teal">Refleksi</div>
+  <h2>Sejauh mana pemahamanmu hari ini?</h2>
+  <p>Klik salah satu pilihan yang paling menggambarkan perasaanmu tentang materi ini.</p>
+  <div class="reflect-row" id="reflectRow">
+    <button class="reflect-btn" onclick="pickReflect(this)">😄 Sudah sangat paham</button>
+    <button class="reflect-btn" onclick="pickReflect(this)">🙂 Cukup paham</button>
+    <button class="reflect-btn" onclick="pickReflect(this)">😕 Masih bingung</button>
+  </div>
+  <div class="hidden-block" id="reflectMsg" style="margin-top:16px;">
+    <div class="card tight"><p id="reflectText" style="margin:0;color:var(--text-1);"></p></div>
+  </div>
+  <div class="card" style="margin-top:16px;">
+    <p style="color:var(--text-1);font-weight:600;">Coba renungkan sejenak:</p>
+    <ul class="term-list">
+      <li><b>Pertanyaan 1</b><span>Bagian mana yang paling mudah kamu pahami: sudut bersesuaian, atau jumlah sudut segitiga?</span></li>
+      <li><b>Pertanyaan 2</b><span>Bisakah kamu menjelaskan langkah mencari sudut pada bangun sebangun dengan kata-katamu sendiri?</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SLIDE 22 : RANGKUMAN -->
+<section class="slide" data-title="Rangkuman">
+  <div class="eyebrow-tag">Rangkuman</div>
+  <h2>Yang Perlu Kalian Ingat</h2>
+  <div class="sum-grid">
+    <div class="sum-card"><div class="num">01</div><p style="margin:6px 0 0;color:var(--text-1);">Sudut bersesuaian ditentukan dari urutan huruf nama bangun yang sebangun.</p></div>
+    <div class="sum-card"><div class="num">02</div><p style="margin:6px 0 0;color:var(--text-1);">Pada bangun-bangun yang sebangun, sudut-sudut yang bersesuaian selalu sama besar.</p></div>
+    <div class="sum-card"><div class="num">03</div><p style="margin:6px 0 0;color:var(--text-1);">Jumlah sudut dalam segitiga selalu 180°: ∠A+∠B+∠C=180°.</p></div>
+    <div class="sum-card"><div class="num">04</div><p style="margin:6px 0 0;color:var(--text-1);">Sudut berpelurus berjumlah 180°, sudut bertolak belakang sama besar.</p></div>
+    <div class="sum-card"><div class="num">05</div><p style="margin:6px 0 0;color:var(--text-1);">Untuk segitiga sebangun, gabungkan jumlah sudut segitiga dengan sifat kesesuaian sudut jika sudut belum langsung diketahui.</p></div>
+    <div class="sum-card"><div class="num">06</div><p style="margin:6px 0 0;color:var(--text-1);">Sifat ini banyak digunakan dalam situasi nyata: maket, foto, denah, dan rambu yang dibuat sebangun dengan aslinya.</p></div>
+  </div>
+</section>
+
+<!-- SLIDE 23 : PENUTUP -->
+<section class="slide" data-title="Penutup">
+  <div class="cover-wrap">
+    <div class="cover-badge" style="background:linear-gradient(135deg,var(--teal),var(--violet));">✓</div>
+    <h1 style="font-size:1.9rem;">Kerja Bagus!</h1>
+    <p class="sub">Kalian telah menyelesaikan pembelajaran "Menentukan Sudut yang Tidak Diketahui" pada Bab 6 — Kesebangunan. Teruslah berlatih mengenali pasangan sudut bersesuaian dan menggunakan hubungan sudut segitiga di berbagai soal.</p>
+    <div class="chip-row">
+      <span class="chip">✔ Sudut bersesuaian</span>
+      <span class="chip">✔ Kesamaan sudut</span>
+      <span class="chip">✔ Jumlah sudut segitiga</span>
+      <span class="chip">✔ Segitiga sebangun</span>
+      <span class="chip">✔ Soal kontekstual</span>
+    </div>
+    <button class="start-btn" onclick="goTo(0)">↺ Ulangi dari Awal</button>
+  </div>
+</section>
+
+</div><!-- /viewport -->
+
+<div class="bottombar">
+  <button class="home-btn" title="Kembali ke awal" onclick="goTo(0)">⌂</button>
+  <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← <span class="label">Sebelumnya</span></button>
+  <div class="dots" id="dotsWrap"></div>
+  <button class="nav-btn primary" id="nextBtn" onclick="nextSlide()"><span class="label">Berikutnya</span> →</button>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+document.getElementById('totalNum').textContent = total;
+
+const dotsWrap = document.getElementById('dotsWrap');
+slides.forEach((s,i)=>{
+  const d=document.createElement('div');
+  d.className='dot';
+  d.title=s.dataset.title||('Slide '+(i+1));
+  d.onclick=()=>goTo(i);
+  dotsWrap.appendChild(d);
+});
+
+function render(){
+  slides.forEach((s,i)=>s.classList.toggle('active', i===current));
+  document.getElementById('curNum').textContent = current+1;
+  document.getElementById('progressFill').style.width = ((current+1)/total*100)+'%';
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on', i===current));
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').innerHTML = current===total-1 ? '<span class="label">Selesai</span> ✓' : '<span class="label">Berikutnya</span> →';
+  document.getElementById('viewport').scrollTop = 0;
+  const activeSlide = slides[current];
+  if(activeSlide) activeSlide.scrollTop = 0;
+}
+function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
+function nextSlide(){ if(current<total-1){ current++; render(); } }
+function prevSlide(){ if(current>0){ current--; render(); } }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+render();
+
+/* ================= GENERIC REVEAL / ACCORDION ================= */
+function toggleReveal(id){
+  document.getElementById(id).classList.toggle('show');
+}
+
+/* ================= MULTIPLE CHOICE ================= */
+function answerMC(btn, isCorrect, groupId){
+  const group = document.getElementById(groupId);
+  const buttons = group.querySelectorAll('.mc-option');
+  buttons.forEach(b=>b.disabled=true);
+  if(isCorrect){
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+    buttons.forEach(b=>{ if(b.dataset.correctFlag==='1') b.classList.add('correct'); });
+  }
+  const fb = document.getElementById(groupId+'-fb');
+  if(fb){
+    fb.classList.add('show');
+    if(isCorrect){ fb.textContent='Benar! 🎉'; fb.classList.add('ok'); fb.classList.remove('no'); }
+    else { fb.textContent='Belum tepat, coba cek kembali penjelasannya ya.'; fb.classList.add('no'); fb.classList.remove('ok'); }
+  }
+}
+// mark correct flags for quick-check groups (used when wrong picked, to reveal correct)
+document.querySelectorAll('.mc-grid').forEach(grid=>{
+  const btns = grid.querySelectorAll('.mc-option');
+  btns.forEach(b=>{
+    if(b.getAttribute('onclick') && b.getAttribute('onclick').includes(',true,')) b.dataset.correctFlag='1';
+  });
+});
+
+/* ================= PAIR MATCHING (slide 5) ================= */
+let pairSelectedLeft=null, pairMatched=0;
+const pairColors=['matched-amber','matched-teal','matched-violet'];
+function pickPair(btn, side){
+  if(btn.classList.contains('matched-amber')||btn.classList.contains('matched-teal')||btn.classList.contains('matched-violet')) return;
+  if(side==='left'){
+    document.querySelectorAll('#pairLeft .pair-btn').forEach(b=>b.style.outline='none');
+    pairSelectedLeft = btn;
+    btn.style.outline='2px solid #ffb454';
+  } else {
+    if(!pairSelectedLeft){ return; }
+    const fb=document.getElementById('pairFeedback');
+    if(pairSelectedLeft.dataset.pair === btn.dataset.pair){
+      const color = pairColors[pairMatched % pairColors.length];
+      pairSelectedLeft.classList.add(color);
+      btn.classList.add(color);
+      pairSelectedLeft.style.outline='none';
+      pairMatched++;
+      document.getElementById('pairProgress').textContent = 'Pasangan ditemukan: '+pairMatched+'/3';
+      fb.classList.add('show','ok'); fb.classList.remove('no');
+      fb.textContent = 'Tepat, itu pasangan yang bersesuaian!';
+      pairSelectedLeft=null;
+    } else {
+      fb.classList.add('show','no'); fb.classList.remove('ok');
+      fb.textContent = 'Belum pas, coba perhatikan urutan hurufnya (K↔X, L↔Y, M↔Z).';
+      pairSelectedLeft.style.outline='none';
+      pairSelectedLeft=null;
+    }
+  }
+}
+
+/* ================= TRIANGLE SLIDER (slide 11) ================= */
+function updateTriangle(){
+  const A = parseInt(document.getElementById('sliderA').value);
+  let B = parseInt(document.getElementById('sliderB').value);
+  if(A+B >= 170){ B = 170-A; document.getElementById('sliderB').value=B; }
+  const C = 180 - A - B;
+
+  document.getElementById('sliderAval').textContent = A+'°';
+  document.getElementById('sliderBval').textContent = B+'°';
+  document.getElementById('valCbig').textContent = C+'°';
+
+  const rad = d => d*Math.PI/180;
+  const Lbase = 280, x0=60, y0=220;
+  const t = Lbase * Math.sin(rad(B)) / Math.sin(rad(A+B));
+  const apexX = x0 + t*Math.cos(rad(A));
+  const apexY = y0 - t*Math.sin(rad(A));
+
+  document.getElementById('triShape').setAttribute('points', `${x0},${y0} ${x0+Lbase},${y0} ${apexX.toFixed(1)},${apexY.toFixed(1)}`);
+  document.getElementById('labelC').setAttribute('x', apexX-5);
+  document.getElementById('labelC').setAttribute('y', Math.max(18,apexY-10));
+  document.getElementById('valC').setAttribute('x', apexX-15);
+  document.getElementById('valC').setAttribute('y', Math.min(apexY+22, y0-20));
+  document.getElementById('valA').textContent = A+'°';
+  document.getElementById('valB').textContent = B+'°';
+  document.getElementById('valC').textContent = C+'°';
+}
+updateTriangle();
+
+/* ================= REFLECTION (slide 21) ================= */
+const reflectMsgs = [
+  'Mantap! Coba tantang dirimu dengan mengerjakan soal-soal tambahan yang lebih bervariasi.',
+  'Bagus, kamu sudah di jalur yang tepat. Ulangi bagian yang masih ragu sebelum lanjut ke subbab berikutnya.',
+  'Tidak apa-apa, coba pelajari kembali slide "Konsep" dan ulangi contoh soal secara perlahan. Kamu pasti bisa!'
+];
+function pickReflect(btn){
+  document.querySelectorAll('#reflectRow .reflect-btn').forEach(b=>b.classList.remove('picked'));
+  btn.classList.add('picked');
+  const idx = Array.from(btn.parentNode.children).indexOf(btn);
+  document.getElementById('reflectText').textContent = reflectMsgs[idx];
+  document.getElementById('reflectMsg').classList.add('show');
+}
+
+/* ================= QUIZ (slide 20) ================= */
+const quizData = [
+  {q:'Dua bangun dikatakan sebangun jika...', opts:['Hanya sisi-sisinya sebanding','Hanya sudut-sudutnya sama besar','Sisi-sisi bersesuaian sebanding dan sudut-sudut bersesuaian sama besar','Luasnya sama besar'], correct:2, exp:'Kesebangunan membutuhkan dua syarat sekaligus: sisi sebanding DAN sudut sama besar.'},
+  {q:'Pasangan sudut yang menempati posisi sama pada dua bangun sebangun disebut sudut...', opts:['Berpelurus','Bertolak belakang','Bersesuaian','Berpenyiku'], correct:2, exp:'Sudut yang menempati posisi struktural sama pada dua bangun sebangun disebut sudut bersesuaian.'},
+  {q:'Diketahui △ABC ~ △DEF dengan ∠A = 72°. Besar ∠D adalah...', opts:['18°','72°','108°','144°'], correct:1, exp:'Karena ∠A dan ∠D bersesuaian, keduanya sama besar, yaitu 72°.'},
+  {q:'Jumlah ketiga sudut dalam sebuah segitiga selalu berjumlah...', opts:['90°','180°','270°','360°'], correct:1, exp:'Sifat dasar segitiga: jumlah ketiga sudutnya selalu 180°.'},
+  {q:'Pada segitiga KLM, ∠K = 48° dan ∠L = 65°. Besar ∠M adalah...', opts:['57°','67°','77°','113°'], correct:1, exp:'∠M = 180° − 48° − 65° = 67°.'},
+  {q:'△PQR ~ △XYZ dengan P↔X, Q↔Y, R↔Z. Jika ∠P=55° dan ∠Q=80°, besar ∠Z adalah...', opts:['45°','55°','80°','100°'], correct:0, exp:'∠R = 180°−55°−80° = 45°. Karena R↔Z, maka ∠Z = 45°.'},
+  {q:'Dua sudut yang saling berpelurus (membentuk garis lurus) jumlahnya adalah...', opts:['90°','180°','270°','360°'], correct:1, exp:'Sudut berpelurus selalu berjumlah 180°.'},
+  {q:'Sebuah bingkai foto sebangun dengan foto aslinya. Pada foto asli, dua sudutnya 40° dan 95°. Sudut ketiga yang bersesuaian pada bingkai adalah...', opts:['45°','55°','85°','135°'], correct:0, exp:'Sudut ketiga foto asli = 180°−40°−95° = 45°. Karena bersesuaian dan sebangun, sudut pada bingkai juga 45°.'}
+];
+let quizAnswers = new Array(quizData.length).fill(null);
+
+function renderQuiz(){
+  const area = document.getElementById('quiz-area');
+  area.innerHTML='';
+  quizData.forEach((item, qi)=>{
+    const block = document.createElement('div');
+    block.className='q-block';
+    let optsHtml='';
+    item.opts.forEach((opt,oi)=>{
+      optsHtml += `<button class="mc-option" onclick="selectQuiz(${qi},${oi},this)">${opt}</button>`;
+    });
+    block.innerHTML = `<div class="q-num">SOAL ${qi+1} DARI ${quizData.length}</div>
+      <p style="color:var(--text-1);font-weight:600;">${item.q}</p>
+      <div class="mc-grid">${optsHtml}</div>
+      <p class="feedback-line" id="qz-fb-${qi}"></p>`;
+    area.appendChild(block);
+  });
+}
+function selectQuiz(qi, oi, btn){
+  quizAnswers[qi]=oi;
+  const grid = btn.parentNode;
+  grid.querySelectorAll('.mc-option').forEach((b,idx)=>{
+    b.classList.toggle('correct', idx===oi);
+    b.classList.remove('wrong');
+  });
+  const fb = document.getElementById('qz-fb-'+qi);
+  fb.classList.add('show','ok'); fb.classList.remove('no');
+  fb.textContent = 'Jawaban tersimpan. Kamu bisa mengganti pilihan sebelum menekan "Selesai".';
+}
+function finishQuiz(){
+  let score=0;
+  quizData.forEach((item,qi)=>{
+    const grid = document.getElementById('quiz-area').children[qi].querySelector('.mc-grid');
+    const btns = grid.querySelectorAll('.mc-option');
+    btns.forEach(b=>b.disabled=true);
+    const chosen = quizAnswers[qi];
+    const fb = document.getElementById('qz-fb-'+qi);
+    if(chosen === item.correct){
+      score++;
+      btns[chosen].classList.add('correct'); btns[chosen].classList.remove('wrong');
+      fb.classList.add('show','ok'); fb.classList.remove('no');
+      fb.textContent = 'Benar! '+item.exp;
+    } else {
+      if(chosen!==null){ btns[chosen].classList.add('wrong'); btns[chosen].classList.remove('correct'); }
+      btns[item.correct].classList.add('correct');
+      fb.classList.add('show','no'); fb.classList.remove('ok');
+      fb.textContent = (chosen===null?'Belum dijawab. ':'Belum tepat. ') + item.exp;
+    }
+  });
+  const pct = Math.round(score/quizData.length*100);
+  let msg='Terus berlatih ya, kamu pasti bisa lebih baik lagi!';
+  if(pct>=80) msg='Luar biasa! Pemahamanmu tentang materi ini sudah sangat baik.';
+  else if(pct>=60) msg='Bagus! Sedikit lagi berlatih dan kamu akan makin mahir.';
+  document.getElementById('quiz-result-area').innerHTML = `
+    <div class="quiz-result">
+      <div class="quiz-score">${score}/${quizData.length}</div>
+      <p style="margin:6px 0 14px;">Skor kamu: ${pct}% — ${msg}</p>
+      <button class="reveal-btn" onclick="retryQuiz()">↺ Ulangi Kuis</button>
+    </div>`;
+  document.getElementById('viewport').scrollTop=0;
+}
+function retryQuiz(){
+  quizAnswers = new Array(quizData.length).fill(null);
+  renderQuiz();
+  document.getElementById('quiz-result-area').innerHTML='';
+}
+renderQuiz();
+</script>
+</body>
+</html>

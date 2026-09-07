@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kesebangunan — Menentukan Sisi yang Tidak Diketahui</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E14;
+    --bg-soft:#0F131C;
+    --surface:#161B26;
+    --surface-2:#1D2331;
+    --border:#272E3D;
+    --text:#E9ECF4;
+    --text-muted:#8B93A7;
+    --accent-a:#7C6CF5;
+    --accent-a-soft:rgba(124,108,245,0.16);
+    --accent-b:#22C9A8;
+    --accent-b-soft:rgba(34,201,168,0.16);
+    --accent-c:#F5A93F;
+    --accent-c-soft:rgba(245,169,63,0.16);
+    --danger:#F1587B;
+    --danger-soft:rgba(241,88,123,0.15);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-display:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(124,108,245,0.10), transparent 42%),
+      radial-gradient(circle at 88% 92%, rgba(34,201,168,0.08), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+
+  h1,h2,h3,.display{font-family:var(--font-display);font-weight:600;letter-spacing:0.2px;}
+  code, .mono{font-family:var(--font-mono);}
+
+  .app{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .progress-track{
+    height:4px;
+    width:100%;
+    background:var(--surface);
+    flex-shrink:0;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--accent-a), var(--accent-b));
+    transition:width .35s ease;
+  }
+
+  .stage{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .slide{
+    position:absolute;
+    inset:0;
+    display:none;
+    overflow-y:auto;
+    padding:clamp(20px,4vw,56px) clamp(18px,6vw,90px) 110px;
+  }
+  .slide.active{
+    display:block;
+    animation:fadeUp .45s ease both;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .slide.active{animation:none;}
+  }
+
+  .slide-inner{
+    max-width:980px;
+    margin:0 auto;
+  }
+
+  .kicker{
+    display:inline-block;
+    font-size:13px;
+    color:var(--accent-b);
+    background:var(--accent-b-soft);
+    padding:5px 14px;
+    border-radius:999px;
+    margin-bottom:16px;
+    font-weight:600;
+  }
+
+  h1.slide-title{font-size:clamp(26px,4vw,42px); margin:0 0 10px; line-height:1.15;}
+  h2.slide-title{font-size:clamp(22px,3.2vw,32px); margin:0 0 10px; line-height:1.2;}
+  .lede{color:var(--text-muted); font-size:clamp(15px,1.8vw,18px); max-width:70ch; margin:0 0 28px; line-height:1.6;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:clamp(18px,3vw,30px);
+  }
+  .card + .card{margin-top:18px;}
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1.05fr 0.95fr;
+    gap:24px;
+    align-items:center;
+  }
+  @media (max-width:820px){
+    .grid-2{grid-template-columns:1fr;}
+  }
+
+  .pill-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .pill{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    padding:8px 16px;
+    border-radius:999px;
+    font-size:14px;
+    color:var(--text);
+  }
+
+  ul.clean, ol.clean{margin:0; padding-left:22px; line-height:1.85;}
+  ul.clean li, ol.clean li{margin-bottom:6px;}
+
+  .diagram-box{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg-soft);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:16px;
+  }
+  .diagram-box svg{max-width:100%; height:auto; display:block;}
+
+  .btn{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:14.5px;
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .2s ease;
+    color:#0B0E14;
+    background:var(--accent-a);
+  }
+  .btn:hover{transform:translateY(-2px); box-shadow:0 10px 22px -10px rgba(124,108,245,0.6);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  .btn.secondary:hover{box-shadow:none; border-color:var(--accent-a);}
+  .btn.teal{background:var(--accent-b);}
+  .btn.teal:hover{box-shadow:0 10px 22px -10px rgba(34,201,168,0.6);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  .btn-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;}
+
+  .accordion-item{
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    margin-bottom:12px;
+    overflow:hidden;
+    background:var(--surface-2);
+  }
+  .accordion-head{
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .accordion-head .chev{transition:transform .25s ease; color:var(--accent-a);}
+  .accordion-item.open .chev{transform:rotate(180deg);}
+  .accordion-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .3s ease;
+    padding:0 18px;
+    color:var(--text-muted);
+    line-height:1.7;
+  }
+  .accordion-item.open .accordion-body{padding:0 18px 18px;}
+
+  .step-block{
+    border-left:3px solid var(--accent-a);
+    background:var(--surface-2);
+    padding:14px 18px;
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom:12px;
+    display:none;
+  }
+  .step-block.shown{display:block; animation:fadeUp .4s ease both;}
+  .step-label{font-size:12.5px; color:var(--accent-a); font-weight:700; margin-bottom:4px;}
+
+  .answer-box{
+    display:none;
+    background:var(--accent-b-soft);
+    border:1px solid var(--accent-b);
+    border-radius:var(--radius-sm);
+    padding:16px 18px;
+    margin-top:6px;
+  }
+  .answer-box.shown{display:block; animation:fadeUp .4s ease both;}
+
+  .match-wrap{display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:20px;}
+  @media (max-width:640px){.match-wrap{grid-template-columns:1fr; gap:16px;}}
+  .match-col h3{font-size:15px; color:var(--text-muted); margin:0 0 10px; font-weight:600;}
+  .match-btn{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:16px;
+    padding:13px 16px;
+    border-radius:var(--radius-sm);
+    margin-bottom:10px;
+    cursor:pointer;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .match-btn:hover{border-color:var(--accent-a);}
+  .match-btn.selected{border-color:var(--accent-a); background:var(--accent-a-soft);}
+  .match-btn.correct{border-color:var(--accent-b); background:var(--accent-b-soft); cursor:default;}
+  .match-btn.wrong{border-color:var(--danger); background:var(--danger-soft);}
+  .match-status{margin-top:14px; font-size:14px; color:var(--text-muted); min-height:20px;}
+
+  .slider-row{display:flex; align-items:center; gap:14px; margin:18px 0 6px;}
+  input[type="range"]{
+    -webkit-appearance:none;
+    flex:1;
+    height:6px;
+    border-radius:999px;
+    background:var(--surface-2);
+    outline:none;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:20px; height:20px;
+    border-radius:50%;
+    background:var(--accent-a);
+    cursor:pointer;
+    box-shadow:0 0 0 5px var(--accent-a-soft);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width:20px; height:20px; border:none; border-radius:50%;
+    background:var(--accent-a); cursor:pointer;
+    box-shadow:0 0 0 5px var(--accent-a-soft);
+  }
+  .k-readout{font-family:var(--font-mono); font-size:20px; color:var(--accent-a); min-width:64px; text-align:right;}
+
+  .quiz-q{
+    display:none;
+  }
+  .quiz-q.active{display:block; animation:fadeUp .4s ease both;}
+  .opt-btn{
+    display:block; width:100%; text-align:left;
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:10px;
+    cursor:pointer; font-size:15px; font-family:var(--font-body);
+    transition:border-color .2s ease, background .2s ease;
+  }
+  .opt-btn:hover{border-color:var(--accent-a);}
+  .opt-btn.correct{border-color:var(--accent-b); background:var(--accent-b-soft);}
+  .opt-btn.wrong{border-color:var(--danger); background:var(--danger-soft);}
+  .opt-btn:disabled{cursor:default;}
+
+  .quiz-explain{
+    display:none;
+    margin-top:10px;
+    padding:14px 16px;
+    border-radius:var(--radius-sm);
+    background:var(--surface-2);
+    color:var(--text-muted);
+    font-size:14.5px;
+    line-height:1.65;
+  }
+  .quiz-explain.shown{display:block;}
+
+  .quiz-progress{color:var(--text-muted); font-size:14px; margin-bottom:14px;}
+  .quiz-result{display:none; text-align:center; padding:30px 10px;}
+  .quiz-result.shown{display:block;}
+  .quiz-score{font-family:var(--font-display); font-size:52px; color:var(--accent-b); margin:6px 0;}
+
+  .input-check{display:flex; gap:12px; align-items:center; margin-top:16px; flex-wrap:wrap;}
+  .input-check input[type="number"]{
+    width:140px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    font-family:var(--font-mono);
+    font-size:17px;
+    padding:11px 14px;
+    border-radius:var(--radius-sm);
+  }
+  .feedback{margin-top:14px; padding:13px 16px; border-radius:var(--radius-sm); display:none; font-size:14.5px; line-height:1.6;}
+  .feedback.ok{display:block; background:var(--accent-b-soft); border:1px solid var(--accent-b); color:var(--text);}
+  .feedback.bad{display:block; background:var(--danger-soft); border:1px solid var(--danger); color:var(--text);}
+
+  .formula-box{
+    font-family:var(--font-mono);
+    background:var(--bg-soft);
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:16px 20px;
+    font-size:16px;
+    color:var(--accent-c);
+    text-align:center;
+    margin:14px 0;
+  }
+
+  .nav-bar{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:linear-gradient(0deg, rgba(11,14,20,0.98), rgba(11,14,20,0.85));
+    border-top:1px solid var(--border);
+    padding:14px clamp(16px,4vw,50px);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    backdrop-filter:blur(6px);
+    z-index:20;
+  }
+  .nav-left, .nav-right{display:flex; align-items:center; gap:10px;}
+  .slide-counter{font-family:var(--font-mono); font-size:13px; color:var(--text-muted); min-width:56px; text-align:center;}
+  .nav-btn{
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    width:42px; height:42px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:18px;
+    transition:border-color .2s ease, transform .15s ease;
+  }
+  .nav-btn:hover:not(:disabled){border-color:var(--accent-a); transform:translateY(-2px);}
+  .nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+  .dots{display:flex; gap:6px; flex-wrap:wrap; max-width:280px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--border); transition:background .2s ease, transform .2s ease;}
+  .dot.active{background:var(--accent-a); transform:scale(1.5);}
+  @media (max-width:720px){.dots{display:none;}}
+
+  .cover-hero{
+    display:flex; align-items:center; justify-content:center;
+    min-height:56vh;
+  }
+
+  .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;}
+
+  .reflect-box textarea{
+    width:100%;
+    min-height:90px;
+    background:var(--surface-2);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:var(--radius-sm);
+    padding:14px;
+    font-family:var(--font-body);
+    font-size:14.5px;
+    resize:vertical;
+  }
+  .reflect-box textarea:focus{outline:none; border-color:var(--accent-a);}
+
+  .end-note{color:var(--text-muted); font-size:14px; margin-top:8px;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:999px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="stage" id="stage">
+
+    <!-- 1. COVER -->
+    <section class="slide active" data-title="Pembuka">
+      <div class="slide-inner cover-hero">
+        <div style="text-align:center; width:100%;">
+          <span class="kicker">Bab 6 · Kesebangunan</span>
+          <h1 class="display" style="font-size:clamp(30px,5.5vw,54px); margin:0 0 14px; line-height:1.1;">Menentukan Sisi<br>yang Tidak Diketahui</h1>
+          <p class="lede" style="margin:0 auto 30px;">Belajar membaca perbandingan pada bangun-bangun sebangun, lalu memakainya untuk mencari panjang sisi yang belum kita ketahui — sampai mengukur tinggi benda yang tidak terjangkau tangan.</p>
+          <div class="diagram-box" style="display:inline-flex; margin-bottom:10px;">
+            <svg viewBox="0 0 360 160" width="340">
+              <polygon points="40,130 90,30 140,130" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <polygon points="200,140 290,20 340,140" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <text x="60" y="150" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">segitiga 1</text>
+              <text x="245" y="158" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">segitiga 2</text>
+              <line x1="150" y1="80" x2="190" y2="80" stroke="#F5A93F" stroke-width="2" stroke-dasharray="4 4"/>
+              <text x="127" y="72" fill="#F5A93F" font-family="JetBrains Mono" font-size="13">k = 2</text>
+            </svg>
+          </div>
+          <div class="badge-row" style="justify-content:center;">
+            <span class="pill">Fase D · SMP Kelas IX</span>
+            <span class="pill">Kurikulum Merdeka</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. APERSEPSI -->
+    <section class="slide" data-title="Apersepsi">
+      <div class="slide-inner">
+        <span class="kicker">Apersepsi</span>
+        <h2 class="slide-title">Pernah memperbesar foto di ponsel?</h2>
+        <p class="lede">Saat kamu men-zoom sebuah foto, bentuknya tidak berubah — hanya ukurannya yang membesar. Panjang dan lebarnya membesar dengan kelipatan yang sama.</p>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <p style="line-height:1.8; color:var(--text-muted);">Foto asli berukuran 4 cm × 6 cm. Setelah diperbesar, lebarnya menjadi 10 cm.</p>
+              <ul class="clean">
+                <li>Berapa kali lipat foto itu membesar?</li>
+                <li>Kalau begitu, berapa panjang foto setelah diperbesar?</li>
+              </ul>
+              <p style="color:var(--text-muted); font-size:14px; margin-top:14px;">Simpan dulu jawabanmu di kepala — ide inilah yang akan kita pakai sepanjang pembelajaran ini, yaitu <b style="color:var(--text);">kesebangunan</b>.</p>
+            </div>
+            <div class="diagram-box">
+              <svg viewBox="0 0 300 180" width="280">
+                <rect x="20" y="60" width="60" height="90" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+                <text x="30" y="165" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">4 × 6</text>
+                <rect x="130" y="15" width="150" height="150" fill="none" stroke="#22C9A8" stroke-width="3"/>
+                <text x="180" y="180" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">10 × ?</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TUJUAN -->
+    <section class="slide" data-title="Tujuan">
+      <div class="slide-inner">
+        <span class="kicker">Tujuan Pembelajaran</span>
+        <h2 class="slide-title">Setelah pembelajaran ini, kamu mampu:</h2>
+        <div class="card">
+          <ul class="clean">
+            <li>Membandingkan sisi-sisi yang bersesuaian pada dua bangun sebangun.</li>
+            <li>Menentukan faktor skala antara dua bangun yang sebangun.</li>
+            <li>Menggunakan perbandingan senilai untuk menghitung panjang sisi yang belum diketahui.</li>
+            <li>Menyelesaikan masalah sisi pada segitiga sebangun, termasuk yang dibentuk oleh garis sejajar.</li>
+            <li>Menerapkan konsep kesebangunan untuk menentukan tinggi atau panjang benda di dunia nyata.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. RECALL SYARAT KESEBANGUNAN -->
+    <section class="slide" data-title="Mengingat Kembali">
+      <div class="slide-inner">
+        <span class="kicker">Mengingat kembali</span>
+        <h2 class="slide-title">Kapan dua bangun disebut sebangun?</h2>
+        <p class="lede">Dua bangun dikatakan <b style="color:var(--text);">sebangun</b> jika memenuhi dua syarat sekaligus.</p>
+        <div class="pill-row" style="margin-bottom:18px;">
+          <span class="pill">Sudut-sudut bersesuaian sama besar</span>
+          <span class="pill">Sisi-sisi bersesuaian sebanding</span>
+        </div>
+        <div class="accordion" id="recallAcc">
+          <div class="accordion-item">
+            <div class="accordion-head" onclick="toggleAcc(this)"><span>Apa itu "sisi yang bersesuaian"?</span><span class="chev">⌄</span></div>
+            <div class="accordion-body"><p>Sisi bersesuaian adalah sisi-sisi yang menempati posisi yang sama pada dua bangun, biasanya terletak di antara dua sudut yang juga bersesuaian. Pada slide berikutnya kamu akan melihat contohnya secara visual.</p></div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-head" onclick="toggleAcc(this)"><span>Apakah sebangun sama dengan kongruen?</span><span class="chev">⌄</span></div>
+            <div class="accordion-body"><p>Tidak selalu. Bangun yang kongruen pasti sebangun (dengan faktor skala 1), tetapi bangun yang sebangun belum tentu kongruen — ukurannya boleh berbeda, asalkan bentuknya tetap sama.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. KONSEP PERBANDINGAN SISI -->
+    <section class="slide" data-title="Perbandingan Sisi">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Perbandingan sisi</span>
+        <h2 class="slide-title">Sisi-sisi bersesuaian pada segitiga sebangun</h2>
+        <div class="grid-2">
+          <div class="diagram-box">
+            <svg viewBox="0 0 320 200" width="300">
+              <polygon points="40,170 100,30 60,170" fill="none" stroke="#333c4d" stroke-width="1"/>
+              <polygon points="40,170 100,30 60,170" fill="none" stroke="#7C6CF5" stroke-width="0" />
+              <polygon points="35,175 95,25 65,175" fill="none" stroke="#20242f" stroke-width="0"/>
+              <polygon id="triA" points="35,175 95,20 60,175" fill="none" stroke="#444c5e" stroke-width="2"/>
+              <line x1="35" y1="175" x2="95" y2="20" stroke="#7C6CF5" stroke-width="4"/>
+              <line x1="95" y1="20" x2="60" y2="175" stroke="#22C9A8" stroke-width="4"/>
+              <line x1="60" y1="175" x2="35" y2="175" stroke="#F5A93F" stroke-width="4"/>
+              <text x="10" y="100" fill="#7C6CF5" font-family="JetBrains Mono" font-size="13">A</text>
+              <text x="95" y="14" fill="#8B93A7" font-family="JetBrains Mono" font-size="13">B</text>
+              <text x="62" y="192" fill="#8B93A7" font-family="JetBrains Mono" font-size="13">C</text>
+
+              <polygon points="200,175 290,15 250,175" fill="none" stroke="#444c5e" stroke-width="2"/>
+              <line x1="200" y1="175" x2="290" y2="15" stroke="#7C6CF5" stroke-width="4"/>
+              <line x1="290" y1="15" x2="250" y2="175" stroke="#22C9A8" stroke-width="4"/>
+              <line x1="250" y1="175" x2="200" y2="175" stroke="#F5A93F" stroke-width="4"/>
+              <text x="180" y="100" fill="#8B93A7" font-family="JetBrains Mono" font-size="13">D</text>
+              <text x="288" y="10" fill="#8B93A7" font-family="JetBrains Mono" font-size="13">E</text>
+              <text x="252" y="192" fill="#8B93A7" font-family="JetBrains Mono" font-size="13">F</text>
+            </svg>
+          </div>
+          <div>
+            <p style="color:var(--text-muted); line-height:1.8;">Segitiga <b style="color:var(--text);">ABC</b> sebangun dengan segitiga <b style="color:var(--text);">DEF</b>. Warna pada tiap sisi menunjukkan pasangan sisi yang bersesuaian:</p>
+            <ul class="clean">
+              <li><span style="color:#7C6CF5; font-family:var(--font-mono);">AB ↔ DE</span></li>
+              <li><span style="color:#22C9A8; font-family:var(--font-mono);">BC ↔ EF</span></li>
+              <li><span style="color:#F5A93F; font-family:var(--font-mono);">CA ↔ FD</span></li>
+            </ul>
+            <p style="color:var(--text-muted); line-height:1.8;">Karena sebangun, berlaku:</p>
+            <div class="formula-box">AB / DE = BC / EF = CA / FD</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. INTERAKTIF MATCHING -->
+    <section class="slide" data-title="Pasangkan Sisi">
+      <div class="slide-inner">
+        <span class="kicker">Aktivitas interaktif</span>
+        <h2 class="slide-title">Pasangkan sisi yang bersesuaian</h2>
+        <p class="lede">Segitiga ABC sebangun dengan segitiga DEF. Klik satu sisi di kolom kiri, lalu klik pasangannya di kolom kanan.</p>
+        <div class="card">
+          <div class="match-wrap">
+            <div class="match-col">
+              <h3>Segitiga ABC</h3>
+              <button class="match-btn" data-pair="1" onclick="matchPick(this,'left')">AB</button>
+              <button class="match-btn" data-pair="2" onclick="matchPick(this,'left')">BC</button>
+              <button class="match-btn" data-pair="3" onclick="matchPick(this,'left')">CA</button>
+            </div>
+            <div class="match-col">
+              <h3>Segitiga DEF</h3>
+              <button class="match-btn" data-pair="3" onclick="matchPick(this,'right')">FD</button>
+              <button class="match-btn" data-pair="1" onclick="matchPick(this,'right')">DE</button>
+              <button class="match-btn" data-pair="2" onclick="matchPick(this,'right')">EF</button>
+            </div>
+          </div>
+          <div class="match-status" id="matchStatus">Pilih satu sisi dari setiap kolom untuk memasangkannya.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. KONSEP FAKTOR SKALA -->
+    <section class="slide" data-title="Faktor Skala">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Faktor skala</span>
+        <h2 class="slide-title">Apa itu faktor skala?</h2>
+        <p class="lede">Faktor skala (k) adalah angka pengali yang menunjukkan seberapa besar bangun kedua dibandingkan bangun pertama.</p>
+        <div class="formula-box">k = panjang sisi bangun kedua ÷ panjang sisi bersesuaian pada bangun pertama</div>
+        <div class="card">
+          <ul class="clean">
+            <li>Jika <span class="mono">k &gt; 1</span>, bangun kedua lebih besar dari bangun pertama.</li>
+            <li>Jika <span class="mono">k = 1</span>, kedua bangun berukuran sama (kongruen).</li>
+            <li>Jika <span class="mono">0 &lt; k &lt; 1</span>, bangun kedua lebih kecil dari bangun pertama.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. CONTOH FAKTOR SKALA -->
+    <section class="slide" data-title="Contoh · Faktor Skala">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Menentukan faktor skala dua persegi panjang</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Persegi panjang pertama berukuran 4 cm × 6 cm. Persegi panjang kedua sebangun dengannya, berukuran 10 cm × 15 cm. Tentukan faktor skala dari bangun pertama ke bangun kedua.</p>
+          <div class="diagram-box" style="margin:14px 0;">
+            <svg viewBox="0 0 300 140" width="280">
+              <rect x="15" y="60" width="40" height="60" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <text x="12" y="130" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">4×6</text>
+              <rect x="110" y="15" width="100" height="105" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <text x="140" y="135" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">10×15</text>
+            </svg>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="revealStep('sk1-1')">Tampilkan langkah 1</button>
+          </div>
+          <div class="step-block" id="sk1-1">
+            <div class="step-label">Langkah 1 · Bandingkan sisi yang bersesuaian</div>
+            <p>Sisi panjang: 15 cm dan 6 cm, atau sisi lebar: 10 cm dan 4 cm — keduanya adalah pasangan sisi bersesuaian.</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('sk1-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="sk1-2">
+            <div class="step-label">Langkah 2 · Hitung faktor skala</div>
+            <p class="mono">k = 10 ÷ 4 = 2,5 &nbsp;&nbsp;atau&nbsp;&nbsp; k = 15 ÷ 6 = 2,5</p>
+            <p>Kedua perhitungan memberi hasil yang sama, ini menegaskan bahwa kedua bangun benar-benar sebangun.</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('sk1-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="sk1-ans">Faktor skala dari bangun pertama ke bangun kedua adalah <b>2,5</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. INTERAKTIF SLIDER -->
+    <section class="slide" data-title="Simulasi Faktor Skala">
+      <div class="slide-inner">
+        <span class="kicker">Visualisasi interaktif</span>
+        <h2 class="slide-title">Geser untuk mengubah faktor skala</h2>
+        <p class="lede">Segitiga siku-siku dengan sisi 3, 4, dan 5 cm akan membesar atau mengecil sesuai faktor skala yang kamu pilih.</p>
+        <div class="card">
+          <div class="grid-2">
+            <div class="diagram-box" style="height:220px;">
+              <svg viewBox="0 0 260 220" width="240" height="200">
+                <polygon points="30,190 30,190 30,190" fill="none" stroke="#333c4d" stroke-width="1"/>
+                <g id="baseTri">
+                  <polygon points="30,190 30,150 66,190" fill="none" stroke="#444c5e" stroke-width="2" stroke-dasharray="3 3"/>
+                </g>
+                <g id="scaledTri" style="transform-origin: 30px 190px;">
+                  <polygon points="30,190 30,150 66,190" fill="rgba(124,108,245,0.12)" stroke="#7C6CF5" stroke-width="3"/>
+                </g>
+              </svg>
+            </div>
+            <div>
+              <div class="slider-row">
+                <input type="range" id="kSlider" min="0.5" max="3" step="0.1" value="1" oninput="updateScale(this.value)">
+                <span class="k-readout" id="kValue">1.0</span>
+              </div>
+              <p style="color:var(--text-muted); font-size:14px;">Faktor skala (k)</p>
+              <ul class="clean" style="margin-top:14px;">
+                <li>Sisi tegak: <span class="mono" id="sideA">3.0</span> cm</li>
+                <li>Sisi alas: <span class="mono" id="sideB">4.0</span> cm</li>
+                <li>Sisi miring: <span class="mono" id="sideC">5.0</span> cm</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. KONSEP PERBANDINGAN SENILAI -->
+    <section class="slide" data-title="Perbandingan Senilai">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Perbandingan senilai</span>
+        <h2 class="slide-title">Mencari sisi yang belum diketahui</h2>
+        <p class="lede">Karena semua pasangan sisi bersesuaian memiliki perbandingan yang sama, kita bisa menyusun persamaan perbandingan senilai untuk mencari sisi yang belum diketahui.</p>
+        <div class="formula-box">sisi diketahui bangun 1 / sisi bersesuaian bangun 2 = sisi lain bangun 1 / sisi tak diketahui (x)</div>
+        <div class="card">
+          <ol class="clean">
+            <li>Kenali pasangan sisi yang sudah diketahui panjangnya dari kedua bangun.</li>
+            <li>Susun perbandingan senilai yang melibatkan sisi yang dicari (x).</li>
+            <li>Selesaikan persamaan dengan perkalian silang.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. CONTOH 1 -->
+    <section class="slide" data-title="Contoh · Sisi Tak Diketahui">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Segitiga ABC sebangun dengan segitiga DEF</h2>
+        <div class="card">
+          <div class="grid-2">
+            <div class="diagram-box">
+              <svg viewBox="0 0 300 170" width="280">
+                <polygon points="20,150 60,20 90,150" fill="none" stroke="#444c5e" stroke-width="2"/>
+                <text x="55" y="14" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">A</text>
+                <text x="5" y="165" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">B</text>
+                <text x="88" y="165" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">C</text>
+                <text x="10" y="85" fill="#7C6CF5" font-family="JetBrains Mono" font-size="12">6</text>
+                <text x="85" y="85" fill="#F5A93F" font-family="JetBrains Mono" font-size="12">10</text>
+                <text x="48" y="163" fill="#22C9A8" font-family="JetBrains Mono" font-size="12">8</text>
+
+                <polygon points="170,150 220,20 260,150" fill="none" stroke="#444c5e" stroke-width="2"/>
+                <text x="215" y="14" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">D</text>
+                <text x="150" y="165" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">E</text>
+                <text x="258" y="165" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">F</text>
+                <text x="165" y="85" fill="#7C6CF5" font-family="JetBrains Mono" font-size="12">9</text>
+                <text x="255" y="85" fill="#F5A93F" font-family="JetBrains Mono" font-size="12">15</text>
+                <text x="205" y="163" fill="#22C9A8" font-family="JetBrains Mono" font-size="12">x</text>
+              </svg>
+            </div>
+            <div>
+              <p style="color:var(--text-muted); line-height:1.8;">Diketahui AB = 6 cm, AC = 10 cm, DE = 9 cm, DF = 15 cm. Segitiga ABC sebangun dengan segitiga DEF. Tentukan panjang EF.</p>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn" onclick="revealStep('c1-1')">Tampilkan langkah 1</button>
+          </div>
+          <div class="step-block" id="c1-1">
+            <div class="step-label">Langkah 1 · Tentukan faktor skala</div>
+            <p class="mono">k = DE / AB = 9 / 6 = 1,5</p>
+            <p>Cek dengan pasangan lain: k = DF / AC = 15 / 10 = 1,5 — hasilnya sama, jadi faktor skala benar.</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c1-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c1-2">
+            <div class="step-label">Langkah 2 · Terapkan faktor skala ke sisi yang dicari</div>
+            <p class="mono">EF = BC × k = 8 × 1,5 = 12</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c1-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c1-ans">Panjang EF adalah <b>12 cm</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. LATIHAN MUDAH -->
+    <section class="slide" data-title="Latihan · Mudah">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat mudah</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Segitiga pertama memiliki sisi-sisi 5 cm, 7 cm, dan 9 cm. Segitiga kedua sebangun dengannya, dengan sisi-sisi bersesuaian 15 cm, 21 cm, dan x cm. Berapakah nilai x?</p>
+          <div class="input-check">
+            <input type="number" id="latihan1" placeholder="Nilai x (cm)">
+            <button class="btn" onclick="checkLatihan('latihan1', 27, 'fb1')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. KONSEP SEGITIGA SEBANGUN GARIS SEJAJAR -->
+    <section class="slide" data-title="Segitiga & Garis Sejajar">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Segitiga sebangun</span>
+        <h2 class="slide-title">Segitiga sebangun akibat garis sejajar</h2>
+        <p class="lede">Jika di dalam segitiga ABC ditarik garis DE yang sejajar dengan BC (D pada AB, E pada AC), maka segitiga ADE sebangun dengan segitiga ABC.</p>
+        <div class="grid-2">
+          <div class="diagram-box">
+            <svg viewBox="0 0 260 200" width="240">
+              <polygon points="130,20 30,180 230,180" fill="none" stroke="#444c5e" stroke-width="2"/>
+              <line x1="82" y1="100" x2="178" y2="100" stroke="#22C9A8" stroke-width="3"/>
+              <text x="128" y="14" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">A</text>
+              <text x="18" y="195" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">B</text>
+              <text x="225" y="195" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">C</text>
+              <text x="65" y="95" fill="#7C6CF5" font-family="JetBrains Mono" font-size="12">D</text>
+              <text x="182" y="95" fill="#F5A93F" font-family="JetBrains Mono" font-size="12">E</text>
+            </svg>
+          </div>
+          <div>
+            <p style="color:var(--text-muted); line-height:1.8;">Karena DE sejajar BC, sudut-sudut segitiga ADE sama besar dengan sudut-sudut segitiga ABC (sehadap), sehingga:</p>
+            <div class="formula-box">AD / AB = AE / AC = DE / BC</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. CONTOH 2 -->
+    <section class="slide" data-title="Contoh · Garis Sejajar">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Mencari panjang EC</h2>
+        <div class="card">
+          <div class="grid-2">
+            <div class="diagram-box">
+              <svg viewBox="0 0 260 210" width="240">
+                <polygon points="130,20 30,190 230,190" fill="none" stroke="#444c5e" stroke-width="2"/>
+                <line x1="82" y1="100" x2="178" y2="100" stroke="#22C9A8" stroke-width="3"/>
+                <text x="128" y="14" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">A</text>
+                <text x="18" y="205" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">B</text>
+                <text x="225" y="205" fill="#8B93A7" font-family="JetBrains Mono" font-size="12">C</text>
+                <text x="65" y="95" fill="#7C6CF5" font-family="JetBrains Mono" font-size="12">D</text>
+                <text x="182" y="95" fill="#F5A93F" font-family="JetBrains Mono" font-size="12">E</text>
+                <text x="95" y="65" fill="#7C6CF5" font-family="JetBrains Mono" font-size="11">4</text>
+                <text x="95" y="150" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">6</text>
+                <text x="168" y="60" fill="#F5A93F" font-family="JetBrains Mono" font-size="11">5</text>
+                <text x="185" y="150" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">x</text>
+              </svg>
+            </div>
+            <div>
+              <p style="color:var(--text-muted); line-height:1.8;">Pada segitiga ABC, DE sejajar BC. Diketahui AD = 4 cm, DB = 6 cm, dan AE = 5 cm. Tentukan panjang EC.</p>
+            </div>
+          </div>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c2-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c2-1">
+            <div class="step-label">Langkah 1 · Hitung AB dan susun perbandingan</div>
+            <p class="mono">AB = AD + DB = 4 + 6 = 10</p>
+            <p class="mono">AD / AB = AE / AC</p>
+            <p class="mono">4 / 10 = 5 / (5 + EC)</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c2-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c2-2">
+            <div class="step-label">Langkah 2 · Selesaikan dengan perkalian silang</div>
+            <p class="mono">4 × (5 + EC) = 10 × 5</p>
+            <p class="mono">20 + 4·EC = 50</p>
+            <p class="mono">4·EC = 30 → EC = 7,5</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c2-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c2-ans">Panjang EC adalah <b>7,5 cm</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. LATIHAN SEDANG -->
+    <section class="slide" data-title="Latihan · Sedang">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat sedang</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Pada segitiga ABC, garis DE sejajar BC dengan D pada AB dan E pada AC. Diketahui AD = 3 cm, DB = 9 cm, dan AE = 4 cm. Berapakah panjang EC?</p>
+          <div class="input-check">
+            <input type="number" id="latihan2" placeholder="Nilai EC (cm)">
+            <button class="btn" onclick="checkLatihan('latihan2', 12, 'fb2')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. APLIKASI TINGGI BENDA -->
+    <section class="slide" data-title="Aplikasi Dunia Nyata">
+      <div class="slide-inner">
+        <span class="kicker">Penerapan</span>
+        <h2 class="slide-title">Mengukur tinggi benda dengan bayangan</h2>
+        <p class="lede">Pada saat yang bersamaan, cahaya matahari membentuk sudut yang sama untuk semua benda di sekitarnya. Ini membuat sebuah benda dan bayangannya sebangun dengan benda lain dan bayangannya.</p>
+        <div class="grid-2">
+          <div class="diagram-box">
+            <svg viewBox="0 0 320 170" width="300">
+              <line x1="20" y1="150" x2="300" y2="150" stroke="#333c4d" stroke-width="2"/>
+              <line x1="60" y1="150" x2="60" y2="100" stroke="#7C6CF5" stroke-width="4"/>
+              <line x1="60" y1="150" x2="95" y2="150" stroke="#22C9A8" stroke-width="3"/>
+              <line x1="95" y1="150" x2="60" y2="100" stroke="#F5A93F" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="45" y="90" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">tongkat</text>
+              <text x="65" y="165" fill="#22C9A8" font-family="JetBrains Mono" font-size="11">bayangan</text>
+
+              <line x1="220" y1="150" x2="220" y2="30" stroke="#7C6CF5" stroke-width="5"/>
+              <line x1="220" y1="150" x2="300" y2="150" stroke="#22C9A8" stroke-width="3"/>
+              <line x1="300" y1="150" x2="220" y2="30" stroke="#F5A93F" stroke-width="2" stroke-dasharray="4 3"/>
+              <text x="195" y="24" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">pohon</text>
+            </svg>
+          </div>
+          <div>
+            <p style="color:var(--text-muted); line-height:1.8;">Karena kedua segitiga (benda–bayangan–garis matahari) sebangun, berlaku:</p>
+            <div class="formula-box">tinggi tongkat / bayangan tongkat = tinggi pohon / bayangan pohon</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17. CONTOH TINGGI POHON -->
+    <section class="slide" data-title="Contoh · Tinggi Pohon">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Berapa tinggi pohon itu?</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Sebuah tongkat setinggi 1,5 m memiliki bayangan sepanjang 2 m. Pada saat yang sama, sebuah pohon di dekatnya memiliki bayangan sepanjang 12 m. Tentukan tinggi pohon tersebut.</p>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c3-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c3-1">
+            <div class="step-label">Langkah 1 · Susun perbandingan senilai</div>
+            <p class="mono">tinggi tongkat / bayangan tongkat = tinggi pohon / bayangan pohon</p>
+            <p class="mono">1,5 / 2 = tinggi pohon / 12</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c3-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c3-2">
+            <div class="step-label">Langkah 2 · Selesaikan dengan perkalian silang</div>
+            <p class="mono">tinggi pohon = (1,5 / 2) × 12 = 9</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c3-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c3-ans">Tinggi pohon tersebut adalah <b>9 meter</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. LATIHAN MENANTANG -->
+    <section class="slide" data-title="Latihan · Menantang">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat menantang</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Sebatang tongkat setinggi 2 m memiliki bayangan sepanjang 3 m. Pada saat yang sama, sebuah menara memiliki bayangan sepanjang 24 m. Berapa meter tinggi menara tersebut?</p>
+          <div class="input-check">
+            <input type="number" id="latihan3" placeholder="Tinggi menara (m)">
+            <button class="btn" onclick="checkLatihan('latihan3', 16, 'fb3')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19. KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-inner">
+        <span class="kicker">Kuis akhir</span>
+        <h2 class="slide-title">Uji pemahamanmu</h2>
+        <div id="quizArea">
+          <div class="quiz-progress" id="quizProgress">Soal 1 dari 6</div>
+          <div id="quizQuestions"></div>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <p style="color:var(--text-muted);">Skor kamu</p>
+          <div class="quiz-score" id="quizScoreText">0 / 6</div>
+          <p id="quizScoreMsg" style="color:var(--text-muted);"></p>
+          <button class="btn" onclick="restartQuiz()">Ulangi kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20. REFLEKSI -->
+    <section class="slide" data-title="Refleksi">
+      <div class="slide-inner">
+        <span class="kicker">Refleksi</span>
+        <h2 class="slide-title">Sejenak merefleksikan pembelajaran</h2>
+        <div class="card reflect-box">
+          <p style="margin-top:0; color:var(--text-muted);">Bagian mana dari menentukan sisi pada bangun sebangun yang paling mudah kamu pahami?</p>
+          <textarea placeholder="Tulis refleksimu di sini..."></textarea>
+        </div>
+        <div class="card reflect-box">
+          <p style="margin-top:0; color:var(--text-muted);">Langkah apa yang masih terasa membingungkan, dan apa yang akan kamu lakukan untuk memahaminya lebih baik?</p>
+          <textarea placeholder="Tulis refleksimu di sini..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21. RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <span class="kicker">Rangkuman</span>
+        <h2 class="slide-title">Yang perlu kamu ingat</h2>
+        <div class="card">
+          <ul class="clean">
+            <li>Pada bangun sebangun, sisi-sisi bersesuaian memiliki perbandingan yang sama.</li>
+            <li>Faktor skala k adalah hasil bagi sisi bangun kedua dengan sisi bersesuaian pada bangun pertama.</li>
+            <li>Sisi yang belum diketahui dicari dengan perbandingan senilai, lalu diselesaikan dengan perkalian silang.</li>
+            <li>Garis yang sejajar dengan salah satu sisi segitiga membentuk segitiga baru yang sebangun dengan segitiga aslinya.</li>
+            <li>Konsep ini bisa dipakai untuk mengukur tinggi benda yang tidak bisa diukur langsung, seperti pohon atau menara, menggunakan bayangannya.</li>
+          </ul>
+          <div class="formula-box">sisi 1 bangun A / sisi 1 bangun B = sisi 2 bangun A / sisi 2 bangun B</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22. PENUTUP -->
+    <section class="slide" data-title="Penutup">
+      <div class="slide-inner cover-hero">
+        <div style="text-align:center; width:100%;">
+          <span class="kicker">Selesai</span>
+          <h1 class="display" style="font-size:clamp(26px,4.5vw,40px); margin:0 0 14px;">Kerja bagus!</h1>
+          <p class="lede" style="margin:0 auto 26px;">Kamu sudah menyelesaikan subbab Menentukan Sisi yang Tidak Diketahui. Teruslah berlatih agar kemampuan membaca perbandingan pada bangun sebangun makin tajam.</p>
+          <button class="btn" onclick="goToSlide(0)">Kembali ke awal</button>
+          <p class="end-note">Bab 6 — Kesebangunan</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-left">
+      <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹</button>
+      <span class="slide-counter" id="slideCounter">1 / 22</span>
+      <button class="nav-btn" id="nextBtn" onclick="nextSlide()">›</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<script>
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var current = 0;
+
+  var dotsWrap = document.getElementById('dots');
+  for (var i = 0; i < total; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsWrap.appendChild(d);
+  }
+
+  function renderSlide() {
+    slides.forEach(function (s, idx) {
+      s.classList.toggle('active', idx === current);
+    });
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressFill').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    var dotEls = dotsWrap.querySelectorAll('.dot');
+    dotEls.forEach(function (d, idx) { d.classList.toggle('active', idx === current); });
+    document.getElementById('stage').scrollTop = 0;
+    slides[current].scrollTop = 0;
+  }
+
+  function nextSlide() { if (current < total - 1) { current++; renderSlide(); } }
+  function prevSlide() { if (current > 0) { current--; renderSlide(); } }
+  function goToSlide(n) { current = n; renderSlide(); }
+
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  renderSlide();
+
+  // Accordion
+  function toggleAcc(head) {
+    var item = head.parentElement;
+    var body = item.querySelector('.accordion-body');
+    var open = item.classList.contains('open');
+    item.classList.toggle('open', !open);
+    body.style.maxHeight = open ? null : body.scrollHeight + 'px';
+  }
+
+  // Step reveal
+  function revealStep(id) {
+    document.getElementById(id).classList.add('shown');
+  }
+  function revealAnswer(id) {
+    document.getElementById(id).classList.add('shown');
+  }
+
+  // Matching activity
+  var matchState = { left: null, right: null };
+  function matchPick(btn, side) {
+    if (btn.classList.contains('correct')) return;
+    var wrap = btn.closest('.match-wrap');
+    wrap.querySelectorAll('.match-col:' + (side === 'left' ? 'first-child' : 'last-child') + ' .match-btn').forEach(function (b) {
+      if (!b.classList.contains('correct')) b.classList.remove('selected', 'wrong');
+    });
+    btn.classList.add('selected');
+    matchState[side] = btn;
+
+    if (matchState.left && matchState.right) {
+      var statusEl = document.getElementById('matchStatus');
+      if (matchState.left.dataset.pair === matchState.right.dataset.pair) {
+        matchState.left.classList.remove('selected'); matchState.left.classList.add('correct');
+        matchState.right.classList.remove('selected'); matchState.right.classList.add('correct');
+        statusEl.textContent = 'Tepat! Pasangan sisi tersebut memang bersesuaian.';
+        matchState = { left: null, right: null };
+        var remaining = wrap.querySelectorAll('.match-btn:not(.correct)').length;
+        if (remaining === 0) statusEl.textContent = 'Semua pasangan sisi berhasil ditemukan. Kerja bagus!';
+      } else {
+        matchState.right.classList.add('wrong');
+        matchState.left.classList.add('wrong');
+        statusEl.textContent = 'Belum tepat, coba pasangkan lagi.';
+        setTimeout(function () {
+          if (matchState.left) matchState.left.classList.remove('selected', 'wrong');
+          if (matchState.right) matchState.right.classList.remove('selected', 'wrong');
+          matchState = { left: null, right: null };
+        }, 700);
+      }
+    }
+  }
+
+  // Slider simulation
+  function updateScale(k) {
+    k = parseFloat(k);
+    document.getElementById('kValue').textContent = k.toFixed(1);
+    document.getElementById('sideA').textContent = (3 * k).toFixed(1);
+    document.getElementById('sideB').textContent = (4 * k).toFixed(1);
+    document.getElementById('sideC').textContent = (5 * k).toFixed(1);
+    document.getElementById('scaledTri').style.transform = 'scale(' + k + ')';
+  }
+
+  // Latihan check
+  function checkLatihan(inputId, correct, fbId) {
+    var val = parseFloat(document.getElementById(inputId).value);
+    var fb = document.getElementById(fbId);
+    fb.className = 'feedback';
+    if (isNaN(val)) {
+      fb.classList.add('bad');
+      fb.textContent = 'Isi dulu jawabanmu sebelum diperiksa.';
+      return;
+    }
+    if (Math.abs(val - correct) < 0.01) {
+      fb.classList.add('ok');
+      fb.textContent = 'Benar! Jawabannya adalah ' + correct + '.';
+    } else {
+      fb.classList.add('bad');
+      fb.textContent = 'Belum tepat. Coba periksa kembali perbandingannya. (Petunjuk: susun perbandingan senilai antar sisi bersesuaian.)';
+    }
+  }
+
+  // Quiz
+  var quizData = [
+    {
+      q: 'Dua bangun dikatakan sebangun apabila...',
+      opts: [
+        'sisi-sisi bersesuaian sebanding dan sudut-sudut bersesuaian sama besar',
+        'semua sisi kedua bangun sama panjang',
+        'luas kedua bangun sama besar',
+        'hanya sudut-sudutnya saja yang perlu sama besar'
+      ],
+      correct: 0,
+      explain: 'Kesebangunan mensyaratkan dua hal sekaligus: sisi-sisi bersesuaian sebanding, dan sudut-sudut bersesuaian sama besar.'
+    },
+    {
+      q: 'Segitiga KLM sebangun dengan segitiga NOP. Diketahui KL = 8 cm dan NO = 12 cm. Berapa faktor skala dari segitiga KLM ke segitiga NOP?',
+      opts: ['1,5', '0,75', '2', '1,2'],
+      correct: 0,
+      explain: 'Faktor skala k = NO / KL = 12 / 8 = 1,5.'
+    },
+    {
+      q: 'Masih dari soal sebelumnya, jika LM = 10 cm, berapa panjang OP?',
+      opts: ['13,3 cm', '15 cm', '20 cm', '12 cm'],
+      correct: 1,
+      explain: 'OP = LM × k = 10 × 1,5 = 15 cm.'
+    },
+    {
+      q: 'Pada segitiga ABC, garis DE sejajar BC. Diketahui AD = 6 cm, DB = 4 cm, dan AE = 9 cm. Berapa panjang EC?',
+      opts: ['9 cm', '15 cm', '4 cm', '6 cm'],
+      correct: 3,
+      explain: 'AB = AD + DB = 10. Dari AD/AB = AE/AC: 6/10 = 9/(9+EC), sehingga 9 + EC = 15, jadi EC = 6 cm.'
+    },
+    {
+      q: 'Sebuah pohon memiliki bayangan sepanjang 15 m. Pada saat sama, tongkat setinggi 2 m memiliki bayangan 3 m. Berapa tinggi pohon tersebut?',
+      opts: ['12 m', '7,5 m', '10 m', '15 m'],
+      correct: 2,
+      explain: 'Tinggi pohon = (tinggi tongkat / bayangan tongkat) × bayangan pohon = (2/3) × 15 = 10 m.'
+    },
+    {
+      q: 'Manakah pernyataan yang benar tentang faktor skala k pada dua bangun sebangun?',
+      opts: [
+        'Jika k = 1, kedua bangun kongruen',
+        'Faktor skala hanya berlaku untuk segitiga',
+        'Faktor skala selalu lebih besar dari 1',
+        'Faktor skala tidak berkaitan dengan panjang sisi'
+      ],
+      correct: 0,
+      explain: 'Ketika faktor skala k = 1, ukuran kedua bangun persis sama sehingga keduanya kongruen.'
+    }
+  ];
+
+  var quizIndex = 0;
+  var quizScore = 0;
+  var quizAnswered = [];
+
+  function renderQuiz() {
+    var container = document.getElementById('quizQuestions');
+    container.innerHTML = '';
+    quizData.forEach(function (item, qi) {
+      var qDiv = document.createElement('div');
+      qDiv.className = 'quiz-q' + (qi === quizIndex ? ' active' : '');
+      qDiv.id = 'quizQ' + qi;
+
+      var qTitle = document.createElement('div');
+      qTitle.className = 'card';
+      var pTag = document.createElement('p');
+      pTag.style.marginTop = '0';
+      pTag.style.fontWeight = '600';
+      pTag.style.fontSize = '16px';
+      pTag.textContent = item.q;
+      qTitle.appendChild(pTag);
+
+      item.opts.forEach(function (opt, oi) {
+        var b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = opt;
+        b.onclick = function () { answerQuiz(qi, oi); };
+        qTitle.appendChild(b);
+      });
+
+      var explainDiv = document.createElement('div');
+      explainDiv.className = 'quiz-explain';
+      explainDiv.id = 'explain' + qi;
+      explainDiv.textContent = item.explain;
+      qTitle.appendChild(explainDiv);
+
+      var navRow = document.createElement('div');
+      navRow.className = 'btn-row';
+      var nextQBtn = document.createElement('button');
+      nextQBtn.className = 'btn secondary';
+      nextQBtn.textContent = (qi === quizData.length - 1) ? 'Lihat skor' : 'Soal berikutnya';
+      nextQBtn.id = 'nextQBtn' + qi;
+      nextQBtn.disabled = true;
+      nextQBtn.onclick = function () { goNextQuiz(qi); };
+      navRow.appendChild(nextQBtn);
+      qTitle.appendChild(navRow);
+
+      qDiv.appendChild(qTitle);
+      container.appendChild(qDiv);
+    });
+    document.getElementById('quizProgress').textContent = 'Soal ' + (quizIndex + 1) + ' dari ' + quizData.length;
+  }
+
+  function answerQuiz(qi, oi) {
+    if (quizAnswered[qi] !== undefined) return;
+    quizAnswered[qi] = oi;
+    var qDiv = document.getElementById('quizQ' + qi);
+    var buttons = qDiv.querySelectorAll('.opt-btn');
+    buttons.forEach(function (b, idx) {
+      b.disabled = true;
+      if (idx === quizData[qi].correct) b.classList.add('correct');
+      else if (idx === oi) b.classList.add('wrong');
+    });
+    if (oi === quizData[qi].correct) quizScore++;
+    document.getElementById('explain' + qi).classList.add('shown');
+    document.getElementById('nextQBtn' + qi).disabled = false;
+  }
+
+  function goNextQuiz(qi) {
+    if (qi < quizData.length - 1) {
+      quizIndex = qi + 1;
+      document.querySelectorAll('.quiz-q').forEach(function (q, idx) {
+        q.classList.toggle('active', idx === quizIndex);
+      });
+      document.getElementById('quizProgress').textContent = 'Soal ' + (quizIndex + 1) + ' dari ' + quizData.length;
+    } else {
+      showQuizResult();
+    }
+  }
+
+  function showQuizResult() {
+    document.getElementById('quizArea').style.display = 'none';
+    var resultEl = document.getElementById('quizResult');
+    resultEl.classList.add('shown');
+    document.getElementById('quizScoreText').textContent = quizScore + ' / ' + quizData.length;
+    var msg = '';
+    var ratio = quizScore / quizData.length;
+    if (ratio === 1) msg = 'Sempurna! Kamu benar-benar menguasai cara menentukan sisi yang tidak diketahui.';
+    else if (ratio >= 0.7) msg = 'Bagus sekali! Sedikit lagi menuju pemahaman penuh.';
+    else if (ratio >= 0.4) msg = 'Sudah cukup baik, coba pelajari kembali bagian yang masih keliru.';
+    else msg = 'Yuk pelajari kembali materi sebelumnya, lalu coba kuis ini lagi.';
+    document.getElementById('quizScoreMsg').textContent = msg;
+  }
+
+  function restartQuiz() {
+    quizIndex = 0;
+    quizScore = 0;
+    quizAnswered = [];
+    document.getElementById('quizArea').style.display = 'block';
+    document.getElementById('quizResult').classList.remove('shown');
+    renderQuiz();
+  }
+
+  renderQuiz();
+</script>
+</body>
+</html>

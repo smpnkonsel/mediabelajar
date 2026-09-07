@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembelajaran Interaktif — Bab 7 — Statistika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07111f;--bg2:#0b1729;--card:#101f33;--card2:#13263e;
+  --text:#f4f8ff;--muted:#aab9cf;--line:#263a55;
+  --blue:#48a7ff;--cyan:#31e6d2;--purple:#9b7bff;--green:#55d98a;
+  --yellow:#ffd166;--red:#ff7187;--shadow:0 18px 50px rgba(0,0,0,.28);
+  --radius:24px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+  radial-gradient(circle at 15% 10%,rgba(72,167,255,.14),transparent 28%),
+  radial-gradient(circle at 85% 15%,rgba(155,123,255,.13),transparent 25%),
+  var(--bg);color:var(--text);font-family:"Plus Jakarta Sans",sans-serif;min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{
+  position:sticky;top:0;z-index:20;background:rgba(7,17,31,.88);
+  backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07)
+}
+.topinner{max-width:1200px;margin:auto;padding:14px 20px;display:flex;gap:18px;align-items:center}
+.brand{min-width:230px}.brand small{display:block;color:var(--cyan);font-weight:700;font-size:.76rem;text-transform:uppercase;letter-spacing:.12em}
+.brand strong{font-family:Fredoka;font-size:1.12rem}
+.progressWrap{flex:1}.progressMeta{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;margin-bottom:7px}
+.progress{height:8px;background:#17283e;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan),var(--purple));transition:.35s}
+.homeBtn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:10px 14px;border-radius:12px}
+main{width:100%;flex:1}
+.deck{max-width:1200px;margin:auto;padding:28px 20px 120px}
+.slide{display:none;animation:in .35s ease}.slide.active{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{
+  min-height:68vh;display:grid;place-items:center;text-align:center;
+  padding:42px 20px;background:
+  linear-gradient(145deg,rgba(72,167,255,.09),rgba(155,123,255,.08)),
+  var(--card);border:1px solid var(--line);border-radius:32px;box-shadow:var(--shadow)
+}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:8px 13px;border-radius:999px;background:rgba(49,230,210,.1);border:1px solid rgba(49,230,210,.25);color:var(--cyan);font-weight:700;font-size:.8rem}
+h1,h2,h3{font-family:Fredoka;margin-top:0}h1{font-size:clamp(2.4rem,7vw,5.2rem);line-height:1.02;margin:20px auto 16px;max-width:900px}
+h2{font-size:clamp(1.8rem,4vw,3rem);margin-bottom:12px}h3{font-size:1.25rem}
+.subtitle{color:var(--muted);font-size:clamp(1rem,2vw,1.18rem);max-width:820px;margin:0 auto 24px;line-height:1.8}
+.sectionHead{margin-bottom:22px}.sectionHead p{color:var(--muted);line-height:1.75;max-width:850px}
+.grid{display:grid;gap:18px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.015)),var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 12px 35px rgba(0,0,0,.14)}
+.card p,.card li{color:#c2cee0;line-height:1.75}.card ul{padding-left:21px}
+.icon{font-size:2rem;margin-bottom:12px}.num{font:600 1rem "JetBrains Mono";color:var(--cyan)}
+.callout{padding:18px;border-radius:18px;border:1px solid rgba(72,167,255,.25);background:rgba(72,167,255,.07);line-height:1.75;color:#dbeaff}
+.callout.good{border-color:rgba(85,217,138,.28);background:rgba(85,217,138,.07)}
+.callout.warn{border-color:rgba(255,209,102,.3);background:rgba(255,209,102,.06)}
+.formula{font:600 clamp(1.05rem,3vw,1.55rem) "JetBrains Mono";padding:18px;border-radius:16px;background:#081321;border:1px dashed #39506e;text-align:center;color:#dff8ff;overflow:auto}
+.btn{
+  border:0;border-radius:13px;padding:11px 16px;color:#06111e;font-weight:800;
+  background:linear-gradient(135deg,var(--cyan),var(--blue));transition:.2s;box-shadow:0 8px 20px rgba(49,230,210,.12)
+}
+.btn:hover{transform:translateY(-2px)}.btn.secondary{color:var(--text);background:#172a42;border:1px solid var(--line);box-shadow:none}.btn.purple{background:linear-gradient(135deg,var(--purple),var(--blue));color:white}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.reveal{display:none;margin-top:15px}.reveal.show{display:block;animation:in .25s}
+.hidden{display:none!important}
+.kpi{text-align:center}.kpi strong{display:block;font:700 2rem Fredoka;color:var(--cyan)}.kpi span{color:var(--muted);font-size:.85rem}
+table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:15px}th,td{padding:12px;text-align:center;border-bottom:1px solid var(--line)}th{background:#162940;color:#dff3ff}td{color:#c4d0e0}
+.chart{display:flex;align-items:flex-end;gap:14px;height:250px;padding:20px 10px 10px;background:#081321;border-radius:18px;border:1px solid var(--line)}
+.barBox{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:7px}.bar{width:min(62px,70%);height:var(--h);min-height:8px;background:linear-gradient(180deg,var(--cyan),var(--blue));border-radius:10px 10px 4px 4px;transition:.5s}.barLabel{font-size:.72rem;color:var(--muted)}.barVal{font:600 .75rem "JetBrains Mono"}
+.step{display:flex;gap:14px;align-items:flex-start;padding:15px 0;border-bottom:1px solid var(--line)}.step:last-child{border:0}.stepNum{min-width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#19324d;color:var(--cyan);font-weight:800}
+.quizOption,.choice{width:100%;text-align:left;background:#12243a;border:1px solid #29405c;color:#dce7f5;padding:13px 15px;border-radius:13px;margin-top:9px;transition:.2s}.quizOption:hover,.choice:hover{border-color:var(--blue);transform:translateX(2px)}
+.correct{border-color:var(--green)!important;background:rgba(85,217,138,.12)!important}.wrong{border-color:var(--red)!important;background:rgba(255,113,135,.1)!important}
+.feedback{margin-top:12px;padding:12px 14px;border-radius:13px;display:none;line-height:1.6}.feedback.show{display:block}.feedback.ok{background:rgba(85,217,138,.08);color:#b8f5cd}.feedback.no{background:rgba(255,113,135,.08);color:#ffc4cf}
+input[type=number],input[type=text]{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:#081321;color:white;outline:none}input:focus{border-color:var(--blue)}
+.sortArea{display:grid;grid-template-columns:1fr 1fr;gap:18px}.dropzone{min-height:190px;border:2px dashed #38506c;border-radius:18px;padding:15px}.dragItem{background:#172d47;border:1px solid #304b6a;padding:12px;border-radius:12px;margin:8px 0;cursor:grab}.dragItem:active{cursor:grabbing}
+.matchGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.matchGrid button{text-align:left}
+.choiceRow{display:flex;gap:10px;flex-wrap:wrap}.choiceRow .btn{flex:1;min-width:120px}
+.timeline{position:relative;padding-left:28px}.timeline:before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:#2c4764}.timeline .stepNum{position:absolute;left:-10px}
+.toc{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.toc button{text-align:left}
+.navbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(7,17,31,.94);
+  backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08)
+}
+.navinner{max-width:1200px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:12px}.navinner .grow{flex:1}.slideDots{display:flex;gap:5px;justify-content:center;overflow:hidden;max-width:48vw}.dot{width:8px;height:8px;border:0;border-radius:50%;padding:0;background:#334962}.dot.active{width:24px;border-radius:8px;background:linear-gradient(90deg,var(--cyan),var(--blue))}
+.scoreBox{text-align:center;padding:25px;border-radius:22px;background:linear-gradient(145deg,rgba(72,167,255,.12),rgba(155,123,255,.1));border:1px solid #334d6d}.scoreBox strong{font:700 3.5rem Fredoka;display:block;color:var(--cyan)}
+.small{font-size:.84rem;color:var(--muted)}.center{text-align:center}.mt{margin-top:18px}.mb{margin-bottom:18px}
+@media(max-width:850px){.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g2,.sortArea{grid-template-columns:1fr}.topinner{flex-wrap:wrap}.brand{min-width:0}.progressWrap{min-width:180px}.toc{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){
+  .deck{padding:16px 12px 115px}.topinner{padding:10px 12px}.brand{width:100%}.progressWrap{width:100%}
+  .g3,.g4{grid-template-columns:1fr}.card{padding:17px}.hero{min-height:70vh;padding:30px 15px}
+  h1{font-size:2.55rem}.navinner{padding:9px 10px}.navinner .btn{padding:10px 11px;font-size:.8rem}.slideDots{max-width:34vw}
+  .chart{gap:6px}.matchGrid{grid-template-columns:1fr}.toc{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topinner">
+    <div class="brand"><small id="brandSub"></small><strong id="brandTitle"></strong></div>
+    <div class="progressWrap">
+      <div class="progressMeta"><span id="slideCounter">Slide 1</span><span id="progressText">0%</span></div>
+      <div class="progress"><i id="progressBar"></i></div>
+    </div>
+    <button class="homeBtn" onclick="goHome()">⌂ Awal</button>
+  </div>
+</header>
+
+<main><div class="deck" id="deck">
+
+<section class="slide active">
+  <div class="hero">
+    <div>
+      <span class="badge">📊 PEMBELAJARAN INTERAKTIF</span>
+      <h1 id="coverTitle"></h1>
+      <p class="subtitle" id="coverSub"></p>
+      <div class="actions" style="justify-content:center">
+        <button class="btn" onclick="nextSlide()">Mulai Pembelajaran →</button>
+      </div>
+      <p class="small mt">Pelajari konsep, amati data, coba aktivitas, lalu uji pemahamanmu.</p>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">01 / PEMBUKA</span><h2>Apa yang akan kita pelajari?</h2><p>Data ada di sekitar kita. Tantangannya bukan sekadar melihat angka, tetapi memahami informasi yang disampaikan angka tersebut.</p></div>
+  <div class="grid g3">
+    <div class="card"><div class="icon">👀</div><h3>Membaca</h3><p>Mengambil informasi penting dari tabel, diagram, dan grafik.</p></div>
+    <div class="card"><div class="icon">⚖️</div><h3>Membandingkan</h3><p>Melihat persamaan, perbedaan, dan kecenderungan dua kelompok data.</p></div>
+    <div class="card"><div class="icon">🧠</div><h3>Menafsirkan</h3><p>Menggunakan ukuran pemusatan dan bukti data untuk membuat kesimpulan.</p></div>
+  </div>
+  <div class="callout mt">💡 <b>Pertanyaan pemantik:</b> Jika dua kelas memiliki nilai rata-rata yang sama, apakah performa kedua kelas pasti sama?</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">02 / TUJUAN</span><h2>Tujuan Pembelajaran</h2><p>Setelah belajar, kamu diharapkan mampu menggunakan data sebagai dasar berpikir dan mengambil kesimpulan.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>🎯 Pengetahuan & Keterampilan</h3><ul>
+      <li>Membaca informasi dari berbagai penyajian data.</li>
+      <li>Menentukan data terbesar, terkecil, dan kecenderungannya.</li>
+      <li>Menghitung serta menafsirkan mean, median, dan modus.</li>
+      <li>Membandingkan dua kelompok data.</li>
+    </ul></div>
+    <div class="card"><h3>🔎 Penalaran</h3><ul>
+      <li>Memeriksa kebenaran pernyataan berdasarkan data.</li>
+      <li>Menarik kesimpulan yang didukung bukti.</li>
+      <li>Menyelesaikan masalah kontekstual dengan data.</li>
+      <li>Menjelaskan alasan secara logis.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">03 / APERSEPSI</span><h2>Data: Angka yang Punya Cerita</h2><p>Bayangkan hasil kuis 10 siswa berikut. Sebelum menghitung apa pun, coba cari informasi yang langsung terlihat.</p></div>
+  <div class="card">
+    <table><thead><tr><th>Siswa</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr></thead>
+    <tbody><tr><td>Nilai</td><td>70</td><td>80</td><td>80</td><td>90</td><td>60</td></tr></tbody></table>
+    <div class="choiceRow mt">
+      <button class="btn secondary" onclick="ap1(this,false)">Nilai terbesar = 80</button>
+      <button class="btn secondary" onclick="ap1(this,true)">Nilai 80 muncul dua kali</button>
+      <button class="btn secondary" onclick="ap1(this,false)">Nilai terkecil = 70</button>
+    </div>
+    <div id="ap1fb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">04 / PENYAJIAN DATA</span><h2>Bagaimana Data Disajikan?</h2><p>Bentuk penyajian dapat berbeda, tetapi informasi yang diwakili dapat sama.</p></div>
+  <div class="grid g3">
+    <div class="card"><div class="icon">📋</div><h3>Tabel</h3><p>Data disusun dalam baris dan kolom sehingga mudah dibaca dan dibandingkan.</p></div>
+    <div class="card"><div class="icon">📊</div><h3>Diagram Batang</h3><p>Panjang atau tinggi batang menunjukkan besar nilai atau frekuensi.</p></div>
+    <div class="card"><div class="icon">📈</div><h3>Grafik</h3><p>Data dapat memperlihatkan perubahan, pola, atau perbandingan secara visual.</p></div>
+  </div>
+  <div class="callout mt">Kunci membaca data: perhatikan <b>judul, label, satuan, kategori, skala,</b> lalu bandingkan nilai.</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">05 / VISUALISASI</span><h2>Baca Grafik dengan Cermat</h2><p>Grafik berikut menunjukkan jumlah buku yang dibaca empat kelompok dalam satu bulan.</p></div>
+  <div class="card">
+    <div class="chart" id="bookChart"></div>
+    <div class="grid g3 mt">
+      <div class="kpi"><strong>?</strong><span>Kelompok terbesar</span></div>
+      <div class="kpi"><strong>?</strong><span>Kelompok terkecil</span></div>
+      <div class="kpi"><strong>?</strong><span>Total buku</span></div>
+    </div>
+    <div class="actions"><button class="btn" onclick="reveal('chartAns')">Tampilkan Analisis</button></div>
+    <div id="chartAns" class="reveal callout good">Kelompok C membaca paling banyak (12 buku), sedangkan kelompok D paling sedikit (5 buku). Total seluruhnya 30 buku. Grafik membantu kita membandingkan kategori secara cepat.</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">06 / MEMBANDINGKAN</span><h2>Membandingkan Dua Kelompok Data</h2><p>Jangan hanya membandingkan satu angka. Perhatikan pusat data dan penyebaran nilai secara keseluruhan.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>Kelas A</h3><div class="formula">70, 70, 80, 80, 90</div><p>Mean = 78</p><p>Median = 80</p></div>
+    <div class="card"><h3>Kelas B</h3><div class="formula">60, 75, 80, 85, 90</div><p>Mean = 78</p><p>Median = 80</p></div>
+  </div>
+  <div class="callout warn mt">⚠️ Kedua kelompok memiliki mean dan median yang sama, tetapi datanya tidak identik. Artinya, satu ukuran saja belum tentu menceritakan seluruh kondisi data.</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">07 / KECENDERUNGAN</span><h2>Menentukan Kecenderungan Data</h2><p>Kecenderungan dapat dilihat dari pola umum: apakah nilai cenderung meningkat, menurun, terkumpul di sekitar nilai tertentu, atau memiliki nilai yang menyimpang.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>📈 Meningkat</h3><p>Nilai dari waktu ke waktu cenderung bertambah.</p><div class="formula">65 → 70 → 74 → 82 → 88</div></div>
+    <div class="card"><h3>📉 Menurun</h3><p>Nilai dari waktu ke waktu cenderung berkurang.</p><div class="formula">90 → 86 → 78 → 72 → 68</div></div>
+  </div>
+  <div class="callout mt">🔎 <b>Ingat:</b> “kecenderungan” bukan berarti setiap nilai harus mengikuti pola sempurna. Kita melihat arah atau pola umum data.</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">08 / TERBESAR & TERKECIL</span><h2>Cari Nilai Ekstrem</h2><p>Nilai terbesar adalah nilai maksimum, sedangkan nilai terkecil adalah nilai minimum.</p></div>
+  <div class="card">
+    <div class="formula">72, 85, 68, 91, 77, 85, 64</div>
+    <div class="grid g2 mt">
+      <div><label class="small">Nilai terbesar</label><input id="maxInput" type="number" placeholder="Masukkan jawaban"></div>
+      <div><label class="small">Nilai terkecil</label><input id="minInput" type="number" placeholder="Masukkan jawaban"></div>
+    </div>
+    <button class="btn mt" onclick="checkExtremes()">Periksa</button>
+    <div id="extremeFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">09 / MEAN</span><h2>Mean — Nilai Rata-Rata</h2><p>Mean diperoleh dengan menjumlahkan seluruh data kemudian membaginya dengan banyak data.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>Rumus</h3><div class="formula">mean = jumlah seluruh data ÷ banyak data</div><p>Gunakan mean ketika ingin mengetahui nilai rata-rata suatu kelompok.</p></div>
+    <div class="card"><h3>Contoh</h3><div class="formula">70, 80, 90, 60</div><p>Jumlah = 300 dan banyak data = 4.</p><div class="formula">mean = 300 ÷ 4 = 75</div></div>
+  </div>
+  <div class="callout mt">💡 Mean menggunakan semua data. Karena itu, nilai yang sangat besar atau sangat kecil dapat memengaruhi mean.</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">10 / MEDIAN</span><h2>Median — Nilai Tengah</h2><p>Median adalah nilai tengah setelah data diurutkan.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>Jumlah data ganjil</h3><div class="formula">60, 70, 75, 80, 90</div><p>Data tengah adalah <b>75</b>, jadi median = 75.</p></div>
+    <div class="card"><h3>Jumlah data genap</h3><div class="formula">60, 70, 80, 90</div><p>Dua data tengah adalah 70 dan 80.</p><div class="formula">median = (70 + 80) ÷ 2 = 75</div></div>
+  </div>
+  <div class="actions"><button class="btn" onclick="reveal('medianTip')">Buka Tips</button></div>
+  <div id="medianTip" class="reveal callout good">⚠️ Jangan mencari median sebelum data diurutkan dari kecil ke besar (atau sebaliknya).</div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">11 / MODUS</span><h2>Modus — Data yang Paling Sering Muncul</h2><p>Modus adalah nilai dengan frekuensi kemunculan paling banyak.</p></div>
+  <div class="card">
+    <div class="formula">70, 80, 80, 75, 90, 80, 85</div>
+    <p class="mt">Nilai <b>80</b> muncul paling sering, yaitu tiga kali.</p>
+    <div class="choiceRow mt">
+      <button class="btn secondary" onclick="modus(this,'70')">70</button>
+      <button class="btn secondary" onclick="modus(this,'80')">80</button>
+      <button class="btn secondary" onclick="modus(this,'90')">90</button>
+    </div>
+    <div id="modusFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">12 / PERBANDINGAN UKURAN</span><h2>Mean, Median, atau Modus?</h2><p>Ketiganya sama-sama menggambarkan pusat data, tetapi digunakan dengan cara dan tujuan yang berbeda.</p></div>
+  <div class="grid g3">
+    <div class="card"><h3>Mean</h3><p>Rata-rata seluruh data.</p><div class="callout">Cocok untuk melihat nilai rata-rata secara keseluruhan.</div></div>
+    <div class="card"><h3>Median</h3><p>Nilai tengah setelah diurutkan.</p><div class="callout">Berguna saat ada nilai ekstrem yang dapat memengaruhi mean.</div></div>
+    <div class="card"><h3>Modus</h3><p>Nilai yang paling sering muncul.</p><div class="callout">Berguna untuk mengetahui nilai/kategori yang paling dominan.</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">13 / AKTIVITAS</span><h2>Susun Data untuk Menemukan Median</h2><p>Seret angka ke kotak “Data Terurut” dari kecil ke besar. Tidak harus sempurna pada percobaan pertama.</p></div>
+  <div class="sortArea">
+    <div class="card"><h3>Angka</h3><div id="dragSource"></div></div>
+    <div class="card"><h3>Data Terurut</h3><div id="dropTarget" class="dropzone"></div><button class="btn mt" onclick="checkSort()">Periksa Urutan</button><div id="sortFb" class="feedback"></div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">14 / INTERPRETASI</span><h2>Mana yang Lebih Tepat?</h2><p>Perhatikan dua kelompok data berikut.</p></div>
+  <div class="grid g2">
+    <div class="card"><h3>Kelompok X</h3><div class="formula">50, 70, 70, 70, 90</div></div>
+    <div class="card"><h3>Kelompok Y</h3><div class="formula">68, 69, 70, 71, 72</div></div>
+  </div>
+  <div class="card mt">
+    <p>Jika ingin mengetahui kelompok yang nilainya lebih konsisten di sekitar 70, kelompok mana yang lebih menunjukkan pola tersebut?</p>
+    <div class="choiceRow">
+      <button class="btn secondary" onclick="interpret(this,false)">Kelompok X</button>
+      <button class="btn secondary" onclick="interpret(this,true)">Kelompok Y</button>
+    </div>
+    <div id="interpretFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">15 / MEMERIKSA INFORMASI</span><h2>Benar atau Tidak Berdasarkan Data?</h2><p>Data tidak boleh dipakai untuk mendukung kesimpulan yang tidak sesuai bukti.</p></div>
+  <div class="card">
+    <table><thead><tr><th>Hari</th><th>Jumlah Pengunjung</th></tr></thead>
+    <tbody><tr><td>Senin</td><td>24</td></tr><tr><td>Selasa</td><td>31</td></tr><tr><td>Rabu</td><td>28</td></tr><tr><td>Kamis</td><td>35</td></tr></tbody></table>
+    <p class="mt"><b>Pernyataan:</b> “Kamis merupakan hari dengan jumlah pengunjung paling banyak.”</p>
+    <div class="choiceRow"><button class="btn secondary" onclick="truth(this,true)">Benar</button><button class="btn secondary" onclick="truth(this,false)">Salah</button></div>
+    <div id="truthFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">16 / AKTIVITAS MATCHING</span><h2>Pasangkan Istilah dengan Maknanya</h2><p>Pilih istilah, kemudian pilih definisi yang sesuai.</p></div>
+  <div class="matchGrid" id="matchGrid"></div>
+  <div id="matchFb" class="feedback"></div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">17 / LANGKAH PEMECAHAN</span><h2>Strategi Menyelesaikan Masalah Data</h2><p>Gunakan alur berikut ketika menghadapi soal kontekstual.</p></div>
+  <div class="card timeline">
+    <div class="step"><div class="stepNum">1</div><div><h3>Pahami konteks</h3><p>Apa yang diketahui dan apa yang ditanyakan?</p></div></div>
+    <div class="step"><div class="stepNum">2</div><div><h3>Identifikasi data</h3><p>Catat data, satuan, kategori, dan bentuk penyajiannya.</p></div></div>
+    <div class="step"><div class="stepNum">3</div><div><h3>Pilih cara</h3><p>Tentukan apakah perlu membandingkan, mengurutkan, atau menghitung mean/median/modus.</p></div></div>
+    <div class="step"><div class="stepNum">4</div><div><h3>Hitung dan tafsirkan</h3><p>Jangan berhenti pada hasil hitungan; jelaskan arti hasilnya.</p></div></div>
+    <div class="step"><div class="stepNum">5</div><div><h3>Periksa</h3><p>Pastikan kesimpulan benar-benar didukung oleh data.</p></div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">18 / MASALAH KONTEKSTUAL</span><h2>Kasus: Program Membaca</h2><p>Empat kelompok mencatat jumlah buku yang selesai dibaca selama satu bulan.</p></div>
+  <div class="card">
+    <table><thead><tr><th>Kelompok</th><th>Buku</th></tr></thead><tbody>
+      <tr><td>A</td><td>8</td></tr><tr><td>B</td><td>6</td></tr><tr><td>C</td><td>12</td></tr><tr><td>D</td><td>4</td></tr>
+    </tbody></table>
+    <p class="mt">Sekolah ingin memberikan apresiasi kepada kelompok dengan jumlah buku terbanyak. Kelompok mana yang dipilih?</p>
+    <div class="choiceRow"><button class="btn secondary" onclick="contextQ(this,'A')">A</button><button class="btn secondary" onclick="contextQ(this,'B')">B</button><button class="btn secondary" onclick="contextQ(this,'C')">C</button><button class="btn secondary" onclick="contextQ(this,'D')">D</button></div>
+    <div id="contextFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">19 / LATIHAN MUDAH</span><h2>Coba Sendiri</h2><p>Hitung mean dari data berikut.</p></div>
+  <div class="card">
+    <div class="formula">70, 80, 90, 60, 100</div>
+    <input id="easyInput" class="mt" type="number" placeholder="Masukkan mean">
+    <button class="btn mt" onclick="checkNumber('easyInput','easyFb',80,'Benar! Jumlah data = 400 dan banyak data = 5, sehingga mean = 80.')">Periksa Jawaban</button>
+    <div id="easyFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">20 / LATIHAN SEDANG</span><h2>Median Data</h2><p>Tentukan median dari data berikut.</p></div>
+  <div class="card">
+    <div class="formula">65, 80, 70, 90, 75, 85</div>
+    <p>Urutkan terlebih dahulu: 65, 70, 75, 80, 85, 90.</p>
+    <input id="midInput" class="mt" type="number" placeholder="Masukkan median">
+    <button class="btn mt" onclick="checkNumber('midInput','midFb',77.5,'Tepat! Dua data tengah adalah 75 dan 80, sehingga median = (75 + 80) ÷ 2 = 77,5.')">Periksa Jawaban</button>
+    <div id="midFb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">21 / LATIHAN MENANTANG</span><h2>Apakah Pernyataannya Benar?</h2><p>Data nilai: 70, 70, 75, 80, 85. Seorang siswa mengatakan “mean data tersebut adalah 80”.</p></div>
+  <div class="card">
+    <div class="choiceRow"><button class="btn secondary" onclick="challenge(this,false)">Benar</button><button class="btn secondary" onclick="challenge(this,true)">Salah</button></div>
+    <div id="challengeFb" class="feedback"></div>
+    <div class="callout mt">Petunjuk: jumlahkan semua data terlebih dahulu.</div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">22 / KUIS AKHIR</span><h2>Uji Pemahamanmu</h2><p>Jawab semua pertanyaan. Skor akan dihitung otomatis.</p></div>
+  <div id="quiz"></div>
+  <div class="actions"><button class="btn purple" onclick="gradeQuiz()">Selesai & Hitung Skor</button><button class="btn secondary" onclick="resetQuiz()">Ulangi Kuis</button></div>
+  <div id="quizResult" class="scoreBox mt hidden"><strong id="scoreValue">0</strong><span id="scoreText"></span></div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">23 / PEMBAHASAN</span><h2>Review Jawaban Kuis</h2><p>Gunakan pembahasan untuk menemukan bagian yang masih perlu dipelajari.</p></div>
+  <div id="review"></div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">24 / REFLEKSI</span><h2>Refleksi Belajar</h2><p>Pilih pernyataan yang paling menggambarkan pemahamanmu saat ini.</p></div>
+  <div class="grid g2">
+    <button class="card choice" onclick="reflection(this,'Saya sudah memahami konsep dan dapat menjelaskan alasannya.')">🌟 Saya paham dan bisa menjelaskan.</button>
+    <button class="card choice" onclick="reflection(this,'Saya cukup paham tetapi masih perlu latihan.')">💪 Saya paham, tetapi perlu latihan.</button>
+    <button class="card choice" onclick="reflection(this,'Saya masih perlu mengulang konsep mean, median, dan modus.')">🔁 Saya perlu mengulang konsep.</button>
+    <button class="card choice" onclick="reflection(this,'Saya akan mempelajari kembali penyajian dan interpretasi data.')">📚 Saya akan belajar kembali.</button>
+  </div>
+  <div id="reflectFb" class="feedback"></div>
+</section>
+
+<section class="slide">
+  <div class="sectionHead"><span class="num">25 / RANGKUMAN</span><h2>Rangkuman Inti</h2></div>
+  <div class="grid g2">
+    <div class="card"><h3>📊 Membaca Data</h3><p>Perhatikan judul, label, satuan, skala, kategori, dan nilai.</p></div>
+    <div class="card"><h3>⚖️ Membandingkan</h3><p>Bandingkan data secara keseluruhan, bukan hanya satu nilai.</p></div>
+    <div class="card"><h3>🧮 Ukuran Pusat</h3><p>Mean = rata-rata; median = nilai tengah; modus = nilai yang paling sering muncul.</p></div>
+    <div class="card"><h3>🧠 Menafsirkan</h3><p>Kesimpulan harus sesuai bukti data dan menjawab konteks masalah.</p></div>
+  </div>
+  <div class="callout good mt"><b>Prinsip utama:</b> Data bukan sekadar angka. Data adalah bukti yang perlu dibaca, dibandingkan, dihitung, dan ditafsirkan secara tepat.</div>
+</section>
+
+<section class="slide">
+  <div class="hero">
+    <div>
+      <span class="badge">🎉 SELESAI</span>
+      <h1>Hebat! Pembelajaran Selesai</h1>
+      <p class="subtitle">Kamu telah mempelajari cara membaca, membandingkan, menghitung, memeriksa, dan menafsirkan data.</p>
+      <div class="scoreBox" style="max-width:480px;margin:auto"><strong id="finalScore">—</strong><span>Skor kuis terakhir</span></div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn secondary" onclick="goHome()">↩ Kembali ke Awal</button>
+        <button class="btn" onclick="goToQuiz()">🔁 Ulangi Kuis</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div></main>
+
+<div class="navbar">
+  <div class="navinner">
+    <button class="btn secondary" onclick="prevSlide()">← Sebelumnya</button>
+    <div class="slideDots" id="slideDots"></div>
+    <div class="grow"></div>
+    <button class="btn" onclick="nextSlide()">Berikutnya →</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* =========================================================
+   DATA UTAMA — DIISI SATU KALI
+   ========================================================= */
+const MATERI = "Bab 7 — Statistika";
+const SUBMATERI = "Menganalisis dan Menafsirkan Data";
+const MATERI_POKOK = [
+  "Membaca informasi dari berbagai bentuk penyajian data",
+  "Membandingkan dua kelompok data",
+  "Menentukan kecenderungan data",
+  "Menentukan data terbesar dan terkecil",
+  "Menggunakan mean, median, dan modus",
+  "Menarik kesimpulan berdasarkan data",
+  "Memeriksa kebenaran informasi dari data",
+  "Menyelesaikan masalah kontekstual"
+];
+
+/* =========================================================
+   MESIN SLIDE
+   ========================================================= */
+const slides = [...document.querySelectorAll(".slide")];
+let current = 0;
+let lastScore = null;
+
+function init(){
+  document.getElementById("brandSub").textContent = SUBMATERI;
+  document.getElementById("brandTitle").textContent = MATERI;
+  document.getElementById("coverTitle").textContent = MATERI;
+  document.getElementById("coverSub").textContent = SUBMATERI;
+  renderDots();
+  buildChart();
+  buildDrag();
+  buildMatching();
+  buildQuiz();
+  showSlide(0);
+}
+function showSlide(n){
+  current = Math.max(0, Math.min(n, slides.length - 1));
+  slides.forEach((s,i)=>s.classList.toggle("active",i===current));
+  const pct = Math.round(((current+1)/slides.length)*100);
+  document.getElementById("slideCounter").textContent = `Slide ${current+1} dari ${slides.length}`;
+  document.getElementById("progressText").textContent = pct+"%";
+  document.getElementById("progressBar").style.width = pct+"%";
+  document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("active",i===current));
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function nextSlide(){ if(current < slides.length-1) showSlide(current+1); }
+function prevSlide(){ if(current > 0) showSlide(current-1); }
+function goHome(){showSlide(0)}
+function goToQuiz(){showSlide(21)}
+function renderDots(){
+  const box=document.getElementById("slideDots");
+  box.innerHTML="";
+  slides.forEach((_,i)=>{
+    const b=document.createElement("button");
+    b.className="dot";
+    b.title=`Ke slide ${i+1}`;
+    b.onclick=()=>showSlide(i);
+    box.appendChild(b);
+  });
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight") nextSlide();
+  if(e.key==="ArrowLeft") prevSlide();
+  if(e.key==="Home") goHome();
+});
+
+/* =========================================================
+   INTERAKSI UMUM
+   ========================================================= */
+function reveal(id){document.getElementById(id).classList.toggle("show")}
+function feedback(id,msg,ok){
+  const el=document.getElementById(id);
+  el.className="feedback show "+(ok?"ok":"no");
+  el.innerHTML=msg;
+}
+function ap1(btn,ok){
+  document.querySelectorAll(".choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  btn.classList.add(ok?"correct":"wrong");
+  feedback("ap1fb",ok?"Benar. Nilai 80 memang muncul dua kali.":"Belum tepat. Periksa kembali frekuensi setiap nilai.",ok);
+}
+function checkExtremes(){
+  const max=Number(document.getElementById("maxInput").value);
+  const min=Number(document.getElementById("minInput").value);
+  const ok=max===91 && min===64;
+  feedback("extremeFb",ok?"Benar! Maksimum = 91 dan minimum = 64.":"Belum tepat. Cari nilai paling besar dan paling kecil dari daftar.",ok);
+}
+function modus(btn,val){
+  document.querySelectorAll(".slide.active .choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  const ok=val==="80"; btn.classList.add(ok?"correct":"wrong");
+  feedback("modusFb",ok?"Tepat! 80 muncul tiga kali, paling sering dibandingkan nilai lain.":"Coba hitung berapa kali setiap nilai muncul.",ok);
+}
+function interpret(btn,ok){
+  document.querySelectorAll(".slide.active .choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  btn.classList.add(ok?"correct":"wrong");
+  feedback("interpretFb",ok?"Benar. Nilai Kelompok Y berkumpul rapat di sekitar 70.":"Perhatikan jarak setiap nilai dari 70. Kelompok Y lebih rapat.",ok);
+}
+function truth(btn,ok){
+  document.querySelectorAll(".slide.active .choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  btn.classList.add(ok?"correct":"wrong");
+  feedback("truthFb",ok?"Benar. Nilai 35 pada Kamis adalah yang terbesar.":"Periksa semua nilai: 24, 31, 28, dan 35.",ok);
+}
+function contextQ(btn,val){
+  document.querySelectorAll(".slide.active .choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  const ok=val==="C";btn.classList.add(ok?"correct":"wrong");
+  feedback("contextFb",ok?"Tepat! Kelompok C membaca 12 buku, jumlah terbanyak.":"Bandingkan jumlah buku keempat kelompok.",ok);
+}
+function challenge(btn,ok){
+  document.querySelectorAll(".slide.active .choiceRow button").forEach(b=>b.classList.remove("correct","wrong"));
+  btn.classList.add(ok?"correct":"wrong");
+  feedback("challengeFb",ok?"Benar, pernyataan itu salah. Jumlah data = 380 sehingga mean = 76, bukan 80.":"Coba hitung 70+70+75+80+85 lalu bagi 5.",ok);
+}
+function checkNumber(inputId,fbId,answer,msg){
+  const v=Number(document.getElementById(inputId).value);
+  const ok=Math.abs(v-answer)<0.001;
+  feedback(fbId,ok?msg:`Belum tepat. Coba hitung kembali dengan teliti.`,ok);
+}
+function reflection(btn,msg){
+  document.querySelectorAll(".slide.active .choice").forEach(b=>b.classList.remove("correct"));
+  btn.classList.add("correct");feedback("reflectFb",msg,true);
+}
+
+/* =========================================================
+   GRAFIK
+   ========================================================= */
+function buildChart(){
+  const data=[["A",7],["B",6],["C",12],["D",5]];
+  const chart=document.getElementById("bookChart");
+  chart.innerHTML=data.map(([k,v])=>`
+    <div class="barBox">
+      <span class="barVal">${v}</span>
+      <div class="bar" style="--h:${(v/12)*82}%"></div>
+      <span class="barLabel">${k}</span>
+    </div>`).join("");
+}
+
+/* =========================================================
+   DRAG & DROP
+   ========================================================= */
+const sortValues=[85,60,75,90,70];
+function buildDrag(){
+  const source=document.getElementById("dragSource");
+  source.innerHTML="";
+  sortValues.forEach(v=>{
+    const d=document.createElement("div");
+    d.className="dragItem";d.draggable=true;d.textContent=v;d.dataset.value=v;
+    d.addEventListener("dragstart",e=>e.dataTransfer.setData("text/plain",v));
+    source.appendChild(d);
+  });
+  const target=document.getElementById("dropTarget");
+  target.addEventListener("dragover",e=>e.preventDefault());
+  target.addEventListener("drop",e=>{
+    e.preventDefault();
+    const v=e.dataTransfer.getData("text/plain");
+    const d=document.createElement("div");
+    d.className="dragItem";d.textContent=v;d.dataset.value=v;
+    target.appendChild(d);
+  });
+}
+function checkSort(){
+  const vals=[...document.querySelectorAll("#dropTarget .dragItem")].map(x=>Number(x.dataset.value));
+  const correct=[60,70,75,85,90];
+  const ok=vals.length===5 && vals.every((v,i)=>v===correct[i]);
+  feedback("sortFb",ok?"Benar! Data sudah terurut dari kecil ke besar. Median = 75.":"Belum benar. Pastikan semua angka dipindahkan dan urutkan dari nilai terkecil ke terbesar.",ok);
+}
+
+/* =========================================================
+   MATCHING
+   ========================================================= */
+const pairs=[
+  ["Mean","Rata-rata seluruh data"],
+  ["Median","Nilai tengah setelah data diurutkan"],
+  ["Modus","Nilai yang paling sering muncul"],
+  ["Minimum","Nilai terkecil"],
+  ["Maksimum","Nilai terbesar"]
+];
+let selectedTerm=null, matchDone=0;
+function buildMatching(){
+  const box=document.getElementById("matchGrid");
+  const shuffled=[...pairs].sort(()=>Math.random()-.5);
+  box.innerHTML="";
+  const left=document.createElement("div"),right=document.createElement("div");
+  left.innerHTML="<h3>Istilah</h3>";
+  right.innerHTML="<h3>Makna</h3>";
+  pairs.forEach(([term])=>{
+    const b=document.createElement("button");b.className="choice";b.textContent=term;
+    b.onclick=()=>{selectedTerm=term;document.querySelectorAll("#matchGrid .termBtn").forEach(x=>x.classList.remove("correct"));b.classList.add("correct")};
+    b.classList.add("termBtn");left.appendChild(b);
+  });
+  shuffled.forEach(([term,def])=>{
+    const b=document.createElement("button");b.className="choice";b.textContent=def;
+    b.onclick=()=>{
+      if(!selectedTerm){feedback("matchFb","Pilih istilah terlebih dahulu.",false);return}
+      const ok=pairs.find(x=>x[0]===selectedTerm)[1]===def;
+      feedback("matchFb",ok?`Benar! <b>${selectedTerm}</b> cocok dengan definisi tersebut.`:"Belum tepat. Coba pasangkan lagi.",ok);
+      if(ok){matchDone++;b.classList.add("correct");b.disabled=true;selectedTerm=null}
+    };
+    right.appendChild(b);
+  });
+  box.innerHTML="";box.appendChild(left);box.appendChild(right);
+}
+
+/* =========================================================
+   KUIS
+   ========================================================= */
+const quizData=[
+ {q:"Data 60, 70, 80, 90, 100 memiliki mean ...",o:["70","80","85","90"],a:1,e:"Jumlah = 400 dan banyak data = 5, sehingga mean = 80."},
+ {q:"Median dari 60, 70, 80, 90, 100 adalah ...",o:["60","70","80","90"],a:2,e:"Data sudah terurut dan nilai tengahnya adalah 80."},
+ {q:"Modus dari 70, 75, 75, 80, 85 adalah ...",o:["70","75","80","85"],a:1,e:"75 muncul dua kali, lebih sering daripada nilai lainnya."},
+ {q:"Nilai terkecil dari 82, 74, 91, 68, 77 adalah ...",o:["68","74","77","91"],a:0,e:"68 adalah nilai minimum karena paling kecil."},
+ {q:"Nilai terbesar dari 82, 74, 91, 68, 77 adalah ...",o:["68","74","82","91"],a:3,e:"91 adalah nilai maksimum karena paling besar."},
+ {q:"Untuk mencari median, langkah pertama yang tepat adalah ...",o:["Menjumlahkan semua data","Mengurutkan data","Mencari data terbesar","Membagi semua data dengan 2"],a:1,e:"Median ditentukan dari posisi tengah setelah data diurutkan."},
+ {q:"Jika sebuah pernyataan menyebut Kelompok A memiliki jumlah buku paling banyak, yang harus dilakukan adalah ...",o:["Menerima tanpa memeriksa","Membandingkan data semua kelompok","Melihat satu data saja","Mengubah data"],a:1,e:"Pernyataan harus diperiksa dengan membandingkan bukti dari seluruh data."},
+ {q:"Data 68, 69, 70, 71, 72 cenderung ...",o:["terkumpul di sekitar 70","sangat menyebar","menurun tajam","meningkat tajam"],a:0,e:"Semua nilai berada dekat 70 sehingga data terkumpul di sekitar 70."}
+];
+function buildQuiz(){
+  const box=document.getElementById("quiz");
+  box.innerHTML=quizData.map((x,i)=>`
+    <div class="card mb">
+      <h3>${i+1}. ${x.q}</h3>
+      <div>${x.o.map((o,j)=>`<button class="quizOption" data-q="${i}" data-a="${j}" onclick="selectQuiz(${i},${j},this)">${String.fromCharCode(65+j)}. ${o}</button>`).join("")}</div>
+      <div id="qfb${i}" class="feedback"></div>
+    </div>`).join("");
+}
+const selectedAnswers=Array(quizData.length).fill(null);
+function selectQuiz(i,j,btn){
+  selectedAnswers[i]=j;
+  document.querySelectorAll(`button[data-q="${i}"]`).forEach(b=>b.classList.remove("correct"));
+  btn.classList.add("correct");
+}
+function gradeQuiz(){
+  let score=0;
+  quizData.forEach((q,i)=>{
+    const fb=document.getElementById("qfb"+i);
+    document.querySelectorAll(`button[data-q="${i}"]`).forEach(b=>{
+      b.classList.remove("wrong");
+      if(Number(b.dataset.a)===q.a)b.classList.add("correct");
+      else if(Number(b.dataset.a)===selectedAnswers[i] && selectedAnswers[i]!==q.a)b.classList.add("wrong");
+    });
+    const ok=selectedAnswers[i]===q.a;if(ok)score++;
+    fb.className="feedback show "+(ok?"ok":"no");
+    fb.innerHTML=ok?`✓ Benar. ${q.e}`:`✗ Belum tepat. ${q.e}`;
+  });
+  const pct=Math.round(score/quizData.length*100);
+  lastScore=pct;
+  document.getElementById("quizResult").classList.remove("hidden");
+  document.getElementById("scoreValue").textContent=pct;
+  document.getElementById("scoreText").textContent=`${score} dari ${quizData.length} jawaban benar.`;
+  document.getElementById("finalScore").textContent=pct;
+  buildReview();
+}
+function buildReview(){
+  document.getElementById("review").innerHTML=quizData.map((q,i)=>{
+    const ans=selectedAnswers[i]===null?"Belum dijawab":q.o[selectedAnswers[i]];
+    const right=q.o[q.a];
+    return `<div class="card mb"><h3>${i+1}. ${q.q}</h3><p>Jawabanmu: <b>${ans}</b></p><p>Jawaban benar: <b>${right}</b></p><div class="callout">${q.e}</div></div>`;
+  }).join("");
+}
+function resetQuiz(){
+  selectedAnswers.fill(null);lastScore=null;
+  document.getElementById("quizResult").classList.add("hidden");
+  document.getElementById("finalScore").textContent="—";
+  buildQuiz();
+  buildReview();
+}
+
+/* =========================================================
+   MULAI
+   ========================================================= */
+init();
+</script>
+</body>
+</html>

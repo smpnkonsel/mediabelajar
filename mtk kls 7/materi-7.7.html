@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistika — Rata-Rata (Mean)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E14;
+    --bg-soft:#0F131C;
+    --surface:#161B26;
+    --surface-2:#1D2331;
+    --border:#272E3D;
+    --text:#E9ECF4;
+    --text-muted:#8B93A7;
+    --accent-a:#7C6CF5;
+    --accent-a-soft:rgba(124,108,245,0.16);
+    --accent-b:#22C9A8;
+    --accent-b-soft:rgba(34,201,168,0.16);
+    --accent-c:#F5A93F;
+    --accent-c-soft:rgba(245,169,63,0.16);
+    --danger:#F1587B;
+    --danger-soft:rgba(241,88,123,0.15);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-display:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(124,108,245,0.10), transparent 42%),
+      radial-gradient(circle at 88% 92%, rgba(34,201,168,0.08), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    overflow:hidden;
+  }
+
+  h1,h2,h3,.display{font-family:var(--font-display);font-weight:600;letter-spacing:0.2px;}
+  code, .mono{font-family:var(--font-mono);}
+
+  .app{ height:100vh; display:flex; flex-direction:column; }
+
+  .progress-track{ height:4px; width:100%; background:var(--surface); flex-shrink:0; }
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--accent-a), var(--accent-b)); transition:width .35s ease; }
+
+  .stage{ flex:1; position:relative; overflow:hidden; }
+
+  .slide{ position:absolute; inset:0; display:none; overflow-y:auto; padding:clamp(20px,4vw,56px) clamp(18px,6vw,90px) 110px; }
+  .slide.active{ display:block; animation:fadeUp .45s ease both; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .slide.active{animation:none;} }
+
+  .slide-inner{ max-width:980px; margin:0 auto; }
+
+  .kicker{ display:inline-block; font-size:13px; color:var(--accent-b); background:var(--accent-b-soft); padding:5px 14px; border-radius:999px; margin-bottom:16px; font-weight:600; }
+
+  h1.slide-title{font-size:clamp(26px,4vw,42px); margin:0 0 10px; line-height:1.15;}
+  h2.slide-title{font-size:clamp(22px,3.2vw,32px); margin:0 0 10px; line-height:1.2;}
+  .lede{color:var(--text-muted); font-size:clamp(15px,1.8vw,18px); max-width:70ch; margin:0 0 28px; line-height:1.6;}
+
+  .card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:clamp(18px,3vw,30px); }
+  .card + .card{margin-top:18px;}
+
+  .grid-2{ display:grid; grid-template-columns:1.05fr 0.95fr; gap:24px; align-items:center; }
+  @media (max-width:820px){ .grid-2{grid-template-columns:1fr;} }
+
+  .pill-row{display:flex; flex-wrap:wrap; gap:10px;}
+  .pill{ background:var(--surface-2); border:1px solid var(--border); padding:8px 16px; border-radius:999px; font-size:14px; color:var(--text); }
+
+  ul.clean, ol.clean{margin:0; padding-left:22px; line-height:1.85;}
+  ul.clean li, ol.clean li{margin-bottom:6px;}
+
+  .diagram-box{ display:flex; align-items:center; justify-content:center; background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px; }
+  .diagram-box svg{max-width:100%; height:auto; display:block;}
+
+  .bar-rect{ transition: y .55s ease, height .55s ease, fill .3s ease; }
+
+  .btn{ font-family:var(--font-body); font-weight:700; font-size:14.5px; border:none; border-radius:999px; padding:12px 22px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, background .2s ease; color:#0B0E14; background:var(--accent-a); }
+  .btn:hover{transform:translateY(-2px); box-shadow:0 10px 22px -10px rgba(124,108,245,0.6);}
+  .btn:active{transform:translateY(0);}
+  .btn.secondary{ background:transparent; color:var(--text); border:1px solid var(--border); }
+  .btn.secondary:hover{box-shadow:none; border-color:var(--accent-a);}
+  .btn.teal{background:var(--accent-b);}
+  .btn.teal:hover{box-shadow:0 10px 22px -10px rgba(34,201,168,0.6);}
+  .btn:disabled{opacity:.4; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  .btn-row{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px;}
+
+  .accordion-item{ border:1px solid var(--border); border-radius:var(--radius-md); margin-bottom:12px; overflow:hidden; background:var(--surface-2); }
+  .accordion-head{ padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-weight:600; }
+  .accordion-head .chev{transition:transform .25s ease; color:var(--accent-a);}
+  .accordion-item.open .chev{transform:rotate(180deg);}
+  .accordion-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; padding:0 18px; color:var(--text-muted); line-height:1.7; }
+  .accordion-item.open .accordion-body{padding:0 18px 18px;}
+
+  .step-block{ border-left:3px solid var(--accent-a); background:var(--surface-2); padding:14px 18px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; margin-bottom:12px; display:none; }
+  .step-block.shown{display:block; animation:fadeUp .4s ease both;}
+  .step-label{font-size:12.5px; color:var(--accent-a); font-weight:700; margin-bottom:4px;}
+
+  .answer-box{ display:none; background:var(--accent-b-soft); border:1px solid var(--accent-b); border-radius:var(--radius-sm); padding:16px 18px; margin-top:6px; }
+  .answer-box.shown{display:block; animation:fadeUp .4s ease both;}
+
+  .slider-row{display:flex; align-items:center; gap:14px; margin:18px 0 6px;}
+  input[type="range"]{ -webkit-appearance:none; flex:1; height:6px; border-radius:999px; background:var(--surface-2); outline:none; }
+  input[type="range"]::-webkit-slider-thumb{ -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--accent-a); cursor:pointer; box-shadow:0 0 0 5px var(--accent-a-soft); }
+  input[type="range"]::-moz-range-thumb{ width:20px; height:20px; border:none; border-radius:50%; background:var(--accent-a); cursor:pointer; box-shadow:0 0 0 5px var(--accent-a-soft); }
+
+  .quiz-q{ display:none; }
+  .quiz-q.active{display:block; animation:fadeUp .4s ease both;}
+  .opt-btn{ display:block; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:14px 18px; border-radius:var(--radius-sm); margin-bottom:10px; cursor:pointer; font-size:15px; font-family:var(--font-body); transition:border-color .2s ease, background .2s ease; }
+  .opt-btn:hover{border-color:var(--accent-a);}
+  .opt-btn.correct{border-color:var(--accent-b); background:var(--accent-b-soft);}
+  .opt-btn.wrong{border-color:var(--danger); background:var(--danger-soft);}
+  .opt-btn:disabled{cursor:default;}
+
+  .quiz-explain{ display:none; margin-top:10px; padding:14px 16px; border-radius:var(--radius-sm); background:var(--surface-2); color:var(--text-muted); font-size:14.5px; line-height:1.65; }
+  .quiz-explain.shown{display:block;}
+
+  .quiz-progress{color:var(--text-muted); font-size:14px; margin-bottom:14px;}
+  .quiz-result{display:none; text-align:center; padding:30px 10px;}
+  .quiz-result.shown{display:block;}
+  .quiz-score{font-family:var(--font-display); font-size:52px; color:var(--accent-b); margin:6px 0;}
+
+  .input-check{display:flex; gap:12px; align-items:center; margin-top:16px; flex-wrap:wrap;}
+  .input-check input[type="number"], .input-check input[type="text"]{ background:var(--surface-2); border:1px solid var(--border); color:var(--text); font-family:var(--font-mono); font-size:16px; padding:11px 14px; border-radius:var(--radius-sm); }
+  .input-check input[type="number"]{width:140px;}
+  .input-check input[type="text"]{width:260px;}
+  .feedback{margin-top:14px; padding:13px 16px; border-radius:var(--radius-sm); display:none; font-size:14.5px; line-height:1.6;}
+  .feedback.ok{display:block; background:var(--accent-b-soft); border:1px solid var(--accent-b); color:var(--text);}
+  .feedback.bad{display:block; background:var(--danger-soft); border:1px solid var(--danger); color:var(--text);}
+
+  .formula-box{ font-family:var(--font-mono); background:var(--bg-soft); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px 20px; font-size:16px; color:var(--accent-c); text-align:center; margin:14px 0; }
+
+  .stat-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:16px;}
+  .stat-chip{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 18px; min-width:130px; }
+  .stat-chip .label{font-size:12px; color:var(--text-muted); margin-bottom:4px;}
+  .stat-chip .value{font-family:var(--font-mono); font-size:20px; color:var(--accent-c);}
+
+  .nav-bar{ position:fixed; left:0; right:0; bottom:0; background:linear-gradient(0deg, rgba(11,14,20,0.98), rgba(11,14,20,0.85)); border-top:1px solid var(--border); padding:14px clamp(16px,4vw,50px); display:flex; align-items:center; justify-content:space-between; gap:14px; backdrop-filter:blur(6px); z-index:20; }
+  .nav-left, .nav-right{display:flex; align-items:center; gap:10px;}
+  .slide-counter{font-family:var(--font-mono); font-size:13px; color:var(--text-muted); min-width:56px; text-align:center;}
+  .nav-btn{ background:var(--surface-2); border:1px solid var(--border); color:var(--text); width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; transition:border-color .2s ease, transform .15s ease; }
+  .nav-btn:hover:not(:disabled){border-color:var(--accent-a); transform:translateY(-2px);}
+  .nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+  .dots{display:flex; gap:6px; flex-wrap:wrap; max-width:280px;}
+  .dot{width:6px; height:6px; border-radius:50%; background:var(--border); transition:background .2s ease, transform .2s ease;}
+  .dot.active{background:var(--accent-a); transform:scale(1.5);}
+  @media (max-width:720px){.dots{display:none;}}
+
+  .cover-hero{ display:flex; align-items:center; justify-content:center; min-height:56vh; }
+  .badge-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;}
+
+  .reflect-box textarea{ width:100%; min-height:90px; background:var(--surface-2); border:1px solid var(--border); color:var(--text); border-radius:var(--radius-sm); padding:14px; font-family:var(--font-body); font-size:14.5px; resize:vertical; }
+  .reflect-box textarea:focus{outline:none; border-color:var(--accent-a);}
+
+  .end-note{color:var(--text-muted); font-size:14px; margin-top:8px;}
+
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border); border-radius:999px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="stage" id="stage">
+
+    <!-- 1. COVER -->
+    <section class="slide active" data-title="Pembuka">
+      <div class="slide-inner cover-hero">
+        <div style="text-align:center; width:100%;">
+          <span class="kicker">Bab 7 · Statistika</span>
+          <h1 class="display" style="font-size:clamp(30px,5.5vw,54px); margin:0 0 14px; line-height:1.1;">Rata-Rata<br>(Mean)</h1>
+          <p class="lede" style="margin:0 auto 30px;">Belajar menemukan satu angka yang bisa mewakili sekumpulan data — dan memakainya untuk mencari jumlah data, data yang hilang, hingga membaca makna di baliknya.</p>
+          <div class="diagram-box" style="display:inline-flex; margin-bottom:10px;">
+            <svg viewBox="0 0 300 150" width="280">
+              <line x1="20" y1="130" x2="280" y2="130" stroke="#272E3D" stroke-width="2"/>
+              <rect x="35" y="90" width="34" height="40" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <rect x="90" y="60" width="34" height="70" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <rect x="145" y="100" width="34" height="30" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <rect x="200" y="45" width="34" height="85" fill="none" stroke="#7C6CF5" stroke-width="3"/>
+              <line x1="25" y1="83" x2="245" y2="83" stroke="#F5A93F" stroke-width="2" stroke-dasharray="5 4"/>
+              <text x="250" y="87" fill="#F5A93F" font-family="JetBrains Mono" font-size="12">mean</text>
+            </svg>
+          </div>
+          <div class="badge-row" style="justify-content:center;">
+            <span class="pill">Fase D · SMP Kelas VIII</span>
+            <span class="pill">Kurikulum Merdeka</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. APERSEPSI -->
+    <section class="slide" data-title="Apersepsi">
+      <div class="slide-inner">
+        <span class="kicker">Apersepsi</span>
+        <h2 class="slide-title">Angka mana yang paling mewakili?</h2>
+        <p class="lede">Nilai ulangan matematika seorang siswa selama lima kali adalah: 70, 80, 75, 85, dan 90.</p>
+        <div class="card">
+          <div class="grid-2">
+            <div>
+              <ul class="clean">
+                <li>Kalau harus memilih satu angka saja untuk menggambarkan kemampuan siswa itu, angka berapa yang menurutmu paling adil?</li>
+                <li>Apakah nilai tertinggi (90) adil untuk mewakilinya? Bagaimana dengan nilai terendah (70)?</li>
+              </ul>
+              <p style="color:var(--text-muted); font-size:14px; margin-top:14px;">Ide mencari angka yang "mewakili" inilah yang disebut <b style="color:var(--text);">rata-rata (mean)</b>.</p>
+            </div>
+            <div class="diagram-box">
+              <svg viewBox="0 0 300 90" width="280">
+                <line x1="20" y1="60" x2="280" y2="60" stroke="#272E3D" stroke-width="2"/>
+                <text x="15" y="80" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">60</text>
+                <text x="270" y="80" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">100</text>
+                <circle cx="65" cy="60" r="6" fill="#7C6CF5"/>
+                <circle cx="115" cy="60" r="6" fill="#7C6CF5"/>
+                <circle cx="140" cy="60" r="6" fill="#7C6CF5"/>
+                <circle cx="165" cy="60" r="6" fill="#7C6CF5"/>
+                <circle cx="215" cy="60" r="6" fill="#7C6CF5"/>
+                <text x="55" y="40" fill="#8B93A7" font-family="JetBrains Mono" font-size="10">70</text>
+                <text x="130" y="40" fill="#8B93A7" font-family="JetBrains Mono" font-size="10">75/80</text>
+                <text x="195" y="40" fill="#8B93A7" font-family="JetBrains Mono" font-size="10">85</text>
+                <text x="205" y="40" fill="#8B93A7" font-family="JetBrains Mono" font-size="10"></text>
+                <text x="205" y="42" fill="#8B93A7" font-family="JetBrains Mono" font-size="10">90</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TUJUAN -->
+    <section class="slide" data-title="Tujuan">
+      <div class="slide-inner">
+        <span class="kicker">Tujuan Pembelajaran</span>
+        <h2 class="slide-title">Setelah pembelajaran ini, kamu mampu:</h2>
+        <div class="card">
+          <ul class="clean">
+            <li>Menjelaskan pengertian rata-rata (mean) suatu kumpulan data.</li>
+            <li>Menggunakan rumus rata-rata untuk data tunggal.</li>
+            <li>Menentukan jumlah seluruh data jika rata-rata dan banyak data diketahui.</li>
+            <li>Menentukan data yang belum diketahui jika rata-rata dan data lainnya diketahui.</li>
+            <li>Menerapkan konsep rata-rata pada masalah sehari-hari, termasuk menggabungkan dua kelompok data.</li>
+            <li>Menafsirkan makna nilai rata-rata dalam suatu konteks, termasuk kepekaannya terhadap nilai ekstrem.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. KONSEP PENGERTIAN MEAN -->
+    <section class="slide" data-title="Pengertian Mean">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Pengertian mean</span>
+        <h2 class="slide-title">Rata-rata sebagai "perataan"</h2>
+        <p class="lede">Bayangkan empat tumpukan koin dengan tinggi berbeda. Rata-rata adalah tinggi yang akan didapat setiap tumpukan, seandainya semua koin dibagi rata ke empat tumpukan itu.</p>
+        <div class="card">
+          <div class="diagram-box">
+            <svg viewBox="0 0 300 150" width="280">
+              <line x1="20" y1="130" x2="280" y2="130" stroke="#272E3D" stroke-width="2"/>
+              <rect class="bar-rect" id="lvlBar1" x="35" y="100" width="34" height="30" fill="rgba(124,108,245,0.15)" stroke="#7C6CF5" stroke-width="3"/>
+              <rect class="bar-rect" id="lvlBar2" x="90" y="70" width="34" height="60" fill="rgba(124,108,245,0.15)" stroke="#7C6CF5" stroke-width="3"/>
+              <rect class="bar-rect" id="lvlBar3" x="145" y="40" width="34" height="90" fill="rgba(124,108,245,0.15)" stroke="#7C6CF5" stroke-width="3"/>
+              <rect class="bar-rect" id="lvlBar4" x="200" y="10" width="34" height="120" fill="rgba(124,108,245,0.15)" stroke="#7C6CF5" stroke-width="3"/>
+              <text x="42" y="145" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">2</text>
+              <text x="97" y="145" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">4</text>
+              <text x="152" y="145" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">6</text>
+              <text x="207" y="145" fill="#8B93A7" font-family="JetBrains Mono" font-size="11">8</text>
+            </svg>
+          </div>
+          <div class="btn-row">
+            <button class="btn" id="levelBtn" onclick="toggleLevel()">Ratakan tumpukan</button>
+          </div>
+          <p style="color:var(--text-muted); font-size:14px; margin-top:12px;">Jumlah koin: 2 + 4 + 6 + 8 = 20. Jika diratakan ke 4 tumpukan, setiap tumpukan menjadi 20 ÷ 4 = <b style="color:var(--accent-c);">5</b>. Itulah rata-ratanya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. RUMUS -->
+    <section class="slide" data-title="Rumus Rata-Rata">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Rumus</span>
+        <h2 class="slide-title">Rumus rata-rata data tunggal</h2>
+        <div class="formula-box">rata-rata (x̄) = jumlah semua data ÷ banyak data</div>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Simbol x̄ (dibaca "x bar") biasa digunakan untuk melambangkan rata-rata. Jika data dilambangkan x₁, x₂, …, xₙ dengan banyak data n, maka:</p>
+          <div class="formula-box">x̄ = (x₁ + x₂ + ... + xₙ) / n</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CONTOH MENGHITUNG RATA-RATA -->
+    <section class="slide" data-title="Contoh · Menghitung Mean">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Menghitung rata-rata data tunggal</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Nilai ulangan 5 siswa adalah: 78, 85, 90, 82, dan 80. Tentukan rata-rata nilai kelima siswa tersebut.</p>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c1-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c1-1">
+            <div class="step-label">Langkah 1 · Jumlahkan semua data</div>
+            <p class="mono">78 + 85 + 90 + 82 + 80 = 415</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c1-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c1-2">
+            <div class="step-label">Langkah 2 · Bagi dengan banyak data</div>
+            <p class="mono">x̄ = 415 ÷ 5 = 83</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c1-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c1-ans">Rata-rata nilai kelima siswa adalah <b>83</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. LATIHAN MUDAH -->
+    <section class="slide" data-title="Latihan · Mudah">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat mudah</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Berat badan 5 orang anak (dalam kg) adalah: 32, 30, 35, 33, dan 30. Berapakah rata-rata berat badan mereka?</p>
+          <div class="input-check">
+            <input type="number" id="latihan1" placeholder="Rata-rata (kg)">
+            <button class="btn" onclick="checkLatihan('latihan1', 32, 'fb1')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb1"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. KONSEP JUMLAH DATA DARI MEAN -->
+    <section class="slide" data-title="Jumlah Data dari Mean">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Rumus terbalik</span>
+        <h2 class="slide-title">Menentukan jumlah data dari nilai rata-rata</h2>
+        <p class="lede">Rumus rata-rata bisa dibalik untuk mencari total seluruh data, jika rata-rata dan banyak data sudah diketahui.</p>
+        <div class="formula-box">jumlah semua data = rata-rata × banyak data</div>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Rumus ini berguna misalnya ketika kita tahu nilai rata-rata suatu kelompok, tetapi ingin mengetahui jumlah keseluruhannya — seperti total pendapatan, total nilai, atau total berat.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. CONTOH JUMLAH DATA -->
+    <section class="slide" data-title="Contoh · Jumlah Data">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Mencari total dari nilai rata-rata</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Rata-rata uang saku 8 siswa adalah Rp15.000,00. Berapa jumlah total uang saku kedelapan siswa tersebut?</p>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c2-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c2-1">
+            <div class="step-label">Langkah 1 · Gunakan rumus terbalik</div>
+            <p class="mono">jumlah total = rata-rata × banyak data</p>
+            <p class="mono">jumlah total = 15.000 × 8</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c2-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c2-ans">Jumlah total uang saku kedelapan siswa adalah <b>Rp120.000,00</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. LATIHAN SEDANG -->
+    <section class="slide" data-title="Latihan · Sedang">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat sedang</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Rata-rata nilai ulangan 10 siswa adalah 78. Berapakah jumlah total nilai seluruh siswa tersebut?</p>
+          <div class="input-check">
+            <input type="number" id="latihan2" placeholder="Jumlah total nilai">
+            <button class="btn" onclick="checkLatihan('latihan2', 780, 'fb2')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. KONSEP DATA BELUM DIKETAHUI -->
+    <section class="slide" data-title="Data yang Belum Diketahui">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Data yang hilang</span>
+        <h2 class="slide-title">Menentukan data yang belum diketahui</h2>
+        <p class="lede">Jika rata-rata dan sebagian besar data sudah diketahui, satu data yang tersisa bisa dicari dengan membandingkan jumlah total yang seharusnya dengan jumlah data yang sudah diketahui.</p>
+        <div class="card">
+          <ol class="clean">
+            <li>Hitung jumlah total seharusnya: rata-rata × banyak data.</li>
+            <li>Jumlahkan data-data yang sudah diketahui.</li>
+            <li>Selisih antara keduanya adalah data yang belum diketahui.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12. CONTOH DATA BELUM DIKETAHUI -->
+    <section class="slide" data-title="Contoh · Data Belum Diketahui">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Menemukan bilangan yang hilang</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Rata-rata dari 5 bilangan adalah 20. Empat di antara bilangan tersebut adalah 15, 22, 18, dan 25. Tentukan bilangan kelima.</p>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c3-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c3-1">
+            <div class="step-label">Langkah 1 · Hitung jumlah total seharusnya</div>
+            <p class="mono">jumlah total = 20 × 5 = 100</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c3-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c3-2">
+            <div class="step-label">Langkah 2 · Jumlahkan data yang diketahui, lalu cari selisihnya</div>
+            <p class="mono">15 + 22 + 18 + 25 = 80</p>
+            <p class="mono">bilangan kelima = 100 − 80 = 20</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c3-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c3-ans">Bilangan kelima adalah <b>20</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. LATIHAN MENANTANG -->
+    <section class="slide" data-title="Latihan · Menantang">
+      <div class="slide-inner">
+        <span class="kicker">Latihan · Tingkat menantang</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Rata-rata nilai 6 siswa adalah 75. Lima nilai di antaranya adalah 70, 80, 72, 78, dan 74. Tentukan nilai siswa keenam.</p>
+          <div class="input-check">
+            <input type="number" id="latihan3" placeholder="Nilai siswa keenam">
+            <button class="btn" onclick="checkLatihan('latihan3', 76, 'fb3')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. KALKULATOR INTERAKTIF -->
+    <section class="slide" data-title="Kalkulator Rata-Rata">
+      <div class="slide-inner">
+        <span class="kicker">Aktivitas interaktif</span>
+        <h2 class="slide-title">Coba hitung rata-ratamu sendiri</h2>
+        <p class="lede">Masukkan beberapa angka yang dipisahkan koma, misalnya nilai ulanganmu sendiri, lalu lihat bagaimana rata-ratanya dihitung.</p>
+        <div class="card">
+          <div class="input-check">
+            <input type="text" id="meanCalcInput" placeholder="contoh: 70, 80, 75, 85, 90">
+            <button class="btn" onclick="calcMean()">Hitung rata-rata</button>
+          </div>
+          <div class="stat-row" id="meanStats" style="display:none;">
+            <div class="stat-chip"><div class="label">Jumlah data</div><div class="value" id="statSum">-</div></div>
+            <div class="stat-chip"><div class="label">Banyak data</div><div class="value" id="statCount">-</div></div>
+            <div class="stat-chip"><div class="label">Rata-rata</div><div class="value" id="statMean">-</div></div>
+          </div>
+          <div class="feedback" id="meanCalcFb"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. KONSEP SEHARI-HARI -->
+    <section class="slide" data-title="Rata-Rata Sehari-hari">
+      <div class="slide-inner">
+        <span class="kicker">Penerapan</span>
+        <h2 class="slide-title">Rata-rata dalam masalah sehari-hari</h2>
+        <p class="lede">Rata-rata sering dipakai untuk membandingkan dua kelompok, misalnya menggabungkan rata-rata nilai dari dua kelas yang jumlah siswanya berbeda.</p>
+        <div class="card">
+          <div class="formula-box">rata-rata gabungan = (total kelompok 1 + total kelompok 2) / (banyak kelompok 1 + banyak kelompok 2)</div>
+          <p style="color:var(--text-muted); line-height:1.8;">Perhatikan bahwa rata-rata gabungan <b style="color:var(--text);">tidak bisa</b> dicari hanya dengan merata-ratakan kedua rata-rata secara langsung jika banyak anggota kedua kelompok berbeda — kita harus kembali ke jumlah total masing-masing kelompok.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. CONTOH SEHARI-HARI -->
+    <section class="slide" data-title="Contoh · Rata-Rata Gabungan">
+      <div class="slide-inner">
+        <span class="kicker">Contoh soal</span>
+        <h2 class="slide-title">Menggabungkan rata-rata dua kelas</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Kelas A terdiri dari 20 siswa dengan rata-rata nilai 80. Kelas B terdiri dari 30 siswa dengan rata-rata nilai 75. Tentukan rata-rata gabungan kedua kelas.</p>
+          <div class="btn-row"><button class="btn" onclick="revealStep('c4-1')">Tampilkan langkah 1</button></div>
+          <div class="step-block" id="c4-1">
+            <div class="step-label">Langkah 1 · Hitung total nilai tiap kelas</div>
+            <p class="mono">total A = 80 × 20 = 1.600</p>
+            <p class="mono">total B = 75 × 30 = 2.250</p>
+            <div class="btn-row"><button class="btn" onclick="revealStep('c4-2')">Tampilkan langkah 2</button></div>
+          </div>
+          <div class="step-block" id="c4-2">
+            <div class="step-label">Langkah 2 · Bagi total gabungan dengan banyak siswa gabungan</div>
+            <p class="mono">total gabungan = 1.600 + 2.250 = 3.850</p>
+            <p class="mono">banyak siswa = 20 + 30 = 50</p>
+            <p class="mono">rata-rata gabungan = 3.850 ÷ 50 = 77</p>
+            <div class="btn-row"><button class="btn teal" onclick="revealAnswer('c4-ans')">Tampilkan jawaban</button></div>
+          </div>
+          <div class="answer-box" id="c4-ans">Rata-rata gabungan kedua kelas adalah <b>77</b>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17. LATIHAN SEHARI-HARI -->
+    <section class="slide" data-title="Latihan · Sehari-hari">
+      <div class="slide-inner">
+        <span class="kicker">Latihan</span>
+        <h2 class="slide-title">Coba sendiri</h2>
+        <div class="card">
+          <p style="color:var(--text-muted); line-height:1.8;">Kelompok pertama terdiri dari 15 orang dengan rata-rata berat badan 40 kg. Kelompok kedua terdiri dari 25 orang dengan rata-rata berat badan 44 kg. Tentukan rata-rata gabungan kedua kelompok.</p>
+          <div class="input-check">
+            <input type="number" id="latihan4" placeholder="Rata-rata gabungan (kg)" step="0.1">
+            <button class="btn" onclick="checkLatihan('latihan4', 42.5, 'fb4')">Periksa jawaban</button>
+          </div>
+          <div class="feedback" id="fb4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. KONSEP MENAFSIRKAN -->
+    <section class="slide" data-title="Menafsirkan Rata-Rata">
+      <div class="slide-inner">
+        <span class="kicker">Konsep · Menafsirkan</span>
+        <h2 class="slide-title">Apakah rata-rata selalu mewakili?</h2>
+        <p class="lede">Rata-rata sangat berguna, tetapi ia bisa "tertarik" oleh satu nilai yang jauh berbeda dari nilai lainnya. Nilai seperti ini disebut nilai ekstrem atau outlier.</p>
+        <div class="grid-2">
+          <div class="diagram-box">
+            <svg viewBox="0 0 300 150" width="280">
+              <line x1="20" y1="130" x2="280" y2="130" stroke="#272E3D" stroke-width="2"/>
+              <rect x="35" y="118" width="30" height="12" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <rect x="85" y="116" width="30" height="14" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <rect x="135" y="115" width="30" height="15" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <rect x="185" y="117" width="30" height="13" fill="none" stroke="#22C9A8" stroke-width="3"/>
+              <rect x="235" y="10" width="30" height="120" fill="none" stroke="#F1587B" stroke-width="3"/>
+              <line x1="25" y1="95" x2="270" y2="95" stroke="#F5A93F" stroke-width="2" stroke-dasharray="5 4"/>
+              <text x="20" y="88" fill="#F5A93F" font-family="JetBrains Mono" font-size="11">mean</text>
+              <text x="240" y="145" fill="#F1587B" font-family="JetBrains Mono" font-size="10">direktur</text>
+            </svg>
+          </div>
+          <div>
+            <p style="color:var(--text-muted); line-height:1.8;">Gaji 4 karyawan (dalam juta rupiah): 4; 4,5; 5; dan 4,2. Gaji direktur: 40 juta rupiah.</p>
+            <div class="formula-box">rata-rata = (4 + 4,5 + 5 + 4,2 + 40) / 5 = 11,54</div>
+            <p style="color:var(--text-muted); line-height:1.8;">Padahal hampir semua karyawan bergaji sekitar 4–5 juta. Rata-rata 11,54 juta tidak benar-benar menggambarkan gaji "kebanyakan" karyawan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19. DISKUSI MENAFSIRKAN -->
+    <section class="slide" data-title="Diskusi Penafsiran">
+      <div class="slide-inner">
+        <span class="kicker">Diskusi</span>
+        <h2 class="slide-title">Menafsirkan rata-rata dengan bijak</h2>
+        <div class="accordion" id="interpretAcc">
+          <div class="accordion-item">
+            <div class="accordion-head" onclick="toggleAcc(this)"><span>Kapan rata-rata sangat cocok digunakan?</span><span class="chev">⌄</span></div>
+            <div class="accordion-body"><p>Rata-rata paling cocok digunakan saat data tidak memiliki nilai yang jauh berbeda dari yang lain, misalnya nilai ulangan yang tersebar cukup merata.</p></div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-head" onclick="toggleAcc(this)"><span>Apa yang harus dilakukan jika ada outlier?</span><span class="chev">⌄</span></div>
+            <div class="accordion-body"><p>Kita perlu berhati-hati saat menafsirkan rata-rata, dan mempertimbangkan ukuran lain seperti median, atau melaporkan rentang data selain rata-ratanya saja.</p></div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-head" onclick="toggleAcc(this)"><span>Bagaimana cara memeriksa apakah rata-rata "masuk akal"?</span><span class="chev">⌄</span></div>
+            <div class="accordion-body"><p>Bandingkan nilai rata-rata dengan sebagian besar data aslinya. Jika rata-rata jauh berbeda dari kebanyakan data, kemungkinan ada nilai ekstrem yang memengaruhinya.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20. KUIS -->
+    <section class="slide" data-title="Kuis">
+      <div class="slide-inner">
+        <span class="kicker">Kuis akhir</span>
+        <h2 class="slide-title">Uji pemahamanmu</h2>
+        <div id="quizArea">
+          <div class="quiz-progress" id="quizProgress">Soal 1 dari 7</div>
+          <div id="quizQuestions"></div>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <p style="color:var(--text-muted);">Skor kamu</p>
+          <div class="quiz-score" id="quizScoreText">0 / 7</div>
+          <p id="quizScoreMsg" style="color:var(--text-muted);"></p>
+          <button class="btn" onclick="restartQuiz()">Ulangi kuis</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21. REFLEKSI -->
+    <section class="slide" data-title="Refleksi">
+      <div class="slide-inner">
+        <span class="kicker">Refleksi</span>
+        <h2 class="slide-title">Sejenak merefleksikan pembelajaran</h2>
+        <div class="card reflect-box">
+          <p style="margin-top:0; color:var(--text-muted);">Bagian mana dari materi rata-rata yang paling mudah kamu pahami?</p>
+          <textarea placeholder="Tulis refleksimu di sini..."></textarea>
+        </div>
+        <div class="card reflect-box">
+          <p style="margin-top:0; color:var(--text-muted);">Menurutmu, mengapa penting untuk berhati-hati saat menafsirkan nilai rata-rata?</p>
+          <textarea placeholder="Tulis refleksimu di sini..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22. RANGKUMAN -->
+    <section class="slide" data-title="Rangkuman">
+      <div class="slide-inner">
+        <span class="kicker">Rangkuman</span>
+        <h2 class="slide-title">Yang perlu kamu ingat</h2>
+        <div class="card">
+          <ul class="clean">
+            <li>Rata-rata (mean) adalah angka yang mewakili sekumpulan data, dihitung dengan membagi jumlah semua data dengan banyak data.</li>
+            <li>Jumlah total data dapat dicari dengan mengalikan rata-rata dengan banyak data.</li>
+            <li>Data yang belum diketahui dapat dicari dari selisih antara jumlah total seharusnya dan jumlah data yang sudah diketahui.</li>
+            <li>Menggabungkan dua kelompok data harus dilakukan lewat jumlah total masing-masing kelompok, bukan sekadar merata-ratakan dua nilai rata-rata.</li>
+            <li>Rata-rata bisa dipengaruhi kuat oleh nilai ekstrem (outlier), sehingga perlu ditafsirkan dengan hati-hati.</li>
+          </ul>
+          <div class="formula-box">x̄ = jumlah semua data ÷ banyak data</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23. PENUTUP -->
+    <section class="slide" data-title="Penutup">
+      <div class="slide-inner cover-hero">
+        <div style="text-align:center; width:100%;">
+          <span class="kicker">Selesai</span>
+          <h1 class="display" style="font-size:clamp(26px,4.5vw,40px); margin:0 0 14px;">Kerja bagus!</h1>
+          <p class="lede" style="margin:0 auto 26px;">Kamu sudah menyelesaikan subbab Rata-Rata (Mean). Teruslah berlatih membaca dan menafsirkan data di sekitarmu.</p>
+          <button class="btn" onclick="goToSlide(0)">Kembali ke awal</button>
+          <p class="end-note">Bab 7 — Statistika</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-left">
+      <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹</button>
+      <span class="slide-counter" id="slideCounter">1 / 23</span>
+      <button class="nav-btn" id="nextBtn" onclick="nextSlide()">›</button>
+    </div>
+    <div class="dots" id="dots"></div>
+  </div>
+</div>
+
+<script>
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var current = 0;
+
+  var dotsWrap = document.getElementById('dots');
+  for (var i = 0; i < total; i++) {
+    var d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    dotsWrap.appendChild(d);
+  }
+
+  function renderSlide() {
+    slides.forEach(function (s, idx) {
+      s.classList.toggle('active', idx === current);
+    });
+    document.getElementById('slideCounter').textContent = (current + 1) + ' / ' + total;
+    document.getElementById('progressFill').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    var dotEls = dotsWrap.querySelectorAll('.dot');
+    dotEls.forEach(function (d, idx) { d.classList.toggle('active', idx === current); });
+    document.getElementById('stage').scrollTop = 0;
+    slides[current].scrollTop = 0;
+  }
+
+  function nextSlide() { if (current < total - 1) { current++; renderSlide(); } }
+  function prevSlide() { if (current > 0) { current--; renderSlide(); } }
+  function goToSlide(n) { current = n; renderSlide(); }
+
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea') return;
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  renderSlide();
+
+  // Accordion
+  function toggleAcc(head) {
+    var item = head.parentElement;
+    var body = item.querySelector('.accordion-body');
+    var open = item.classList.contains('open');
+    item.classList.toggle('open', !open);
+    body.style.maxHeight = open ? null : body.scrollHeight + 'px';
+  }
+
+  // Step reveal
+  function revealStep(id) { document.getElementById(id).classList.add('shown'); }
+  function revealAnswer(id) { document.getElementById(id).classList.add('shown'); }
+
+  // Leveling bars (mean concept)
+  var leveled = false;
+  var originalBars = [
+    { id: 'lvlBar1', y: 100, h: 30 },
+    { id: 'lvlBar2', y: 70, h: 60 },
+    { id: 'lvlBar3', y: 40, h: 90 },
+    { id: 'lvlBar4', y: 10, h: 120 }
+  ];
+  function toggleLevel() {
+    leveled = !leveled;
+    var btn = document.getElementById('levelBtn');
+    originalBars.forEach(function (bar) {
+      var el = document.getElementById(bar.id);
+      if (leveled) {
+        el.setAttribute('y', 55);
+        el.setAttribute('height', 75);
+        el.setAttribute('fill', 'rgba(245,169,63,0.18)');
+        el.setAttribute('stroke', '#F5A93F');
+      } else {
+        el.setAttribute('y', bar.y);
+        el.setAttribute('height', bar.h);
+        el.setAttribute('fill', 'rgba(124,108,245,0.15)');
+        el.setAttribute('stroke', '#7C6CF5');
+      }
+    });
+    btn.textContent = leveled ? 'Kembalikan tumpukan' : 'Ratakan tumpukan';
+  }
+
+  // Latihan check
+  function checkLatihan(inputId, correct, fbId) {
+    var val = parseFloat(document.getElementById(inputId).value);
+    var fb = document.getElementById(fbId);
+    fb.className = 'feedback';
+    if (isNaN(val)) {
+      fb.classList.add('bad');
+      fb.textContent = 'Isi dulu jawabanmu sebelum diperiksa.';
+      return;
+    }
+    if (Math.abs(val - correct) < 0.01) {
+      fb.classList.add('ok');
+      fb.textContent = 'Benar! Jawabannya adalah ' + correct + '.';
+    } else {
+      fb.classList.add('bad');
+      fb.textContent = 'Belum tepat. Coba periksa kembali jumlah dan banyak datanya.';
+    }
+  }
+
+  // Mean calculator
+  function calcMean() {
+    var raw = document.getElementById('meanCalcInput').value;
+    var fb = document.getElementById('meanCalcFb');
+    var statsWrap = document.getElementById('meanStats');
+    fb.className = 'feedback';
+    var parts = raw.split(',').map(function (s) { return s.trim(); }).filter(function (s) { return s.length > 0; });
+    var nums = parts.map(function (s) { return parseFloat(s.replace(',', '.')); });
+    if (parts.length === 0 || nums.some(isNaN)) {
+      statsWrap.style.display = 'none';
+      fb.classList.add('bad');
+      fb.textContent = 'Masukkan angka yang dipisahkan koma, misalnya: 70, 80, 75.';
+      return;
+    }
+    var sum = nums.reduce(function (a, b) { return a + b; }, 0);
+    var count = nums.length;
+    var mean = sum / count;
+    document.getElementById('statSum').textContent = (Math.round(sum * 100) / 100);
+    document.getElementById('statCount').textContent = count;
+    document.getElementById('statMean').textContent = (Math.round(mean * 100) / 100);
+    statsWrap.style.display = 'flex';
+    fb.classList.add('ok');
+    fb.textContent = 'Rata-rata dari ' + count + ' data tersebut adalah ' + (Math.round(mean * 100) / 100) + '.';
+  }
+
+  // Quiz
+  var quizData = [
+    {
+      q: 'Rumus rata-rata data tunggal adalah...',
+      opts: [
+        'jumlah semua data dibagi banyak data',
+        'data terbesar dikurangi data terkecil',
+        'data yang paling sering muncul',
+        'data tengah setelah diurutkan'
+      ],
+      correct: 0,
+      explain: 'Rata-rata (mean) dihitung dengan menjumlahkan seluruh data lalu membaginya dengan banyak data.'
+    },
+    {
+      q: 'Data: 6, 8, 10, 12, 14. Berapa rata-ratanya?',
+      opts: ['9', '11', '10', '12'],
+      correct: 2,
+      explain: 'Jumlah data = 6+8+10+12+14 = 50, banyak data = 5, sehingga rata-rata = 50 ÷ 5 = 10.'
+    },
+    {
+      q: 'Rata-rata dari 4 bilangan adalah 25. Berapa jumlah keempat bilangan tersebut?',
+      opts: ['100', '29', '96', '50'],
+      correct: 0,
+      explain: 'Jumlah total = rata-rata × banyak data = 25 × 4 = 100.'
+    },
+    {
+      q: 'Rata-rata 5 bilangan adalah 18. Empat di antaranya adalah 12, 20, 16, dan 22. Berapa bilangan kelima?',
+      opts: ['20', '18', '22', '16'],
+      correct: 0,
+      explain: 'Jumlah total seharusnya = 18 × 5 = 90. Jumlah 4 bilangan = 12+20+16+22 = 70. Bilangan kelima = 90 − 70 = 20.'
+    },
+    {
+      q: 'Kelas P (10 siswa, rata-rata 70) digabung dengan kelas Q (15 siswa, rata-rata 80). Berapa rata-rata gabungannya?',
+      opts: ['76', '75', '78', '74'],
+      correct: 0,
+      explain: 'Total P = 700, total Q = 1.200, total gabungan = 1.900, banyak siswa = 25, rata-rata gabungan = 1.900 ÷ 25 = 76.'
+    },
+    {
+      q: 'Manakah pernyataan yang paling tepat tentang nilai rata-rata?',
+      opts: [
+        'rata-rata dapat dipengaruhi kuat oleh nilai yang jauh berbeda dari data lainnya (outlier)',
+        'rata-rata selalu sama dengan salah satu data aslinya',
+        'rata-rata tidak pernah berupa pecahan',
+        'rata-rata hanya bisa dihitung jika banyak data genap'
+      ],
+      correct: 0,
+      explain: 'Nilai ekstrem yang jauh lebih besar atau lebih kecil dari data lain dapat menarik rata-rata menjauh dari nilai yang mewakili kebanyakan data.'
+    },
+    {
+      q: 'Rata-rata gaji karyawan sebuah perusahaan kecil adalah Rp11 juta, padahal hampir semua karyawan bergaji sekitar Rp4–5 juta. Hal ini kemungkinan besar disebabkan oleh...',
+      opts: [
+        'adanya satu gaji yang jauh lebih tinggi (misalnya gaji direktur) yang menarik rata-rata ke atas',
+        'kesalahan dalam rumus rata-rata',
+        'jumlah karyawan yang terlalu sedikit untuk dihitung',
+        'data gaji yang tidak berupa angka'
+      ],
+      correct: 0,
+      explain: 'Satu nilai ekstrem seperti gaji direktur yang jauh lebih besar dapat menaikkan rata-rata secara signifikan, meskipun sebagian besar data lain jauh lebih rendah.'
+    }
+  ];
+
+  var quizIndex = 0;
+  var quizScore = 0;
+  var quizAnswered = [];
+
+  function renderQuiz() {
+    var container = document.getElementById('quizQuestions');
+    container.innerHTML = '';
+    quizData.forEach(function (item, qi) {
+      var qDiv = document.createElement('div');
+      qDiv.className = 'quiz-q' + (qi === quizIndex ? ' active' : '');
+      qDiv.id = 'quizQ' + qi;
+
+      var qTitle = document.createElement('div');
+      qTitle.className = 'card';
+      var pTag = document.createElement('p');
+      pTag.style.marginTop = '0';
+      pTag.style.fontWeight = '600';
+      pTag.style.fontSize = '16px';
+      pTag.textContent = item.q;
+      qTitle.appendChild(pTag);
+
+      item.opts.forEach(function (opt, oi) {
+        var b = document.createElement('button');
+        b.className = 'opt-btn';
+        b.textContent = opt;
+        b.onclick = function () { answerQuiz(qi, oi); };
+        qTitle.appendChild(b);
+      });
+
+      var explainDiv = document.createElement('div');
+      explainDiv.className = 'quiz-explain';
+      explainDiv.id = 'explain' + qi;
+      explainDiv.textContent = item.explain;
+      qTitle.appendChild(explainDiv);
+
+      var navRow = document.createElement('div');
+      navRow.className = 'btn-row';
+      var nextQBtn = document.createElement('button');
+      nextQBtn.className = 'btn secondary';
+      nextQBtn.textContent = (qi === quizData.length - 1) ? 'Lihat skor' : 'Soal berikutnya';
+      nextQBtn.id = 'nextQBtn' + qi;
+      nextQBtn.disabled = true;
+      nextQBtn.onclick = function () { goNextQuiz(qi); };
+      navRow.appendChild(nextQBtn);
+      qTitle.appendChild(navRow);
+
+      qDiv.appendChild(qTitle);
+      container.appendChild(qDiv);
+    });
+    document.getElementById('quizProgress').textContent = 'Soal ' + (quizIndex + 1) + ' dari ' + quizData.length;
+  }
+
+  function answerQuiz(qi, oi) {
+    if (quizAnswered[qi] !== undefined) return;
+    quizAnswered[qi] = oi;
+    var qDiv = document.getElementById('quizQ' + qi);
+    var buttons = qDiv.querySelectorAll('.opt-btn');
+    buttons.forEach(function (b, idx) {
+      b.disabled = true;
+      if (idx === quizData[qi].correct) b.classList.add('correct');
+      else if (idx === oi) b.classList.add('wrong');
+    });
+    if (oi === quizData[qi].correct) quizScore++;
+    document.getElementById('explain' + qi).classList.add('shown');
+    document.getElementById('nextQBtn' + qi).disabled = false;
+  }
+
+  function goNextQuiz(qi) {
+    if (qi < quizData.length - 1) {
+      quizIndex = qi + 1;
+      document.querySelectorAll('.quiz-q').forEach(function (q, idx) {
+        q.classList.toggle('active', idx === quizIndex);
+      });
+      document.getElementById('quizProgress').textContent = 'Soal ' + (quizIndex + 1) + ' dari ' + quizData.length;
+    } else {
+      showQuizResult();
+    }
+  }
+
+  function showQuizResult() {
+    document.getElementById('quizArea').style.display = 'none';
+    var resultEl = document.getElementById('quizResult');
+    resultEl.classList.add('shown');
+    document.getElementById('quizScoreText').textContent = quizScore + ' / ' + quizData.length;
+    var msg = '';
+    var ratio = quizScore / quizData.length;
+    if (ratio === 1) msg = 'Sempurna! Kamu benar-benar menguasai konsep rata-rata.';
+    else if (ratio >= 0.7) msg = 'Bagus sekali! Sedikit lagi menuju pemahaman penuh.';
+    else if (ratio >= 0.4) msg = 'Sudah cukup baik, coba pelajari kembali bagian yang masih keliru.';
+    else msg = 'Yuk pelajari kembali materi sebelumnya, lalu coba kuis ini lagi.';
+    document.getElementById('quizScoreMsg').textContent = msg;
+  }
+
+  function restartQuiz() {
+    quizIndex = 0;
+    quizScore = 0;
+    quizAnswered = [];
+    document.getElementById('quizArea').style.display = 'block';
+    document.getElementById('quizResult').classList.remove('shown');
+    renderQuiz();
+  }
+
+  renderQuiz();
+</script>
+</body>
+</html>

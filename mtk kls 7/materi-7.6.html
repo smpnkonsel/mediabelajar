@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Bab 7 — Statistika | Diagram Lingkaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+ --bg:#070b18;--panel:#111a32;--panel2:#172343;--line:#2b3c63;--text:#f4f7ff;
+ --muted:#aab7d4;--accent:#6ea8ff;--accent2:#9b7bff;--cyan:#50d5ff;
+ --good:#4ade80;--bad:#fb7185;--warn:#fbbf24;--radius:22px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 15% 0%,#17275a 0,#070b18 40%,#050711 100%);color:var(--text);font-family:"Plus Jakarta Sans",sans-serif}
+body{overflow-x:hidden}button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(7,11,24,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(110,168,255,.16)}
+.topinner{max-width:1250px;width:100%;margin:auto;padding:14px 20px 12px;display:flex;align-items:center;gap:18px}
+.brand{min-width:250px}.eyebrow{font-size:11px;color:var(--cyan);font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.brand h1{font-family:Fredoka;margin:2px 0;font-size:21px;line-height:1.15}.brand small{color:var(--muted)}
+.progressWrap{flex:1}.progressMeta{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-bottom:7px}
+.progress{height:8px;background:#1b2745;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--cyan));border-radius:999px;transition:.35s}
+main{width:100%;max-width:1250px;margin:auto;padding:26px 20px 112px;flex:1}
+.slide{display:none;animation:enter .35s ease}.slide.active{display:block}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero{min-height:calc(100vh - 170px);display:grid;place-items:center}
+.heroCard{width:min(100%,1000px);padding:50px;border:1px solid var(--line);border-radius:32px;background:linear-gradient(135deg,rgba(23,35,67,.94),rgba(12,19,39,.96));box-shadow:0 18px 50px rgba(0,0,0,.3);position:relative;overflow:hidden}
+.heroCard:before{content:"";position:absolute;width:360px;height:360px;border-radius:50%;right:-100px;top:-120px;background:radial-gradient(circle,rgba(110,168,255,.28),transparent 68%)}
+.badge{display:inline-flex;gap:8px;align-items:center;padding:8px 13px;border:1px solid #35528b;background:#142448;border-radius:999px;color:#bcd3ff;font-size:12px;font-weight:800}
+h2{font-family:Fredoka;font-size:clamp(29px,5vw,48px);line-height:1.05;margin:16px 0 12px}
+h3{font-family:Fredoka;font-size:25px;margin:0 0 10px}h4{margin:0 0 7px}
+.lead{font-size:17px;line-height:1.75;color:#d6def0;max-width:880px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:linear-gradient(145deg,rgba(17,26,50,.98),rgba(12,19,39,.98));border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:0 10px 30px rgba(0,0,0,.16)}
+.card p,.card li{color:#c8d2e8;line-height:1.65}.card ul{padding-left:21px}
+.tag{display:inline-block;padding:5px 9px;border-radius:8px;background:#1b2a4b;color:#bcd3ff;font-size:11px;font-weight:800;margin-bottom:10px}
+.bigNum{font-family:JetBrains Mono;color:var(--cyan);font-size:32px;font-weight:800}
+.formula{font-family:"JetBrains Mono",monospace;font-size:clamp(15px,2.4vw,22px);background:#091020;border:1px dashed #45649c;border-radius:14px;padding:15px;color:#dce8ff;overflow:auto}
+.note{border-left:4px solid var(--accent);padding:12px 15px;background:#101c35;border-radius:0 13px 13px 0;color:#cad7ef;line-height:1.6}
+.btn{border:1px solid #3b5486;background:#1a2a4b;color:#eef4ff;padding:11px 16px;border-radius:12px;font-weight:800;transition:.2s}
+.btn:hover{transform:translateY(-2px);background:#22365e}.btn.primary{background:linear-gradient(135deg,#4f86ef,#7b5be8);border-color:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.center{text-align:center}.muted{color:var(--muted)}
+.answer{display:none;margin-top:12px}.answer.show{display:block}
+.step{display:flex;gap:13px;align-items:flex-start;margin:13px 0}.stepNum{min-width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));font-weight:800}
+.svgBox{background:#091020;border:1px solid #27395f;border-radius:18px;padding:10px;min-height:280px;display:grid;place-items:center}
+svg{max-width:100%;height:auto}svg text{font-family:"Plus Jakarta Sans",sans-serif;fill:#eaf1ff;font-weight:700}
+.interactive{border:1px solid #35568c;background:linear-gradient(145deg,#111f3d,#0b1429)}
+.choiceGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.choice{padding:13px;border:1px solid #354a75;background:#121e38;color:#eaf0ff;border-radius:12px;text-align:left;font-weight:700}
+.choice:hover{background:#1a2d50}.choice.correct{border-color:var(--good);background:#0d2a1d}.choice.wrong{border-color:var(--bad);background:#301521}
+.feedback{margin-top:12px;font-weight:700;min-height:22px}.goodText{color:var(--good)}.badText{color:var(--bad)}
+input.num{width:160px;background:#091020;color:white;border:1px solid #40577f;border-radius:11px;padding:11px 13px;outline:none}
+input.num:focus,select:focus,textarea:focus{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;border-radius:12px;overflow:hidden}th,td{border:1px solid #2c3d61;padding:11px;text-align:center}th{background:#182746}td{background:#0e172c;color:#d4dded}
+.chartWrap{display:grid;place-items:center;background:#091020;border:1px solid #27395f;border-radius:18px;padding:14px}
+.legend{display:grid;gap:8px}.legendItem{display:flex;align-items:center;gap:9px;color:#d5dff1;font-size:13px}.swatch{width:14px;height:14px;border-radius:4px}
+.pieSlice{cursor:pointer;transition:filter .2s,transform .2s;transform-origin:200px 200px}.pieSlice:hover{filter:brightness(1.3)}
+.rangeBox{display:flex;align-items:center;gap:13px;flex-wrap:wrap}.rangeBox input{flex:1;min-width:180px;accent-color:var(--accent)}
+.rangeVal{font-family:JetBrains Mono;color:var(--cyan);font-size:20px}
+.quizQ{font-size:18px;font-weight:800;line-height:1.55}
+.score{font-family:Fredoka;font-size:40px;color:var(--cyan)}
+.footerNav{position:fixed;bottom:0;left:0;right:0;z-index:15;background:rgba(7,11,24,.95);backdrop-filter:blur(15px);border-top:1px solid rgba(110,168,255,.16)}
+.navinner{max-width:1250px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:10px}.navcenter{flex:1;text-align:center;color:var(--muted);font-size:12px}
+.dots{display:flex;gap:4px;justify-content:center;max-width:500px;margin:12px auto 0;flex-wrap:wrap}.dot{width:7px;height:7px;border-radius:50%;background:#293a5d;cursor:pointer}.dot.active{width:22px;background:var(--accent)}
+textarea{background:#091020;color:#fff;border:1px solid #40577f;border-radius:12px;padding:12px;resize:vertical;width:100%}
+@media(max-width:800px){.topinner{flex-wrap:wrap}.brand{min-width:0;flex:1}.progressWrap{order:3;flex-basis:100%}.g2,.g3,.choiceGrid{grid-template-columns:1fr}.heroCard{padding:28px 20px}main{padding:18px 13px 105px}.card{padding:17px}.navinner{padding:10px 12px}.navinner .btn{padding:10px 12px}}
+@media(max-width:480px){h2{font-size:31px}.lead{font-size:15px}.brand h1{font-size:18px}.footerNav .btn{font-size:12px}.svgBox{min-height:210px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+ <div class="topinner">
+  <div class="brand">
+   <div class="eyebrow" id="materiTop"></div>
+   <h1 id="submateriTop"></h1>
+   <small>Pembelajaran Interaktif</small>
+  </div>
+  <div class="progressWrap">
+   <div class="progressMeta"><span id="slideTitle">Pembuka</span><span id="progressText">1 / 1</span></div>
+   <div class="progress"><span id="progressBar"></span></div>
+  </div>
+ </div>
+</header>
+
+<main id="slides">
+
+<section class="slide active hero" data-title="Pembuka">
+ <div class="heroCard">
+  <span class="badge">📊 MATEMATIKA SMP • STATISTIKA</span>
+  <h2 id="heroTitle"></h2>
+  <p class="lead">Pelajari cara memahami diagram lingkaran, menghubungkan data dengan keseluruhan, menghitung persentase dan sudut, membuat diagram, serta membaca nilai dari diagram secara interaktif.</p>
+  <div class="grid g3" style="margin-top:28px">
+   <div class="card"><div class="bigNum">01</div><b>Pahami</b><p>Kenali bagian dan makna setiap sektor diagram.</p></div>
+   <div class="card"><div class="bigNum">02</div><b>Hitung</b><p>Gunakan persentase, sudut, dan perbandingan data.</p></div>
+   <div class="card"><div class="bigNum">03</div><b>Baca</b><p>Tentukan informasi dan nilai dari diagram.</p></div>
+  </div>
+  <div class="btnRow"><button class="btn primary" onclick="go(1)">Mulai Belajar →</button></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Apersepsi">
+ <span class="badge">APERSEPSI</span><h2>Bagaimana data bisa menjadi “sepotong lingkaran”?</h2>
+ <div class="grid g2">
+  <div class="card">
+   <h3>Bayangkan sebuah pilihan</h3>
+   <p>Dalam satu kelas terdapat 40 siswa. Sebanyak 20 siswa memilih sepak bola. Berapa bagian dari seluruh kelas yang memilih sepak bola?</p>
+   <div class="formula">20/40 = 1/2 = 50%</div>
+   <p>Setengah dari lingkaran berarti setengah dari keseluruhan data.</p>
+  </div>
+  <div class="card interactive">
+   <h3>Prediksi</h3><p>Jika suatu kategori mewakili 25% data, berapa besar sudut sektornya?</p>
+   <div class="choiceGrid">
+    <button class="choice" onclick="localChoice(this,false,'aperFb')">45°</button>
+    <button class="choice" onclick="localChoice(this,true,'aperFb')">90°</button>
+    <button class="choice" onclick="localChoice(this,false,'aperFb')">120°</button>
+    <button class="choice" onclick="localChoice(this,false,'aperFb')">180°</button>
+   </div><div id="aperFb" class="feedback"></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Tujuan Pembelajaran">
+ <span class="badge">TUJUAN</span><h2>Target belajar kita</h2>
+ <div class="grid g2">
+  <div class="card"><h3>Setelah belajar, kamu dapat...</h3>
+   <ul>
+    <li>menjelaskan pengertian diagram lingkaran;</li>
+    <li>mengidentifikasi bagian-bagian diagram;</li>
+    <li>menghubungkan bagian data dengan keseluruhan;</li>
+    <li>menentukan persentase dan besar sudut;</li>
+    <li>membuat diagram lingkaran dari data sederhana;</li>
+    <li>membaca diagram dan menentukan nilai yang belum diketahui.</li>
+   </ul>
+  </div>
+  <div class="card"><h3>Pertanyaan pemantik</h3><p>“Jika seluruh data digambarkan sebagai satu lingkaran penuh, bagaimana cara menentukan ukuran setiap bagian?”</p><div class="note">Kuncinya adalah hubungan antara <b>bagian ÷ keseluruhan</b>, persentase, dan sudut pusat.</div></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Pengertian">
+ <span class="badge">KONSEP DASAR</span><h2>Apa itu diagram lingkaran?</h2>
+ <div class="grid g2">
+  <div class="card">
+   <h3>Definisi</h3>
+   <p><b>Diagram lingkaran</b> adalah penyajian data menggunakan sebuah lingkaran yang dibagi menjadi beberapa sektor. Setiap sektor mewakili bagian tertentu dari keseluruhan data.</p>
+   <div class="formula">Satu lingkaran penuh = 100% = 360°</div>
+   <p>Semakin besar bagian data, semakin besar pula sektor lingkarannya.</p>
+  </div>
+  <div class="chartWrap">
+   <svg viewBox="0 0 400 400" width="330">
+    <circle cx="200" cy="200" r="150" fill="#172746" stroke="#9db8eb" stroke-width="3"/>
+    <path d="M200 200 L200 50 A150 150 0 0 1 350 200 Z" fill="#6ea8ff"/>
+    <path d="M200 200 L350 200 A150 150 0 0 1 200 350 Z" fill="#9b7bff"/>
+    <path d="M200 200 L200 350 A150 150 0 0 1 50 200 Z" fill="#50d5ff"/>
+    <path d="M200 200 L50 200 A150 150 0 0 1 200 50 Z" fill="#fbbf24"/>
+    <text x="260" y="125">25%</text><text x="270" y="275">25%</text><text x="110" y="275">25%</text><text x="105" y="125">25%</text>
+   </svg>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Bagian-bagian Diagram">
+ <span class="badge">BAGIAN DIAGRAM</span><h2>Kenali unsur-unsurnya</h2>
+ <div class="grid g2">
+  <div class="chartWrap">
+   <svg viewBox="0 0 560 390">
+    <circle cx="210" cy="195" r="130" fill="#111d36" stroke="#9db8eb" stroke-width="3"/>
+    <path d="M210 195 L210 65 A130 130 0 0 1 340 195 Z" fill="#6ea8ff"/>
+    <path d="M210 195 L340 195 A130 130 0 0 1 210 325 Z" fill="#9b7bff"/>
+    <path d="M210 195 L210 325 A130 130 0 0 1 80 195 Z" fill="#50d5ff"/>
+    <path d="M210 195 L80 195 A130 130 0 0 1 210 65 Z" fill="#fbbf24"/>
+    <circle cx="210" cy="195" r="4" fill="white"/>
+    <line x1="210" y1="195" x2="390" y2="95" stroke="#dbe7ff" stroke-width="2"/><text x="400" y="98">sektor</text>
+    <line x1="210" y1="195" x2="210" y2="45" stroke="#dbe7ff" stroke-width="2"/><text x="220" y="38">jari-jari</text>
+    <line x1="80" y1="195" x2="40" y2="195" stroke="#dbe7ff" stroke-width="2"/><text x="5" y="190">pusat</text>
+    <text x="175" y="190">bagian</text>
+   </svg>
+  </div>
+  <div class="card">
+   <div class="tag">PUSAT</div><p>Titik tengah lingkaran.</p>
+   <div class="tag">JARI-JARI</div><p>Garis dari pusat ke titik pada lingkaran.</p>
+   <div class="tag">SEKTOR</div><p>Daerah berbentuk “irisan kue” yang mewakili kategori data.</p>
+   <div class="tag">SUDUT PUSAT</div><p>Sudut pada pusat yang menentukan besar sektor.</p>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Bagian dan Keseluruhan">
+ <span class="badge">HUBUNGAN DATA</span><h2>Bagian data dibandingkan keseluruhan</h2>
+ <div class="card">
+  <div class="grid g3">
+   <div class="card"><div class="bigNum">bagian</div><p>Jumlah data pada satu kategori.</p></div>
+   <div class="card"><div class="bigNum">÷</div><p>Dibandingkan dengan keseluruhan.</p></div>
+   <div class="card"><div class="bigNum">total</div><p>Jumlah seluruh data.</p></div>
+  </div>
+  <div class="formula" style="margin-top:16px">Proporsi = bagian / keseluruhan</div>
+  <div class="formula" style="margin-top:12px">Persentase = (bagian / keseluruhan) × 100%</div>
+  <div class="note" style="margin-top:15px">Contoh: 12 dari 30 siswa memilih basket → 12/30 = 0,4 = <b>40%</b>.</div>
+ </div>
+</section>
+
+<section class="slide" data-title="Menentukan Persentase">
+ <span class="badge">PERSENTASE</span><h2>Dari data menuju persen</h2>
+ <div class="grid g2">
+  <div class="card">
+   <h3>Contoh</h3><p>Data kegemaran olahraga: 18 siswa dari total 30 siswa memilih sepak bola.</p>
+   <div class="step"><span class="stepNum">1</span><div>Tentukan bagian = 18 dan total = 30.</div></div>
+   <div class="step"><span class="stepNum">2</span><div>Hitung proporsi: 18/30 = 0,6.</div></div>
+   <div class="step"><span class="stepNum">3</span><div>Ubah ke persen: 0,6 × 100% = <b>60%</b>.</div></div>
+  </div>
+  <div class="card interactive">
+   <h3>Coba sendiri</h3><p>15 dari 60 siswa memilih membaca. Berapa persentasenya?</p>
+   <div class="choiceGrid">
+    <button class="choice" onclick="localChoice(this,false,'percentFb')">15%</button>
+    <button class="choice" onclick="localChoice(this,true,'percentFb')">25%</button>
+    <button class="choice" onclick="localChoice(this,false,'percentFb')">30%</button>
+    <button class="choice" onclick="localChoice(this,false,'percentFb')">40%</button>
+   </div><div id="percentFb" class="feedback"></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Menentukan Besar Sudut">
+ <span class="badge">SUDUT</span><h2>Dari persentase menuju sudut</h2>
+ <div class="grid g2">
+  <div class="card">
+   <h3>Rumus utama</h3>
+   <div class="formula">Sudut = (bagian / total) × 360°</div>
+   <p>Jika data mewakili 25%:</p>
+   <div class="formula">25% × 360° = 90°</div>
+   <p>Jadi sektor 25% memiliki sudut pusat 90°.</p>
+  </div>
+  <div class="card interactive">
+   <h3>Slider persentase</h3>
+   <div class="rangeBox"><input id="pctRange" type="range" min="0" max="100" step="1" value="40"><span class="rangeVal" id="pctVal">40%</span></div>
+   <div class="chartWrap" style="margin-top:14px">
+    <svg viewBox="0 0 400 400" width="280">
+     <circle cx="200" cy="200" r="150" fill="#172746" stroke="#9db8eb" stroke-width="3"/>
+     <path id="dynamicSlice" d="" fill="#6ea8ff"/>
+     <text id="angleLabel" x="200" y="205" text-anchor="middle" font-size="22">144°</text>
+    </svg>
+   </div>
+   <p class="muted">Semakin besar persentase, semakin besar sektor.</p>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Hubungan Persen dan Sudut">
+ <span class="badge">KUNCI HUBUNGAN</span><h2>100% dan 360° selalu berpasangan</h2>
+ <div class="grid g3">
+  <div class="card"><div class="bigNum">100%</div><h3>Keseluruhan</h3><p>Semua data.</p></div>
+  <div class="card"><div class="bigNum">360°</div><h3>Lingkaran penuh</h3><p>Seluruh sudut pusat.</p></div>
+  <div class="card"><div class="bigNum">1%</div><h3>Satu persen</h3><p>Setara dengan 3,6°.</p></div>
+ </div>
+ <div class="card" style="margin-top:16px">
+  <div class="formula">Sudut = Persentase × 3,6°</div>
+  <p>Contoh: 35% → 35 × 3,6° = <b>126°</b>.</p>
+ </div>
+</section>
+
+<section class="slide" data-title="Membuat Diagram">
+ <span class="badge">MEMBUAT DIAGRAM</span><h2>Langkah membuat diagram lingkaran</h2>
+ <div class="grid g2">
+  <div class="card">
+   <div class="step"><span class="stepNum">1</span><div>Jumlahkan seluruh data untuk mendapatkan <b>total</b>.</div></div>
+   <div class="step"><span class="stepNum">2</span><div>Hitung persentase setiap kategori.</div></div>
+   <div class="step"><span class="stepNum">3</span><div>Ubah setiap persentase menjadi sudut.</div></div>
+   <div class="step"><span class="stepNum">4</span><div>Gambar lingkaran dan ukur sudut sektornya.</div></div>
+   <div class="step"><span class="stepNum">5</span><div>Beri warna, label, dan legenda.</div></div>
+  </div>
+  <div class="card">
+   <h3>Contoh data</h3>
+   <table><tr><th>Kategori</th><th>Jumlah</th><th>%</th><th>Sudut</th></tr>
+   <tr><td>Sepak bola</td><td>20</td><td>50%</td><td>180°</td></tr>
+   <tr><td>Basket</td><td>10</td><td>25%</td><td>90°</td></tr>
+   <tr><td>Bulu tangkis</td><td>6</td><td>15%</td><td>54°</td></tr>
+   <tr><td>Lainnya</td><td>4</td><td>10%</td><td>36°</td></tr>
+   <tr><th>Total</th><th>40</th><th>100%</th><th>360°</th></tr></table>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Simulasi Diagram">
+ <span class="badge">SIMULASI</span><h2>Buat diagram secara otomatis</h2>
+ <div class="grid g2">
+  <div class="card interactive">
+   <h3>Masukkan data</h3>
+   <p>Ubah jumlah kategori, lalu lihat diagram dan persentasenya berubah.</p>
+   <div class="grid g2">
+    <label>A: <input class="num dataInput" id="dA" type="number" min="0" value="20"></label>
+    <label>B: <input class="num dataInput" id="dB" type="number" min="0" value="10"></label>
+    <label>C: <input class="num dataInput" id="dC" type="number" min="0" value="6"></label>
+    <label>D: <input class="num dataInput" id="dD" type="number" min="0" value="4"></label>
+   </div>
+   <div id="simFb" class="feedback"></div>
+  </div>
+  <div class="chartWrap">
+   <svg id="simPie" viewBox="0 0 400 400" width="330"></svg>
+   <div class="legend" id="simLegend"></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Membaca Diagram">
+ <span class="badge">MEMBACA DATA</span><h2>Jangan hanya melihat warna</h2>
+ <div class="grid g2">
+  <div class="chartWrap">
+   <svg viewBox="0 0 400 400" width="300">
+    <path d="M200 200 L200 50 A150 150 0 0 1 350 200 Z" fill="#6ea8ff"/>
+    <path d="M200 200 L350 200 A150 150 0 0 1 246.35 335.7 Z" fill="#9b7bff"/>
+    <path d="M200 200 L246.35 335.7 A150 150 0 0 1 57.29 246.35 Z" fill="#50d5ff"/>
+    <path d="M200 200 L57.29 246.35 A150 150 0 0 1 200 50 Z" fill="#fbbf24"/>
+    <circle cx="200" cy="200" r="150" fill="none" stroke="#d9e6ff" stroke-width="3"/>
+    <text x="265" y="125">25%</text><text x="292" y="260">15%</text><text x="120" y="285">40%</text><text x="115" y="125">20%</text>
+   </svg>
+  </div>
+  <div class="card">
+   <h3>Strategi membaca</h3>
+   <div class="step"><span class="stepNum">1</span><div>Identifikasi judul dan legenda.</div></div>
+   <div class="step"><span class="stepNum">2</span><div>Cari kategori yang ditanyakan.</div></div>
+   <div class="step"><span class="stepNum">3</span><div>Gunakan persen atau sudut sektor.</div></div>
+   <div class="step"><span class="stepNum">4</span><div>Jika total diketahui, hitung jumlah datanya.</div></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Menentukan Nilai">
+ <span class="badge">CONTOH SOAL</span><h2>Menentukan nilai dari diagram</h2>
+ <div class="card">
+  <p>Sebuah diagram lingkaran menunjukkan pilihan ekstrakurikuler. Sebanyak <b>25%</b> dari 40 siswa memilih basket. Berapa siswa yang memilih basket?</p>
+  <div class="step"><span class="stepNum">1</span><div>Ambil persentase = 25%.</div></div>
+  <div class="step"><span class="stepNum">2</span><div>Kalikan dengan total siswa.</div></div>
+  <div class="formula">25/100 × 40 = 10</div>
+  <div class="step"><span class="stepNum">3</span><div>Jadi, <b>10 siswa</b> memilih basket.</div></div>
+  <button class="btn" onclick="toggle('nilaiJawab')">Buka cara cek dengan sudut</button>
+  <div id="nilaiJawab" class="answer reveal">25% = 90°. Karena 90° adalah 1/4 lingkaran, maka 1/4 × 40 = <b>10 siswa</b>.</div>
+ </div>
+</section>
+
+<section class="slide" data-title="Nilai dari Sudut">
+ <span class="badge">CONTOH SOAL</span><h2>Jika yang diketahui sudut</h2>
+ <div class="grid g2">
+  <div class="card">
+   <h3>Contoh</h3><p>Sebuah sektor memiliki sudut 72° pada diagram dengan total 50 data. Berapa nilai kategorinya?</p>
+   <div class="formula">72° / 360° × 50 = 10</div>
+   <p>Jadi nilai kategori tersebut adalah <b>10</b>.</p>
+  </div>
+  <div class="card interactive">
+   <h3>Coba</h3><p>Sudut sektor 144° dan total data 25. Berapa nilainya?</p>
+   <input id="angleAns" class="num" type="number" placeholder="Masukkan nilai">
+   <button class="btn primary" onclick="checkNum('angleAns',10,'angleFb')">Periksa</button>
+   <div id="angleFb" class="feedback"></div>
+  </div>
+ </div>
+</section>
+
+<section class="slide" data-title="Latihan Mudah">
+ <span class="badge">LATIHAN • MUDAH</span><h2>Hitung persentase</h2>
+ <div class="card interactive">
+  <p class="quizQ">Dari 80 siswa, 20 siswa memilih kegiatan A. Berapa persentasenya?</p>
+  <input id="easyAns" class="num" type="number" placeholder="%">
+  <button class="btn primary" onclick="checkNum('easyAns',25,'easyFb2')">Periksa</button>
+  <div id="easyFb2" class="feedback"></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Latihan Sedang">
+ <span class="badge">LATIHAN • SEDANG</span><h2>Hitung sudut</h2>
+ <div class="card interactive">
+  <p class="quizQ">Sebuah kategori mewakili 30% dari seluruh data. Berapa besar sudut sektornya?</p>
+  <input id="medAns" class="num" type="number" placeholder="°">
+  <button class="btn primary" onclick="checkNum('medAns',108,'medFb2')">Periksa</button>
+  <div id="medFb2" class="feedback"></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Latihan Menantang">
+ <span class="badge">LATIHAN • MENANTANG</span><h2>Balik dari diagram ke data</h2>
+ <div class="card interactive">
+  <p class="quizQ">Sebuah sektor pada diagram memiliki sudut 54°. Jika total data 120, berapa banyak data pada sektor tersebut?</p>
+  <div class="formula">54° / 360° × 120 = ?</div>
+  <input id="hardAns" class="num" type="number" placeholder="Nilai">
+  <button class="btn primary" onclick="checkNum('hardAns',18,'hardFb2')">Periksa</button>
+  <div id="hardFb2" class="feedback"></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Benar atau Salah">
+ <span class="badge">AKTIVITAS</span><h2>Uji pernyataanmu</h2>
+ <div class="grid g2">
+  <div class="card interactive"><p class="quizQ">“Sektor 50% selalu memiliki sudut 180°.”</p><div class="choiceGrid"><button class="choice" onclick="localChoice(this,true,'tf1')">Benar</button><button class="choice" onclick="localChoice(this,false,'tf1')">Salah</button></div><div id="tf1" class="feedback"></div></div>
+  <div class="card interactive"><p class="quizQ">“Jika sudut sektor 90°, maka persentasenya 25%.”</p><div class="choiceGrid"><button class="choice" onclick="localChoice(this,true,'tf2')">Benar</button><button class="choice" onclick="localChoice(this,false,'tf2')">Salah</button></div><div id="tf2" class="feedback"></div></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Kuis Akhir">
+ <span class="badge">KUIS AKHIR</span><h2>Uji pemahamanmu</h2>
+ <div class="card">
+  <div id="quizArea"></div>
+  <div class="btnRow"><button class="btn primary" id="quizNext" onclick="nextQuiz()">Jawaban berikutnya →</button><button class="btn" onclick="restartQuiz()">Ulangi Kuis</button></div>
+ </div>
+</section>
+
+<section class="slide" data-title="Refleksi">
+ <span class="badge">REFLEKSI</span><h2>Seberapa paham kamu?</h2>
+ <div class="grid g3">
+  <div class="card"><div class="bigNum">01</div><h3>Saya bisa...</h3><p>mengubah bagian data menjadi persentase.</p></div>
+  <div class="card"><div class="bigNum">02</div><h3>Saya bisa...</h3><p>mengubah persentase menjadi sudut.</p></div>
+  <div class="card"><div class="bigNum">03</div><h3>Saya bisa...</h3><p>menentukan nilai dari persentase atau sudut.</p></div>
+ </div>
+ <div class="card" style="margin-top:16px">
+  <label><b>Lengkapi:</b> “Hal terpenting yang saya pahami tentang diagram lingkaran adalah ...”</label>
+  <textarea id="reflection" style="min-height:110px;margin-top:10px"></textarea>
+ </div>
+</section>
+
+<section class="slide" data-title="Rangkuman">
+ <span class="badge">RANGKUMAN</span><h2>Rumus yang perlu diingat</h2>
+ <div class="grid g2">
+  <div class="card"><h3>Persentase</h3><div class="formula">Persentase = bagian/total × 100%</div></div>
+  <div class="card"><h3>Sudut</h3><div class="formula">Sudut = bagian/total × 360°</div></div>
+  <div class="card"><h3>Dari persen ke sudut</h3><div class="formula">Sudut = persentase × 3,6°</div></div>
+  <div class="card"><h3>Dari sudut ke nilai</h3><div class="formula">Nilai = sudut/360° × total</div></div>
+ </div>
+ <div class="note" style="margin-top:16px"><b>Ingat:</b> keseluruhan data = 100% = 360°. Jumlah semua sektor harus kembali menjadi satu lingkaran penuh.</div>
+</section>
+
+<section class="slide" data-title="Penutup">
+ <div class="hero">
+  <div class="heroCard center">
+   <span class="badge">SELESAI 🎉</span>
+   <h2>Kamu sudah menuntaskan Diagram Lingkaran!</h2>
+   <p class="lead" style="margin:auto">Ingat pola utama: <b>bagian → proporsi → persentase → sudut → nilai</b>.</p>
+   <div class="score" id="finalScore">0 / 100</div>
+   <p class="muted">Kembali ke awal atau ulangi kuis untuk memperkuat pemahaman.</p>
+   <div class="btnRow" style="justify-content:center"><button class="btn primary" onclick="go(0)">↺ Kembali ke Awal</button><button class="btn" onclick="restartQuiz();go(19)">Ulangi Kuis</button></div>
+  </div>
+ </div>
+</section>
+
+</main>
+
+<footer class="footerNav">
+ <div class="dots" id="dots"></div>
+ <div class="navinner">
+  <button class="btn" id="prevBtn" onclick="prev()">← Sebelumnya</button>
+  <div class="navcenter"><span id="navLabel">Slide 1</span></div>
+  <button class="btn primary" id="nextBtn" onclick="next()">Berikutnya →</button>
+ </div>
+</footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA UTAMA — MATERI DAN SUBMATERI HANYA DITULIS SEKALI
+   ========================================================= */
+const PEMBELAJARAN = {
+  materi: "Bab 7 — Statistika",
+  submateri: "Diagram Lingkaran"
+};
+
+document.getElementById("materiTop").textContent=PEMBELAJARAN.materi;
+document.getElementById("submateriTop").textContent=PEMBELAJARAN.submateri;
+document.getElementById("heroTitle").textContent=PEMBELAJARAN.materi+" — "+PEMBELAJARAN.submateri;
+
+const slides=[...document.querySelectorAll(".slide")];
+let current=0;
+function render(){
+ slides.forEach((s,i)=>s.classList.toggle("active",i===current));
+ const total=slides.length;
+ document.getElementById("progressText").textContent=`${current+1} / ${total}`;
+ document.getElementById("progressBar").style.width=((current+1)/total*100)+"%";
+ document.getElementById("slideTitle").textContent=slides[current].dataset.title||`Slide ${current+1}`;
+ document.getElementById("navLabel").textContent=`Slide ${current+1}`;
+ document.getElementById("prevBtn").disabled=current===0;
+ document.getElementById("nextBtn").textContent=current===total-1?"Selesai":"Berikutnya →";
+ document.querySelectorAll(".dot").forEach((d,i)=>d.classList.toggle("active",i===current));
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+function go(i){current=Math.max(0,Math.min(slides.length-1,i));render()}
+function next(){current<slides.length-1?(current++,render()):go(0)}
+function prev(){if(current>0){current--;render()}}
+document.addEventListener("keydown",e=>{
+ if(["INPUT","TEXTAREA","BUTTON","SELECT"].includes(document.activeElement.tagName))return;
+ if(e.key==="ArrowRight")next(); if(e.key==="ArrowLeft")prev(); if(e.key==="Home")go(0);
+});
+slides.forEach((_,i)=>{const d=document.createElement("span");d.className="dot";d.title=`Slide ${i+1}`;d.onclick=()=>go(i);document.getElementById("dots").appendChild(d)});
+function toggle(id){document.getElementById(id).classList.toggle("show")}
+function localChoice(btn,correct,id){
+ btn.parentElement.querySelectorAll(".choice").forEach(x=>x.classList.remove("correct","wrong"));
+ btn.classList.add(correct?"correct":"wrong");
+ const f=document.getElementById(id);f.textContent=correct?"✓ Tepat!":"✗ Belum tepat. Coba hitung kembali menggunakan hubungan data.";
+ f.className="feedback "+(correct?"goodText":"badText");
+}
+function checkNum(id,answer,fb){
+ const v=parseFloat(document.getElementById(id).value.replace(",","."));
+ const f=document.getElementById(fb);
+ if(Number.isFinite(v)&&Math.abs(v-answer)<0.001){f.textContent="✓ Benar!";f.className="feedback goodText"}
+ else{f.textContent="✗ Belum tepat. Periksa rumus dan perhitungannya.";f.className="feedback badText"}
+}
+
+/* Slider persentase → sektor */
+const pctRange=document.getElementById("pctRange"),pctVal=document.getElementById("pctVal"),dynamicSlice=document.getElementById("dynamicSlice"),angleLabel=document.getElementById("angleLabel");
+function polar(cx,cy,r,deg){const a=(deg-90)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function sectorPath(cx,cy,r,pct){
+ const angle=pct*3.6;
+ if(angle>=360)return `M ${cx} ${cy-r} A ${r} ${r} 0 1 1 ${cx-0.01} ${cy-r} Z`;
+ const [x1,y1]=polar(cx,cy,r,0),[x2,y2]=polar(cx,cy,r,angle);
+ const large=angle>180?1:0;
+ return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z`;
+}
+function updatePct(){
+ const p=+pctRange.value,a=p*3.6;
+ pctVal.textContent=p+"%";angleLabel.textContent=Math.round(a)+"°";
+ dynamicSlice.setAttribute("d",sectorPath(200,200,150,p));
+}
+pctRange.addEventListener("input",updatePct);updatePct();
+
+/* Simulasi diagram */
+const inputs=["dA","dB","dC","dD"];
+const labels=["A","B","C","D"];
+function updateSim(){
+ const vals=inputs.map(id=>Math.max(0,+document.getElementById(id).value||0));
+ const total=vals.reduce((a,b)=>a+b,0),svg=document.getElementById("simPie"),legend=document.getElementById("simLegend");
+ svg.innerHTML="";legend.innerHTML="";
+ if(total<=0){document.getElementById("simFb").textContent="Masukkan minimal satu data lebih dari 0.";return}
+ let start=0;
+ const fills=["#6ea8ff","#9b7bff","#50d5ff","#fbbf24"];
+ vals.forEach((v,i)=>{
+  if(v<=0)return;
+  const pct=v/total,angle=pct*360;
+  const [x1,y1]=polar(200,200,150,start),[x2,y2]=polar(200,200,150,start+angle);
+  const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+  const large=angle>180?1:0;
+  path.setAttribute("d",`M 200 200 L ${x1} ${y1} A 150 150 0 ${large} 1 ${x2} ${y2} Z`);
+  path.setAttribute("fill",fills[i]);path.setAttribute("stroke","#091020");path.setAttribute("stroke-width","2");path.classList.add("pieSlice");svg.appendChild(path);
+  const item=document.createElement("div");item.className="legendItem";
+  item.innerHTML=`<span class="swatch" style="background:${fills[i]}"></span><b>${labels[i]}</b>: ${v} (${(pct*100).toFixed(1)}% • ${angle.toFixed(1)}°)`;
+  legend.appendChild(item);start+=angle;
+ });
+ const fb=document.getElementById("simFb");fb.textContent=`Total data = ${total}. Total persentase = 100% dan total sudut = 360°.`;fb.className="feedback goodText";
+}
+inputs.forEach(id=>document.getElementById(id).addEventListener("input",updateSim));updateSim();
+
+/* Kuis */
+const quiz=[
+ {q:"Satu lingkaran penuh mewakili...",o:["25% dan 90°","50% dan 180°","100% dan 360°","10% dan 36°"],a:2,e:"Keseluruhan data = 100% = 360°."},
+ {q:"Dari 40 siswa, 10 siswa memilih kategori A. Persentasenya adalah...",o:["10%","20%","25%","40%"],a:2,e:"10/40 × 100% = 25%."},
+ {q:"Persentase 30% setara dengan sudut...",o:["54°","90°","108°","120°"],a:2,e:"30 × 3,6° = 108°."},
+ {q:"Sudut 72° pada diagram mewakili persentase...",o:["10%","20%","25%","30%"],a:1,e:"72/360 × 100% = 20%."},
+ {q:"Jika total data 80 dan suatu sektor 25%, nilainya adalah...",o:["10","15","20","25"],a:2,e:"25/100 × 80 = 20."},
+ {q:"Jika total data 60 dan sektor memiliki sudut 120°, nilainya...",o:["15","20","30","40"],a:1,e:"120/360 × 60 = 20."},
+ {q:"Langkah awal membuat diagram lingkaran dari data adalah...",o:["Memberi warna sektor","Menentukan total data","Menggambar label","Mengukur sudut tanpa menghitung"],a:1,e:"Jumlahkan data terlebih dahulu untuk mendapatkan keseluruhan."},
+ {q:"Hubungan yang benar adalah...",o:["1% = 36°","10% = 18°","25% = 90°","50% = 90°"],a:2,e:"25% × 360° = 90°."},
+ {q:"Jika sebuah kategori berjumlah 15 dari total 30, sudut sektornya...",o:["90°","120°","180°","270°"],a:2,e:"15/30 × 360° = 180°."},
+ {q:"Jumlah seluruh sudut sektor pada diagram lingkaran harus...",o:["180°","270°","360°","720°"],a:2,e:"Semua sektor membentuk satu lingkaran penuh, yaitu 360°."}
+];
+let qi=0,qscore=0,qAnswered=false;
+function renderQuiz(){
+ const area=document.getElementById("quizArea");
+ if(qi>=quiz.length){
+  const pct=Math.round(qscore/quiz.length*100);
+  area.innerHTML=`<div class="center"><div class="score">${pct} / 100</div><h3>Kuis selesai!</h3><p>${pct>=80?"Hebat! Pemahamanmu sudah kuat.":pct>=60?"Bagus. Tinjau kembali bagian yang masih keliru.":"Tidak apa-apa. Pelajari kembali rangkuman lalu ulangi kuis."}</p></div>`;
+  document.getElementById("quizNext").textContent="Kuis selesai";document.getElementById("quizNext").disabled=true;
+  document.getElementById("finalScore").textContent=`${pct} / 100`;return;
+ }
+ qAnswered=false;const q=quiz[qi];
+ area.innerHTML=`<div class="muted">Soal ${qi+1} dari ${quiz.length}</div><p class="quizQ">${q.q}</p><div class="choiceGrid">${q.o.map((x,i)=>`<button class="choice" onclick="answerQuiz(${i})">${x}</button>`).join("")}</div><div id="quizFeedback" class="feedback"></div>`;
+ document.getElementById("quizNext").disabled=true;
+}
+function answerQuiz(i){
+ if(qAnswered)return;qAnswered=true;const q=quiz[qi],bs=document.querySelectorAll("#quizArea .choice");
+ bs.forEach((b,j)=>{if(j===q.a)b.classList.add("correct");if(j===i&&i!==q.a)b.classList.add("wrong")});
+ const f=document.getElementById("quizFeedback");
+ if(i===q.a){qscore++;f.textContent="✓ Benar! "+q.e;f.className="feedback goodText"}
+ else{f.textContent="✗ Belum tepat. "+q.e;f.className="feedback badText"}
+ document.getElementById("quizNext").disabled=false;
+}
+function nextQuiz(){if(!qAnswered)return;qi++;renderQuiz()}
+function restartQuiz(){qi=0;qscore=0;renderQuiz()}
+renderQuiz();render();
+</script>
+</body>
+</html>
