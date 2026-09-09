@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Analisis dan Interpretasi Data — Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0A0F1E;
+    --bg-1:#0F1830;
+    --bg-2:#141F3D;
+    --panel:#16213F;
+    --panel-soft:#1B2848;
+    --line:#2A3B63;
+    --ink:#EAF0FF;
+    --ink-dim:#A9B7DB;
+    --ink-faint:#71809E;
+    --gold:#F2A93B;
+    --gold-soft:#F2A93B22;
+    --teal:#39D0A8;
+    --teal-soft:#39D0A822;
+    --coral:#F2686B;
+    --coral-soft:#F2686B22;
+    --violet:#9C8CF2;
+    --grad-gold: linear-gradient(135deg,#F2A93B,#F26B45);
+    --grad-teal: linear-gradient(135deg,#39D0A8,#2CA7E0);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-title:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --shadow-soft: 0 20px 60px -20px rgba(0,0,0,.55);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1100px 620px at 88% -8%, #1C2C57 0%, transparent 60%),
+      radial-gradient(900px 520px at -10% 108%, #142445 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- App shell ---------- */
+  #app{
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+
+  header.top{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:14px clamp(16px,4vw,40px);
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(15,24,48,.9), rgba(15,24,48,.5));
+    backdrop-filter:blur(6px);
+    z-index:20;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:var(--font-title);
+    font-weight:600;
+    font-size:15px;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .brand .dot{
+    width:10px;height:10px;border-radius:50%;
+    background:var(--grad-gold);
+    box-shadow:0 0 0 4px var(--gold-soft);
+    flex:none;
+  }
+  .brand small{display:block;font-family:var(--font-body);font-weight:500;color:var(--ink-faint);font-size:11px;margin-top:1px;}
+
+  .progress-wrap{
+    flex:1;
+    height:8px;
+    background:var(--panel-soft);
+    border-radius:99px;
+    overflow:hidden;
+    position:relative;
+    border:1px solid var(--line);
+  }
+  .progress-bar{
+    height:100%;
+    width:0%;
+    background:var(--grad-gold);
+    border-radius:99px;
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+  .slide-counter{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--ink-dim);
+    white-space:nowrap;
+    min-width:56px;
+    text-align:right;
+  }
+
+  main.stage{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .slide{
+    position:absolute;
+    inset:0;
+    display:none;
+    overflow-y:auto;
+    padding:clamp(20px,5vw,56px) clamp(16px,7vw,120px) 40px;
+  }
+  .slide.active{
+    display:block;
+    animation:rise .5s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(18px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .slide-inner{
+    max-width:980px;
+    margin:0 auto;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.03em;
+    color:var(--teal);
+    margin:0 0 10px;
+  }
+  h1.slide-title{
+    font-family:var(--font-title);
+    font-weight:600;
+    font-size:clamp(26px,4.4vw,44px);
+    line-height:1.12;
+    margin:0 0 14px;
+    color:var(--ink);
+  }
+  h2.section-title{
+    font-family:var(--font-title);
+    font-weight:600;
+    font-size:clamp(21px,3vw,30px);
+    margin:0 0 12px;
+    color:var(--ink);
+  }
+  p.lead{
+    font-size:clamp(15px,2vw,18px);
+    line-height:1.65;
+    color:var(--ink-dim);
+    max-width:70ch;
+    margin:0 0 20px;
+  }
+  p.body-text{
+    font-size:15.5px;
+    line-height:1.7;
+    color:var(--ink-dim);
+    margin:0 0 14px;
+    max-width:72ch;
+  }
+  strong.hl{color:var(--gold); font-weight:700;}
+  strong.hl-teal{color:var(--teal); font-weight:700;}
+
+  /* ---------- Reusable card ---------- */
+  .card{
+    background:linear-gradient(180deg, var(--panel), var(--panel-soft));
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:clamp(18px,3vw,30px);
+    box-shadow:var(--shadow-soft);
+  }
+  .card + .card{margin-top:16px;}
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} }
+
+  .tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-mono);
+    font-size:11.5px;
+    padding:4px 10px;
+    border-radius:99px;
+    background:var(--teal-soft);
+    color:var(--teal);
+    border:1px solid #39D0A855;
+  }
+
+  /* ---------- Buttons / nav ---------- */
+  .btn{
+    font-family:var(--font-body);
+    font-weight:700;
+    font-size:14px;
+    border:none;
+    cursor:pointer;
+    padding:11px 20px;
+    border-radius:99px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--grad-gold); color:#1A1200;}
+  .btn-primary:hover{box-shadow:0 8px 22px -6px #F2A93B77;}
+  .btn-outline{
+    background:transparent;color:var(--ink);border:1px solid var(--line);
+  }
+  .btn-outline:hover{border-color:var(--teal); color:var(--teal);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  footer.bottom-nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:14px clamp(16px,4vw,40px);
+    border-top:1px solid var(--line);
+    background:linear-gradient(0deg, rgba(15,24,48,.92), rgba(15,24,48,.55));
+    backdrop-filter:blur(6px);
+    z-index:20;
+  }
+  .nav-group{display:flex; align-items:center; gap:10px;}
+  .dots{
+    display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; max-width:46vw;
+  }
+  .dots .d{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--line);
+    cursor:pointer;
+    transition:all .2s ease;
+    flex:none;
+  }
+  .dots .d.active{width:20px; border-radius:5px; background:var(--grad-gold);}
+  .dots .d.done{background:var(--teal);}
+  .hint-key{
+    display:none;
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--ink-faint);
+  }
+  @media (min-width:900px){ .hint-key{display:block;} }
+
+  /* ---------- Interactive bits ---------- */
+  .accordion{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:var(--bg-1);}
+  .accordion summary{
+    list-style:none;
+    cursor:pointer;
+    padding:14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    font-weight:700; font-size:14.5px; color:var(--ink);
+  }
+  .accordion summary::-webkit-details-marker{display:none;}
+  .accordion summary:after{
+    content:'+';
+    font-family:var(--font-mono);
+    color:var(--gold);
+    font-size:18px;
+    transition:transform .25s ease;
+  }
+  .accordion[open] summary:after{transform:rotate(45deg);}
+  .accordion .acc-body{
+    padding:0 16px 16px;
+    color:var(--ink-dim);
+    font-size:14.5px;
+    line-height:1.65;
+  }
+
+  .reveal-box{
+    border:1px dashed var(--line);
+    border-radius:var(--radius-md);
+    padding:14px 16px;
+    cursor:pointer;
+    background:var(--bg-1);
+    transition:border-color .2s ease;
+  }
+  .reveal-box:hover{border-color:var(--gold);}
+  .reveal-box .rq{font-weight:700; color:var(--ink); font-size:14.5px;}
+  .reveal-box .ra{
+    display:none;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line);
+    color:var(--teal);
+    font-size:14px;
+    line-height:1.6;
+  }
+  .reveal-box.open .ra{display:block;}
+  .reveal-box .ra::before{content:'✓ '; font-weight:700;}
+  .reveal-hint{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:6px;}
+
+  table.datatable{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14.5px;
+    margin:10px 0 4px;
+  }
+  table.datatable th, table.datatable td{
+    border:1px solid var(--line);
+    padding:10px 12px;
+    text-align:center;
+  }
+  table.datatable th{
+    background:var(--panel-soft);
+    color:var(--gold);
+    font-weight:700;
+    font-family:var(--font-mono);
+    font-size:12.5px;
+  }
+  table.datatable td{color:var(--ink-dim);}
+  table.datatable tr:nth-child(even) td{background:#ffffff03;}
+
+  .mcq-opt{
+    display:block;
+    width:100%;
+    text-align:left;
+    padding:12px 14px;
+    margin-bottom:8px;
+    border-radius:var(--radius-sm);
+    border:1px solid var(--line);
+    background:var(--bg-1);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:14.5px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .mcq-opt:hover{border-color:var(--teal);}
+  .mcq-opt.correct{border-color:var(--teal); background:var(--teal-soft); color:var(--teal);}
+  .mcq-opt.wrong{border-color:var(--coral); background:var(--coral-soft); color:var(--coral);}
+  .mcq-opt:disabled{cursor:default;}
+  .feedback{
+    margin-top:10px; font-size:14px; line-height:1.6; padding:12px 14px;
+    border-radius:var(--radius-sm); display:none;
+  }
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--teal-soft); color:var(--teal); border:1px solid #39D0A855;}
+  .feedback.bad{background:var(--coral-soft); color:var(--coral); border:1px solid #F2686B55;}
+
+  .input-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px;}
+  .input-row input[type=text], .input-row input[type=number]{
+    flex:1; min-width:160px;
+    background:var(--bg-1);
+    border:1px solid var(--line);
+    border-radius:var(--radius-sm);
+    padding:10px 14px;
+    color:var(--ink);
+    font-family:var(--font-mono);
+    font-size:14.5px;
+  }
+  .input-row input:focus{outline:none; border-color:var(--gold);}
+
+  .stepper{display:flex; flex-direction:column; gap:10px;}
+  .step-item{
+    display:flex; gap:12px; align-items:flex-start;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    padding:12px 14px;
+    background:var(--bg-1);
+  }
+  .step-num{
+    flex:none; width:26px; height:26px; border-radius:50%;
+    background:var(--grad-gold); color:#1A1200;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:12.5px;
+  }
+  .step-txt{font-size:14.5px; color:var(--ink-dim); line-height:1.6; padding-top:3px;}
+  .step-txt b{color:var(--ink);}
+
+  .bar-wrap{display:flex; align-items:flex-end; gap:18px; height:220px; padding:10px 6px 0; border-bottom:2px solid var(--line);}
+  .bar-col{display:flex; flex-direction:column; align-items:center; justify-content:flex-end; flex:1; height:100%; gap:6px;}
+  .bar{
+    width:100%; max-width:52px; border-radius:8px 8px 0 0;
+    background:var(--grad-teal);
+    position:relative;
+    transition:height .8s cubic-bezier(.22,1,.36,1);
+    height:0;
+  }
+  .bar .val{
+    position:absolute; top:-22px; left:50%; transform:translateX(-50%);
+    font-family:var(--font-mono); font-size:12px; color:var(--gold); font-weight:700; white-space:nowrap;
+  }
+  .bar-label{font-size:12px; color:var(--ink-faint); text-align:center;}
+
+  .legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px;}
+  .legend-item{display:flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-dim);}
+  .legend-dot{width:11px; height:11px; border-radius:3px; flex:none;}
+
+  .slider-row{display:flex; align-items:center; gap:14px; margin:14px 0;}
+  .slider-row input[type=range]{flex:1; accent-color:var(--gold);}
+  .slider-val{font-family:var(--font-mono); color:var(--gold); font-weight:700; min-width:34px; text-align:right;}
+
+  .compare-badge{
+    font-family:var(--font-mono); font-size:12px; padding:3px 9px; border-radius:99px;
+  }
+  .badge-a{background:var(--teal-soft); color:var(--teal);}
+  .badge-b{background:var(--coral-soft); color:var(--coral);}
+
+  .quiz-progress{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); margin-bottom:10px;}
+  .quiz-score-ring{
+    width:140px; height:140px; margin:0 auto 18px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background:conic-gradient(var(--gold) calc(var(--pct,0)*1%), var(--panel-soft) 0);
+    position:relative;
+  }
+  .quiz-score-ring::before{
+    content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-1);
+  }
+  .quiz-score-ring .score-txt{position:relative; font-family:var(--font-title); font-size:26px; font-weight:600; color:var(--ink);}
+  .quiz-score-ring .score-sub{position:relative; font-size:11px; color:var(--ink-faint);}
+
+  .pill-toggle{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .pill-toggle button{
+    font-family:var(--font-mono); font-size:12px; padding:7px 13px; border-radius:99px;
+    border:1px solid var(--line); background:var(--bg-1); color:var(--ink-dim); cursor:pointer;
+  }
+  .pill-toggle button.on{background:var(--grad-teal); color:#04241C; border-color:transparent; font-weight:700;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+
+  .kbd{
+    font-family:var(--font-mono); font-size:11px; border:1px solid var(--line);
+    border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink-dim);
+  }
+
+  .cover-hero{
+    display:flex; flex-direction:column; align-items:flex-start; gap:18px;
+  }
+  .cover-icon{
+    width:64px; height:64px; border-radius:18px;
+    background:var(--grad-gold);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 14px 34px -10px #F2A93B66;
+  }
+  .cover-meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+
+  @media (max-width:600px){
+    .brand small{display:none;}
+    .quiz-score-ring{width:120px; height:120px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        Analisis &amp; Interpretasi Data
+        <small>Membaca • Pola • Perbandingan • Kesimpulan</small>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 1</div>
+  </header>
+
+  <main class="stage" id="stage"></main>
+
+  <footer class="bottom-nav">
+    <button class="btn btn-outline" id="btnPrev">← Sebelumnya</button>
+    <div class="nav-group">
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="nav-group">
+      <span class="hint-key"><span class="kbd">←</span> / <span class="kbd">→</span> untuk navigasi</span>
+      <button class="btn btn-primary" id="btnNext">Berikutnya →</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA MATERI
+   ========================================================= */
+const slidesData = [];
+function addSlide(html){ slidesData.push(html); }
+
+/* ---------- Slide 1 : Cover ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path d="M4 19V10M10 19V5M16 19V13M22 19V8" stroke="#1A1200" stroke-width="2.6" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p class="eyebrow">MATERI POKOK 5.4 — STATISTIKA</p>
+    <h1 class="slide-title">Analisis dan Interpretasi Data</h1>
+    <p class="lead">Belajar membaca tabel dan diagram, menemukan pola tersembunyi di balik angka, membandingkan dua kumpulan data, hingga menarik kesimpulan yang masuk akal — semuanya lewat contoh dari kehidupan sehari-hari.</p>
+    <div class="cover-meta">
+      <span class="tag">📊 Membaca Tabel/Diagram</span>
+      <span class="tag">🔍 Menemukan Pola</span>
+      <span class="tag">⚖️ Membandingkan Data</span>
+      <span class="tag">🧩 Menarik Kesimpulan</span>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 2 : Apersepsi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">APERSEPSI</p>
+    <h2 class="section-title">Pernahkah kamu melihat data seperti ini?</h2>
+    <p class="body-text">Setiap hari kita dikelilingi data: nilai rapor, hasil pertandingan, cuaca mingguan, jumlah penonton, sampai harga cabai di pasar. Tapi angka-angka itu baru berguna kalau kita tahu <strong class="hl">cara membacanya</strong> dan <strong class="hl-teal">cara memaknainya</strong>.</p>
+    <div class="card">
+      <div class="reveal-box" onclick="this.classList.toggle('open')">
+        <div class="rq">🤔 Coba pikirkan: Toko "Segar" mencatat penjualan apel selama 5 hari — Senin 12 kg, Selasa 18 kg, Rabu 9 kg, Kamis 25 kg, Jumat 30 kg. Tanpa menghitung apa-apa, apa yang bisa langsung kamu simpulkan?</div>
+        <div class="ra">Kelihatan ada <strong>kecenderungan naik</strong> menjelang akhir pekan — mungkin karena orang belanja lebih banyak untuk Sabtu-Minggu. Inilah yang disebut <em>menemukan pola</em> dan <em>menarik kesimpulan</em> dari data — tanpa rumus rumit, hanya dengan mengamati!</div>
+        <div class="reveal-hint">👆 Klik kotak ini untuk melihat jawabannya</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 3 : Tujuan Pembelajaran ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">TUJUAN PEMBELAJARAN</p>
+    <h2 class="section-title">Setelah pembelajaran ini, kamu dapat:</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt"><b>Membaca</b> informasi dari tabel, diagram batang, diagram garis, dan diagram lingkaran dengan tepat.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt"><b>Menemukan pola</b> — kecenderungan naik, turun, atau berulang — dari sekumpulan data.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt"><b>Membandingkan</b> dua atau lebih kumpulan data untuk melihat persamaan dan perbedaannya.</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt"><b>Menarik kesimpulan</b> yang logis dan didukung bukti dari hasil analisis data.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 4 : Konsep dasar analisis data ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KONSEP DASAR</p>
+    <h2 class="section-title">Apa itu analisis dan interpretasi data?</h2>
+    <p class="body-text"><strong class="hl">Analisis data</strong> adalah proses mengamati dan mengolah kumpulan data untuk menemukan informasi penting di dalamnya — seperti pola, perbandingan, atau hal yang menonjol.</p>
+    <p class="body-text"><strong class="hl-teal">Interpretasi data</strong> adalah langkah selanjutnya: menjelaskan <em>apa arti</em> informasi tersebut dan menarik kesimpulan yang masuk akal darinya.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="tag">Langkah 1–2</div>
+        <p class="body-text" style="margin-top:10px;margin-bottom:0;">📥 <b>Kumpulkan &amp; baca</b> data dari tabel/diagram → 🔍 <b>Amati</b> pola atau kecenderungan yang muncul.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Langkah 3–4</div>
+        <p class="body-text" style="margin-top:10px;margin-bottom:0;">⚖️ <b>Bandingkan</b> antar kelompok data → 🧩 <b>Simpulkan</b> makna data tersebut secara logis.</p>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 5 : Sub 1 - Membaca tabel (konsep) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — MEMBACA DATA</p>
+    <h2 class="section-title">Membaca tabel data</h2>
+    <p class="body-text">Tabel menyusun data dalam <strong class="hl">baris</strong> (horizontal) dan <strong class="hl-teal">kolom</strong> (vertikal). Untuk membaca tabel dengan benar, perhatikan <b>judul tabel</b>, <b>judul kolom</b>, lalu telusuri baris demi baris.</p>
+    <div class="card">
+      <div class="tag">Contoh Data</div>
+      <p class="body-text" style="margin-top:10px;">Data penjualan apel toko "Segar" selama satu minggu (dalam kg):</p>
+      <table class="datatable">
+        <tr><th>Hari</th><th>Senin</th><th>Selasa</th><th>Rabu</th><th>Kamis</th><th>Jumat</th><th>Sabtu</th><th>Minggu</th></tr>
+        <tr><td><b>Terjual (kg)</b></td><td>12</td><td>18</td><td>9</td><td>25</td><td>30</td><td>40</td><td>35</td></tr>
+      </table>
+      <div class="reveal-box" style="margin-top:14px;" onclick="this.classList.toggle('open')">
+        <div class="rq">❓ Berapa kg apel yang terjual pada hari Rabu?</div>
+        <div class="ra">9 kg — tinggal cari kolom "Rabu", lalu baca angka di baris "Terjual (kg)".</div>
+        <div class="reveal-hint">👆 Klik untuk cek jawaban</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 6 : Latihan membaca tabel interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF</p>
+    <h2 class="section-title">Uji pemahamanmu tentang tabel</h2>
+    <p class="body-text">Gunakan tabel penjualan apel dari slide sebelumnya untuk menjawab.</p>
+    <div class="card">
+      <table class="datatable">
+        <tr><th>Hari</th><th>Sen</th><th>Sel</th><th>Rab</th><th>Kam</th><th>Jum</th><th>Sab</th><th>Min</th></tr>
+        <tr><td><b>kg</b></td><td>12</td><td>18</td><td>9</td><td>25</td><td>30</td><td>40</td><td>35</td></tr>
+      </table>
+      <p class="body-text" style="margin-top:14px; margin-bottom:6px;"><b>Hari apa penjualan apel paling tinggi?</b></p>
+      <div id="mcq1"></div>
+      <div class="feedback" id="fb1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 7 : Diagram batang ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — MEMBACA DATA</p>
+    <h2 class="section-title">Membaca diagram batang</h2>
+    <p class="body-text">Diagram batang menampilkan data yang sama seperti tabel, tapi dalam bentuk <strong class="hl">tinggi batang</strong> — semakin tinggi batang, semakin besar nilainya. Ini memudahkan kita membandingkan data secara sekilas.</p>
+    <div class="card">
+      <div class="tag">Jumlah pengunjung perpustakaan sekolah (per hari)</div>
+      <div class="bar-wrap" id="barChart1"></div>
+      <div class="legend"><div class="legend-item"><div class="legend-dot" style="background:var(--grad-teal)"></div>Jumlah pengunjung (orang)</div></div>
+      <div class="reveal-box" style="margin-top:16px;" onclick="this.classList.toggle('open')">
+        <div class="rq">❓ Hari apa yang batangnya paling pendek? Apa artinya?</div>
+        <div class="ra">Rabu — artinya jumlah pengunjung perpustakaan paling sedikit terjadi pada hari Rabu.</div>
+        <div class="reveal-hint">👆 Klik untuk cek jawaban</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 8 : Diagram garis ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — MEMBACA DATA</p>
+    <h2 class="section-title">Membaca diagram garis</h2>
+    <p class="body-text">Diagram garis menghubungkan titik-titik data dengan garis, sehingga cocok untuk melihat <strong class="hl">perubahan dari waktu ke waktu</strong> — apakah naik, turun, atau stabil.</p>
+    <div class="card">
+      <div class="tag">Suhu udara kota "Cerah" selama 6 hari (°C)</div>
+      <div id="lineChart1" style="margin-top:14px;"></div>
+      <div class="reveal-box" style="margin-top:16px;" onclick="this.classList.toggle('open')">
+        <div class="rq">❓ Apa yang terjadi pada suhu dari hari ke-1 sampai ke-6?</div>
+        <div class="ra">Suhu cenderung naik secara bertahap dari 24°C menjadi 31°C, dengan sedikit penurunan di hari ke-4. Garis yang naik menunjukkan tren peningkatan suhu.</div>
+        <div class="reveal-hint">👆 Klik untuk cek jawaban</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 9 : Diagram lingkaran ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — MEMBACA DATA</p>
+    <h2 class="section-title">Membaca diagram lingkaran</h2>
+    <p class="body-text">Diagram lingkaran menunjukkan <strong class="hl">perbandingan bagian terhadap keseluruhan</strong> (100%). Semakin besar juring (potongan), semakin besar proporsi data tersebut.</p>
+    <div class="card grid2" style="align-items:center;">
+      <div id="pieChart1"></div>
+      <div>
+        <div class="tag" style="margin-bottom:10px;">Olahraga favorit 40 siswa kelas VIII</div>
+        <div class="legend" id="pieLegend1" style="flex-direction:column; align-items:flex-start; gap:8px;"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="reveal-box" onclick="this.classList.toggle('open')">
+        <div class="rq">❓ Olahraga apa yang paling banyak digemari? Berapa persen kira-kira?</div>
+        <div class="ra">Sepak bola — juringnya paling besar, sekitar 40% dari keseluruhan lingkaran (16 dari 40 siswa).</div>
+        <div class="reveal-hint">👆 Klik untuk cek jawaban</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 10 : Latihan level bertahap membaca data ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — MEMBACA DATA</p>
+    <h2 class="section-title">Latihan bertingkat</h2>
+    <p class="body-text">Kerjakan dari level <b>Mudah</b> ke <b>Menantang</b>. Gunakan data diagram batang pengunjung perpustakaan (Senin–Jumat).</p>
+    <div class="card">
+      <div class="bar-wrap" id="barChart2" style="height:150px;"></div>
+      <div class="pill-toggle" id="diffTabs1">
+        <button class="on" data-lv="mudah">🟢 Mudah</button>
+        <button data-lv="sedang">🟡 Sedang</button>
+        <button data-lv="menantang">🔴 Menantang</button>
+      </div>
+      <div id="diffBody1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 11 : Sub 2 - Menemukan pola (konsep) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 2 — MENEMUKAN POLA</p>
+    <h2 class="section-title">Apa itu pola dalam data?</h2>
+    <p class="body-text">Pola adalah <strong class="hl">kecenderungan yang berulang atau konsisten</strong> dalam data. Beberapa jenis pola yang sering muncul:</p>
+    <div class="grid2">
+      <div class="card"><span class="tag">📈 Naik (increasing)</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Nilai terus bertambah dari waktu ke waktu. Contoh: jumlah pengikut media sosial yang terus bertambah tiap bulan.</p></div>
+      <div class="card"><span class="tag">📉 Turun (decreasing)</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Nilai terus berkurang. Contoh: sisa baterai HP yang terus menurun sepanjang hari.</p></div>
+      <div class="card"><span class="tag">🔁 Berulang (periodik)</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Pola yang berulang secara teratur. Contoh: suhu yang naik siang hari lalu turun tiap malam.</p></div>
+      <div class="card"><span class="tag">➖ Stabil (konstan)</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Nilai relatif tidak berubah. Contoh: jumlah siswa satu kelas yang sama tiap minggu.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 12 : Contoh menemukan pola interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">CONTOH — MENEMUKAN POLA</p>
+    <h2 class="section-title">Tebak pola dari data berikut</h2>
+    <p class="body-text">Data tabungan Rani tiap minggu (dalam ribu rupiah):</p>
+    <div class="card">
+      <table class="datatable">
+        <tr><th>Minggu 1</th><th>Minggu 2</th><th>Minggu 3</th><th>Minggu 4</th><th>Minggu 5</th></tr>
+        <tr><td>10</td><td>15</td><td>20</td><td>25</td><td>30</td></tr>
+      </table>
+      <p class="body-text" style="margin-top:14px; margin-bottom:6px;"><b>Pola apa yang terlihat pada tabungan Rani, dan berapa perkiraan tabungannya di minggu ke-6?</b></p>
+      <div id="mcq2"></div>
+      <div class="feedback" id="fb2"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 13 : Latihan menemukan pola ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — MENEMUKAN POLA</p>
+    <h2 class="section-title">Isi angka yang hilang</h2>
+    <p class="body-text">Perhatikan pola jumlah produksi kerajinan tangan Bu Sari tiap bulan. Lengkapi angka yang hilang dengan mengetiknya di kotak.</p>
+    <div class="card">
+      <table class="datatable">
+        <tr><th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th><th>Mei</th></tr>
+        <tr><td>50</td><td>44</td><td>38</td><td id="polaTarget">?</td><td>26</td></tr>
+      </table>
+      <div class="input-row">
+        <input type="number" id="polaInput" placeholder="Jawabanmu (angka)...">
+        <button class="btn btn-primary" onclick="checkPola()">Periksa Jawaban</button>
+      </div>
+      <div class="feedback" id="fbPola"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 14 : Sub 3 - Membandingkan data (konsep) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 3 — MEMBANDINGKAN DATA</p>
+    <h2 class="section-title">Membandingkan dua kumpulan data</h2>
+    <p class="body-text">Membandingkan data berarti melihat <strong class="hl">persamaan</strong> dan <strong class="hl-teal">perbedaan</strong> antara dua kelompok data — misalnya: mana yang lebih tinggi, lebih rendah, lebih stabil, atau lebih bervariasi.</p>
+    <div class="card">
+      <div class="tag">Rata-rata nilai Ulangan Matematika</div>
+      <p class="body-text" style="margin-top:10px;">Kelas VIII-A: 70, 75, 80, 85, 90 &nbsp;|&nbsp; Kelas VIII-B: 78, 79, 80, 81, 82</p>
+      <div class="accordion">
+        <summary>💡 Bagaimana cara membandingkannya?</summary>
+        <div class="acc-body">Bandingkan <b>nilai rata-rata</b> (jumlah dibagi banyak data) dan <b>sebaran nilainya</b>. VIII-A: rata-rata 80, tapi nilainya bervariasi luas (70–90). VIII-B: rata-rata juga 80, tapi nilainya lebih seragam (78–82). Artinya, meski rata-rata sama, tingkat kestabilan nilai keduanya berbeda!</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 15 : Contoh perbandingan interaktif (slider) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — MEMBANDINGKAN DATA</p>
+    <h2 class="section-title">Bandingkan hasil panen dua desa</h2>
+    <p class="body-text">Geser slider untuk memilih bulan, lalu amati perbedaan hasil panen padi (ton) antara Desa Makmur dan Desa Subur.</p>
+    <div class="card">
+      <div class="slider-row">
+        <span class="compare-badge badge-a">Desa Makmur</span>
+        <input type="range" id="compareSlider" min="0" max="4" value="0" step="1">
+        <span class="compare-badge badge-b">Desa Subur</span>
+      </div>
+      <div id="compareOut" style="text-align:center; font-family:var(--font-mono); font-size:14px; color:var(--ink-dim); margin-bottom:14px;"></div>
+      <div class="bar-wrap" id="compareBar" style="height:180px;"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 16 : Latihan membandingkan data ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — MEMBANDINGKAN DATA</p>
+    <h2 class="section-title">Uji pemahamanmu</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Toko A menjual 20, 22, 21, 23 buku tiap minggu (4 minggu). Toko B menjual 15, 25, 12, 30 buku. Pernyataan mana yang paling tepat?</b></p>
+      <div id="mcq3"></div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 17 : Sub 4 - Menarik kesimpulan (konsep) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 4 — MENARIK KESIMPULAN</p>
+    <h2 class="section-title">Cara menarik kesimpulan dari data</h2>
+    <p class="body-text">Kesimpulan yang baik harus <strong class="hl">didukung oleh data</strong>, bukan sekadar tebakan. Ikuti langkah berikut:</p>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt"><b>Baca</b> seluruh data dengan teliti — jangan lewatkan bagian penting.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt"><b>Amati</b> pola, nilai tertinggi/terendah, dan perbandingan antar kelompok.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt"><b>Hubungkan</b> temuan tersebut dengan pertanyaan atau konteks yang diberikan.</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt"><b>Rumuskan</b> kesimpulan singkat yang benar-benar didukung oleh data tersebut.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 18 : Contoh menarik kesimpulan step by step ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">CONTOH — MENARIK KESIMPULAN</p>
+    <h2 class="section-title">Coba selesaikan bersama</h2>
+    <div class="card">
+      <div class="tag">Soal</div>
+      <p class="body-text" style="margin-top:10px;">Data jumlah sampah plastik yang terkumpul dari program daur ulang sekolah selama 4 bulan: Januari 20 kg, Februari 35 kg, Maret 50 kg, April 68 kg. Apa kesimpulan yang bisa ditarik tentang program ini?</p>
+      <div class="accordion"><summary>👉 Langkah 1: Petunjuk</summary><div class="acc-body">Perhatikan arah perubahan angka dari bulan ke bulan — apakah naik, turun, atau tetap?</div></div>
+      <div class="accordion"><summary>👉 Langkah 2: Amati data</summary><div class="acc-body">20 → 35 → 50 → 68. Setiap bulan angkanya selalu lebih besar dari bulan sebelumnya.</div></div>
+      <div class="accordion"><summary>👉 Langkah 3: Hubungkan dengan konteks</summary><div class="acc-body">Karena ini data "sampah plastik yang berhasil didaur ulang", kenaikan terus-menerus berarti partisipasi warga sekolah dalam program ini semakin meningkat.</div></div>
+      <div class="accordion"><summary>✅ Langkah 4: Kesimpulan</summary><div class="acc-body">Program daur ulang sekolah <b>berjalan semakin efektif</b> dari bulan ke bulan, ditunjukkan oleh peningkatan jumlah sampah plastik yang terkumpul secara konsisten selama 4 bulan berturut-turut.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 19 : Latihan menarik kesimpulan ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — MENARIK KESIMPULAN</p>
+    <h2 class="section-title">Sekarang giliranmu</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;">Data jumlah siswa yang terlambat ke sekolah selama 5 hari: Senin 8, Selasa 6, Rabu 5, Kamis 3, Jumat 2 orang. <b>Kesimpulan mana yang paling tepat?</b></p>
+      <div id="mcq4"></div>
+      <div class="feedback" id="fb4"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 20 : Kuis ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KUIS AKHIR</p>
+    <h2 class="section-title" id="quizTitleArea">Uji Pemahaman Menyeluruh</h2>
+    <div class="card" id="quizCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 21 : Refleksi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">REFLEKSI</p>
+    <h2 class="section-title">Yuk, renungkan sejenak</h2>
+    <p class="body-text">Sebelum lanjut ke rangkuman, pikirkan kembali perjalanan belajarmu hari ini.</p>
+    <div class="card">
+      <div class="accordion"><summary>🌱 Bagian mana yang paling mudah kamu pahami?</summary><div class="acc-body">Pikirkan kembali: apakah membaca tabel, diagram batang, garis, atau lingkaran yang paling kamu kuasai? Tuliskan dalam buku catatanmu.</div></div>
+      <div class="accordion"><summary>🌊 Bagian mana yang masih terasa sulit?</summary><div class="acc-body">Mungkin menemukan pola, membandingkan dua data, atau menarik kesimpulan. Tidak apa-apa — tandai bagian ini untuk dipelajari ulang.</div></div>
+      <div class="accordion"><summary>🎯 Di kehidupan nyata, kapan kamu bisa memakai kemampuan ini?</summary><div class="acc-body">Contohnya: membaca laporan keuangan uang jajan, membandingkan harga di dua toko, atau memahami statistik pertandingan olahraga favoritmu.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 22 : Rangkuman ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RANGKUMAN</p>
+    <h2 class="section-title">Yang perlu kamu ingat</h2>
+    <div class="grid2">
+      <div class="card"><span class="tag">📊 Membaca Data</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Tabel disusun baris &amp; kolom. Diagram batang untuk membandingkan, diagram garis untuk melihat tren waktu, diagram lingkaran untuk melihat proporsi.</p></div>
+      <div class="card"><span class="tag">🔍 Menemukan Pola</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Amati apakah data naik, turun, berulang, atau stabil untuk memprediksi kecenderungannya.</p></div>
+      <div class="card"><span class="tag">⚖️ Membandingkan Data</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Bandingkan nilai rata-rata dan sebaran (variasi) antar kelompok data, bukan hanya satu angka saja.</p></div>
+      <div class="card"><span class="tag">🧩 Menarik Kesimpulan</span><p class="body-text" style="margin-top:10px;margin-bottom:0;">Kesimpulan yang baik selalu berdasar pada bukti data — baca, amati, hubungkan, lalu simpulkan.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 23 : Penutup ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon" style="background:var(--grad-teal);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#04241C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="eyebrow">PENUTUP</p>
+    <h1 class="slide-title">Selamat! Kamu telah menyelesaikan pembelajaran ini 🎉</h1>
+    <p class="lead">Kemampuan membaca, menganalisis, dan menginterpretasi data adalah keterampilan yang akan terus kamu pakai — di sekolah, pekerjaan, bahkan keputusan sehari-hari. Teruslah berlatih dengan data-data di sekitarmu!</p>
+    <button class="btn btn-primary" onclick="goTo(0)">⟲ Ulangi dari Awal</button>
+  </div>
+`);
+
+/* =========================================================
+   RENDER ENGINE
+   ========================================================= */
+const stage = document.getElementById('stage');
+let current = 0;
+
+function render(){
+  stage.innerHTML = slidesData.map((html,i)=>`<section class="slide" data-i="${i}">${html}</section>`).join('');
+  buildDots();
+  goTo(0, true);
+}
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = slidesData.map((_,i)=>`<span class="d" data-i="${i}" onclick="goTo(${i})"></span>`).join('');
+}
+
+function goTo(i, force){
+  if(i<0 || i>=slidesData.length) return;
+  current = i;
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  const el = document.querySelector(`.slide[data-i="${i}"]`);
+  el.classList.add('active');
+  el.scrollTop = 0;
+
+  document.getElementById('progressBar').style.width = ((i+1)/slidesData.length*100)+'%';
+  document.getElementById('slideCounter').textContent = (i+1)+' / '+slidesData.length;
+  document.querySelectorAll('.dots .d').forEach((d,idx)=>{
+    d.classList.toggle('active', idx===i);
+    d.classList.toggle('done', idx<i);
+  });
+  document.getElementById('btnPrev').disabled = (i===0);
+  document.getElementById('btnNext').disabled = (i===slidesData.length-1);
+
+  initSlideWidgets(i);
+}
+
+document.getElementById('btnPrev').addEventListener('click', ()=>goTo(current-1));
+document.getElementById('btnNext').addEventListener('click', ()=>goTo(current+1));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
+});
+
+/* =========================================================
+   WIDGET INITIALIZERS (run once per slide the first time it's shown)
+   ========================================================= */
+const initedSlides = new Set();
+
+function initSlideWidgets(i){
+  if(initedSlides.has(i)) return;
+  initedSlides.add(i);
+
+  if(i===5) buildMCQ('mcq1', 'fb1',
+    ['Senin','Rabu','Sabtu','Minggu'],
+    2,
+    'Benar! Sabtu memiliki penjualan tertinggi yaitu 40 kg — batang/angka tertingginya ada di kolom Sabtu.',
+    'Coba periksa lagi kolom mana yang punya angka terbesar (40 kg).');
+
+  if(i===6) buildBar('barChart1', [
+    {label:'Sen', val:32, color:'teal'},
+    {label:'Sel', val:45, color:'teal'},
+    {label:'Rab', val:18, color:'teal'},
+    {label:'Kam', val:50, color:'teal'},
+    {label:'Jum', val:60, color:'teal'},
+  ]);
+
+  if(i===7) buildLine('lineChart1', [
+    {label:'H1', val:24},{label:'H2', val:26},{label:'H3', val:29},
+    {label:'H4', val:27},{label:'H5', val:30},{label:'H6', val:31},
+  ], '°C');
+
+  if(i===8) buildPie('pieChart1','pieLegend1', [
+    {label:'Sepak Bola', val:16, color:'var(--teal)'},
+    {label:'Basket', val:10, color:'var(--gold)'},
+    {label:'Bulu Tangkis', val:8, color:'var(--coral)'},
+    {label:'Renang', val:6, color:'var(--violet)'},
+  ]);
+
+  if(i===9) buildDifficultyTabs();
+
+  if(i===11) buildMCQ('mcq2', 'fb2',
+    ['Pola naik tetap +5 tiap minggu, minggu ke-6 = 35 ribu','Pola turun, minggu ke-6 = 25 ribu','Tidak ada pola, tidak bisa diprediksi','Pola naik tetap +10, minggu ke-6 = 40 ribu'],
+    0,
+    'Tepat! Setiap minggu tabungan Rani bertambah 5 ribu (10→15→20→25→30), jadi minggu ke-6 diperkirakan 35 ribu.',
+    'Coba hitung selisih antar minggu satu per satu: 15-10, 20-15, 25-20, 30-25.');
+
+  if(i===13) buildMCQ('mcq3', 'fb3',
+    ['Rata-rata kedua toko sama, tapi penjualan Toko B jauh lebih bervariasi (naik-turun tajam) dibanding Toko A yang stabil','Toko A pasti lebih untung dari Toko B','Data kedua toko tidak bisa dibandingkan','Toko B lebih baik karena angka tertingginya paling besar'],
+    0,
+    'Benar! Rata-rata Toko A dan B sama-sama 21.5, tapi sebaran nilai Toko B (12–30) jauh lebih lebar daripada Toko A (20–23), artinya penjualan Toko B kurang stabil.',
+    'Coba hitung rata-rata kedua toko, lalu bandingkan seberapa jauh angka-angkanya menyebar dari rata-rata itu.');
+
+  if(i===14) buildCompareWidget();
+
+  if(i===16) buildMCQ('mcq4', 'fb4',
+    ['Jumlah siswa terlambat terus menurun sepanjang minggu, menunjukkan kedisiplinan siswa membaik','Jumlah siswa terlambat selalu sama tiap hari','Tidak ada hubungan antara hari dan jumlah keterlambatan','Hari Jumat pasti akan selalu 0 siswa terlambat'],
+    0,
+    'Tepat! Data 8→6→5→3→2 menunjukkan tren menurun yang konsisten — kesimpulan logisnya adalah kedisiplinan siswa meningkat sepanjang minggu.',
+    'Lihat arah perubahan angka dari Senin ke Jumat — apakah konsisten naik, turun, atau acak?');
+
+  if(i===19) buildQuiz();
+}
+
+/* ---------- MCQ builder ---------- */
+function buildMCQ(mountId, fbId, options, correctIdx, correctMsg, wrongMsg){
+  const mount = document.getElementById(mountId);
+  const fb = document.getElementById(fbId);
+  mount.innerHTML = options.map((opt,idx)=>`<button class="mcq-opt" data-idx="${idx}">${opt}</button>`).join('');
+  mount.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx);
+      mount.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===correctIdx){
+        btn.classList.add('correct');
+        fb.textContent = '✓ '+correctMsg;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        mount.querySelector(`[data-idx="${correctIdx}"]`).classList.add('correct');
+        fb.textContent = '✗ '+wrongMsg;
+        fb.className='feedback show bad';
+      }
+    });
+  });
+}
+
+/* ---------- Bar chart builder ---------- */
+function buildBar(mountId, data){
+  const mount = document.getElementById(mountId);
+  const max = Math.max(...data.map(d=>d.val));
+  mount.innerHTML = data.map(d=>`
+    <div class="bar-col">
+      <div class="bar" data-h="${(d.val/max*100)}"><span class="val">${d.val}</span></div>
+      <div class="bar-label">${d.label}</div>
+    </div>`).join('');
+  requestAnimationFrame(()=>{
+    mount.querySelectorAll('.bar').forEach(b=>{ b.style.height = b.dataset.h+'%'; });
+  });
+}
+
+/* ---------- Line chart builder (SVG) ---------- */
+function buildLine(mountId, data, unit){
+  const mount = document.getElementById(mountId);
+  const w=640, h=200, pad=36;
+  const max = Math.max(...data.map(d=>d.val)), min = Math.min(...data.map(d=>d.val));
+  const range = (max-min)||1;
+  const stepX = (w-pad*2)/(data.length-1);
+  const pts = data.map((d,i)=>{
+    const x = pad + i*stepX;
+    const y = h-pad - ((d.val-min)/range)*(h-pad*2);
+    return {x,y,...d};
+  });
+  const pathD = pts.map((p,i)=> (i===0?'M':'L')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const dots = pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="var(--gold)" stroke="var(--bg-1)" stroke-width="2"/>
+    <text x="${p.x}" y="${p.y-12}" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" text-anchor="middle">${p.val}${unit}</text>
+    <text x="${p.x}" y="${h-8}" font-family="Plus Jakarta Sans" font-size="11" fill="var(--ink-faint)" text-anchor="middle">${p.label}</text>`).join('');
+  mount.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; overflow:visible;">
+    <line x1="${pad}" y1="${h-pad}" x2="${w-pad}" y2="${h-pad}" stroke="var(--line)" stroke-width="1.5"/>
+    <path d="${pathD}" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${dots}
+  </svg>`;
+}
+
+/* ---------- Pie chart builder (SVG conic-like via paths) ---------- */
+function buildPie(mountId, legendId, data){
+  const mount = document.getElementById(mountId);
+  const legend = document.getElementById(legendId);
+  const total = data.reduce((s,d)=>s+d.val,0);
+  const cx=110, cy=110, r=100;
+  let angleStart = -90;
+  let paths = '';
+  data.forEach(d=>{
+    const angle = d.val/total*360;
+    const angleEnd = angleStart+angle;
+    const large = angle>180?1:0;
+    const x1 = cx + r*Math.cos(angleStart*Math.PI/180);
+    const y1 = cy + r*Math.sin(angleStart*Math.PI/180);
+    const x2 = cx + r*Math.cos(angleEnd*Math.PI/180);
+    const y2 = cy + r*Math.sin(angleEnd*Math.PI/180);
+    paths += `<path d="M${cx},${cy} L${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 ${large} 1 ${x2.toFixed(2)},${y2.toFixed(2)} Z" fill="${d.color}" stroke="var(--bg-1)" stroke-width="2"></path>`;
+    angleStart = angleEnd;
+  });
+  mount.innerHTML = `<svg viewBox="0 0 220 220" style="width:220px; height:220px; max-width:100%;">${paths}</svg>`;
+  legend.innerHTML = data.map(d=>`<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div>${d.label} — ${d.val} siswa (${Math.round(d.val/total*100)}%)</div>`).join('');
+}
+
+/* ---------- Difficulty tabs (Slide 10) ---------- */
+function buildDifficultyTabs(){
+  buildBar('barChart2', [
+    {label:'Sen', val:32},{label:'Sel', val:45},{label:'Rab', val:18},{label:'Kam', val:50},{label:'Jum', val:60},
+  ]);
+  const body = document.getElementById('diffBody1');
+  const levels = {
+    mudah: `<p class="body-text" style="margin-bottom:6px;"><b>Berapa jumlah pengunjung perpustakaan pada hari Kamis?</b></p><div id="mcqL1"></div><div class="feedback" id="fbL1"></div>`,
+    sedang: `<p class="body-text" style="margin-bottom:6px;"><b>Berapa selisih pengunjung antara hari Jumat dan hari Rabu?</b></p><div id="mcqL2"></div><div class="feedback" id="fbL2"></div>`,
+    menantang: `<p class="body-text" style="margin-bottom:6px;"><b>Jika pola kenaikan Kamis→Jumat (+10) berlanjut ke hari Sabtu, berapa perkiraan pengunjung hari Sabtu?</b></p><div id="mcqL3"></div><div class="feedback" id="fbL3"></div>`
+  };
+  function showLevel(lv){
+    body.innerHTML = levels[lv];
+    if(lv==='mudah') buildMCQ('mcqL1','fbL1', ['45 orang','50 orang','60 orang','18 orang'],1,'Benar! Batang hari Kamis menunjukkan angka 50.','Lihat kembali label angka di atas batang hari Kamis.');
+    if(lv==='sedang') buildMCQ('mcqL2','fbL2', ['10 orang','42 orang','60 orang','18 orang'],1,'Tepat! Jumat (60) − Rabu (18) = 42 orang.','Kurangkan nilai Jumat dengan nilai Rabu: 60 − 18.');
+    if(lv==='menantang') buildMCQ('mcqL3','fbL3', ['60 orang','65 orang','70 orang','80 orang'],2,'Benar! Karena kenaikan dari Kamis ke Jumat adalah +10 (50→60), maka perkiraan Sabtu = 60+10 = 70 orang.','Hitung dulu selisih Kamis ke Jumat, lalu tambahkan selisih itu ke angka Jumat.');
+  }
+  document.querySelectorAll('#diffTabs1 button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#diffTabs1 button').forEach(b=>b.classList.remove('on'));
+      btn.classList.add('on');
+      showLevel(btn.dataset.lv);
+    });
+  });
+  showLevel('mudah');
+}
+
+/* ---------- Pola input check (Slide 13) ---------- */
+function checkPola(){
+  const val = document.getElementById('polaInput').value.trim();
+  const fb = document.getElementById('fbPola');
+  if(val===''){ fb.textContent='Silakan isi jawaban terlebih dahulu.'; fb.className='feedback show bad'; return; }
+  if(parseInt(val)===32){
+    fb.textContent='✓ Benar! Polanya adalah turun 6 setiap bulan (50→44→38→32→26), jadi bulan April = 32.';
+    fb.className='feedback show ok';
+    document.getElementById('polaTarget').textContent='32';
+  } else {
+    fb.textContent='✗ Belum tepat. Coba amati selisih tiap bulan: 50→44 (turun 6), 44→38 (turun 6). Lanjutkan pola ini.';
+    fb.className='feedback show bad';
+  }
+}
+
+/* ---------- Compare widget (Slide 15) ---------- */
+const compareData = [
+  {label:'Jan', a:12, b:9},
+  {label:'Feb', a:14, b:15},
+  {label:'Mar', a:11, b:19},
+  {label:'Apr', a:16, b:14},
+  {label:'Mei', a:18, b:22},
+];
+function buildCompareWidget(){
+  const slider = document.getElementById('compareSlider');
+  const out = document.getElementById('compareOut');
+  const bar = document.getElementById('compareBar');
+  function render(){
+    const idx = parseInt(slider.value);
+    const d = compareData[idx];
+    out.textContent = `Bulan: ${d.label}  |  Desa Makmur: ${d.a} ton   vs   Desa Subur: ${d.b} ton`;
+    const max = 25;
+    bar.innerHTML = `
+      <div class="bar-col"><div class="bar" style="background:var(--grad-teal); height:${d.a/max*100}%"><span class="val">${d.a}t</span></div><div class="bar-label">Makmur</div></div>
+      <div class="bar-col"><div class="bar" style="background:linear-gradient(135deg,#F2686B,#9C8CF2); height:${d.b/max*100}%"><span class="val">${d.b}t</span></div><div class="bar-label">Subur</div></div>
+    `;
+  }
+  slider.addEventListener('input', render);
+  render();
+}
+
+/* =========================================================
+   QUIZ (Slide 20)
+   ========================================================= */
+const quizQuestions = [
+  {
+    q:'Diagram yang paling cocok untuk melihat perubahan data dari waktu ke waktu adalah…',
+    opts:['Diagram lingkaran','Diagram garis','Tabel saja','Tidak ada bedanya'],
+    correct:1,
+    exp:'Diagram garis menghubungkan titik-titik data secara berurutan, sehingga paling cocok untuk melihat tren/perubahan dari waktu ke waktu.'
+  },
+  {
+    q:'Data pengunjung toko selama 5 hari: 20, 25, 30, 35, 40. Pola yang terlihat adalah…',
+    opts:['Naik konstan +5 tiap hari','Turun konstan','Acak tanpa pola','Naik lalu turun'],
+    correct:0,
+    exp:'Selisih antar hari selalu +5 (20→25→30→35→40), jadi ini adalah pola naik konstan.'
+  },
+  {
+    q:'Diagram lingkaran paling cocok digunakan untuk menunjukkan…',
+    opts:['Perubahan nilai dari waktu ke waktu','Perbandingan bagian terhadap keseluruhan (proporsi)','Urutan langkah suatu proses','Data yang tidak berkaitan'],
+    correct:1,
+    exp:'Diagram lingkaran menunjukkan proporsi/persentase tiap bagian terhadap keseluruhan data (100%).'
+  },
+  {
+    q:'Kelas X rata-rata nilainya 75 dengan nilai 74,75,76,74,76 (sangat seragam). Kelas Y rata-rata juga 75 dengan nilai 50,90,60,95,80 (sangat bervariasi). Pernyataan yang tepat adalah…',
+    opts:['Kedua kelas pasti identik karena rata-ratanya sama','Kelas X lebih stabil, kelas Y lebih bervariasi meski rata-ratanya sama','Kelas Y pasti lebih pintar','Data ini tidak bisa dibandingkan'],
+    correct:1,
+    exp:'Walau rata-rata sama, sebaran (variasi) nilai kelas X jauh lebih seragam/stabil dibanding kelas Y yang sangat bervariasi.'
+  },
+  {
+    q:'Langkah pertama yang tepat sebelum menarik kesimpulan dari data adalah…',
+    opts:['Langsung menebak tanpa melihat data','Membaca dan mengamati seluruh data dengan teliti','Mengabaikan data yang tidak sesuai harapan','Membandingkan dengan data yang tidak relevan'],
+    correct:1,
+    exp:'Kesimpulan yang valid harus dimulai dari membaca dan mengamati data secara menyeluruh dan teliti, baru kemudian dianalisis.'
+  },
+  {
+    q:'Data penjualan payung: musim hujan 200 pcs, musim kemarau 20 pcs. Kesimpulan paling logis adalah…',
+    opts:['Payung tidak laku sama sekali','Penjualan payung dipengaruhi musim, meningkat drastis saat musim hujan','Musim tidak berpengaruh pada penjualan payung','Data ini tidak bisa disimpulkan'],
+    correct:1,
+    exp:'Perbedaan besar antara musim hujan (200) dan kemarau (20) menunjukkan hubungan yang jelas antara musim dan tingkat penjualan payung.'
+  }
+];
+let quizState = { idx:0, score:0, answered:false };
+
+function buildQuiz(){
+  quizState = { idx:0, score:0, answered:false };
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const card = document.getElementById('quizCard');
+  if(quizState.idx >= quizQuestions.length){
+    renderQuizResult();
+    return;
+  }
+  const q = quizQuestions[quizState.idx];
+  card.innerHTML = `
+    <div class="quiz-progress">Soal ${quizState.idx+1} dari ${quizQuestions.length}</div>
+    <p class="body-text" style="margin-bottom:14px; color:var(--ink); font-weight:700; font-size:16px;">${q.q}</p>
+    <div id="quizOpts"></div>
+    <div class="feedback" id="quizFb"></div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="btn btn-primary" id="quizNextBtn" style="display:none;">Lanjut →</button>
+    </div>
+  `;
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = q.opts.map((o,idx)=>`<button class="mcq-opt" data-idx="${idx}">${o}</button>`).join('');
+  quizState.answered = false;
+  opts.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quizState.answered) return;
+      quizState.answered = true;
+      const idx = parseInt(btn.dataset.idx);
+      const fb = document.getElementById('quizFb');
+      opts.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===q.correct){
+        btn.classList.add('correct');
+        quizState.score++;
+        fb.textContent = '✓ Benar! '+q.exp;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        opts.querySelector(`[data-idx="${q.correct}"]`).classList.add('correct');
+        fb.textContent = '✗ Kurang tepat. '+q.exp;
+        fb.className='feedback show bad';
+      }
+      document.getElementById('quizNextBtn').style.display='inline-flex';
+    });
+  });
+  document.getElementById('quizNextBtn').addEventListener('click', ()=>{
+    quizState.idx++;
+    renderQuizQuestion();
+  });
+}
+
+function renderQuizResult(){
+  const card = document.getElementById('quizCard');
+  const pct = Math.round(quizState.score/quizQuestions.length*100);
+  let msg = 'Terus berlatih ya, kamu pasti bisa lebih baik!';
+  if(pct>=80) msg = 'Luar biasa! Pemahamanmu tentang analisis data sudah sangat baik. 🎉';
+  else if(pct>=60) msg = 'Bagus! Pemahamanmu cukup baik, coba tinjau lagi bagian yang masih salah.';
+  card.innerHTML = `
+    <div class="quiz-score-ring" style="--pct:${pct}"><span class="score-txt">${pct}%</span><span class="score-sub">${quizState.score}/${quizQuestions.length} benar</span></div>
+    <p class="body-text" style="text-align:center;">${msg}</p>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-outline" onclick="buildQuiz()">⟲ Ulangi Kuis</button>
+    </div>
+  `;
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+render();
+</script>
+</body>
+</html>

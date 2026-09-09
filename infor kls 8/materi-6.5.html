@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Bab 6 — Perlindungan Akun dan Data Pribadi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e1a;
+  --panel:#121a2c;
+  --panel-2:#182238;
+  --panel-3:#1e2b45;
+  --line:#29395c;
+  --line-soft:#1b2740;
+  --text:#eef1f8;
+  --text-muted:#92a0bd;
+  --text-faint:#57628a;
+  --gold:#e3ac4f;
+  --gold-dim:#3f331d;
+  --green:#3ddc8b;
+  --green-dim:#1c3b2c;
+  --red:#ef5c66;
+  --red-dim:#3f2027;
+  --blue:#5f8fff;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:24px;
+  --font-head:'Fredoka',sans-serif;
+  --font-body:'Plus Jakarta Sans',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --maxw:920px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(146,160,189,0.09) 1.4px, transparent 0);
+  background-size:26px 26px;
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--gold);color:#241a06;}
+button{font-family:var(--font-body);}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px;}
+
+/* ---------- App shell ---------- */
+#app{position:relative;height:100vh;width:100vw;display:flex;flex-direction:column;}
+
+.progress-track{position:fixed;top:0;left:0;width:100%;height:4px;background:var(--line-soft);z-index:60;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--blue));transition:width .45s cubic-bezier(.4,0,.2,1);}
+
+.slides-viewport{flex:1;position:relative;overflow:hidden;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;
+  padding:44px 24px 96px;
+  opacity:0;pointer-events:none;
+  transform:translateX(24px);
+  transition:opacity .38s ease, transform .38s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+}
+.slide.active{opacity:1;pointer-events:auto;transform:translateX(0);}
+
+.slide-inner{width:100%;max-width:var(--maxw);margin:0 auto;padding-bottom:20px;}
+
+/* security status bar — recurring structural device */
+.sec-bar{
+  display:flex;align-items:center;gap:10px;
+  width:100%;max-width:var(--maxw);margin:0 auto 28px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:10px 16px;font-family:var(--font-mono);font-size:12.5px;
+}
+.sec-bar .lock-ic{color:var(--gold);font-size:14px;}
+.sec-bar .sess{color:var(--text-faint);border-right:1px solid var(--line);padding-right:12px;}
+.sec-bar .status{
+  color:var(--green);background:var(--green-dim);border:1px solid #285940;
+  padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.02em;
+}
+.sec-bar .title{color:var(--text-muted);margin-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+h1.slide-title{
+  font-family:var(--font-head);font-weight:600;
+  font-size:clamp(26px,4.2vw,40px);line-height:1.15;margin:0 0 14px;color:var(--text);
+}
+h2.section-title{font-family:var(--font-head);font-weight:600;font-size:clamp(19px,3vw,24px);margin:0 0 12px;}
+p.lead{font-size:16.5px;line-height:1.65;color:var(--text-muted);margin:0 0 18px;max-width:70ch;}
+p{line-height:1.65;color:var(--text-muted);}
+strong{color:var(--text);font-weight:600;}
+code,.kref{font-family:var(--font-mono);}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-m);padding:20px 22px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+.tag{
+  display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;
+  color:var(--gold);background:var(--gold-dim);border:1px solid #6b551f;padding:3px 10px;border-radius:20px;
+}
+.tag.danger{color:var(--red);background:var(--red-dim);border-color:#6b2c33;}
+.tag.safe{color:var(--green);background:var(--green-dim);border-color:#285940;}
+
+.btn{
+  font-family:var(--font-body);font-weight:600;font-size:14.5px;
+  padding:11px 20px;border-radius:10px;border:1px solid var(--line);
+  background:var(--panel-2);color:var(--text);cursor:pointer;
+  transition:transform .15s ease, background .15s ease;
+}
+.btn:hover{background:var(--panel-3);transform:translateY(-1px);}
+.btn:active{transform:translateY(0);}
+.btn-primary{background:var(--gold);border-color:var(--gold);color:#241a06;}
+.btn-primary:hover{background:#edbb66;}
+.btn-ghost{background:transparent;}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+/* ---------- Bottom navigation ---------- */
+.nav-bar{
+  position:fixed;left:0;bottom:0;width:100%;z-index:60;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px 22px;background:rgba(15,21,36,.9);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);
+  color:var(--text);padding:9px 16px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;
+}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed;}
+.nav-btn:not(:disabled):hover{background:var(--panel-3);}
+.nav-mid{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);color:var(--text-muted);font-size:13px;}
+.nav-home{color:var(--text-faint);background:transparent;border:none;cursor:pointer;font-size:13px;font-family:var(--font-mono);}
+.nav-home:hover{color:var(--gold);}
+
+/* ---------- Accordion ---------- */
+.accordion-item{border:1px solid var(--line);border-radius:var(--radius-s);margin-bottom:10px;overflow:hidden;background:var(--panel);}
+.accordion-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer;}
+.accordion-head:hover{background:var(--panel-2);}
+.accordion-head .term{font-weight:700;color:var(--text);font-family:var(--font-head);font-size:16px;display:flex;align-items:center;gap:10px;}
+.accordion-head .chev{color:var(--gold);transition:transform .25s ease;font-size:14px;}
+.accordion-item.open .chev{transform:rotate(180deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.accordion-item.open .accordion-body{max-height:280px;}
+.accordion-body-inner{padding:0 16px 16px;color:var(--text-muted);font-size:14.5px;line-height:1.6;}
+
+/* ---------- Chips / classify ---------- */
+.chip-row{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;}
+.chip{padding:9px 16px;border-radius:20px;border:1px solid var(--line);background:var(--panel-2);font-size:13.5px;cursor:pointer;color:var(--text);}
+.chip.picked{border-color:var(--blue);color:var(--blue);}
+.chip.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.chip.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+.bucket-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+.bucket-row.three{grid-template-columns:repeat(3,1fr);}
+@media (max-width:720px){.bucket-row,.bucket-row.three{grid-template-columns:1fr;}}
+.bucket{border:1px dashed var(--line);border-radius:var(--radius-s);padding:14px 10px;text-align:center;color:var(--text-muted);font-size:13px;cursor:pointer;min-height:56px;}
+.bucket:hover{border-color:var(--blue);}
+
+/* ---------- Steps ---------- */
+.step-list{counter-reset:step;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.step-num{counter-increment:step;flex:none;width:34px;height:34px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;}
+.step-num::before{content:counter(step);}
+.step-body{flex:1;padding-top:4px;}
+.step-body .stitle{font-weight:700;color:var(--text);margin-bottom:3px;}
+
+/* ---------- Password meter ---------- */
+.pw-box{border:1px solid var(--line);border-radius:var(--radius-m);background:var(--panel);padding:20px 22px;}
+.pw-input-row{display:flex;gap:8px;align-items:center;}
+.pw-input{
+  flex:1;font-family:var(--font-mono);font-size:15px;padding:11px 14px;background:var(--bg);
+  border:1px solid var(--line);border-radius:10px;color:var(--text);
+}
+.pw-input:focus{border-color:var(--gold);}
+.pw-toggle{flex:none;background:var(--panel-2);border:1px solid var(--line);color:var(--text-muted);padding:11px 14px;border-radius:10px;cursor:pointer;font-size:13px;}
+.pw-meter-track{height:8px;border-radius:4px;background:var(--panel-2);margin:16px 0 8px;overflow:hidden;}
+.pw-meter-fill{height:100%;width:0%;border-radius:4px;transition:width .3s ease, background .3s ease;}
+.pw-label{font-family:var(--font-mono);font-size:13px;color:var(--text-muted);}
+.pw-criteria{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:16px;}
+@media (max-width:600px){.pw-criteria{grid-template-columns:1fr;}}
+.pw-crit{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--text-faint);}
+.pw-crit .dot{width:16px;height:16px;border-radius:50%;border:1px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.pw-crit.met{color:var(--text);}
+.pw-crit.met .dot{background:var(--green);border-color:var(--green);color:#0a1f14;}
+
+/* ---------- OTP wizard ---------- */
+.wizard{border:1px solid var(--line);border-radius:var(--radius-m);background:var(--panel);padding:22px;}
+.wizard-steps{display:flex;gap:6px;margin-bottom:20px;}
+.wizard-steps .ws{flex:1;height:4px;border-radius:2px;background:var(--panel-2);}
+.wizard-steps .ws.done{background:var(--gold);}
+.wizard-stage{display:none;}
+.wizard-stage.show{display:block;}
+.fake-field{margin-bottom:12px;}
+.fake-field label{display:block;font-size:13px;color:var(--text-faint);margin-bottom:5px;}
+.fake-field input{
+  width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--bg);color:var(--text);font-family:var(--font-mono);font-size:14px;
+}
+.otp-row{display:flex;gap:8px;justify-content:center;margin:18px 0;}
+.otp-box{
+  width:42px;height:52px;text-align:center;font-size:20px;font-family:var(--font-mono);
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--gold);font-weight:700;
+}
+.otp-box:focus{border-color:var(--gold);}
+.wizard-success{text-align:center;padding:14px 0;}
+.wizard-success .ic{font-size:44px;margin-bottom:10px;}
+
+/* ---------- Mockup email (phishing hotspot) ---------- */
+.mail-mockup{position:relative;border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;background:var(--panel);}
+.mail-head{padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+.mail-from{font-family:var(--font-mono);font-size:13px;color:var(--red);}
+.mail-subject{font-weight:700;color:var(--text);margin-top:4px;font-size:15px;}
+.mail-body{padding:16px;font-size:14px;color:var(--text-muted);line-height:1.7;}
+.mail-link{color:var(--blue);font-family:var(--font-mono);font-size:13px;}
+.hotspot{
+  position:absolute;width:22px;height:22px;border-radius:50%;
+  background:var(--red);border:2px solid var(--bg);color:#2a0d0f;font-weight:800;font-size:12px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,92,102,.5);}50%{box-shadow:0 0 0 7px rgba(239,92,102,0);}}
+.hotspot-note{display:none;margin-top:14px;padding:14px 16px;border-radius:var(--radius-s);background:var(--panel-2);border:1px solid var(--line);font-size:14.5px;color:var(--text-muted);}
+.hotspot-note.show{display:block;}
+.hotspot-note b{color:var(--red);}
+
+/* ---------- Tiered practice / options ---------- */
+.opt-btn{
+  display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:10px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-s);
+  color:var(--text);font-size:14.5px;cursor:pointer;
+}
+.opt-btn:hover{border-color:var(--blue);}
+.opt-btn.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.opt-btn.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+.opt-btn:disabled{cursor:default;}
+.explain-box{margin-top:12px;padding:12px 14px;border-radius:var(--radius-s);background:var(--panel-2);border:1px solid var(--line);font-size:14px;color:var(--text-muted);display:none;}
+.explain-box.show{display:block;}
+
+/* ---------- Checklist multi-select case ---------- */
+.action-item{
+  display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--line);
+  border-radius:var(--radius-s);margin-bottom:9px;cursor:pointer;background:var(--panel);
+}
+.action-item input{margin-top:3px;accent-color:var(--gold);width:16px;height:16px;flex:none;}
+.action-item.correct{border-color:var(--green);background:var(--green-dim);}
+.action-item.incorrect{border-color:var(--red);background:var(--red-dim);}
+.action-item.missed{border-color:var(--gold);}
+
+/* ---------- Quiz ---------- */
+.quiz-progress{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.quiz-dot{width:9px;height:9px;border-radius:50%;background:var(--line);}
+.quiz-dot.answered{background:var(--gold);}
+.quiz-dot.current{outline:2px solid var(--blue);outline-offset:2px;}
+.quiz-score{text-align:center;padding:30px 10px;}
+.quiz-score .num{font-family:var(--font-head);font-size:56px;color:var(--gold);}
+.quiz-score .of{color:var(--text-faint);font-family:var(--font-mono);}
+
+/* ---------- Reflection ---------- */
+textarea.reflect{width:100%;min-height:80px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-s);color:var(--text);font-family:var(--font-body);font-size:14.5px;padding:12px;resize:vertical;}
+textarea.reflect:focus{border-color:var(--gold);}
+.checklist label{display:flex;align-items:center;gap:10px;padding:9px 0;color:var(--text-muted);font-size:14.5px;cursor:pointer;}
+.checklist input{accent-color:var(--gold);width:17px;height:17px;}
+
+/* ---------- Cover ---------- */
+.cover-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;padding-top:10px;}
+.lock-hero{width:96px;height:96px;margin-bottom:22px;}
+.kode-badge{font-family:var(--font-mono);color:var(--gold);background:var(--gold-dim);border:1px solid #6b551f;padding:4px 12px;border-radius:20px;font-size:12.5px;margin-bottom:16px;display:inline-block;}
+.cover-wrap h1{font-size:clamp(30px,6vw,46px);}
+.cover-wrap .sub{color:var(--text-muted);font-size:16px;max-width:60ch;margin-bottom:30px;}
+
+/* ---------- Summary cards ---------- */
+.summary-card{border-left:3px solid var(--gold);padding:14px 18px;background:var(--panel);border-radius:0 var(--radius-s) var(--radius-s) 0;margin-bottom:12px;}
+.summary-card b{color:var(--text);}
+
+/* ---------- Tip cards ---------- */
+.tip-card{border:1px solid var(--line);border-radius:var(--radius-m);padding:16px 18px;background:var(--panel);}
+.tip-card .ic{font-size:22px;margin-bottom:8px;display:block;}
+.tip-card h3{font-family:var(--font-head);font-size:15.5px;margin:0 0 6px;color:var(--text);font-weight:600;}
+.tip-card p{font-size:13.5px;margin:0;}
+
+.slide::-webkit-scrollbar{width:8px;}
+.slide::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+@media (max-width:600px){
+  .nav-mid span.hint{display:none;}
+  .sec-bar .title{font-size:11.5px;}
+  .otp-box{width:34px;height:46px;font-size:17px;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="slides-viewport" id="viewport"></div>
+
+  <div class="nav-bar">
+    <button class="nav-btn" id="prevBtn">‹ Sebelumnya</button>
+    <div class="nav-mid">
+      <button class="nav-home" id="homeBtn" title="Kembali ke awal">⌂ Awal</button>
+      <span id="slideCounter">1 / 1</span>
+      <span class="hint" style="color:var(--text-faint);">&nbsp;·&nbsp; gunakan ← →</span>
+    </div>
+    <button class="nav-btn" id="nextBtn">Berikutnya ›</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   DATA — konten pembelajaran
+   Bab 6 — Komunikasi dan Keamanan Data
+   Materi     : Perlindungan Akun dan Data Pribadi
+   Submateri  : Kata sandi yang kuat, autentikasi dua faktor,
+                pengamanan akun, dan perlindungan data pribadi
+   ========================================================================= */
+
+const SLIDES = [];
+function addSlide(html){ SLIDES.push(html); }
+
+/* ---------- 1. Cover ---------- */
+addSlide(`
+<div class="cover-wrap">
+  <span class="kode-badge">Bab 6 · Komunikasi dan Keamanan Data</span>
+  <svg class="lock-hero" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="22" y="46" width="56" height="42" rx="8" fill="#182238" stroke="#e3ac4f" stroke-width="3"/>
+    <circle cx="50" cy="66" r="6" fill="#e3ac4f"/>
+    <rect x="47" y="70" width="6" height="12" rx="3" fill="#e3ac4f"/>
+    <path id="shackle" d="M34 46 V32 a16 16 0 0 1 32 0 V46" stroke="#e3ac4f" stroke-width="6" stroke-linecap="round" fill="none"/>
+  </svg>
+  <h1 class="slide-title">Perlindungan Akun<br>dan Data Pribadi</h1>
+  <p class="sub">Belajar membuat kata sandi yang kuat, memakai autentikasi dua faktor, mengamankan akun, dan melindungi data pribadi di dunia digital.</p>
+  <button class="btn btn-primary" id="startBtn">Mulai Belajar →</button>
+</div>
+`);
+
+/* ---------- 2. Apersepsi ---------- */
+addSlide(`
+<h1 class="slide-title">Sebelum Mulai, Coba Pikirkan Dulu</h1>
+<p class="lead">Suatu pagi, Raka mendapati akun media sosialnya tidak bisa dibuka. Ternyata seseorang berhasil masuk ke akunnya menggunakan kata sandi "raka123" yang ia pakai sejak SD, dan sama persis dengan kata sandi email serta akun game-nya.</p>
+<div class="card">
+  <p style="margin:0 0 14px;color:var(--text);font-weight:600;">Menurutmu, apa penyebab utama akun Raka mudah diretas?</p>
+  <div id="apersepsiOpts"></div>
+  <div class="hotspot-note" id="apersepsiNote"></div>
+</div>
+`);
+
+/* ---------- 3. Tujuan ---------- */
+addSlide(`
+<h1 class="slide-title">Tujuan Pembelajaran</h1>
+<p class="lead">Setelah menyelesaikan pembelajaran ini, kalian diharapkan mampu:</p>
+<div class="step-list">
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Menjelaskan ciri-ciri kata sandi yang kuat dan menyusunnya sendiri.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Menjelaskan cara kerja dan manfaat autentikasi dua faktor (2FA).</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Menerapkan langkah-langkah pengamanan akun digital sehari-hari.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Mengenali data pribadi dan menerapkan cara melindunginya.</p></div></div>
+</div>
+`);
+
+/* ---------- 4. Mengapa penting ---------- */
+addSlide(`
+<h1 class="slide-title">Mengapa Keamanan Akun Itu Penting?</h1>
+<p class="lead">Akun digital menyimpan banyak hal berharga: percakapan pribadi, foto, data sekolah, bahkan informasi keuangan. Jika akun direbut orang lain, semua itu bisa disalahgunakan.</p>
+<div class="grid-2">
+  <div class="card"><span class="tag danger">Risiko</span><p style="margin-top:10px;">Data pribadi bisa dicuri, disebarluaskan, atau digunakan untuk penipuan terhadap orang lain yang mengenal kita.</p></div>
+  <div class="card"><span class="tag safe">Manfaat menjaga keamanan</span><p style="margin-top:10px;">Identitas digital tetap menjadi milik kita sendiri, dan orang-orang di sekitar kita ikut terlindungi.</p></div>
+</div>
+`);
+
+/* ---------- 5. Ancaman umum (accordion) ---------- */
+addSlide(`
+<h1 class="slide-title">Ancaman Umum terhadap Keamanan Digital</h1>
+<p class="lead">Ketuk setiap istilah untuk memahami jenis ancaman yang sering terjadi.</p>
+<div id="accordionThreats"></div>
+`);
+
+/* ---------- 6. Ciri kata sandi kuat vs lemah ---------- */
+addSlide(`
+<h1 class="slide-title">Ciri Kata Sandi Kuat vs Lemah</h1>
+<div class="grid-2">
+  <div class="card">
+    <span class="tag danger">Lemah</span>
+    <ul style="margin:12px 0 0;padding-left:18px;color:var(--text-muted);line-height:1.9;">
+      <li>Pendek (kurang dari 8 karakter)</li>
+      <li>Berupa nama, tanggal lahir, atau kata umum</li>
+      <li>Hanya huruf kecil atau hanya angka</li>
+      <li>Sama untuk semua akun</li>
+    </ul>
+  </div>
+  <div class="card">
+    <span class="tag safe">Kuat</span>
+    <ul style="margin:12px 0 0;padding-left:18px;color:var(--text-muted);line-height:1.9;">
+      <li>Minimal 12 karakter</li>
+      <li>Gabungan huruf besar, huruf kecil, angka, simbol</li>
+      <li>Tidak berkaitan dengan data pribadi yang mudah ditebak</li>
+      <li>Berbeda untuk setiap akun penting</li>
+    </ul>
+  </div>
+</div>
+`);
+
+/* ---------- 7. Penguji kekuatan kata sandi ---------- */
+addSlide(`
+<h1 class="slide-title">Coba Sendiri: Penguji Kekuatan Kata Sandi</h1>
+<p class="lead">Ketik contoh kata sandi di bawah (jangan gunakan kata sandi asli milikmu) dan lihat seberapa kuat kata sandi tersebut.</p>
+<div class="pw-box">
+  <div class="pw-input-row">
+    <input type="password" id="pwInput" class="pw-input" placeholder="Ketik contoh kata sandi di sini...">
+    <button class="pw-toggle" id="pwToggle">👁 Lihat</button>
+  </div>
+  <div class="pw-meter-track"><div class="pw-meter-fill" id="pwMeterFill"></div></div>
+  <div class="pw-label" id="pwLabel">Belum ada kata sandi diketik</div>
+  <div class="pw-criteria">
+    <div class="pw-crit" id="critLen"><span class="dot"></span> Minimal 8 karakter</div>
+    <div class="pw-crit" id="critLen12"><span class="dot"></span> Lebih kuat: 12+ karakter</div>
+    <div class="pw-crit" id="critLower"><span class="dot"></span> Mengandung huruf kecil</div>
+    <div class="pw-crit" id="critUpper"><span class="dot"></span> Mengandung huruf besar</div>
+    <div class="pw-crit" id="critDigit"><span class="dot"></span> Mengandung angka</div>
+    <div class="pw-crit" id="critSymbol"><span class="dot"></span> Mengandung simbol (!@#$...)</div>
+  </div>
+</div>
+`);
+
+/* ---------- 8. Klasifikasi kuat/lemah ---------- */
+addSlide(`
+<h1 class="slide-title">Klasifikasikan: Kuat atau Lemah?</h1>
+<p class="lead">Ketuk sebuah kata sandi contoh, lalu ketuk kategori yang menurutmu tepat.</p>
+<div class="chip-row" id="pwClassifyChips"></div>
+<div class="bucket-row" id="pwClassifyBuckets">
+  <div class="bucket" data-cat="kuat">💪 Kuat</div>
+  <div class="bucket" data-cat="lemah">⚠️ Lemah</div>
+</div>
+<p id="pwClassifyProgress" style="margin-top:14px;color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">0 / 6 benar</p>
+`);
+
+/* ---------- 9. Tips membuat kata sandi ---------- */
+addSlide(`
+<h1 class="slide-title">Tips Membuat &amp; Mengingat Kata Sandi</h1>
+<p class="lead">Kata sandi yang kuat tidak harus sulit diingat. Salah satu caranya adalah dengan membuat <strong>passphrase</strong>: gabungan beberapa kata acak yang tidak berhubungan.</p>
+<div class="step-list">
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Pilih 3–4 kata acak</div><p style="margin:0;">Misalnya: <span class="kref" style="color:var(--gold);">langit</span>, <span class="kref" style="color:var(--gold);">payung</span>, <span class="kref" style="color:var(--gold);">gitar</span>.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Gabungkan dan tambahkan variasi</div><p style="margin:0;">Contoh: <span class="kref" style="color:var(--green);">Langit7Payung!Gitar</span> — ada huruf besar, angka, dan simbol.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Gunakan pengelola kata sandi</div><p style="margin:0;">Aplikasi pengelola kata sandi membantu menyimpan banyak kata sandi berbeda dengan aman, tanpa perlu menghafal semuanya.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Jangan gunakan ulang</div><p style="margin:0;">Gunakan kata sandi yang berbeda untuk akun penting seperti email dan media sosial.</p></div></div>
+</div>
+`);
+
+/* ---------- 10. Konsep 2FA ---------- */
+addSlide(`
+<h1 class="slide-title">Mengenal Autentikasi Dua Faktor (2FA)</h1>
+<p class="lead"><strong>Autentikasi dua faktor</strong> adalah lapisan keamanan tambahan: setelah memasukkan kata sandi, kamu masih perlu membuktikan identitas sekali lagi — misalnya dengan kode yang dikirim ke ponsel.</p>
+<div class="card">
+  <p style="margin:0 0 10px;color:var(--text);font-weight:600;">Mengapa ini penting?</p>
+  <p style="margin:0;">Meskipun kata sandimu bocor, orang lain tetap tidak bisa masuk ke akunmu tanpa faktor kedua tersebut — misalnya kode OTP yang hanya muncul di ponselmu.</p>
+</div>
+`);
+
+/* ---------- 11. Tiga faktor autentikasi ---------- */
+addSlide(`
+<h1 class="slide-title">Tiga Jenis Faktor Autentikasi</h1>
+<p class="lead">Ketuk sebuah contoh, lalu ketuk kategori faktor yang sesuai.</p>
+<div class="chip-row" id="factorChips"></div>
+<div class="bucket-row three" id="factorBuckets">
+  <div class="bucket" data-cat="know">🧠 Yang Kamu Tahu</div>
+  <div class="bucket" data-cat="have">📱 Yang Kamu Punya</div>
+  <div class="bucket" data-cat="are">🫆 Yang Ada pada Dirimu</div>
+</div>
+<p id="factorProgress" style="margin-top:14px;color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">0 / 6 benar</p>
+`);
+
+/* ---------- 12. Simulasi login 2FA ---------- */
+addSlide(`
+<h1 class="slide-title">Simulasi: Login dengan 2FA</h1>
+<p class="lead">Ikuti simulasi berikut untuk memahami alur login menggunakan autentikasi dua faktor.</p>
+<div class="wizard">
+  <div class="wizard-steps"><div class="ws" id="ws1"></div><div class="ws" id="ws2"></div><div class="ws" id="ws3"></div></div>
+
+  <div class="wizard-stage show" id="stage1">
+    <div class="fake-field"><label>Email</label><input type="text" value="raka@contoh.id" readonly></div>
+    <div class="fake-field"><label>Kata Sandi</label><input type="password" value="••••••••••••" readonly></div>
+    <div class="btn-row"><button class="btn btn-primary" id="toStage2">Masuk →</button></div>
+  </div>
+
+  <div class="wizard-stage" id="stage2">
+    <p style="margin:0 0 4px;color:var(--text);">Kode verifikasi telah dikirim ke ponselmu. Masukkan 6 digit kode berikut:</p>
+    <p style="margin:0 0 12px;font-family:var(--font-mono);color:var(--gold);font-size:13px;">(Kode simulasi: 4 8 2 9 1 5)</p>
+    <div class="otp-row">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+      <input class="otp-box" maxlength="1" inputmode="numeric">
+    </div>
+    <div class="btn-row"><button class="btn btn-primary" id="verifyOtp" disabled>Verifikasi</button></div>
+    <p id="otpFeedback" style="margin-top:10px;font-size:13.5px;"></p>
+  </div>
+
+  <div class="wizard-stage" id="stage3">
+    <div class="wizard-success">
+      <div class="ic">✅</div>
+      <p style="margin:0;color:var(--text);font-weight:600;">Berhasil masuk dengan aman!</p>
+      <p style="margin:6px 0 0;">Dua lapis pemeriksaan — kata sandi dan kode OTP — membuat akunmu jauh lebih sulit diretas.</p>
+    </div>
+  </div>
+</div>
+`);
+
+/* ---------- 13. Latihan bertahap ---------- */
+addSlide(`
+<h1 class="slide-title">Latihan: Kata Sandi &amp; 2FA</h1>
+<p class="lead">Kerjakan tiga tingkat latihan berikut.</p>
+<div id="tieredWrap"></div>
+`);
+
+/* ---------- 14. Langkah pengamanan akun ---------- */
+addSlide(`
+<h1 class="slide-title">Langkah Pengamanan Akun Tambahan</h1>
+<div class="step-list">
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Perbarui aplikasi dan sistem secara berkala</div><p style="margin:0;">Pembaruan sering kali menutup celah keamanan yang bisa dimanfaatkan pihak tidak bertanggung jawab.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Jangan pernah membagikan kata sandi</div><p style="margin:0;">Bahkan kepada teman dekat sekalipun — layanan resmi tidak pernah meminta kata sandimu.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Periksa perangkat yang sedang login</div><p style="margin:0;">Sebagian besar aplikasi memiliki daftar perangkat aktif — keluarkan perangkat yang tidak dikenal.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Aktifkan notifikasi aktivitas mencurigakan</div><p style="margin:0;">Agar kamu segera tahu jika ada percobaan masuk dari lokasi atau perangkat asing.</p></div></div>
+</div>
+`);
+
+/* ---------- 15. Mengenali phishing ---------- */
+addSlide(`
+<h1 class="slide-title">Mengenali Email atau Pesan Phishing</h1>
+<p class="lead">Ketuk titik merah pada contoh email berikut untuk mengenali tanda-tanda phishing (penipuan digital).</p>
+<div class="mail-mockup" id="mailWrap">
+  <div class="mail-head">
+    <div class="mail-from">dari: admin-support@bank-securę.info</div>
+    <div class="mail-subject">PENTING! Akun Anda akan diblokir dalam 1 jam</div>
+  </div>
+  <div class="mail-body">
+    <p style="margin:0 0 10px;">Yth. Nasabah,</p>
+    <p style="margin:0 0 10px;">Kami mendeteksi aktivitas mencurigakan. Klik tautan berikut segera untuk verifikasi akun Anda:</p>
+    <p class="mail-link" style="margin:0;">http://bank-secure-verify.click/login</p>
+  </div>
+  <div class="hotspot" style="top:14px;right:16px;" data-note="from">1</div>
+  <div class="hotspot" style="top:46px;left:16px;" data-note="urgency">2</div>
+  <div class="hotspot" style="bottom:16px;left:16px;" data-note="link">3</div>
+  <div class="hotspot" style="top:78px;left:16px;" data-note="greeting">4</div>
+</div>
+<div class="hotspot-note" id="mailNote">👆 Ketuk salah satu titik merah di atas untuk mulai.</div>
+`);
+
+/* ---------- 16. Data pribadi klasifikasi ---------- */
+addSlide(`
+<h1 class="slide-title">Data Pribadi: Termasuk atau Tidak?</h1>
+<p class="lead"><strong>Data pribadi</strong> adalah informasi yang bisa mengidentifikasi seseorang secara khusus dan perlu dijaga ketat. Ketuk setiap contoh, lalu tentukan kategorinya.</p>
+<div class="chip-row" id="dataClassifyChips"></div>
+<div class="bucket-row" id="dataClassifyBuckets">
+  <div class="bucket" data-cat="pribadi">🔒 Data Pribadi</div>
+  <div class="bucket" data-cat="umum">🌐 Informasi Umum</div>
+</div>
+<p id="dataClassifyProgress" style="margin-top:14px;color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">0 / 6 benar</p>
+`);
+
+/* ---------- 17. Melindungi data pribadi ---------- */
+addSlide(`
+<h1 class="slide-title">Melindungi Data Pribadi di Media Sosial &amp; Aplikasi</h1>
+<div class="grid-3">
+  <div class="tip-card"><span class="ic">🔐</span><h3>Atur akun ke privat</h3><p>Batasi siapa saja yang bisa melihat unggahan dan informasi profilmu.</p></div>
+  <div class="tip-card"><span class="ic">📍</span><h3>Matikan berbagi lokasi</h3><p>Nonaktifkan lokasi otomatis, terutama saat mengunggah foto atau status.</p></div>
+  <div class="tip-card"><span class="ic">🧾</span><h3>Periksa izin aplikasi</h3><p>Tinjau secara berkala aplikasi apa saja yang punya akses ke akunmu.</p></div>
+  <div class="tip-card"><span class="ic">🙅</span><h3>Selektif menerima permintaan</h3><p>Jangan asal menerima permintaan pertemanan dari orang yang tidak dikenal.</p></div>
+  <div class="tip-card"><span class="ic">🗂️</span><h3>Batasi info di bio</h3><p>Hindari mencantumkan alamat rumah, nomor HP, atau jadwal harian secara terbuka.</p></div>
+  <div class="tip-card"><span class="ic">🧹</span><h3>Hapus data yang tak perlu</h3><p>Hapus akun lama atau data yang sudah tidak digunakan agar jejak digital lebih aman.</p></div>
+</div>
+`);
+
+/* ---------- 18. Studi kasus ---------- */
+addSlide(`
+<h1 class="slide-title">Studi Kasus: Amankah Akun Rani?</h1>
+<p class="lead">Akun media sosial Rani baru saja mengalami percobaan login dari perangkat asing. Pilih tindakan yang <strong>tepat</strong> untuk dilakukan Rani (bisa lebih dari satu).</p>
+<div id="caseActions"></div>
+<div class="btn-row"><button class="btn btn-primary" id="caseCheck">Periksa Jawaban</button></div>
+<div class="hotspot-note" id="caseFeedback"></div>
+`);
+
+/* ---------- 19. Kuis ---------- */
+addSlide(`
+<h1 class="slide-title">Kuis: Uji Pemahamanmu</h1>
+<div id="quizArea"></div>
+`);
+
+/* ---------- 20. Refleksi ---------- */
+addSlide(`
+<h1 class="slide-title">Refleksi</h1>
+<p class="lead">Luangkan waktu sebentar untuk memikirkan proses belajarmu hari ini.</p>
+<div class="card" style="margin-bottom:16px;">
+  <p style="margin:0 0 8px;color:var(--text);font-weight:600;">Apakah kata sandi yang selama ini kamu pakai sudah tergolong kuat? Apa yang perlu diperbaiki?</p>
+  <textarea class="reflect" placeholder="Tulis di sini..."></textarea>
+</div>
+<div class="card" style="margin-bottom:16px;">
+  <p style="margin:0 0 8px;color:var(--text);font-weight:600;">Akun mana saja yang akan kamu aktifkan autentikasi dua faktornya setelah ini?</p>
+  <textarea class="reflect" placeholder="Tulis di sini..."></textarea>
+</div>
+<div class="card checklist">
+  <p style="margin:0 0 4px;color:var(--text);font-weight:600;">Centang jika kamu sudah bisa:</p>
+  <label><input type="checkbox"> Menjelaskan ciri kata sandi yang kuat</label>
+  <label><input type="checkbox"> Menjelaskan cara kerja autentikasi dua faktor</label>
+  <label><input type="checkbox"> Menyebutkan langkah pengamanan akun</label>
+  <label><input type="checkbox"> Membedakan data pribadi dan informasi umum</label>
+</div>
+`);
+
+/* ---------- 21. Rangkuman ---------- */
+addSlide(`
+<h1 class="slide-title">Rangkuman</h1>
+<div class="summary-card"><b>Kata sandi kuat</b> minimal 12 karakter, menggabungkan huruf besar, huruf kecil, angka, dan simbol, serta berbeda untuk setiap akun.</div>
+<div class="summary-card"><b>Autentikasi dua faktor (2FA)</b> menambah lapisan keamanan berupa kode verifikasi selain kata sandi.</div>
+<div class="summary-card"><b>Pengamanan akun</b> mencakup memperbarui perangkat lunak, tidak membagikan kata sandi, dan memeriksa perangkat yang login.</div>
+<div class="summary-card"><b>Data pribadi</b> perlu dijaga ketat, sementara pengaturan privasi membantu mengontrol siapa yang dapat melihat informasi kita.</div>
+`);
+
+/* ---------- 22. Penutup ---------- */
+addSlide(`
+<div class="cover-wrap">
+  <h1 class="slide-title">Kerja Bagus! 🔐</h1>
+  <p class="sub">Kamu telah menyelesaikan pembelajaran "Perlindungan Akun dan Data Pribadi". Terapkan kebiasaan aman ini setiap kali menggunakan perangkat digital, di sekolah maupun di rumah.</p>
+  <div class="btn-row" style="justify-content:center;">
+    <button class="btn btn-primary" id="restartBtn">↺ Ulangi dari Awal</button>
+  </div>
+</div>
+`);
+
+/* =========================================================================
+   RENDER SLIDES INTO DOM
+   ========================================================================= */
+const viewport = document.getElementById('viewport');
+const slideTitles = [
+  "Sampul","Apersepsi","Tujuan Pembelajaran","Mengapa Penting","Ancaman Digital",
+  "Kata Sandi: Kuat vs Lemah","Penguji Kata Sandi","Klasifikasi Kata Sandi","Tips Kata Sandi",
+  "Autentikasi Dua Faktor","Tiga Faktor Autentikasi","Simulasi Login 2FA","Latihan Bertahap",
+  "Pengamanan Akun","Mengenali Phishing","Klasifikasi Data Pribadi","Melindungi Data Pribadi",
+  "Studi Kasus","Kuis","Refleksi","Rangkuman","Penutup"
+];
+
+SLIDES.forEach((html, i) => {
+  const section = document.createElement('section');
+  section.className = 'slide';
+  section.id = 'slide-' + i;
+  const showBar = i !== 0 && i !== SLIDES.length - 1;
+  section.innerHTML = (showBar ? `
+    <div class="sec-bar">
+      <span class="lock-ic">🔒</span>
+      <span class="sess">SESI 06.${String(i).padStart(2,'0')}</span>
+      <span class="status">TERENKRIPSI</span>
+      <span class="title">${slideTitles[i]}</span>
+    </div>` : '') + `<div class="slide-inner">${html}</div>`;
+  viewport.appendChild(section);
+});
+
+/* =========================================================================
+   NAVIGATION
+   ========================================================================= */
+let current = 0;
+const total = SLIDES.length;
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const progressFill = document.getElementById('progressFill');
+const counter = document.getElementById('slideCounter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+function goTo(idx){
+  if(idx < 0 || idx >= total) return;
+  slideEls[current].classList.remove('active');
+  current = idx;
+  slideEls[current].classList.add('active');
+  slideEls[current].scrollTop = 0;
+  progressFill.style.width = ((current)/(total-1)*100) + '%';
+  counter.textContent = (current+1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
+}
+prevBtn.addEventListener('click', () => goTo(current-1));
+nextBtn.addEventListener('click', () => goTo(current+1));
+document.getElementById('homeBtn').addEventListener('click', () => goTo(0));
+document.addEventListener('keydown', (e) => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if(tag === 'textarea' || tag === 'input') return;
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
+});
+goTo(0);
+document.addEventListener('click', (e) => {
+  if(e.target.id === 'startBtn') goTo(1);
+  if(e.target.id === 'restartBtn') goTo(0);
+});
+
+/* =========================================================================
+   SLIDE 2 — Apersepsi
+   ========================================================================= */
+(function(){
+  const opts = [
+    {t:"Ia tidak memasang aplikasi antivirus", ok:false, msg:"Antivirus membantu, tetapi bukan penyebab utama di sini — masalahnya ada pada kata sandi itu sendiri."},
+    {t:"Kata sandinya lemah, mudah ditebak, dan dipakai berulang di banyak akun", ok:true, msg:"Tepat! Kata sandi pendek yang mudah ditebak, apalagi dipakai di banyak akun sekaligus, membuat semua akun ikut berisiko begitu satu akun bocor."},
+    {t:"Ia lupa mematikan ponselnya semalaman", ok:false, msg:"Menyalakan atau mematikan ponsel tidak berkaitan langsung dengan keamanan kata sandi akun."}
+  ];
+  const wrap = document.getElementById('apersepsiOpts');
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = o.t;
+    b.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.opt-btn').forEach(x=>x.disabled=true);
+      b.classList.add(o.ok ? 'correct' : 'wrong');
+      const note = document.getElementById('apersepsiNote');
+      note.textContent = o.msg;
+      note.classList.add('show');
+    });
+    wrap.appendChild(b);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 5 — Accordion ancaman
+   ========================================================================= */
+(function(){
+  const terms = [
+    {t:"🎣 Phishing", d:"Upaya menipu seseorang agar memberikan data pribadi atau kata sandi, biasanya melalui email atau pesan yang menyamar sebagai pihak resmi."},
+    {t:"🦠 Malware", d:"Perangkat lunak berbahaya yang dapat mencuri data, merusak perangkat, atau memata-matai aktivitas pengguna tanpa sepengetahuannya."},
+    {t:"🎭 Rekayasa Sosial (Social Engineering)", d:"Manipulasi psikologis agar seseorang secara sukarela membocorkan informasi rahasia, misalnya berpura-pura menjadi petugas layanan pelanggan."},
+    {t:"📤 Kebocoran Data (Data Breach)", d:"Insiden ketika data pengguna suatu layanan bocor atau dicuri secara massal, sehingga informasi pribadi bisa tersebar ke pihak tidak bertanggung jawab."}
+  ];
+  const wrap = document.getElementById('accordionThreats');
+  terms.forEach(term=>{
+    const item = document.createElement('div');
+    item.className = 'accordion-item';
+    item.innerHTML = `
+      <div class="accordion-head"><span class="term">${term.t}</span><span class="chev">▾</span></div>
+      <div class="accordion-body"><div class="accordion-body-inner">${term.d}</div></div>`;
+    item.querySelector('.accordion-head').addEventListener('click', ()=> item.classList.toggle('open'));
+    wrap.appendChild(item);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 7 — Password strength meter
+   ========================================================================= */
+(function(){
+  const input = document.getElementById('pwInput');
+  const toggle = document.getElementById('pwToggle');
+  const fill = document.getElementById('pwMeterFill');
+  const label = document.getElementById('pwLabel');
+  const crits = {
+    critLen: pw => pw.length >= 8,
+    critLen12: pw => pw.length >= 12,
+    critLower: pw => /[a-z]/.test(pw),
+    critUpper: pw => /[A-Z]/.test(pw),
+    critDigit: pw => /[0-9]/.test(pw),
+    critSymbol: pw => /[^A-Za-z0-9]/.test(pw)
+  };
+  const colors = ['#ef5c66','#ef5c66','#e3ac4f','#e3ac4f','#3ddc8b','#3ddc8b'];
+  const labels = ['Belum ada kata sandi diketik','Sangat Lemah','Lemah','Sedang','Kuat','Sangat Kuat'];
+
+  toggle.addEventListener('click', ()=>{
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    toggle.textContent = isPw ? '🙈 Sembunyikan' : '👁 Lihat';
+  });
+
+  input.addEventListener('input', ()=>{
+    const pw = input.value;
+    let met = 0;
+    Object.keys(crits).forEach(id=>{
+      const ok = crits[id](pw);
+      const el = document.getElementById(id);
+      el.classList.toggle('met', ok);
+      el.querySelector('.dot').textContent = ok ? '✓' : '';
+      if(ok && id !== 'critLen12') met++;
+    });
+    if(pw.length === 0){
+      fill.style.width = '0%'; label.textContent = labels[0]; return;
+    }
+    let score = Math.min(met,4);
+    if(crits.critLen12(pw)) score = Math.min(score+1,5);
+    score = Math.max(score,1);
+    fill.style.width = (score/5*100) + '%';
+    fill.style.background = colors[score];
+    label.textContent = labels[score];
+  });
+})();
+
+/* =========================================================================
+   REUSABLE — classify chips + buckets
+   ========================================================================= */
+function initClassifyGame(chipsId, bucketsId, progressId, items){
+  const chipRow = document.getElementById(chipsId);
+  const progressEl = document.getElementById(progressId);
+  let selected = null;
+  let correctCount = 0;
+  items.forEach(it=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = it.v;
+    chip.dataset.cat = it.cat;
+    chip.addEventListener('click', ()=>{
+      if(chip.classList.contains('correct')) return;
+      chipRow.querySelectorAll('.chip').forEach(c=>c.classList.remove('picked'));
+      chip.classList.add('picked');
+      selected = chip;
+    });
+    chipRow.appendChild(chip);
+  });
+  document.querySelectorAll('#'+bucketsId+' .bucket').forEach(bucket=>{
+    bucket.addEventListener('click', ()=>{
+      if(!selected) return;
+      if(selected.dataset.cat === bucket.dataset.cat){
+        selected.classList.remove('picked');
+        selected.classList.add('correct');
+        selected.style.pointerEvents = 'none';
+        correctCount++;
+        progressEl.textContent = correctCount + ' / ' + items.length + ' benar';
+      } else {
+        selected.classList.add('wrong');
+        setTimeout(()=> selected.classList.remove('wrong'), 500);
+      }
+      selected = null;
+    });
+  });
+}
+
+/* Slide 8 */
+initClassifyGame('pwClassifyChips','pwClassifyBuckets','pwClassifyProgress', [
+  {v:"P4ssw0rd!", cat:"lemah"},
+  {v:"123456", cat:"lemah"},
+  {v:"Gn7#kelinci$Lompat", cat:"kuat"},
+  {v:"raka2010", cat:"lemah"},
+  {v:"Biru9!Kertas#Layang", cat:"kuat"},
+  {v:"qwerty", cat:"lemah"}
+]);
+
+/* Slide 11 */
+initClassifyGame('factorChips','factorBuckets','factorProgress', [
+  {v:"Kata sandi", cat:"know"},
+  {v:"PIN", cat:"know"},
+  {v:"Kode OTP di ponsel", cat:"have"},
+  {v:"Kartu keamanan fisik", cat:"have"},
+  {v:"Sidik jari", cat:"are"},
+  {v:"Pemindaian wajah", cat:"are"}
+]);
+
+/* Slide 16 */
+initClassifyGame('dataClassifyChips','dataClassifyBuckets','dataClassifyProgress', [
+  {v:"Nomor Induk Kependudukan (NIK)", cat:"pribadi"},
+  {v:"Nama sekolah", cat:"umum"},
+  {v:"Alamat rumah lengkap", cat:"pribadi"},
+  {v:"Warna favorit", cat:"umum"},
+  {v:"Nomor telepon pribadi", cat:"pribadi"},
+  {v:"Nama kota tempat tinggal", cat:"umum"}
+]);
+
+/* =========================================================================
+   SLIDE 12 — Wizard 2FA
+   ========================================================================= */
+(function(){
+  const stage1 = document.getElementById('stage1');
+  const stage2 = document.getElementById('stage2');
+  const stage3 = document.getElementById('stage3');
+  const ws1 = document.getElementById('ws1'), ws2 = document.getElementById('ws2'), ws3 = document.getElementById('ws3');
+  const otpBoxes = Array.from(document.querySelectorAll('.otp-box'));
+  const verifyBtn = document.getElementById('verifyOtp');
+  const otpFeedback = document.getElementById('otpFeedback');
+  const CORRECT_OTP = '482915';
+
+  document.getElementById('toStage2').addEventListener('click', ()=>{
+    stage1.classList.remove('show');
+    stage2.classList.add('show');
+    ws1.classList.add('done');
+    otpBoxes[0].focus();
+  });
+
+  otpBoxes.forEach((box,i)=>{
+    box.addEventListener('input', ()=>{
+      box.value = box.value.replace(/[^0-9]/g,'');
+      if(box.value && i < otpBoxes.length-1) otpBoxes[i+1].focus();
+      verifyBtn.disabled = !otpBoxes.every(b=>b.value.length===1);
+    });
+    box.addEventListener('keydown', (e)=>{
+      if(e.key === 'Backspace' && !box.value && i>0) otpBoxes[i-1].focus();
+    });
+  });
+
+  verifyBtn.addEventListener('click', ()=>{
+    const entered = otpBoxes.map(b=>b.value).join('');
+    if(entered === CORRECT_OTP){
+      stage2.classList.remove('show');
+      stage3.classList.add('show');
+      ws2.classList.add('done'); ws3.classList.add('done');
+    } else {
+      otpFeedback.textContent = '❌ Kode belum sesuai, coba periksa kembali angkanya.';
+      otpFeedback.style.color = 'var(--red)';
+    }
+  });
+})();
+
+/* =========================================================================
+   SLIDE 13 — Latihan bertahap
+   ========================================================================= */
+(function(){
+  const tiers = [
+    {level:"Mudah", q:"Manakah kata sandi yang paling kuat?",
+     opts:["123456","raka2010","Gn7#kelinci$Lompat","qwerty"], correct:2,
+     explain:"Kata sandi terkuat menggabungkan huruf besar, huruf kecil, angka, dan simbol, serta cukup panjang."},
+    {level:"Sedang", q:"Setelah mengaktifkan 2FA, apa yang tetap dibutuhkan seseorang untuk masuk ke akunmu meski sudah tahu kata sandimu?",
+     opts:["Tidak butuh apa-apa lagi","Kode verifikasi tambahan","Nama lengkapmu","Alamat emailmu saja"], correct:1,
+     explain:"2FA mengharuskan faktor kedua, seperti kode OTP, sehingga kata sandi saja tidak cukup untuk masuk."},
+    {level:"Menantang", q:"Kamu menerima kode OTP padahal tidak sedang mencoba login. Apa artinya?",
+     opts:["Sistem sedang error dan bisa diabaikan","Kemungkinan ada pihak lain yang mencoba masuk ke akunmu","Itu tandanya akunmu sudah sangat aman","Kode tersebut harus segera dibagikan ke teman"], correct:1,
+     explain:"Menerima OTP tanpa mencoba login sendiri adalah tanda peringatan bahwa seseorang mungkin mengetahui kata sandimu dan mencoba masuk."}
+  ];
+  const wrap = document.getElementById('tieredWrap');
+  tiers.forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '14px';
+    card.innerHTML = `<span class="tag">${t.level}</span><p style="margin:10px 0 12px;color:var(--text);">${t.q}</p>`;
+    const optWrap = document.createElement('div');
+    t.opts.forEach((opt,i)=>{
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = opt;
+      b.addEventListener('click', ()=>{
+        optWrap.querySelectorAll('.opt-btn').forEach(x=>x.disabled=true);
+        if(i === t.correct) b.classList.add('correct');
+        else { b.classList.add('wrong'); optWrap.children[t.correct].classList.add('correct'); }
+        exp.classList.add('show');
+      });
+      optWrap.appendChild(b);
+    });
+    card.appendChild(optWrap);
+    const exp = document.createElement('div');
+    exp.className = 'explain-box';
+    exp.textContent = t.explain;
+    card.appendChild(exp);
+    wrap.appendChild(card);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 15 — Phishing hotspots
+   ========================================================================= */
+(function(){
+  const notes = {
+    from: "<b>Alamat pengirim mencurigakan</b> — perhatikan ejaan domain yang salah (\"securę\" bukan \"secure\") dan bukan domain resmi bank.",
+    urgency: "<b>Rasa mendesak berlebihan</b> — ancaman waktu singkat dipakai agar korban panik dan tidak sempat berpikir jernih.",
+    link: "<b>Tautan mencurigakan</b> — alamat situs tidak resmi dan menggunakan http biasa, bukan domain resmi lembaga terkait.",
+    greeting: "<b>Sapaan umum</b> — pesan resmi biasanya menyebut namamu secara spesifik, bukan sapaan generik seperti \"Yth. Nasabah\"."
+  };
+  document.querySelectorAll('#mailWrap .hotspot').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      const note = document.getElementById('mailNote');
+      note.innerHTML = notes[h.dataset.note];
+      note.classList.add('show');
+    });
+  });
+})();
+
+/* =========================================================================
+   SLIDE 18 — Studi kasus (multi-select)
+   ========================================================================= */
+(function(){
+  const actions = [
+    {t:"Segera ganti kata sandi akun dengan yang baru dan kuat", ok:true},
+    {t:"Aktifkan autentikasi dua faktor jika belum aktif", ok:true},
+    {t:"Periksa daftar perangkat yang sedang login dan keluarkan yang tidak dikenal", ok:true},
+    {t:"Bagikan kata sandi baru ke teman dekat agar bisa ikut memantau", ok:false},
+    {t:"Nonaktifkan semua pengaturan keamanan agar lebih mudah login", ok:false},
+    {t:"Laporkan aktivitas mencurigakan tersebut ke pihak platform", ok:true},
+    {t:"Abaikan saja karena kemungkinan hanya notifikasi biasa", ok:false}
+  ];
+  const wrap = document.getElementById('caseActions');
+  actions.forEach((a,i)=>{
+    const item = document.createElement('label');
+    item.className = 'action-item';
+    item.innerHTML = `<input type="checkbox" data-idx="${i}"><span>${a.t}</span>`;
+    wrap.appendChild(item);
+  });
+  document.getElementById('caseCheck').addEventListener('click', ()=>{
+    let correctPicked = 0, totalCorrect = actions.filter(a=>a.ok).length, wrongPicked = 0;
+    wrap.querySelectorAll('.action-item').forEach((item,i)=>{
+      const checked = item.querySelector('input').checked;
+      item.classList.remove('correct','incorrect','missed');
+      if(actions[i].ok && checked){ item.classList.add('correct'); correctPicked++; }
+      else if(actions[i].ok && !checked){ item.classList.add('missed'); }
+      else if(!actions[i].ok && checked){ item.classList.add('incorrect'); wrongPicked++; }
+    });
+    const fb = document.getElementById('caseFeedback');
+    fb.classList.add('show');
+    fb.textContent = `Kamu memilih ${correctPicked} dari ${totalCorrect} tindakan yang tepat` + (wrongPicked>0 ? `, dan ${wrongPicked} pilihan kurang tepat (ditandai merah).` : `. Semua pilihanmu tepat! 🎉`);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 19 — Kuis
+   ========================================================================= */
+const QUIZ = [
+  {q:"Manakah ciri kata sandi yang kuat?",
+   opts:["Pendek dan mudah diingat","Sama untuk semua akun","Gabungan huruf besar, kecil, angka, dan simbol","Menggunakan tanggal lahir"], correct:2,
+   explain:"Kata sandi kuat menggabungkan berbagai jenis karakter dan cukup panjang, sehingga sulit ditebak."},
+  {q:"Apa fungsi utama autentikasi dua faktor (2FA)?",
+   opts:["Mempercepat proses login","Menambah lapisan keamanan setelah kata sandi","Mengganti kata sandi secara otomatis","Menyimpan kata sandi di cloud"], correct:1,
+   explain:"2FA menambahkan langkah verifikasi kedua, sehingga kata sandi saja tidak cukup untuk masuk ke akun."},
+  {q:"Kode OTP pada 2FA termasuk contoh faktor autentikasi jenis...",
+   opts:["Yang kamu tahu","Yang kamu punya","Yang ada pada dirimu","Yang kamu percaya"], correct:1,
+   explain:"Kode OTP dikirim ke perangkat yang kamu miliki, sehingga termasuk faktor 'yang kamu punya'."},
+  {q:"Ciri utama pesan phishing adalah...",
+   opts:["Bahasa yang sangat formal","Meminta klik tautan dengan rasa mendesak","Dikirim dari alamat resmi terverifikasi","Tidak berisi tautan apa pun"], correct:1,
+   explain:"Phishing sering menciptakan rasa mendesak agar korban buru-buru mengklik tautan tanpa berpikir panjang."},
+  {q:"Manakah yang termasuk data pribadi yang perlu dijaga ketat?",
+   opts:["Nama sekolah","Warna favorit","Nomor Induk Kependudukan (NIK)","Judul film kesukaan"], correct:2,
+   explain:"NIK adalah data yang bisa mengidentifikasi seseorang secara khusus, sehingga tergolong data pribadi sensitif."},
+  {q:"Jika kamu menerima kode OTP padahal tidak sedang login, sebaiknya kamu...",
+   opts:["Membagikan kode itu ke pengirim pesan","Mengabaikannya sepenuhnya","Waspada dan segera memeriksa/mengganti kata sandi","Mematikan ponsel selamanya"], correct:2,
+   explain:"OTP yang tak terduga adalah tanda ada pihak lain yang mencoba masuk — segera waspada dan amankan akun."},
+  {q:"Salah satu langkah pengamanan akun adalah...",
+   opts:["Membagikan kata sandi ke banyak teman","Memperbarui aplikasi secara berkala","Menonaktifkan semua notifikasi keamanan","Menggunakan kata sandi yang sama di semua akun"], correct:1,
+   explain:"Pembaruan aplikasi menutup celah keamanan yang bisa dimanfaatkan pihak tidak bertanggung jawab."},
+  {q:"Mengatur akun media sosial menjadi privat bertujuan untuk...",
+   opts:["Menambah jumlah pengikut","Membatasi siapa yang bisa melihat informasimu","Mempercepat koneksi internet","Menghapus riwayat unggahan"], correct:1,
+   explain:"Akun privat membatasi akses ke unggahan dan informasi profil hanya untuk orang yang kamu izinkan."},
+  {q:"Rekayasa sosial (social engineering) adalah...",
+   opts:["Jenis virus komputer","Manipulasi psikologis agar seseorang membocorkan informasi rahasia","Fitur keamanan tambahan","Program antivirus"], correct:1,
+   explain:"Rekayasa sosial memanfaatkan trik psikologis, bukan celah teknis, untuk mendapatkan informasi rahasia."},
+  {q:"Mengapa sebaiknya tidak menggunakan kata sandi yang sama di banyak akun?",
+   opts:["Karena boros kuota internet","Karena jika satu akun bocor, akun lain ikut berisiko","Karena aplikasi akan berjalan lebih lambat","Karena tidak diperbolehkan oleh hukum"], correct:1,
+   explain:"Jika kata sandi yang sama dipakai di banyak akun dan salah satunya bocor, seluruh akun lain ikut terancam."}
+];
+let quizAnswers = new Array(QUIZ.length).fill(null);
+let quizIndex = 0;
+
+function renderQuiz(){
+  const area = document.getElementById('quizArea');
+  const allAnswered = quizAnswers.every(a => a !== null);
+  if(allAnswered){
+    const score = quizAnswers.reduce((s,a,i)=> s + (a === QUIZ[i].correct ? 1 : 0), 0);
+    area.innerHTML = `
+      <div class="quiz-score">
+        <div style="font-family:var(--font-mono);color:var(--text-muted);margin-bottom:6px;">Skor Akhir</div>
+        <div class="num">${score}</div>
+        <div class="of">dari ${QUIZ.length} soal</div>
+      </div>
+      <div class="btn-row" style="justify-content:center;"><button class="btn btn-primary" id="retryQuiz">↺ Ulangi Kuis</button></div>
+    `;
+    document.getElementById('retryQuiz').addEventListener('click', ()=>{
+      quizAnswers = new Array(QUIZ.length).fill(null);
+      quizIndex = 0;
+      renderQuiz();
+    });
+    return;
+  }
+  if(quizAnswers[quizIndex] !== null){
+    const next = quizAnswers.findIndex(a=>a===null);
+    quizIndex = next === -1 ? quizIndex : next;
+  }
+  const item = QUIZ[quizIndex];
+  const dots = QUIZ.map((_,i)=>`<div class="quiz-dot ${quizAnswers[i]!==null?'answered':''} ${i===quizIndex?'current':''}"></div>`).join('');
+  area.innerHTML = `
+    <div class="quiz-progress">${dots}</div>
+    <div class="card">
+      <span class="tag">Soal ${quizIndex+1} / ${QUIZ.length}</span>
+      <p style="margin:12px 0 14px;color:var(--text);font-size:16px;">${item.q}</p>
+      <div id="quizOpts"></div>
+      <div class="explain-box" id="quizExplain">${item.explain}</div>
+      <div class="btn-row" id="quizNavRow" style="display:none;">
+        <button class="btn" id="quizPrev">‹ Soal sebelumnya</button>
+        <button class="btn btn-primary" id="quizNext">Soal berikutnya ›</button>
+      </div>
+    </div>
+  `;
+  const optWrap = document.getElementById('quizOpts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      quizAnswers[quizIndex] = i;
+      optWrap.querySelectorAll('.opt-btn').forEach((x,xi)=>{
+        x.disabled = true;
+        if(xi === item.correct) x.classList.add('correct');
+        else if(xi === i) x.classList.add('wrong');
+      });
+      document.getElementById('quizExplain').classList.add('show');
+      document.getElementById('quizNavRow').style.display = 'flex';
+      document.querySelector('#quizArea .quiz-dot.current')?.classList.add('answered');
+    });
+    optWrap.appendChild(b);
+  });
+  setTimeout(()=>{
+    const prevBtn2 = document.getElementById('quizPrev');
+    const nextBtn2 = document.getElementById('quizNext');
+    if(prevBtn2) prevBtn2.addEventListener('click', ()=>{ quizIndex = Math.max(0, quizIndex-1); renderQuiz(); });
+    if(nextBtn2) nextBtn2.addEventListener('click', ()=>{
+      quizIndex = quizIndex+1 < QUIZ.length ? quizIndex+1 : quizIndex;
+      renderQuiz();
+    });
+  },0);
+}
+renderQuiz();
+</script>
+</body>
+</html>

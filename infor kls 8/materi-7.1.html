@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Konsep Dasar Statistika — Bab 7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0a0e1a;
+  --bg-1:#0f1526;
+  --bg-2:#151d33;
+  --card:#131a2e;
+  --card-2:#1a2340;
+  --border:rgba(255,255,255,.08);
+  --coral:#ff6b6b;
+  --coral-soft:rgba(255,107,107,.15);
+  --teal:#2dd4bf;
+  --teal-soft:rgba(45,212,191,.15);
+  --amber:#fbbf24;
+  --amber-soft:rgba(251,191,36,.15);
+  --violet:#a78bfa;
+  --text-1:#f1f5f9;
+  --text-2:#94a3b8;
+  --text-3:#64748b;
+  --good:#34d399;
+  --bad:#f87171;
+  --f-head:'Fredoka',sans-serif;
+  --f-body:'Plus Jakarta Sans',sans-serif;
+  --f-mono:'JetBrains Mono',monospace;
+  --radius:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:var(--f-body);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255,107,107,.08), transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(45,212,191,.08), transparent 40%),
+    linear-gradient(180deg,var(--bg-0),var(--bg-1) 60%,var(--bg-0));
+  color:var(--text-1);
+  min-height:100vh;
+  overflow-x:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.app{
+  max-width:980px;
+  width:100%;
+  margin:0 auto;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:16px 16px 0;
+}
+.progress-wrap{
+  width:100%;height:6px;background:rgba(255,255,255,.06);
+  border-radius:99px;overflow:hidden;margin-bottom:14px;
+}
+.progress-bar{
+  height:100%;
+  background:linear-gradient(90deg,var(--coral),var(--amber),var(--teal));
+  border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1);width:0%;
+}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:10px;font-family:var(--f-mono);font-size:.78rem;color:var(--text-3);
+}
+.topbar .chapter-tag{
+  background:var(--card-2);border:1px solid var(--border);
+  padding:4px 12px;border-radius:99px;color:var(--teal);font-weight:500;
+}
+.slide-viewport{flex:1;position:relative;min-height:520px;display:flex;}
+.slide{
+  position:absolute;inset:0;opacity:0;
+  transform:translateY(14px) scale(.99);pointer-events:none;
+  transition:opacity .45s cubic-bezier(.4,0,.2,1), transform .45s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;
+  background:linear-gradient(160deg,var(--card),var(--bg-2));
+  border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px 26px 22px;overflow-y:auto;
+}
+.slide.active{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.slide::-webkit-scrollbar{width:6px;}
+.slide::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px;}
+
+.eyebrow{
+  font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--coral);margin-bottom:8px;font-weight:500;
+}
+h1.title{font-family:var(--f-head);font-weight:600;font-size:1.7rem;line-height:1.25;margin-bottom:10px;color:var(--text-1);}
+h2.sub{font-family:var(--f-head);font-weight:600;font-size:1.15rem;color:var(--teal);margin:14px 0 8px;}
+p{color:var(--text-2);line-height:1.65;font-size:.98rem;}
+.lead{color:var(--text-1);font-size:1.05rem;line-height:1.7;}
+strong{color:var(--text-1);font-weight:700;}
+.hl-coral{color:var(--coral);font-weight:700;}
+.hl-teal{color:var(--teal);font-weight:700;}
+.hl-amber{color:var(--amber);font-weight:700;}
+
+.cover{align-items:center;justify-content:center;text-align:center;}
+.cover .badge{
+  width:74px;height:74px;border-radius:20px;
+  background:linear-gradient(135deg,var(--coral),var(--amber));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-head);font-size:1.8rem;font-weight:700;color:#0a0e1a;margin-bottom:20px;
+}
+.cover h1{font-family:var(--f-head);font-size:2.1rem;font-weight:700;margin-bottom:10px;}
+.cover .chap{font-family:var(--f-mono);color:var(--teal);letter-spacing:.05em;margin-bottom:6px;}
+.cover .desc{max-width:520px;color:var(--text-2);margin-top:14px;}
+.cover .start-btn{
+  margin-top:28px;background:linear-gradient(135deg,var(--coral),#ff8a8a);
+  color:#0a0e1a;border:none;padding:14px 34px;border-radius:99px;
+  font-family:var(--f-head);font-weight:600;font-size:1rem;cursor:pointer;
+  box-shadow:0 8px 24px rgba(255,107,107,.3);transition:transform .2s;
+}
+.cover .start-btn:active{transform:scale(.96);}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr;}.grid-3{grid-template-columns:1fr;}}
+.card{background:var(--card-2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;}
+.card.teal{border-color:rgba(45,212,191,.3);background:linear-gradient(160deg,rgba(45,212,191,.08),var(--card-2));}
+.card.coral{border-color:rgba(255,107,107,.3);background:linear-gradient(160deg,rgba(255,107,107,.08),var(--card-2));}
+.card.amber{border-color:rgba(251,191,36,.3);background:linear-gradient(160deg,rgba(251,191,36,.08),var(--card-2));}
+.card h3{font-family:var(--f-head);font-weight:600;font-size:1rem;margin-bottom:6px;color:var(--text-1);}
+.icon-tag{display:inline-block;font-size:1.3rem;margin-bottom:6px;}
+
+.accordion{margin-top:12px;}
+.acc-item{background:var(--card-2);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;cursor:pointer;font-family:var(--f-head);font-weight:500;font-size:.95rem;}
+.acc-head .chev{transition:transform .3s;color:var(--teal);font-size:1.1rem;}
+.acc-item.open .chev{transform:rotate(180deg);}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease, padding .35s ease;padding:0 16px;}
+.acc-item.open .acc-body{max-height:260px;padding:0 16px 16px;}
+.acc-body p{font-size:.9rem;}
+
+.stage{background:var(--bg-0);border:1px solid var(--border);border-radius:14px;padding:12px;margin-top:14px;display:flex;align-items:center;justify-content:center;}
+.stage svg{max-width:100%;height:auto;}
+.shape-label{font-family:var(--f-mono);font-size:11px;fill:var(--text-2);}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+.pill-btn{
+  font-family:var(--f-body);font-weight:600;font-size:.85rem;
+  background:var(--card-2);border:1px solid var(--border);color:var(--text-1);
+  padding:9px 16px;border-radius:99px;cursor:pointer;transition:all .2s;
+}
+.pill-btn:hover{border-color:var(--teal);color:var(--teal);}
+.pill-btn.correct{background:var(--good);border-color:var(--good);color:#0a1f16;}
+.pill-btn.wrong{background:var(--bad);border-color:var(--bad);color:#2a0e0e;}
+
+.reveal-box{
+  margin-top:12px;padding:14px 16px;border-radius:12px;
+  background:var(--bg-0);border:1px dashed var(--border);
+  font-size:.9rem;color:var(--text-2);max-height:0;opacity:0;overflow:hidden;transition:all .4s ease;
+}
+.reveal-box.shown{max-height:400px;opacity:1;padding:14px 16px;margin-top:12px;}
+.reveal-btn{
+  font-family:var(--f-mono);font-size:.8rem;color:var(--amber);
+  background:var(--amber-soft);border:1px solid rgba(251,191,36,.3);
+  padding:8px 14px;border-radius:8px;cursor:pointer;margin-top:10px;display:inline-block;
+}
+
+.formula{
+  font-family:var(--f-mono);background:var(--bg-0);border:1px solid var(--border);
+  border-radius:10px;padding:12px 16px;margin:10px 0;color:var(--amber);font-size:1rem;text-align:center;letter-spacing:.02em;
+}
+
+/* sorting activity */
+.sort-pool{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+.sort-chip{
+  font-family:var(--f-body);font-size:.85rem;font-weight:600;
+  background:var(--card-2);border:2px solid var(--border);color:var(--text-1);
+  padding:9px 16px;border-radius:10px;cursor:pointer;transition:all .2s;
+}
+.sort-chip.done-quant{border-color:var(--teal);background:rgba(45,212,191,.12);color:var(--teal);cursor:default;}
+.sort-chip.done-qual{border-color:var(--amber);background:rgba(251,191,36,.12);color:var(--amber);cursor:default;}
+.sort-chip.shake{animation:shake .3s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.sort-targets{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;}
+.sort-target{
+  flex:1;min-width:140px;text-align:center;padding:14px;border-radius:12px;
+  font-family:var(--f-head);font-weight:600;font-size:.9rem;cursor:pointer;
+  border:2px dashed var(--border);color:var(--text-2);transition:all .2s;
+}
+.sort-target.quant{border-color:rgba(45,212,191,.4);}
+.sort-target.qual{border-color:rgba(251,191,36,.4);}
+.sort-target.active-target{transform:scale(1.03);}
+.sort-status{font-family:var(--f-mono);font-size:.85rem;margin-top:12px;color:var(--text-2);}
+
+/* table */
+table.data-table{width:100%;border-collapse:collapse;margin-top:14px;font-family:var(--f-mono);font-size:.85rem;}
+table.data-table th, table.data-table td{border:1px solid var(--border);padding:8px 10px;text-align:center;}
+table.data-table th{background:var(--card-2);color:var(--teal);}
+table.data-table td{color:var(--text-2);}
+
+/* quiz */
+.quiz-q{margin-bottom:6px;}
+.quiz-progress{font-family:var(--f-mono);font-size:.8rem;color:var(--text-3);margin-bottom:10px;}
+.opt-list{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+.opt-btn{
+  text-align:left;font-family:var(--f-body);font-size:.92rem;
+  background:var(--card-2);border:1px solid var(--border);color:var(--text-1);
+  padding:12px 16px;border-radius:12px;cursor:pointer;transition:all .2s;
+}
+.opt-btn:hover{border-color:var(--teal);}
+.opt-btn.correct{background:rgba(52,211,153,.15);border-color:var(--good);color:var(--good);}
+.opt-btn.wrong{background:rgba(248,113,113,.15);border-color:var(--bad);color:var(--bad);}
+.opt-btn:disabled{cursor:default;}
+.quiz-explain{margin-top:12px;padding:12px 14px;border-radius:10px;background:var(--bg-0);border:1px solid var(--border);font-size:.87rem;color:var(--text-2);display:none;}
+.quiz-explain.shown{display:block;}
+.quiz-result{text-align:center;padding:30px 10px;}
+.quiz-result .score{font-family:var(--f-head);font-size:3rem;color:var(--amber);font-weight:700;}
+.quiz-result p{margin-top:8px;}
+
+.navbar{display:flex;align-items:center;justify-content:space-between;padding:16px 4px 22px;gap:12px;}
+.nav-btn{
+  font-family:var(--f-head);font-weight:500;font-size:.9rem;
+  background:var(--card-2);border:1px solid var(--border);color:var(--text-1);
+  padding:11px 20px;border-radius:99px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;
+}
+.nav-btn:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed;}
+.nav-btn.primary{background:linear-gradient(135deg,var(--coral),#ff8a8a);color:#0a0e1a;border:none;}
+.dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:220px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);cursor:pointer;transition:all .25s;}
+.dot.active{background:var(--coral);width:20px;border-radius:99px;}
+.dot.done{background:var(--teal);}
+.slide-counter{font-family:var(--f-mono);font-size:.78rem;color:var(--text-3);white-space:nowrap;}
+
+@media(max-width:640px){
+  .app{padding:12px 12px 0;}
+  .slide{padding:20px 16px 16px;}
+  h1.title{font-size:1.35rem;}
+  .cover h1{font-size:1.6rem;}
+  .nav-btn span.label{display:none;}
+  .dots{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <span class="chapter-tag">Bab 7 · Statistika</span>
+    <span id="slideCounterTop">01 / 20</span>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="slide-viewport" id="slideViewport">
+
+    <!-- 0 COVER -->
+    <section class="slide cover">
+      <div class="badge">📊</div>
+      <div class="chap">MATEMATIKA · FASE D · KURIKULUM MERDEKA</div>
+      <h1>Konsep Dasar Statistika</h1>
+      <p class="desc">Bab 7 — Statistika, Submateri 7.1. Mari kenali apa itu statistika, data, dan bagaimana data digunakan untuk memahami dunia di sekitar kita.</p>
+      <button class="start-btn" onclick="goTo(1)">Mulai Belajar →</button>
+    </section>
+
+    <!-- 1 APERSEPSI -->
+    <section class="slide">
+      <div class="eyebrow">Apersepsi</div>
+      <h1 class="title">Statistika Ada di Sekitar Kita</h1>
+      <p class="lead">Tanpa disadari, kamu sudah sering bertemu dengan statistika. Perhatikan contoh berikut:</p>
+      <div class="grid-2">
+        <div class="card teal"><span class="icon-tag">🌦️</span><h3>Prakiraan cuaca</h3><p>"Peluang hujan 70% besok siang" — angka ini berasal dari pengolahan data cuaca.</p></div>
+        <div class="card amber"><span class="icon-tag">📋</span><h3>Rapor nilai</h3><p>Nilai rata-rata kelas, nilai tertinggi, dan nilai terendah dihitung dari data nilai seluruh siswa.</p></div>
+        <div class="card coral"><span class="icon-tag">⚽</span><h3>Statistik pertandingan</h3><p>Jumlah gol, persentase penguasaan bola, dan jumlah pemain cedera dicatat sebagai data olahraga.</p></div>
+        <div class="card"><span class="icon-tag">🏥</span><h3>Data kesehatan</h3><p>Jumlah kasus penyakit di suatu daerah dikumpulkan untuk membuat keputusan kesehatan masyarakat.</p></div>
+      </div>
+      <p style="margin-top:16px;">Semua contoh ini melibatkan <span class="hl-teal">pengumpulan</span>, <span class="hl-amber">pengolahan</span>, dan <span class="hl-coral">penyajian data</span> — itulah inti dari statistika.</p>
+    </section>
+
+    <!-- 2 TUJUAN -->
+    <section class="slide">
+      <div class="eyebrow">Tujuan Pembelajaran</div>
+      <h1 class="title">Setelah mempelajari materi ini, kamu diharapkan mampu:</h1>
+      <div class="accordion">
+        <div class="acc-item open"><div class="acc-head">1. Menjelaskan pengertian statistika dan data <span class="chev">⌄</span></div><div class="acc-body"><p>Memahami perbedaan istilah statistika dan data serta hubungan keduanya.</p></div></div>
+        <div class="acc-item open"><div class="acc-head">2. Menjelaskan kegunaan statistika <span class="chev">⌄</span></div><div class="acc-body"><p>Mengetahui manfaat statistika dalam kehidupan sehari-hari dan pengambilan keputusan.</p></div></div>
+        <div class="acc-item open"><div class="acc-head">3. Membedakan data kuantitatif dan kualitatif <span class="chev">⌄</span></div><div class="acc-body"><p>Mengklasifikasikan berbagai contoh data ke dalam jenisnya yang tepat.</p></div></div>
+        <div class="acc-item open"><div class="acc-head">4. Menjelaskan populasi dan sampel secara sederhana <span class="chev">⌄</span></div><div class="acc-body"><p>Memahami perbedaan antara keseluruhan objek (populasi) dan sebagian objek yang diambil (sampel).</p></div></div>
+        <div class="acc-item open"><div class="acc-head">5. Membaca dan mengenali informasi dari data <span class="chev">⌄</span></div><div class="acc-body"><p>Mampu menafsirkan data sederhana yang disajikan dalam bentuk tabel atau daftar.</p></div></div>
+      </div>
+    </section>
+
+    <!-- 3 PENGERTIAN STATISTIKA -->
+    <section class="slide">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h1 class="title">Pengertian Statistika</h1>
+      <p class="lead"><span class="hl-teal">Statistika</span> adalah ilmu yang mempelajari cara mengumpulkan, mengolah, menyajikan, dan menganalisis data untuk mendapatkan informasi serta membuat kesimpulan.</p>
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="card teal"><h3>① Mengumpulkan</h3><p>Mengambil data dari sumbernya, misalnya melalui survei atau pengukuran.</p></div>
+        <div class="card amber"><h3>② Mengolah</h3><p>Menghitung, mengelompokkan, atau merapikan data yang telah terkumpul.</p></div>
+        <div class="card coral"><h3>③ Menyajikan</h3><p>Menampilkan data dalam bentuk tabel, diagram, atau grafik agar mudah dibaca.</p></div>
+        <div class="card"><h3>④ Menganalisis</h3><p>Menarik kesimpulan atau informasi penting dari data yang telah disajikan.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 PENGERTIAN DATA -->
+    <section class="slide">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h1 class="title">Pengertian Data</h1>
+      <p class="lead"><span class="hl-amber">Data</span> adalah kumpulan fakta, keterangan, atau informasi yang diperoleh dari hasil pengamatan, pengukuran, atau pencatatan terhadap suatu objek.</p>
+      <div class="card" style="margin-top:14px;">
+        <h3>Contoh data</h3>
+        <p>Tinggi badan siswa, warna favorit teman sekelas, nilai ulangan matematika, jumlah anggota keluarga, jenis kendaraan yang dipakai ke sekolah.</p>
+      </div>
+      <p style="margin-top:14px;">Data belum tentu langsung bermakna — data perlu <strong>diolah</strong> melalui proses statistika agar menjadi <span class="hl-teal">informasi</span> yang berguna.</p>
+      <div class="formula">Data (mentah) → diolah dengan statistika → Informasi (bermakna)</div>
+    </section>
+
+    <!-- 5 KEGUNAAN -->
+    <section class="slide">
+      <div class="eyebrow">Konsep</div>
+      <h1 class="title">Kegunaan Statistika dalam Kehidupan Sehari-hari</h1>
+      <p class="lead">Klik tiap kartu untuk melihat penjelasan lebih lanjut.</p>
+      <div class="accordion">
+        <div class="acc-item"><div class="acc-head" onclick="toggleAcc(this)">Membantu pengambilan keputusan <span class="chev">⌄</span></div><div class="acc-body"><p>Misalnya, sekolah menentukan program remedial berdasarkan data nilai ulangan siswa yang masih rendah.</p></div></div>
+        <div class="acc-item"><div class="acc-head" onclick="toggleAcc(this)">Memprediksi kejadian di masa depan <span class="chev">⌄</span></div><div class="acc-body"><p>Data cuaca beberapa hari terakhir digunakan untuk memperkirakan cuaca esok hari.</p></div></div>
+        <div class="acc-item"><div class="acc-head" onclick="toggleAcc(this)">Mengevaluasi suatu program atau kebijakan <span class="chev">⌄</span></div><div class="acc-body"><p>Pemerintah menggunakan data jumlah penduduk untuk merencanakan pembangunan fasilitas umum.</p></div></div>
+        <div class="acc-item"><div class="acc-head" onclick="toggleAcc(this)">Membandingkan dan menganalisis tren <span class="chev">⌄</span></div><div class="acc-body"><p>Toko online melihat data penjualan bulanan untuk mengetahui produk yang paling diminati.</p></div></div>
+      </div>
+    </section>
+
+    <!-- 6 JENIS DATA SEDERHANA -->
+    <section class="slide">
+      <div class="eyebrow">Konsep</div>
+      <h1 class="title">Jenis-jenis Data Sederhana</h1>
+      <p class="lead">Secara sederhana, data yang sering kita jumpai dapat dibedakan berdasarkan <strong>bentuknya</strong> menjadi dua kelompok besar:</p>
+      <div class="grid-2" style="margin-top:16px;">
+        <div class="card teal">
+          <h3>🔢 Data Kuantitatif</h3>
+          <p>Data yang berupa <strong>angka</strong> dan menyatakan jumlah atau ukuran. Contoh: tinggi badan, berat badan, nilai ulangan, jumlah saudara.</p>
+        </div>
+        <div class="card amber">
+          <h3>🏷️ Data Kualitatif</h3>
+          <p>Data yang berupa <strong>kategori atau sifat</strong>, bukan angka. Contoh: warna favorit, jenis kelamin, jenis olahraga yang disukai.</p>
+        </div>
+      </div>
+      <p style="margin-top:14px;">Pada slide berikutnya kita akan berlatih membedakan keduanya secara langsung.</p>
+    </section>
+
+    <!-- 7 SORTING ACTIVITY -->
+    <section class="slide">
+      <div class="eyebrow">Aktivitas Interaktif</div>
+      <h1 class="title">Kuantitatif atau Kualitatif?</h1>
+      <p class="lead">Klik sebuah data, lalu klik kategori yang sesuai di bawahnya.</p>
+      <div class="sort-pool" id="sortPool">
+        <div class="sort-chip" data-type="quant" onclick="selectChip(this)">Tinggi badan: 150 cm</div>
+        <div class="sort-chip" data-type="qual" onclick="selectChip(this)">Warna rambut: hitam</div>
+        <div class="sort-chip" data-type="quant" onclick="selectChip(this)">Nilai ulangan: 85</div>
+        <div class="sort-chip" data-type="qual" onclick="selectChip(this)">Jenis olahraga: sepak bola</div>
+        <div class="sort-chip" data-type="quant" onclick="selectChip(this)">Jumlah saudara: 2</div>
+        <div class="sort-chip" data-type="qual" onclick="selectChip(this)">Jurusan cita-cita: dokter</div>
+      </div>
+      <div class="sort-targets">
+        <div class="sort-target quant" onclick="dropChip('quant')">🔢 Kuantitatif</div>
+        <div class="sort-target qual" onclick="dropChip('qual')">🏷️ Kualitatif</div>
+      </div>
+      <p class="sort-status" id="sortStatus">0 dari 6 data terklasifikasi.</p>
+    </section>
+
+    <!-- 8 POPULASI DAN SAMPEL -->
+    <section class="slide">
+      <div class="eyebrow">Konsep</div>
+      <h1 class="title">Populasi dan Sampel (Secara Sederhana)</h1>
+      <div class="grid-2">
+        <div class="card teal">
+          <h3>👥 Populasi</h3>
+          <p><strong>Keseluruhan</strong> objek yang ingin diteliti atau diamati.</p>
+        </div>
+        <div class="card amber">
+          <h3>🎯 Sampel</h3>
+          <p><strong>Sebagian</strong> objek yang diambil dari populasi untuk mewakili keseluruhan.</p>
+        </div>
+      </div>
+      <div class="stage">
+        <svg viewBox="0 0 320 160" width="320">
+          <rect x="20" y="20" width="280" height="120" rx="14" fill="none" stroke="#2dd4bf" stroke-width="2"/>
+          <text x="30" y="16" class="shape-label" fill="#2dd4bf">Populasi: seluruh siswa kelas VII (120 siswa)</text>
+          <g id="popDots"></g>
+        </svg>
+      </div>
+      <p style="margin-top:10px;font-size:.85rem;">Titik-titik <span class="hl-amber">oranye</span> mewakili sampel (30 siswa) yang diambil dari populasi (120 siswa) untuk diteliti kebiasaan belajarnya.</p>
+    </section>
+
+    <!-- 9 CONTOH POPULASI SAMPEL -->
+    <section class="slide">
+      <div class="eyebrow">Contoh Soal</div>
+      <h1 class="title">Mengenali Populasi dan Sampel</h1>
+      <div class="card">
+        <p class="lead"><strong>Soal:</strong> Seorang peneliti ingin mengetahui rata-rata tinggi badan siswa se-SMP Nusantara yang berjumlah 600 siswa. Karena keterbatasan waktu, ia hanya mengukur 50 siswa secara acak.</p>
+      </div>
+      <p onclick="revealNext('popEx1')" class="reveal-btn" id="popBtn1">Tentukan populasi dan sampelnya ▸</p>
+      <div id="popEx1" style="display:none;" class="card teal" style="margin-top:12px;">
+        <p><strong>Populasi:</strong> seluruh 600 siswa SMP Nusantara.</p>
+        <p style="margin-top:6px;"><strong>Sampel:</strong> 50 siswa yang diukur secara acak.</p>
+        <p style="margin-top:6px;">Sampel dipilih agar penelitian lebih praktis, namun tetap harus mewakili karakteristik populasi secara keseluruhan.</p>
+      </div>
+    </section>
+
+    <!-- 10 CONTOH DATA SEHARI-HARI -->
+    <section class="slide">
+      <div class="eyebrow">Contoh Nyata</div>
+      <h1 class="title">Contoh Data dalam Kehidupan Sehari-hari</h1>
+      <div class="grid-3">
+        <div class="card"><span class="icon-tag">🌡️</span><h3>Suhu harian</h3><p>Data suhu udara yang dicatat setiap hari oleh BMKG.</p></div>
+        <div class="card"><span class="icon-tag">🚌</span><h3>Moda transportasi</h3><p>Data jenis kendaraan yang digunakan siswa untuk berangkat sekolah.</p></div>
+        <div class="card"><span class="icon-tag">📚</span><h3>Jumlah buku dibaca</h3><p>Data jumlah buku yang dibaca siswa dalam satu bulan.</p></div>
+        <div class="card"><span class="icon-tag">🎬</span><h3>Genre film favorit</h3><p>Data kategori film yang paling disukai dalam sebuah kelas.</p></div>
+        <div class="card"><span class="icon-tag">⏱️</span><h3>Waktu tempuh ke sekolah</h3><p>Data lama perjalanan siswa dari rumah ke sekolah dalam menit.</p></div>
+        <div class="card"><span class="icon-tag">🍎</span><h3>Buah favorit</h3><p>Data jenis buah yang paling disukai teman-teman satu kelas.</p></div>
+      </div>
+    </section>
+
+    <!-- 11 MEMBACA DATA -->
+    <section class="slide">
+      <div class="eyebrow">Latihan Membaca Data</div>
+      <h1 class="title">Membaca dan Mengenali Informasi dari Data</h1>
+      <p class="lead">Berikut data nilai ulangan matematika 10 siswa kelas VII:</p>
+      <table class="data-table">
+        <tr><th>Nama</th><th>Nilai</th></tr>
+        <tr><td>Aldi</td><td>80</td></tr>
+        <tr><td>Bunga</td><td>90</td></tr>
+        <tr><td>Citra</td><td>75</td></tr>
+        <tr><td>Dedi</td><td>90</td></tr>
+        <tr><td>Eka</td><td>85</td></tr>
+        <tr><td>Fajar</td><td>70</td></tr>
+        <tr><td>Gita</td><td>90</td></tr>
+        <tr><td>Hana</td><td>80</td></tr>
+        <tr><td>Indra</td><td>95</td></tr>
+        <tr><td>Joko</td><td>80</td></tr>
+      </table>
+      <p onclick="revealNext('readData')" class="reveal-btn" id="readBtn">Tampilkan pertanyaan ▸</p>
+      <div id="readData" style="display:none;margin-top:12px;">
+        <div class="card">
+          <p><strong>a)</strong> Berapa siswa yang mendapat nilai 90?</p>
+          <p onclick="revealNext('ans1')" class="reveal-btn">Lihat jawaban ▸</p>
+          <div id="ans1" style="display:none;"><p class="hl-teal" style="margin-top:6px;">Jawaban: 3 siswa (Bunga, Dedi, Gita)</p></div>
+        </div>
+        <div class="card" style="margin-top:10px;">
+          <p><strong>b)</strong> Siapa yang mendapat nilai tertinggi?</p>
+          <p onclick="revealNext('ans2')" class="reveal-btn">Lihat jawaban ▸</p>
+          <div id="ans2" style="display:none;"><p class="hl-teal" style="margin-top:6px;">Jawaban: Indra, dengan nilai 95</p></div>
+        </div>
+        <div class="card" style="margin-top:10px;">
+          <p><strong>c)</strong> Siapa yang mendapat nilai terendah?</p>
+          <p onclick="revealNext('ans3')" class="reveal-btn">Lihat jawaban ▸</p>
+          <div id="ans3" style="display:none;"><p class="hl-teal" style="margin-top:6px;">Jawaban: Fajar, dengan nilai 70</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 LATIHAN MUDAH -->
+    <section class="slide">
+      <div class="eyebrow">Latihan · Tingkat Mudah</div>
+      <h1 class="title">Latihan Bertahap (1/3)</h1>
+      <div class="card"><p class="lead"><strong>Soal:</strong> Manakah dari data berikut yang termasuk data kualitatif: "jumlah anak dalam keluarga" atau "jenis pekerjaan orang tua"?</p></div>
+      <p onclick="revealNext('easyAns')" class="reveal-btn" id="easyBtn">Tampilkan pembahasan ▸</p>
+      <div id="easyAns" style="display:none;" class="card teal" style="margin-top:12px;">
+        <p><strong>Pembahasan:</strong> "Jenis pekerjaan orang tua" termasuk data <strong>kualitatif</strong> karena berupa kategori (misalnya guru, petani, pedagang), bukan angka. Sedangkan "jumlah anak dalam keluarga" termasuk data kuantitatif karena berupa angka.</p>
+      </div>
+    </section>
+
+    <!-- 13 LATIHAN SEDANG -->
+    <section class="slide">
+      <div class="eyebrow">Latihan · Tingkat Sedang</div>
+      <h1 class="title">Latihan Bertahap (2/3)</h1>
+      <div class="card"><p class="lead"><strong>Soal:</strong> Seorang guru ingin mengetahui minat baca seluruh 200 siswa di sekolahnya. Karena keterbatasan waktu, ia hanya membagikan angket kepada 40 siswa. Tentukan mana yang populasi dan mana yang sampel, lalu jelaskan alasannya.</p></div>
+      <p onclick="revealNext('medAns')" class="reveal-btn" id="medBtn">Tampilkan pembahasan ▸</p>
+      <div id="medAns" style="display:none;" class="card teal" style="margin-top:12px;">
+        <p><strong>Pembahasan:</strong> Populasi adalah seluruh 200 siswa di sekolah tersebut, karena itulah keseluruhan objek yang ingin diketahui minat bacanya. Sampel adalah 40 siswa yang diberi angket, karena mereka hanya sebagian dari populasi yang diambil untuk mewakili keseluruhan.</p>
+      </div>
+    </section>
+
+    <!-- 14 LATIHAN MENANTANG -->
+    <section class="slide">
+      <div class="eyebrow">Latihan · Tingkat Menantang</div>
+      <h1 class="title">Latihan Bertahap (3/3)</h1>
+      <div class="card"><p class="lead"><strong>Soal:</strong> Perhatikan pernyataan berikut: "Rata-rata tinggi badan siswa kelas VIII adalah 155 cm." Identifikasi: (1) apa datanya, (2) apakah kuantitatif/kualitatif, (3) apa kemungkinan populasi dan sampelnya jika data ini diambil dari sebagian siswa.</p></div>
+      <p onclick="revealNext('hardAns')" class="reveal-btn" id="hardBtn">Tampilkan pembahasan ▸</p>
+      <div id="hardAns" style="display:none;" class="card coral" style="margin-top:12px;">
+        <p><strong>Pembahasan:</strong></p>
+        <p style="margin-top:6px;"><strong>(1) Data:</strong> tinggi badan siswa kelas VIII (dalam cm).</p>
+        <p><strong>(2) Jenis data:</strong> kuantitatif, karena berupa angka (satuan cm).</p>
+        <p><strong>(3) Populasi & sampel:</strong> jika 155 cm dihitung dari sebagian siswa saja, maka populasi adalah seluruh siswa kelas VIII, dan sampel adalah siswa yang diukur tinggi badannya untuk mewakili kelas tersebut.</p>
+      </div>
+    </section>
+
+    <!-- 15 KUIS -->
+    <section class="slide" id="quizSlide">
+      <div class="eyebrow">Evaluasi</div>
+      <h1 class="title">Kuis: Konsep Dasar Statistika</h1>
+      <div id="quizArea"></div>
+    </section>
+
+    <!-- 16 REFLEKSI -->
+    <section class="slide">
+      <div class="eyebrow">Refleksi</div>
+      <h1 class="title">Yuk, Refleksikan Pemahamanmu</h1>
+      <p class="lead">Jawab jujur dalam hati atau tuliskan di buku catatanmu:</p>
+      <div class="accordion">
+        <div class="acc-item open"><div class="acc-head">Apa perbedaan mendasar antara data dan informasi? <span class="chev">⌄</span></div><div class="acc-body"><p>Ingat kembali proses "Data → diolah → Informasi" yang telah dipelajari.</p></div></div>
+        <div class="acc-item open"><div class="acc-head">Bagian mana yang masih membingungkan? <span class="chev">⌄</span></div><div class="acc-body"><p>Apakah membedakan data kuantitatif/kualitatif, atau memahami populasi dan sampel?</p></div></div>
+        <div class="acc-item open"><div class="acc-head">Data apa yang bisa kamu kumpulkan dari teman sekelasmu? <span class="chev">⌄</span></div><div class="acc-body"><p>Coba pikirkan satu contoh data kuantitatif dan satu contoh data kualitatif yang bisa kamu kumpulkan sendiri.</p></div></div>
+      </div>
+    </section>
+
+    <!-- 17 RANGKUMAN -->
+    <section class="slide">
+      <div class="eyebrow">Rangkuman</div>
+      <h1 class="title">Poin-poin Penting</h1>
+      <div class="grid-2">
+        <div class="card teal"><h3>Statistika</h3><p>Ilmu tentang mengumpulkan, mengolah, menyajikan, dan menganalisis data.</p></div>
+        <div class="card amber"><h3>Data</h3><p>Fakta atau keterangan mentah yang diolah menjadi informasi.</p></div>
+        <div class="card coral"><h3>Kuantitatif vs Kualitatif</h3><p>Kuantitatif berupa angka; kualitatif berupa kategori atau sifat.</p></div>
+        <div class="card"><h3>Populasi vs Sampel</h3><p>Populasi adalah keseluruhan objek; sampel adalah sebagian yang mewakilinya.</p></div>
+      </div>
+      <div class="formula" style="margin-top:16px;">Statistika = Kumpulkan → Olah → Sajikan → Analisis Data</div>
+    </section>
+
+    <!-- 18 PENUTUP -->
+    <section class="slide cover">
+      <div class="badge">🎉</div>
+      <h1>Kerja Bagus!</h1>
+      <p class="desc">Kamu telah menyelesaikan pembelajaran <strong>Konsep Dasar Statistika</strong>. Lanjutkan ke submateri berikutnya untuk mempelajari cara menyajikan data lebih lanjut.</p>
+      <button class="start-btn" onclick="goTo(0)">↺ Ulangi dari Awal</button>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">‹ <span class="label">Sebelumnya</span></button>
+    <div class="dots" id="dotsWrap"></div>
+    <span class="slide-counter" id="slideCounterBottom">1 / 19</span>
+    <button class="nav-btn primary" id="nextBtn" onclick="nextSlide()"><span class="label">Berikutnya</span> ›</button>
+  </div>
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+function renderDots(){
+  const wrap = document.getElementById('dotsWrap');
+  wrap.innerHTML = '';
+  for(let i=0;i<total;i++){
+    const d = document.createElement('div');
+    d.className = 'dot' + (i===current?' active':'') + (i<current?' done':'');
+    d.onclick = () => goTo(i);
+    wrap.appendChild(d);
+  }
+}
+
+function updateUI(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.getElementById('progressBar').style.width = ((current)/(total-1))*100 + '%';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===total-1;
+  const num = String(current+1).padStart(2,'0');
+  const tot = String(total).padStart(2,'0');
+  document.getElementById('slideCounterTop').textContent = num + ' / ' + tot;
+  document.getElementById('slideCounterBottom').textContent = (current+1) + ' / ' + total;
+  renderDots();
+  slides[current].scrollTop = 0;
+  if(current===15 && !quizBuilt){ buildQuiz(); }
+  if(current===8 && !popDrawn){ drawPop(); }
+}
+
+function goTo(i){ if(i<0||i>=total) return; current = i; updateUI(); }
+function nextSlide(){ if(current<total-1){ current++; updateUI(); } }
+function prevSlide(){ if(current>0){ current--; updateUI(); } }
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+
+let touchStartX = 0;
+document.getElementById('slideViewport').addEventListener('touchstart', e=>{
+  touchStartX = e.changedTouches[0].screenX;
+}, {passive:true});
+document.getElementById('slideViewport').addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(dx > 60) prevSlide();
+  if(dx < -60) nextSlide();
+}, {passive:true});
+
+updateUI();
+
+/* ================= ACCORDION ================= */
+function toggleAcc(headEl){ headEl.parentElement.classList.toggle('open'); }
+
+/* ================= REVEAL ================= */
+function revealNext(id){ document.getElementById(id).style.display = 'block'; }
+
+/* ================= POPULASI SVG (slide 8) ================= */
+let popDrawn = false;
+function drawPop(){
+  popDrawn = true;
+  const g = document.getElementById('popDots');
+  let html = '';
+  let n = 0;
+  for(let row=0; row<8; row++){
+    for(let col=0; col<15; col++){
+      const x = 34 + col*17;
+      const y = 44 + row*11;
+      n++;
+      const isSample = n % 4 === 0; // roughly 30/120
+      html += `<circle cx="${x}" cy="${y}" r="3" fill="${isSample ? '#fbbf24' : '#2dd4bf'}" opacity="${isSample?1:0.35}"/>`;
+    }
+  }
+  g.innerHTML = html;
+}
+
+/* ================= SORTING ACTIVITY (slide 7) ================= */
+let selectedChip = null;
+let sortedCount = 0;
+function selectChip(el){
+  if(el.classList.contains('done-quant') || el.classList.contains('done-qual')) return;
+  document.querySelectorAll('.sort-chip').forEach(c=>c.style.outline='none');
+  selectedChip = el;
+  el.style.outline = '2px solid #f1f5f9';
+}
+function dropChip(targetType){
+  if(!selectedChip) return;
+  const type = selectedChip.dataset.type;
+  const targetEl = document.querySelector('.sort-target.' + targetType);
+  if(type === targetType){
+    selectedChip.classList.add(type === 'quant' ? 'done-quant' : 'done-qual');
+    selectedChip.style.outline = 'none';
+    sortedCount++;
+    document.getElementById('sortStatus').textContent = sortedCount + ' dari 6 data terklasifikasi.' + (sortedCount===6 ? ' 🎉 Semua benar!' : '');
+    selectedChip = null;
+  } else {
+    selectedChip.classList.add('shake');
+    targetEl.classList.add('active-target');
+    setTimeout(()=>{
+      selectedChip.classList.remove('shake');
+      targetEl.classList.remove('active-target');
+    }, 350);
+  }
+}
+
+/* ================= QUIZ (slide 15) ================= */
+const quizData = [
+  {
+    q: "Statistika adalah ilmu yang mempelajari...",
+    opts: [
+      "Cara mengumpulkan, mengolah, menyajikan, dan menganalisis data",
+      "Cara menghafal rumus matematika",
+      "Cara menggambar bangun ruang",
+      "Cara menyelesaikan persamaan linear"
+    ],
+    correct: 0,
+    explain: "Statistika mencakup empat proses utama: mengumpulkan, mengolah, menyajikan, dan menganalisis data untuk mendapatkan informasi."
+  },
+  {
+    q: "Data 'jumlah siswa yang absen hari ini' termasuk jenis data...",
+    opts: ["Kualitatif", "Kuantitatif", "Bukan data", "Populasi"],
+    correct: 1,
+    explain: "Data ini berupa angka (jumlah), sehingga termasuk data kuantitatif."
+  },
+  {
+    q: "Data 'warna seragam sekolah' termasuk jenis data...",
+    opts: ["Kuantitatif", "Populasi", "Kualitatif", "Sampel"],
+    correct: 2,
+    explain: "Warna adalah kategori/sifat, bukan angka, sehingga termasuk data kualitatif."
+  },
+  {
+    q: "Jika seorang peneliti ingin mengetahui minat belajar seluruh 500 siswa di sebuah sekolah, maka 500 siswa tersebut disebut...",
+    opts: ["Sampel", "Data kualitatif", "Populasi", "Informasi"],
+    correct: 2,
+    explain: "500 siswa adalah keseluruhan objek yang ingin diteliti, sehingga disebut populasi."
+  },
+  {
+    q: "Sebagian kecil dari populasi yang diambil untuk mewakili keseluruhan disebut...",
+    opts: ["Sampel", "Statistika", "Data", "Kesimpulan"],
+    correct: 0,
+    explain: "Bagian dari populasi yang diambil untuk mewakili keseluruhan disebut sampel."
+  },
+  {
+    q: "Manakah contoh penggunaan statistika dalam kehidupan sehari-hari?",
+    opts: [
+      "Menghitung luas sebuah persegi",
+      "Memprediksi cuaca berdasarkan data beberapa hari terakhir",
+      "Menggambar grafik fungsi linear",
+      "Menyelesaikan soal pecahan"
+    ],
+    correct: 1,
+    explain: "Memprediksi cuaca menggunakan pengolahan data cuaca sebelumnya adalah salah satu penerapan statistika dalam kehidupan sehari-hari."
+  }
+];
+let quizBuilt = false;
+let quizIndex = 0;
+let quizScore = 0;
+
+function buildQuiz(){ quizBuilt = true; renderQuizQuestion(); }
+
+function renderQuizQuestion(){
+  const area = document.getElementById('quizArea');
+  if(quizIndex >= quizData.length){
+    area.innerHTML = `
+      <div class="quiz-result">
+        <div class="score">${quizScore}/${quizData.length}</div>
+        <p>${quizScore===quizData.length ? 'Sempurna! Pemahamanmu tentang konsep dasar statistika sangat baik. 🎉' : quizScore >= quizData.length*0.6 ? 'Bagus! Coba tinjau lagi bagian yang masih keliru.' : 'Yuk pelajari ulang materi sebelum lanjut ke submateri berikutnya.'}</p>
+        <button class="pill-btn" style="margin-top:16px;" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const q = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="quiz-progress">Soal ${quizIndex+1} dari ${quizData.length} · Skor sementara: ${quizScore}</div>
+    <p class="lead quiz-q">${q.q}</p>
+    <div class="opt-list" id="optList"></div>
+    <div class="quiz-explain" id="quizExplain"></div>
+  `;
+  const optList = document.getElementById('optList');
+  q.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = opt;
+    b.onclick = () => answerQuiz(i);
+    optList.appendChild(b);
+  });
+}
+
+function answerQuiz(i){
+  const q = quizData[quizIndex];
+  const buttons = document.querySelectorAll('#optList .opt-btn');
+  buttons.forEach(b=> b.disabled = true);
+  buttons[q.correct].classList.add('correct');
+  if(i !== q.correct){ buttons[i].classList.add('wrong'); } else { quizScore++; }
+  const explain = document.getElementById('quizExplain');
+  explain.textContent = q.explain;
+  explain.classList.add('shown');
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'pill-btn';
+  nextBtn.style.marginTop = '14px';
+  nextBtn.textContent = (quizIndex === quizData.length-1) ? 'Lihat Hasil ▸' : 'Soal Berikutnya ▸';
+  nextBtn.onclick = () => { quizIndex++; renderQuizQuestion(); };
+  document.getElementById('quizArea').appendChild(nextBtn);
+}
+
+function restartQuiz(){ quizIndex = 0; quizScore = 0; renderQuizQuestion(); }
+</script>
+</body>
+</html>

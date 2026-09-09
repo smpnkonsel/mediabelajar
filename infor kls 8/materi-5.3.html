@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Penyajian Data — 5.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1017;
+    --bg-soft:#12161f;
+    --panel:#1a2030;
+    --panel-2:#212a3d;
+    --line: rgba(148,163,196,0.14);
+    --text:#e9edf7;
+    --text-dim:#93a0bd;
+    --text-faint:#5f6c8a;
+    --tabel: #7c9eff;
+    --batang: #ffb069;
+    --garis: #6fe3c0;
+    --lingkaran: #ff8ab0;
+    --accent: #7c9eff;
+    --good: #4fd18b;
+    --bad: #ff6b7f;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.6);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:
+      radial-gradient(ellipse 900px 600px at 12% -10%, rgba(124,158,255,0.14), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 100% 110%, rgba(111,227,192,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.font-head{ font-family:'Fredoka', sans-serif; font-weight:600; letter-spacing:0.2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  ::selection{ background: rgba(124,158,255,0.35); }
+
+  #app{ position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
+
+  /* ---------- top bar ---------- */
+  #topbar{
+    display:flex; align-items:center; gap:14px;
+    padding:14px 24px 10px 24px;
+    flex-shrink:0;
+  }
+  #topbar .kode{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; color:var(--text-faint);
+    border:1px solid var(--line); padding:3px 9px; border-radius:999px;
+  }
+  #topbar .judul-mini{ font-size:13px; color:var(--text-dim); }
+  #progress-wrap{
+    flex:1; height:6px; background:var(--panel); border-radius:999px; overflow:hidden;
+    margin:0 6px;
+  }
+  #progress-bar{
+    height:100%; width:0%;
+    background: linear-gradient(90deg, var(--tabel), var(--garis));
+    border-radius:999px;
+    transition: width .45s cubic-bezier(.65,0,.35,1);
+  }
+  #slide-counter{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-faint); min-width:52px; text-align:right; }
+
+  /* ---------- stage ---------- */
+  #stage{ position:relative; flex:1; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center;
+    padding: 28px 56px 34px 56px;
+    opacity:0; visibility:hidden; transform: translateY(14px) scale(0.99);
+    transition: opacity .5s cubic-bezier(.65,0,.35,1), transform .5s cubic-bezier(.65,0,.35,1);
+    overflow-y:auto;
+  }
+  .slide.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+  .slide-inner{ max-width:980px; margin:0 auto; width:100%; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12.5px; color:var(--text-dim);
+    margin-bottom:10px;
+  }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .slide h2{ font-size:clamp(22px,3.4vw,34px); margin:0 0 6px 0; line-height:1.15; }
+  .lead{ color:var(--text-dim); font-size:15px; margin:0 0 22px 0; max-width:640px; line-height:1.55; }
+
+  /* ---------- cards ---------- */
+  .card{
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:820px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+  .chip{
+    display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px;
+    border:1px solid var(--line); color:var(--text-dim); margin-bottom:10px;
+  }
+
+  /* ---------- accordion ---------- */
+  .acc-item{ border:1px solid var(--line); border-radius:var(--radius-sm); margin-bottom:10px; overflow:hidden; background:var(--bg-soft); }
+  .acc-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; cursor:pointer; user-select:none; font-size:14.5px; font-weight:600;
+  }
+  .acc-head:hover{ background:rgba(255,255,255,0.03); }
+  .acc-head .arrow{ transition: transform .3s; color:var(--text-faint); }
+  .acc-item.open .acc-head .arrow{ transform:rotate(180deg); }
+  .acc-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-item.open .acc-body{ max-height:400px; }
+  .acc-body-inner{ padding:0 16px 15px 16px; font-size:14px; color:var(--text-dim); line-height:1.6; }
+
+  /* ---------- buttons ---------- */
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{
+    border:1px solid var(--line); background:var(--panel-2); color:var(--text);
+    padding:9px 16px; border-radius:10px; font-size:13.5px; font-weight:600;
+    transition: all .2s; display:inline-flex; align-items:center; gap:6px;
+  }
+  .btn:hover{ border-color:rgba(124,158,255,0.5); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-accent{ background: linear-gradient(135deg, var(--tabel), #5a7ce0); border:none; color:#0d1017; }
+  .btn-accent:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+
+  /* ---------- reveal ---------- */
+  .reveal-box{ border:1px dashed var(--line); border-radius:var(--radius-sm); padding:14px 16px; background:var(--bg-soft); }
+  .reveal-content{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .reveal-content.open{ max-height:500px; margin-top:10px; }
+
+  /* ---------- quiz / options ---------- */
+  .opt{
+    display:block; width:100%; text-align:left;
+    border:1px solid var(--line); background:var(--bg-soft); color:var(--text);
+    padding:11px 15px; border-radius:12px; margin-bottom:9px; font-size:14px;
+    transition: all .18s;
+  }
+  .opt:hover:not(:disabled){ border-color:var(--accent); background:rgba(124,158,255,0.08); }
+  .opt.correct{ border-color:var(--good); background:rgba(79,209,139,0.14); }
+  .opt.wrong{ border-color:var(--bad); background:rgba(255,107,127,0.14); }
+  .opt:disabled{ cursor:default; }
+
+  .feedback{ font-size:13.5px; margin-top:10px; padding:10px 13px; border-radius:10px; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:rgba(79,209,139,0.12); color:var(--good); border:1px solid rgba(79,209,139,0.3); }
+  .feedback.bad{ background:rgba(255,107,127,0.12); color:var(--bad); border:1px solid rgba(255,107,127,0.3); }
+
+  /* ---------- table styling ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  th,td{ padding:10px 14px; text-align:center; border-bottom:1px solid var(--line); }
+  th{ color:var(--text-dim); font-weight:600; font-size:12.5px; text-transform:none; background:rgba(255,255,255,0.02); }
+  td.mono{ font-size:14px; }
+  tr:last-child td{ border-bottom:none; }
+
+  /* ---------- svg charts ---------- */
+  .chart-wrap{ display:flex; justify-content:center; padding:6px 0; }
+  svg text{ font-family:'Plus Jakarta Sans', sans-serif; }
+  .bar-rect{ transition: height .4s cubic-bezier(.65,0,.35,1), y .4s cubic-bezier(.65,0,.35,1); cursor:pointer; }
+  .pie-slice{ transition: opacity .2s; cursor:pointer; }
+  .pie-slice:hover{ opacity:0.8; }
+
+  /* ---------- slider ---------- */
+  input[type=range]{ width:100%; accent-color: var(--batang); }
+
+  /* ---------- footer nav ---------- */
+  #navbar{
+    flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px 20px 24px; gap:14px;
+  }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:60%; }
+  .dot-btn{ width:7px; height:7px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer; transition:all .25s; }
+  .dot-btn.active{ width:20px; border-radius:5px; background:var(--accent); }
+  .navbtn{
+    width:42px; height:42px; border-radius:50%; border:1px solid var(--line);
+    background:var(--panel); color:var(--text); font-size:17px;
+    display:flex; align-items:center; justify-content:center; transition:all .2s;
+  }
+  .navbtn:hover:not(:disabled){ background:var(--panel-2); border-color:var(--accent); }
+  .navbtn:disabled{ opacity:.3; cursor:not-allowed; }
+
+  .badge-good{ color:var(--good); font-weight:700; }
+  .badge-bad{ color:var(--bad); font-weight:700; }
+  ul.spaced li{ margin-bottom:6px; }
+  .kbd{ font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:2px 6px; border-radius:6px; color:var(--text-dim); }
+
+  .legend{ display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+  .legend-item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-dim); }
+  .legend-dot{ width:10px; height:10px; border-radius:3px; }
+
+  .cover-icons{ display:flex; gap:14px; margin:22px 0 6px 0; }
+  .cover-icons .ic{
+    width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center;
+    font-size:24px; border:1px solid var(--line);
+  }
+
+  .match-card{
+    border:1px solid var(--line); background:var(--bg-soft); border-radius:12px;
+    padding:12px 14px; margin-bottom:8px; cursor:pointer; font-size:13.5px; transition:all .18s;
+  }
+  .match-card.selected{ border-color:var(--accent); background:rgba(124,158,255,0.1); }
+  .match-card.matched{ border-color:var(--good); background:rgba(79,209,139,0.1); opacity:0.75; cursor:default; }
+  .match-card.shake{ animation: shake .35s; border-color:var(--bad); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+
+  .score-circle{
+    width:150px; height:150px; border-radius:50%; margin:16px auto;
+    display:flex; align-items:center; justify-content:center; flex-direction:column;
+    background: conic-gradient(var(--good) calc(var(--pct,0) * 1%), var(--panel) 0);
+    position:relative;
+  }
+  .score-circle::before{
+    content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-soft);
+  }
+  .score-circle .val{ position:relative; font-family:'Fredoka'; font-size:30px; font-weight:600; }
+  .score-circle .lbl{ position:relative; font-size:11px; color:var(--text-dim); }
+
+  @media (max-width:720px){
+    .slide{ padding:20px 18px 24px 18px; }
+    #topbar{ padding:12px 16px 8px 16px; }
+    #navbar{ padding:10px 16px 16px 16px; }
+    #dots{ display:none; }
+    .grid3{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <span class="kode mono">5.3</span>
+    <span class="judul-mini">Penyajian Data</span>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <span id="slide-counter" class="mono">1 / 1</span>
+  </div>
+
+  <div id="stage"></div>
+
+  <div id="navbar">
+    <button class="navbtn" id="btn-prev" onclick="prevSlide()">‹</button>
+    <div id="dots"></div>
+    <button class="navbtn" id="btn-next" onclick="nextSlide()">›</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DATA MATERI
+   ========================================================= */
+const pengunjung = [
+  {label:'Senin', value:25},
+  {label:'Selasa', value:30},
+  {label:'Rabu', value:20},
+  {label:'Kamis', value:35},
+  {label:'Jumat', value:40},
+];
+const suhu = [
+  {label:'Jan', value:27},
+  {label:'Feb', value:28},
+  {label:'Mar', value:29},
+  {label:'Apr', value:30},
+  {label:'Mei', value:29},
+  {label:'Jun', value:28},
+];
+const genre = [
+  {label:'Fiksi', value:16, color:'#7c9eff'},
+  {label:'Komik', value:10, color:'#ffb069'},
+  {label:'Ensiklopedia', value:6, color:'#6fe3c0'},
+  {label:'Biografi', value:4, color:'#ff8ab0'},
+  {label:'Lainnya', value:4, color:'#c792ea'},
+];
+const totalGenre = genre.reduce((a,b)=>a+b.value,0);
+
+/* =========================================================
+   SVG CHART BUILDERS
+   ========================================================= */
+function buildBarChart(data, opts={}){
+  const w = opts.w||620, h = opts.h||300;
+  const padL=46, padB=40, padT=20, padR=20;
+  const chartW = w-padL-padR, chartH = h-padT-padB;
+  const maxV = opts.max || Math.max(...data.map(d=>d.value))*1.25;
+  const bw = chartW/data.length*0.55;
+  const gap = chartW/data.length;
+  let bars='', labels='', gridlines='';
+  const steps=4;
+  for(let i=0;i<=steps;i++){
+    const y = padT + chartH - (chartH/steps)*i;
+    const val = Math.round(maxV/steps*i);
+    gridlines += `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="rgba(148,163,196,0.12)" stroke-width="1"/>`;
+    gridlines += `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-faint)">${val}</text>`;
+  }
+  data.forEach((d,i)=>{
+    const bh = (d.value/maxV)*chartH;
+    const x = padL + gap*i + (gap-bw)/2;
+    const y = padT + chartH - bh;
+    const color = opts.color || 'var(--batang)';
+    bars += `<rect class="bar-rect" data-i="${i}" x="${x}" y="${y}" width="${bw}" height="${bh}" rx="6" fill="${color}" opacity="0.9"/>`;
+    bars += `<text x="${x+bw/2}" y="${y-8}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text)">${d.value}</text>`;
+    labels += `<text x="${x+bw/2}" y="${h-padB+18}" text-anchor="middle" font-size="11.5" fill="var(--text-dim)">${d.label}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;height:auto;">${gridlines}${bars}${labels}</svg>`;
+}
+
+function buildLineChart(data, opts={}){
+  const w = opts.w||620, h = opts.h||300;
+  const padL=46, padB=40, padT=24, padR=24;
+  const chartW=w-padL-padR, chartH=h-padT-padB;
+  const minV = opts.min ?? Math.min(...data.map(d=>d.value))-2;
+  const maxV = opts.max ?? Math.max(...data.map(d=>d.value))+2;
+  const stepX = chartW/(data.length-1);
+  const xy = data.map((d,i)=>{
+    const x = padL + stepX*i;
+    const y = padT + chartH - ((d.value-minV)/(maxV-minV))*chartH;
+    return {x,y,...d};
+  });
+  let gridlines='';
+  const steps=4;
+  for(let i=0;i<=steps;i++){
+    const y = padT + chartH - (chartH/steps)*i;
+    const val = Math.round(minV + (maxV-minV)/steps*i);
+    gridlines += `<line x1="${padL}" y1="${y}" x2="${w-padR}" y2="${y}" stroke="rgba(148,163,196,0.12)" stroke-width="1"/>`;
+    gridlines += `<text x="${padL-10}" y="${y+4}" text-anchor="end" font-size="10.5" fill="var(--text-faint)">${val}°</text>`;
+  }
+  const pathD = xy.map((p,i)=> (i===0?'M':'L')+p.x+' '+p.y).join(' ');
+  const areaD = pathD + ` L ${xy[xy.length-1].x} ${padT+chartH} L ${xy[0].x} ${padT+chartH} Z`;
+  let dots='', labels='';
+  xy.forEach(p=>{
+    dots += `<circle cx="${p.x}" cy="${p.y}" r="4.5" fill="var(--garis)" stroke="var(--bg)" stroke-width="2"/>`;
+    dots += `<text x="${p.x}" y="${p.y-12}" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--text)">${p.value}°</text>`;
+    labels += `<text x="${p.x}" y="${h-padB+18}" text-anchor="middle" font-size="11.5" fill="var(--text-dim)">${p.label}</text>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;max-width:${w}px;height:auto;">
+    <defs><linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6fe3c0" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#6fe3c0" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${gridlines}
+    <path d="${areaD}" fill="url(#lg1)"/>
+    <path d="${pathD}" fill="none" stroke="var(--garis)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${labels}
+  </svg>`;
+}
+
+function buildPieChart(data, total, opts={}){
+  const size = opts.size||280;
+  const r = size/2 - 10, cx=size/2, cy=size/2;
+  let angle = -90;
+  let slices='';
+  data.forEach((d,i)=>{
+    const sweep = (d.value/total)*360;
+    const x1 = cx + r*Math.cos(angle*Math.PI/180);
+    const y1 = cy + r*Math.sin(angle*Math.PI/180);
+    const end = angle+sweep;
+    const x2 = cx + r*Math.cos(end*Math.PI/180);
+    const y2 = cy + r*Math.sin(end*Math.PI/180);
+    const large = sweep>180?1:0;
+    slices += `<path class="pie-slice" data-i="${i}" d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z" fill="${d.color}"/>`;
+    angle = end;
+  });
+  return `<svg viewBox="0 0 ${size} ${size}" style="width:100%;max-width:${size}px;height:auto;">
+    <circle cx="${cx}" cy="${cy}" r="${r+2}" fill="none" stroke="rgba(148,163,196,0.15)" stroke-width="1"/>
+    ${slices}
+    <circle cx="${cx}" cy="${cy}" r="${r*0.52}" fill="var(--bg-soft)"/>
+    <text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="20" font-weight="700" fill="var(--text)">${total}</text>
+    <text x="${cx}" y="${cy+15}" text-anchor="middle" font-size="10.5" fill="var(--text-dim)">siswa</text>
+  </svg>`;
+}
+
+/* =========================================================
+   SLIDE DEFINITIONS  (returns HTML string for each)
+   ========================================================= */
+const slides = [];
+
+/* ---- 1. PEMBUKA ---- */
+slides.push({
+  title:'Pembuka',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Matematika · Kode 5.3</div>
+  <h2>Penyajian Data</h2>
+  <p class="lead">Tabel, diagram batang, diagram garis, diagram lingkaran, dan cara memilih bentuk penyajian yang paling sesuai dengan data yang kita punya.</p>
+  <div class="cover-icons">
+    <div class="ic" style="background:rgba(124,158,255,0.12); color:var(--tabel);">▦</div>
+    <div class="ic" style="background:rgba(255,176,105,0.12); color:var(--batang);">▊</div>
+    <div class="ic" style="background:rgba(111,227,192,0.12); color:var(--garis);">〰</div>
+    <div class="ic" style="background:rgba(255,138,176,0.12); color:var(--lingkaran);">◔</div>
+  </div>
+  <p style="color:var(--text-faint); font-size:13px; margin-top:18px;">Geser dengan tombol di bawah, atau gunakan tombol panah keyboard.</p>
+  `
+});
+
+/* ---- 2. APERSEPSI ---- */
+slides.push({
+  title:'Apersepsi',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Apersepsi</div>
+  <h2>Pernahkah kamu melihat data seperti ini?</h2>
+  <p class="lead">Perhatikan tiga potongan informasi berikut. Semuanya menyampaikan data, tapi dengan cara yang berbeda.</p>
+  <div class="grid3">
+    <div class="card">
+      <div class="chip">Berita cuaca</div>
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">"Suhu naik dari 27° menjadi 30° dalam empat bulan terakhir."</p>
+    </div>
+    <div class="card">
+      <div class="chip">Rapor sekolah</div>
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Daftar nilai per mata pelajaran, disusun rapi dalam baris dan kolom.</p>
+    </div>
+    <div class="card">
+      <div class="chip">Survei kelas</div>
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">"40% siswa menyukai fiksi, 25% menyukai komik…"</p>
+    </div>
+  </div>
+  <div class="reveal-box" style="margin-top:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('rv-aper')">
+      <strong style="font-size:14px;">🤔 Menurutmu, apa perbedaan cara menyampaikan ketiga data itu?</strong>
+      <span class="btn" style="pointer-events:none;">Lihat gambaran</span>
+    </div>
+    <div class="reveal-content" id="rv-aper">
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6; padding-top:10px;">
+      Data yang sama bisa disajikan dengan cara berbeda — sebagai tabel, sebagai diagram batang, diagram garis, atau diagram lingkaran. Pemilihan bentuk yang tepat membuat data lebih mudah dibaca dan dipahami. Itulah yang akan kita pelajari hari ini.
+      </p>
+    </div>
+  </div>
+  `
+});
+
+/* ---- 3. TUJUAN ---- */
+slides.push({
+  title:'Tujuan Pembelajaran',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Tujuan Pembelajaran</div>
+  <h2>Setelah pembelajaran ini, kamu mampu:</h2>
+  <div class="card">
+    <ul class="spaced" style="font-size:14.5px; line-height:1.7; padding-left:20px; margin:0;">
+      <li>Membaca dan menyusun data dalam bentuk <strong>tabel</strong>.</li>
+      <li>Membaca dan membuat <strong>diagram batang</strong> dari data yang diberikan.</li>
+      <li>Membaca dan membuat <strong>diagram garis</strong> untuk menunjukkan perubahan data dari waktu ke waktu.</li>
+      <li>Membaca dan membuat <strong>diagram lingkaran</strong> untuk menunjukkan perbandingan bagian terhadap keseluruhan.</li>
+      <li>Menentukan <strong>bentuk penyajian data yang paling sesuai</strong> untuk suatu situasi tertentu.</li>
+    </ul>
+  </div>
+  `
+});
+
+/* ---- 4. KONSEP DASAR ---- */
+slides.push({
+  title:'Konsep Dasar',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+  <h2>Apa itu penyajian data?</h2>
+  <p class="lead">Data mentah — kumpulan angka atau keterangan hasil pengamatan — biasanya sulit dibaca begitu saja. <strong>Penyajian data</strong> adalah cara menyusun data mentah menjadi bentuk yang lebih mudah dibaca, dipahami, dan dibandingkan.</p>
+  <div class="card">
+    <div class="chip">Contoh data mentah</div>
+    <p class="mono" style="font-size:13px; color:var(--text-dim); line-height:1.9; letter-spacing:0.3px;">
+    25, 30, 20, 35, 40 &nbsp;→&nbsp; jumlah pengunjung perpustakaan Senin–Jumat
+    </p>
+    <p style="font-size:13.5px; color:var(--text-dim); margin-top:10px;">Deretan angka ini sulit langsung dimaknai. Pada slide berikutnya, data ini akan disusun menjadi tabel, lalu diubah menjadi diagram.</p>
+  </div>
+  <div class="grid2" style="margin-top:16px;">
+    <div class="acc-item" id="acc-1"><div class="acc-head" onclick="toggleAcc('acc-1')"><span>Mengapa data perlu disajikan?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Agar pola, perbandingan, dan perubahan pada data lebih cepat terlihat tanpa harus membaca satu per satu angka mentah.</div></div>
+    </div>
+    <div class="acc-item" id="acc-2"><div class="acc-head" onclick="toggleAcc('acc-2')"><span>Bentuk penyajian apa saja yang dipelajari?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Tabel, diagram batang, diagram garis, dan diagram lingkaran — masing-masing punya kegunaan yang berbeda.</div></div>
+    </div>
+  </div>
+  `
+});
+
+/* ---- 5. TABEL: pengertian ---- */
+slides.push({
+  title:'Tabel — Pengertian',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--tabel);"></span>Tabel Data</div>
+  <h2>Menyusun data ke dalam tabel</h2>
+  <p class="lead"><strong>Tabel</strong> menyusun data dalam baris dan kolom, sehingga setiap nilai punya kategori yang jelas. Tabel cocok digunakan saat kita ingin melihat data secara rinci dan tepat.</p>
+  <div class="card">
+    <div class="chip" style="color:var(--tabel); border-color:rgba(124,158,255,0.4);">Data pengunjung perpustakaan</div>
+    <table>
+      <tr><th>Hari</th><th>Senin</th><th>Selasa</th><th>Rabu</th><th>Kamis</th><th>Jumat</th></tr>
+      <tr><td>Jumlah pengunjung</td>
+        <td class="mono">25</td><td class="mono">30</td><td class="mono">20</td><td class="mono">35</td><td class="mono">40</td>
+      </tr>
+    </table>
+  </div>
+  `
+});
+
+/* ---- 6. TABEL: latihan baca ---- */
+slides.push({
+  title:'Tabel — Latihan Membaca',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--tabel);"></span>Latihan Membaca Tabel</div>
+  <h2>Coba baca tabelnya</h2>
+  <p class="lead">Klik pertanyaan untuk mengecek jawabanmu.</p>
+  <div class="card">
+    <table>
+      <tr><th>Hari</th><th>Senin</th><th>Selasa</th><th>Rabu</th><th>Kamis</th><th>Jumat</th></tr>
+      <tr><td>Pengunjung</td><td class="mono">25</td><td class="mono">30</td><td class="mono">20</td><td class="mono">35</td><td class="mono">40</td></tr>
+    </table>
+  </div>
+  <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+    <div class="reveal-box"><div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('t1')"><span style="font-size:14px;">Hari apa pengunjung paling sedikit?</span><span class="btn" style="pointer-events:none; font-size:12px; padding:6px 12px;">Cek</span></div><div class="reveal-content" id="t1"><p style="padding-top:8px; font-size:13.5px;" class="badge-good">Rabu, dengan 20 pengunjung.</p></div></div>
+    <div class="reveal-box"><div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('t2')"><span style="font-size:14px;">Berapa total pengunjung selama 5 hari?</span><span class="btn" style="pointer-events:none; font-size:12px; padding:6px 12px;">Cek</span></div><div class="reveal-content" id="t2"><p style="padding-top:8px; font-size:13.5px;" class="badge-good">25+30+20+35+40 = 150 pengunjung.</p></div></div>
+  </div>
+  `
+});
+
+/* ---- 7. DIAGRAM BATANG: pengertian ---- */
+slides.push({
+  title:'Diagram Batang — Pengertian',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--batang);"></span>Diagram Batang</div>
+  <h2>Mengubah tabel menjadi diagram batang</h2>
+  <p class="lead"><strong>Diagram batang</strong> menyajikan data dengan batang persegi panjang, di mana panjang atau tinggi batang menunjukkan besar nilainya. Cocok untuk <strong>membandingkan</strong> nilai antar kategori.</p>
+  <div class="card">
+    <div class="chart-wrap">${buildBarChart(pengunjung)}</div>
+    <div class="legend"><div class="legend-item"><span class="legend-dot" style="background:var(--batang);"></span>Jumlah pengunjung per hari</div></div>
+  </div>
+  `
+});
+
+/* ---- 8. DIAGRAM BATANG: interaktif slider ---- */
+slides.push({
+  title:'Diagram Batang — Interaktif',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--batang);"></span>Coba Sendiri</div>
+  <h2>Ubah datanya, lihat batangnya berubah</h2>
+  <p class="lead">Geser slider untuk mengubah jumlah pengunjung hari Jumat, lalu perhatikan perubahan pada diagram.</p>
+  <div class="card">
+    <div class="chart-wrap" id="bar-interactive">${buildBarChart(pengunjung,{max:60})}</div>
+    <div style="max-width:420px; margin:16px auto 0 auto;">
+      <div style="display:flex; justify-content:space-between; font-size:12.5px; color:var(--text-dim); margin-bottom:6px;">
+        <span>Pengunjung hari Jumat</span><span class="mono" id="bar-val">40</span>
+      </div>
+      <input type="range" min="5" max="55" value="40" id="bar-slider" oninput="updateBarInteractive(this.value)">
+    </div>
+  </div>
+  `
+});
+
+/* ---- 9. DIAGRAM BATANG: contoh soal ---- */
+slides.push({
+  title:'Diagram Batang — Contoh Soal',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--batang);"></span>Contoh Soal</div>
+  <h2>Selisih pengunjung terbanyak dan tersedikit</h2>
+  <div class="card">
+    <div class="chart-wrap">${buildBarChart(pengunjung)}</div>
+  </div>
+  <div class="reveal-box" style="margin-top:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('bs1')">
+      <span style="font-size:14px;"><strong>Soal:</strong> Berapa selisih pengunjung hari Jumat dan hari Rabu?</span>
+      <span class="btn" style="pointer-events:none; font-size:12px; padding:6px 12px;">Lihat pembahasan</span>
+    </div>
+    <div class="reveal-content" id="bs1">
+      <div style="padding-top:10px; font-size:13.5px; color:var(--text-dim); line-height:1.8;">
+      <strong>Langkah:</strong><br>
+      1. Pengunjung Jumat = 40, pengunjung Rabu = 20.<br>
+      2. Selisih = 40 − 20 = <span class="badge-good">20 pengunjung</span>.
+      </div>
+    </div>
+  </div>
+  `
+});
+
+/* ---- 10. DIAGRAM GARIS: pengertian ---- */
+slides.push({
+  title:'Diagram Garis — Pengertian',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--garis);"></span>Diagram Garis</div>
+  <h2>Menampilkan perubahan dari waktu ke waktu</h2>
+  <p class="lead"><strong>Diagram garis</strong> menghubungkan titik-titik data dengan garis, sehingga <strong>arah perubahan</strong> (naik, turun, atau tetap) terlihat jelas. Paling cocok untuk data yang diamati secara berurutan, misalnya dari waktu ke waktu.</p>
+  <div class="card">
+    <div class="chart-wrap">${buildLineChart(suhu)}</div>
+    <div class="legend"><div class="legend-item"><span class="legend-dot" style="background:var(--garis);"></span>Suhu udara rata-rata per bulan (°C)</div></div>
+  </div>
+  `
+});
+
+/* ---- 11. DIAGRAM GARIS: interaktif ---- */
+slides.push({
+  title:'Diagram Garis — Membaca Tren',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--garis);"></span>Membaca Tren</div>
+  <h2>Bagaimana arah perubahannya?</h2>
+  <p class="lead">Klik setiap titik pada grafik untuk melihat nilainya, lalu jawab pertanyaan di bawah.</p>
+  <div class="card">
+    <div class="chart-wrap">${buildLineChart(suhu)}</div>
+  </div>
+  <div class="grid2" style="margin-top:14px;">
+    <div class="reveal-box"><div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('g1')"><span style="font-size:13.5px;">Bulan apa suhu tertinggi?</span><span class="btn" style="pointer-events:none; font-size:12px; padding:5px 10px;">Cek</span></div><div class="reveal-content" id="g1"><p style="padding-top:8px; font-size:13.5px;" class="badge-good">April, 30°C.</p></div></div>
+    <div class="reveal-box"><div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('g2')"><span style="font-size:13.5px;">Sejak bulan apa suhu mulai turun?</span><span class="btn" style="pointer-events:none; font-size:12px; padding:5px 10px;">Cek</span></div><div class="reveal-content" id="g2"><p style="padding-top:8px; font-size:13.5px;" class="badge-good">Sejak April ke Mei (30° → 29°).</p></div></div>
+  </div>
+  `
+});
+
+/* ---- 12. DIAGRAM GARIS: contoh soal ---- */
+slides.push({
+  title:'Diagram Garis — Contoh Soal',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--garis);"></span>Contoh Soal</div>
+  <h2>Kenaikan suhu dari Januari ke April</h2>
+  <div class="card">
+    <div class="chart-wrap">${buildLineChart(suhu)}</div>
+  </div>
+  <div class="reveal-box" style="margin-top:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('gs1')">
+      <span style="font-size:14px;"><strong>Soal:</strong> Berapa kenaikan suhu dari Januari ke April?</span>
+      <span class="btn" style="pointer-events:none; font-size:12px; padding:6px 12px;">Lihat pembahasan</span>
+    </div>
+    <div class="reveal-content" id="gs1">
+      <div style="padding-top:10px; font-size:13.5px; color:var(--text-dim); line-height:1.8;">
+      <strong>Langkah:</strong><br>
+      1. Suhu Januari = 27°C, suhu April = 30°C.<br>
+      2. Kenaikan = 30 − 27 = <span class="badge-good">3°C</span>.
+      </div>
+    </div>
+  </div>
+  `
+});
+
+/* ---- 13. DIAGRAM LINGKARAN: pengertian ---- */
+slides.push({
+  title:'Diagram Lingkaran — Pengertian',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--lingkaran);"></span>Diagram Lingkaran</div>
+  <h2>Membandingkan bagian terhadap keseluruhan</h2>
+  <p class="lead"><strong>Diagram lingkaran (pie chart)</strong> membagi lingkaran menjadi beberapa juring (potongan), di mana setiap juring mewakili persentase dari keseluruhan data. Total seluruh juring selalu <strong>100%</strong> atau <strong>360°</strong>.</p>
+  <div class="card">
+    <div class="chip" style="color:var(--lingkaran); border-color:rgba(255,138,176,0.4);">Genre buku favorit 40 siswa kelas VII</div>
+    <div class="chart-wrap">${buildPieChart(genre, totalGenre)}</div>
+    <div class="legend">
+      ${genre.map(g=>`<div class="legend-item"><span class="legend-dot" style="background:${g.color};"></span>${g.label} — ${g.value} siswa</div>`).join('')}
+    </div>
+  </div>
+  `
+});
+
+/* ---- 14. DIAGRAM LINGKARAN: interaktif klik juring ---- */
+slides.push({
+  title:'Diagram Lingkaran — Interaktif',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--lingkaran);"></span>Coba Sendiri</div>
+  <h2>Klik tiap juring untuk melihat rinciannya</h2>
+  <p class="lead">Setiap juring menyimpan tiga informasi: jumlah siswa, persentase, dan besar sudutnya.</p>
+  <div class="card">
+    <div class="chart-wrap" id="pie-interactive">${buildPieChart(genre, totalGenre)}</div>
+    <div id="pie-info" style="text-align:center; margin-top:14px; min-height:44px; font-size:13.5px; color:var(--text-dim);">
+      Klik salah satu juring pada diagram di atas ↑
+    </div>
+  </div>
+  `
+});
+
+/* ---- 15. DIAGRAM LINGKARAN: contoh soal ---- */
+slides.push({
+  title:'Diagram Lingkaran — Contoh Soal',
+  html:`
+  <div class="eyebrow"><span class="dot" style="background:var(--lingkaran);"></span>Contoh Soal</div>
+  <h2>Menghitung persentase dan sudut juring</h2>
+  <div class="card">
+    <p style="font-size:13.5px; color:var(--text-dim);">Dari 40 siswa, 16 siswa menyukai buku fiksi. Berapa persentase dan besar sudut juring "Fiksi"?</p>
+  </div>
+  <div class="reveal-box" style="margin-top:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('ls1')">
+      <span style="font-size:14px;">Lihat langkah penyelesaian</span>
+      <span class="btn" style="pointer-events:none; font-size:12px; padding:6px 12px;">Buka</span>
+    </div>
+    <div class="reveal-content" id="ls1">
+      <div style="padding-top:10px; font-size:13.5px; color:var(--text-dim); line-height:2;" class="mono">
+      Persentase = (16 ÷ 40) × 100% = <span class="badge-good">40%</span><br>
+      Sudut juring = (16 ÷ 40) × 360° = <span class="badge-good">144°</span>
+      </div>
+    </div>
+  </div>
+  `
+});
+
+/* ---- 16. PEMILIHAN BENTUK: penjelasan ---- */
+slides.push({
+  title:'Memilih Bentuk yang Sesuai',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Pemilihan Bentuk Penyajian</div>
+  <h2>Kapan memakai bentuk yang mana?</h2>
+  <p class="lead">Setiap bentuk penyajian punya kekuatan berbeda. Memilih bentuk yang tepat membuat data lebih mudah dipahami pembaca.</p>
+  <div class="acc-item" id="p1"><div class="acc-head" onclick="toggleAcc('p1')"><span style="color:var(--tabel);">▦ Tabel</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Dipakai saat kita perlu melihat nilai <strong>secara tepat dan rinci</strong>, misalnya daftar nilai ulangan tiap siswa.</div></div></div>
+  <div class="acc-item" id="p2"><div class="acc-head" onclick="toggleAcc('p2')"><span style="color:var(--batang);">▊ Diagram Batang</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Dipakai saat kita ingin <strong>membandingkan</strong> nilai antar kategori yang terpisah, misalnya perbandingan pengunjung tiap hari.</div></div></div>
+  <div class="acc-item" id="p3"><div class="acc-head" onclick="toggleAcc('p3')"><span style="color:var(--garis);">〰 Diagram Garis</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Dipakai saat kita ingin menunjukkan <strong>perubahan atau tren</strong> data dari waktu ke waktu, misalnya suhu tiap bulan.</div></div></div>
+  <div class="acc-item" id="p4"><div class="acc-head" onclick="toggleAcc('p4')"><span style="color:var(--lingkaran);">◔ Diagram Lingkaran</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Dipakai saat kita ingin menunjukkan <strong>perbandingan bagian terhadap keseluruhan</strong> dalam bentuk persentase, misalnya genre buku favorit siswa.</div></div></div>
+  `
+});
+
+/* ---- 17. LATIHAN PEMILIHAN: matching ---- */
+slides.push({
+  title:'Latihan — Pilih Bentuk yang Tepat',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Pemilihan Bentuk</div>
+  <h2>Pasangkan situasi dengan bentuk penyajian</h2>
+  <p class="lead">Klik satu kartu situasi di kiri, lalu klik bentuk penyajian yang paling cocok di kanan.</p>
+  <div class="grid2">
+    <div>
+      <div class="chip">Situasi</div>
+      <div id="match-left"></div>
+    </div>
+    <div>
+      <div class="chip">Bentuk penyajian</div>
+      <div id="match-right"></div>
+    </div>
+  </div>
+  <div class="feedback" id="match-feedback"></div>
+  `
+});
+
+/* ---- 18. KUIS ---- */
+slides.push({
+  title:'Kuis',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Kuis Akhir</div>
+  <h2 id="quiz-title">Uji Pemahamanmu</h2>
+  <div id="quiz-area"></div>
+  `
+});
+
+/* ---- 19. REFLEKSI ---- */
+slides.push({
+  title:'Refleksi',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Refleksi</div>
+  <h2>Sebelum lanjut, coba renungkan</h2>
+  <div class="grid2">
+    <div class="acc-item" id="r1"><div class="acc-head" onclick="toggleAcc('r1')"><span>Bagian mana yang paling mudah kamu pahami?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Pikirkan kembali: apakah tabel, diagram batang, diagram garis, atau diagram lingkaran yang paling terasa mudah bagimu? Coba jelaskan alasannya dalam hati atau catat di buku tulismu.</div></div></div>
+    <div class="acc-item" id="r2"><div class="acc-head" onclick="toggleAcc('r2')"><span>Bagian mana yang masih perlu dipelajari ulang?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Jika masih ragu memilih bentuk penyajian yang tepat, coba buka kembali slide "Memilih Bentuk yang Sesuai" dan ulangi latihannya.</div></div></div>
+  </div>
+  `
+});
+
+/* ---- 20. RANGKUMAN ---- */
+slides.push({
+  title:'Rangkuman',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+  <h2>Yang telah kita pelajari</h2>
+  <div class="grid2">
+    <div class="card"><div class="chip" style="color:var(--tabel); border-color:rgba(124,158,255,0.4);">Tabel</div><p style="font-size:13.5px; color:var(--text-dim);">Menyusun data dalam baris dan kolom untuk melihat nilai secara rinci.</p></div>
+    <div class="card"><div class="chip" style="color:var(--batang); border-color:rgba(255,176,105,0.4);">Diagram Batang</div><p style="font-size:13.5px; color:var(--text-dim);">Membandingkan nilai antar kategori dengan panjang batang.</p></div>
+    <div class="card"><div class="chip" style="color:var(--garis); border-color:rgba(111,227,192,0.4);">Diagram Garis</div><p style="font-size:13.5px; color:var(--text-dim);">Menunjukkan perubahan data dari waktu ke waktu.</p></div>
+    <div class="card"><div class="chip" style="color:var(--lingkaran); border-color:rgba(255,138,176,0.4);">Diagram Lingkaran</div><p style="font-size:13.5px; color:var(--text-dim);">Menunjukkan perbandingan bagian terhadap keseluruhan dalam persen.</p></div>
+  </div>
+  <p class="lead" style="margin-top:16px;">Kunci utamanya: <strong>kenali dulu apa yang ingin kamu tunjukkan dari data</strong> — perbandingan, perubahan, atau proporsi — baru pilih bentuk penyajiannya.</p>
+  `
+});
+
+/* ---- 21. PENUTUP ---- */
+slides.push({
+  title:'Penutup',
+  html:`
+  <div class="eyebrow"><span class="dot"></span>Penutup</div>
+  <h2>Selesai! 🎉</h2>
+  <p class="lead">Kamu telah menyelesaikan materi <strong>5.3 Penyajian Data</strong>: tabel, diagram batang, diagram garis, diagram lingkaran, dan cara memilih bentuk penyajian yang sesuai.</p>
+  <div class="card">
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.7;">Coba terapkan pada data di sekitarmu — misalnya nilai ulanganmu sendiri, atau jumlah anggota keluarga tiap tetangga. Bentuk penyajian mana yang paling cocok kamu gunakan?</p>
+  </div>
+  <button class="btn btn-accent" style="margin-top:18px;" onclick="goTo(0)">↺ Ulangi dari awal</button>
+  `
+});
+
+/* =========================================================
+   RENDER SLIDES
+   ========================================================= */
+const stage = document.getElementById('stage');
+slides.forEach((s,i)=>{
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.id = 'slide-'+i;
+  div.innerHTML = `<div class="slide-inner">${s.html}</div>`;
+  stage.appendChild(div);
+});
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const b = document.createElement('button');
+  b.className='dot-btn';
+  b.title = s.title;
+  b.onclick = ()=>goTo(i);
+  dotsWrap.appendChild(b);
+});
+
+let current = 0;
+function render(){
+  slides.forEach((s,i)=>{
+    document.getElementById('slide-'+i).classList.toggle('active', i===current);
+  });
+  document.querySelectorAll('.dot-btn').forEach((d,i)=>d.classList.toggle('active', i===current));
+  document.getElementById('progress-bar').style.width = ((current+1)/slides.length*100)+'%';
+  document.getElementById('slide-counter').textContent = (current+1)+' / '+slides.length;
+  document.getElementById('btn-prev').disabled = current===0;
+  document.getElementById('btn-next').disabled = current===slides.length-1;
+}
+function goTo(i){ current = Math.max(0, Math.min(slides.length-1, i)); render(); }
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* =========================================================
+   ACCORDION + REVEAL
+   ========================================================= */
+function toggleAcc(id){
+  document.getElementById(id).classList.toggle('open');
+}
+function toggleReveal(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+/* =========================================================
+   DIAGRAM BATANG INTERAKTIF
+   ========================================================= */
+function updateBarInteractive(val){
+  document.getElementById('bar-val').textContent = val;
+  const data = pengunjung.map(d=> d.label==='Jumat' ? {...d, value:parseInt(val)} : d);
+  document.getElementById('bar-interactive').innerHTML = buildBarChart(data,{max:60});
+}
+
+/* =========================================================
+   DIAGRAM LINGKARAN INTERAKTIF
+   ========================================================= */
+document.getElementById('pie-interactive').addEventListener('click', (e)=>{
+  const slice = e.target.closest('.pie-slice');
+  if(!slice) return;
+  const i = parseInt(slice.dataset.i);
+  const d = genre[i];
+  const pct = Math.round(d.value/totalGenre*1000)/10;
+  const deg = Math.round(d.value/totalGenre*3600)/10;
+  document.getElementById('pie-info').innerHTML =
+    `<span style="color:${d.color}; font-weight:700;">${d.label}</span> — ${d.value} siswa
+     &nbsp;·&nbsp; <span class="mono">${pct}%</span> &nbsp;·&nbsp; <span class="mono">${deg}°</span>`;
+});
+
+/* =========================================================
+   MATCHING LATIHAN (PEMILIHAN BENTUK)
+   ========================================================= */
+const matchPairs = [
+  {id:'a', situasi:'Membandingkan hasil panen 4 desa musim ini', bentuk:'batang'},
+  {id:'b', situasi:'Menunjukkan kenaikan berat badan bayi tiap bulan', bentuk:'garis'},
+  {id:'c', situasi:'Menunjukkan proporsi jenis kendaraan yang lewat', bentuk:'lingkaran'},
+  {id:'d', situasi:'Mencatat nilai ulangan tiap siswa secara rinci', bentuk:'tabel'},
+];
+const bentukLabel = {batang:'Diagram Batang', garis:'Diagram Garis', lingkaran:'Diagram Lingkaran', tabel:'Tabel'};
+let selectedSituasi = null;
+let matchedCount = 0;
+
+function renderMatch(){
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  if(!left) return;
+  left.innerHTML=''; right.innerHTML='';
+  const shuffledSituasi = [...matchPairs];
+  shuffledSituasi.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='sit-'+p.id;
+    el.textContent = p.situasi;
+    el.onclick = ()=>selectSituasi(p.id, el);
+    left.appendChild(el);
+  });
+  const bentukOrder = ['batang','garis','lingkaran','tabel'];
+  bentukOrder.forEach(b=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='bnt-'+b;
+    el.textContent = bentukLabel[b];
+    el.onclick = ()=>selectBentuk(b, el);
+    right.appendChild(el);
+  });
+}
+function selectSituasi(id, el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-left .match-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSituasi = id;
+}
+function selectBentuk(bentuk, el){
+  if(el.classList.contains('matched') || !selectedSituasi) return;
+  const pair = matchPairs.find(p=>p.id===selectedSituasi);
+  const fb = document.getElementById('match-feedback');
+  if(pair.bentuk === bentuk){
+    document.getElementById('sit-'+selectedSituasi).classList.add('matched');
+    document.getElementById('sit-'+selectedSituasi).classList.remove('selected');
+    el.classList.add('matched');
+    matchedCount++;
+    fb.className='feedback show good';
+    fb.textContent = '✓ Tepat! "'+pair.situasi+'" paling cocok disajikan dengan '+bentukLabel[bentuk]+'.';
+    if(matchedCount===matchPairs.length){
+      fb.textContent += ' 🎉 Semua pasangan sudah tepat!';
+    }
+  } else {
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'), 350);
+    fb.className='feedback show bad';
+    fb.textContent = '✗ Belum tepat, coba pikirkan lagi apa yang ingin ditunjukkan situasi tersebut: perbandingan, perubahan, atau proporsi?';
+  }
+  selectedSituasi = null;
+}
+renderMatch();
+
+/* =========================================================
+   KUIS
+   ========================================================= */
+const quizData = [
+  {
+    q:'Bentuk penyajian data manakah yang paling cocok untuk menunjukkan perubahan suhu setiap bulan?',
+    options:['Tabel','Diagram Batang','Diagram Garis','Diagram Lingkaran'],
+    correct:2,
+    exp:'Diagram garis paling cocok karena dapat menunjukkan arah perubahan (tren) data dari waktu ke waktu.'
+  },
+  {
+    q:'Dari 40 siswa, 10 siswa menyukai komik. Berapa persentase siswa yang menyukai komik?',
+    options:['10%','20%','25%','40%'],
+    correct:2,
+    exp:'(10 ÷ 40) × 100% = 25%.'
+  },
+  {
+    q:'Total besar sudut seluruh juring pada diagram lingkaran adalah…',
+    options:['100°','180°','270°','360°'],
+    correct:3,
+    exp:'Satu lingkaran penuh selalu berukuran 360°, karena mewakili keseluruhan data (100%).'
+  },
+  {
+    q:'Data pengunjung perpustakaan: Senin 25, Selasa 30, Rabu 20, Kamis 35, Jumat 40. Bentuk penyajian apa yang paling cocok untuk membandingkan jumlah pengunjung antar hari?',
+    options:['Tabel saja','Diagram Batang','Diagram Garis','Diagram Lingkaran'],
+    correct:1,
+    exp:'Diagram batang paling cocok untuk membandingkan nilai antar kategori yang terpisah, seperti hari-hari dalam seminggu.'
+  },
+  {
+    q:'Jika suatu juring diagram lingkaran berukuran 90°, berapa persentase yang diwakilinya?',
+    options:['15%','25%','50%','75%'],
+    correct:1,
+    exp:'(90° ÷ 360°) × 100% = 25%.'
+  },
+];
+let quizIndex = 0, quizScore = 0, quizAnswered = false;
+
+function renderQuiz(){
+  const area = document.getElementById('quiz-area');
+  if(!area) return;
+  if(quizIndex >= quizData.length){
+    const pct = Math.round(quizScore/quizData.length*100);
+    area.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="score-circle" style="--pct:${pct};">
+          <div class="val">${quizScore}/${quizData.length}</div>
+          <div class="lbl">skor kamu</div>
+        </div>
+        <p style="font-size:14px; color:var(--text-dim);">${pct>=80?'Luar biasa! Pemahamanmu sudah sangat baik. 🌟':pct>=60?'Bagus! Sedikit lagi kamu akan menguasai materi ini. 👍':'Yuk pelajari lagi bagian yang belum dipahami, lalu coba lagi. 💪'}</p>
+        <button class="btn btn-accent" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const q = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="chip">Soal ${quizIndex+1} dari ${quizData.length}</div>
+    <div class="card">
+      <p style="font-size:15px; margin:0 0 16px 0;">${q.q}</p>
+      <div id="quiz-opts">
+        ${q.options.map((o,i)=>`<button class="opt" data-i="${i}" onclick="answerQuiz(${i})">${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="quiz-fb"></div>
+    </div>
+  `;
+  quizAnswered = false;
+}
+function answerQuiz(i){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('#quiz-opts .opt');
+  opts.forEach((o,idx)=>{
+    o.disabled = true;
+    if(idx===q.correct) o.classList.add('correct');
+    else if(idx===i) o.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  const isCorrect = i===q.correct;
+  if(isCorrect) quizScore++;
+  fb.className = 'feedback show '+(isCorrect?'good':'bad');
+  fb.innerHTML = (isCorrect?'✓ Benar! ':'✗ Belum tepat. ')+q.exp+
+    `<div style="margin-top:10px;"><button class="btn btn-accent" onclick="nextQuiz()">${quizIndex<quizData.length-1?'Soal berikutnya →':'Lihat skor →'}</button></div>`;
+}
+function nextQuiz(){ quizIndex++; renderQuiz(); }
+function restartQuiz(){ quizIndex=0; quizScore=0; renderQuiz(); }
+renderQuiz();
+
+</script>
+</body>
+</html>

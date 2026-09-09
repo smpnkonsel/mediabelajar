@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Pengumpulan dan Pengolahan Data — 5.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0f16;
+    --bg-soft:#12141f;
+    --panel:#1a1e2c;
+    --panel-2:#212637;
+    --panel-3:#262c40;
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.16);
+    --text:#eef0f6;
+    --text-dim:#9aa1b8;
+    --text-faint:#6b7290;
+    --teal:#2fd9b8;
+    --teal-dim:rgba(47,217,184,.14);
+    --amber:#f5b74a;
+    --amber-dim:rgba(245,183,74,.14);
+    --violet:#8f82f7;
+    --violet-dim:rgba(143,130,247,.14);
+    --red:#f2707a;
+    --red-dim:rgba(242,112,122,.14);
+    --green:#4ade93;
+    --green-dim:rgba(74,222,147,.14);
+    --radius-lg:24px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --font-head:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --shadow-1: 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(143,130,247,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(47,217,184,.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-head); font-weight:600; margin:0; line-height:1.15;}
+  p{margin:0; line-height:1.65;}
+  ul,ol{margin:0; padding-left:1.2em; line-height:1.7;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  code, .mono{font-family:var(--font-mono);}
+  ::selection{background:var(--teal-dim); color:var(--text);}
+  :focus-visible{outline:2px solid var(--teal); outline-offset:3px; border-radius:6px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;}
+  }
+
+  .app{
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    max-width:980px;
+    margin:0 auto;
+    padding:0 18px;
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    flex:0 0 auto;
+    padding:18px 2px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .topbar-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+  .brand-badge{
+    flex:0 0 auto;
+    width:34px; height:34px;
+    border-radius:10px;
+    background:linear-gradient(135deg, var(--teal), var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-mono); font-weight:700; font-size:12px; color:#0d0f16;
+  }
+  .brand-text{min-width:0;}
+  .brand-title{font-size:14.5px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .brand-sub{font-size:11.5px; color:var(--text-faint);}
+  .section-tag{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--teal);
+    background:var(--teal-dim);
+    padding:5px 10px;
+    border-radius:999px;
+    white-space:nowrap;
+    flex:0 0 auto;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--panel);
+    border-radius:999px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--teal), var(--violet));
+    border-radius:999px;
+    transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ---------- stage ---------- */
+  .stage{
+    flex:1 1 auto;
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--border);
+    background:linear-gradient(180deg, var(--bg-soft), var(--panel) 140%);
+    border-radius:var(--radius-lg);
+    margin:4px 0 14px;
+  }
+  .slide{
+    display:none;
+    height:100%;
+    overflow-y:auto;
+    padding:34px clamp(18px, 4vw, 48px) 30px;
+  }
+  .slide.active{
+    display:block;
+    animation:slideIn .42s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes slideIn{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .slide-inner{max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:22px;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--text-faint);
+  }
+  .slide h2{font-size:clamp(22px,3.4vw,30px); color:var(--text);}
+  .slide h2 .accent{color:var(--teal);}
+  .lead{font-size:16px; color:var(--text-dim); max-width:62ch;}
+
+  /* ---------- generic components ---------- */
+  .card{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:18px 20px;
+  }
+  .card h3{font-size:16.5px; margin-bottom:8px;}
+  .card p{color:var(--text-dim); font-size:14.5px;}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:680px){ .grid-2, .grid-3{grid-template-columns:1fr;} }
+
+  .pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font-mono); font-size:11.5px;
+    padding:4px 10px; border-radius:999px;
+    background:var(--panel-3); color:var(--text-dim);
+    border:1px solid var(--border);
+  }
+
+  .list-check{list-style:none; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .list-check li{
+    display:flex; gap:10px; align-items:flex-start;
+    background:var(--panel-2); border:1px solid var(--border);
+    border-radius:var(--radius-sm); padding:12px 14px; font-size:14.5px; color:var(--text-dim);
+  }
+  .list-check li::before{
+    content:"";
+    flex:0 0 auto;
+    width:18px; height:18px; margin-top:2px;
+    border-radius:6px;
+    background:var(--teal-dim);
+    border:1px solid var(--teal);
+  }
+
+  /* accordion */
+  .acc{display:flex; flex-direction:column; gap:10px;}
+  .acc-item{border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--panel-2);}
+  .acc-head{
+    width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px;
+    background:transparent; border:none; color:var(--text); text-align:left;
+    padding:14px 16px; font-size:15px; font-weight:600; font-family:var(--font-body);
+  }
+  .acc-head .tag{font-family:var(--font-mono); font-size:11px; color:var(--teal); font-weight:400;}
+  .acc-icon{
+    flex:0 0 auto; width:22px; height:22px; border-radius:50%;
+    border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center;
+    font-size:14px; color:var(--text-dim); transition:transform .3s ease;
+  }
+  .acc-item.open .acc-icon{transform:rotate(45deg); color:var(--teal); border-color:var(--teal);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .acc-body-in{padding:0 16px 16px; color:var(--text-dim); font-size:14.5px;}
+  .acc-item.open .acc-body{max-height:600px;}
+
+  /* option / classification buttons */
+  .quiz-item{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; display:flex; flex-direction:column; gap:12px;}
+  .quiz-item .stmt{font-size:15px; color:var(--text);}
+  .opt-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .opt-btn{
+    padding:9px 16px; border-radius:999px; border:1px solid var(--border-strong);
+    background:var(--panel-3); color:var(--text); font-size:13.5px; font-weight:500;
+    transition:all .18s ease;
+  }
+  .opt-btn:hover:not(:disabled){border-color:var(--teal);}
+  .opt-btn.correct{background:var(--green-dim); border-color:var(--green); color:var(--green);}
+  .opt-btn.incorrect{background:var(--red-dim); border-color:var(--red); color:var(--red);}
+  .opt-btn:disabled{cursor:default; opacity:.55;}
+  .opt-btn:disabled.correct, .opt-btn:disabled.incorrect{opacity:1;}
+  .explain{
+    display:none; font-size:13.5px; color:var(--text-dim);
+    border-left:2px solid var(--teal); padding-left:10px;
+  }
+  .explain.show{display:block;}
+
+  /* reveal / stepper */
+  .reveal-btn{
+    align-self:flex-start;
+    padding:9px 16px; border-radius:999px; border:1px solid var(--teal);
+    background:var(--teal-dim); color:var(--teal); font-size:13.5px; font-weight:600;
+  }
+  .reveal-content{display:none; margin-top:6px;}
+  .reveal-content.show{display:block; animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+
+  .step-track{display:flex; gap:6px; margin-bottom:4px;}
+  .step-dot{flex:1; height:4px; border-radius:999px; background:var(--panel-3);}
+  .step-dot.done{background:var(--teal);}
+
+  /* buttons */
+  .btn{
+    padding:11px 20px; border-radius:12px; border:1px solid var(--border-strong);
+    background:var(--panel-3); color:var(--text); font-size:14px; font-weight:600;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn:hover{border-color:var(--teal);}
+  .btn.primary{background:linear-gradient(135deg, var(--teal), #22b79b); color:#08251f; border:none;}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  /* data list / table */
+  .data-chip-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .data-chip{
+    font-family:var(--font-mono); font-size:13px; padding:6px 12px; border-radius:8px;
+    background:var(--panel-3); border:1px solid var(--border); color:var(--text-dim);
+    transition:transform .25s ease;
+  }
+  table.freq{width:100%; border-collapse:collapse; font-size:14px;}
+  table.freq th, table.freq td{
+    border:1px solid var(--border); padding:9px 12px; text-align:center; font-family:var(--font-mono);
+  }
+  table.freq th{background:var(--panel-3); color:var(--teal); font-weight:600;}
+  .bars{display:flex; align-items:flex-end; gap:10px; height:150px; padding-top:10px;}
+  .bar-col{flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; justify-content:flex-end; height:100%;}
+  .bar{width:100%; max-width:38px; border-radius:6px 6px 2px 2px; background:linear-gradient(180deg, var(--teal), var(--violet)); transition:height .6s cubic-bezier(.2,.8,.3,1);}
+  .bar-label{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);}
+
+  /* case study rows */
+  .case-row{
+    display:flex; align-items:center; gap:12px;
+    padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    background:var(--panel-2); font-size:13.5px; cursor:pointer; transition:all .18s ease;
+  }
+  .case-row .idx{font-family:var(--font-mono); color:var(--text-faint); width:22px;}
+  .case-row .val{font-family:var(--font-mono); color:var(--text); margin-left:auto;}
+  .case-row.selected{border-color:var(--amber); background:var(--amber-dim);}
+  .case-row.result-correct{border-color:var(--green); background:var(--green-dim);}
+  .case-row.result-missed{border-color:var(--red); background:var(--red-dim);}
+
+  /* tabs */
+  .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .tab-btn{
+    padding:9px 16px; border-radius:999px; border:1px solid var(--border-strong);
+    background:var(--panel-3); color:var(--text-dim); font-size:13.5px; font-weight:600;
+  }
+  .tab-btn.active{background:var(--violet-dim); border-color:var(--violet); color:var(--violet);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fadeIn .3s ease;}
+
+  /* cover slide */
+  .cover{height:100%; display:flex; flex-direction:column; justify-content:center; gap:20px; text-align:left;}
+  .cover-badge{
+    align-self:flex-start;
+    font-family:var(--font-mono); font-size:12px; color:var(--amber);
+    background:var(--amber-dim); border:1px solid var(--amber); padding:5px 12px; border-radius:999px;
+  }
+  .cover h1{font-size:clamp(30px,6vw,46px); max-width:14ch;}
+  .cover .sub{font-size:16px; color:var(--text-dim); max-width:56ch;}
+  .cover-bars{display:flex; align-items:flex-end; gap:8px; height:70px; margin-top:6px;}
+  .cover-bars .b{width:14px; border-radius:4px 4px 0 0; background:linear-gradient(180deg, var(--teal), var(--violet)); animation:growUp 1s cubic-bezier(.2,.8,.3,1) both;}
+  @keyframes growUp{from{height:0;} }
+
+  /* quiz final */
+  .quiz-card{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px; display:flex; flex-direction:column; gap:12px;}
+  .quiz-card .qn{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);}
+  .score-box{
+    text-align:center; padding:26px; border-radius:var(--radius-md);
+    background:var(--panel-2); border:1px solid var(--border); display:none; flex-direction:column; gap:10px; align-items:center;
+  }
+  .score-box.show{display:flex;}
+  .score-num{font-family:var(--font-head); font-size:44px; color:var(--teal);}
+
+  textarea.reflect{
+    width:100%; min-height:110px; resize:vertical;
+    background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-sm);
+    color:var(--text); font-family:var(--font-body); font-size:14.5px; padding:12px 14px;
+  }
+
+  /* footer controls */
+  .controls{
+    flex:0 0 auto; padding:2px 2px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .counter{font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); white-space:nowrap;}
+  .nav-btn{
+    padding:11px 18px; border-radius:12px; border:1px solid var(--border-strong);
+    background:var(--panel-2); color:var(--text); font-weight:600; font-size:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .nav-btn.next{background:linear-gradient(135deg, var(--teal), #22b79b); color:#08251f; border:none;}
+  .nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+
+  @media (max-width:560px){
+    .app{padding:0 10px;}
+    .slide{padding:24px 16px 24px;}
+    .brand-sub{display:none;}
+    .controls{padding-bottom:14px;}
+    .nav-btn span.label{display:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-badge">5.2</div>
+        <div class="brand-text">
+          <div class="brand-title">Pengumpulan &amp; Pengolahan Data</div>
+          <div class="brand-sub">Statistika dasar — teknik, jenis, pemeriksaan, dan pengolahan data</div>
+        </div>
+      </div>
+      <div class="section-tag" id="sectionTag">Pembuka</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <main class="stage" id="stage">
+
+    <!-- 0 : COVER -->
+    <section class="slide active" data-section="Pembuka">
+      <div class="cover">
+        <div class="cover-badge">Kode Materi 5.2</div>
+        <h1>Pengumpulan dan Pengolahan Data</h1>
+        <p class="sub">Teknik pengumpulan data, jenis data, pemeriksaan data, dan pengolahan data sederhana — dipelajari langkah demi langkah lewat contoh, latihan, dan kuis interaktif.</p>
+        <div class="cover-bars" id="coverBars"></div>
+        <div>
+          <button class="btn primary" onclick="goTo(1)">Mulai Belajar →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 : APERSEPSI -->
+    <section class="slide" data-section="Apersepsi">
+      <div class="slide-inner">
+        <div class="eyebrow">Apersepsi</div>
+        <h2>Data ada di sekitar kita, <span class="accent">setiap hari.</span></h2>
+        <p class="lead">Sebelum masuk ke teori, coba ingat-ingat: setiap hari kamu sebenarnya sudah "bekerja" dengan data tanpa sadar.</p>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Guru mencatat kehadiran</h3>
+            <p>Setiap pagi, guru menghitung siapa yang hadir, izin, sakit, atau tanpa keterangan.</p>
+          </div>
+          <div class="card">
+            <h3>Kios mencatat penjualan</h3>
+            <p>Pemilik warung mencatat barang apa yang paling laku setiap hari untuk menentukan stok.</p>
+          </div>
+          <div class="card">
+            <h3>Kamu mencatat nilai</h3>
+            <p>Nilai ulangan seluruh kelas adalah kumpulan data yang bisa diolah menjadi informasi baru.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Pertanyaan pemantik</h3>
+          <p>Jika gurumu ingin tahu <em>rata-rata nilai ulangan</em> seluruh kelas, apa saja yang perlu dilakukan sebelum angka itu bisa dihitung? Simpan pertanyaan ini — kita akan menjawabnya sambil belajar di slide-slide berikutnya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 : TUJUAN -->
+    <section class="slide" data-section="Tujuan">
+      <div class="slide-inner">
+        <div class="eyebrow">Tujuan Pembelajaran</div>
+        <h2>Setelah mempelajari materi ini, kamu mampu:</h2>
+        <ul class="list-check">
+          <li>Menjelaskan pengertian data dan perannya dalam kehidupan sehari-hari.</li>
+          <li>Mengidentifikasi jenis-jenis data: kualitatif, kuantitatif, diskrit, kontinu, primer, dan sekunder.</li>
+          <li>Menjelaskan teknik pengumpulan data (observasi, wawancara, angket, dokumentasi, eksperimen) dan memilih teknik yang tepat sesuai situasi.</li>
+          <li>Melakukan pemeriksaan data untuk memastikan data layak diolah.</li>
+          <li>Mengolah data sederhana: mengurutkan, mengelompokkan, membuat tabel frekuensi, dan menentukan ukuran pemusatan data.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3 : PETA KONSEP -->
+    <section class="slide" data-section="Peta Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Peta Konsep</div>
+        <h2>Empat pilar materi kita hari ini</h2>
+        <p class="lead">Semua slide berikutnya adalah pengembangan dari empat cabang ini.</p>
+        <svg viewBox="0 0 760 420" style="width:100%; height:auto;">
+          <defs>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#2fd9b8"/>
+              <stop offset="1" stop-color="#8f82f7"/>
+            </linearGradient>
+          </defs>
+          <line x1="380" y1="210" x2="140" y2="70" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="620" y2="70" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="140" y2="350" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="620" y2="350" stroke="url(#lineGrad)" stroke-width="2"/>
+
+          <circle cx="380" cy="210" r="72" fill="#212637" stroke="#2fd9b8" stroke-width="2"/>
+          <text x="380" y="204" text-anchor="middle" fill="#eef0f6" font-family="Fredoka" font-size="15">Pengumpulan &amp;</text>
+          <text x="380" y="224" text-anchor="middle" fill="#eef0f6" font-family="Fredoka" font-size="15">Pengolahan Data</text>
+
+          <rect x="55" y="35" width="170" height="70" rx="16" fill="#1a1e2c" stroke="#8f82f7" stroke-width="1.5"/>
+          <text x="140" y="65" text-anchor="middle" fill="#eef0f6" font-family="Plus Jakarta Sans" font-size="14" font-weight="600">Jenis Data</text>
+          <text x="140" y="84" text-anchor="middle" fill="#9aa1b8" font-family="Plus Jakarta Sans" font-size="11.5">kualitatif · kuantitatif</text>
+
+          <rect x="535" y="35" width="170" height="70" rx="16" fill="#1a1e2c" stroke="#8f82f7" stroke-width="1.5"/>
+          <text x="620" y="65" text-anchor="middle" fill="#eef0f6" font-family="Plus Jakarta Sans" font-size="14" font-weight="600">Teknik</text>
+          <text x="620" y="84" text-anchor="middle" fill="#9aa1b8" font-family="Plus Jakarta Sans" font-size="11.5">observasi · wawancara · angket</text>
+
+          <rect x="55" y="315" width="170" height="70" rx="16" fill="#1a1e2c" stroke="#f5b74a" stroke-width="1.5"/>
+          <text x="140" y="345" text-anchor="middle" fill="#eef0f6" font-family="Plus Jakarta Sans" font-size="14" font-weight="600">Pemeriksaan</text>
+          <text x="140" y="364" text-anchor="middle" fill="#9aa1b8" font-family="Plus Jakarta Sans" font-size="11.5">editing · validasi</text>
+
+          <rect x="535" y="315" width="170" height="70" rx="16" fill="#1a1e2c" stroke="#f5b74a" stroke-width="1.5"/>
+          <text x="620" y="345" text-anchor="middle" fill="#eef0f6" font-family="Plus Jakarta Sans" font-size="14" font-weight="600">Pengolahan</text>
+          <text x="620" y="364" text-anchor="middle" fill="#9aa1b8" font-family="Plus Jakarta Sans" font-size="11.5">tabel · mean · median · modus</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 4 : KONSEP DASAR DATA -->
+    <section class="slide" data-section="Konsep Dasar">
+      <div class="slide-inner">
+        <div class="eyebrow">Konsep Dasar</div>
+        <h2>Apa itu <span class="accent">data</span>?</h2>
+        <div class="card">
+          <h3>Definisi</h3>
+          <p><strong>Data</strong> adalah kumpulan fakta, angka, atau keterangan yang diperoleh dari pengamatan atau pengukuran, yang digunakan sebagai dasar untuk menarik kesimpulan atau mengambil keputusan.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Contoh data</h3>
+            <p>Nilai ulangan, tinggi badan siswa, jumlah hasil panen, warna kesukaan, suhu ruangan, jumlah kendaraan yang lewat.</p>
+          </div>
+          <div class="card">
+            <h3>Data vs Informasi</h3>
+            <p>Data adalah bahan mentah. Ketika data diolah dan diberi makna — misalnya "rata-rata nilai kelas 78" — hasilnya disebut <strong>informasi</strong>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 : JENIS DATA - KUALITATIF vs KUANTITATIF -->
+    <section class="slide" data-section="Jenis Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Jenis Data · 1 dari 3</div>
+        <h2>Kualitatif vs <span class="accent">Kuantitatif</span></h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Data Kualitatif</h3>
+            <p>Berupa kategori, sifat, atau keterangan — bukan angka. Contoh: warna favorit, jenis pekerjaan, tingkat kepuasan (puas/tidak puas).</p>
+          </div>
+          <div class="card">
+            <h3>Data Kuantitatif</h3>
+            <p>Berupa angka hasil menghitung atau mengukur. Contoh: tinggi badan, jumlah siswa, nilai ulangan.</p>
+          </div>
+        </div>
+        <p class="lead">Coba klasifikasikan contoh berikut:</p>
+        <div class="acc" id="quiz-kualkuan">
+          <div class="quiz-item">
+            <div class="stmt">1. Jenis olahraga favorit siswa di kelas</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Kualitatif</button>
+              <button class="opt-btn" data-correct="false">Kuantitatif</button>
+            </div>
+            <div class="explain">Benar — ini kategori/sifat, bukan angka, jadi termasuk data kualitatif.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Jumlah siswa yang membawa bekal hari ini</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Kualitatif</button>
+              <button class="opt-btn" data-correct="true">Kuantitatif</button>
+            </div>
+            <div class="explain">Benar — ini hasil menghitung berupa angka, jadi termasuk data kuantitatif.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">3. Tingkat kesukaan terhadap pelajaran matematika (suka / biasa saja / tidak suka)</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Kualitatif</button>
+              <button class="opt-btn" data-correct="false">Kuantitatif</button>
+            </div>
+            <div class="explain">Benar — berupa kategori tingkat kesukaan, bukan angka pengukuran, jadi kualitatif.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 : JENIS DATA - DISKRIT vs KONTINU -->
+    <section class="slide" data-section="Jenis Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Jenis Data · 2 dari 3</div>
+        <h2>Diskrit vs <span class="accent">Kontinu</span></h2>
+        <p class="lead">Keduanya adalah "anak" dari data kuantitatif, dibedakan dari cara memperolehnya.</p>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Data Diskrit</h3>
+            <p>Diperoleh dari <strong>menghitung</strong>, hasilnya selalu bilangan bulat. Contoh: jumlah siswa, jumlah buku, jumlah mobil.</p>
+          </div>
+          <div class="card">
+            <h3>Data Kontinu</h3>
+            <p>Diperoleh dari <strong>mengukur</strong>, hasilnya bisa berupa pecahan/desimal. Contoh: berat badan, tinggi badan, suhu tubuh.</p>
+          </div>
+        </div>
+        <div class="acc" id="quiz-diskon">
+          <div class="quiz-item">
+            <div class="stmt">1. Berat badan seorang siswa (misalnya 42,5 kg)</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Diskrit</button>
+              <button class="opt-btn" data-correct="true">Kontinu</button>
+            </div>
+            <div class="explain">Benar — hasil pengukuran, bisa berupa desimal, jadi kontinu.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Jumlah anggota keluarga di rumahmu</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Diskrit</button>
+              <button class="opt-btn" data-correct="false">Kontinu</button>
+            </div>
+            <div class="explain">Benar — hasil menghitung, selalu bilangan bulat, jadi diskrit.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">3. Suhu ruangan kelas pada siang hari</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Diskrit</button>
+              <button class="opt-btn" data-correct="true">Kontinu</button>
+            </div>
+            <div class="explain">Benar — hasil pengukuran termometer, bisa berupa desimal, jadi kontinu.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 : JENIS DATA - PRIMER vs SEKUNDER -->
+    <section class="slide" data-section="Jenis Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Jenis Data · 3 dari 3</div>
+        <h2>Primer vs <span class="accent">Sekunder</span></h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Data Primer</h3>
+            <p>Diperoleh langsung dari sumber pertama, oleh peneliti sendiri. Contoh: hasil wawancara langsung, hasil pengamatan sendiri di lapangan.</p>
+          </div>
+          <div class="card">
+            <h3>Data Sekunder</h3>
+            <p>Data yang sudah dikumpulkan pihak lain sebelumnya, lalu digunakan kembali. Contoh: data BPS, laporan tahunan sekolah, artikel penelitian.</p>
+          </div>
+        </div>
+        <div class="acc" id="quiz-primsek">
+          <div class="quiz-item">
+            <div class="stmt">1. Siswa mewawancarai teman-temannya sendiri tentang hobi mereka</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Primer</button>
+              <button class="opt-btn" data-correct="false">Sekunder</button>
+            </div>
+            <div class="explain">Benar — diperoleh langsung dari sumber pertama oleh siswa itu sendiri.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Menggunakan data jumlah penduduk dari situs resmi BPS</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Primer</button>
+              <button class="opt-btn" data-correct="true">Sekunder</button>
+            </div>
+            <div class="explain">Benar — data sudah dikumpulkan pihak lain (BPS) sebelumnya.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 : LATIHAN KLASIFIKASI GABUNGAN -->
+    <section class="slide" data-section="Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan</div>
+        <h2>Klasifikasikan jenis data berikut</h2>
+        <p class="lead">Gabungan dari tiga kategori yang sudah kamu pelajari.</p>
+        <div class="acc" id="quiz-gabungan">
+          <div class="quiz-item">
+            <div class="stmt">1. Jumlah halaman buku yang dibaca siswa dalam sebulan</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Kuantitatif — Diskrit</button>
+              <button class="opt-btn" data-correct="false">Kualitatif</button>
+              <button class="opt-btn" data-correct="false">Kuantitatif — Kontinu</button>
+            </div>
+            <div class="explain">Benar — hasil menghitung jumlah halaman (bilangan bulat), jadi kuantitatif diskrit.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Jenis transportasi yang digunakan siswa ke sekolah (jalan kaki, sepeda, angkot, dijemput)</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Kualitatif</button>
+              <button class="opt-btn" data-correct="false">Kuantitatif — Diskrit</button>
+              <button class="opt-btn" data-correct="false">Kuantitatif — Kontinu</button>
+            </div>
+            <div class="explain">Benar — berupa kategori jenis transportasi, bukan angka.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">3. Tinggi badan seluruh siswa yang diukur menggunakan meteran</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Kuantitatif — Diskrit</button>
+              <button class="opt-btn" data-correct="true">Kuantitatif — Kontinu</button>
+              <button class="opt-btn" data-correct="false">Kualitatif</button>
+            </div>
+            <div class="explain">Benar — hasil pengukuran, bisa berupa desimal, jadi kuantitatif kontinu.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">4. Data hasil sensus penduduk yang diambil dari laman resmi pemerintah</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="true">Data Sekunder</button>
+              <button class="opt-btn" data-correct="false">Data Primer</button>
+            </div>
+            <div class="explain">Benar — data sudah dikumpulkan pihak lain (pemerintah) sebelumnya.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 : TEKNIK - OBSERVASI -->
+    <section class="slide" data-section="Teknik Pengumpulan">
+      <div class="slide-inner">
+        <div class="eyebrow">Teknik Pengumpulan Data · 1 dari 5</div>
+        <h2>Observasi</h2>
+        <p class="lead">Mengumpulkan data dengan cara <strong>mengamati langsung</strong> objek atau kejadian tanpa harus bertanya.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Contoh penerapan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Mengamati dan mencatat jumlah kendaraan yang melintas di depan sekolah selama satu jam.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kelebihan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Data yang didapat bersifat nyata karena diamati langsung, tanpa dipengaruhi jawaban orang lain.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kekurangan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Membutuhkan waktu lama dan sulit digunakan untuk mengetahui pendapat atau perasaan seseorang.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 : TEKNIK - WAWANCARA -->
+    <section class="slide" data-section="Teknik Pengumpulan">
+      <div class="slide-inner">
+        <div class="eyebrow">Teknik Pengumpulan Data · 2 dari 5</div>
+        <h2>Wawancara</h2>
+        <p class="lead">Mengumpulkan data dengan cara <strong>tanya jawab langsung</strong> antara pewawancara dan narasumber.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Contoh penerapan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Menanyakan langsung kepada kepala sekolah tentang jumlah siswa baru tahun ini.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kelebihan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Bisa menggali informasi secara mendalam, termasuk alasan di balik jawaban narasumber.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kekurangan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Membutuhkan waktu per orang cukup lama, kurang efisien untuk jumlah responden yang sangat banyak.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 : TEKNIK - ANGKET -->
+    <section class="slide" data-section="Teknik Pengumpulan">
+      <div class="slide-inner">
+        <div class="eyebrow">Teknik Pengumpulan Data · 3 dari 5</div>
+        <h2>Angket / Kuesioner</h2>
+        <p class="lead">Mengumpulkan data dengan cara memberikan <strong>daftar pertanyaan tertulis</strong> untuk diisi responden.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Contoh penerapan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Membagikan formulir untuk mengetahui makanan favorit seluruh siswa di sekolah.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kelebihan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Efisien untuk responden dalam jumlah besar karena bisa diisi dalam waktu bersamaan.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kekurangan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Jawaban bisa kurang mendalam, dan ada risiko responden mengisi asal-asalan.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 : TEKNIK - DOKUMENTASI -->
+    <section class="slide" data-section="Teknik Pengumpulan">
+      <div class="slide-inner">
+        <div class="eyebrow">Teknik Pengumpulan Data · 4 dari 5</div>
+        <h2>Dokumentasi</h2>
+        <p class="lead">Mengumpulkan data dengan cara menelusuri <strong>catatan atau dokumen yang sudah ada</strong>.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Contoh penerapan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Melihat buku rapor untuk mengetahui nilai ulangan siswa semester lalu.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kelebihan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Hemat waktu karena data sudah tersedia dan tidak perlu dikumpulkan dari awal.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kekurangan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Data mungkin sudah lama atau tidak sesuai dengan kebutuhan terbaru.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 : TEKNIK - EKSPERIMEN -->
+    <section class="slide" data-section="Teknik Pengumpulan">
+      <div class="slide-inner">
+        <div class="eyebrow">Teknik Pengumpulan Data · 5 dari 5</div>
+        <h2>Eksperimen</h2>
+        <p class="lead">Mengumpulkan data dengan cara melakukan <strong>percobaan terkendali</strong> untuk melihat hasilnya.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Contoh penerapan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Menguji berapa lama tanaman tumbuh jika disiram dengan jumlah air yang berbeda-beda.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kelebihan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Bisa menunjukkan sebab-akibat secara jelas karena kondisi dikendalikan.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kekurangan <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Butuh alat, waktu, dan perencanaan yang lebih matang dibanding teknik lain.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 : LATIHAN MEMILIH TEKNIK -->
+    <section class="slide" data-section="Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan</div>
+        <h2>Pilih teknik pengumpulan data yang paling tepat</h2>
+        <div class="acc" id="quiz-teknik">
+          <div class="quiz-item">
+            <div class="stmt">1. Ingin mengetahui pendapat mendalam kepala sekolah tentang program baru</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Observasi</button>
+              <button class="opt-btn" data-correct="true">Wawancara</button>
+              <button class="opt-btn" data-correct="false">Angket</button>
+            </div>
+            <div class="explain">Benar — untuk pendapat yang mendalam dari satu narasumber, wawancara paling tepat.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Ingin mengetahui makanan favorit dari 300 siswa di sekolah dengan cepat</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Wawancara</button>
+              <button class="opt-btn" data-correct="true">Angket</button>
+              <button class="opt-btn" data-correct="false">Eksperimen</button>
+            </div>
+            <div class="explain">Benar — jumlah responden besar sehingga angket lebih efisien daripada wawancara satu per satu.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">3. Ingin mengetahui nilai ulangan siswa semester lalu yang sudah tercatat di rapor</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Observasi</button>
+              <button class="opt-btn" data-correct="true">Dokumentasi</button>
+              <button class="opt-btn" data-correct="false">Eksperimen</button>
+            </div>
+            <div class="explain">Benar — data sudah tercatat sebelumnya, tinggal ditelusuri lewat dokumentasi.</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">4. Ingin mengetahui apakah pupuk baru membuat tanaman tumbuh lebih cepat</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Angket</button>
+              <button class="opt-btn" data-correct="false">Dokumentasi</button>
+              <button class="opt-btn" data-correct="true">Eksperimen</button>
+            </div>
+            <div class="explain">Benar — perlu percobaan terkendali untuk membuktikan sebab-akibat.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 : PEMERIKSAAN DATA - MENGAPA -->
+    <section class="slide" data-section="Pemeriksaan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Pemeriksaan Data</div>
+        <h2>Mengapa data harus <span class="accent">diperiksa</span> dulu?</h2>
+        <p class="lead">Data mentah yang baru dikumpulkan sering kali belum siap diolah. Bisa saja ada kesalahan penulisan, data ganda, atau data yang hilang.</p>
+        <div class="grid-3">
+          <div class="card"><h3>Kesalahan tulis</h3><p>Angka tertukar, salah ketik, atau format yang tidak sesuai.</p></div>
+          <div class="card"><h3>Data ganda</h3><p>Responden yang sama tercatat lebih dari satu kali.</p></div>
+          <div class="card"><h3>Data hilang</h3><p>Ada bagian data yang kosong atau tidak terisi.</p></div>
+        </div>
+        <div class="card">
+          <h3>Akibatnya jika tidak diperiksa</h3>
+          <p>Jika data yang salah langsung diolah, hasil seperti rata-rata, tabel, atau kesimpulan yang dihasilkan juga akan salah — meskipun caranya menghitung sudah benar.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 : LANGKAH PEMERIKSAAN DATA (stepper) -->
+    <section class="slide" data-section="Pemeriksaan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Pemeriksaan Data</div>
+        <h2>Empat langkah memeriksa data</h2>
+        <p class="lead">Klik setiap langkah untuk melihat penjelasan dan contohnya.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">01</span> Editing <span class="acc-icon">+</span></span></button><div class="acc-body"><div class="acc-body-in">Memeriksa dan memperbaiki kesalahan penulisan pada data mentah. Contoh: mengubah "sembilan puluh" menjadi angka 90.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">02</span> Coding <span class="acc-icon">+</span></span></button><div class="acc-body"><div class="acc-body-in">Memberi kode atau kategori pada data agar lebih mudah diolah. Contoh: "Laki-laki" diberi kode L, "Perempuan" diberi kode P.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">03</span> Tabulasi <span class="acc-icon">+</span></span></button><div class="acc-body"><div class="acc-body-in">Menyusun data ke dalam bentuk tabel agar lebih mudah dibaca dan dihitung.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">04</span> Validasi <span class="acc-icon">+</span></span></button><div class="acc-body"><div class="acc-body-in">Memastikan data masuk akal dan berada dalam rentang yang wajar. Contoh: nilai ujian seharusnya antara 0–100, bukan 102 atau -15.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 : STUDI KASUS PEMERIKSAAN DATA -->
+    <section class="slide" data-section="Pemeriksaan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Studi Kasus</div>
+        <h2>Temukan data yang bermasalah</h2>
+        <p class="lead">Berikut hasil input nilai ujian 10 siswa (skala 0–100). Klik baris yang menurutmu <strong>bermasalah</strong>, lalu periksa jawabanmu.</p>
+        <div id="caseRows" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="checkCaseStudy()">Periksa Jawaban</button>
+          <button class="btn ghost" onclick="resetCaseStudy()">Ulangi</button>
+        </div>
+        <div class="reveal-content" id="caseExplain">
+          <div class="card">
+            <p><strong>Citra</strong> — bukan angka ("sembilan puluh" ditulis sebagai teks). <strong>Dewi</strong> — nilai 102 melebihi rentang maksimum 100. <strong>Eko (baris ke-6)</strong> — data ganda, sudah tercatat di baris ke-5. <strong>Fajar</strong> — nilai -15 tidak mungkin negatif. <strong>Hana</strong> — nilai kosong / belum terisi.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 : MENGURUTKAN & MENGELOMPOKKAN -->
+    <section class="slide" data-section="Pengolahan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Pengolahan Data Sederhana</div>
+        <h2>Mengurutkan dan Mengelompokkan Data</h2>
+        <p class="lead">Langkah pertama mengolah data adalah menyusunnya agar mudah dibaca. Berikut data nilai ulangan matematika 20 siswa:</p>
+        <div class="data-chip-row" id="rawDataChips"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="sortRawData()">Urutkan Data (naik)</button>
+          <button class="btn ghost" onclick="resetRawData()">Tampilkan Data Awal</button>
+        </div>
+        <div class="card">
+          <p>Setelah diurutkan, kita bisa melihat data yang sama akan berkumpul berdekatan — ini mempermudah langkah berikutnya, yaitu membuat <strong>tabel frekuensi</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 : TABEL FREKUENSI & GRAFIK -->
+    <section class="slide" data-section="Pengolahan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Pengolahan Data Sederhana</div>
+        <h2>Tabel Frekuensi &amp; Grafik</h2>
+        <p class="lead">Tabel frekuensi menunjukkan berapa kali setiap nilai muncul dalam data.</p>
+        <button class="btn primary" onclick="buildFreqTable()">Buat Tabel Frekuensi</button>
+        <div class="reveal-content" id="freqTableWrap">
+          <table class="freq" id="freqTable" style="margin-top:14px;"></table>
+          <div class="bars" id="freqBars" style="margin-top:18px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 : UKURAN PEMUSATAN -->
+    <section class="slide" data-section="Pengolahan Data">
+      <div class="slide-inner">
+        <div class="eyebrow">Pengolahan Data Sederhana</div>
+        <h2>Ukuran Pemusatan Sederhana</h2>
+        <p class="lead">Menggunakan data yang sama: 20 nilai ulangan matematika.</p>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Mean (rata-rata) <span class="acc-icon">+</span></button>
+            <div class="acc-body"><div class="acc-body-in">
+              <p class="mono">Mean = jumlah semua data ÷ banyak data</p>
+              <p class="mono">Mean = 1560 ÷ 20 = <strong style="color:var(--teal)">78</strong></p>
+            </div></div>
+          </div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Median (nilai tengah) <span class="acc-icon">+</span></button>
+            <div class="acc-body"><div class="acc-body-in">
+              <p>Data diurutkan, lalu diambil nilai tengah. Karena banyak data genap (20), median = rata-rata dua nilai di tengah (data ke-10 dan ke-11).</p>
+              <p class="mono">Median = (75 + 80) ÷ 2 = <strong style="color:var(--teal)">77,5</strong></p>
+            </div></div>
+          </div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Modus (nilai tersering) <span class="acc-icon">+</span></button>
+            <div class="acc-body"><div class="acc-body-in">
+              <p>Nilai 70 dan 75 sama-sama muncul 4 kali — paling sering dibanding nilai lain.</p>
+              <p class="mono">Modus = <strong style="color:var(--teal)">70 dan 75</strong> (bimodal)</p>
+            </div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 : CONTOH SOAL LENGKAP -->
+    <section class="slide" data-section="Contoh Soal">
+      <div class="slide-inner">
+        <div class="eyebrow">Contoh Soal</div>
+        <h2>Coba selesaikan bersama, langkah demi langkah</h2>
+        <div class="card">
+          <h3>Soal</h3>
+          <p>Data banyak saudara kandung dari 8 siswa: 1, 2, 1, 3, 2, 2, 1, 4. Tentukan mean, median, dan modus dari data tersebut.</p>
+        </div>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Petunjuk</button>
+        <div class="reveal-content"><div class="card"><p>Urutkan data terlebih dahulu, lalu hitung mean dengan menjumlahkan semua data dan membaginya dengan banyak data.</p></div></div>
+
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Langkah Penyelesaian</button>
+        <div class="reveal-content"><div class="card">
+          <p class="mono">Urutan: 1, 1, 1, 2, 2, 2, 3, 4</p>
+          <p class="mono">Mean = (1+1+1+2+2+2+3+4) ÷ 8 = 16 ÷ 8 = 2</p>
+          <p class="mono">Median = (data ke-4 + data ke-5) ÷ 2 = (2+2) ÷ 2 = 2</p>
+          <p class="mono">Modus = nilai yang paling sering muncul = 1 dan 2 (masing-masing 3 kali)</p>
+        </div></div>
+
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban &amp; Pembahasan</button>
+        <div class="reveal-content"><div class="card">
+          <p><strong>Jawaban:</strong> Mean = 2, Median = 2, Modus = 1 dan 2.</p>
+          <p><strong>Pembahasan:</strong> Karena nilai 1 dan 2 sama-sama muncul 3 kali (lebih sering dari nilai lain), data ini memiliki dua modus (bimodal). Mean dan median kebetulan bernilai sama karena sebaran data cukup simetris.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- 22 : LATIHAN MANDIRI BERTAHAP -->
+    <section class="slide" data-section="Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan Mandiri</div>
+        <h2>Coba kerjakan sendiri, sesuai levelmu</h2>
+        <div class="tabs" id="levelTabs">
+          <button class="tab-btn active" data-level="mudah" onclick="switchLevel('mudah')">Mudah</button>
+          <button class="tab-btn" data-level="sedang" onclick="switchLevel('sedang')">Sedang</button>
+          <button class="tab-btn" data-level="menantang" onclick="switchLevel('menantang')">Menantang</button>
+        </div>
+
+        <div class="tab-panel active" data-level="mudah">
+          <div class="card">
+            <h3>Soal Mudah</h3>
+            <p>Data: 5, 7, 5, 6, 5, 8. Tentukan modusnya.</p>
+          </div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card"><p>Modus = 5 (muncul 3 kali, paling sering).</p></div></div>
+        </div>
+
+        <div class="tab-panel" data-level="sedang">
+          <div class="card">
+            <h3>Soal Sedang</h3>
+            <p>Data tinggi badan (cm): 150, 152, 148, 150, 155, 149, 151, 150. Tentukan mean dan median.</p>
+          </div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card">
+            <p class="mono">Mean = (150+152+148+150+155+149+151+150) ÷ 8 = 1205 ÷ 8 = 150,625</p>
+            <p class="mono">Urutan: 148,149,150,150,150,151,152,155 → Median = (150+150) ÷ 2 = 150</p>
+          </div></div>
+        </div>
+
+        <div class="tab-panel" data-level="menantang">
+          <div class="card">
+            <h3>Soal Menantang</h3>
+            <p>Sebuah angket diberikan ke 12 responden mengenai jumlah jam belajar per hari: 2, 3, 2, 4, 5, 3, 2, 6, 3, 4, 2, 3. Setelah data ini terkumpul, jelaskan langkah pemeriksaan yang perlu dilakukan sebelum mengolahnya, lalu tentukan mean, median, dan modus.</p>
+          </div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card">
+            <p><strong>Pemeriksaan:</strong> pastikan tidak ada data yang bukan angka, tidak ada nilai negatif atau tidak wajar (misal lebih dari 24 jam), dan tidak ada responden yang tercatat ganda.</p>
+            <p class="mono">Urutan: 2,2,2,2,3,3,3,3,4,4,5,6 (12 data)</p>
+            <p class="mono">Mean = 39 ÷ 12 = 3,25</p>
+            <p class="mono">Median = (data ke-6 + ke-7) ÷ 2 = (3+3) ÷ 2 = 3</p>
+            <p class="mono">Modus = 2 dan 3 (masing-masing muncul 4 kali)</p>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 : KUIS AKHIR -->
+    <section class="slide" data-section="Evaluasi">
+      <div class="slide-inner">
+        <div class="eyebrow">Kuis Akhir</div>
+        <h2>Uji pemahamanmu</h2>
+        <p class="lead">Jawab semua soal, lalu klik "Lihat Skor" di bagian bawah.</p>
+        <div id="finalQuiz" style="display:flex; flex-direction:column; gap:14px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="scoreQuiz()">Lihat Skor</button>
+          <button class="btn ghost" onclick="resetQuiz()">Ulangi Kuis</button>
+        </div>
+        <div class="score-box" id="scoreBox">
+          <div class="score-num" id="scoreNum">0/0</div>
+          <div id="scoreMsg" style="color:var(--text-dim); font-size:14.5px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 : REFLEKSI -->
+    <section class="slide" data-section="Refleksi">
+      <div class="slide-inner">
+        <div class="eyebrow">Refleksi</div>
+        <h2>Sebelum lanjut, coba renungkan sejenak</h2>
+        <div class="card"><p>1. Bagian mana dari materi ini yang menurutmu paling mudah dipahami?</p></div>
+        <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+        <div class="card"><p>2. Teknik pengumpulan data mana yang paling ingin kamu coba praktikkan langsung, dan untuk mengumpulkan data apa?</p></div>
+        <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+      </div>
+    </section>
+
+    <!-- 25 : RANGKUMAN -->
+    <section class="slide" data-section="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">Rangkuman</div>
+        <h2>Empat hal penting hari ini</h2>
+        <div class="acc">
+          <div class="acc-item open"><button class="acc-head" onclick="toggleAcc(this)">Jenis Data <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Data dibedakan menjadi kualitatif/kuantitatif, diskrit/kontinu (untuk data kuantitatif), dan primer/sekunder (berdasarkan sumbernya).</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Teknik Pengumpulan Data <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Ada lima teknik utama: observasi, wawancara, angket/kuesioner, dokumentasi, dan eksperimen — dipilih sesuai kebutuhan dan jumlah responden.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Pemeriksaan Data <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Sebelum diolah, data perlu melewati editing, coding, tabulasi, dan validasi agar bebas dari kesalahan, duplikasi, dan data hilang.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Pengolahan Data Sederhana <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Data yang sudah bersih dapat diurutkan, dikelompokkan ke tabel frekuensi, dan dianalisis menggunakan mean, median, dan modus.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 26 : PENUTUP -->
+    <section class="slide" data-section="Penutup">
+      <div class="slide-inner" style="justify-content:center; min-height:60%; display:flex; flex-direction:column; gap:18px;">
+        <div class="eyebrow">Penutup</div>
+        <h2>Kerja bagus menyelesaikan materi ini!</h2>
+        <p class="lead">Kamu sudah memahami bagaimana data dikumpulkan, diperiksa, dan diolah menjadi informasi yang bermanfaat. Coba terapkan langkah-langkah ini pada data di sekitarmu sendiri.</p>
+        <div>
+          <button class="btn primary" onclick="goTo(0)">↺ Kembali ke Awal</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="controls">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← <span class="label">Sebelumnya</span></button>
+    <div class="counter" id="counter">1 / 27</div>
+    <button class="nav-btn next" id="nextBtn" onclick="nextSlide()"><span class="label">Berikutnya</span> →</button>
+  </div>
+
+</div>
+
+<script>
+/* ========== NAVIGATION ========== */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+function updateUI(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.getElementById('progressFill').style.width = ((current+1)/total*100) + '%';
+  document.getElementById('counter').textContent = (current+1) + ' / ' + total;
+  document.getElementById('sectionTag').textContent = slides[current].dataset.section || '';
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === total - 1;
+  slides[current].scrollTop = 0;
+}
+
+function goTo(i){
+  if(i < 0 || i >= total) return;
+  current = i;
+  updateUI();
+}
+function nextSlide(){ if(current < total-1){ current++; updateUI(); } }
+function prevSlide(){ if(current > 0){ current--; updateUI(); } }
+
+document.addEventListener('keydown', (e)=>{
+  const tag = document.activeElement.tagName;
+  if(tag === 'TEXTAREA' || tag === 'INPUT') return;
+  if(e.key === 'ArrowRight') nextSlide();
+  if(e.key === 'ArrowLeft') prevSlide();
+});
+
+updateUI();
+
+/* ========== COVER BARS (single orchestrated intro animation) ========== */
+(function(){
+  const heights = [26,44,60,38,70,50,32];
+  const wrap = document.getElementById('coverBars');
+  heights.forEach((h,i)=>{
+    const div = document.createElement('div');
+    div.className = 'b';
+    div.style.height = h + 'px';
+    div.style.animationDelay = (i*0.08) + 's';
+    wrap.appendChild(div);
+  });
+})();
+
+/* ========== ACCORDION ========== */
+function toggleAcc(btn){
+  const item = btn.closest('.acc-item');
+  item.classList.toggle('open');
+}
+
+/* ========== GENERIC CLASSIFICATION QUIZ ITEMS (opt-btn) ========== */
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.opt-btn');
+  if(!btn) return;
+  const item = btn.closest('.quiz-item');
+  const isCorrect = btn.dataset.correct === 'true';
+  const allBtns = item.querySelectorAll('.opt-btn');
+  allBtns.forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.correct === 'true') b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('incorrect');
+  const explain = item.querySelector('.explain');
+  if(explain) explain.classList.add('show');
+});
+
+/* ========== REVEAL BUTTONS ========== */
+function toggleReveal(btn){
+  const content = btn.nextElementSibling;
+  const showing = content.classList.toggle('show');
+  btn.textContent = showing ? btn.textContent.replace('Tampilkan','Sembunyikan') : btn.textContent.replace('Sembunyikan','Tampilkan');
+}
+
+/* ========== CASE STUDY: DATA PEMERIKSAAN ========== */
+const caseData = [
+  {no:1, nama:'Andi', nilai:'85', problem:false},
+  {no:2, nama:'Budi', nilai:'78', problem:false},
+  {no:3, nama:'Citra', nilai:'"sembilan puluh"', problem:true},
+  {no:4, nama:'Dewi', nilai:'102', problem:true},
+  {no:5, nama:'Eko', nilai:'67', problem:false},
+  {no:6, nama:'Eko', nilai:'67 (entri ganda)', problem:true},
+  {no:7, nama:'Fajar', nilai:'-15', problem:true},
+  {no:8, nama:'Gita', nilai:'90', problem:false},
+  {no:9, nama:'Hana', nilai:'(kosong)', problem:true},
+  {no:10, nama:'Indah', nilai:'88', problem:false},
+];
+const caseRowsEl = document.getElementById('caseRows');
+function renderCaseRows(){
+  caseRowsEl.innerHTML = '';
+  caseData.forEach(row=>{
+    const div = document.createElement('div');
+    div.className = 'case-row';
+    div.dataset.no = row.no;
+    div.innerHTML = '<span class="idx">'+row.no+'</span><span>'+row.nama+'</span><span class="val">'+row.nilai+'</span>';
+    div.addEventListener('click', ()=> div.classList.toggle('selected'));
+    caseRowsEl.appendChild(div);
+  });
+}
+renderCaseRows();
+function checkCaseStudy(){
+  const rows = caseRowsEl.querySelectorAll('.case-row');
+  rows.forEach(r=>{
+    const data = caseData.find(d=>d.no == r.dataset.no);
+    const selected = r.classList.contains('selected');
+    r.classList.remove('selected','result-correct','result-missed');
+    if(data.problem && selected) r.classList.add('result-correct');
+    else if(data.problem && !selected) r.classList.add('result-missed');
+    else if(!data.problem && selected) r.classList.add('result-missed');
+  });
+  document.getElementById('caseExplain').classList.add('show');
+}
+function resetCaseStudy(){
+  renderCaseRows();
+  document.getElementById('caseExplain').classList.remove('show');
+}
+
+/* ========== MENGURUTKAN DATA ========== */
+const rawData = [70,80,75,90,85,70,60,80,75,95,70,85,90,60,75,80,70,85,90,75];
+const chipsEl = document.getElementById('rawDataChips');
+function renderChips(arr){
+  chipsEl.innerHTML = '';
+  arr.forEach(v=>{
+    const c = document.createElement('div');
+    c.className = 'data-chip';
+    c.textContent = v;
+    chipsEl.appendChild(c);
+  });
+}
+renderChips(rawData);
+function sortRawData(){ renderChips([...rawData].sort((a,b)=>a-b)); }
+function resetRawData(){ renderChips(rawData); }
+
+/* ========== TABEL FREKUENSI ========== */
+function buildFreqTable(){
+  const freq = {};
+  rawData.forEach(v=> freq[v] = (freq[v]||0)+1 );
+  const keys = Object.keys(freq).map(Number).sort((a,b)=>a-b);
+  const table = document.getElementById('freqTable');
+  let head = '<tr><th>Nilai</th>' + keys.map(k=>'<th>'+k+'</th>').join('') + '<th>Total</th></tr>';
+  let body = '<tr><td>Frekuensi</td>' + keys.map(k=>'<td>'+freq[k]+'</td>').join('') + '<td>'+rawData.length+'</td></tr>';
+  table.innerHTML = head + body;
+
+  const maxF = Math.max(...keys.map(k=>freq[k]));
+  const barsEl = document.getElementById('freqBars');
+  barsEl.innerHTML = '';
+  keys.forEach(k=>{
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = '0px';
+    col.innerHTML = '<div class="bar-label">'+freq[k]+'</div>';
+    col.prepend(bar);
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-label';
+    lbl.textContent = k;
+    col.appendChild(lbl);
+    barsEl.appendChild(col);
+    requestAnimationFrame(()=>{ bar.style.height = (freq[k]/maxF*110) + 'px'; });
+  });
+  document.getElementById('freqTableWrap').classList.add('show');
+}
+
+/* ========== LATIHAN MANDIRI TABS ========== */
+function switchLevel(level){
+  document.querySelectorAll('#levelTabs .tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.level===level));
+  document.querySelectorAll('.tab-panel').forEach(p=> p.classList.toggle('active', p.dataset.level===level));
+}
+
+/* ========== KUIS AKHIR ========== */
+const quizData = [
+  {q:'Data yang berupa kategori atau sifat, bukan angka, disebut...', opts:['Data kuantitatif','Data kualitatif','Data diskrit','Data kontinu'], correct:1,
+   exp:'Data kualitatif berupa kategori/sifat, seperti warna atau jenis pekerjaan.'},
+  {q:'Jumlah siswa dalam satu kelas adalah contoh data...', opts:['Kuantitatif diskrit','Kuantitatif kontinu','Kualitatif','Sekunder'], correct:0,
+   exp:'Hasil menghitung jumlah siswa selalu bilangan bulat, jadi kuantitatif diskrit.'},
+  {q:'Data yang diambil dari laporan BPS yang sudah ada sebelumnya disebut data...', opts:['Primer','Sekunder','Diskrit','Kontinu'], correct:1,
+   exp:'Data sekunder adalah data yang sudah dikumpulkan pihak lain sebelumnya.'},
+  {q:'Teknik pengumpulan data yang paling tepat untuk menjangkau ratusan responden dengan cepat adalah...', opts:['Wawancara','Eksperimen','Angket','Observasi'], correct:2,
+   exp:'Angket/kuesioner efisien untuk responden dalam jumlah besar.'},
+  {q:'Langkah memberi kode pada data, misalnya "Laki-laki" menjadi L, disebut...', opts:['Editing','Coding','Tabulasi','Validasi'], correct:1,
+   exp:'Coding adalah pemberian kode pada data agar lebih mudah diolah.'},
+  {q:'Nilai ujian 102 dari skala 0–100 termasuk data yang bermasalah karena...', opts:['Terlalu kecil','Berupa teks','Melebihi rentang wajar','Data ganda'], correct:2,
+   exp:'Nilai maksimum seharusnya 100, sehingga 102 berada di luar rentang yang wajar.'},
+  {q:'Untuk data 4, 6, 4, 8, 4, 10 — modusnya adalah...', opts:['4','6','8','10'], correct:0,
+   exp:'Angka 4 muncul paling sering (3 kali) dibanding angka lain.'},
+  {q:'Median dari data 3, 7, 9, 12 (setelah diurutkan) adalah...', opts:['7','8','9','7,5'], correct:1,
+   exp:'Karena banyak data genap, median = (7+9)/2 = 8.'},
+];
+
+const finalQuizEl = document.getElementById('finalQuiz');
+function renderQuiz(){
+  finalQuizEl.innerHTML = '';
+  quizData.forEach((item, qi)=>{
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.dataset.qi = qi;
+    card.innerHTML = '<div class="qn">Soal '+(qi+1)+' dari '+quizData.length+'</div>'+
+      '<div class="stmt">'+item.q+'</div>'+
+      '<div class="opt-row" style="flex-direction:column; align-items:stretch;">'+
+      item.opts.map((o,oi)=>'<button class="opt-btn" style="text-align:left;" data-oi="'+oi+'" onclick="selectQuizOption(this,'+qi+','+oi+')">'+o+'</button>').join('')+
+      '</div>'+
+      '<div class="explain" data-role="exp">'+item.exp+'</div>';
+    finalQuizEl.appendChild(card);
+  });
+}
+renderQuiz();
+
+const quizAnswers = {};
+function selectQuizOption(btn, qi, oi){
+  quizAnswers[qi] = oi;
+  const card = btn.closest('.quiz-card');
+  card.querySelectorAll('.opt-btn').forEach(b=> b.classList.remove('selected-choice'));
+  card.querySelectorAll('.opt-btn').forEach(b=>{
+    b.style.borderColor = '';
+    b.style.background = '';
+  });
+  btn.style.borderColor = 'var(--violet)';
+  btn.style.background = 'var(--violet-dim)';
+}
+
+function scoreQuiz(){
+  let score = 0;
+  finalQuizEl.querySelectorAll('.quiz-card').forEach(card=>{
+    const qi = Number(card.dataset.qi);
+    const correct = quizData[qi].correct;
+    const chosen = quizAnswers[qi];
+    card.querySelectorAll('.opt-btn').forEach((b,oi)=>{
+      b.disabled = true;
+      if(oi === correct) b.classList.add('correct');
+      else if(oi === chosen) b.classList.add('incorrect');
+    });
+    card.querySelector('.explain').classList.add('show');
+    if(chosen === correct) score++;
+  });
+  const box = document.getElementById('scoreBox');
+  box.classList.add('show');
+  document.getElementById('scoreNum').textContent = score + '/' + quizData.length;
+  let msg = '';
+  const pct = score/quizData.length;
+  if(pct === 1) msg = 'Sempurna! Kamu benar-benar menguasai materi ini.';
+  else if(pct >= 0.7) msg = 'Bagus! Pemahamanmu sudah cukup kuat, cek kembali soal yang salah.';
+  else msg = 'Coba pelajari lagi bagian yang masih keliru, lalu ulangi kuis ini.';
+  document.getElementById('scoreMsg').textContent = msg;
+}
+
+function resetQuiz(){
+  for(const k in quizAnswers) delete quizAnswers[k];
+  renderQuiz();
+  document.getElementById('scoreBox').classList.remove('show');
+}
+</script>
+</body>
+</html>

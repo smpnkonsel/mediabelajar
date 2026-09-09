@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5.6 Visualisasi dan Pemecahan Masalah Data</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a1420;
+    --bg-2:#0d1926;
+    --surface:#101d2c;
+    --surface-2:#152538;
+    --surface-3:#1b3049;
+    --border:rgba(148,180,209,0.14);
+    --border-strong:rgba(148,180,209,0.28);
+    --text:#eaf3fb;
+    --text-dim:#93aec7;
+    --text-faint:#5f7793;
+    --accent:#48d9c4;
+    --accent-dark:#1f8f80;
+    --accent-2:#f5a94e;
+    --accent-3:#ff7676;
+    --accent-4:#7c96ff;
+    --good:#48d9c4;
+    --bad:#ff7676;
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --shadow:0 20px 50px -20px rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background:
+      radial-gradient(1100px 700px at 85% -10%, rgba(72,217,196,0.10), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(124,150,255,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{ font-family:'Fredoka', sans-serif; font-weight:600; letter-spacing:-0.01em; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+
+  /* ---------- APP SHELL ---------- */
+  .app{ height:100vh; height:100dvh; display:flex; flex-direction:column; }
+
+  .topbar{
+    display:flex; align-items:center; gap:14px;
+    padding:14px 20px 12px;
+    flex-shrink:0;
+  }
+  .topbar .kode-chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; color:var(--accent);
+    background:rgba(72,217,196,0.10);
+    border:1px solid rgba(72,217,196,0.25);
+    padding:4px 10px; border-radius:100px;
+    white-space:nowrap;
+  }
+  .topbar .judul-materi{
+    font-size:13px; color:var(--text-dim);
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    flex:1;
+  }
+  .topbar .slide-counter{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px; color:var(--text-faint);
+    white-space:nowrap;
+  }
+  .progress-track{
+    height:4px; width:100%; background:var(--surface-2);
+    flex-shrink:0; position:relative;
+  }
+  .progress-fill{
+    height:100%; background:linear-gradient(90deg, var(--accent-dark), var(--accent));
+    width:0%; transition:width .45s cubic-bezier(.4,0,.2,1);
+  }
+
+  .deck{ flex:1; position:relative; overflow:hidden; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:20px clamp(16px,4vw,56px) 90px;
+    opacity:0; visibility:hidden;
+    transform:translateX(24px);
+    transition:opacity .38s ease, transform .38s ease;
+    overflow-y:auto;
+  }
+  .slide.active{ opacity:1; visibility:visible; transform:translateX(0); }
+  .slide.prev{ transform:translateX(-24px); }
+
+  .slide-inner{ width:100%; max-width:900px; margin:auto; padding:14px 0 30px; }
+
+  .bagian-label{
+    font-size:12.5px; color:var(--text-faint); font-weight:600;
+    margin-bottom:10px; display:flex; align-items:center; gap:8px;
+  }
+  .bagian-label .dot{ width:6px; height:6px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+
+  h2.judul-slide{ font-size:clamp(22px,4vw,32px); margin-bottom:6px; line-height:1.2; }
+  p.subjudul-slide{ color:var(--text-dim); font-size:15px; margin-bottom:22px; max-width:640px; line-height:1.55; }
+
+  /* ---------- NAV ---------- */
+  .navbar{
+    position:absolute; left:0; right:0; bottom:0;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; gap:12px;
+    background:linear-gradient(0deg, rgba(10,20,32,0.92), rgba(10,20,32,0));
+    backdrop-filter:blur(6px);
+  }
+  .nav-btn{
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface-2); color:var(--text);
+    border:1px solid var(--border-strong);
+    padding:10px 18px; border-radius:100px;
+    font-family:inherit; font-size:14px; font-weight:600;
+    cursor:pointer; transition:background .2s, transform .15s, border-color .2s;
+  }
+  .nav-btn:hover{ background:var(--surface-3); border-color:var(--accent); }
+  .nav-btn:active{ transform:scale(0.96); }
+  .nav-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+  .nav-btn:disabled:hover{ background:var(--surface-2); border-color:var(--border-strong); }
+  .nav-btn.primary{ background:var(--accent); border-color:var(--accent); color:#04211c; }
+  .nav-btn.primary:hover{ background:#5be6d1; }
+  .nav-center{ display:flex; align-items:center; gap:10px; }
+  .home-btn{
+    background:transparent; border:1px solid var(--border);
+    color:var(--text-faint); width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:border-color .2s, color .2s;
+  }
+  .home-btn:hover{ color:var(--accent); border-color:var(--accent); }
+
+  button:focus-visible, .chip:focus-visible, summary:focus-visible, input:focus-visible{
+    outline:2px solid var(--accent); outline-offset:2px;
+  }
+
+  /* ---------- COMPONENTS ---------- */
+  .card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:22px;
+  }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid-3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  @media (max-width:720px){ .grid-2, .grid-3{ grid-template-columns:1fr; } }
+
+  .cover-wrap{ text-align:center; }
+  .cover-icon{
+    width:84px; height:84px; margin:0 auto 22px; border-radius:26px;
+    background:linear-gradient(145deg, var(--accent-dark), var(--accent));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 18px 40px -12px rgba(72,217,196,0.45);
+  }
+  .cover-wrap h1{ font-size:clamp(28px,5.5vw,46px); line-height:1.12; margin-bottom:14px; }
+  .cover-wrap .cover-sub{ color:var(--text-dim); font-size:16px; max-width:560px; margin:0 auto 26px; line-height:1.6; }
+  .cover-tags{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .tag{
+    font-size:12.5px; padding:7px 14px; border-radius:100px;
+    background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-dim);
+  }
+  .start-btn{
+    margin-top:30px; background:var(--accent); color:#04211c; border:none;
+    padding:14px 30px; border-radius:100px; font-family:'Fredoka'; font-weight:600;
+    font-size:16px; cursor:pointer; transition:transform .15s, box-shadow .2s;
+    box-shadow:0 14px 30px -10px rgba(72,217,196,0.5);
+  }
+  .start-btn:hover{ transform:translateY(-2px); }
+
+  details.acc{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-md); margin-bottom:12px; overflow:hidden;
+  }
+  details.acc summary{
+    list-style:none; cursor:pointer; padding:16px 20px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    font-weight:600; font-size:15px;
+  }
+  details.acc summary::-webkit-details-marker{ display:none; }
+  details.acc summary .plus{
+    width:24px; height:24px; border-radius:50%; background:var(--surface-3);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    transition:transform .25s;
+  }
+  details.acc[open] summary .plus{ transform:rotate(45deg); background:var(--accent); color:#04211c; }
+  details.acc .acc-body{ padding:0 20px 18px; color:var(--text-dim); font-size:14.5px; line-height:1.65; }
+  details.acc .acc-body b{ color:var(--text); }
+
+  .chart-card{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:20px 22px 10px;
+  }
+  .chart-card .chart-title{ font-weight:700; font-size:15px; margin-bottom:2px; }
+  .chart-card .chart-desc{ color:var(--text-faint); font-size:13px; margin-bottom:14px; }
+  svg.chart-svg{ width:100%; height:auto; display:block; overflow:visible; }
+  .chart-axis{ stroke:var(--border-strong); stroke-width:1.5; }
+  .chart-gridline{ stroke:var(--border); stroke-width:1; stroke-dasharray:3 5; }
+  .chart-value{ font-family:'JetBrains Mono', monospace; font-size:12px; fill:var(--text); }
+  .chart-label{ font-family:'Plus Jakarta Sans', sans-serif; font-size:11.5px; fill:var(--text-faint); }
+  .bar-anim{ transform-box:fill-box; transform-origin:bottom; transform:scaleY(0); transition:transform .6s cubic-bezier(.34,1.4,.64,1); }
+  .bar-anim.show{ transform:scaleY(1); }
+  .line-anim{ stroke-dasharray:800; stroke-dashoffset:800; transition:stroke-dashoffset 1s ease; }
+  .line-anim.show{ stroke-dashoffset:0; }
+  .pt-anim{ opacity:0; transform:scale(0); transform-box:fill-box; transform-origin:center; transition:transform .4s ease, opacity .4s ease; }
+  .pt-anim.show{ opacity:1; transform:scale(1); }
+
+  .kartu-tipe{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+    padding:20px; display:flex; flex-direction:column; gap:10px;
+  }
+  .kartu-tipe .icon-wrap{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    background:var(--surface-3);
+  }
+  .kartu-tipe h3{ font-size:16px; }
+  .kartu-tipe p{ color:var(--text-dim); font-size:13.5px; line-height:1.55; }
+  .kartu-tipe .cocok{
+    margin-top:auto; font-size:12.5px; color:var(--accent); background:rgba(72,217,196,0.08);
+    border:1px solid rgba(72,217,196,0.25); padding:8px 12px; border-radius:var(--radius-sm); line-height:1.5;
+  }
+
+  .chip{
+    background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text);
+    padding:12px 16px; border-radius:var(--radius-md); font-size:14px; cursor:pointer;
+    font-family:inherit; text-align:left; transition:border-color .2s, background .2s, transform .1s;
+    width:100%;
+  }
+  .chip:hover{ border-color:var(--accent); }
+  .chip:active{ transform:scale(0.985); }
+  .chip.selected{ border-color:var(--accent); background:rgba(72,217,196,0.1); }
+  .chip.correct{ border-color:var(--good); background:rgba(72,217,196,0.15); }
+  .chip.wrong{ border-color:var(--bad); background:rgba(255,118,118,0.12); }
+  .chip.disabled{ pointer-events:none; opacity:0.55; }
+  .chip.matched{ border-color:var(--good); background:rgba(72,217,196,0.12); opacity:0.75; pointer-events:none; }
+
+  .match-status{
+    margin-top:16px; font-size:13.5px; color:var(--text-dim);
+    display:flex; align-items:center; gap:8px;
+  }
+  .match-status .badge{
+    font-family:'JetBrains Mono'; font-size:12px; background:var(--surface-2);
+    padding:4px 10px; border-radius:100px; color:var(--accent);
+  }
+
+  .feedback-box{
+    margin-top:14px; padding:14px 16px; border-radius:var(--radius-md);
+    font-size:14px; line-height:1.6; display:none;
+  }
+  .feedback-box.show{ display:block; }
+  .feedback-box.good{ background:rgba(72,217,196,0.1); border:1px solid rgba(72,217,196,0.3); color:#c7fff5; }
+  .feedback-box.bad{ background:rgba(255,118,118,0.1); border:1px solid rgba(255,118,118,0.3); color:#ffd7d7; }
+  .feedback-box.info{ background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text-dim); }
+
+  .step-wrap{ display:grid; grid-template-columns:1.1fr 1fr; gap:22px; align-items:start; }
+  @media (max-width:780px){ .step-wrap{ grid-template-columns:1fr; } }
+  .step-list{ display:flex; flex-direction:column; gap:10px; }
+  .step-item{
+    display:flex; gap:12px; padding:13px 14px; border-radius:var(--radius-md);
+    background:var(--surface); border:1px solid var(--border); opacity:0.4; transition:opacity .3s, border-color .3s;
+  }
+  .step-item.active{ opacity:1; border-color:var(--accent); }
+  .step-item.done{ opacity:0.75; }
+  .step-num{
+    width:26px; height:26px; border-radius:50%; background:var(--surface-3); flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:700; font-family:'JetBrains Mono';
+  }
+  .step-item.active .step-num{ background:var(--accent); color:#04211c; }
+  .step-item.done .step-num{ background:var(--accent-dark); color:#04211c; }
+  .step-item h4{ font-size:14.5px; margin-bottom:3px; }
+  .step-item p{ font-size:13px; color:var(--text-dim); line-height:1.5; }
+  .step-nav{ display:flex; gap:10px; margin-top:14px; }
+  .step-nav button{
+    flex:1; padding:11px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+    background:var(--surface-2); color:var(--text); font-family:inherit; font-weight:600; font-size:13.5px; cursor:pointer;
+  }
+  .step-nav button.primary{ background:var(--accent); color:#04211c; border-color:var(--accent); }
+  .step-nav button:disabled{ opacity:0.35; cursor:not-allowed; }
+
+  .slider-row{ display:flex; align-items:center; gap:14px; margin:16px 0 6px; }
+  .slider-row input[type=range]{
+    flex:1; -webkit-appearance:none; height:6px; border-radius:100px; background:var(--surface-3); outline:none;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--accent);
+    cursor:pointer; border:3px solid #04211c; box-shadow:0 0 0 2px var(--accent);
+  }
+  .slider-row .slider-val{
+    font-family:'JetBrains Mono'; background:var(--surface-2); padding:6px 12px; border-radius:var(--radius-sm);
+    font-size:13.5px; min-width:58px; text-align:center; color:var(--accent);
+  }
+  .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:14px; }
+  .stat-box{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px; text-align:center; }
+  .stat-box .num{ font-family:'JetBrains Mono'; font-size:19px; color:var(--accent); font-weight:600; }
+  .stat-box .lbl{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
+  .narasi-box{
+    margin-top:14px; padding:14px 16px; background:var(--surface-2); border-left:3px solid var(--accent-2);
+    border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:13.5px; line-height:1.65; color:var(--text-dim);
+  }
+  .narasi-box b{ color:var(--text); }
+
+  .soal-box{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px;
+  }
+  .soal-label{ font-size:12px; color:var(--accent-2); font-weight:700; margin-bottom:8px; }
+  .soal-teks{ font-size:15px; line-height:1.7; margin-bottom:16px; }
+  .soal-teks table{ width:100%; border-collapse:collapse; margin:12px 0; font-size:13.5px; }
+  .soal-teks th, .soal-teks td{ border:1px solid var(--border-strong); padding:8px 10px; text-align:center; }
+  .soal-teks th{ background:var(--surface-2); font-family:'JetBrains Mono'; font-weight:600; color:var(--text-dim); }
+  .reveal-btn{
+    background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text);
+    padding:10px 16px; border-radius:100px; font-family:inherit; font-size:13.5px; font-weight:600;
+    cursor:pointer; margin-right:8px; margin-top:6px;
+  }
+  .reveal-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .reveal-panel{ display:none; margin-top:14px; }
+  .reveal-panel.show{ display:block; }
+
+  .tf-row{ display:flex; gap:10px; margin-top:10px; }
+  .tf-btn{
+    flex:1; padding:11px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+    background:var(--surface-2); color:var(--text); font-family:inherit; font-weight:700; cursor:pointer; font-size:13.5px;
+  }
+  .tf-btn.correct{ background:rgba(72,217,196,0.18); border-color:var(--good); }
+  .tf-btn.wrong{ background:rgba(255,118,118,0.15); border-color:var(--bad); }
+
+  .quiz-shell{ max-width:640px; margin:0 auto; }
+  .quiz-progress{ display:flex; gap:6px; margin-bottom:18px; }
+  .quiz-progress .seg{ flex:1; height:5px; border-radius:100px; background:var(--surface-2); }
+  .quiz-progress .seg.done{ background:var(--accent); }
+  .quiz-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px; }
+  .quiz-q{ font-size:16.5px; font-weight:600; margin-bottom:18px; line-height:1.5; }
+  .quiz-options{ display:flex; flex-direction:column; gap:10px; }
+  .quiz-next{
+    margin-top:20px; width:100%; padding:13px; border-radius:100px; border:none;
+    background:var(--accent); color:#04211c; font-family:'Fredoka'; font-weight:600; font-size:15px;
+    cursor:pointer; display:none;
+  }
+  .quiz-next.show{ display:block; }
+  .quiz-result{ text-align:center; }
+  .quiz-result .score-num{ font-family:'Fredoka'; font-size:56px; color:var(--accent); margin:10px 0; }
+  .quiz-result .score-msg{ font-size:15px; color:var(--text-dim); margin-bottom:22px; }
+  .retry-btn{
+    background:var(--surface-2); border:1px solid var(--border-strong); color:var(--text);
+    padding:12px 24px; border-radius:100px; font-family:'Fredoka'; font-weight:600; cursor:pointer; font-size:14.5px;
+  }
+  .retry-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  .refleksi-item{ display:flex; gap:14px; align-items:flex-start; padding:16px 0; border-bottom:1px solid var(--border); }
+  .refleksi-item:last-child{ border-bottom:none; }
+  .refleksi-num{ font-family:'JetBrains Mono'; color:var(--accent); font-size:13px; padding-top:2px; }
+  .refleksi-item p{ color:var(--text-dim); font-size:14.5px; line-height:1.6; }
+
+  .rangkuman-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  @media (max-width:720px){ .rangkuman-grid{ grid-template-columns:1fr; } }
+  .rangkuman-item{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; }
+  .rangkuman-item h4{ font-size:14.5px; margin-bottom:6px; color:var(--accent); }
+  .rangkuman-item p{ font-size:13.5px; color:var(--text-dim); line-height:1.55; }
+
+  .penutup-wrap{ text-align:center; }
+  .penutup-wrap h2{ font-size:clamp(24px,4.5vw,36px); margin-bottom:12px; }
+
+  ::-webkit-scrollbar{ width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--surface-3); border-radius:100px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <span class="kode-chip">5.6</span>
+    <span class="judul-materi">Visualisasi dan Pemecahan Masalah Data</span>
+    <span class="slide-counter"><span id="curNum">1</span>/<span id="totNum">21</span></span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="deck" id="deck">
+
+    <!-- 1. PEMBUKA -->
+    <section class="slide" data-slide="0">
+      <div class="slide-inner cover-wrap">
+        <div class="cover-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20V13M22 20V7" stroke="#04211c" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </div>
+        <div class="bagian-label" style="justify-content:center"><span class="dot"></span>Pembelajaran Interaktif · Kode 5.6</div>
+        <h1>Visualisasi dan<br>Pemecahan Masalah Data</h1>
+        <p class="cover-sub">Belajar membuat grafik, menyajikan hasil analisis, memecahkan masalah nyata berdasarkan data, dan berlatih soal berpikir tingkat tinggi (HOTS).</p>
+        <div class="cover-tags">
+          <span class="tag">Membuat Grafik</span>
+          <span class="tag">Analisis Data</span>
+          <span class="tag">Pemecahan Masalah</span>
+          <span class="tag">Soal HOTS</span>
+        </div>
+        <button class="start-btn" onclick="goTo(1)">Mulai Belajar</button>
+      </div>
+    </section>
+
+    <!-- 2. APERSEPSI -->
+    <section class="slide" data-slide="1">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Apersepsi</div>
+        <h2 class="judul-slide">Coba amati data ini dulu</h2>
+        <p class="subjudul-slide">Kedai Kopi Nusantara mencatat jumlah cangkir kopi yang terjual setiap hari selama satu minggu terakhir. Datanya ditulis dalam bentuk tabel berikut.</p>
+        <div class="grid-2">
+          <div class="card">
+            <div class="soal-teks" style="margin-bottom:0;">
+              <table id="apersepsiTable"></table>
+            </div>
+          </div>
+          <div class="card">
+            <p style="font-size:14.5px; line-height:1.7; color:var(--text-dim); margin-bottom:14px;">Coba jawab dalam hati: hari apa penjualan paling ramai? Apakah ada pola tertentu? Sulit menjawab cepat hanya dari tabel, bukan?</p>
+            <button class="reveal-btn" onclick="toggleReveal('apersepsiReveal', this)">Lihat dalam bentuk grafik</button>
+            <div class="reveal-panel" id="apersepsiReveal">
+              <div id="apersepsiChart"></div>
+              <div class="narasi-box">Dengan grafik, pola <b>naik menjelang akhir pekan</b> langsung terlihat tanpa harus membaca satu per satu angkanya. Inilah kekuatan visualisasi data — mengubah angka menjadi cerita yang mudah dipahami.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. TUJUAN -->
+    <section class="slide" data-slide="2">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Tujuan Pembelajaran</div>
+        <h2 class="judul-slide">Setelah mempelajari bagian ini, kamu mampu:</h2>
+        <div class="grid-2" style="margin-top:20px;">
+          <div class="card"><p style="font-size:14.5px; line-height:1.6;"><b>1.</b> Memilih dan membuat jenis grafik yang tepat sesuai karakteristik data.</p></div>
+          <div class="card"><p style="font-size:14.5px; line-height:1.6;"><b>2.</b> Menyajikan hasil analisis data dalam bentuk narasi yang runtut dan logis.</p></div>
+          <div class="card"><p style="font-size:14.5px; line-height:1.6;"><b>3.</b> Memecahkan masalah nyata dengan menggunakan bukti dari data.</p></div>
+          <div class="card"><p style="font-size:14.5px; line-height:1.6;"><b>4.</b> Menyelesaikan soal HOTS yang menuntut analisis dan pengambilan keputusan.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. KONSEP DASAR -->
+    <section class="slide" data-slide="3">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Konsep Dasar</div>
+        <h2 class="judul-slide">Apa itu visualisasi data?</h2>
+        <p class="subjudul-slide">Klik setiap kartu untuk membuka penjelasannya.</p>
+
+        <details class="acc" open>
+          <summary>Pengertian visualisasi data <span class="plus">+</span></summary>
+          <div class="acc-body">Visualisasi data adalah cara mengubah kumpulan angka atau fakta (data) menjadi bentuk gambar, seperti grafik atau diagram, agar <b>lebih mudah dibaca, dipahami, dan dibandingkan</b> dibandingkan membaca data dalam bentuk tabel mentah.</div>
+        </details>
+        <details class="acc">
+          <summary>Mengapa visualisasi penting? <span class="plus">+</span></summary>
+          <div class="acc-body">Otak manusia jauh lebih cepat mengenali <b>pola, tren, dan perbandingan</b> lewat gambar dibanding lewat angka. Visualisasi membantu kita menemukan informasi tersembunyi, mendukung keputusan, dan menyampaikan hasil analisis kepada orang lain secara ringkas.</div>
+        </details>
+        <details class="acc">
+          <summary>Data mentah vs data tervisualisasi <span class="plus">+</span></summary>
+          <div class="acc-body"><b>Data mentah</b> adalah kumpulan angka apa adanya, misalnya daftar nilai ujian 30 siswa. <b>Data tervisualisasi</b> adalah data yang sama, tetapi sudah diringkas dan digambarkan — misalnya menjadi diagram batang jumlah siswa per rentang nilai — sehingga informasinya langsung terlihat.</div>
+        </details>
+        <details class="acc">
+          <summary>Kapan kita perlu memvisualisasikan data? <span class="plus">+</span></summary>
+          <div class="acc-body">Gunakan visualisasi ketika kamu perlu <b>membandingkan</b> beberapa nilai, menunjukkan <b>perubahan dari waktu ke waktu</b>, menggambarkan <b>proporsi/bagian dari keseluruhan</b>, atau melihat <b>hubungan</b> antara dua hal.</div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 5. JENIS GRAFIK: BATANG -->
+    <section class="slide" data-slide="4">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Jenis Grafik · 1 dari 4</div>
+        <h2 class="judul-slide">Diagram Batang</h2>
+        <p class="subjudul-slide">Digunakan untuk <b>membandingkan</b> nilai antar kategori yang terpisah.</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Penjualan Kedai Kopi Nusantara (cangkir/hari)</div>
+            <div class="chart-desc">Data yang sama seperti di bagian apersepsi</div>
+            <div id="barChart1"></div>
+          </div>
+          <div class="kartu-tipe">
+            <div class="icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20V10M10 20V4M16 20V13" stroke="#48d9c4" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+            <h3>Ciri-ciri</h3>
+            <p>Berbentuk kotak/batang dengan panjang sesuai nilai data. Bisa vertikal maupun horizontal. Setiap batang mewakili satu kategori yang berdiri sendiri (bukan urutan waktu yang menyatu).</p>
+            <div class="cocok">Cocok untuk: membandingkan penjualan toko, jumlah siswa per kelas, hasil panen antar daerah.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. JENIS GRAFIK: GARIS -->
+    <section class="slide" data-slide="5">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Jenis Grafik · 2 dari 4</div>
+        <h2 class="judul-slide">Diagram Garis</h2>
+        <p class="subjudul-slide">Digunakan untuk menunjukkan <b>tren atau perubahan</b> dari waktu ke waktu.</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Curah Hujan Bulanan (mm)</div>
+            <div class="chart-desc">Januari – Juni, Wilayah X</div>
+            <div id="lineChart1"></div>
+          </div>
+          <div class="kartu-tipe">
+            <div class="icon-wrap" style="background:rgba(124,150,255,0.14);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17L9 10L14 14L21 6" stroke="#7c96ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <h3>Ciri-ciri</h3>
+            <p>Titik-titik data dihubungkan garis lurus sehingga arah naik-turunnya langsung terlihat. Sumbu horizontal biasanya berupa waktu (hari, bulan, tahun).</p>
+            <div class="cocok">Cocok untuk: suhu harian, jumlah pengunjung website per bulan, pertumbuhan tanaman.</div>
+          </div>
+        </div>
+        <div class="narasi-box" style="margin-top:16px;">Dari grafik di atas, terlihat bahwa curah hujan <b>menurun secara konsisten</b> dari Januari ke Juni — pola ini akan sulit terlihat cepat jika hanya membaca angka satu per satu.</div>
+      </div>
+    </section>
+
+    <!-- 7. JENIS GRAFIK: LINGKARAN -->
+    <section class="slide" data-slide="6">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Jenis Grafik · 3 dari 4</div>
+        <h2 class="judul-slide">Diagram Lingkaran</h2>
+        <p class="subjudul-slide">Digunakan untuk menunjukkan <b>proporsi atau persentase</b> dari keseluruhan (100%).</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Jenis Sampah di Sekolah</div>
+            <div class="chart-desc">Hasil pengamatan selama satu minggu</div>
+            <div id="pieChart1" style="max-width:260px; margin:0 auto;"></div>
+          </div>
+          <div class="kartu-tipe">
+            <div class="icon-wrap" style="background:rgba(245,169,78,0.14);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#f5a94e" stroke-width="2.2"/><path d="M12 3V12L18 16" stroke="#f5a94e" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+            <h3>Ciri-ciri</h3>
+            <p>Berbentuk lingkaran penuh yang dibagi menjadi beberapa "irisan". Ukuran setiap irisan sebanding dengan persentase kategori tersebut terhadap keseluruhan data.</p>
+            <div class="cocok">Cocok untuk: proporsi jenis sampah, komposisi pemilih, pembagian anggaran. Kurang cocok jika kategori terlalu banyak (lebih dari 6).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. JENIS GRAFIK: SEBAR -->
+    <section class="slide" data-slide="7">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Jenis Grafik · 4 dari 4</div>
+        <h2 class="judul-slide">Diagram Sebar (Scatter Plot)</h2>
+        <p class="subjudul-slide">Digunakan untuk melihat <b>hubungan (korelasi)</b> antara dua kelompok data.</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Jam Belajar vs Nilai Ujian</div>
+            <div class="chart-desc">10 siswa, dicatat dalam satu minggu</div>
+            <div id="scatterChart1"></div>
+          </div>
+          <div class="kartu-tipe">
+            <div class="icon-wrap" style="background:rgba(255,118,118,0.14);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="6" cy="17" r="1.6" fill="#ff7676"/><circle cx="10" cy="13" r="1.6" fill="#ff7676"/><circle cx="14" cy="9" r="1.6" fill="#ff7676"/><circle cx="18" cy="6" r="1.6" fill="#ff7676"/></svg></div>
+            <h3>Ciri-ciri</h3>
+            <p>Setiap titik mewakili satu objek dengan dua nilai (sumbu X dan Y). Jika titik-titik cenderung membentuk garis naik, artinya dua data tersebut berhubungan positif.</p>
+            <div class="cocok">Cocok untuk: hubungan jam tidur dan konsentrasi, hubungan suhu dan penjualan es krim.</div>
+          </div>
+        </div>
+        <div class="narasi-box" style="margin-top:16px;">Titik-titik pada grafik cenderung naik dari kiri bawah ke kanan atas. Artinya, semakin lama jam belajar, <b>semakin tinggi kecenderungan nilai ujian</b>.</div>
+      </div>
+    </section>
+
+    <!-- 9. AKTIVITAS MATCHING -->
+    <section class="slide" data-slide="8">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Aktivitas Interaktif</div>
+        <h2 class="judul-slide">Pilih grafik yang tepat</h2>
+        <p class="subjudul-slide">Klik satu situasi di kiri, lalu klik jenis grafik yang paling sesuai di kanan.</p>
+        <div class="grid-2">
+          <div class="card">
+            <p style="font-size:12.5px; color:var(--text-faint); margin-bottom:10px; font-weight:600;">SITUASI DATA</p>
+            <div id="matchScenarios" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+          <div class="card">
+            <p style="font-size:12.5px; color:var(--text-faint); margin-bottom:10px; font-weight:600;">JENIS GRAFIK</p>
+            <div id="matchTypes" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+        </div>
+        <div class="match-status"><span class="badge" id="matchScore">0 / 4</span> pasangan benar ditemukan</div>
+        <div class="feedback-box" id="matchFeedback"></div>
+      </div>
+    </section>
+
+    <!-- 10. STEP BY STEP -->
+    <section class="slide" data-slide="9">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Langkah Membuat Grafik</div>
+        <h2 class="judul-slide">Dari tabel data menjadi grafik</h2>
+        <p class="subjudul-slide">Kasus: jumlah wisatawan di 5 kota. Klik "Langkah berikutnya" untuk membangun grafiknya tahap demi tahap.</p>
+        <div class="step-wrap">
+          <div>
+            <div class="step-list" id="stepList"></div>
+            <div class="step-nav">
+              <button id="stepPrev" onclick="stepMove(-1)" disabled>Sebelumnya</button>
+              <button id="stepNext" class="primary" onclick="stepMove(1)">Langkah berikutnya</button>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Jumlah Wisatawan (ribu orang)</div>
+            <div class="chart-desc" id="stepChartDesc">Data belum ditampilkan</div>
+            <div id="stepChart"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11. MENYAJIKAN HASIL ANALISIS -->
+    <section class="slide" data-slide="10">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Menyajikan Hasil Analisis</div>
+        <h2 class="judul-slide">Struktur menulis hasil analisis data</h2>
+        <p class="subjudul-slide">Analisis yang baik bukan cuma menunjukkan grafik, tapi juga menjelaskannya dengan kalimat yang runtut. Klik tiap bagian untuk melihat contohnya.</p>
+        <details class="acc" open>
+          <summary>1. Deskripsikan data <span class="plus">+</span></summary>
+          <div class="acc-body">Jelaskan apa yang diukur, dari mana, dan kapan. <br><i>Contoh: "Data berikut menunjukkan penjualan kopi Kedai Nusantara selama 7 hari, dari Senin hingga Minggu."</i></div>
+        </details>
+        <details class="acc">
+          <summary>2. Identifikasi pola atau tren <span class="plus">+</span></summary>
+          <div class="acc-body">Sebutkan kecenderungan yang terlihat: naik, turun, stabil, atau ada lonjakan. <br><i>Contoh: "Penjualan cenderung meningkat menjelang akhir pekan, dengan puncak pada hari Sabtu."</i></div>
+        </details>
+        <details class="acc">
+          <summary>3. Bandingkan nilai penting <span class="plus">+</span></summary>
+          <div class="acc-body">Bandingkan nilai tertinggi, terendah, atau antar kategori. <br><i>Contoh: "Penjualan hari Sabtu (98 cangkir) lebih dari dua kali lipat penjualan hari Rabu (38 cangkir)."</i></div>
+        </details>
+        <details class="acc">
+          <summary>4. Simpulkan dan beri rekomendasi <span class="plus">+</span></summary>
+          <div class="acc-body">Tarik kesimpulan dan usulkan tindakan berdasarkan data. <br><i>Contoh: "Karena permintaan naik di akhir pekan, kedai sebaiknya menambah stok biji kopi dan jumlah staf pada hari Jumat–Minggu."</i></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- 12. CONTOH INTERAKTIF SLIDER -->
+    <section class="slide" data-slide="11">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Simulasi Interaktif</div>
+        <h2 class="judul-slide">Ubah data, lihat analisisnya berubah</h2>
+        <p class="subjudul-slide">Geser slider untuk mensimulasikan efek promo akhir pekan terhadap penjualan Kedai Kopi Nusantara.</p>
+        <div class="chart-card">
+          <div class="chart-title">Penjualan dengan Efek Promo Akhir Pekan</div>
+          <div class="slider-row">
+            <span style="font-size:13px; color:var(--text-faint); white-space:nowrap;">Kekuatan promo</span>
+            <input type="range" min="0" max="100" value="0" id="promoSlider" oninput="updatePromo(this.value)">
+            <span class="slider-val" id="promoVal">0%</span>
+          </div>
+          <div id="promoChart"></div>
+          <div class="stat-row">
+            <div class="stat-box"><div class="num" id="statMax">98</div><div class="lbl">Tertinggi</div></div>
+            <div class="stat-box"><div class="num" id="statAvg">65</div><div class="lbl">Rata-rata</div></div>
+            <div class="stat-box"><div class="num" id="statMin">38</div><div class="lbl">Terendah</div></div>
+          </div>
+          <div class="narasi-box" id="promoNarasi">Geser slider di atas untuk melihat bagaimana kesimpulan analisis berubah mengikuti data.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13. LATIHAN MUDAH -->
+    <section class="slide" data-slide="12">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Latihan · Tingkat Mudah</div>
+        <h2 class="judul-slide">Membaca grafik</h2>
+        <p class="subjudul-slide">Perhatikan kembali grafik penjualan Kedai Kopi Nusantara, lalu tentukan pernyataan berikut Benar atau Salah.</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Penjualan Kedai Kopi Nusantara</div>
+            <div id="barChart2"></div>
+          </div>
+          <div class="card" id="tfContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14. CONTOH SOAL PEMECAHAN MASALAH -->
+    <section class="slide" data-slide="13">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Contoh · Memecahkan Masalah dengan Data</div>
+        <h2 class="judul-slide">Studi kasus: Koperasi Sekolah</h2>
+        <div class="soal-box">
+          <div class="soal-label">SOAL</div>
+          <div class="soal-teks">
+            Koperasi sekolah mencatat penjualan 4 jenis alat tulis selama satu minggu:
+            <table>
+              <tr><th>Barang</th><th>Buku Tulis</th><th>Pensil</th><th>Penghapus</th><th>Pulpen</th></tr>
+              <tr><td>Terjual</td><td>120</td><td>150</td><td>40</td><td>95</td></tr>
+              <tr><td>Stok Awal</td><td>130</td><td>160</td><td>120</td><td>100</td></tr>
+            </table>
+            Koperasi hanya punya dana terbatas untuk menambah stok satu jenis barang minggu depan. Barang mana yang paling perlu ditambah stoknya? Jelaskan alasanmu berdasarkan data.
+          </div>
+          <button class="reveal-btn" onclick="toggleReveal('petunjuk14', this)">Lihat petunjuk</button>
+          <button class="reveal-btn" onclick="toggleReveal('jawaban14', this)">Lihat langkah & jawaban</button>
+          <div class="reveal-panel" id="petunjuk14">
+            <div class="feedback-box info show">Bandingkan bukan hanya jumlah terjual, tapi <b>sisa stok dibanding permintaan</b>. Barang dengan sisa stok sedikit padahal permintaannya tinggi adalah yang paling berisiko habis.</div>
+          </div>
+          <div class="reveal-panel" id="jawaban14">
+            <div class="narasi-box">
+              <b>Langkah penyelesaian:</b><br>
+              1) Hitung sisa stok tiap barang: Buku Tulis 10, Pensil 10, Penghapus 80, Pulpen 5.<br>
+              2) Bandingkan sisa stok dengan tren permintaan mingguan (Pensil dan Buku Tulis terjual paling banyak).<br>
+              3) Pulpen menyisakan stok paling sedikit (5) padahal permintaannya cukup tinggi (95 terjual).<br><br>
+              <b>Kesimpulan:</b> Pulpen paling perlu ditambah stoknya minggu depan karena sisa stoknya paling kritis dibanding permintaannya, sehingga berisiko paling cepat habis.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15. LATIHAN SEDANG -->
+    <section class="slide" data-slide="14">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Latihan · Tingkat Sedang</div>
+        <h2 class="judul-slide">Menemukan pola dan kesimpulan</h2>
+        <p class="subjudul-slide">Perhatikan kembali grafik curah hujan bulanan, lalu jawab pertanyaan berikut.</p>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">Curah Hujan Bulanan (mm)</div>
+            <div id="lineChart2"></div>
+          </div>
+          <div class="card">
+            <p style="font-weight:600; margin-bottom:12px; font-size:14.5px;">Jika pola penurunan ini terus berlanjut, apa kesimpulan paling tepat untuk bulan Juli?</p>
+            <div id="q15options" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <div class="feedback-box" id="q15feedback"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16. SOAL HOTS -->
+    <section class="slide" data-slide="15">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Soal HOTS</div>
+        <h2 class="judul-slide">Studi kasus: Toko "Berkah Jaya"</h2>
+        <p class="subjudul-slide">Grafik berikut menunjukkan penjualan online dan offline Toko Berkah Jaya selama 6 bulan terakhir.</p>
+        <div class="chart-card">
+          <div class="chart-title">Penjualan Online vs Offline (juta rupiah)</div>
+          <div id="dualLineChart"></div>
+          <div style="display:flex; gap:18px; margin-top:8px; font-size:12.5px; color:var(--text-dim);">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:6px;"></span>Online</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent-3);margin-right:6px;"></span>Offline</span>
+          </div>
+        </div>
+        <div class="soal-box" style="margin-top:16px;">
+          <div class="soal-label">PERTANYAAN HOTS</div>
+          <div class="soal-teks" style="margin-bottom:8px;">Berdasarkan tren pada grafik, keputusan bisnis apa yang paling tepat diambil pemilik toko untuk 6 bulan ke depan?</div>
+          <div id="hotsOptions" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div class="feedback-box" id="hotsFeedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17. LATIHAN MENANTANG -->
+    <section class="slide" data-slide="16">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Latihan · Tingkat Menantang</div>
+        <h2 class="judul-slide">Menyusun argumen berbasis data</h2>
+        <p class="subjudul-slide">Masih dengan data Toko Berkah Jaya. Bulan ke-7, penjualan <b>offline sedikit naik</b> dibanding bulan ke-6, sementara <b>online tetap naik lebih tinggi</b>. Apa arti kondisi ini?</p>
+        <div class="card">
+          <div id="q17options" style="display:flex; flex-direction:column; gap:10px;"></div>
+          <div class="feedback-box" id="q17feedback"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18. KUIS -->
+    <section class="slide" data-slide="17">
+      <div class="slide-inner quiz-shell">
+        <div class="bagian-label" style="justify-content:center;"><span class="dot"></span>Kuis Akhir</div>
+        <h2 class="judul-slide" style="text-align:center;">Uji Pemahamanmu</h2>
+        <div class="quiz-progress" id="quizProgress"></div>
+        <div class="quiz-card" id="quizCard"></div>
+      </div>
+    </section>
+
+    <!-- 19. REFLEKSI -->
+    <section class="slide" data-slide="18">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Refleksi</div>
+        <h2 class="judul-slide">Sebelum lanjut, coba renungkan</h2>
+        <div class="card">
+          <div class="refleksi-item"><div class="refleksi-num">01</div><p>Jenis grafik mana yang menurutmu paling mudah dipahami, dan mengapa?</p></div>
+          <div class="refleksi-item"><div class="refleksi-num">02</div><p>Pernahkah kamu melihat grafik yang membingungkan? Apa yang membuatnya sulit dipahami?</p></div>
+          <div class="refleksi-item"><div class="refleksi-num">03</div><p>Bagaimana kamu akan menggunakan data untuk mengambil keputusan sehari-hari, misalnya mengatur uang jajan?</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20. RANGKUMAN -->
+    <section class="slide" data-slide="19">
+      <div class="slide-inner">
+        <div class="bagian-label"><span class="dot"></span>Rangkuman</div>
+        <h2 class="judul-slide">Yang sudah kamu pelajari</h2>
+        <div class="rangkuman-grid">
+          <div class="rangkuman-item"><h4>Diagram Batang</h4><p>Untuk membandingkan nilai antar kategori yang terpisah.</p></div>
+          <div class="rangkuman-item"><h4>Diagram Garis</h4><p>Untuk menunjukkan tren atau perubahan dari waktu ke waktu.</p></div>
+          <div class="rangkuman-item"><h4>Diagram Lingkaran</h4><p>Untuk menunjukkan proporsi dari keseluruhan (100%).</p></div>
+          <div class="rangkuman-item"><h4>Diagram Sebar</h4><p>Untuk melihat hubungan antara dua kelompok data.</p></div>
+          <div class="rangkuman-item"><h4>Menyajikan Analisis</h4><p>Deskripsikan data → temukan pola → bandingkan → simpulkan & rekomendasikan.</p></div>
+          <div class="rangkuman-item"><h4>Pemecahan Masalah</h4><p>Gunakan bukti dari data, bukan tebakan, untuk mengambil keputusan.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21. PENUTUP -->
+    <section class="slide" data-slide="20">
+      <div class="slide-inner penutup-wrap">
+        <div class="cover-icon" style="background:linear-gradient(145deg, var(--accent-2), #ffcf8a);">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 7" stroke="#4a2c02" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2>Kerja bagus!</h2>
+        <p class="cover-sub">Kamu telah menyelesaikan pembelajaran tentang Visualisasi dan Pemecahan Masalah Data. Teruslah berlatih membaca data di sekitarmu — mulai dari uang jajan hingga nilai rapor.</p>
+        <button class="start-btn" onclick="goTo(0)">Ulangi dari Awal</button>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="prevBtn" onclick="goTo(current-1)">← Sebelumnya</button>
+    <div class="nav-center">
+      <button class="home-btn" title="Kembali ke awal" onclick="goTo(0)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 11L12 4L20 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10V19H18V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <button class="nav-btn primary" id="nextBtn" onclick="goTo(current+1)">Berikutnya →</button>
+  </div>
+
+</div>
+
+<script>
+/* ================= NAVIGATION ================= */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+document.getElementById('totNum').textContent = total;
+
+function goTo(i){
+  if(i < 0 || i >= total) return;
+  slides[current].classList.remove('active');
+  current = i;
+  slides[current].classList.add('active');
+  document.getElementById('curNum').textContent = current + 1;
+  document.getElementById('progressFill').style.width = ((current+1)/total*100) + '%';
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').textContent = current === total-1 ? 'Selesai ✓' : 'Berikutnya →';
+  document.getElementById('nextBtn').disabled = current === total-1;
+  document.getElementById('deck').scrollTop = 0;
+  slides[current].scrollTop = 0;
+  onSlideEnter(current);
+}
+slides[0].classList.add('active');
+document.getElementById('prevBtn').disabled = true;
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
+});
+
+function toggleReveal(id, btn){
+  const el = document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+/* ================= CHART HELPERS ================= */
+function animateBars(container){
+  requestAnimationFrame(()=>{
+    container.querySelectorAll('.bar-anim').forEach(el=>el.classList.add('show'));
+  });
+}
+function animateLine(container){
+  requestAnimationFrame(()=>{
+    container.querySelectorAll('.line-anim').forEach(el=>el.classList.add('show'));
+    container.querySelectorAll('.pt-anim').forEach((el,i)=>{
+      setTimeout(()=>el.classList.add('show'), 60*i);
+    });
+  });
+}
+
+function svgBar(data, labels, opts){
+  opts = opts || {};
+  const w = 560, h = 260, padL = 34, padR = 16, padT = 26, padB = 34;
+  const max = Math.max(...data) * 1.2;
+  const innerW = w - padL - padR, innerH = h - padT - padB;
+  const gap = innerW / data.length;
+  const barW = gap * 0.55;
+  let grid = '';
+  for(let g=0; g<=3; g++){
+    const gy = padT + innerH - (innerH*g/3);
+    grid += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" class="chart-gridline"/>`;
+  }
+  let bars = '', axisLabels = '';
+  data.forEach((v,i)=>{
+    const barH = (v/max)*innerH;
+    const x = padL + i*gap + (gap-barW)/2;
+    const y = padT + innerH - barH;
+    const color = (opts.colors && opts.colors[i]) ? opts.colors[i] : 'url(#barGrad)';
+    bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="6" fill="${color}" class="bar-anim"></rect>`;
+    bars += `<text x="${(x+barW/2).toFixed(1)}" y="${(y-8).toFixed(1)}" text-anchor="middle" class="chart-value">${v}</text>`;
+    axisLabels += `<text x="${(x+barW/2).toFixed(1)}" y="${(h-padB+18).toFixed(1)}" text-anchor="middle" class="chart-label">${labels[i]}</text>`;
+  });
+  const axis = `<line x1="${padL}" y1="${padT+innerH}" x2="${w-padR}" y2="${padT+innerH}" class="chart-axis"/>`;
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart-svg">
+    <defs><linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5be6d1"/><stop offset="100%" stop-color="#1f8f80"/>
+    </linearGradient></defs>
+    ${grid}${axis}${bars}${axisLabels}</svg>`;
+}
+
+function svgLine(dataSets, labels, opts){
+  opts = opts || {};
+  const w = 560, h = 260, padL = 34, padR = 16, padT = 26, padB = 34;
+  const innerW = w - padL - padR, innerH = h - padT - padB;
+  const allVals = dataSets.flatMap(d=>d.values);
+  const max = Math.max(...allVals) * 1.15;
+  const min = Math.min(0, Math.min(...allVals));
+  const stepX = innerW / (labels.length - 1);
+  let grid = '';
+  for(let g=0; g<=3; g++){
+    const gy = padT + innerH - (innerH*g/3);
+    grid += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" class="chart-gridline"/>`;
+  }
+  let content = '';
+  dataSets.forEach(ds=>{
+    let points = ds.values.map((v,i)=>{
+      const x = padL + i*stepX;
+      const y = padT + innerH - ((v-min)/(max-min))*innerH;
+      return [x,y];
+    });
+    const path = points.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    content += `<path d="${path}" fill="none" stroke="${ds.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="line-anim"></path>`;
+    points.forEach((p,i)=>{
+      content += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="${ds.color}" class="pt-anim"></circle>`;
+      if(opts.showValues !== false){
+        content += `<text x="${p[0].toFixed(1)}" y="${(p[1]-11).toFixed(1)}" text-anchor="middle" class="chart-value">${ds.values[i]}</text>`;
+      }
+    });
+  });
+  let axisLabels = '';
+  labels.forEach((l,i)=>{
+    const x = padL + i*stepX;
+    axisLabels += `<text x="${x.toFixed(1)}" y="${(h-padB+18).toFixed(1)}" text-anchor="middle" class="chart-label">${l}</text>`;
+  });
+  const axis = `<line x1="${padL}" y1="${padT+innerH}" x2="${w-padR}" y2="${padT+innerH}" class="chart-axis"/>`;
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart-svg">${grid}${axis}${content}${axisLabels}</svg>`;
+}
+
+function svgPie(data, labels, colors){
+  const w = 260, h = 260, r = 92, cx = w/2, cy = h/2 - 6;
+  const total = data.reduce((a,b)=>a+b,0);
+  let angle = -Math.PI/2;
+  let paths = '', legend = '';
+  data.forEach((v,i)=>{
+    const frac = v/total;
+    const a0 = angle;
+    const a1 = angle + frac*Math.PI*2;
+    const x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+    const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+    const large = (a1-a0) > Math.PI ? 1 : 0;
+    paths += `<path d="M${cx},${cy} L${x0.toFixed(1)},${y0.toFixed(1)} A${r},${r} 0 ${large} 1 ${x1.toFixed(1)},${y1.toFixed(1)} Z" fill="${colors[i]}" stroke="#0a1420" stroke-width="2"></path>`;
+    const midA = (a0+a1)/2;
+    const lx = cx + (r*0.68)*Math.cos(midA), ly = cy + (r*0.68)*Math.sin(midA);
+    paths += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" class="chart-value" style="font-size:12px;">${Math.round(frac*100)}%</text>`;
+    angle = a1;
+  });
+  labels.forEach((l,i)=>{
+    legend += `<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim);"><span style="width:9px;height:9px;border-radius:3px;background:${colors[i]};display:inline-block;"></span>${l}</div>`;
+  });
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart-svg">${paths}</svg>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:10px;">${legend}</div>`;
+}
+
+function svgScatter(points, opts){
+  opts = opts || {};
+  const w = 560, h = 260, padL = 40, padR = 16, padT = 20, padB = 38;
+  const innerW = w-padL-padR, innerH = h-padT-padB;
+  const xs = points.map(p=>p.x), ys = points.map(p=>p.y);
+  const xMax = Math.max(...xs)*1.15, yMax = Math.max(...ys)*1.15, yMin = Math.min(...ys)*0.85;
+  let grid = '';
+  for(let g=0; g<=3; g++){
+    const gy = padT + innerH - (innerH*g/3);
+    grid += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" class="chart-gridline"/>`;
+  }
+  let dots = '';
+  points.forEach(p=>{
+    const x = padL + (p.x/xMax)*innerW;
+    const y = padT + innerH - ((p.y-yMin)/(yMax-yMin))*innerH;
+    dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="#ff7676" fill-opacity="0.85" class="pt-anim"></circle>`;
+  });
+  if(opts.trend){
+    const n = points.length;
+    const sx = xs.reduce((a,b)=>a+b,0), sy = ys.reduce((a,b)=>a+b,0);
+    const sxy = points.reduce((a,p)=>a+p.x*p.y,0), sxx = points.reduce((a,p)=>a+p.x*p.x,0);
+    const slope = (n*sxy - sx*sy)/(n*sxx - sx*sx);
+    const intercept = (sy - slope*sx)/n;
+    const x1v = 0, x2v = xMax/1.15;
+    const y1v = slope*x1v+intercept, y2v = slope*x2v+intercept;
+    const X1 = padL, Y1 = padT+innerH-((y1v-yMin)/(yMax-yMin))*innerH;
+    const X2 = padL+(x2v/xMax)*innerW, Y2 = padT+innerH-((y2v-yMin)/(yMax-yMin))*innerH;
+    dots += `<line x1="${X1.toFixed(1)}" y1="${Y1.toFixed(1)}" x2="${X2.toFixed(1)}" y2="${Y2.toFixed(1)}" stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="6 5"></line>`;
+  }
+  const axisX = `<line x1="${padL}" y1="${padT+innerH}" x2="${w-padR}" y2="${padT+innerH}" class="chart-axis"/>`;
+  const axisY = `<line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+innerH}" class="chart-axis"/>`;
+  const lblX = `<text x="${w/2}" y="${h-4}" text-anchor="middle" class="chart-label">Jam belajar per hari</text>`;
+  const lblY = `<text x="12" y="${padT+8}" text-anchor="start" class="chart-label">Nilai</text>`;
+  return `<svg viewBox="0 0 ${w} ${h}" class="chart-svg">${grid}${axisX}${axisY}${dots}${lblX}${lblY}</svg>`;
+}
+
+/* ================= DATA ================= */
+const kopiData = [42,55,38,61,75,98,87];
+const kopiLabels = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const hujanData = [210,180,165,120,90,60];
+const hujanLabels = ['Jan','Feb','Mar','Apr','Mei','Jun'];
+const sampahData = [45,30,15,10];
+const sampahLabels = ['Organik','Plastik','Kertas','Lainnya'];
+const sampahColors = ['#48d9c4','#f5a94e','#7c96ff','#ff7676'];
+const scatterPoints = [
+  {x:1,y:55},{x:2,y:60},{x:2.5,y:63},{x:3,y:68},{x:3.5,y:72},
+  {x:4,y:78},{x:4.5,y:80},{x:5,y:85},{x:5.5,y:88},{x:6,y:92}
+];
+const onlineData = [40,48,58,66,78,92];
+const offlineData = [80,74,66,58,50,44];
+const bulanLabels = ['B1','B2','B3','B4','B5','B6'];
+
+/* ================= APERSEPSI ================= */
+(function(){
+  let rows = '<tr><th>Hari</th>' + kopiLabels.map(l=>`<th>${l}</th>`).join('') + '</tr>';
+  rows += '<tr><td>Cangkir</td>' + kopiData.map(v=>`<td>${v}</td>`).join('') + '</tr>';
+  document.getElementById('apersepsiTable').innerHTML = rows;
+  const c = document.getElementById('apersepsiChart');
+  c.innerHTML = svgBar(kopiData, kopiLabels);
+})();
+
+/* ================= JENIS GRAFIK SLIDES ================= */
+function drawBarChart1(){
+  const c = document.getElementById('barChart1');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgBar(kopiData, kopiLabels); c.dataset.drawn=1; animateBars(c); }
+}
+function drawLineChart1(){
+  const c = document.getElementById('lineChart1');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgLine([{values:hujanData, color:'#7c96ff'}], hujanLabels); c.dataset.drawn=1; animateLine(c); }
+}
+function drawPieChart1(){
+  const c = document.getElementById('pieChart1');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgPie(sampahData, sampahLabels, sampahColors); c.dataset.drawn=1; }
+}
+function drawScatterChart1(){
+  const c = document.getElementById('scatterChart1');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgScatter(scatterPoints, {trend:true}); c.dataset.drawn=1; animateLine(c); }
+}
+function drawBarChart2(){
+  const c = document.getElementById('barChart2');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgBar(kopiData, kopiLabels); c.dataset.drawn=1; animateBars(c); }
+}
+function drawLineChart2(){
+  const c = document.getElementById('lineChart2');
+  if(c && !c.dataset.drawn){ c.innerHTML = svgLine([{values:hujanData, color:'#7c96ff'}], hujanLabels); c.dataset.drawn=1; animateLine(c); }
+}
+function drawDualLineChart(){
+  const c = document.getElementById('dualLineChart');
+  if(c && !c.dataset.drawn){
+    c.innerHTML = svgLine([
+      {values:onlineData, color:'#48d9c4'},
+      {values:offlineData, color:'#ff7676'}
+    ], bulanLabels);
+    c.dataset.drawn=1; animateLine(c);
+  }
+}
+
+/* ================= MATCHING ACTIVITY ================= */
+const scenarios = [
+  {id:'s1', text:'Membandingkan jumlah pengunjung 5 taman kota', type:'batang'},
+  {id:'s2', text:'Menunjukkan tren suhu harian selama sebulan', type:'garis'},
+  {id:'s3', text:'Menunjukkan proporsi jenis kendaraan yang melintas', type:'lingkaran'},
+  {id:'s4', text:'Melihat hubungan antara jam tidur dan konsentrasi belajar', type:'sebar'}
+];
+const chartTypes = [
+  {id:'batang', text:'Diagram Batang'},
+  {id:'garis', text:'Diagram Garis'},
+  {id:'lingkaran', text:'Diagram Lingkaran'},
+  {id:'sebar', text:'Diagram Sebar'}
+];
+let selectedScenario = null;
+let matchedCount = 0;
+
+function buildMatching(){
+  const sWrap = document.getElementById('matchScenarios');
+  const tWrap = document.getElementById('matchTypes');
+  if(sWrap.dataset.built) return;
+  sWrap.dataset.built = 1;
+  const shuffledScenarios = [...scenarios];
+  const shuffledTypes = [...chartTypes].sort(()=>Math.random()-0.5);
+  shuffledScenarios.forEach(s=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = s.text; btn.dataset.id = s.id;
+    btn.onclick = ()=> selectScenario(s.id, btn);
+    sWrap.appendChild(btn);
+  });
+  shuffledTypes.forEach(t=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = t.text; btn.dataset.id = t.id;
+    btn.onclick = ()=> selectType(t.id, btn);
+    tWrap.appendChild(btn);
+  });
+}
+function selectScenario(id, el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#matchScenarios .chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedScenario = id;
+}
+function selectType(id, el){
+  if(el.classList.contains('matched') || !selectedScenario) return;
+  const scenario = scenarios.find(s=>s.id===selectedScenario);
+  const scenarioEl = document.querySelector(`#matchScenarios .chip[data-id="${selectedScenario}"]`);
+  const fb = document.getElementById('matchFeedback');
+  if(scenario.type === id){
+    el.classList.add('matched'); scenarioEl.classList.add('matched');
+    matchedCount++;
+    document.getElementById('matchScore').textContent = matchedCount + ' / 4';
+    fb.className = 'feedback-box good show';
+    fb.textContent = 'Benar! "' + scenario.text + '" paling cocok menggunakan ' + chartTypes.find(t=>t.id===id).text + '.';
+    if(matchedCount === 4){ fb.textContent += ' Semua pasangan berhasil ditemukan.'; }
+  } else {
+    el.classList.add('wrong');
+    setTimeout(()=>el.classList.remove('wrong'), 500);
+    fb.className = 'feedback-box bad show';
+    fb.textContent = 'Belum tepat, coba pikirkan lagi karakteristik data pada situasi tersebut.';
+  }
+  selectedScenario = null;
+  document.querySelectorAll('#matchScenarios .chip').forEach(c=>c.classList.remove('selected'));
+}
+
+/* ================= STEP BY STEP ================= */
+const wisataData = [12, 28, 19, 34, 22];
+const wisataLabels = ['Kota A','Kota B','Kota C','Kota D','Kota E'];
+const stepsData = [
+  {title:'Tentukan judul & tujuan', desc:'Judul: "Jumlah Wisatawan 5 Kota". Tujuannya untuk membandingkan jumlah wisatawan antar kota.'},
+  {title:'Pilih jenis grafik yang sesuai', desc:'Karena membandingkan kategori terpisah (kota), diagram batang adalah pilihan paling tepat.'},
+  {title:'Tentukan sumbu X dan Y', desc:'Sumbu X: nama kota. Sumbu Y: jumlah wisatawan (ribu orang).'},
+  {title:'Plot data satu per satu', desc:'Gambar batang untuk tiap kota sesuai nilainya. Perhatikan bagaimana batang mulai muncul di grafik sebelah kanan.'},
+  {title:'Beri label & keterangan', desc:'Tambahkan angka pada tiap batang serta nama kota di bawahnya agar mudah dibaca.'},
+  {title:'Periksa & sempurnakan', desc:'Cek kembali: apakah judul jelas, skala masuk akal, dan tidak ada data yang terlewat?'}
+];
+let stepIndex = 0;
+function renderSteps(){
+  const list = document.getElementById('stepList');
+  list.innerHTML = stepsData.map((s,i)=>`
+    <div class="step-item ${i===stepIndex?'active':(i<stepIndex?'done':'')}">
+      <div class="step-num">${i+1}</div>
+      <div><h4>${s.title}</h4><p>${s.desc}</p></div>
+    </div>`).join('');
+  document.getElementById('stepPrev').disabled = stepIndex === 0;
+  const nextBtn = document.getElementById('stepNext');
+  if(stepIndex === stepsData.length-1){ nextBtn.textContent = 'Selesai'; nextBtn.disabled = true; }
+  else { nextBtn.textContent = 'Langkah berikutnya'; nextBtn.disabled = false; }
+
+  const chartEl = document.getElementById('stepChart');
+  const desc = document.getElementById('stepChartDesc');
+  if(stepIndex < 3){
+    chartEl.innerHTML = '<p style="color:var(--text-faint);font-size:13px;padding:40px 0;text-align:center;">Grafik akan muncul pada langkah 4</p>';
+    desc.textContent = 'Menunggu proses plotting data...';
+  } else {
+    const shown = stepIndex >= 3 ? wisataData.length : 0;
+    chartEl.innerHTML = svgBar(wisataData, wisataLabels);
+    animateBars(chartEl);
+    desc.textContent = stepIndex >= 4 ? 'Data lengkap dengan label' : 'Data mulai diplot ke grafik';
+  }
+}
+function stepMove(dir){
+  stepIndex = Math.max(0, Math.min(stepsData.length-1, stepIndex+dir));
+  renderSteps();
+}
+
+/* ================= SLIDER SIMULATION ================= */
+function updatePromo(val){
+  val = parseInt(val);
+  document.getElementById('promoVal').textContent = val + '%';
+  const factor = 1 + (val/100)*0.6;
+  const newData = kopiData.map((v,i)=> (i>=4) ? Math.round(v*factor) : v);
+  const c = document.getElementById('promoChart');
+  c.innerHTML = svgBar(newData, kopiLabels);
+  const maxV = Math.max(...newData), minV = Math.min(...newData);
+  const avgV = Math.round(newData.reduce((a,b)=>a+b,0)/newData.length);
+  document.getElementById('statMax').textContent = maxV;
+  document.getElementById('statMin').textContent = minV;
+  document.getElementById('statAvg').textContent = avgV;
+  const narasi = document.getElementById('promoNarasi');
+  if(val === 0){
+    narasi.innerHTML = 'Geser slider di atas untuk melihat bagaimana kesimpulan analisis berubah mengikuti data.';
+  } else if(val < 50){
+    narasi.innerHTML = `Dengan promo sebesar <b>${val}%</b>, penjualan akhir pekan naik menjadi rata-rata <b>${avgV} cangkir/hari</b>. Kenaikannya masih moderat.`;
+  } else {
+    narasi.innerHTML = `Dengan promo sebesar <b>${val}%</b>, penjualan puncak melonjak hingga <b>${maxV} cangkir</b>. Kedai perlu mempersiapkan stok bahan baku jauh lebih banyak agar tidak kehabisan.`;
+  }
+}
+
+/* ================= LATIHAN MUDAH: BENAR/SALAH ================= */
+const tfQuestions = [
+  {text:'Penjualan tertinggi terjadi pada hari Sabtu.', answer:true, explain:'Benar, hari Sabtu menunjukkan 98 cangkir, yang tertinggi sepanjang minggu.'},
+  {text:'Penjualan hari Senin lebih tinggi daripada hari Jumat.', answer:false, explain:'Salah, penjualan hari Senin (42) lebih rendah dari hari Jumat (75).'},
+  {text:'Secara umum, penjualan cenderung meningkat menjelang akhir pekan.', answer:true, explain:'Benar, terlihat kenaikan bertahap dari Kamis hingga Sabtu.'}
+];
+function buildTF(){
+  const wrap = document.getElementById('tfContainer');
+  if(wrap.dataset.built) return;
+  wrap.dataset.built = 1;
+  wrap.innerHTML = tfQuestions.map((q,i)=>`
+    <div style="margin-bottom:16px;">
+      <p style="font-size:14px; margin-bottom:8px;">${i+1}. ${q.text}</p>
+      <div class="tf-row" id="tfRow${i}">
+        <button class="tf-btn" onclick="answerTF(${i}, true, this)">Benar</button>
+        <button class="tf-btn" onclick="answerTF(${i}, false, this)">Salah</button>
+      </div>
+      <div class="feedback-box info" id="tfFeedback${i}" style="margin-top:8px;"></div>
+    </div>`).join('');
+}
+function answerTF(i, userAns, btn){
+  const q = tfQuestions[i];
+  const row = document.getElementById('tfRow'+i);
+  const fb = document.getElementById('tfFeedback'+i);
+  [...row.children].forEach(b=>b.onclick=null);
+  if(userAns === q.answer){ btn.classList.add('correct'); }
+  else { btn.classList.add('wrong'); }
+  fb.classList.add('show');
+  fb.textContent = (userAns===q.answer ? '✓ Tepat. ' : '✗ Belum tepat. ') + q.explain;
+}
+
+/* ================= LATIHAN SEDANG (MCQ) ================= */
+const q15 = {
+  options: [
+    'Curah hujan pasti akan naik drastis melebihi Januari',
+    'Curah hujan kemungkinan akan terus menurun mendekati musim kemarau',
+    'Curah hujan tidak bisa diprediksi sama sekali dari data ini',
+    'Curah hujan akan sama persis dengan bulan Juni'
+  ],
+  correct: 1,
+  explain: 'Karena pola dari Januari ke Juni menunjukkan penurunan yang konsisten, kemungkinan besar tren ini berlanjut ke arah musim kemarau, meski tidak bisa dipastikan 100%.'
+};
+function buildQ15(){
+  const wrap = document.getElementById('q15options');
+  if(wrap.dataset.built) return;
+  wrap.dataset.built = 1;
+  q15.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = opt;
+    btn.onclick = ()=>{
+      document.querySelectorAll('#q15options .chip').forEach(c=>{c.classList.add('disabled'); c.onclick=null;});
+      const fb = document.getElementById('q15feedback');
+      if(i === q15.correct){ btn.classList.add('correct'); fb.className='feedback-box good show'; }
+      else { btn.classList.add('wrong'); document.querySelectorAll('#q15options .chip')[q15.correct].classList.add('correct'); fb.className='feedback-box bad show'; }
+      fb.textContent = q15.explain;
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+/* ================= SOAL HOTS ================= */
+const hots16 = {
+  options:[
+    'Menutup total toko offline karena sudah pasti tidak menguntungkan lagi',
+    'Mengabaikan tren ini karena masih terlalu dini untuk diambil kesimpulan',
+    'Mengalihkan sebagian besar sumber daya ke platform online, sambil tetap mempertahankan toko offline yang masih menghasilkan keuntungan',
+    'Fokus 100% memperbesar toko offline agar bisa menyaingi tren online'
+  ],
+  correct: 2,
+  explain: 'Data menunjukkan online terus naik dan offline terus turun, tetapi offline masih menghasilkan penjualan positif (belum nol). Keputusan paling seimbang adalah memperkuat kanal yang sedang tumbuh (online) tanpa terburu-buru menutup total kanal yang masih menguntungkan (offline) — ini adalah keputusan berbasis data yang mempertimbangkan risiko, bukan reaksi ekstrem.'
+};
+function buildHots16(){
+  const wrap = document.getElementById('hotsOptions');
+  if(wrap.dataset.built) return;
+  wrap.dataset.built = 1;
+  hots16.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = opt;
+    btn.onclick = ()=>{
+      document.querySelectorAll('#hotsOptions .chip').forEach(c=>{c.classList.add('disabled'); c.onclick=null;});
+      const fb = document.getElementById('hotsFeedback');
+      if(i === hots16.correct){ btn.classList.add('correct'); fb.className='feedback-box good show'; }
+      else { btn.classList.add('wrong'); document.querySelectorAll('#hotsOptions .chip')[hots16.correct].classList.add('correct'); fb.className='feedback-box bad show'; }
+      fb.textContent = hots16.explain;
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+/* ================= LATIHAN MENANTANG (17) ================= */
+const q17 = {
+  options:[
+    'Bisnis sedang gagal total karena offline hanya naik sedikit',
+    'Strategi online yang sedang dijalankan efektif dan sebaiknya terus diperkuat, sementara offline mulai stabil dan tidak perlu dikorbankan sepenuhnya',
+    'Kenaikan kecil pada offline berarti tren sebelumnya salah total dan harus dibalik',
+    'Data ini tidak bisa digunakan untuk mengambil keputusan apa pun'
+  ],
+  correct: 1,
+  explain: 'Kenaikan kecil pada offline setelah penurunan panjang bisa menandakan kanal tersebut mulai menemukan titik stabil pada pelanggan setianya, bukan berarti tren dibalik total. Sementara itu, online tetap menjadi kanal pertumbuhan utama. Kesimpulan yang tepat mempertimbangkan kedua fakta ini secara seimbang, bukan bereaksi berlebihan pada satu titik data.'
+};
+function buildQ17(){
+  const wrap = document.getElementById('q17options');
+  if(wrap.dataset.built) return;
+  wrap.dataset.built = 1;
+  q17.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = opt;
+    btn.onclick = ()=>{
+      document.querySelectorAll('#q17options .chip').forEach(c=>{c.classList.add('disabled'); c.onclick=null;});
+      const fb = document.getElementById('q17feedback');
+      if(i === q17.correct){ btn.classList.add('correct'); fb.className='feedback-box good show'; }
+      else { btn.classList.add('wrong'); document.querySelectorAll('#q17options .chip')[q17.correct].classList.add('correct'); fb.className='feedback-box bad show'; }
+      fb.textContent = q17.explain;
+    };
+    wrap.appendChild(btn);
+  });
+}
+
+/* ================= KUIS AKHIR ================= */
+const quizData = [
+  {
+    q:'Grafik apa yang paling tepat digunakan untuk membandingkan jumlah siswa di 4 kelas berbeda?',
+    options:['Diagram Batang','Diagram Garis','Diagram Lingkaran','Diagram Sebar'],
+    correct:0,
+    explain:'Diagram batang paling tepat untuk membandingkan nilai antar kategori terpisah seperti kelas.'
+  },
+  {
+    q:'Untuk menunjukkan tren jumlah pengunjung sebuah website selama 12 bulan, grafik yang paling sesuai adalah...',
+    options:['Diagram Lingkaran','Diagram Garis','Diagram Batang','Diagram Sebar'],
+    correct:1,
+    explain:'Diagram garis menunjukkan perubahan nilai dari waktu ke waktu dengan jelas.'
+  },
+  {
+    q:'Sebuah survei mencatat cara siswa berangkat ke sekolah: jalan kaki 20%, sepeda 15%, motor 40%, mobil 25%. Grafik yang tepat untuk data ini adalah...',
+    options:['Diagram Garis','Diagram Sebar','Diagram Lingkaran','Diagram Batang bertumpuk saja'],
+    correct:2,
+    explain:'Karena data berbentuk persentase dari keseluruhan (total 100%), diagram lingkaran adalah pilihan paling tepat.'
+  },
+  {
+    q:'Perhatikan grafik penjualan Kedai Kopi Nusantara berikut. Hari dengan penjualan tertinggi adalah...',
+    chart:true,
+    options:['Kamis','Jumat','Sabtu','Minggu'],
+    correct:2,
+    explain:'Berdasarkan grafik, hari Sabtu mencatat penjualan tertinggi yaitu 98 cangkir.'
+  },
+  {
+    q:'Sebuah toko mencatat penjualan naik rata-rata 10% setiap bulan selama 3 bulan terakhir, mulai dari 100 unit. Perkiraan penjualan bulan ke-4 adalah sekitar...',
+    options:['110 unit','130 unit','133 unit','140 unit'],
+    correct:2,
+    explain:'100 × 1,1 × 1,1 × 1,1 ≈ 133 unit, karena kenaikan 10% dihitung berulang dari nilai bulan sebelumnya (bukan dari 100 setiap kali).'
+  },
+  {
+    q:'Grafik penjualan sebuah perusahaan menunjukkan online terus naik dan offline terus turun selama 6 bulan, namun offline masih menghasilkan keuntungan. Keputusan paling bijak adalah...',
+    options:['Menutup seluruh toko offline segera','Mengabaikan tren karena belum pasti','Memperkuat online secara bertahap sambil mempertahankan offline yang masih untung','Menghentikan semua investasi di kedua kanal'],
+    correct:2,
+    explain:'Keputusan berbasis data yang baik mempertimbangkan tren sekaligus kondisi saat ini, bukan bereaksi secara ekstrem terhadap satu tren saja.'
+  }
+];
+let quizIndex = 0, quizScore = 0, quizAnswered = false;
+
+function buildQuizProgress(){
+  const p = document.getElementById('quizProgress');
+  p.innerHTML = quizData.map((_,i)=>`<div class="seg ${i<quizIndex?'done':''}"></div>`).join('');
+}
+function renderQuiz(){
+  if(quizIndex >= quizData.length){ renderQuizResult(); return; }
+  buildQuizProgress();
+  quizAnswered = false;
+  const q = quizData[quizIndex];
+  const card = document.getElementById('quizCard');
+  let chartHtml = '';
+  if(q.chart){ chartHtml = `<div style="margin-bottom:18px;">${svgBar(kopiData, kopiLabels)}</div>`; }
+  card.innerHTML = `
+    ${chartHtml}
+    <div class="quiz-q">${quizIndex+1}. ${q.q}</div>
+    <div class="quiz-options" id="quizOptionsWrap"></div>
+    <div class="feedback-box" id="quizFeedback"></div>
+    <button class="quiz-next" id="quizNextBtn">${quizIndex === quizData.length-1 ? 'Lihat Hasil' : 'Soal berikutnya'}</button>
+  `;
+  const optWrap = document.getElementById('quizOptionsWrap');
+  q.options.forEach((opt,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'chip'; btn.textContent = opt;
+    btn.onclick = ()=>{
+      if(quizAnswered) return;
+      quizAnswered = true;
+      document.querySelectorAll('#quizOptionsWrap .chip').forEach(c=>c.classList.add('disabled'));
+      const fb = document.getElementById('quizFeedback');
+      if(i === q.correct){ btn.classList.add('correct'); quizScore++; fb.className='feedback-box good show'; }
+      else { btn.classList.add('wrong'); document.querySelectorAll('#quizOptionsWrap .chip')[q.correct].classList.add('correct'); fb.className='feedback-box bad show'; }
+      fb.textContent = q.explain;
+      document.getElementById('quizNextBtn').classList.add('show');
+    };
+    optWrap.appendChild(btn);
+  });
+  document.getElementById('quizNextBtn').onclick = ()=>{ quizIndex++; renderQuiz(); };
+}
+function renderQuizResult(){
+  buildQuizProgress();
+  const pct = Math.round((quizScore/quizData.length)*100);
+  let msg = '';
+  if(pct >= 85) msg = 'Luar biasa! Pemahamanmu tentang visualisasi dan analisis data sangat baik.';
+  else if(pct >= 60) msg = 'Bagus! Kamu sudah cukup memahami materi ini, terus berlatih ya.';
+  else msg = 'Jangan menyerah, coba pelajari kembali materinya lalu ulangi kuis ini.';
+  document.getElementById('quizCard').innerHTML = `
+    <div class="quiz-result">
+      <p style="color:var(--text-dim); font-size:14px;">Skor Akhir</p>
+      <div class="score-num">${quizScore}/${quizData.length}</div>
+      <p class="score-msg">${msg}</p>
+      <button class="retry-btn" onclick="restartQuiz()">Ulangi Kuis</button>
+    </div>`;
+}
+function restartQuiz(){ quizIndex = 0; quizScore = 0; renderQuiz(); }
+
+/* ================= SLIDE ENTER HOOK ================= */
+function onSlideEnter(idx){
+  if(idx===4) drawBarChart1();
+  if(idx===5) drawLineChart1();
+  if(idx===6) drawPieChart1();
+  if(idx===7) drawScatterChart1();
+  if(idx===8) buildMatching();
+  if(idx===9) renderSteps();
+  if(idx===11) updatePromo(document.getElementById('promoSlider').value);
+  if(idx===12) { drawBarChart2(); buildTF(); }
+  if(idx===14) { drawLineChart2(); buildQ15(); }
+  if(idx===15) { drawDualLineChart(); buildHots16(); }
+  if(idx===16) buildQ17();
+  if(idx===17 && !document.getElementById('quizCard').dataset.built){
+    document.getElementById('quizCard').dataset.built = 1;
+    renderQuiz();
+  }
+}
+onSlideEnter(0);
+</script>
+</body>
+</html>
