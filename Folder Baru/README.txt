@@ -25,3 +25,9 @@ soal/
   geometri.html
 
 Jalankan dengan Live Server atau local server. Jangan membuka index.html langsung dengan file:// karena fetch() ke folder /soal dapat diblokir browser.
+
+
+Pembaruan:
+- Mode awal "Lanjut Otomatis Jika Benar" tersedia langsung di halaman setup.
+- Pilihan mode awal disimpan di localStorage dan tetap sinkron dengan Pengaturan Arena.
+- Tombol ↩️ SELESAI tersedia di halaman setup untuk mencoba menutup aplikasi/tab.
