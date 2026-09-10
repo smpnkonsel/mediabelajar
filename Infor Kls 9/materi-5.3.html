@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mengolah Data | Bab 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0a0e1a;
+  --bg-1:#0f1424;
+  --bg-2:#151b30;
+  --card:#161d33;
+  --card-hi:#1c2440;
+  --border:#252e4d;
+  --coral:#ff6b6b;
+  --coral-dim:#ff6b6b33;
+  --teal:#2dd4bf;
+  --teal-dim:#2dd4bf33;
+  --amber:#fbbf24;
+  --amber-dim:#fbbf2433;
+  --violet:#a78bfa;
+  --text-1:#eef1fb;
+  --text-2:#9aa3c7;
+  --text-3:#6b7396;
+  --ok:#34d399;
+  --bad:#fb7185;
+  --radius-lg:24px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, #1c2a4a55 0%, transparent 45%),
+    radial-gradient(circle at 90% 85%, #2a1c3f55 0%, transparent 45%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 60%, var(--bg-0));
+  color:var(--text-1);
+  min-height:100vh;
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,.brand,.big-num{font-family:'Fredoka', sans-serif;}
+.mono{font-family:'JetBrains Mono', monospace;}
+
+#app{
+  display:flex; flex-direction:column;
+  height:100vh; width:100vw;
+  max-width:1100px; margin:0 auto;
+  padding:14px 18px 10px;
+}
+
+.topbar{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
+.topbar .brand{font-size:15px; font-weight:600; color:var(--text-2); white-space:nowrap;}
+.progress-track{flex:1; height:7px; border-radius:99px; background:var(--border); overflow:hidden;}
+.progress-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--coral), var(--amber)); transition:width .4s cubic-bezier(.4,0,.2,1); width:0%;}
+.slide-counter{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--text-2); white-space:nowrap;}
+
+#stage{flex:1; position:relative; overflow:hidden; border-radius:var(--radius-lg);}
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:26px clamp(16px,4vw,52px);
+  opacity:0; transform:translateX(40px) scale(.98);
+  pointer-events:none; transition:opacity .45s ease, transform .45s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+}
+.slide.active{opacity:1; transform:translateX(0) scale(1); pointer-events:auto;}
+.slide::-webkit-scrollbar{width:6px;}
+.slide::-webkit-scrollbar-thumb{background:var(--border); border-radius:99px;}
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; width:fit-content;
+  font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--teal); background:var(--teal-dim); border:1px solid #2dd4bf55;
+  padding:6px 14px; border-radius:99px; margin-bottom:16px;
+}
+.eyebrow.amber{color:var(--amber); background:var(--amber-dim); border-color:#fbbf2455;}
+.eyebrow.coral{color:var(--coral); background:var(--coral-dim); border-color:#ff6b6b55;}
+.eyebrow.violet{color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;}
+.eyebrow.bad{color:var(--bad); background:#fb718533; border-color:#fb718555;}
+
+h2.slide-title{font-size:clamp(22px,4vw,34px); font-weight:600; line-height:1.25; margin-bottom:6px;}
+.slide-sub{color:var(--text-2); font-size:clamp(13.5px,2vw,16px); margin-bottom:20px; max-width:720px;}
+
+.card{
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:20px 22px; box-shadow:var(--shadow);
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:720px){ .grid2, .grid3{grid-template-columns:1fr;} }
+
+.btn{
+  cursor:pointer; border:none; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+  border-radius:99px; padding:11px 20px; font-size:13.5px; transition:transform .15s, box-shadow .15s, opacity .15s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(120deg, var(--coral), #ff9770); color:#1a0e0e; box-shadow:0 10px 26px -10px #ff6b6b88;}
+.btn-primary:hover{box-shadow:0 14px 30px -8px #ff6b6bcc;}
+.btn-outline{background:transparent; border:1.5px solid var(--border); color:var(--text-1);}
+.btn-outline:hover{border-color:var(--teal); color:var(--teal);}
+.btn-outline.active{border-color:var(--teal); color:var(--teal); background:#2dd4bf1a;}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+.btn-row{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0;}
+
+.navbar{display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:10px;}
+.dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:60vw;}
+.dot{width:8px; height:8px; border-radius:99px; background:var(--border); cursor:pointer; transition:.25s; flex-shrink:0;}
+.dot.active{width:22px; background:var(--coral);}
+.dot.done{background:var(--teal);}
+.nav-btn{
+  width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--card);
+  color:var(--text-1); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:.2s;
+}
+.nav-btn:hover:not(:disabled){border-color:var(--coral); color:var(--coral); transform:translateY(-2px);}
+.nav-btn:disabled{opacity:.3; cursor:not-allowed;}
+
+.info-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px; position:relative; overflow:hidden;}
+.info-card .icon{font-size:26px; margin-bottom:10px; display:block;}
+.info-card h3{font-size:16.5px; font-weight:700; margin-bottom:6px;}
+.info-card p{font-size:14px; color:var(--text-2); line-height:1.55;}
+
+.term-box{border-left:4px solid var(--amber); background:#fbbf2412; border-radius:10px; padding:14px 18px; margin:14px 0;}
+.term-box b{color:var(--amber);}
+
+.step-flow{display:flex; flex-direction:column; gap:0;}
+.step-item{display:flex; gap:16px; align-items:flex-start; position:relative; padding-bottom:26px;}
+.step-item:last-child{padding-bottom:0;}
+.step-item::before{content:''; position:absolute; left:19px; top:42px; bottom:0; width:2px; background:var(--border);}
+.step-item:last-child::before{display:none;}
+.step-num{width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--coral), var(--amber)); color:#1a0e0e; display:flex; align-items:center; justify-content:center; font-weight:800; font-family:'Fredoka'; flex-shrink:0; z-index:1;}
+.step-text h4{font-size:15px; margin-bottom:4px;}
+.step-text p{font-size:13.5px; color:var(--text-2); line-height:1.6;}
+
+.example-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}
+.example-tag{display:inline-block; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:99px; margin-bottom:10px;}
+.tag-easy{background:#34d39933; color:#34d399;}
+.tag-med{background:#fbbf2433; color:#fbbf24;}
+.tag-hard{background:#fb718533; color:#fb7185;}
+
+.mc-options{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
+.mc-opt{border:1.5px solid var(--border); background:var(--card); border-radius:12px; padding:13px 16px; cursor:pointer; font-size:14px; transition:.2s; display:flex; align-items:center; gap:10px;}
+.mc-opt:hover{border-color:var(--teal);}
+.mc-opt.correct{border-color:var(--ok); background:#34d39922; color:var(--ok);}
+.mc-opt.wrong{border-color:var(--bad); background:#fb718522; color:var(--bad);}
+.mc-opt .letter{width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;}
+.feedback{margin-top:12px; padding:12px 16px; border-radius:10px; font-size:13.5px; display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:#34d39922; border:1px solid #34d39955; color:#a7f3d0;}
+.feedback.bad{background:#fb718522; border:1px solid #fb718555; color:#fecdd3;}
+
+.accordion-item{border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; overflow:hidden; background:var(--card);}
+.accordion-head{padding:14px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700; font-size:14.5px;}
+.accordion-head .arrow{transition:transform .3s; color:var(--teal);}
+.accordion-item.open .arrow{transform:rotate(180deg);}
+.accordion-body{max-height:0; overflow:hidden; transition:max-height .35s ease; padding:0 18px;}
+.accordion-item.open .accordion-body{max-height:400px; padding:0 18px 16px;}
+.accordion-body p{color:var(--text-2); font-size:13.8px; line-height:1.6;}
+
+.drag-wrap{display:flex; flex-wrap:wrap; gap:20px; margin-top:16px;}
+.drag-pool{flex:1; min-width:220px; display:flex; flex-wrap:wrap; gap:10px; align-content:flex-start;}
+.drag-chip{padding:10px 14px; background:var(--card-hi); border:1.5px solid var(--border); border-radius:14px; cursor:grab; font-size:12.5px; font-weight:600; user-select:none; max-width:220px;}
+.drag-chip.placed{opacity:.3; cursor:default;}
+.drop-zones{flex:1.6; min-width:260px; display:flex; flex-direction:column; gap:12px;}
+.drop-zone{border:2px dashed var(--border); border-radius:12px; padding:12px 14px; min-height:56px; display:flex; flex-direction:column; gap:6px;}
+.drop-zone .dz-label{font-size:12px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.04em;}
+.drop-zone.over{border-color:var(--teal); background:#2dd4bf12;}
+.drop-zone .dz-chip{background:var(--teal-dim); border:1px solid #2dd4bf55; padding:6px 10px; border-radius:10px; font-size:11.5px; display:inline-block;}
+
+.quiz-progress{display:flex; gap:5px; margin-bottom:16px;}
+.quiz-progress span{flex:1; height:5px; border-radius:99px; background:var(--border);}
+.quiz-progress span.done{background:var(--teal);}
+.quiz-progress span.wrong{background:var(--bad);}
+
+.big-num{font-size:clamp(40px,7vw,64px); font-weight:700; background:linear-gradient(120deg,var(--coral),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent; line-height:1;}
+
+.tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.tag-pill{font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; background:var(--card); border:1px solid var(--border); color:var(--text-2);}
+
+/* spreadsheet-style data table */
+.sheet-wrap{background:#0d1220; border:1px solid var(--border); border-radius:14px; overflow:hidden;}
+.data-table{width:100%; border-collapse:collapse; font-size:13px;}
+.data-table th{background:#151b30; color:var(--text-2); font-size:11px; text-transform:uppercase; letter-spacing:.05em; text-align:left; padding:10px 14px; border-bottom:1px solid var(--border);}
+.data-table td{padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text-1); transition:opacity .3s, background .3s;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr.dim td{opacity:.25;}
+.data-table tr.match td{background:#2dd4bf14;}
+.group-header td{background:#fbbf2418; color:var(--amber); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.04em;}
+
+footer.hint{text-align:center; font-size:11.5px; color:var(--text-3); margin-top:8px;}
+::selection{background:var(--coral); color:#1a0e0e;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <span class="brand">📊 Mengolah Data</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="slide-counter" id="slideCounter">1 / 18</span>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="btnPrev" aria-label="Sebelumnya">←</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="btnNext" aria-label="Berikutnya">→</button>
+  </div>
+  <footer class="hint">Gunakan tombol ← → atau geser layar untuk berpindah slide</footer>
+</div>
+
+<script>
+/* ================= SAMPLE DATA ================= */
+const siswaData = [
+  {nama:'Andi', kelas:'7A', nilai:78},
+  {nama:'Budi', kelas:'7B', nilai:92},
+  {nama:'Citra', kelas:'7A', nilai:85},
+  {nama:'Dewi', kelas:'7B', nilai:70},
+  {nama:'Eka', kelas:'7A', nilai:95},
+  {nama:'Fajar', kelas:'7B', nilai:65}
+];
+
+/* ================= SLIDE DEFINITIONS ================= */
+const slides = [
+  // 0. COVER
+  {
+    id:'cover',
+    render: () => `
+      <div style="display:flex; flex-direction:column; justify-content:center; align-items:flex-start; height:100%;">
+        <span class="eyebrow">Bab 5 &middot; Kode 5.3</span>
+        <h1 style="font-size:clamp(30px,6vw,50px); font-weight:700; line-height:1.15; max-width:780px;">
+          Mengolah<br><span style="background:linear-gradient(120deg,var(--coral),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent;">Data</span>
+        </h1>
+        <p style="margin-top:16px; color:var(--text-2); font-size:16px; max-width:620px; line-height:1.7;">
+          Pengurutan, penyaringan, pengelompokan, dan pengolahan data menggunakan spreadsheet.
+        </p>
+        <div style="display:flex; gap:10px; margin-top:28px; flex-wrap:wrap;">
+          <span class="tag-pill">↕️ Pengurutan</span>
+          <span class="tag-pill">🔍 Penyaringan</span>
+          <span class="tag-pill">🗂️ Pengelompokan</span>
+          <span class="tag-pill">📋 Spreadsheet</span>
+        </div>
+        <button class="btn btn-primary" style="margin-top:34px;" onclick="goTo(1)">Mulai Belajar &rarr;</button>
+      </div>`
+  },
+  // 1. APERSEPSI
+  {
+    id:'apersepsi',
+    render: () => `
+      <span class="eyebrow amber">Apersepsi</span>
+      <h2 class="slide-title">Data Mentah vs Data yang Sudah Diolah</h2>
+      <p class="slide-sub">Bayangkan gurumu memiliki data nilai 30 siswa yang masih tersusun acak. Perhatikan situasi berikut.</p>
+      <div class="grid3">
+        <div class="info-card"><span class="icon">🏆</span><h3>Mencari Nilai Tertinggi</h3><p>Guru ingin tahu siapa 3 siswa dengan nilai tertinggi tanpa harus membaca satu per satu.</p></div>
+        <div class="info-card"><span class="icon">🔎</span><h3>Siswa yang Perlu Remedial</h3><p>Guru ingin menampilkan hanya siswa dengan nilai di bawah KKM (70).</p></div>
+        <div class="info-card"><span class="icon">🗂️</span><h3>Rekap per Kelas</h3><p>Guru ingin melihat nilai dikelompokkan berdasarkan kelas masing-masing.</p></div>
+      </div>
+      <div class="term-box" style="margin-top:22px;">
+        <p>🤔 <b>Pertanyaan pemantik:</b> Jika data tersebut masih acak dan jumlahnya banyak, akan sangat sulit dan memakan waktu bila dicari secara manual. Bagaimana spreadsheet dapat membantu mengolah data tersebut dengan cepat?</p>
+      </div>`
+  },
+  // 2. TUJUAN
+  {
+    id:'tujuan',
+    render: () => `
+      <span class="eyebrow">Tujuan Pembelajaran</span>
+      <h2 class="slide-title">Setelah mempelajari materi ini, kamu diharapkan mampu:</h2>
+      <div class="step-flow" style="margin-top:10px;">
+        <div class="step-item"><div class="step-num">1</div><div class="step-text"><h4>Menjelaskan dan melakukan pengurutan data</h4><p>Menyusun data berdasarkan kriteria tertentu menggunakan spreadsheet.</p></div></div>
+        <div class="step-item"><div class="step-num">2</div><div class="step-text"><h4>Menjelaskan dan melakukan penyaringan data</h4><p>Menampilkan hanya data yang memenuhi kriteria tertentu.</p></div></div>
+        <div class="step-item"><div class="step-num">3</div><div class="step-text"><h4>Menjelaskan dan melakukan pengelompokan data</h4><p>Mengelompokkan data berdasarkan kategori tertentu.</p></div></div>
+        <div class="step-item"><div class="step-num">4</div><div class="step-text"><h4>Menggunakan fungsi dasar spreadsheet</h4><p>Memanfaatkan fungsi seperti SUM, AVERAGE, dan COUNT untuk mengolah data.</p></div></div>
+      </div>`
+  },
+  // 3. PENGANTAR SPREADSHEET
+  {
+    id:'pengantar',
+    render: () => `
+      <span class="eyebrow coral">Pengantar</span>
+      <h2 class="slide-title">Spreadsheet sebagai Alat Mengolah Data</h2>
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8;">
+          <b style="color:var(--coral);">Spreadsheet</b> (lembar kerja elektronik) adalah program yang menyusun data dalam bentuk baris dan kolom (sel), seperti Google Sheets atau Microsoft Excel. Spreadsheet memudahkan kita mengolah data dalam jumlah besar secara cepat dan rapi.
+        </p>
+      </div>
+      <p class="slide-sub" style="margin-top:16px;">Berikut contoh data nilai siswa yang akan kita gunakan sebagai bahan belajar di slide-slide berikutnya:</p>
+      <div class="sheet-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nama</th><th>Kelas</th><th>Nilai</th></tr></thead>
+          <tbody>${siswaData.map(s=>`<tr><td>${s.nama}</td><td>${s.kelas}</td><td>${s.nilai}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>`
+  },
+  // 4. KONSEP 1: PENGERTIAN PENGURUTAN
+  {
+    id:'konsep-sort',
+    render: () => `
+      <span class="eyebrow" style="color:var(--teal);">Konsep 1</span>
+      <h2 class="slide-title">Pengurutan Data (Sorting)</h2>
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8;">
+          <b style="color:var(--teal);">Pengurutan data</b> adalah kegiatan menyusun ulang data berdasarkan kriteria tertentu, misalnya dari yang terkecil ke terbesar (ascending) atau dari yang terbesar ke terkecil (descending), tanpa mengubah atau menghilangkan data itu sendiri.
+        </p>
+      </div>
+      <div class="term-box">
+        <p><b>Contoh penerapan:</b> mengurutkan nilai siswa dari yang tertinggi ke terendah untuk menentukan peringkat kelas.</p>
+      </div>`
+  },
+  // 5. INTERAKTIF PENGURUTAN
+  {
+    id:'demo-sort',
+    render: () => `
+      <span class="eyebrow" style="color:var(--teal);">Konsep 1 (lanjutan)</span>
+      <h2 class="slide-title">Coba Sendiri: Urutkan Data</h2>
+      <p class="slide-sub">Klik tombol untuk mengurutkan data nilai siswa.</p>
+      <div class="btn-row">
+        <button class="btn btn-outline" id="sortAscBtn" onclick="sortDemo('asc')">↑ Urutkan Nilai Terkecil</button>
+        <button class="btn btn-outline" id="sortDescBtn" onclick="sortDemo('desc')">↓ Urutkan Nilai Terbesar</button>
+        <button class="btn btn-outline" id="sortResetBtn" onclick="sortDemo('reset')">↺ Reset</button>
+      </div>
+      <div class="sheet-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nama</th><th>Kelas</th><th>Nilai</th></tr></thead>
+          <tbody id="sortTableBody"></tbody>
+        </table>
+      </div>`,
+    afterRender: () => sortDemo('reset')
+  },
+  // 6. KONSEP 2: PENGERTIAN PENYARINGAN
+  {
+    id:'konsep-filter',
+    render: () => `
+      <span class="eyebrow" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Konsep 2</span>
+      <h2 class="slide-title">Penyaringan Data (Filtering)</h2>
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8;">
+          <b style="color:var(--violet);">Penyaringan data</b> adalah kegiatan menampilkan hanya data yang memenuhi kriteria tertentu, sementara data lain yang tidak memenuhi kriteria disembunyikan sementara (data asli tetap tersimpan, tidak dihapus).
+        </p>
+      </div>
+      <div class="term-box">
+        <p><b>Contoh penerapan:</b> menampilkan hanya siswa dengan nilai di bawah KKM untuk keperluan remedial.</p>
+      </div>`
+  },
+  // 7. INTERAKTIF PENYARINGAN
+  {
+    id:'demo-filter',
+    render: () => `
+      <span class="eyebrow" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Konsep 2 (lanjutan)</span>
+      <h2 class="slide-title">Coba Sendiri: Saring Data</h2>
+      <p class="slide-sub">Klik tombol untuk menyaring data nilai siswa.</p>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="filterDemo('above')">Tampilkan Nilai &ge; 80</button>
+        <button class="btn btn-outline" onclick="filterDemo('below')">Tampilkan Nilai &lt; 70 (Remedial)</button>
+        <button class="btn btn-outline" onclick="filterDemo('reset')">↺ Tampilkan Semua</button>
+      </div>
+      <div class="sheet-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nama</th><th>Kelas</th><th>Nilai</th></tr></thead>
+          <tbody id="filterTableBody"></tbody>
+        </table>
+      </div>`,
+    afterRender: () => filterDemo('reset')
+  },
+  // 8. KONSEP 3: PENGERTIAN PENGELOMPOKAN
+  {
+    id:'konsep-group',
+    render: () => `
+      <span class="eyebrow amber">Konsep 3</span>
+      <h2 class="slide-title">Pengelompokan Data (Grouping)</h2>
+      <div class="card">
+        <p style="font-size:15px; line-height:1.8;">
+          <b style="color:var(--amber);">Pengelompokan data</b> adalah kegiatan menyusun data ke dalam kategori atau kelompok tertentu berdasarkan kesamaan ciri, sehingga data dengan kategori yang sama dapat dilihat secara bersamaan.
+        </p>
+      </div>
+      <div class="term-box">
+        <p><b>Contoh penerapan:</b> mengelompokkan data nilai siswa berdasarkan kelas asal (7A dan 7B) untuk membuat rekap per kelas.</p>
+      </div>`
+  },
+  // 9. INTERAKTIF PENGELOMPOKAN
+  {
+    id:'demo-group',
+    render: () => `
+      <span class="eyebrow amber">Konsep 3 (lanjutan)</span>
+      <h2 class="slide-title">Coba Sendiri: Kelompokkan Data</h2>
+      <p class="slide-sub">Klik tombol untuk mengelompokkan data nilai siswa berdasarkan kelas.</p>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="groupDemo('group')">🗂️ Kelompokkan berdasarkan Kelas</button>
+        <button class="btn btn-outline" onclick="groupDemo('reset')">↺ Tampilkan Biasa</button>
+      </div>
+      <div class="sheet-wrap">
+        <table class="data-table">
+          <thead><tr><th>Nama</th><th>Kelas</th><th>Nilai</th></tr></thead>
+          <tbody id="groupTableBody"></tbody>
+        </table>
+      </div>`,
+    afterRender: () => groupDemo('reset')
+  },
+  // 10. FUNGSI DASAR SPREADSHEET
+  {
+    id:'fungsi',
+    render: () => `
+      <span class="eyebrow coral">Pendukung</span>
+      <h2 class="slide-title">Fungsi Dasar untuk Mengolah Data di Spreadsheet</h2>
+      <p class="slide-sub">Klik setiap fungsi untuk melihat kegunaannya.</p>
+      <div id="fungsiAccordion"></div>`,
+    afterRender: () => {
+      const data = [
+        {icon:'➕', title:'SUM', text:'Menjumlahkan seluruh nilai dalam suatu rentang data, misalnya total nilai seluruh siswa.'},
+        {icon:'📐', title:'AVERAGE', text:'Menghitung rata-rata dari suatu rentang data, misalnya rata-rata nilai kelas.'},
+        {icon:'🔢', title:'COUNT', text:'Menghitung banyaknya data (jumlah sel berisi angka) dalam suatu rentang.'},
+        {icon:'⬆️', title:'MAX', text:'Menampilkan nilai tertinggi dari suatu rentang data.'},
+        {icon:'⬇️', title:'MIN', text:'Menampilkan nilai terendah dari suatu rentang data.'},
+        {icon:'↕️', title:'SORT', text:'Mengurutkan data secara otomatis berdasarkan kolom dan kriteria yang dipilih.'},
+        {icon:'🔍', title:'FILTER', text:'Menyaring dan menampilkan hanya data yang memenuhi syarat tertentu.'}
+      ];
+      document.getElementById('fungsiAccordion').innerHTML = data.map((d,i)=>`
+        <div class="accordion-item" id="fun-${i}">
+          <div class="accordion-head" onclick="toggleAccordion('fun-${i}')">
+            <span>${d.icon} &nbsp; <span class="mono">${d.title}</span></span>
+            <span class="arrow">▾</span>
+          </div>
+          <div class="accordion-body"><p>${d.text}</p></div>
+        </div>`).join('');
+    }
+  },
+  // 11. AKTIVITAS: COCOKKAN ISTILAH
+  {
+    id:'aktivitas',
+    render: () => `
+      <span class="eyebrow" style="color:var(--amber);">Aktivitas</span>
+      <h2 class="slide-title">Cocokkan Kegiatan dengan Istilahnya</h2>
+      <p class="slide-sub">Seret setiap pernyataan ke kotak istilah yang sesuai.</p>
+      <div class="drag-wrap">
+        <div class="drop-zones" style="order:2; flex:1;">
+          <div class="drop-zone" data-type="urut"><span class="dz-label" style="color:var(--teal);">↕️ Pengurutan</span></div>
+          <div class="drop-zone" data-type="saring"><span class="dz-label" style="color:var(--violet);">🔍 Penyaringan</span></div>
+          <div class="drop-zone" data-type="kelompok"><span class="dz-label" style="color:var(--amber);">🗂️ Pengelompokan</span></div>
+        </div>
+        <div class="drag-pool" id="aktPool" style="order:1;"></div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:16px;" onclick="checkDragAkt()">Periksa Jawaban</button>
+      <div id="aktResult" class="feedback"></div>`,
+    afterRender: () => {
+      const chips = [
+        {text:'Menyusun data nilai dari tertinggi ke terendah', type:'urut'},
+        {text:'Menampilkan hanya siswa dengan nilai di atas 80', type:'saring'},
+        {text:'Menyatukan data siswa berdasarkan kelas yang sama', type:'kelompok'},
+        {text:'Mengurutkan nama siswa secara alfabetis A-Z', type:'urut'},
+        {text:'Menyembunyikan data yang tidak memenuhi kriteria tertentu', type:'saring'},
+        {text:'Menyusun data transaksi berdasarkan bulan yang sama', type:'kelompok'}
+      ];
+      const pool = document.getElementById('aktPool');
+      pool.innerHTML = chips.map((c,i)=>`<div class="drag-chip" draggable="true" data-type="${c.type}" data-idx="${i}">${c.text}</div>`).join('');
+      setupDragDrop();
+    }
+  },
+  // 12. CONTOH SOAL 1 (mudah)
+  {
+    id:'contoh1',
+    render: () => `
+      <span class="eyebrow coral">Contoh 1</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-easy">Mudah</span>
+        <h3 style="font-size:16px; margin-bottom:14px;">Guru menyusun ulang data nilai siswa dari yang tertinggi ke terendah untuk membuat peringkat kelas. Kegiatan ini disebut...</h3>
+        <div class="mc-options" id="ex1-options">
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex1')"><span class="letter">A</span> Pengurutan data</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex1')"><span class="letter">B</span> Penyaringan data</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex1')"><span class="letter">C</span> Pengelompokan data</div>
+        </div>
+        <div class="feedback" id="ex1-feedback"></div>
+      </div>`
+  },
+  // 13. CONTOH SOAL 2 (sedang)
+  {
+    id:'contoh2',
+    render: () => `
+      <span class="eyebrow amber">Contoh 2</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-med">Sedang</span>
+        <h3 style="font-size:16px; margin-bottom:14px;">Seorang guru BK ingin melihat daftar siswa yang nilainya di bawah 70 saja untuk diberikan bimbingan tambahan, tanpa menghapus data siswa lain. Kegiatan yang tepat dilakukan guru adalah...</h3>
+        <div class="mc-options" id="ex2-options">
+          <div class="mc-opt" onclick="answerMC(this,'ex2')"><span class="letter">A</span> Mengurutkan seluruh data dari besar ke kecil</div>
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex2')"><span class="letter">B</span> Menyaring (filter) data dengan kriteria nilai &lt; 70</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex2')"><span class="letter">C</span> Menghapus semua data siswa dengan nilai di atas 70</div>
+        </div>
+        <div class="feedback" id="ex2-feedback"></div>
+      </div>`
+  },
+  // 14. CONTOH SOAL 3 (menantang)
+  {
+    id:'contoh3',
+    render: () => `
+      <span class="eyebrow bad">Contoh 3</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-hard">Menantang</span>
+        <h3 style="font-size:16px; margin-bottom:10px;">Seorang wali kelas memiliki data nilai gabungan dari kelas 7A dan 7B. Ia ingin (1) melihat data terpisah antara siswa kelas 7A dan 7B, lalu (2) di dalam masing-masing kelas, mengurutkan nilai dari yang tertinggi. Urutan kegiatan yang tepat adalah...</h3>
+        <div class="mc-options" id="ex3-options">
+          <div class="mc-opt" onclick="answerMC(this,'ex3')"><span class="letter">A</span> Menyaring data, lalu mengelompokkan data</div>
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex3')"><span class="letter">B</span> Mengelompokkan data berdasarkan kelas, lalu mengurutkan nilai di tiap kelompok</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex3')"><span class="letter">C</span> Menghapus data kelas 7B agar hanya tersisa kelas 7A</div>
+        </div>
+        <div class="feedback" id="ex3-feedback"></div>
+        <div class="reveal-btn" style="margin-top:14px; border:1px dashed var(--teal); color:var(--teal); background:transparent; border-radius:10px; padding:10px 16px; font-weight:700; font-size:13.5px; width:100%; cursor:pointer;" onclick="toggleReveal(this)">📖 Lihat Pembahasan Lengkap</div>
+        <div class="reveal-content" style="max-height:0; overflow:hidden; transition:max-height .4s ease;">
+          <div class="term-box">Karena wali kelas ingin data terpisah antar kelas terlebih dahulu, langkah pertama adalah <b>mengelompokkan</b> data berdasarkan kelas (7A dan 7B). Setelah itu, di dalam masing-masing kelompok, data dapat <b>diurutkan</b> berdasarkan nilai tertinggi.</div>
+        </div>
+      </div>`
+  },
+  // 15. LATIHAN BENAR/SALAH
+  {
+    id:'latihan',
+    render: () => `
+      <span class="eyebrow violet" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Latihan Mandiri</span>
+      <h2 class="slide-title">Benar atau Salah?</h2>
+      <p class="slide-sub">Klik pernyataan untuk memeriksa jawabanmu.</p>
+      <div id="trueFalseList"></div>`,
+    afterRender: () => {
+      const items = [
+        {text:'Pengurutan data mengubah susunan data tanpa menghilangkan datanya.', correct:true},
+        {text:'Penyaringan data akan menghapus data yang tidak sesuai kriteria secara permanen.', correct:false, note:'Penyaringan hanya menyembunyikan data yang tidak sesuai kriteria; data asli tetap tersimpan.'},
+        {text:'Pengelompokan data berguna untuk melihat data dengan kategori yang sama secara bersamaan.', correct:true},
+        {text:'Fungsi AVERAGE pada spreadsheet digunakan untuk menjumlahkan seluruh data.', correct:false, note:'AVERAGE digunakan untuk menghitung rata-rata; untuk menjumlahkan digunakan fungsi SUM.'}
+      ];
+      document.getElementById('trueFalseList').innerHTML = items.map((it,i)=>`
+        <div class="accordion-item">
+          <div class="accordion-head" style="cursor:pointer;" onclick="answerTF(this, ${it.correct})">
+            <span>${i+1}. ${it.text}</span>
+            <span class="arrow" style="font-size:12px;">Pilih</span>
+          </div>
+          <div class="tf-result" style="padding:0 18px; font-size:13px;"></div>
+        </div>`).join('');
+    }
+  },
+  // 16. KUIS
+  {
+    id:'kuis',
+    render: () => `
+      <span class="eyebrow coral">Kuis</span>
+      <h2 class="slide-title" id="quizTitle">Uji Pemahamanmu</h2>
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizBody"></div>`,
+    afterRender: () => initQuiz()
+  },
+  // 17. REFLEKSI + RANGKUMAN + PENUTUP
+  {
+    id:'penutup',
+    render: () => `
+      <span class="eyebrow" style="color:var(--teal);">Refleksi &amp; Rangkuman</span>
+      <h2 class="slide-title">Sampai di Sini Dulu!</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3 style="margin-bottom:10px; font-size:15.5px;">🪞 Refleksi</h3>
+          <p style="font-size:13.8px; color:var(--text-2); line-height:1.7;">Coba pikirkan data apa yang pernah kamu lihat dalam bentuk tabel (misalnya nilai rapor atau data penjualan). Apakah data tersebut akan lebih mudah dipahami jika diurutkan, disaring, atau dikelompokkan?</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px; font-size:15.5px;">📌 Rangkuman</h3>
+          <ul style="font-size:13.5px; color:var(--text-2); line-height:1.9; padding-left:18px;">
+            <li><b style="color:var(--text-1);">Pengurutan (sorting)</b>: menyusun data berdasarkan kriteria tertentu.</li>
+            <li><b style="color:var(--text-1);">Penyaringan (filtering)</b>: menampilkan hanya data yang memenuhi kriteria.</li>
+            <li><b style="color:var(--text-1);">Pengelompokan (grouping)</b>: menyusun data ke dalam kategori tertentu.</li>
+            <li><b style="color:var(--text-1);">Spreadsheet</b>: alat bantu mengolah data dengan fungsi seperti SUM, AVERAGE, SORT, dan FILTER.</li>
+          </ul>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:30px;">
+        <p style="color:var(--text-2); font-size:14.5px; margin-bottom:14px;">Terima kasih sudah belajar dengan tekun! 🎉</p>
+        <button class="btn btn-primary" onclick="goTo(0)">Ulangi dari Awal</button>
+      </div>`
+  }
+];
+
+/* ================= QUIZ DATA ================= */
+const quizQuestions = [
+  {q:'Menyusun ulang data dari yang terkecil ke terbesar atau sebaliknya, tanpa menghilangkan datanya, disebut...', opts:['Pengelompokan data','Pengurutan data','Penghapusan data','Penggandaan data'], correct:1, exp:'Kegiatan menyusun ulang data berdasarkan kriteria tertentu (kecil ke besar atau sebaliknya) disebut pengurutan data (sorting).'},
+  {q:'Menampilkan hanya data yang memenuhi kriteria tertentu, sementara data lain disembunyikan sementara, disebut...', opts:['Pengurutan data','Pengelompokan data','Penyaringan data','Pencadangan data'], correct:2, exp:'Kegiatan menampilkan hanya data yang memenuhi kriteria tertentu disebut penyaringan data (filtering).'},
+  {q:'Menyusun data ke dalam kategori tertentu berdasarkan kesamaan ciri disebut...', opts:['Pengelompokan data','Pengurutan data','Penyaringan data','Pengubahan data'], correct:0, exp:'Menyusun data berdasarkan kesamaan ciri ke dalam kategori tertentu disebut pengelompokan data (grouping).'},
+  {q:'Fungsi spreadsheet yang digunakan untuk menjumlahkan sekumpulan data adalah...', opts:['AVERAGE','COUNT','SUM','MAX'], correct:2, exp:'Fungsi SUM digunakan untuk menjumlahkan seluruh nilai dalam suatu rentang data.'},
+  {q:'Seorang guru ingin menampilkan hanya siswa yang nilainya di bawah KKM untuk mengikuti remedial. Kegiatan ini termasuk...', opts:['Pengurutan data','Penyaringan data','Pengelompokan data','Penghitungan rata-rata'], correct:1, exp:'Menampilkan data sesuai kriteria tertentu (nilai di bawah KKM) termasuk kegiatan penyaringan (filtering).'},
+  {q:'Seorang pemilik toko menyusun data penjualan produk dari yang paling laris ke yang paling sedikit terjual. Kegiatan ini termasuk...', opts:['Pengelompokan data','Pengurutan data','Penyaringan data','Penghapusan data'], correct:1, exp:'Menyusun data dari terbesar ke terkecil (atau sebaliknya) termasuk kegiatan pengurutan data (sorting).'}
+];
+let quizState = {current:0, score:0, answered:false, log:[]};
+
+function initQuiz(){
+  quizState = {current:0, score:0, answered:false, log:[]};
+  renderQuizProgress();
+  renderQuizQuestion();
+}
+function renderQuizProgress(){
+  const el = document.getElementById('quizProgress');
+  if(!el) return;
+  el.innerHTML = quizQuestions.map((_,i)=>{
+    let cls='';
+    if(quizState.log[i]===true) cls='done';
+    if(quizState.log[i]===false) cls='wrong';
+    return `<span class="${cls}"></span>`;
+  }).join('');
+}
+function renderQuizQuestion(){
+  const body = document.getElementById('quizBody');
+  if(!body) return;
+  if(quizState.current >= quizQuestions.length){
+    const pct = Math.round((quizState.score/quizQuestions.length)*100);
+    let msg = pct>=80 ? 'Luar biasa! Pemahamanmu tentang pengolahan data sangat baik. 🌟' : pct>=60 ? 'Bagus! Terus berlatih agar semakin mahir. 💪' : 'Jangan menyerah, coba pelajari lagi materinya. 📘';
+    body.innerHTML = `
+      <div style="text-align:center; padding:20px 0;">
+        <div class="big-num">${quizState.score}/${quizQuestions.length}</div>
+        <p style="color:var(--text-2); margin:10px 0 4px; font-size:15px;">Skor kamu: <b class="mono" style="color:var(--text-1);">${pct}%</b></p>
+        <p style="color:var(--text-2); font-size:14px; max-width:420px; margin:10px auto 22px;">${msg}</p>
+        <button class="btn btn-primary" onclick="initQuiz()">🔄 Ulangi Kuis</button>
+      </div>`;
+    document.getElementById('quizTitle').textContent = 'Hasil Kuis';
+    return;
+  }
+  const q = quizQuestions[quizState.current];
+  document.getElementById('quizTitle').textContent = `Soal ${quizState.current+1} dari ${quizQuestions.length}`;
+  quizState.answered = false;
+  body.innerHTML = `
+    <div class="card">
+      <p style="font-size:15px; font-weight:600; margin-bottom:4px;">${q.q}</p>
+      <div class="mc-options">
+        ${q.opts.map((o,i)=>`<div class="mc-opt" data-i="${i}" onclick="answerQuiz(${i})"><span class="letter">${String.fromCharCode(65+i)}</span> ${o}</div>`).join('')}
+      </div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+        <button class="btn btn-outline" id="quizNextBtn" style="display:none;" onclick="nextQuizQuestion()">Lanjut &rarr;</button>
+      </div>
+    </div>`;
+}
+function answerQuiz(i){
+  if(quizState.answered) return;
+  quizState.answered = true;
+  const q = quizQuestions[quizState.current];
+  const opts = document.querySelectorAll('#quizBody .mc-opt');
+  const correct = i === q.correct;
+  if(correct) quizState.score++;
+  quizState.log[quizState.current] = correct;
+  opts.forEach((el,idx)=>{
+    if(idx===q.correct) el.classList.add('correct');
+    else if(idx===i) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('quizFeedback');
+  fb.className = 'feedback show ' + (correct ? 'ok' : 'bad');
+  fb.innerHTML = (correct ? '✅ <b>Benar!</b> ' : '❌ <b>Belum tepat.</b> ') + q.exp;
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  renderQuizProgress();
+}
+function nextQuizQuestion(){
+  quizState.current++;
+  renderQuizQuestion();
+}
+
+/* ================= HELPERS ================= */
+function toggleAccordion(id){
+  document.getElementById(id).classList.toggle('open');
+}
+function toggleReveal(btn){
+  const content = btn.nextElementSibling;
+  content.classList.toggle('open');
+}
+function answerMC(el, prefix){
+  const parent = el.parentElement;
+  if(parent.dataset.locked) return;
+  parent.dataset.locked = '1';
+  const opts = parent.querySelectorAll('.mc-opt');
+  const isCorrect = el.dataset.correct === 'true';
+  opts.forEach(o=>{
+    if(o.dataset.correct==='true') o.classList.add('correct');
+    else if(o===el) o.classList.add('wrong');
+  });
+  const fb = document.getElementById(prefix+'-feedback');
+  fb.className = 'feedback show ' + (isCorrect?'ok':'bad');
+  fb.innerHTML = isCorrect ? '✅ <b>Tepat sekali!</b>' : '❌ <b>Belum tepat.</b> Perhatikan kembali penjelasan materi di atas.';
+}
+function answerTF(headEl, correct){
+  const item = headEl.parentElement;
+  const resultBox = item.querySelector('.tf-result');
+  if(resultBox.dataset.answered) return;
+  resultBox.dataset.answered = '1';
+  resultBox.innerHTML = correct
+    ? `<div class="feedback show ok" style="margin:10px 0 14px;">✅ <b>Benar</b> — pernyataan ini sesuai konsep.</div>`
+    : `<div class="feedback show bad" style="margin:10px 0 14px;">❌ <b>Ini salah.</b></div>`;
+}
+
+/* ================= SORT DEMO ================= */
+function sortDemo(mode){
+  let data = [...siswaData];
+  if(mode==='asc') data.sort((a,b)=>a.nilai-b.nilai);
+  else if(mode==='desc') data.sort((a,b)=>b.nilai-a.nilai);
+  const tbody = document.getElementById('sortTableBody');
+  tbody.style.opacity = 0;
+  setTimeout(()=>{
+    tbody.innerHTML = data.map(s=>`<tr><td>${s.nama}</td><td>${s.kelas}</td><td>${s.nilai}</td></tr>`).join('');
+    tbody.style.transition = 'opacity .3s';
+    tbody.style.opacity = 1;
+  }, 150);
+  ['sortAscBtn','sortDescBtn','sortResetBtn'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  if(mode==='asc') document.getElementById('sortAscBtn')?.classList.add('active');
+  if(mode==='desc') document.getElementById('sortDescBtn')?.classList.add('active');
+  if(mode==='reset') document.getElementById('sortResetBtn')?.classList.add('active');
+}
+
+/* ================= FILTER DEMO ================= */
+function filterDemo(mode){
+  const tbody = document.getElementById('filterTableBody');
+  let rowsHtml = siswaData.map(s=>{
+    let match = true;
+    if(mode==='above') match = s.nilai >= 80;
+    if(mode==='below') match = s.nilai < 70;
+    const cls = mode==='reset' ? '' : (match ? 'match' : 'dim');
+    return `<tr class="${cls}"><td>${s.nama}</td><td>${s.kelas}</td><td>${s.nilai}</td></tr>`;
+  }).join('');
+  tbody.innerHTML = rowsHtml;
+}
+
+/* ================= GROUP DEMO ================= */
+function groupDemo(mode){
+  const tbody = document.getElementById('groupTableBody');
+  if(mode==='reset'){
+    tbody.innerHTML = siswaData.map(s=>`<tr><td>${s.nama}</td><td>${s.kelas}</td><td>${s.nilai}</td></tr>`).join('');
+    return;
+  }
+  const kelasList = [...new Set(siswaData.map(s=>s.kelas))].sort();
+  let html = '';
+  kelasList.forEach(k=>{
+    html += `<tr class="group-header"><td colspan="3">🗂️ Kelas ${k}</td></tr>`;
+    siswaData.filter(s=>s.kelas===k).forEach(s=>{
+      html += `<tr><td>${s.nama}</td><td>${s.kelas}</td><td>${s.nilai}</td></tr>`;
+    });
+  });
+  tbody.innerHTML = html;
+}
+
+/* ================= DRAG & DROP ================= */
+function setupDragDrop(){
+  const chips = document.querySelectorAll('.drag-chip');
+  const zones = document.querySelectorAll('.drop-zone');
+  chips.forEach(chip=>{
+    chip.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', chip.dataset.idx); });
+  });
+  zones.forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('over'));
+    zone.addEventListener('drop', e=>{
+      e.preventDefault();
+      zone.classList.remove('over');
+      const idx = e.dataTransfer.getData('text/plain');
+      const chip = document.querySelector(`.drag-chip[data-idx="${idx}"]`);
+      if(!chip || chip.classList.contains('placed')) return;
+      chip.classList.add('placed');
+      const dzChip = document.createElement('span');
+      dzChip.className = 'dz-chip';
+      dzChip.textContent = chip.textContent;
+      dzChip.dataset.idx = idx;
+      dzChip.dataset.zoneType = zone.dataset.type;
+      zone.appendChild(dzChip);
+    });
+  });
+}
+function checkDragAkt(){
+  const chips = [
+    {type:'urut'},{type:'saring'},{type:'kelompok'},{type:'urut'},{type:'saring'},{type:'kelompok'}
+  ];
+  let correctCount = 0, total = 0;
+  document.querySelectorAll('.drop-zone .dz-chip').forEach(dz=>{
+    total++;
+    const idx = dz.dataset.idx;
+    if(chips[idx].type === dz.dataset.zoneType) correctCount++;
+  });
+  const result = document.getElementById('aktResult');
+  if(total < chips.length){
+    result.className = 'feedback show bad';
+    result.innerHTML = '⚠️ Masih ada pernyataan yang belum kamu tempatkan. Seret semua kartu ke kotak yang sesuai.';
+    return;
+  }
+  result.className = 'feedback show ' + (correctCount===chips.length ? 'ok' : 'bad');
+  result.innerHTML = correctCount===chips.length
+    ? '✅ <b>Sempurna!</b> Semua pernyataan sudah kamu kelompokkan dengan benar.'
+    : `⚠️ Skor kamu: ${correctCount}/${chips.length} benar. Coba periksa kembali definisi masing-masing istilah.`;
+}
+
+/* ================= ENGINE: navigation ================= */
+let currentSlide = 0;
+const stage = document.getElementById('stage');
+const dotsWrap = document.getElementById('dots');
+
+function buildDots(){
+  dotsWrap.innerHTML = slides.map((_,i)=>`<div class="dot" onclick="goTo(${i})"></div>`).join('');
+}
+function renderSlide(idx){
+  stage.innerHTML = `<div class="slide" id="slideEl">${slides[idx].render()}</div>`;
+  const el = document.getElementById('slideEl');
+  requestAnimationFrame(()=> el.classList.add('active'));
+  if(slides[idx].afterRender) slides[idx].afterRender();
+  updateChrome(idx);
+}
+function updateChrome(idx){
+  document.getElementById('slideCounter').textContent = `${idx+1} / ${slides.length}`;
+  document.getElementById('progressFill').style.width = `${((idx+1)/slides.length)*100}%`;
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===idx);
+    d.classList.toggle('done', i<idx);
+  });
+  document.getElementById('btnPrev').disabled = idx===0;
+  document.getElementById('btnNext').disabled = idx===slides.length-1;
+}
+function goTo(idx){
+  if(idx<0 || idx>=slides.length) return;
+  if(idx===currentSlide) return;
+  currentSlide = Math.max(0, Math.min(slides.length-1, idx));
+  renderSlide(currentSlide);
+}
+document.getElementById('btnPrev').addEventListener('click', ()=> goTo(currentSlide-1));
+document.getElementById('btnNext').addEventListener('click', ()=> goTo(currentSlide+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') goTo(currentSlide+1);
+  if(e.key==='ArrowLeft') goTo(currentSlide-1);
+});
+let touchStartX = 0;
+stage.addEventListener('touchstart', e=> touchStartX = e.changedTouches[0].screenX, {passive:true});
+stage.addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 50){ dx<0 ? goTo(currentSlide+1) : goTo(currentSlide-1); }
+}, {passive:true});
+
+/* ================= INIT ================= */
+buildDots();
+renderSlide(0);
+</script>
+</body>
+</html>

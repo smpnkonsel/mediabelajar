@@ -3,1227 +3,675 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bab 7: Statistika — Tabel Frekuensi</title>
+<title>Risiko Membagikan Data Pribadi — 7.3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b0f1a;
-    --bg-alt:#0f1424;
-    --card:#141a2b;
-    --card-hi:#1b2338;
-    --border:#262f47;
-    --border-hi:#3a4568;
-    --primary:#7c6cff;
-    --primary-dim:#5b4fd1;
-    --secondary:#22d3c5;
-    --accent:#ff8fab;
-    --warn:#ffb648;
-    --good:#3ddc97;
-    --bad:#ff6b6b;
-    --text:#eef1fb;
-    --text-dim:#a6b0cc;
-    --text-dimmer:#6b7594;
-    --grad-1:linear-gradient(135deg,#7c6cff 0%,#22d3c5 100%);
-    --grad-2:linear-gradient(135deg,#ff8fab 0%,#7c6cff 100%);
-    --radius:20px;
-    --radius-sm:12px;
-    --shadow:0 20px 60px -20px rgba(0,0,0,0.6);
+    --bg:#100c0a;
+    --bg-soft:#181210;
+    --panel:#211915;
+    --panel-2:#2a1f19;
+    --line: rgba(220,180,150,0.14);
+    --text:#f5efe9;
+    --text-dim:#b3a196;
+    --text-faint:#6b5f57;
+    --amber:#ffab5c;
+    --coral:#ff7a6b;
+    --gold:#ffd166;
+    --safe:#5fd6a0;
+    --danger:#ff6b6b;
+    --accent: #ffab5c;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.65);
   }
-  *{box-sizing:border-box; margin:0; padding:0;}
-  html,body{height:100%;}
-  body{
-    font-family:'Plus Jakarta Sans', sans-serif;
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
     background:
-      radial-gradient(circle at 15% 10%, rgba(124,108,255,0.16), transparent 45%),
-      radial-gradient(circle at 85% 90%, rgba(34,211,197,0.14), transparent 45%),
+      radial-gradient(ellipse 900px 600px at 10% -10%, rgba(255,171,92,0.13), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 100% 110%, rgba(255,122,107,0.10), transparent 60%),
       var(--bg);
     color:var(--text);
-    min-height:100vh;
-    overflow-x:hidden;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    overflow:hidden;
   }
-  h1,h2,h3,.font-head{font-family:'Fredoka', sans-serif;}
-  .mono{font-family:'JetBrains Mono', monospace;}
+  h1,h2,h3,.font-head{ font-family:'Fredoka', sans-serif; font-weight:600; letter-spacing:0.2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  ::selection{ background: rgba(255,171,92,0.32); }
 
-  #app{
-    max-width:980px;
-    margin:0 auto;
-    padding:18px 18px 110px;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-  }
+  #app{ position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
 
-  header.topbar{
-    display:flex; align-items:center; gap:14px;
-    margin-bottom:18px;
-  }
-  .topbar .brand{
-    display:flex; flex-direction:column; gap:2px; flex:1; min-width:0;
-  }
-  .topbar .brand small{color:var(--text-dimmer); font-size:12px; letter-spacing:.5px; text-transform:uppercase;}
-  .topbar .brand strong{font-family:'Fredoka'; font-size:16px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .slide-counter{
-    font-family:'JetBrains Mono'; font-size:13px; color:var(--text-dim);
-    background:var(--card); border:1px solid var(--border); padding:6px 12px; border-radius:100px;
-    white-space:nowrap;
-  }
-  .progress-track{
-    height:8px; background:var(--card); border-radius:100px; overflow:hidden; border:1px solid var(--border);
-    margin-bottom:6px;
-  }
-  .progress-fill{
-    height:100%; width:0%; background:var(--grad-1); border-radius:100px;
-    transition:width .45s cubic-bezier(.6,0,.3,1);
-  }
-  .dots{display:flex; gap:5px; flex-wrap:wrap; margin-top:8px;}
-  .dot{
-    width:7px; height:7px; border-radius:50%; background:var(--border-hi); cursor:pointer;
-    transition:all .25s ease; flex-shrink:0;
-  }
-  .dot.active{background:var(--primary); width:20px; border-radius:5px;}
-  .dot.done{background:var(--secondary);}
+  #topbar{ display:flex; align-items:center; gap:14px; padding:14px 24px 10px 24px; flex-shrink:0; }
+  #topbar .kode{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-faint); border:1px solid var(--line); padding:3px 9px; border-radius:999px; }
+  #topbar .judul-mini{ font-size:13px; color:var(--text-dim); }
+  #progress-wrap{ flex:1; height:6px; background:var(--panel); border-radius:999px; overflow:hidden; margin:0 6px; }
+  #progress-bar{ height:100%; width:0%; background: linear-gradient(90deg, var(--amber), var(--coral)); border-radius:999px; transition: width .45s cubic-bezier(.65,0,.35,1); }
+  #slide-counter{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-faint); min-width:52px; text-align:right; }
 
-  .stage{ position:relative; flex:1; }
+  #stage{ position:relative; flex:1; overflow:hidden; }
   .slide{
-    display:none;
-    animation:fadeUp .5s ease;
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding: 28px 56px 34px 56px;
+    opacity:0; visibility:hidden; transform: translateY(14px) scale(0.99);
+    transition: opacity .5s cubic-bezier(.65,0,.35,1), transform .5s cubic-bezier(.65,0,.35,1);
+    overflow-y:auto;
   }
-  .slide.active{display:block;}
-  @keyframes fadeUp{
-    from{opacity:0; transform:translateY(14px);}
-    to{opacity:1; transform:translateY(0);}
-  }
-  .card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:28px;
-    box-shadow:var(--shadow);
-  }
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:12px; letter-spacing:1px; text-transform:uppercase; font-weight:700;
-    color:var(--secondary); margin-bottom:12px;
-  }
-  .eyebrow::before{content:''; width:8px; height:8px; border-radius:50%; background:var(--secondary); box-shadow:0 0 12px var(--secondary);}
-  h2.slide-title{font-size:clamp(22px,4vw,32px); font-weight:600; line-height:1.25; margin-bottom:10px;}
-  .slide-sub{color:var(--text-dim); font-size:15px; margin-bottom:18px; line-height:1.6;}
-  p{color:var(--text-dim); line-height:1.7; font-size:15.5px;}
-  strong{color:var(--text); font-weight:700;}
-  ul,ol{color:var(--text-dim); line-height:1.8; padding-left:22px; font-size:15.5px;}
-  li{margin-bottom:6px;}
-  li::marker{color:var(--secondary);}
+  .slide.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+  .slide-inner{ max-width:980px; margin:0 auto; width:100%; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-dim); margin-bottom:10px; }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .slide h2{ font-size:clamp(22px,3.4vw,34px); margin:0 0 6px 0; line-height:1.15; }
+  .lead{ color:var(--text-dim); font-size:15px; margin:0 0 22px 0; max-width:660px; line-height:1.55; }
 
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-  @media(max-width:680px){ .grid2{grid-template-columns:1fr;} }
+  .card{ background: linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--line); border-radius: var(--radius); padding:20px 22px; box-shadow: var(--shadow); }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:820px){ .grid2,.grid3,.grid4{ grid-template-columns:1fr; } }
 
-  .badge{
-    display:inline-block; padding:4px 12px; border-radius:100px; font-size:12px; font-weight:700;
-    background:rgba(124,108,255,0.15); color:#b9aeff; border:1px solid rgba(124,108,255,0.3);
-  }
-  .badge.easy{background:rgba(61,220,151,.15); color:var(--good); border-color:rgba(61,220,151,.3);}
-  .badge.med{background:rgba(255,182,72,.15); color:var(--warn); border-color:rgba(255,182,72,.3);}
-  .badge.hard{background:rgba(255,107,107,.15); color:var(--bad); border-color:rgba(255,107,107,.3);}
+  .chip{ display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px; border:1px solid var(--line); color:var(--text-dim); margin-bottom:10px; }
 
-  .formula-box{
-    background:linear-gradient(135deg, rgba(124,108,255,.12), rgba(34,211,197,.08));
-    border:1px solid var(--border-hi);
-    border-radius:var(--radius-sm);
-    padding:18px 20px;
-    margin:16px 0;
-    text-align:center;
-  }
-  .formula-box .f{
-    font-family:'JetBrains Mono'; font-size:clamp(15px,3vw,20px); color:var(--text); font-weight:700;
-    letter-spacing:.5px;
-  }
-  .formula-box .f small{display:block; font-size:11px; color:var(--text-dimmer); font-weight:400; margin-top:6px; letter-spacing:normal;}
+  .acc-item{ border:1px solid var(--line); border-radius:var(--radius-sm); margin-bottom:10px; overflow:hidden; background:var(--bg-soft); }
+  .acc-head{ display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; user-select:none; font-size:14.5px; font-weight:600; }
+  .acc-head:hover{ background:rgba(255,255,255,0.03); }
+  .acc-head .arrow{ transition: transform .3s; color:var(--text-faint); }
+  .acc-item.open .acc-head .arrow{ transform:rotate(180deg); }
+  .acc-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-item.open .acc-body{ max-height:420px; }
+  .acc-body-inner{ padding:0 16px 15px 16px; font-size:14px; color:var(--text-dim); line-height:1.6; }
 
-  .info-card{
-    background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius-sm);
-    padding:16px 18px; margin-bottom:12px;
-  }
-  .info-card h4{font-family:'Fredoka'; font-size:15px; font-weight:600; margin-bottom:6px; color:var(--secondary);}
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{ border:1px solid var(--line); background:var(--panel-2); color:var(--text); padding:9px 16px; border-radius:10px; font-size:13.5px; font-weight:600; transition: all .2s; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover{ border-color:rgba(255,171,92,0.5); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-accent{ background: linear-gradient(135deg, var(--amber), #e0793c); border:none; color:#180f08; }
+  .btn-accent:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
 
-  .accordion{border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:10px;}
-  .acc-head{
-    display:flex; justify-content:space-between; align-items:center; gap:10px;
-    padding:14px 16px; background:var(--card-hi); cursor:pointer; font-weight:600; font-size:14.5px;
-    user-select:none;
-  }
-  .acc-head:hover{background:#212a44;}
-  .acc-head .arrow{transition:transform .3s ease; color:var(--secondary); font-size:14px;}
-  .accordion.open .acc-head .arrow{transform:rotate(180deg);}
-  .acc-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
-  .acc-body-inner{padding:14px 16px; border-top:1px solid var(--border); font-size:14.5px; color:var(--text-dim); line-height:1.7;}
+  .reveal-box{ border:1px dashed var(--line); border-radius:var(--radius-sm); padding:14px 16px; background:var(--bg-soft); }
+  .reveal-content{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .reveal-content.open{ max-height:600px; margin-top:10px; }
 
-  .btn{
-    font-family:'Plus Jakarta Sans'; font-weight:700; font-size:14px; cursor:pointer;
-    border:none; border-radius:100px; padding:11px 22px;
-    display:inline-flex; align-items:center; gap:8px;
-    transition:all .2s ease;
-  }
-  .btn-primary{background:var(--grad-1); color:#0b0f1a;}
-  .btn-primary:hover{filter:brightness(1.1); transform:translateY(-1px);}
-  .btn-ghost{background:transparent; border:1px solid var(--border-hi); color:var(--text);}
-  .btn-ghost:hover{background:var(--card-hi);}
-  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none !important;}
-  .btn-sm{padding:8px 16px; font-size:13px;}
+  .opt{ display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--bg-soft); color:var(--text); padding:11px 15px; border-radius:12px; margin-bottom:9px; font-size:14px; transition: all .18s; }
+  .opt:hover:not(:disabled){ border-color:var(--accent); background:rgba(255,171,92,0.08); }
+  .opt.correct{ border-color:var(--safe); background:rgba(95,214,160,0.14); }
+  .opt.wrong{ border-color:var(--danger); background:rgba(255,107,107,0.14); }
+  .opt:disabled{ cursor:default; }
 
-  .reveal-wrap{margin:14px 0;}
-  .reveal-body{
-    max-height:0; overflow:hidden; transition:max-height .4s ease;
-    background:rgba(34,211,197,.06); border:1px dashed var(--border-hi); border-radius:var(--radius-sm);
-    margin-top:10px;
-  }
-  .reveal-body.open{max-height:600px;}
-  .reveal-body-inner{padding:16px;}
+  .feedback{ font-size:13.5px; margin-top:10px; padding:10px 13px; border-radius:10px; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:rgba(95,214,160,0.12); color:var(--safe); border:1px solid rgba(95,214,160,0.3); }
+  .feedback.bad{ background:rgba(255,107,107,0.12); color:var(--danger); border:1px solid rgba(255,107,107,0.3); }
 
-  .step-list{counter-reset:step;}
-  .step-item{
-    display:flex; gap:12px; margin-bottom:12px; opacity:.35; transition:opacity .3s ease;
-  }
-  .step-item.shown{opacity:1;}
-  .step-num{
-    flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--grad-1);
-    color:#0b0f1a; font-weight:800; font-size:13px; display:flex; align-items:center; justify-content:center;
-  }
-  .step-text{flex:1; padding-top:3px; font-size:14.5px; color:var(--text-dim); line-height:1.6;}
-  .step-text .mono{color:var(--text);}
+  .cover-icons{ display:flex; gap:14px; margin:22px 0 6px 0; }
+  .cover-icons .ic{ width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; border:1px solid var(--line); }
 
-  .mcq-options{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
-  .mcq-opt{
-    text-align:left; padding:13px 16px; border-radius:var(--radius-sm); border:1px solid var(--border);
-    background:var(--card-hi); color:var(--text); cursor:pointer; font-size:14.5px; font-weight:500;
-    transition:all .2s ease; display:flex; align-items:center; gap:10px;
-  }
-  .mcq-opt:hover:not(:disabled){border-color:var(--primary);}
-  .mcq-opt .letter{
-    width:24px; height:24px; border-radius:50%; background:var(--border); display:flex; align-items:center; justify-content:center;
-    font-size:12px; font-weight:800; flex-shrink:0;
-  }
-  .mcq-opt.correct{background:rgba(61,220,151,.14); border-color:var(--good);}
-  .mcq-opt.correct .letter{background:var(--good); color:#0b0f1a;}
-  .mcq-opt.wrong{background:rgba(255,107,107,.14); border-color:var(--bad);}
-  .mcq-opt.wrong .letter{background:var(--bad); color:#0b0f1a;}
-  .mcq-opt:disabled{cursor:default;}
-  .fb-msg{margin-top:12px; padding:12px 14px; border-radius:var(--radius-sm); font-size:14px; display:none;}
-  .fb-msg.ok{display:block; background:rgba(61,220,151,.1); border:1px solid var(--good); color:var(--good);}
-  .fb-msg.no{display:block; background:rgba(255,107,107,.1); border:1px solid var(--bad); color:var(--bad);}
+  .match-card{ border:1px solid var(--line); background:var(--bg-soft); border-radius:12px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-size:13.5px; transition:all .18s; }
+  .match-card.selected{ border-color:var(--accent); background:rgba(255,171,92,0.1); }
+  .match-card.matched{ border-color:var(--safe); background:rgba(95,214,160,0.1); opacity:0.75; cursor:default; }
+  .match-card.shake{ animation: shake .35s; border-color:var(--danger); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
 
-  .viz-wrap{
-    background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius-sm);
-    padding:16px; margin:16px 0; display:flex; justify-content:center;
-  }
-  .viz-wrap svg{max-width:100%; height:auto;}
+  .score-circle{ width:150px; height:150px; border-radius:50%; margin:16px auto; display:flex; align-items:center; justify-content:center; flex-direction:column; background: conic-gradient(var(--safe) calc(var(--pct,0) * 1%), var(--panel) 0); position:relative; }
+  .score-circle::before{ content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-soft); }
+  .score-circle .val{ position:relative; font-family:'Fredoka'; font-size:30px; font-weight:600; }
+  .score-circle .lbl{ position:relative; font-size:11px; color:var(--text-dim); }
 
-  .slider-ctrl{margin:18px 0;}
-  .slider-ctrl label{display:flex; justify-content:space-between; font-size:13px; color:var(--text-dim); margin-bottom:8px; font-weight:600;}
-  .slider-ctrl label .val{color:var(--secondary); font-family:'JetBrains Mono';}
-  input[type=range]{
-    width:100%; -webkit-appearance:none; height:6px; border-radius:100px; background:var(--border-hi); outline:none;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:20px; height:20px; border-radius:50%; background:var(--grad-1); cursor:pointer;
-    border:3px solid var(--bg);
-  }
-  input[type=range]::-moz-range-thumb{
-    width:20px; height:20px; border-radius:50%; background:var(--primary); cursor:pointer; border:3px solid var(--bg);
-  }
+  #navbar{ flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:14px 24px 20px 24px; gap:14px; }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:60%; }
+  .dot-btn{ width:7px; height:7px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer; transition:all .25s; }
+  .dot-btn.active{ width:20px; border-radius:5px; background:var(--accent); }
+  .navbtn{ width:42px; height:42px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:17px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+  .navbtn:hover:not(:disabled){ background:var(--panel-2); border-color:var(--accent); }
+  .navbtn:disabled{ opacity:.3; cursor:not-allowed; }
 
-  .answer-row{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; align-items:center;}
-  .answer-row input[type=text]{
-    flex:1; min-width:140px; background:var(--card-hi); border:1px solid var(--border-hi); border-radius:var(--radius-sm);
-    padding:11px 14px; color:var(--text); font-family:'JetBrains Mono'; font-size:15px;
-  }
-  .answer-row input[type=text]:focus{outline:none; border-color:var(--primary);}
+  .badge-good{ color:var(--safe); font-weight:700; }
+  .badge-bad{ color:var(--danger); font-weight:700; }
+  ul.spaced li{ margin-bottom:6px; }
 
-  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14px;}
-  th,td{padding:10px 12px; text-align:left; border-bottom:1px solid var(--border);}
-  th{color:var(--secondary); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.5px;}
-  td{color:var(--text-dim);}
-  table.freq-table td, table.freq-table th{text-align:center;}
-  table.freq-table td:first-child, table.freq-table th:first-child{text-align:left;}
+  /* jejak digital simulasi */
+  .post-card{ border:1px solid var(--line); background:var(--bg-soft); border-radius:14px; padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:all .18s; }
+  .post-card:hover{ border-color:var(--accent); }
+  .post-card .post-txt{ font-size:13.5px; line-height:1.5; }
+  .post-card .reveal-info{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .post-card.open .reveal-info{ max-height:200px; margin-top:10px; }
+  .post-card .reveal-info-inner{ font-size:12.5px; color:var(--coral); border-top:1px solid var(--line); padding-top:9px; line-height:1.6; }
 
-  .navbar{
-    position:fixed; bottom:0; left:0; right:0;
-    background:rgba(11,15,26,0.85); backdrop-filter:blur(14px);
-    border-top:1px solid var(--border);
-    padding:14px 18px;
-    display:flex; justify-content:center; z-index:50;
-  }
-  .navbar-inner{
-    max-width:980px; width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-  }
-  .nav-hint{font-size:11px; color:var(--text-dimmer); text-align:center; display:none;}
-  @media(min-width:680px){ .nav-hint{display:block;} }
+  /* scenario buttons */
+  .scenario-card{ margin-bottom:16px; }
 
-  .quiz-progress{display:flex; gap:5px; margin-bottom:16px;}
-  .quiz-progress .qp{flex:1; height:5px; border-radius:100px; background:var(--border);}
-  .quiz-progress .qp.filled{background:var(--secondary);}
-  .quiz-progress .qp.filled.wrong{background:var(--bad);}
-  .quiz-score-ring{
-    width:140px; height:140px; margin:0 auto 18px; position:relative; display:flex; align-items:center; justify-content:center;
-  }
-  .quiz-score-ring strong{font-size:32px; font-family:'Fredoka';}
-  .quiz-score-ring span{font-size:12px; color:var(--text-dim); position:absolute; bottom:36px;}
+  /* impact grid */
+  .impact-card{ border-radius:16px; padding:16px 18px; border:1px solid var(--line); }
 
-  .center{text-align:center;}
-  .mt-16{margin-top:16px;} .mt-24{margin-top:24px;} .mb-0{margin-bottom:0;}
-  .flex-wrap{display:flex; gap:10px; flex-wrap:wrap;}
-
-  .cover-hero{
-    text-align:center; padding:40px 10px 20px;
+  @media (max-width:720px){
+    .slide{ padding:20px 18px 24px 18px; }
+    #topbar{ padding:12px 16px 8px 16px; }
+    #navbar{ padding:10px 16px 16px 16px; }
+    #dots{ display:none; }
+    .grid3,.grid4{ grid-template-columns:1fr; }
   }
-  .cover-hero .icon{font-size:56px; margin-bottom:16px; display:block;}
-  .cover-hero h1{font-size:clamp(26px,5vw,42px); line-height:1.2; margin-bottom:14px;}
-  .cover-hero h1 span{background:var(--grad-1); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;}
-  .cover-hero p{max-width:520px; margin:0 auto; font-size:16px;}
-  .chip-row{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:20px;}
-  .chip{background:var(--card-hi); border:1px solid var(--border); padding:7px 14px; border-radius:100px; font-size:12.5px; color:var(--text-dim);}
-
-  .matching-wrap{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:16px;}
-  @media(max-width:640px){.matching-wrap{grid-template-columns:1fr;}}
-  .match-item{
-    padding:11px 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--card-hi);
-    margin-bottom:8px; cursor:pointer; font-size:14px; transition:all .2s;
-  }
-  .match-item.selected{border-color:var(--primary); background:rgba(124,108,255,.15);}
-  .match-item.matched{border-color:var(--good); background:rgba(61,220,151,.12); cursor:default;}
-  .match-item.shake{animation:shake .4s;}
-  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
-
-  .final-card{text-align:center; padding:44px 24px;}
-  .final-card .icon{font-size:60px; margin-bottom:14px;}
-
-  .raw-data{
-    background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius-sm);
-    padding:14px 16px; font-family:'JetBrains Mono'; font-size:14px; color:var(--text); line-height:2;
-    letter-spacing:1px; text-align:center; margin:14px 0;
-  }
-
-  .tally-stage{
-    background:var(--card-hi); border:1px solid var(--border); border-radius:var(--radius-sm);
-    padding:20px; margin:16px 0; text-align:center;
-  }
-  .tally-display{
-    min-height:60px; display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px;
-    margin-bottom:16px;
-  }
-  .tally-group{position:relative; display:inline-block; width:32px; height:26px;}
-  .tally-bar{position:absolute; bottom:0; width:3px; height:24px; background:var(--secondary); border-radius:2px;}
-  .tally-diag{position:absolute; top:0; left:0; width:32px; height:24px; border-top:3px solid var(--accent); transform:rotate(-32deg); transform-origin:left top; top:11px;}
-  .tally-count{font-family:'JetBrains Mono'; font-size:15px; color:var(--text-dim);}
-  .tally-count strong{color:var(--secondary); font-size:22px;}
 </style>
 </head>
 <body>
 <div id="app">
+  <div id="topbar">
+    <span class="kode mono">7.3</span>
+    <span class="judul-mini">Risiko Membagikan Data Pribadi</span>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <span id="slide-counter" class="mono">1 / 1</span>
+  </div>
 
-  <header class="topbar">
-    <div class="brand">
-      <small>Bab 7 — Statistika</small>
-      <strong>Tabel Frekuensi</strong>
-    </div>
-    <div class="slide-counter"><span id="curNum">1</span> / <span id="totNum">1</span></div>
-  </header>
+  <div id="stage"></div>
 
-  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="dots" id="dotsWrap"></div>
-
-  <div class="stage" id="stage"></div>
-
-</div>
-
-<div class="navbar">
-  <div class="navbar-inner">
-    <button class="btn btn-ghost btn-sm" id="btnPrev">← Sebelumnya</button>
-    <span class="nav-hint">Gunakan tombol panah ← → pada keyboard untuk navigasi</span>
-    <button class="btn btn-primary btn-sm" id="btnNext">Berikutnya →</button>
+  <div id="navbar">
+    <button class="navbtn" id="btn-prev" onclick="prevSlide()">‹</button>
+    <div id="dots"></div>
+    <button class="navbtn" id="btn-next" onclick="nextSlide()">›</button>
   </div>
 </div>
 
 <script>
 /* =========================================================
-   DATA & STATE
-========================================================= */
-const slidesData = [];
-let current = 0;
+   SLIDE DEFINITIONS
+   ========================================================= */
+const slides = [];
 
-function S(html){ slidesData.push(html); }
-
-/* ---------- 1. PEMBUKA ---------- */
-S(`
-<div class="card cover-hero">
-  <span class="icon">📊</span>
-  <h1>Bab 7: Statistika<br><span>Tabel Frekuensi</span></h1>
-  <p>Bagaimana cara merangkum ratusan data menjadi sesuatu yang mudah dibaca dalam sekali pandang? Jawabannya ada pada salah satu alat statistika paling dasar: <strong>tabel frekuensi</strong>.</p>
-  <div class="chip-row">
-    <span class="chip">🔢 Turus &amp; Frekuensi</span>
-    <span class="chip">📋 Membuat Tabel</span>
-    <span class="chip">🔍 Membaca Data</span>
-    <span class="chip">🧠 Menafsirkan Informasi</span>
+/* ---- 1. PEMBUKA ---- */
+slides.push({title:'Pembuka', html:`
+  <div class="eyebrow"><span class="dot"></span>Informatika · Bab 7 · Membagikan Informasi dan Perlindungan Data Pribadi</div>
+  <h2>7.3 Risiko Membagikan Data Pribadi</h2>
+  <p class="lead">Mempelajari penyalahgunaan data, pencurian identitas, penipuan daring, dan dampak membagikan data secara sembarangan.</p>
+  <div class="cover-icons">
+    <div class="ic" style="background:rgba(255,171,92,0.12); color:var(--amber);">⚠</div>
+    <div class="ic" style="background:rgba(255,122,107,0.12); color:var(--coral);">🕵</div>
+    <div class="ic" style="background:rgba(255,209,102,0.12); color:var(--gold);">📤</div>
+    <div class="ic" style="background:rgba(95,214,160,0.12); color:var(--safe);">🛡</div>
   </div>
-</div>
-`);
+  <p style="color:var(--text-faint); font-size:13px; margin-top:18px;">Geser dengan tombol di bawah, atau gunakan tombol panah keyboard.</p>
+`});
 
-/* ---------- 2. APERSEPSI ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Apersepsi</div>
-  <h2 class="slide-title">Bayangkan Situasi Ini...</h2>
-  <p class="slide-sub">Bu Guru mencatat nilai ulangan 20 siswa satu per satu di papan tulis. Datanya berantakan seperti ini:</p>
-  <div class="raw-data">7, 8, 6, 9, 7, 8, 8, 6, 7, 9, 8, 7, 6, 8, 9, 7, 8, 6, 7, 8</div>
-  <p>Coba amati sendiri: <strong>sulit, kan,</strong> untuk langsung tahu nilai berapa yang paling banyak diperoleh siswa hanya dengan melihat deretan angka acak ini?</p>
-  <div class="reveal-wrap">
-    <button class="btn btn-ghost" onclick="toggleReveal(this)">💡 Bagaimana cara Bu Guru merapikannya?</button>
-    <div class="reveal-body"><div class="reveal-body-inner">
-      <p>Bu Guru bisa mengelompokkan data yang sama, lalu menghitung berapa kali setiap nilai muncul. Hasil pengelompokan ini kemudian disusun rapi ke dalam <strong>tabel frekuensi</strong> — dan itulah yang akan kita pelajari sekarang!</p>
-    </div></div>
+/* ---- 2. APERSEPSI ---- */
+slides.push({title:'Apersepsi', html:`
+  <div class="eyebrow"><span class="dot"></span>Apersepsi</div>
+  <h2>Pernah dengar cerita seperti ini?</h2>
+  <p class="lead">Perhatikan tiga cerita berikut sebelum kita mulai.</p>
+  <div class="grid3">
+    <div class="card"><div class="chip">Cerita 1</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Seseorang tiba-tiba ditelepon dan diminta transfer uang karena "menang undian" — padahal ia tidak pernah ikut undian apa pun.</p></div>
+    <div class="card"><div class="chip">Cerita 2</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Foto liburan seseorang lengkap dengan lokasi rumah ternyata dipakai orang lain untuk membuat akun palsu atas namanya.</p></div>
+    <div class="card"><div class="chip">Cerita 3</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Data e-KTP yang difoto dan dikirim ke toko online abal-abal ternyata dijual ke pihak lain tanpa sepengetahuannya.</p></div>
   </div>
-</div>
-`);
-
-/* ---------- 3. TUJUAN PEMBELAJARAN ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Tujuan Pembelajaran</div>
-  <h2 class="slide-title">Setelah mempelajari submateri ini, kamu diharapkan mampu:</h2>
-  <ul class="mt-16">
-    <li>Menjelaskan <strong>pengertian tabel frekuensi</strong>.</li>
-    <li><strong>Membuat tabel frekuensi</strong> dari data mentah menggunakan turus.</li>
-    <li>Menentukan <strong>frekuensi</strong> suatu data tertentu.</li>
-    <li><strong>Membaca</strong> informasi yang tersaji dalam tabel frekuensi.</li>
-    <li>Menentukan <strong>jumlah seluruh data</strong> dari sebuah tabel frekuensi.</li>
-    <li>Menentukan <strong>nilai yang memiliki frekuensi tertentu</strong> (misalnya frekuensi tertinggi/terendah).</li>
-    <li><strong>Menyajikan data</strong> ke dalam bentuk tabel.</li>
-    <li><strong>Menafsirkan informasi</strong> dari tabel frekuensi untuk mengambil kesimpulan.</li>
-  </ul>
-</div>
-`);
-
-/* ---------- 4. KONSEP: PENGERTIAN TABEL FREKUENSI ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Konsep Dasar</div>
-  <h2 class="slide-title">Apa itu Tabel Frekuensi?</h2>
-  <p><strong>Frekuensi</strong> adalah banyaknya kemunculan suatu data (nilai/kategori) dalam sekumpulan data. <strong>Tabel frekuensi</strong> adalah tabel yang menyajikan setiap data beserta banyak kemunculannya (frekuensinya) secara ringkas dan terorganisir.</p>
-  <div class="formula-box">
-    <div class="f">Tabel Frekuensi = Daftar Data + Banyak Kemunculan Tiap Data
-      <small>tujuannya agar data mentah lebih mudah dibaca dan dianalisis</small>
+  <div class="reveal-box" style="margin-top:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('rv-aper')">
+      <strong style="font-size:14px;">🤔 Apa kesamaan dari ketiga cerita ini?</strong>
+      <span class="btn" style="pointer-events:none;">Lihat gambaran</span>
+    </div>
+    <div class="reveal-content" id="rv-aper">
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6; padding-top:10px;">
+      Ketiganya bermula dari data pribadi yang dibagikan secara sembarangan, lalu disalahgunakan oleh pihak yang tidak bertanggung jawab. Inilah yang disebut <strong>risiko membagikan data pribadi</strong> — topik yang akan kita pelajari hari ini.
+      </p>
     </div>
   </div>
-  <div class="info-card mt-16">
-    <h4>📌 Contoh Sederhana</h4>
-    <p style="font-size:14px">Jika dalam sekumpulan data terdapat angka 8 sebanyak 7 kali, maka frekuensi data 8 adalah <strong>7</strong>.</p>
-  </div>
-</div>
-`);
+`});
 
-/* ---------- 5. ISTILAH PENTING ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Istilah Penting</div>
-  <h2 class="slide-title">Kenali Istilah-istilah Berikut</h2>
-  <p class="slide-sub">Klik setiap istilah untuk melihat penjelasannya.</p>
-  <div class="accordion">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>📄 Data</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Kumpulan fakta, angka, atau keterangan yang dikumpulkan melalui pengamatan atau survei, misalnya nilai ulangan, tinggi badan, atau warna favorit.</div></div>
+/* ---- 3. TUJUAN ---- */
+slides.push({title:'Tujuan Pembelajaran', html:`
+  <div class="eyebrow"><span class="dot"></span>Tujuan Pembelajaran</div>
+  <h2>Setelah pembelajaran ini, kamu mampu:</h2>
+  <div class="card">
+    <ul class="spaced" style="font-size:14.5px; line-height:1.7; padding-left:20px; margin:0;">
+      <li>Menjelaskan pengertian <strong>penyalahgunaan data</strong>.</li>
+      <li>Menjelaskan bagaimana <strong>pencurian identitas</strong> dapat terjadi.</li>
+      <li>Mengenali berbagai jenis <strong>penipuan daring</strong>.</li>
+      <li>Menganalisis <strong>dampak</strong> membagikan data pribadi secara sembarangan.</li>
+      <li>Menentukan sikap yang tepat sebelum membagikan informasi pribadi di dunia digital.</li>
+    </ul>
   </div>
-  <div class="accordion">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>🔢 Frekuensi</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Banyaknya kemunculan suatu data tertentu dalam sekumpulan data.</div></div>
-  </div>
-  <div class="accordion">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>✏️ Turus (Tally)</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Tanda hitung berupa garis (biasanya |, ||, |||, ||||) yang digunakan untuk mempermudah proses menghitung frekuensi saat mendata satu per satu. Setiap kelipatan 5, garis kelima digambar menyilang keempat garis sebelumnya.</div></div>
-  </div>
-  <div class="accordion">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>📊 Jumlah Data</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Total keseluruhan banyaknya data yang dikumpulkan, yaitu hasil penjumlahan seluruh nilai frekuensi dalam tabel.</div></div>
-  </div>
-</div>
-`);
+`});
 
-/* ---------- 6. AKTIVITAS TURUS INTERAKTIF ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Aktivitas Interaktif</div>
-  <h2 class="slide-title">Coba Membuat Turus Sendiri!</h2>
-  <p class="slide-sub">Klik tombol di bawah setiap kali ada "satu data baru". Perhatikan bagaimana turus terbentuk, dan setiap kelipatan 5 akan digambar menyilang.</p>
-  <div class="tally-stage">
-    <div class="tally-display" id="tallyDisplay"></div>
-    <div class="tally-count">Frekuensi saat ini: <strong id="tallyCount">0</strong></div>
-    <div class="flex-wrap center mt-16" style="justify-content:center">
-      <button class="btn btn-primary btn-sm" onclick="addTally()">➕ Tambah Data</button>
-      <button class="btn btn-ghost btn-sm" onclick="resetTally()">↺ Ulangi</button>
+/* ---- 4. KONSEP DASAR ---- */
+slides.push({title:'Konsep Dasar', html:`
+  <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+  <h2>Mengapa membagikan data punya risiko?</h2>
+  <p class="lead">Setiap kali kita membagikan data pribadi — di media sosial, formulir daring, atau kepada orang yang belum kita kenal — data itu berpotensi digunakan oleh pihak lain tanpa izin kita.</p>
+  <div class="card">
+    <div class="chip">Alur sederhana</div>
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.8;">
+    <span style="color:var(--gold);">Data dibagikan sembarangan</span> → <span style="color:var(--amber);">disalahgunakan pihak tak bertanggung jawab</span> → <span style="color:var(--coral);">berujung pada pencurian identitas atau penipuan daring</span> → <span style="color:var(--danger);">menimbulkan kerugian bagi korban</span>.
+    </p>
+  </div>
+`});
+
+/* ---- 5. PENYALAHGUNAAN DATA ---- */
+slides.push({title:'Penyalahgunaan Data', html:`
+  <div class="eyebrow"><span class="dot"></span>Penyalahgunaan Data</div>
+  <h2>Apa itu penyalahgunaan data?</h2>
+  <p class="lead"><strong>Penyalahgunaan data</strong> terjadi ketika data pribadi seseorang digunakan tanpa izin, di luar tujuan awal saat data itu diberikan.</p>
+  <div class="grid2">
+    <div class="acc-item" id="pd-1"><div class="acc-head" onclick="toggleAcc('pd-1')"><span>Contoh penyalahgunaan data</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Nomor HP yang diberikan untuk mendaftar aplikasi, ternyata dijual ke pihak lain dan dipakai untuk mengirim pesan promosi atau penipuan.</div></div></div>
+    <div class="acc-item" id="pd-2"><div class="acc-head" onclick="toggleAcc('pd-2')"><span>Mengapa ini bisa terjadi?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Karena kita jarang membaca izin/ketentuan sebelum membagikan data, atau data disimpan oleh pihak yang tidak menjaga keamanannya dengan baik.</div></div></div>
+  </div>
+`});
+
+/* ---- 6. PENCURIAN IDENTITAS: pengertian ---- */
+slides.push({title:'Pencurian Identitas — Pengertian', html:`
+  <div class="eyebrow"><span class="dot"></span>Pencurian Identitas</div>
+  <h2>Apa itu pencurian identitas?</h2>
+  <p class="lead"><strong>Pencurian identitas (identity theft)</strong> adalah tindakan seseorang menggunakan data pribadi orang lain — seperti nama, NIK, atau foto — untuk berpura-pura menjadi orang tersebut, biasanya demi keuntungan pribadi.</p>
+  <div class="card">
+    <div class="chip">Contoh nyata</div>
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.7;">Foto e-KTP yang dibagikan untuk keperluan pinjaman daring digunakan orang lain untuk mengajukan pinjaman atas nama pemilik KTP, tanpa sepengetahuannya.</p>
+  </div>
+`});
+
+/* ---- 7. PENCURIAN IDENTITAS: bagaimana terjadi ---- */
+slides.push({title:'Pencurian Identitas — Bagaimana Terjadi', html:`
+  <div class="eyebrow"><span class="dot"></span>Pencurian Identitas</div>
+  <h2>Bagaimana data bisa dicuri untuk pencurian identitas?</h2>
+  <div class="grid2">
+    <div class="card"><div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Melalui unggahan</div><p style="font-size:13px; color:var(--text-dim);">Foto KTP/KK diunggah atau dikirim ke pihak yang tidak terpercaya.</p></div>
+    <div class="card"><div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Melalui kebocoran data</div><p style="font-size:13px; color:var(--text-dim);">Data yang tersimpan di suatu aplikasi bocor akibat sistem keamanannya diretas.</p></div>
+    <div class="card"><div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Melalui penipuan</div><p style="font-size:13px; color:var(--text-dim);">Korban ditipu untuk memberikan data secara langsung, misalnya lewat pesan phishing.</p></div>
+    <div class="card"><div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Melalui berbagi berlebihan</div><p style="font-size:13px; color:var(--text-dim);">Informasi pribadi lengkap dibagikan secara terbuka di media sosial.</p></div>
+  </div>
+`});
+
+/* ---- 8. PENIPUAN DARING: pengertian & jenis ---- */
+slides.push({title:'Penipuan Daring — Jenis-jenis', html:`
+  <div class="eyebrow"><span class="dot"></span>Penipuan Daring</div>
+  <h2>Berbagai jenis penipuan daring</h2>
+  <p class="lead"><strong>Penipuan daring</strong> adalah tindakan menipu seseorang secara daring untuk mendapatkan uang, data, atau keuntungan lain secara tidak sah.</p>
+  <div class="acc-item" id="pn-1"><div class="acc-head" onclick="toggleAcc('pn-1')"><span>🎁 Modus hadiah palsu</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Korban diberi tahu memenangkan hadiah, lalu diminta membayar "biaya administrasi" atau memberikan data pribadi untuk klaim hadiah.</div></div></div>
+  <div class="acc-item" id="pn-2"><div class="acc-head" onclick="toggleAcc('pn-2')"><span>🛒 Toko online palsu</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Toko daring menawarkan barang dengan harga sangat murah, korban membayar tapi barang tidak pernah dikirim.</div></div></div>
+  <div class="acc-item" id="pn-3"><div class="acc-head" onclick="toggleAcc('pn-3')"><span>💳 Penipuan pinjaman online</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Korban ditawari pinjaman cepat tanpa syarat rumit, namun diminta membayar biaya di muka atau data pribadinya disalahgunakan.</div></div></div>
+  <div class="acc-item" id="pn-4"><div class="acc-head" onclick="toggleAcc('pn-4')"><span>👤 Penyamaran identitas</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Pelaku berpura-pura menjadi kerabat atau pejabat resmi untuk meminta uang atau data secara mendesak.</div></div></div>
+`});
+
+/* ---- 9. SPOT THE SCAM interaktif ---- */
+slides.push({title:'Kenali Modus Penipuan', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Mengenali Modus</div>
+  <h2>Penipuan atau bukan?</h2>
+  <p class="lead">Klik setiap pesan untuk melihat apakah itu termasuk penipuan daring.</p>
+  <div id="scam-list"></div>
+`});
+
+/* ---- 10. DAMPAK MEMBAGIKAN DATA SEMBARANGAN ---- */
+slides.push({title:'Dampak Membagikan Data Sembarangan', html:`
+  <div class="eyebrow"><span class="dot"></span>Dampak</div>
+  <h2>Apa dampaknya bagi korban?</h2>
+  <div class="grid2">
+    <div class="impact-card" style="background:rgba(255,107,107,0.08); border-color:rgba(255,107,107,0.3);">
+      <div class="chip" style="color:var(--danger); border-color:rgba(255,107,107,0.4);">Dampak Finansial</div>
+      <p style="font-size:13px; color:var(--text-dim);">Kehilangan uang akibat penipuan, atau menanggung utang pinjaman online yang bukan miliknya.</p>
+    </div>
+    <div class="impact-card" style="background:rgba(255,171,92,0.08); border-color:rgba(255,171,92,0.3);">
+      <div class="chip" style="color:var(--amber); border-color:rgba(255,171,92,0.4);">Dampak Sosial</div>
+      <p style="font-size:13px; color:var(--text-dim);">Nama baik tercoreng karena identitasnya dipakai untuk hal yang tidak dilakukannya.</p>
+    </div>
+    <div class="impact-card" style="background:rgba(255,209,102,0.08); border-color:rgba(255,209,102,0.3);">
+      <div class="chip" style="color:var(--gold); border-color:rgba(255,209,102,0.4);">Dampak Psikologis</div>
+      <p style="font-size:13px; color:var(--text-dim);">Merasa cemas, tidak aman, atau kehilangan kepercayaan terhadap dunia digital.</p>
+    </div>
+    <div class="impact-card" style="background:rgba(255,122,107,0.08); border-color:rgba(255,122,107,0.3);">
+      <div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Dampak Hukum</div>
+      <p style="font-size:13px; color:var(--text-dim);">Identitas yang dicuri dipakai untuk tindakan ilegal, sehingga korban bisa ikut terseret masalah hukum.</p>
     </div>
   </div>
-  <p style="font-size:13.5px">Cara membaca turus: setiap 4 garis tegak (||||) lalu garis ke-5 dicoret menyilang menjadi satu kelompok yang mewakili <strong>5 data</strong>. Ini memudahkan kita menghitung total data dengan cepat.</p>
-</div>
-`);
+`});
 
-/* ---------- 7. MEMBUAT TABEL FREKUENSI (langkah) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Langkah-langkah</div>
-  <h2 class="slide-title">Cara Membuat Tabel Frekuensi</h2>
-  <ol class="mt-16">
-    <li>Kumpulkan dan amati seluruh data mentah yang ada.</li>
-    <li>Tentukan semua nilai/kategori yang berbeda dari data tersebut (dari yang terkecil ke terbesar, atau sesuai kategori).</li>
-    <li>Buat tabel dengan kolom: <strong>Data</strong>, <strong>Turus</strong>, dan <strong>Frekuensi</strong>.</li>
-    <li>Hitung setiap data satu per satu, tandai dengan turus pada baris yang sesuai.</li>
-    <li>Ubah jumlah turus menjadi angka pada kolom frekuensi.</li>
-    <li>Jumlahkan seluruh frekuensi untuk memastikan totalnya sama dengan banyak data mula-mula.</li>
-  </ol>
-</div>
-`);
+/* ---- 11. SIMULASI JEJAK DIGITAL ---- */
+slides.push({title:'Simulasi Jejak Digital', html:`
+  <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+  <h2>Apa yang bisa diketahui orang dari unggahanmu?</h2>
+  <p class="lead">Klik setiap contoh unggahan untuk melihat informasi apa saja yang sebenarnya bisa diketahui orang lain darinya.</p>
+  <div id="post-list"></div>
+`});
 
-/* ---------- 8. CONTOH MEMBUAT TABEL (step solver) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Contoh Soal</div>
-  <h2 class="slide-title">Membuat Tabel dari Data Nilai Ulangan</h2>
-  <p><strong>Soal:</strong> Berikut adalah data nilai ulangan matematika 20 siswa. Buatlah tabel frekuensinya!</p>
-  <div class="raw-data">7, 8, 6, 9, 7, 8, 8, 6, 7, 9, 8, 7, 6, 8, 9, 7, 8, 6, 7, 8</div>
-  <button class="btn btn-primary mt-16" onclick="revealSteps('steps1')">Tampilkan Langkah Penyelesaian</button>
-  <div class="step-list mt-16" id="steps1">
-    <div class="step-item"><div class="step-num">1</div><div class="step-text">Nilai yang muncul pada data hanya ada 4 macam: <span class="mono">6, 7, 8, 9</span>.</div></div>
-    <div class="step-item"><div class="step-num">2</div><div class="step-text">Hitung kemunculan nilai 6: muncul sebanyak <span class="mono">4 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">3</div><div class="step-text">Hitung kemunculan nilai 7: muncul sebanyak <span class="mono">6 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">4</div><div class="step-text">Hitung kemunculan nilai 8: muncul sebanyak <span class="mono">7 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">5</div><div class="step-text">Hitung kemunculan nilai 9: muncul sebanyak <span class="mono">3 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">6</div><div class="step-text">✅ Total: 4 + 6 + 7 + 3 = <strong>20</strong>, sudah sesuai dengan banyak data mula-mula.</div></div>
-  </div>
-  <table class="freq-table mt-24">
-    <tr><th>Nilai</th><th>Turus</th><th>Frekuensi</th></tr>
-    <tr><td>6</td><td class="mono">IIII</td><td>4</td></tr>
-    <tr><td>7</td><td class="mono">IIII I</td><td>6</td></tr>
-    <tr><td>8</td><td class="mono">IIII II</td><td>7</td></tr>
-    <tr><td>9</td><td class="mono">III</td><td>3</td></tr>
-    <tr><td><strong>Jumlah</strong></td><td></td><td><strong>20</strong></td></tr>
-  </table>
-</div>
-`);
+/* ---- 12. LATIHAN SKENARIO ---- */
+slides.push({title:'Latihan Skenario', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Skenario</div>
+  <h2>Apa yang sebaiknya kamu lakukan?</h2>
+  <div id="scenario-list"></div>
+`});
 
-/* ---------- 9. MENENTUKAN FREKUENSI SUATU DATA (penjelasan + contoh) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Sub-konsep</div>
-  <h2 class="slide-title">Menentukan Frekuensi Suatu Data</h2>
-  <p>Untuk menentukan frekuensi suatu data tertentu, kita cukup <strong>menghitung berapa kali data tersebut muncul</strong> dalam kumpulan data, lalu mencatatnya pada tabel frekuensi.</p>
-  <p class="mt-16">Perhatikan kembali tabel nilai ulangan sebelumnya:</p>
-  <table class="freq-table">
-    <tr><th>Nilai</th><th>Frekuensi</th></tr>
-    <tr><td>6</td><td>4</td></tr>
-    <tr><td>7</td><td>6</td></tr>
-    <tr><td>8</td><td>7</td></tr>
-    <tr><td>9</td><td>3</td></tr>
-  </table>
-  <div class="info-card mt-16">
-    <h4>❓ Pertanyaan</h4>
-    <p style="font-size:14px">Berapa frekuensi siswa yang mendapat nilai 7? Jawabannya bisa langsung dibaca dari tabel: <strong>6 siswa</strong>.</p>
+/* ---- 13. LATIHAN MATCHING ---- */
+slides.push({title:'Latihan — Risiko & Pencegahan', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Mencocokkan</div>
+  <h2>Pasangkan risiko dengan cara mencegahnya</h2>
+  <p class="lead">Klik satu kartu risiko di kiri, lalu klik cara pencegahan yang paling cocok di kanan.</p>
+  <div class="grid2">
+    <div><div class="chip">Risiko</div><div id="match-left"></div></div>
+    <div><div class="chip">Cara pencegahan</div><div id="match-right"></div></div>
   </div>
-</div>
-`);
+  <div class="feedback" id="match-feedback"></div>
+`});
 
-/* ---------- 10. LATIHAN INTERAKTIF: FREKUENSI ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Interaktif</div>
-  <h2 class="slide-title">Coba Jawab Sendiri</h2>
-  <p><strong>Soal:</strong> Berdasarkan tabel nilai ulangan (6:4, 7:6, 8:7, 9:3), berapa frekuensi siswa yang mendapat nilai 9?</p>
-  <div class="answer-row">
-    <input type="text" id="ans1" placeholder="Masukkan jawaban (angka)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ans1', 3, 'fb1')">Periksa Jawaban</button>
-  </div>
-  <div class="fb-msg" id="fb1"></div>
-</div>
-`);
+/* ---- 14. KUIS ---- */
+slides.push({title:'Kuis', html:`
+  <div class="eyebrow"><span class="dot"></span>Kuis Akhir</div>
+  <h2>Uji Pemahamanmu</h2>
+  <div id="quiz-area"></div>
+`});
 
-/* ---------- 11. MEMBACA TABEL FREKUENSI (penjelasan) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Sub-konsep</div>
-  <h2 class="slide-title">Membaca Tabel Frekuensi</h2>
-  <p>Membaca tabel frekuensi berarti mengambil informasi langsung dari tabel tanpa perlu menghitung ulang data mentahnya. Perhatikan contoh tabel berikut tentang banyak anak dalam 30 keluarga di sebuah RT.</p>
-  <table class="freq-table mt-16">
-    <tr><th>Jumlah Anak</th><th>Frekuensi (Banyak Keluarga)</th></tr>
-    <tr><td>0</td><td>3</td></tr>
-    <tr><td>1</td><td>8</td></tr>
-    <tr><td>2</td><td>12</td></tr>
-    <tr><td>3</td><td>5</td></tr>
-    <tr><td>4</td><td>2</td></tr>
-  </table>
-  <p style="font-size:14px">Dari tabel ini, kita bisa langsung membaca, misalnya: ada <strong>12 keluarga</strong> yang memiliki 2 anak, tanpa perlu melihat data mentahnya satu per satu.</p>
-</div>
-`);
+/* ---- 15. REFLEKSI ---- */
+slides.push({title:'Refleksi', html:`
+  <div class="eyebrow"><span class="dot"></span>Refleksi</div>
+  <h2>Sebelum lanjut, coba renungkan</h2>
+  <div class="grid2">
+    <div class="acc-item" id="r1"><div class="acc-head" onclick="toggleAcc('r1')"><span>Data pribadi apa yang pernah kamu bagikan tanpa berpikir panjang?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Coba ingat kembali — apakah kamu tahu ke mana data itu digunakan, dan apakah kamu merasa itu aman?</div></div></div>
+    <div class="acc-item" id="r2"><div class="acc-head" onclick="toggleAcc('r2')"><span>Apa yang akan kamu lakukan berbeda mulai sekarang?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Misalnya lebih selektif membagikan data, memeriksa keaslian penawaran, atau bertanya kepada orang tua/guru sebelum mengisi formulir asing.</div></div></div>
+  </div>
+`});
 
-/* ---------- 12. CONTOH SOAL MEMBACA TABEL (MCQ) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Interaktif</div>
-  <h2 class="slide-title">Baca dan Jawab</h2>
-  <p><strong>Soal:</strong> Berdasarkan tabel jumlah anak keluarga di slide sebelumnya, berapa banyak keluarga yang memiliki <strong>lebih dari 2 anak</strong>?</p>
-  <div class="mcq-options" id="mcqA">
-    <button class="mcq-opt" onclick="answerMCQ(this,'mcqA',false,'12')"><span class="letter">A</span>12 keluarga</button>
-    <button class="mcq-opt" onclick="answerMCQ(this,'mcqA',true,'7')"><span class="letter">B</span>7 keluarga</button>
-    <button class="mcq-opt" onclick="answerMCQ(this,'mcqA',false,'5')"><span class="letter">C</span>5 keluarga</button>
-    <button class="mcq-opt" onclick="answerMCQ(this,'mcqA',false,'30')"><span class="letter">D</span>30 keluarga</button>
+/* ---- 16. RANGKUMAN ---- */
+slides.push({title:'Rangkuman', html:`
+  <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+  <h2>Yang telah kita pelajari</h2>
+  <div class="grid2">
+    <div class="card"><div class="chip" style="color:var(--amber); border-color:rgba(255,171,92,0.4);">Penyalahgunaan Data</div><p style="font-size:13.5px; color:var(--text-dim);">Data pribadi digunakan tanpa izin, di luar tujuan awal saat diberikan.</p></div>
+    <div class="card"><div class="chip" style="color:var(--coral); border-color:rgba(255,122,107,0.4);">Pencurian Identitas</div><p style="font-size:13.5px; color:var(--text-dim);">Data seseorang dipakai untuk berpura-pura menjadi orang tersebut demi keuntungan pribadi.</p></div>
+    <div class="card"><div class="chip" style="color:var(--gold); border-color:rgba(255,209,102,0.4);">Penipuan Daring</div><p style="font-size:13.5px; color:var(--text-dim);">Tindakan menipu secara daring untuk mendapatkan uang atau data secara tidak sah.</p></div>
+    <div class="card"><div class="chip" style="color:var(--danger); border-color:rgba(255,107,107,0.4);">Dampaknya</div><p style="font-size:13.5px; color:var(--text-dim);">Kerugian finansial, sosial, psikologis, hingga masalah hukum bagi korban.</p></div>
   </div>
-  <div class="fb-msg" id="mcqA-fb"></div>
-</div>
-`);
+  <p class="lead" style="margin-top:16px;">Kunci utamanya: <strong>pikirkan dulu sebelum membagikan data pribadi</strong>, dan selalu curigai penawaran atau permintaan yang terkesan terlalu mudah dan mendesak.</p>
+`});
 
-/* ---------- 13. MENENTUKAN JUMLAH SELURUH DATA (rumus) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Rumus Kunci · 1</div>
-  <h2 class="slide-title">Menentukan Jumlah Seluruh Data</h2>
-  <p>Untuk mengetahui banyaknya seluruh data yang tercatat dalam tabel frekuensi, kita cukup <strong>menjumlahkan semua nilai frekuensi</strong> yang ada.</p>
-  <div class="formula-box">
-    <div class="f">Jumlah Seluruh Data = f₁ + f₂ + f₃ + ... + fₙ
-      <small>f mewakili nilai frekuensi setiap baris pada tabel</small>
-    </div>
+/* ---- 17. PENUTUP ---- */
+slides.push({title:'Penutup', html:`
+  <div class="eyebrow"><span class="dot"></span>Penutup</div>
+  <h2>Selesai! 🎉</h2>
+  <p class="lead">Kamu telah menyelesaikan materi <strong>7.3 Risiko Membagikan Data Pribadi</strong>: penyalahgunaan data, pencurian identitas, penipuan daring, dan dampak membagikan data secara sembarangan.</p>
+  <div class="card">
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.7;">Mulai sekarang, coba biasakan diri untuk selalu bertanya: "Apakah aku benar-benar perlu membagikan data ini, dan kepada siapa?" sebelum menekan tombol kirim atau unggah.</p>
   </div>
-</div>
-`);
-
-/* ---------- 14. CONTOH SOAL JUMLAH DATA (step solver) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Contoh Soal</div>
-  <h2 class="slide-title">Menghitung Total Keluarga yang Disurvei</h2>
-  <p><strong>Soal:</strong> Berdasarkan tabel jumlah anak (0:3, 1:8, 2:12, 3:5, 4:2), berapa total keluarga yang disurvei?</p>
-  <button class="btn btn-primary mt-16" onclick="revealSteps('steps2')">Tampilkan Langkah Penyelesaian</button>
-  <div class="step-list mt-16" id="steps2">
-    <div class="step-item"><div class="step-num">1</div><div class="step-text">Jumlahkan seluruh frekuensi: <span class="mono">3 + 8 + 12 + 5 + 2</span>.</div></div>
-    <div class="step-item"><div class="step-num">2</div><div class="step-text">Hasil penjumlahan: <span class="mono">3+8=11, 11+12=23, 23+5=28, 28+2=30</span>.</div></div>
-    <div class="step-item"><div class="step-num">3</div><div class="step-text">✅ Jadi, total keluarga yang disurvei adalah <strong>30 keluarga</strong>.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 15. MENENTUKAN NILAI DENGAN FREKUENSI TERTENTU ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Rumus Kunci · 2</div>
-  <h2 class="slide-title">Menentukan Nilai dengan Frekuensi Tertentu</h2>
-  <p>Selain membaca frekuensi dari suatu nilai, kita juga bisa melakukan sebaliknya: <strong>mencari nilai/kategori tertentu</strong> berdasarkan frekuensinya — misalnya nilai dengan frekuensi tertinggi (paling sering muncul) atau frekuensi terendah (paling jarang muncul).</p>
-  <p class="mt-16"><strong>Contoh:</strong> Tabel berikut menunjukkan data ukuran sepatu yang terjual di sebuah toko dalam sebulan.</p>
-  <table class="freq-table mt-16">
-    <tr><th>Ukuran Sepatu</th><th>Frekuensi (Pasang Terjual)</th></tr>
-    <tr><td>38</td><td>6</td></tr>
-    <tr><td>39</td><td>10</td></tr>
-    <tr><td>40</td><td>15</td></tr>
-    <tr><td>41</td><td>9</td></tr>
-    <tr><td>42</td><td>4</td></tr>
-  </table>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Ukuran sepatu mana yang paling laris?</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Ukuran sepatu <strong>40</strong> paling laris, karena memiliki frekuensi tertinggi yaitu 15 pasang.</div></div>
-  </div>
-  <div class="accordion">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Ukuran sepatu mana yang paling jarang terjual?</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Ukuran sepatu <strong>42</strong> paling jarang terjual, dengan frekuensi terendah yaitu 4 pasang.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 16. LATIHAN INTERAKTIF: NILAI DENGAN FREKUENSI TERTENTU ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Interaktif</div>
-  <h2 class="slide-title">Coba Analisis Tabel Ini</h2>
-  <p><strong>Soal:</strong> Masih dari tabel penjualan sepatu (38:6, 39:10, 40:15, 41:9, 42:4), berapa total pasang sepatu ukuran 39 dan 41 yang terjual jika dijumlahkan?</p>
-  <div class="answer-row">
-    <input type="text" id="ans2" placeholder="Masukkan jawaban (angka)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ans2', 19, 'fb2')">Periksa Jawaban</button>
-  </div>
-  <div class="fb-msg" id="fb2"></div>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Lihat Pembahasan</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Frekuensi ukuran 39 adalah 10, dan ukuran 41 adalah 9. Jumlahnya = 10 + 9 = <strong>19 pasang</strong>.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 17. MENYAJIKAN DATA KE DALAM TABEL (contoh baru) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Sub-konsep</div>
-  <h2 class="slide-title">Menyajikan Data ke dalam Tabel</h2>
-  <p><strong>Soal:</strong> Berikut data warna favorit 20 siswa di suatu kelas. Sajikan data ini dalam bentuk tabel frekuensi!</p>
-  <div class="raw-data">Merah, Biru, Hijau, Biru, Kuning, Biru, Merah, Hijau, Biru, Merah,<br>Biru, Kuning, Hijau, Biru, Merah, Biru, Kuning, Hijau, Biru, Merah</div>
-  <button class="btn btn-primary mt-16" onclick="revealSteps('steps3')">Tampilkan Langkah Penyelesaian</button>
-  <div class="step-list mt-16" id="steps3">
-    <div class="step-item"><div class="step-num">1</div><div class="step-text">Kategori warna yang muncul: <span class="mono">Merah, Biru, Hijau, Kuning</span>.</div></div>
-    <div class="step-item"><div class="step-num">2</div><div class="step-text">Hitung Merah: muncul <span class="mono">5 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">3</div><div class="step-text">Hitung Biru: muncul <span class="mono">8 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">4</div><div class="step-text">Hitung Hijau: muncul <span class="mono">4 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">5</div><div class="step-text">Hitung Kuning: muncul <span class="mono">3 kali</span>.</div></div>
-    <div class="step-item"><div class="step-num">6</div><div class="step-text">✅ Total: 5+8+4+3 = <strong>20</strong>, sudah sesuai jumlah siswa.</div></div>
-  </div>
-  <table class="freq-table mt-24">
-    <tr><th>Warna</th><th>Frekuensi</th></tr>
-    <tr><td>Merah</td><td>5</td></tr>
-    <tr><td>Biru</td><td>8</td></tr>
-    <tr><td>Hijau</td><td>4</td></tr>
-    <tr><td>Kuning</td><td>3</td></tr>
-    <tr><td><strong>Jumlah</strong></td><td><strong>20</strong></td></tr>
-  </table>
-</div>
-`);
-
-/* ---------- 18. MENAFSIRKAN INFORMASI DARI TABEL (penjelasan) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Sub-konsep</div>
-  <h2 class="slide-title">Menafsirkan Informasi dari Tabel</h2>
-  <p><strong>Menafsirkan</strong> tabel frekuensi berarti menarik kesimpulan atau makna dari data yang tersaji — bukan hanya membaca angkanya, tapi memahami apa arti angka tersebut dalam konteks nyata.</p>
-  <div class="info-card mt-16">
-    <h4>🧠 Contoh Penafsiran</h4>
-    <p style="font-size:14px">Dari tabel warna favorit (Merah:5, Biru:8, Hijau:4, Kuning:3), kita bisa menafsirkan bahwa <strong>warna Biru adalah warna favorit terbanyak</strong> di kelas tersebut, karena memiliki frekuensi tertinggi dibanding warna lain.</p>
-  </div>
-  <p class="mt-16" style="font-size:14px">Penafsiran juga bisa melibatkan perhitungan tambahan, misalnya menghitung <strong>persentase</strong> suatu kategori terhadap jumlah keseluruhan data.</p>
-  <div class="formula-box">
-    <div class="f">Persentase Kategori = (Frekuensi Kategori ÷ Jumlah Seluruh Data) × 100%</div>
-  </div>
-</div>
-`);
-
-/* ---------- 19. CONTOH SOAL MENAFSIRKAN (input persentase) ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Interaktif</div>
-  <h2 class="slide-title">Hitung Persentasenya</h2>
-  <p><strong>Soal:</strong> Dari tabel warna favorit 20 siswa (Merah:5, Biru:8, Hijau:4, Kuning:3), berapa persen siswa yang menyukai warna Merah?</p>
-  <div class="answer-row">
-    <input type="text" id="ans3" placeholder="Jawaban dalam % (misal 25)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ans3', 25, 'fb3')">Periksa Jawaban</button>
-  </div>
-  <div class="fb-msg" id="fb3"></div>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Lihat Pembahasan</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Persentase = (5 ÷ 20) × 100% = <strong>25%</strong>.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 20. LATIHAN BERTAHAP: MUDAH ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Mandiri</div>
-  <span class="badge easy">Tingkat: Mudah</span>
-  <h2 class="slide-title mt-16">Soal 1</h2>
-  <p>Tabel berikut menunjukkan hobi 20 siswa di suatu kelas: Membaca = 6, Olahraga = 10, Musik = 4. Berapa total siswa yang disurvei?</p>
-  <div class="answer-row">
-    <input type="text" id="ansEasy" placeholder="Jawaban (angka)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ansEasy', 20, 'fbEasy')">Periksa</button>
-  </div>
-  <div class="fb-msg" id="fbEasy"></div>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Pembahasan</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">6 + 10 + 4 = <strong>20 siswa</strong>.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 21. LATIHAN BERTAHAP: SEDANG ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Mandiri</div>
-  <span class="badge med">Tingkat: Sedang</span>
-  <h2 class="slide-title mt-16">Soal 2</h2>
-  <p>Masih dari tabel hobi (Membaca=6, Olahraga=10, Musik=4, total 20), berapa siswa yang hobinya <strong>bukan</strong> Membaca?</p>
-  <div class="answer-row">
-    <input type="text" id="ansMed" placeholder="Jawaban (angka)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ansMed', 14, 'fbMed')">Periksa</button>
-  </div>
-  <div class="fb-msg" id="fbMed"></div>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Pembahasan</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Total siswa 20, yang hobi Membaca 6. Maka bukan Membaca = 20 − 6 = <strong>14 siswa</strong>.</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 22. LATIHAN BERTAHAP: MENANTANG ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Latihan Mandiri</div>
-  <span class="badge hard">Tingkat: Menantang</span>
-  <h2 class="slide-title mt-16">Soal 3</h2>
-  <p>Dari tabel penjualan sepatu (38:6, 39:10, 40:15, 41:9, 42:4, total 44 pasang), berapa persen (dibulatkan ke bilangan bulat terdekat) sepatu ukuran 40 dari total penjualan?</p>
-  <div class="answer-row">
-    <input type="text" id="ansHard" placeholder="Jawaban dalam % (bulat)">
-    <button class="btn btn-primary btn-sm" onclick="checkNumAnswer('ansHard', 34, 'fbHard', 1)">Periksa</button>
-  </div>
-  <div class="fb-msg" id="fbHard"></div>
-  <div class="accordion mt-16">
-    <div class="acc-head" onclick="toggleAcc(this)"><span>👀 Pembahasan</span><span class="arrow">▾</span></div>
-    <div class="acc-body"><div class="acc-body-inner">Persentase = (15 ÷ 44) × 100% ≈ <strong>34%</strong> (dibulatkan).</div></div>
-  </div>
-</div>
-`);
-
-/* ---------- 23. MATCHING GAME ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Aktivitas Interaktif</div>
-  <h2 class="slide-title">Cocokkan Istilah dengan Pengertiannya</h2>
-  <p class="slide-sub">Klik satu istilah di kolom kiri, lalu klik pengertian yang sesuai di kolom kanan.</p>
-  <div class="matching-wrap" id="matchWrap">
-    <div>
-      <div class="match-item" data-pair="1" onclick="selectMatch(this)">Frekuensi</div>
-      <div class="match-item" data-pair="2" onclick="selectMatch(this)">Turus</div>
-      <div class="match-item" data-pair="3" onclick="selectMatch(this)">Tabel Frekuensi</div>
-      <div class="match-item" data-pair="4" onclick="selectMatch(this)">Jumlah Data</div>
-    </div>
-    <div>
-      <div class="match-item" data-pair="4" onclick="selectMatch(this)">Total dari seluruh nilai frekuensi pada tabel</div>
-      <div class="match-item" data-pair="1" onclick="selectMatch(this)">Banyaknya kemunculan suatu data dalam sekumpulan data</div>
-      <div class="match-item" data-pair="3" onclick="selectMatch(this)">Tabel yang menyajikan data beserta frekuensi kemunculannya</div>
-      <div class="match-item" data-pair="2" onclick="selectMatch(this)">Tanda hitung berupa garis untuk mempermudah penghitungan data</div>
-    </div>
-  </div>
-  <p class="center mt-16" id="matchStatus" style="font-size:13px;color:var(--text-dimmer)">0 dari 4 pasangan benar</p>
-</div>
-`);
-
-/* ---------- 24. RANGKUMAN ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Rangkuman</div>
-  <h2 class="slide-title">Apa yang Sudah Kita Pelajari?</h2>
-  <ul class="mt-16">
-    <li><strong>Frekuensi</strong> adalah banyaknya kemunculan suatu data, dan <strong>tabel frekuensi</strong> menyajikan data beserta frekuensinya secara ringkas.</li>
-    <li>Tabel frekuensi dibuat dengan bantuan <strong>turus</strong> untuk mempermudah penghitungan data mentah.</li>
-    <li><strong>Jumlah seluruh data</strong> = jumlah semua nilai frekuensi pada tabel.</li>
-    <li>Kita bisa menentukan nilai dengan <strong>frekuensi tertinggi/terendah</strong> langsung dari tabel.</li>
-    <li><strong>Menafsirkan</strong> tabel berarti menarik kesimpulan dari data, termasuk menghitung persentase suatu kategori.</li>
-  </ul>
-  <div class="formula-box mt-16">
-    <div class="f">Jumlah Seluruh Data = f₁ + f₂ + ... + fₙ
-      <small>Persentase Kategori = (Frekuensi ÷ Jumlah Data) × 100%</small>
-    </div>
-  </div>
-</div>
-`);
-
-/* ---------- 25. REFLEKSI ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Refleksi</div>
-  <h2 class="slide-title">Sejauh Mana Pemahamanmu?</h2>
-  <p class="slide-sub">Klik salah satu untuk merefleksikan pemahamanmu tentang submateri ini (tidak dinilai).</p>
-  <div class="mcq-options">
-    <button class="mcq-opt" onclick="reflectPick(this)"><span class="letter">😄</span>Saya sudah paham dan bisa membuat serta membaca tabel frekuensi sendiri.</button>
-    <button class="mcq-opt" onclick="reflectPick(this)"><span class="letter">🙂</span>Saya cukup paham, tapi masih perlu latihan lagi.</button>
-    <button class="mcq-opt" onclick="reflectPick(this)"><span class="letter">😕</span>Saya masih bingung dengan sebagian konsep.</button>
-  </div>
-  <div class="fb-msg" id="reflectFb"></div>
-</div>
-`);
-
-/* ---------- 26. KUIS ---------- */
-S(`
-<div class="card">
-  <div class="eyebrow">Kuis Akhir</div>
-  <h2 class="slide-title" id="quizTitle">Uji Pemahamanmu</h2>
-  <div id="quizArea"></div>
-</div>
-`);
-
-/* ---------- 27. PENUTUP ---------- */
-S(`
-<div class="card final-card">
-  <div class="icon">🎉</div>
-  <h2 class="slide-title">Selesai!</h2>
-  <p>Kamu telah menyelesaikan pembelajaran <strong>Tabel Frekuensi</strong> — bagian dari Bab 7: Statistika.</p>
-  <p class="mt-16" style="font-size:14px">Teruslah berlatih membuat dan membaca tabel frekuensi dari data di sekitarmu, misalnya data nilai ulangan, hasil survei kelas, atau catatan sehari-hari. Sampai jumpa di submateri berikutnya!</p>
-  <button class="btn btn-primary mt-24" onclick="goTo(0)">↺ Ulangi dari Awal</button>
-</div>
-`);
+  <button class="btn btn-accent" style="margin-top:18px;" onclick="goTo(0)">↺ Ulangi dari awal</button>
+`});
 
 /* =========================================================
-   QUIZ DATA
-========================================================= */
-const quizQuestions = [
-  {
-    q: "Dari tabel nilai ulangan (6:4, 7:6, 8:7, 9:3), berapa siswa yang mendapat nilai 8?",
-    opts: ["4 siswa","6 siswa","7 siswa","3 siswa"],
-    correct: 2,
-    explain: "Berdasarkan tabel, frekuensi nilai 8 adalah 7 siswa."
-  },
-  {
-    q: "Berapa total siswa yang mengikuti ulangan pada tabel nilai (6:4, 7:6, 8:7, 9:3)?",
-    opts: ["16 siswa","18 siswa","20 siswa","22 siswa"],
-    correct: 2,
-    explain: "4 + 6 + 7 + 3 = 20 siswa."
-  },
-  {
-    q: "Nilai berapa yang paling banyak diperoleh siswa (frekuensi tertinggi) pada tabel nilai tersebut?",
-    opts: ["6","7","8","9"],
-    correct: 2,
-    explain: "Nilai 8 memiliki frekuensi tertinggi yaitu 7."
-  },
-  {
-    q: "Pernyataan: 'Frekuensi adalah banyaknya kemunculan suatu data dalam sekumpulan data.' Benar atau salah?",
-    opts: ["Benar","Salah"],
-    correct: 0,
-    explain: "Pernyataan tersebut benar dan merupakan definisi dasar frekuensi."
-  },
-  {
-    q: "Dari tabel jumlah anak keluarga (0:3, 1:8, 2:12, 3:5, 4:2), berapa keluarga yang memiliki lebih dari 2 anak?",
-    opts: ["5 keluarga","7 keluarga","12 keluarga","17 keluarga"],
-    correct: 1,
-    explain: "Keluarga dengan anak lebih dari 2 = frekuensi 3 anak + 4 anak = 5 + 2 = 7 keluarga."
-  },
-  {
-    q: "Berapa total keluarga yang disurvei pada tabel jumlah anak (0:3, 1:8, 2:12, 3:5, 4:2)?",
-    opts: ["25 keluarga","28 keluarga","30 keluarga","32 keluarga"],
-    correct: 2,
-    explain: "3 + 8 + 12 + 5 + 2 = 30 keluarga."
-  },
-  {
-    q: "Dari data penjualan sepatu (38:6, 39:10, 40:15, 41:9, 42:4), ukuran berapa yang paling laris?",
-    opts: ["38","39","40","41"],
-    correct: 2,
-    explain: "Ukuran 40 memiliki frekuensi tertinggi, yaitu 15 pasang terjual."
-  },
-  {
-    q: "Pernyataan: 'Jumlah seluruh data pada tabel frekuensi sama dengan jumlah semua nilai frekuensinya.' Benar atau salah?",
-    opts: ["Benar","Salah"],
-    correct: 0,
-    explain: "Benar, jumlah seluruh data diperoleh dengan menjumlahkan semua frekuensi pada tabel."
-  },
-  {
-    q: "Dari tabel jumlah anak (total 30 keluarga), berapa persen (dibulatkan) keluarga yang memiliki 1 anak (frekuensi 8)?",
-    opts: ["20%","27%","33%","40%"],
-    correct: 1,
-    explain: "(8 ÷ 30) × 100% ≈ 26,7%, dibulatkan menjadi 27%."
-  },
-  {
-    q: "Tanda turus 'IIII' (empat garis tegak tanpa coretan menyilang) biasanya mewakili berapa data?",
-    opts: ["3 data","4 data","5 data","10 data"],
-    correct: 1,
-    explain: "Empat garis tegak tanpa coretan menyilang mewakili 4 data; garis kelima baru dicoret menyilang untuk membentuk kelompok 5."
-  }
-];
-let quizIndex = 0;
-let quizScore = 0;
-let quizAnswered = [];
-
-function renderQuiz(){
-  quizIndex = 0; quizScore = 0; quizAnswered = new Array(quizQuestions.length).fill(null);
-  renderQuizQuestion();
-}
-
-function renderQuizQuestion(){
-  const area = document.getElementById('quizArea');
-  if(!area) return;
-  if(quizIndex >= quizQuestions.length){
-    renderQuizResult();
-    return;
-  }
-  const q = quizQuestions[quizIndex];
-  let progressHtml = '<div class="quiz-progress">';
-  for(let i=0;i<quizQuestions.length;i++){
-    let cls = 'qp';
-    if(quizAnswered[i]===true) cls += ' filled';
-    if(quizAnswered[i]===false) cls += ' filled wrong';
-    progressHtml += `<div class="${cls}"></div>`;
-  }
-  progressHtml += '</div>';
-
-  let optsHtml = '<div class="mcq-options">';
-  const letters = ['A','B','C','D'];
-  q.opts.forEach((opt,i)=>{
-    optsHtml += `<button class="mcq-opt" onclick="answerQuiz(${i})"><span class="letter">${letters[i]}</span>${opt}</button>`;
-  });
-  optsHtml += '</div>';
-
-  area.innerHTML = `
-    ${progressHtml}
-    <p style="font-size:12px;color:var(--text-dimmer);margin-bottom:6px;">Soal ${quizIndex+1} dari ${quizQuestions.length}</p>
-    <p style="font-size:16px;color:var(--text);font-weight:600;margin-bottom:4px;">${q.q}</p>
-    ${optsHtml}
-    <div class="fb-msg" id="quizFb"></div>
-    <div class="flex-wrap mt-16">
-      <button class="btn btn-primary btn-sm" id="quizNextBtn" style="display:none" onclick="nextQuizQuestion()">Soal Berikutnya →</button>
-    </div>
-  `;
-}
-
-function answerQuiz(i){
-  const q = quizQuestions[quizIndex];
-  const buttons = document.querySelectorAll('#quizArea .mcq-opt');
-  buttons.forEach((b,idx)=>{
-    b.disabled = true;
-    if(idx===q.correct) b.classList.add('correct');
-    else if(idx===i) b.classList.add('wrong');
-  });
-  const fb = document.getElementById('quizFb');
-  const isCorrect = (i===q.correct);
-  quizAnswered[quizIndex] = isCorrect;
-  if(isCorrect) quizScore++;
-  fb.className = 'fb-msg ' + (isCorrect?'ok':'no');
-  fb.textContent = (isCorrect?'✅ Benar! ':'❌ Belum tepat. ') + q.explain;
-  document.getElementById('quizNextBtn').style.display = 'inline-flex';
-  document.getElementById('quizNextBtn').textContent = (quizIndex === quizQuestions.length-1) ? 'Lihat Skor →' : 'Soal Berikutnya →';
-}
-
-function nextQuizQuestion(){
-  quizIndex++;
-  renderQuizQuestion();
-}
-
-function renderQuizResult(){
-  const area = document.getElementById('quizArea');
-  const pct = Math.round((quizScore/quizQuestions.length)*100);
-  let msg = 'Terus berlatih ya!';
-  let icon = '💪';
-  if(pct>=90){ msg='Luar biasa! Kamu menguasai submateri ini dengan sangat baik.'; icon='🏆'; }
-  else if(pct>=70){ msg='Kerja bagus! Pemahamanmu sudah cukup kuat.'; icon='🎉'; }
-  else if(pct>=50){ msg='Sudah lumayan, tapi coba ulas kembali beberapa konsep ya.'; icon='📘'; }
-
-  area.innerHTML = `
-    <div class="center">
-      <div class="quiz-score-ring">
-        <strong>${pct}%</strong>
-        <span>Skor Akhir</span>
-      </div>
-      <div style="font-size:40px;">${icon}</div>
-      <p style="font-size:15px;margin:10px 0 4px;color:var(--text)">${quizScore} dari ${quizQuestions.length} jawaban benar</p>
-      <p style="font-size:14px;max-width:400px;margin:0 auto;">${msg}</p>
-      <button class="btn btn-primary mt-24" onclick="renderQuiz()">↺ Ulangi Kuis</button>
-    </div>
-  `;
-}
-
-/* =========================================================
-   INTERACTIVITY HELPERS
-========================================================= */
-let tallyCounter = 0;
-function renderTallyHTML(n){
-  const groups = Math.floor(n/5);
-  const rem = n%5;
-  let html = '';
-  for(let g=0; g<groups; g++){
-    html += '<span class="tally-group">'
-      + '<span class="tally-bar" style="left:0px;"></span>'
-      + '<span class="tally-bar" style="left:7px;"></span>'
-      + '<span class="tally-bar" style="left:14px;"></span>'
-      + '<span class="tally-bar" style="left:21px;"></span>'
-      + '<span class="tally-diag"></span>'
-      + '</span>';
-  }
-  if(rem>0){
-    html += '<span class="tally-group">';
-    for(let i=0;i<rem;i++){
-      html += `<span class="tally-bar" style="left:${i*7}px;"></span>`;
-    }
-    html += '</span>';
-  }
-  return html || '<span style="color:var(--text-dimmer);font-size:13px;">Belum ada data</span>';
-}
-function addTally(){
-  tallyCounter++;
-  document.getElementById('tallyDisplay').innerHTML = renderTallyHTML(tallyCounter);
-  document.getElementById('tallyCount').textContent = tallyCounter;
-}
-function resetTally(){
-  tallyCounter = 0;
-  document.getElementById('tallyDisplay').innerHTML = renderTallyHTML(0);
-  document.getElementById('tallyCount').textContent = 0;
-}
-
-function toggleAcc(headEl){
-  const acc = headEl.parentElement;
-  const body = acc.querySelector('.acc-body');
-  const isOpen = acc.classList.contains('open');
-  if(isOpen){
-    acc.classList.remove('open');
-    body.style.maxHeight = null;
-  } else {
-    acc.classList.add('open');
-    body.style.maxHeight = body.scrollHeight + 'px';
-  }
-}
-
-function toggleReveal(btn){
-  const wrap = btn.parentElement;
-  const body = wrap.querySelector('.reveal-body');
-  body.classList.toggle('open');
-}
-
-function revealSteps(containerId){
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  const items = container.querySelectorAll('.step-item');
-  let i = 0;
-  const iv = setInterval(()=>{
-    if(i>=items.length){ clearInterval(iv); return; }
-    items[i].classList.add('shown');
-    i++;
-  }, 450);
-}
-
-function checkNumAnswer(inputId, correctVal, fbId, tolerance){
-  const tol = (typeof tolerance === 'number') ? tolerance : 0.01;
-  const input = document.getElementById(inputId);
-  const fb = document.getElementById(fbId);
-  const raw = input.value.replace(',', '.').replace('%','').trim();
-  const val = parseFloat(raw);
-  if(isNaN(val)){
-    fb.className = 'fb-msg no';
-    fb.textContent = 'Masukkan jawaban berupa angka terlebih dahulu.';
-    return;
-  }
-  if(Math.abs(val - correctVal) <= tol){
-    fb.className = 'fb-msg ok';
-    fb.textContent = '✅ Benar! Jawabanmu tepat.';
-  } else {
-    fb.className = 'fb-msg no';
-    fb.textContent = '❌ Belum tepat, coba periksa kembali langkah perhitunganmu. Lihat pembahasan di bawah untuk membantumu.';
-  }
-}
-
-function answerMCQ(btn, groupId, isCorrect, label){
-  const group = document.getElementById(groupId);
-  const buttons = group.querySelectorAll('.mcq-opt');
-  buttons.forEach(b=>b.disabled = true);
-  if(isCorrect){
-    btn.classList.add('correct');
-  } else {
-    btn.classList.add('wrong');
-    buttons.forEach(b=>{
-      if(b.textContent.trim().startsWith('B') && b.textContent.includes('7 keluarga')) b.classList.add('correct');
-    });
-  }
-  const fb = document.getElementById(groupId+'-fb');
-  fb.className = 'fb-msg ' + (isCorrect?'ok':'no');
-  fb.textContent = isCorrect
-    ? '✅ Benar! Keluarga dengan lebih dari 2 anak = frekuensi 3 anak (5) + frekuensi 4 anak (2) = 7 keluarga.'
-    : '❌ Belum tepat. Keluarga dengan lebih dari 2 anak = 5 + 2 = 7 keluarga.';
-}
-
-function reflectPick(btn){
-  const group = btn.parentElement;
-  group.querySelectorAll('.mcq-opt').forEach(b=>b.classList.remove('correct'));
-  btn.classList.add('correct');
-  const fb = document.getElementById('reflectFb');
-  fb.className = 'fb-msg ok';
-  fb.textContent = 'Terima kasih sudah jujur merefleksikan pemahamanmu! Jika masih ada yang bingung, coba ulangi slide contoh soal sebelumnya atau tanyakan pada gurumu.';
-}
-
-let matchSelected = null;
-let matchCount = 0;
-function selectMatch(el){
-  if(el.classList.contains('matched')) return;
-  if(matchSelected === null){
-    matchSelected = el;
-    el.classList.add('selected');
-    return;
-  }
-  if(matchSelected === el){
-    el.classList.remove('selected');
-    matchSelected = null;
-    return;
-  }
-  const p1 = matchSelected.dataset.pair;
-  const p2 = el.dataset.pair;
-  if(p1 === p2){
-    matchSelected.classList.remove('selected');
-    matchSelected.classList.add('matched');
-    el.classList.add('matched');
-    matchCount++;
-    document.getElementById('matchStatus').textContent = matchCount + ' dari 4 pasangan benar';
-    matchSelected = null;
-  } else {
-    el.classList.add('shake');
-    matchSelected.classList.add('shake');
-    setTimeout(()=>{
-      el.classList.remove('shake');
-      matchSelected.classList.remove('shake');
-      matchSelected.classList.remove('selected');
-      matchSelected = null;
-    }, 400);
-  }
-}
-
-/* =========================================================
-   SLIDE ENGINE
-========================================================= */
+   RENDER SLIDES
+   ========================================================= */
 const stage = document.getElementById('stage');
-function buildSlides(){
-  stage.innerHTML = '';
-  slidesData.forEach((html, idx)=>{
-    const div = document.createElement('div');
-    div.className = 'slide' + (idx===0 ? ' active' : '');
-    div.dataset.index = idx;
-    div.innerHTML = html;
-    stage.appendChild(div);
-  });
-  document.getElementById('totNum').textContent = slidesData.length;
-  buildDots();
-  updateProgress();
-}
-
-function buildDots(){
-  const wrap = document.getElementById('dotsWrap');
-  wrap.innerHTML = '';
-  slidesData.forEach((_, idx)=>{
-    const d = document.createElement('div');
-    d.className = 'dot' + (idx===0?' active':'');
-    d.onclick = ()=>goTo(idx);
-    wrap.appendChild(d);
-  });
-}
-
-function updateProgress(){
-  const pct = ((current) / (slidesData.length-1)) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('curNum').textContent = current+1;
-  document.querySelectorAll('.dot').forEach((d,idx)=>{
-    d.classList.remove('active','done');
-    if(idx===current) d.classList.add('active');
-    else if(idx<current) d.classList.add('done');
-  });
-  document.getElementById('btnPrev').disabled = (current===0);
-  document.getElementById('btnNext').disabled = (current===slidesData.length-1);
-}
-
-function goTo(idx){
-  if(idx<0 || idx>=slidesData.length) return;
-  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
-  const target = stage.querySelector(`.slide[data-index="${idx}"]`);
-  target.classList.add('active');
-  current = idx;
-  updateProgress();
-  window.scrollTo({top:0, behavior:'smooth'});
-
-  if(target.querySelector('#tallyDisplay') && !target.dataset.tallyInit){
-    target.dataset.tallyInit = '1';
-    resetTally();
-  }
-  if(target.querySelector('#quizArea') && !target.dataset.quizInit){
-    target.dataset.quizInit = '1';
-    renderQuiz();
-  }
-}
-
-document.getElementById('btnNext').addEventListener('click', ()=>goTo(current+1));
-document.getElementById('btnPrev').addEventListener('click', ()=>goTo(current-1));
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowRight') goTo(current+1);
-  if(e.key === 'ArrowLeft') goTo(current-1);
+slides.forEach((s,i)=>{
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.id = 'slide-'+i;
+  div.innerHTML = `<div class="slide-inner">${s.html}</div>`;
+  stage.appendChild(div);
+});
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const b = document.createElement('button');
+  b.className='dot-btn';
+  b.title = s.title;
+  b.onclick = ()=>goTo(i);
+  dotsWrap.appendChild(b);
 });
 
-buildSlides();
+let current = 0;
+function render(){
+  slides.forEach((s,i)=>{
+    document.getElementById('slide-'+i).classList.toggle('active', i===current);
+  });
+  document.querySelectorAll('.dot-btn').forEach((d,i)=>d.classList.toggle('active', i===current));
+  document.getElementById('progress-bar').style.width = ((current+1)/slides.length*100)+'%';
+  document.getElementById('slide-counter').textContent = (current+1)+' / '+slides.length;
+  document.getElementById('btn-prev').disabled = current===0;
+  document.getElementById('btn-next').disabled = current===slides.length-1;
+}
+function goTo(i){ current = Math.max(0, Math.min(slides.length-1, i)); render(); }
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* =========================================================
+   ACCORDION + REVEAL
+   ========================================================= */
+function toggleAcc(id){ document.getElementById(id).classList.toggle('open'); }
+function toggleReveal(id){ document.getElementById(id).classList.toggle('open'); }
+
+/* =========================================================
+   SPOT THE SCAM
+   ========================================================= */
+const scamItems = [
+  {txt:'"Selamat! Anda mendapat cashback Rp500.000, klik tautan ini dan masukkan PIN ATM Anda untuk mencairkan."', isScam:true, why:'Meminta PIN ATM adalah tanda pasti penipuan — bank atau layanan resmi tidak pernah meminta PIN lewat pesan.'},
+  {txt:'Email dari sekolah berisi pengumuman jadwal ujian, dikirim dari alamat email resmi sekolah yang sudah dikenal.', isScam:false, why:'Ini adalah komunikasi resmi dan wajar, dikirim dari sumber yang jelas dan dapat diverifikasi.'},
+  {txt:'"Kak, ini aku pakai nomor baru. Tolong transferin 200rb dulu ya, nanti aku ganti." (dari nomor tak dikenal, mengaku saudara)', isScam:true, why:'Modus ini memanfaatkan urgensi dan mengaku sebagai kerabat — selalu verifikasi lewat kontak resmi sebelum mentransfer.'},
+  {txt:'Notifikasi resmi dari aplikasi belanja bahwa pesananmu sedang dikirim, lengkap dengan nomor resi yang bisa dilacak.', isScam:false, why:'Ini adalah notifikasi transaksi yang wajar karena sesuai dengan pesanan yang benar-benar kamu buat.'},
+];
+function renderScam(){
+  const wrap = document.getElementById('scam-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  scamItems.forEach((item,i)=>{
+    const el = document.createElement('div');
+    el.className='reveal-box';
+    el.style.marginBottom='10px';
+    el.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; gap:12px;" onclick="toggleReveal('scam-${i}')">
+        <span style="font-size:13.5px;">${item.txt}</span>
+        <span class="btn" style="pointer-events:none; font-size:12px; padding:5px 10px; flex-shrink:0;">Cek</span>
+      </div>
+      <div class="reveal-content" id="scam-${i}">
+        <p style="padding-top:8px; font-size:13.5px; color:var(--text-dim);"><span class="${item.isScam?'badge-bad':'badge-good'}">${item.isScam?'⚠ INI PENIPUAN':'✓ INI WAJAR'}</span> — ${item.why}</p>
+      </div>
+    `;
+    wrap.appendChild(el);
+  });
+}
+renderScam();
+
+/* =========================================================
+   SIMULASI JEJAK DIGITAL
+   ========================================================= */
+const postItems = [
+  {txt:'📸 "Liburan seru di rumah baru kami! #rumahimpian" (foto rumah lengkap dengan nomor plat mobil dan papan nama jalan terlihat jelas)', info:'Orang lain bisa mengetahui alamat rumahmu, kendaraan yang kamu miliki, dan bahwa rumahmu sedang kosong saat kamu berlibur.'},
+  {txt:'🎂 "Sweet seventeen! Terima kasih semuanya 🎉" (mencantumkan tanggal lahir lengkap dan nama sekolah di keterangan)', info:'Tanggal lahir dan nama sekolah bisa dipakai untuk menebak jawaban pertanyaan keamanan akun, atau menyamar sebagai dirimu.'},
+  {txt:'✈️ "Otw ke bandara, liburan 5 hari ke luar kota bareng keluarga!" (diunggah saat masih di rumah, sebelum berangkat)', info:'Ini memberi tahu orang bahwa rumah akan kosong selama 5 hari — informasi yang berisiko jika dilihat orang yang tidak dikenal.'},
+];
+function renderPosts(){
+  const wrap = document.getElementById('post-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  postItems.forEach((item,i)=>{
+    const el = document.createElement('div');
+    el.className='post-card';
+    el.id='post-'+i;
+    el.onclick=()=>{ el.classList.toggle('open'); };
+    el.innerHTML = `
+      <div class="post-txt">${item.txt}</div>
+      <div class="reveal-info"><div class="reveal-info-inner">⚠ Yang bisa diketahui orang lain: ${item.info}</div></div>
+    `;
+    wrap.appendChild(el);
+  });
+}
+renderPosts();
+
+/* =========================================================
+   LATIHAN SKENARIO
+   ========================================================= */
+const scenarioItems = [
+  {
+    situasi:'Sebuah aplikasi kuis daring meminta kamu memasukkan NIK dan nomor kartu keluarga hanya untuk "mengikuti kuis berhadiah".',
+    options:['Isi saja, kan cuma kuis', 'Tidak perlu diisi, kuis tidak butuh data sepenting itu', 'Isi tapi dengan data palsu'],
+    correct:1,
+    exp:'Kuis biasa tidak pernah butuh NIK atau nomor KK. Permintaan data sensitif untuk hal sepele adalah tanda bahaya.'
+  },
+  {
+    situasi:'Seseorang yang belum pernah kamu kenal di media sosial memintamu mengirimkan foto KTP untuk "verifikasi hadiah".',
+    options:['Kirim, karena hadiahnya besar', 'Tolak dan blokir, ini ciri penipuan', 'Kirim tapi minta bukti dulu'],
+    correct:1,
+    exp:'Verifikasi hadiah yang sah tidak pernah meminta foto KTP dari orang asing di media sosial. Ini adalah modus pencurian identitas.'
+  },
+];
+function renderScenario(){
+  const wrap = document.getElementById('scenario-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  scenarioItems.forEach((item,i)=>{
+    const card = document.createElement('div');
+    card.className='card scenario-card';
+    card.innerHTML = `
+      <p style="font-size:13.5px; margin:0 0 14px 0;">${item.situasi}</p>
+      <div id="scen-opts-${i}">
+        ${item.options.map((o,oi)=>`<button class="opt" onclick="answerScenario(${i},${oi})">${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="scen-fb-${i}"></div>
+    `;
+    wrap.appendChild(card);
+  });
+}
+function answerScenario(qi, oi){
+  const item = scenarioItems[qi];
+  const optsWrap = document.getElementById('scen-opts-'+qi);
+  const opts = optsWrap.querySelectorAll('.opt');
+  opts.forEach((o,idx)=>{
+    o.disabled=true;
+    if(idx===item.correct) o.classList.add('correct');
+    else if(idx===oi) o.classList.add('wrong');
+  });
+  const fb = document.getElementById('scen-fb-'+qi);
+  const isCorrect = oi===item.correct;
+  fb.className='feedback show '+(isCorrect?'good':'bad');
+  fb.textContent = (isCorrect?'✓ Tepat! ':'✗ Belum tepat. ')+item.exp;
+}
+renderScenario();
+
+/* =========================================================
+   MATCHING LATIHAN
+   ========================================================= */
+const matchPairs = [
+  {id:'a', situasi:'Diminta mengirim foto KTP oleh orang asing di media sosial', bentuk:'ktp'},
+  {id:'b', situasi:'Tawaran pinjaman online tanpa syarat, minta biaya di muka', bentuk:'pinjol'},
+  {id:'c', situasi:'Mengunggah foto rumah lengkap dengan alamat saat sedang berlibur', bentuk:'lokasi'},
+  {id:'d', situasi:'Pesan mengaku dari bank meminta kode OTP untuk "verifikasi"', bentuk:'otp'},
+];
+const bentukLabel = {ktp:'Tolak dan jangan pernah kirim dokumen identitas ke orang asing', pinjol:'Periksa legalitas & jangan bayar biaya di muka', lokasi:'Hindari membagikan lokasi/alamat secara terbuka', otp:'Jangan pernah bagikan kode OTP ke siapa pun'};
+let selectedSituasi = null;
+let matchedCount = 0;
+
+function renderMatch(){
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  if(!left) return;
+  left.innerHTML=''; right.innerHTML='';
+  matchPairs.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='sit-'+p.id;
+    el.textContent = p.situasi;
+    el.onclick = ()=>selectSituasi(p.id, el);
+    left.appendChild(el);
+  });
+  const bentukOrder = ['ktp','pinjol','lokasi','otp'];
+  bentukOrder.forEach(b=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='bnt-'+b;
+    el.textContent = bentukLabel[b];
+    el.onclick = ()=>selectBentuk(b, el);
+    right.appendChild(el);
+  });
+}
+function selectSituasi(id, el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-left .match-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSituasi = id;
+}
+function selectBentuk(bentuk, el){
+  if(el.classList.contains('matched') || !selectedSituasi) return;
+  const pair = matchPairs.find(p=>p.id===selectedSituasi);
+  const fb = document.getElementById('match-feedback');
+  if(pair.bentuk === bentuk){
+    document.getElementById('sit-'+selectedSituasi).classList.add('matched');
+    document.getElementById('sit-'+selectedSituasi).classList.remove('selected');
+    el.classList.add('matched');
+    matchedCount++;
+    fb.className='feedback show good';
+    fb.textContent = '✓ Tepat! Cara terbaik menghadapi "'+pair.situasi+'" adalah: '+bentukLabel[bentuk]+'.';
+    if(matchedCount===matchPairs.length){ fb.textContent += ' 🎉 Semua pasangan sudah tepat!'; }
+  } else {
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'), 350);
+    fb.className='feedback show bad';
+    fb.textContent = '✗ Belum tepat, coba pikirkan lagi risiko apa yang paling sesuai dengan cara pencegahan itu.';
+  }
+  selectedSituasi = null;
+}
+renderMatch();
+
+/* =========================================================
+   KUIS
+   ========================================================= */
+const quizData = [
+  {q:'Tindakan menggunakan data pribadi seseorang untuk berpura-pura menjadi orang tersebut disebut…', options:['Penyalahgunaan data','Pencurian identitas','Privasi digital','Autentikasi'], correct:1, exp:'Pencurian identitas adalah tindakan memakai data pribadi orang lain untuk berpura-pura menjadi orang tersebut.'},
+  {q:'Manakah ciri khas penipuan daring?', options:['Meminta OTP atau PIN secara mendesak','Mengirim informasi resmi dari sumber terverifikasi','Meminta konfirmasi ulang lewat aplikasi resmi','Mengirim notifikasi transaksi yang sesuai pesanan'], correct:0, exp:'Permintaan OTP/PIN secara mendesak adalah ciri khas penipuan daring — layanan resmi tidak pernah memintanya.'},
+  {q:'Mengunggah foto rumah lengkap dengan alamat saat sedang berlibur berisiko karena…', options:['Fotonya jadi kurang bagus','Memberi tahu bahwa rumah sedang kosong','Membuat baterai HP boros','Tidak ada risikonya sama sekali'], correct:1, exp:'Unggahan seperti itu memberi tahu orang lain bahwa rumah kosong, yang berisiko disalahgunakan.'},
+  {q:'Dampak yang termasuk dampak HUKUM dari pencurian identitas adalah…', options:['Merasa cemas dan tidak aman', 'Kehilangan uang karena penipuan', 'Identitas dipakai untuk tindakan ilegal sehingga korban ikut terseret masalah', 'Nama baik tercoreng di media sosial'], correct:2, exp:'Jika identitas dipakai untuk tindakan ilegal, korban bisa ikut terseret masalah hukum meski tidak melakukannya.'},
+  {q:'Sikap paling tepat sebelum membagikan data pribadi adalah…', options:['Langsung membagikan agar cepat selesai','Berpikir dulu: perlu tidak, dan kepada siapa data ini dibagikan','Membagikan ke sebanyak mungkin orang agar aman','Membagikan hanya jika diminta dengan mendesak'], correct:1, exp:'Selalu pikirkan dulu apakah data itu benar-benar perlu dibagikan dan kepada siapa, sebelum menekan tombol kirim.'},
+];
+let quizIndex=0, quizScore=0, quizAnswered=false;
+function renderQuiz(){
+  const area = document.getElementById('quiz-area');
+  if(!area) return;
+  if(quizIndex >= quizData.length){
+    const pct = Math.round(quizScore/quizData.length*100);
+    area.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="score-circle" style="--pct:${pct};">
+          <div class="val">${quizScore}/${quizData.length}</div>
+          <div class="lbl">skor kamu</div>
+        </div>
+        <p style="font-size:14px; color:var(--text-dim);">${pct>=80?'Luar biasa! Kamu sudah memahami risiko membagikan data pribadi dengan baik. 🌟':pct>=60?'Bagus! Sedikit lagi kamu akan menguasai materi ini. 👍':'Yuk pelajari lagi bagian yang belum dipahami, lalu coba lagi. 💪'}</p>
+        <button class="btn btn-accent" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const q = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="chip">Soal ${quizIndex+1} dari ${quizData.length}</div>
+    <div class="card">
+      <p style="font-size:15px; margin:0 0 16px 0;">${q.q}</p>
+      <div id="quiz-opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}" onclick="answerQuiz(${i})">${o}</button>`).join('')}</div>
+      <div class="feedback" id="quiz-fb"></div>
+    </div>`;
+  quizAnswered=false;
+}
+function answerQuiz(i){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('#quiz-opts .opt');
+  opts.forEach((o,idx)=>{
+    o.disabled=true;
+    if(idx===q.correct) o.classList.add('correct');
+    else if(idx===i) o.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  const isCorrect = i===q.correct;
+  if(isCorrect) quizScore++;
+  fb.className='feedback show '+(isCorrect?'good':'bad');
+  fb.innerHTML=(isCorrect?'✓ Benar! ':'✗ Belum tepat. ')+q.exp+
+    `<div style="margin-top:10px;"><button class="btn btn-accent" onclick="nextQuiz()">${quizIndex<quizData.length-1?'Soal berikutnya →':'Lihat skor →'}</button></div>`;
+}
+function nextQuiz(){ quizIndex++; renderQuiz(); }
+function restartQuiz(){ quizIndex=0; quizScore=0; renderQuiz(); }
+renderQuiz();
+
 </script>
 </body>
 </html>

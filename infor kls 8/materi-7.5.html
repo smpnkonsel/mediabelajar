@@ -3,853 +3,934 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Diagram Garis — Bab 7 Statistika</title>
+<title>7.5 Bijak Membagikan Informasi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg-0:#0b0e14;
-  --bg-1:#12161f;
-  --bg-2:#1a2030;
-  --bg-card:#161b26;
-  --border:#262d3d;
-  --border-soft:#1f2534;
-  --text-0:#f1f3f9;
-  --text-1:#b7bfd1;
-  --text-2:#7d879c;
-  --accent-1:#6c8dff;
-  --accent-2:#ff8a5b;
-  --accent-3:#3ddc97;
-  --accent-4:#f4c744;
-  --danger:#ff5d7a;
-  --grad-1:linear-gradient(135deg,#6c8dff 0%,#a06cff 100%);
-  --grad-2:linear-gradient(135deg,#ff8a5b 0%,#ff5d7a 100%);
-  --radius-lg:22px;
-  --radius-md:14px;
-  --radius-sm:9px;
-  --shadow-1:0 10px 34px rgba(0,0,0,0.35);
+  --bg:#130f1d;
+  --panel:#1d1830;
+  --panel-2:#241d3d;
+  --panel-3:#2c2449;
+  --line:#3a2f5c;
+  --line-soft:#251e3d;
+  --text:#f1eef8;
+  --text-muted:#a99fc4;
+  --text-faint:#65597f;
+  --coral:#ff8a5c;
+  --coral-dim:#4a2c1c;
+  --green:#4ade91;
+  --green-dim:#1e3c2c;
+  --red:#ff6b6b;
+  --red-dim:#4a2226;
+  --violet:#8b7cff;
+  --radius-s:8px;
+  --radius-m:14px;
+  --radius-l:24px;
   --font-head:'Fredoka',sans-serif;
   --font-body:'Plus Jakarta Sans',sans-serif;
   --font-mono:'JetBrains Mono',monospace;
+  --maxw:920px;
 }
 *{box-sizing:border-box;}
 html,body{height:100%;}
 body{
-  margin:0;font-family:var(--font-body);
-  background:
-    radial-gradient(circle at 15% 10%, rgba(108,141,255,0.14), transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(255,138,91,0.10), transparent 45%),
-    var(--bg-0);
-  color:var(--text-0);overflow:hidden;height:100vh;display:flex;flex-direction:column;
+  margin:0;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 0%, rgba(255,138,92,0.07), transparent),
+    radial-gradient(ellipse 60% 40% at 85% 100%, rgba(139,124,255,0.08), transparent);
+  color:var(--text);
+  font-family:var(--font-body);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4{font-family:var(--font-head);font-weight:600;margin:0;letter-spacing:0.2px;}
-p{margin:0;}
-::selection{background:var(--accent-1);color:#08090d;}
-.mono{font-family:var(--font-mono);}
+::selection{background:var(--coral);color:#2a1408;}
+button{font-family:var(--font-body);}
+:focus-visible{outline:2px solid var(--coral);outline-offset:2px;border-radius:6px;}
 
-.topbar{
-  display:flex;align-items:center;gap:14px;padding:12px clamp(14px,3vw,32px);
-  border-bottom:1px solid var(--border-soft);background:rgba(11,14,20,0.7);backdrop-filter:blur(6px);z-index:20;
-}
-.topbar .brand{font-family:var(--font-head);font-size:14px;color:var(--text-1);white-space:nowrap;}
-.topbar .brand b{color:var(--text-0);}
-.progress-track{flex:1;height:6px;border-radius:99px;background:var(--bg-2);overflow:hidden;}
-.progress-fill{height:100%;border-radius:99px;background:var(--grad-1);transition:width .45s cubic-bezier(.65,0,.35,1);width:0%;}
-.slide-counter{font-family:var(--font-mono);font-size:12px;color:var(--text-2);white-space:nowrap;}
+#app{position:relative;height:100vh;width:100vw;display:flex;flex-direction:column;}
+.progress-track{position:fixed;top:0;left:0;width:100%;height:4px;background:var(--line-soft);z-index:60;}
+.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--coral),var(--violet));transition:width .45s cubic-bezier(.4,0,.2,1);}
 
-.stage{position:relative;flex:1;overflow:hidden;}
+.slides-viewport{flex:1;position:relative;overflow:hidden;}
 .slide{
-  position:absolute;inset:0;padding:clamp(18px,4vw,48px) clamp(18px,6vw,90px);
-  display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,2vh,22px);
-  opacity:0;visibility:hidden;transform:translateX(40px);
-  transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1), visibility 0s linear .45s;
-  overflow-y:auto;
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+  padding:44px 24px 96px;opacity:0;pointer-events:none;transform:translateX(24px);
+  transition:opacity .38s ease, transform .38s cubic-bezier(.4,0,.2,1);overflow-y:auto;
 }
-.slide.active{opacity:1;visibility:visible;transform:translateX(0);transition:opacity .45s ease, transform .45s cubic-bezier(.65,0,.35,1), visibility 0s;}
+.slide.active{opacity:1;pointer-events:auto;transform:translateX(0);}
+.slide-inner{width:100%;max-width:var(--maxw);margin:0 auto;padding-bottom:20px;}
 
-.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--accent-1);font-weight:600;width:fit-content;}
-.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-1);}
-.slide h1.title{font-size:clamp(26px,4.4vw,44px);line-height:1.1;max-width:900px;}
-.slide h2.sub{font-size:clamp(19px,2.6vw,26px);color:var(--text-0);max-width:820px;}
-.lead{font-size:clamp(14.5px,1.6vw,17px);color:var(--text-1);max-width:760px;line-height:1.65;}
+/* review bar — recurring structural device: "periksa sebelum lanjut" */
+.review-bar{
+  display:flex;align-items:center;gap:10px;width:100%;max-width:var(--maxw);margin:0 auto 28px;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-s);
+  padding:10px 16px;font-family:var(--font-mono);font-size:12.5px;
+}
+.review-bar .ic{color:var(--coral);font-size:14px;}
+.review-bar .tag2{color:var(--text-faint);border-right:1px solid var(--line);padding-right:12px;}
+.review-bar .status{color:var(--green);background:var(--green-dim);border:1px solid #2c5b40;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.review-bar .title{color:var(--text-muted);margin-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-.grid-2{display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(16px,3vw,40px);align-items:center;}
-.grid-2.reverse{grid-template-columns:1fr 1.1fr;}
-@media (max-width:880px){.grid-2,.grid-2.reverse{grid-template-columns:1fr;}}
+h1.slide-title{font-family:var(--font-head);font-weight:600;font-size:clamp(26px,4.2vw,40px);line-height:1.15;margin:0 0 14px;color:var(--text);}
+p.lead{font-size:16.5px;line-height:1.65;color:var(--text-muted);margin:0 0 18px;max-width:70ch;}
+p{line-height:1.65;color:var(--text-muted);}
+strong{color:var(--text);font-weight:600;}
 
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:clamp(16px,2.4vw,26px);box-shadow:var(--shadow-1);}
-.card.tight{padding:14px 18px;}
-.card-row{display:flex;gap:14px;flex-wrap:wrap;}
-.pill{display:inline-flex;align-items:center;gap:8px;background:var(--bg-2);border:1px solid var(--border);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--text-1);}
-.pill b{color:var(--text-0);}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-m);padding:20px 22px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media (max-width:720px){.grid-2,.grid-3{grid-template-columns:1fr;}}
 
-.btn{font-family:var(--font-body);font-weight:700;font-size:14.5px;border:none;border-radius:var(--radius-md);padding:12px 22px;cursor:pointer;color:#08090d;background:var(--grad-1);transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;box-shadow:0 6px 18px rgba(108,141,255,0.25);}
-.btn:hover{transform:translateY(-2px);filter:brightness(1.06);}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:12px;color:var(--coral);background:var(--coral-dim);border:1px solid #7a4a2c;padding:3px 10px;border-radius:20px;}
+.tag.danger{color:var(--red);background:var(--red-dim);border-color:#7a3438;}
+.tag.safe{color:var(--green);background:var(--green-dim);border-color:#2c5b40;}
+
+.btn{font-family:var(--font-body);font-weight:600;font-size:14.5px;padding:11px 20px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer;transition:transform .15s ease, background .15s ease;}
+.btn:hover{background:var(--panel-3);transform:translateY(-1px);}
 .btn:active{transform:translateY(0);}
-.btn.ghost{background:transparent;color:var(--text-0);border:1px solid var(--border);box-shadow:none;}
-.btn.ghost:hover{border-color:var(--accent-1);color:var(--accent-1);}
-.btn.small{padding:8px 15px;font-size:13px;border-radius:10px;}
-.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-primary{background:var(--coral);border-color:var(--coral);color:#2a1408;}
+.btn-primary:hover{background:#ff9d78;}
+.btn-ghost{background:transparent;}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
 
-.navbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px clamp(14px,3vw,32px);border-top:1px solid var(--border-soft);background:rgba(11,14,20,0.7);backdrop-filter:blur(6px);z-index:20;}
-.navbar .center-controls{display:flex;align-items:center;gap:10px;}
-.dots{display:flex;gap:6px;flex-wrap:wrap;max-width:46vw;justify-content:center;}
-.dots .dot-item{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:all .2s ease;}
-.dots .dot-item.active{background:var(--accent-1);width:20px;border-radius:99px;}
-.dots .dot-item.done{background:var(--accent-3);}
-.hint-key{font-family:var(--font-mono);font-size:11px;color:var(--text-2);display:flex;gap:6px;align-items:center;}
-kbd{background:var(--bg-2);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:2px 7px;font-family:var(--font-mono);font-size:11px;color:var(--text-1);}
+.nav-bar{position:fixed;left:0;bottom:0;width:100%;z-index:60;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 22px;background:rgba(19,15,29,.9);backdrop-filter:blur(10px);border-top:1px solid var(--line);}
+.nav-btn{display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);color:var(--text);padding:9px 16px;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;}
+.nav-btn:disabled{opacity:.35;cursor:not-allowed;}
+.nav-btn:not(:disabled):hover{background:var(--panel-3);}
+.nav-mid{display:flex;align-items:center;gap:10px;font-family:var(--font-mono);color:var(--text-muted);font-size:13px;}
+.nav-home{color:var(--text-faint);background:transparent;border:none;cursor:pointer;font-size:13px;font-family:var(--font-mono);}
+.nav-home:hover{color:var(--coral);}
 
-.accordion{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-2);}
-.accordion + .accordion{margin-top:10px;}
-.accordion .acc-head{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:14.5px;color:var(--text-0);}
-.accordion .acc-head .chev{transition:transform .25s ease;color:var(--accent-1);}
-.accordion.open .acc-head .chev{transform:rotate(180deg);}
-.accordion .acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease;font-size:13.8px;color:var(--text-1);line-height:1.6;}
-.accordion.open .acc-body{max-height:400px;}
-.accordion .acc-body-inner{padding:0 16px 16px;}
+/* Accordion */
+.accordion-item{border:1px solid var(--line);border-radius:var(--radius-s);margin-bottom:10px;overflow:hidden;background:var(--panel);}
+.accordion-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;cursor:pointer;}
+.accordion-head:hover{background:var(--panel-2);}
+.accordion-head .term{font-weight:700;color:var(--text);font-family:var(--font-head);font-size:16px;}
+.accordion-head .chev{color:var(--coral);transition:transform .25s ease;font-size:14px;}
+.accordion-item.open .chev{transform:rotate(180deg);}
+.accordion-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.accordion-item.open .accordion-body{max-height:280px;}
+.accordion-body-inner{padding:0 16px 16px;color:var(--text-muted);font-size:14.5px;line-height:1.6;}
 
-.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;}
-.choice{border:1px solid var(--border);background:var(--bg-2);border-radius:var(--radius-md);padding:13px 16px;cursor:pointer;font-size:14px;color:var(--text-0);transition:all .15s ease;text-align:left;}
-.choice:hover{border-color:var(--accent-1);transform:translateY(-1px);}
-.choice.correct{border-color:var(--accent-3);background:rgba(61,220,151,0.12);}
-.choice.wrong{border-color:var(--danger);background:rgba(255,93,122,0.12);}
-.choice.disabled{pointer-events:none;opacity:.7;}
+/* Chips / classify */
+.chip-row{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;}
+.chip{padding:9px 16px;border-radius:20px;border:1px solid var(--line);background:var(--panel-2);font-size:13.5px;cursor:pointer;color:var(--text);}
+.chip.picked{border-color:var(--violet);color:var(--violet);}
+.chip.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.chip.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+.bucket-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:6px;}
+@media (max-width:720px){.bucket-row{grid-template-columns:1fr;}}
+.bucket{border:1px dashed var(--line);border-radius:var(--radius-s);padding:14px 10px;text-align:center;color:var(--text-muted);font-size:13px;cursor:pointer;min-height:56px;}
+.bucket:hover{border-color:var(--violet);}
 
-.feedback-box{border-radius:var(--radius-md);padding:12px 15px;font-size:13.6px;border:1px solid var(--border);display:none;line-height:1.55;}
-.feedback-box.show{display:block;}
-.feedback-box.good{border-color:var(--accent-3);background:rgba(61,220,151,0.10);color:#c9ffe8;}
-.feedback-box.bad{border-color:var(--danger);background:rgba(255,93,122,0.10);color:#ffd7de;}
-
-.tag{display:inline-block;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:99px;}
-.tag.easy{background:rgba(61,220,151,0.15);color:var(--accent-3);}
-.tag.med{background:rgba(244,199,68,0.15);color:var(--accent-4);}
-.tag.hard{background:rgba(255,93,122,0.15);color:var(--danger);}
-
-input[type="text"], input[type="number"], select{
-  font-family:var(--font-mono);background:var(--bg-1);border:1px solid var(--border);
-  color:var(--text-0);border-radius:10px;padding:10px 12px;font-size:14px;
-}
-input[type="text"]:focus, input[type="number"]:focus, select:focus{outline:none;border-color:var(--accent-1);}
-input[type="range"]{width:100%;accent-color:var(--accent-1);}
-input[type="number"].pt-input{width:64px;padding:7px 8px;font-size:13px;}
-
-svg text{font-family:var(--font-mono);}
-.small-note{font-size:12.5px;color:var(--text-2);}
-
-::-webkit-scrollbar{width:8px;height:8px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
-
-.reveal-box{border:1px dashed var(--border);border-radius:var(--radius-md);padding:14px 16px;background:var(--bg-1);cursor:pointer;font-size:13.8px;color:var(--text-1);}
-.reveal-box .rb-title{color:var(--accent-1);font-weight:700;font-size:13px;}
-.reveal-box .rb-content{display:none;margin-top:8px;color:var(--text-0);line-height:1.6;}
-.reveal-box.open .rb-content{display:block;}
-.reveal-box.open{cursor:default;}
-
+/* Steps */
 .step-list{counter-reset:step;}
-.step-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft);}
-.step-item:last-child{border-bottom:none;}
-.step-num{counter-increment:step;font-family:var(--font-mono);font-weight:700;color:var(--accent-1);min-width:22px;}
+.step{display:flex;gap:14px;margin-bottom:16px;}
+.step-num{counter-increment:step;flex:none;width:34px;height:34px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line);color:var(--coral);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;font-size:14px;}
 .step-num::before{content:counter(step);}
+.step-body{flex:1;padding-top:4px;}
+.step-body .stitle{font-weight:700;color:var(--text);margin-bottom:3px;}
 
-.badge-score{font-family:var(--font-head);font-size:clamp(40px,7vw,64px);color:var(--text-0);}
+/* Source credibility cards */
+.source-card{border:1px solid var(--line);border-radius:var(--radius-m);background:var(--panel);padding:18px 20px;margin-bottom:14px;}
+.source-card p{margin:0 0 12px;color:var(--text);font-size:14.5px;}
+.verdict{display:none;margin-top:12px;padding:12px 14px;border-radius:var(--radius-s);font-size:14px;}
+.verdict.show{display:block;}
+.verdict.ok{background:var(--green-dim);border:1px solid #2c5b40;color:var(--green);}
+.verdict.bad{background:var(--red-dim);border:1px solid #7a3438;color:var(--red);}
 
-.legend-item{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--text-1);margin-right:14px;}
-.legend-swatch{width:12px;height:3px;border-radius:2px;display:inline-block;}
+/* Mockup social post (hotspot) */
+.post-mockup{position:relative;border:1px solid var(--line);border-radius:var(--radius-m);overflow:hidden;background:var(--panel);}
+.post-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);}
+.post-avatar{width:34px;height:34px;border-radius:50%;background:var(--panel-3);flex:none;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.post-name{font-weight:700;color:var(--text);font-size:14px;}
+.post-handle{font-family:var(--font-mono);font-size:12px;color:var(--text-faint);}
+.post-body{padding:16px;font-size:14px;color:var(--text-muted);line-height:1.7;}
+.post-body .shout{color:var(--red);font-weight:700;}
+.post-foot{padding:10px 16px;border-top:1px solid var(--line);font-family:var(--font-mono);font-size:12px;color:var(--text-faint);}
+.hotspot{position:absolute;width:22px;height:22px;border-radius:50%;background:var(--red);border:2px solid var(--bg);color:#2a0d0f;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,.5);}50%{box-shadow:0 0 0 7px rgba(255,107,107,0);}}
+.hotspot-note{display:none;margin-top:14px;padding:14px 16px;border-radius:var(--radius-s);background:var(--panel-2);border:1px solid var(--line);font-size:14.5px;color:var(--text-muted);}
+.hotspot-note.show{display:block;}
+.hotspot-note b{color:var(--red);}
 
-.data-table{width:100%;border-collapse:collapse;font-size:13px;}
-.data-table th, .data-table td{border:1px solid var(--border);padding:7px 10px;text-align:center;}
-.data-table th{background:var(--bg-2);color:var(--text-1);font-weight:600;}
+/* Options */
+.opt-btn{display:block;width:100%;text-align:left;padding:13px 16px;margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-s);color:var(--text);font-size:14.5px;cursor:pointer;}
+.opt-btn:hover{border-color:var(--violet);}
+.opt-btn.correct{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.opt-btn.wrong{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+.opt-btn:disabled{cursor:default;}
+.explain-box{margin-top:12px;padding:12px 14px;border-radius:var(--radius-s);background:var(--panel-2);border:1px solid var(--line);font-size:14px;color:var(--text-muted);display:none;}
+.explain-box.show{display:block;}
 
-.hotspot{cursor:pointer;}
+/* Tip cards */
+.tip-card{border:1px solid var(--line);border-radius:var(--radius-m);padding:16px 18px;background:var(--panel);}
+.tip-card .ic{font-size:22px;margin-bottom:8px;display:block;}
+.tip-card h3{font-family:var(--font-head);font-size:15.5px;margin:0 0 6px;color:var(--text);font-weight:600;}
+.tip-card p{font-size:13.5px;margin:0;}
 
-@media (max-width:640px){.navbar .hint-key{display:none;}.dots{max-width:100%;}}
+/* Pre-post checklist wizard */
+.compose-box{border:1px solid var(--line);border-radius:var(--radius-m);background:var(--panel);overflow:hidden;}
+.compose-draft{padding:16px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);font-size:14.5px;color:var(--text);line-height:1.6;}
+.compose-checks{padding:16px 18px;}
+.check-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line-soft);}
+.check-row:last-child{border-bottom:none;}
+.check-row input{margin-top:3px;accent-color:var(--coral);width:17px;height:17px;flex:none;}
+.check-row label{font-size:14px;color:var(--text-muted);cursor:pointer;}
+.compose-foot{padding:14px 18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.compose-msg{font-size:13.5px;color:var(--text-faint);}
+.compose-success{display:none;margin-top:14px;padding:14px 16px;border-radius:var(--radius-s);background:var(--green-dim);border:1px solid #2c5b40;color:var(--green);font-size:14px;}
+.compose-success.show{display:block;}
+
+/* Quiz */
+.quiz-progress{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.quiz-dot{width:9px;height:9px;border-radius:50%;background:var(--line);}
+.quiz-dot.answered{background:var(--coral);}
+.quiz-dot.current{outline:2px solid var(--violet);outline-offset:2px;}
+.quiz-score{text-align:center;padding:30px 10px;}
+.quiz-score .num{font-family:var(--font-head);font-size:56px;color:var(--coral);}
+.quiz-score .of{color:var(--text-faint);font-family:var(--font-mono);}
+
+/* Reflection */
+textarea.reflect{width:100%;min-height:80px;background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-s);color:var(--text);font-family:var(--font-body);font-size:14.5px;padding:12px;resize:vertical;}
+textarea.reflect:focus{border-color:var(--coral);}
+.checklist label{display:flex;align-items:center;gap:10px;padding:9px 0;color:var(--text-muted);font-size:14.5px;cursor:pointer;}
+.checklist input{accent-color:var(--coral);width:17px;height:17px;}
+
+/* Cover */
+.cover-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;padding-top:10px;}
+.hero-icon{width:96px;height:96px;margin-bottom:22px;}
+.kode-badge{font-family:var(--font-mono);color:var(--coral);background:var(--coral-dim);border:1px solid #7a4a2c;padding:4px 12px;border-radius:20px;font-size:12.5px;margin-bottom:16px;display:inline-block;}
+.cover-wrap h1{font-size:clamp(30px,6vw,46px);}
+.cover-wrap .sub{color:var(--text-muted);font-size:16px;max-width:60ch;margin-bottom:30px;}
+
+.summary-card{border-left:3px solid var(--coral);padding:14px 18px;background:var(--panel);border-radius:0 var(--radius-s) var(--radius-s) 0;margin-bottom:12px;}
+.summary-card b{color:var(--text);}
+
+.slide::-webkit-scrollbar{width:8px;}
+.slide::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+
+@media (max-width:600px){
+  .nav-mid span.hint{display:none;}
+  .review-bar .title{font-size:11.5px;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms !important;transition-duration:.001ms !important;}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">Bab 7 · Statistika &nbsp;/&nbsp; <b>Diagram Garis</b></div>
+<div id="app">
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-  <div class="slide-counter"><span id="curNum">1</span> / <span id="totalNum">1</span></div>
-</div>
+  <div class="slides-viewport" id="viewport"></div>
 
-<div class="stage" id="stage">
-
-  <!-- 1. PEMBUKA -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>MATEMATIKA · KURIKULUM MERDEKA</div>
-    <h1 class="title">Diagram Garis</h1>
-    <p class="lead">Bab 7 — Statistika. Kamu akan belajar membaca, membuat, dan menafsirkan diagram garis untuk memahami perubahan data dari waktu ke waktu.</p>
-    <div class="card-row" style="margin-top:8px;">
-      <div class="pill">📈 <b>8 sub-topik</b></div>
-      <div class="pill">🧩 Interaktif &amp; kuis</div>
-      <div class="pill">⏱️ ± 45 menit</div>
+  <div class="nav-bar">
+    <button class="nav-btn" id="prevBtn">‹ Sebelumnya</button>
+    <div class="nav-mid">
+      <button class="nav-home" id="homeBtn" title="Kembali ke awal">⌂ Awal</button>
+      <span id="slideCounter">1 / 1</span>
+      <span class="hint" style="color:var(--text-faint);">&nbsp;·&nbsp; gunakan ← →</span>
     </div>
-    <div style="margin-top:18px;"><button class="btn" onclick="goTo(1)">Mulai Belajar →</button></div>
-  </section>
-
-  <!-- 2. APERSEPSI -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>APERSEPSI</div>
-    <h2 class="sub">Pernahkah kamu melihat grafik seperti ini?</h2>
-    <div class="grid-2">
-      <div class="lead">
-        <p>Grafik suhu tubuh di kartu rekam medis, catatan pertumbuhan berat badan bayi di buku KIA, atau grafik pergerakan harga saham — semuanya digambarkan dengan titik-titik yang dihubungkan garis, sehingga naik-turunnya nilai dari waktu ke waktu terlihat jelas.</p>
-        <p style="margin-top:12px;">Bentuk penyajian data seperti ini disebut <b style="color:var(--accent-1)">diagram garis</b>. Diagram garis sangat cocok untuk data yang <b style="color:var(--text-0)">berkelanjutan terhadap waktu</b>.</p>
-      </div>
-      <div class="card">
-        <svg viewBox="0 0 300 180" width="100%" height="auto" id="apersSvg"></svg>
-        <p class="small-note" style="text-align:center;">Contoh: suhu udara berubah setiap hari</p>
-      </div>
-    </div>
-    <div class="reveal-box" onclick="toggleReveal(this)">
-      <div class="rb-title">💭 Pertanyaan pemantik — klik untuk memikirkan lalu melihat arah jawabannya</div>
-      <div class="rb-content">Menurutmu, mengapa data suhu harian atau berat badan bayi lebih cocok digambarkan dengan garis yang menyambung, dibandingkan dengan batang-batang terpisah seperti diagram batang? Simpan dugaanmu — kita akan membahasnya di slide berikutnya.</div>
-    </div>
-  </section>
-
-  <!-- 3. TUJUAN -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>TUJUAN PEMBELAJARAN</div>
-    <h2 class="sub">Setelah mempelajari materi ini, kamu mampu:</h2>
-    <div class="card" style="max-width:780px;">
-      <div class="step-list">
-        <div class="step-item"><span class="step-num"></span><span>Menjelaskan pengertian diagram garis dan kapan diagram ini digunakan.</span></div>
-        <div class="step-item"><span class="step-num"></span><span>Menyebutkan unsur-unsur penyusun diagram garis.</span></div>
-        <div class="step-item"><span class="step-num"></span><span>Membuat diagram garis dari data yang tersaji dalam tabel.</span></div>
-        <div class="step-item"><span class="step-num"></span><span>Membaca nilai data pada diagram garis dengan tepat.</span></div>
-        <div class="step-item"><span class="step-num"></span><span>Menentukan perubahan data serta mengidentifikasi kenaikan dan penurunan.</span></div>
-        <div class="step-item"><span class="step-num"></span><span>Membandingkan data dari waktu ke waktu dan menafsirkan informasinya.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 4. PENGERTIAN -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>KONSEP DASAR</div>
-    <h2 class="sub">Pengertian Diagram Garis</h2>
-    <div class="grid-2">
-      <div class="card">
-        <p class="lead"><b style="color:var(--text-0)">Diagram garis</b> adalah penyajian data dalam bentuk titik-titik yang mewakili nilai data pada setiap waktu tertentu, kemudian titik-titik tersebut dihubungkan dengan garis lurus secara berurutan.</p>
-        <p class="lead" style="margin-top:12px;">Diagram garis paling cocok digunakan untuk menyajikan data yang <b style="color:var(--accent-1)">berkesinambungan</b> dan diamati secara berkala, misalnya per hari, per bulan, atau per tahun — sehingga <b style="color:var(--text-0)">tren atau kecenderungan perubahan</b> data mudah terlihat.</p>
-      </div>
-      <div class="card">
-        <svg viewBox="0 0 300 200" width="100%" height="auto" id="pengertianSvg"></svg>
-        <p class="small-note" style="text-align:center;">Suhu udara Kota Belajar, Senin–Sabtu</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 5. UNSUR-UNSUR -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>KONSEP · UNSUR-UNSUR</div>
-    <h2 class="sub">Unsur-Unsur Diagram Garis</h2>
-    <div class="grid-2">
-      <div>
-        <p class="lead">Klik setiap bagian pada diagram di samping untuk mengenal unsur-unsurnya satu per satu.</p>
-        <div class="card tight" style="margin-top:14px;" id="unsurInfoCard">
-          <p class="small-note">👉 Klik salah satu bagian pada gambar.</p>
-        </div>
-      </div>
-      <div class="card">
-        <svg viewBox="0 0 340 240" width="100%" height="auto" id="unsurSvg"></svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- 6. MEMBUAT DIAGRAM GARIS -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>PROSEDUR · MEMBUAT DIAGRAM</div>
-    <h2 class="sub">Membuat Diagram Garis</h2>
-    <div class="grid-2">
-      <div>
-        <div class="card tight">
-          <div class="step-list">
-            <div class="step-item"><span class="step-num"></span><span>Gambar sumbu mendatar (waktu/kategori) dan sumbu tegak (nilai data).</span></div>
-            <div class="step-item"><span class="step-num"></span><span>Tentukan skala yang sesuai pada sumbu tegak.</span></div>
-            <div class="step-item"><span class="step-num"></span><span>Letakkan titik sesuai nilai data pada setiap kategori waktu.</span></div>
-            <div class="step-item"><span class="step-num"></span><span>Hubungkan titik-titik secara berurutan dengan garis lurus.</span></div>
-            <div class="step-item"><span class="step-num"></span><span>Beri judul diagram dan label pada kedua sumbu.</span></div>
-          </div>
-        </div>
-        <p class="small-note" style="margin-top:10px;">🖊️ Coba ubah angka pada tabel di samping — diagram akan tergambar otomatis sesuai langkah-langkah di atas.</p>
-      </div>
-      <div class="card">
-        <table class="data-table" style="margin-bottom:12px;">
-          <tr><th>Bulan</th><td>Jan</td><td>Feb</td><td>Mar</td><td>Apr</td><td>Mei</td></tr>
-          <tr><th>Buku terjual</th>
-            <td><input class="pt-input" type="number" value="40" data-idx="0"></td>
-            <td><input class="pt-input" type="number" value="55" data-idx="1"></td>
-            <td><input class="pt-input" type="number" value="50" data-idx="2"></td>
-            <td><input class="pt-input" type="number" value="65" data-idx="3"></td>
-            <td><input class="pt-input" type="number" value="60" data-idx="4"></td>
-          </tr>
-        </table>
-        <svg viewBox="0 0 300 190" width="100%" height="auto" id="buildSvg"></svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- 7. MEMBACA DIAGRAM -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>KETERAMPILAN · MEMBACA DATA</div>
-    <h2 class="sub">Membaca Diagram Garis</h2>
-    <div class="grid-2">
-      <div>
-        <p class="lead">Berikut data suhu udara Kota Belajar selama 6 hari. Klik setiap titik untuk membaca nilainya.</p>
-        <div class="card tight" style="margin-top:14px;" id="readInfoCard">
-          <p class="small-note">👉 Klik salah satu titik pada grafik.</p>
-        </div>
-      </div>
-      <div class="card">
-        <svg viewBox="0 0 320 200" width="100%" height="auto" id="readSvg"></svg>
-      </div>
-    </div>
-  </section>
-
-  <!-- 8. MENENTUKAN PERUBAHAN DATA -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>CONTOH · PERUBAHAN DATA</div>
-    <h2 class="sub">Menentukan Perubahan Data</h2>
-    <div class="grid-2">
-      <div class="card">
-        <svg viewBox="0 0 320 200" width="100%" height="auto" id="changeSvg"></svg>
-      </div>
-      <div>
-        <p class="lead">Perubahan data dihitung dengan mengurangkan nilai akhir dengan nilai awal pada dua waktu yang dipilih. Pilih dua hari untuk melihat besar dan arah perubahannya secara otomatis.</p>
-        <div class="card tight" style="margin-top:12px;">
-          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <select id="dayFrom"></select>
-            <span class="small-note">ke</span>
-            <select id="dayTo"></select>
-            <button class="btn small" onclick="computeChange()">Hitung Perubahan</button>
-          </div>
-          <div class="feedback-box" id="changeResult" style="margin-top:12px;"></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 9. KENAIKAN DAN PENURUNAN -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>AKTIVITAS INTERAKTIF</div>
-    <h2 class="sub">Mengidentifikasi Kenaikan dan Penurunan</h2>
-    <p class="lead">Perhatikan setiap ruas garis pada grafik suhu berikut. Klasifikasikan tiap ruas: <b style="color:var(--text-0)">naik</b>, <b style="color:var(--text-0)">turun</b>, atau <b style="color:var(--text-0)">tetap</b>.</p>
-    <div class="grid-2">
-      <div class="card">
-        <svg viewBox="0 0 320 200" width="100%" height="auto" id="trendSvg"></svg>
-      </div>
-      <div id="trendGame" style="display:flex;flex-direction:column;gap:10px;"></div>
-    </div>
-  </section>
-
-  <!-- 10. MEMBANDINGKAN DATA -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>KONSEP · PERBANDINGAN</div>
-    <h2 class="sub">Membandingkan Data dari Waktu ke Waktu</h2>
-    <div class="grid-2">
-      <div class="card">
-        <svg viewBox="0 0 320 210" width="100%" height="auto" id="compareSvg"></svg>
-        <div style="margin-top:8px;">
-          <span class="legend-item"><span class="legend-swatch" style="background:#6c8dff;"></span>Toko A</span>
-          <span class="legend-item"><span class="legend-swatch" style="background:#ff8a5b;"></span>Toko B</span>
-        </div>
-      </div>
-      <div>
-        <p class="lead">Diagram di samping menyajikan penjualan mingguan dua toko. Dengan menggambarkan dua data pada satu diagram, kita dapat membandingkan pola perubahannya secara langsung.</p>
-        <div class="reveal-box" style="margin-top:14px;" onclick="toggleReveal(this)">
-          <div class="rb-title">🔎 Pertanyaan — klik untuk melihat pembahasan</div>
-          <div class="rb-content">Pada minggu ke berapa penjualan Toko A dan Toko B paling berbeda jauh? Dan pada minggu keberapa keduanya hampir sama? Amati jarak antar-garis pada setiap titik minggu — semakin jauh jaraknya, semakin besar selisihnya.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 11. MENAFSIRKAN INFORMASI -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>KETERAMPILAN · MENAFSIRKAN</div>
-    <h2 class="sub">Menafsirkan Informasi Diagram Garis</h2>
-    <p class="lead">Gunakan grafik suhu Kota Belajar untuk menjawab pertanyaan-pertanyaan berikut.</p>
-    <div class="grid-2">
-      <div class="card">
-        <svg viewBox="0 0 320 200" width="100%" height="auto" id="interpretSvg"></svg>
-      </div>
-      <div id="interpretQuestions" style="display:flex;flex-direction:column;gap:12px;"></div>
-    </div>
-  </section>
-
-  <!-- 12. LATIHAN BERTAHAP -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>LATIHAN</div>
-    <h2 class="sub">Latihan Bertahap</h2>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div class="card">
-        <span class="tag easy">MUDAH</span>
-        <p class="lead" style="margin-top:10px;">Diagram garis menunjukkan tinggi tanaman: Minggu 1 = 10 cm, Minggu 2 = 14 cm. Berapa cm kenaikan tinggi tanaman dari minggu 1 ke minggu 2?</p>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;">
-          <input type="number" id="ans1" placeholder="cm">
-          <button class="btn small" onclick="checkAnswer(14-10, 'ans1', 'fb1', 'Kenaikan = nilai akhir − nilai awal = 14 − 10 = 4 cm.')">Periksa</button>
-        </div>
-        <div class="feedback-box" id="fb1"></div>
-      </div>
-      <div class="card">
-        <span class="tag med">SEDANG</span>
-        <p class="lead" style="margin-top:10px;">Penjualan sepatu selama 4 bulan: 20, 25, 18, 30 (pasang). Pada bulan ke berapa terjadi penurunan penjualan dibanding bulan sebelumnya?</p>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;">
-          <input type="number" id="ans2" placeholder="bulan ke-">
-          <button class="btn small" onclick="checkAnswer(3, 'ans2', 'fb2', 'Dari bulan 2 (25) ke bulan 3 (18) nilainya turun, sehingga penurunan terjadi pada bulan ke-3.')">Periksa</button>
-        </div>
-        <div class="feedback-box" id="fb2"></div>
-      </div>
-      <div class="card">
-        <span class="tag hard">MENANTANG</span>
-        <p class="lead" style="margin-top:10px;">Suhu ruangan pukul 06.00, 09.00, 12.00, 15.00 berturut-turut adalah 20°C, 24°C, 29°C, 26°C. Berapa selisih suhu tertinggi dan terendah pada rentang waktu tersebut?</p>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:10px;">
-          <input type="number" id="ans3" placeholder="°C">
-          <button class="btn small" onclick="checkAnswer(9, 'ans3', 'fb3', 'Suhu tertinggi = 29°C (pukul 12.00), suhu terendah = 20°C (pukul 06.00). Selisih = 29 − 20 = 9°C.')">Periksa</button>
-        </div>
-        <div class="feedback-box" id="fb3"></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 13. KUIS -->
-  <section class="slide" id="quizSlide">
-    <div class="eyebrow"><span class="dot"></span>KUIS AKHIR</div>
-    <h2 class="sub">Uji Pemahamanmu</h2>
-    <div id="quizArea"></div>
-  </section>
-
-  <!-- 14. REFLEKSI -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>REFLEKSI</div>
-    <h2 class="sub">Refleksi Pembelajaran</h2>
-    <p class="lead">Klik setiap pernyataan untuk mengecek pemahamanmu secara jujur.</p>
-    <div style="max-width:760px;">
-      <div class="accordion"><div class="acc-head" onclick="toggleAcc(this)">Saya dapat menjelaskan pengertian dan unsur-unsur diagram garis <span class="chev">⌄</span></div>
-        <div class="acc-body"><div class="acc-body-inner">Jika belum yakin, buka kembali slide "Pengertian" dan "Unsur-Unsur Diagram Garis".</div></div></div>
-      <div class="accordion"><div class="acc-head" onclick="toggleAcc(this)">Saya dapat membuat diagram garis dari data tabel <span class="chev">⌄</span></div>
-        <div class="acc-body"><div class="acc-body-inner">Coba ubah kembali angka pada tabel interaktif di slide "Membuat Diagram Garis".</div></div></div>
-      <div class="accordion"><div class="acc-head" onclick="toggleAcc(this)">Saya dapat membaca dan menafsirkan data pada diagram garis <span class="chev">⌄</span></div>
-        <div class="acc-body"><div class="acc-body-inner">Ulangi aktivitas mengklik titik data dan menjawab pertanyaan penafsiran.</div></div></div>
-      <div class="accordion"><div class="acc-head" onclick="toggleAcc(this)">Bagian mana yang masih terasa sulit? <span class="chev">⌄</span></div>
-        <div class="acc-body"><div class="acc-body-inner">Catat di buku tulismu, lalu tanyakan pada guru di pertemuan berikutnya.</div></div></div>
-    </div>
-  </section>
-
-  <!-- 15. RANGKUMAN -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>RANGKUMAN</div>
-    <h2 class="sub">Rangkuman Materi</h2>
-    <div class="grid-2">
-      <div class="card">
-        <div class="step-list">
-          <div class="step-item"><span class="step-num"></span><span>Diagram garis menyajikan data sebagai titik-titik yang dihubungkan garis, cocok untuk data yang berubah dari waktu ke waktu.</span></div>
-          <div class="step-item"><span class="step-num"></span><span>Unsur-unsurnya: judul, sumbu, skala, titik data, garis penghubung, dan legenda (bila lebih dari satu data).</span></div>
-          <div class="step-item"><span class="step-num"></span><span>Perubahan data = nilai akhir − nilai awal; bernilai positif berarti naik, negatif berarti turun.</span></div>
-          <div class="step-item"><span class="step-num"></span><span>Garis yang miring ke atas menandakan kenaikan, miring ke bawah menandakan penurunan, dan mendatar menandakan tidak ada perubahan.</span></div>
-          <div class="step-item"><span class="step-num"></span><span>Dua atau lebih data dapat dibandingkan dalam satu diagram garis untuk melihat pola dan perbedaannya.</span></div>
-        </div>
-      </div>
-      <div class="card mono" style="display:flex;flex-direction:column;justify-content:center;gap:10px;color:var(--accent-1);font-size:15px;">
-        Perubahan = Nilai akhir − Nilai awal<br>
-        Perubahan &gt; 0 → naik<br>
-        Perubahan &lt; 0 → turun<br>
-        Perubahan = 0 → tetap
-      </div>
-    </div>
-  </section>
-
-  <!-- 16. PENUTUP -->
-  <section class="slide">
-    <div class="eyebrow"><span class="dot"></span>PENUTUP</div>
-    <h1 class="title">Kerja Bagus! 🎉</h1>
-    <p class="lead">Kamu telah menyelesaikan materi Diagram Garis. Lanjutkan ke subbab berikutnya di Bab 7 — Statistika untuk mempelajari bentuk penyajian data lainnya.</p>
-    <div style="margin-top:10px;"><button class="btn ghost" onclick="goTo(0)">↺ Ulangi dari Awal</button></div>
-  </section>
-
-</div>
-
-<div class="navbar">
-  <button class="btn ghost small" id="prevBtn" onclick="prevSlide()">← Sebelumnya</button>
-  <div class="center-controls"><div class="dots" id="dotsWrap"></div></div>
-  <div style="display:flex;align-items:center;gap:14px;">
-    <span class="hint-key"><kbd>←</kbd><kbd>→</kbd> navigasi</span>
-    <button class="btn small" id="nextBtn" onclick="nextSlide()">Berikutnya →</button>
+    <button class="nav-btn" id="nextBtn">Berikutnya ›</button>
   </div>
 </div>
 
 <script>
-/* ================= NAVIGATION ================= */
-const slides = document.querySelectorAll('.slide');
-const total = slides.length;
-let current = 0;
-document.getElementById('totalNum').textContent = total;
+/* =========================================================================
+   DATA — konten pembelajaran
+   Bab 7 — Membagikan Informasi dan Perlindungan Data Pribadi
+   Submateri (kode 7.5) : Bijak Membagikan Informasi
+   Materi Pokok : Memilah informasi sebelum dibagikan, memeriksa sumber,
+                  menjaga privasi orang lain, dan berpikir sebelum mengunggah
+   ========================================================================= */
 
-function renderDots(){
-  const wrap = document.getElementById('dotsWrap');
-  wrap.innerHTML = '';
-  slides.forEach((_, i) => {
-    const d = document.createElement('div');
-    d.className = 'dot-item' + (i === current ? ' active' : '') + (i < current ? ' done' : '');
-    d.onclick = () => goTo(i);
-    wrap.appendChild(d);
-  });
-}
+const SLIDES = [];
+function addSlide(html){ SLIDES.push(html); }
+
+/* ---------- 1. Cover ---------- */
+addSlide(`
+<div class="cover-wrap">
+  <span class="kode-badge">Bab 7 · 7.5 Bijak Membagikan Informasi</span>
+  <svg class="hero-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="14" y="26" width="72" height="48" rx="10" fill="#241d3d" stroke="#ff8a5c" stroke-width="3"/>
+    <path d="M14 34 L50 56 L86 34" stroke="#ff8a5c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle id="checkCircle" cx="76" cy="70" r="15" fill="#4ade91" stroke="#130f1d" stroke-width="3" opacity="0" />
+    <path id="checkMark" d="M69 70 l5 5 l10 -11" stroke="#12281d" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0"/>
+  </svg>
+  <h1 class="slide-title">Bijak Membagikan<br>Informasi</h1>
+  <p class="sub">Belajar memilah informasi sebelum dibagikan, memeriksa sumber, menjaga privasi orang lain, dan berpikir dulu sebelum mengunggah.</p>
+  <button class="btn btn-primary" id="startBtn">Mulai Belajar →</button>
+</div>
+<style>
+#checkCircle,#checkMark{animation:fadeInCheck 2.4s ease-in-out 0.6s forwards;}
+@keyframes fadeInCheck{0%{opacity:0;}60%{opacity:0;}100%{opacity:1;}}
+</style>
+`);
+
+/* ---------- 2. Apersepsi ---------- */
+addSlide(`
+<h1 class="slide-title">Sebelum Mulai, Coba Pikirkan Dulu</h1>
+<p class="lead">Dini menerima pesan berantai di grup keluarga: "AWAS! Ada penculik anak berkeliaran naik motor hitam di sekitar sekolah kita, SEBARKAN SEKARANG sebelum terlambat!!" Tanpa berpikir panjang, Dini langsung meneruskan pesan itu ke lima grup lain.</p>
+<div class="card">
+  <p style="margin:0 0 14px;color:var(--text);font-weight:600;">Menurutmu, apa yang seharusnya Dini lakukan sebelum meneruskan pesan itu?</p>
+  <div id="apersepsiOpts"></div>
+  <div class="hotspot-note" id="apersepsiNote"></div>
+</div>
+`);
+
+/* ---------- 3. Tujuan ---------- */
+addSlide(`
+<h1 class="slide-title">Tujuan Pembelajaran</h1>
+<p class="lead">Setelah menyelesaikan pembelajaran ini, kalian diharapkan mampu:</p>
+<div class="step-list">
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Memilah informasi yang layak dibagikan dan yang perlu diperiksa lebih dulu.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Memeriksa kredibilitas sumber informasi sebelum mempercayainya.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Menjaga privasi orang lain saat membagikan foto, video, atau informasi.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><p style="margin:0;">Membiasakan diri berpikir sebelum mengunggah sesuatu di internet.</p></div></div>
+</div>
+`);
+
+/* ---------- 4. Mengapa penting ---------- */
+addSlide(`
+<h1 class="slide-title">Mengapa Bijak Berbagi Informasi Itu Penting?</h1>
+<p class="lead">Apa pun yang kita unggah atau bagikan di internet meninggalkan <strong>jejak digital</strong> yang sulit dihapus sepenuhnya, dan bisa memengaruhi diri sendiri maupun orang lain.</p>
+<div class="grid-2">
+  <div class="card"><span class="tag danger">Jika sembarangan</span><p style="margin-top:10px;">Informasi keliru bisa menyesatkan banyak orang, dan privasi orang lain bisa terlanggar tanpa sadar.</p></div>
+  <div class="card"><span class="tag safe">Jika bijak</span><p style="margin-top:10px;">Kita ikut menjaga informasi yang beredar tetap akurat, dan dipercaya sebagai sumber yang bertanggung jawab.</p></div>
+</div>
+`);
+
+/* ---------- 5. Memilah informasi (accordion) ---------- */
+addSlide(`
+<h1 class="slide-title">Memilah Informasi: Kenali Ciri-cirinya</h1>
+<p class="lead">Ketuk setiap istilah untuk memahami hal-hal yang perlu diwaspadai sebelum membagikan informasi.</p>
+<div id="accordionTerms"></div>
+`);
+
+/* ---------- 6. Latihan fakta/hoaks ---------- */
+addSlide(`
+<h1 class="slide-title">Latihan: Fakta atau Hoaks?</h1>
+<p class="lead">Ketuk sebuah pernyataan, lalu ketuk kategori yang menurutmu tepat.</p>
+<div class="chip-row" id="factHoaxChips"></div>
+<div class="bucket-row" id="factHoaxBuckets">
+  <div class="bucket" data-cat="fakta">✅ Fakta</div>
+  <div class="bucket" data-cat="hoaks">🚫 Hoaks</div>
+</div>
+<p id="factHoaxProgress" style="margin-top:14px;color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">0 / 6 benar</p>
+`);
+
+/* ---------- 7. Memeriksa sumber (steps) ---------- */
+addSlide(`
+<h1 class="slide-title">Memeriksa Sumber: Langkah Verifikasi</h1>
+<div class="step-list">
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Lihat siapa penulis atau penerbitnya</div><p style="margin:0;">Informasi resmi biasanya mencantumkan nama penulis, lembaga, atau media yang jelas dan dapat dihubungi.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Periksa tanggal publikasi</div><p style="margin:0;">Info lama yang didaur ulang sering disebarkan seolah baru terjadi — periksa apakah tanggalnya masih relevan.</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Bandingkan dengan sumber lain</div><p style="margin:0;">Cari apakah media atau lembaga tepercaya lain memberitakan hal yang sama (cross-check).</p></div></div>
+  <div class="step"><div class="step-num"></div><div class="step-body"><div class="stitle">Perhatikan gaya bahasa</div><p style="margin:0;">Waspadai judul yang terlalu sensasional, huruf kapital berlebihan, atau ajakan "SEBARKAN SEKARANG".</p></div></div>
+</div>
+`);
+
+/* ---------- 8. Uji kredibilitas sumber ---------- */
+addSlide(`
+<h1 class="slide-title">Coba Sendiri: Uji Kredibilitas Sumber</h1>
+<p class="lead">Baca setiap deskripsi sumber berikut, tebak dulu kredibel atau tidak, lalu ketuk "Periksa" untuk melihat penjelasannya.</p>
+<div id="sourceCards"></div>
+`);
+
+/* ---------- 9. Mengenali tanda mencurigakan (hotspot) ---------- */
+addSlide(`
+<h1 class="slide-title">Mengenali Tanda Informasi Mencurigakan</h1>
+<p class="lead">Ketuk titik merah pada contoh unggahan berikut untuk mengenali tanda-tanda yang perlu diwaspadai.</p>
+<div class="post-mockup" id="postWrap">
+  <div class="post-head">
+    <div class="post-avatar">❓</div>
+    <div>
+      <div class="post-name">Info_Update_2026</div>
+      <div class="post-handle">@akun_baru0231</div>
+    </div>
+  </div>
+  <div class="post-body">
+    <p style="margin:0;"><span class="shout">SEBARKAN SEBELUM DIHAPUS ADMIN!!!</span> Bahaya besar mengintai sekitar kita. Percayalah, ini bukan hoaks!</p>
+  </div>
+  <div class="post-foot">Dibagikan ulang 48rb kali · tanpa tautan sumber</div>
+  <div class="hotspot" style="top:12px;left:70px;" data-note="account">1</div>
+  <div class="hotspot" style="top:70px;left:18px;" data-note="urgency">2</div>
+  <div class="hotspot" style="bottom:14px;right:18px;" data-note="nosource">3</div>
+  <div class="hotspot" style="top:70px;right:18px;" data-note="claim">4</div>
+</div>
+<div class="hotspot-note" id="postNote">👆 Ketuk salah satu titik merah di atas untuk mulai.</div>
+`);
+
+/* ---------- 10. Menjaga privasi orang lain ---------- */
+addSlide(`
+<h1 class="slide-title">Menjaga Privasi Orang Lain</h1>
+<p class="lead">Sebelum membagikan sesuatu yang melibatkan orang lain — foto, video, percakapan, atau lokasi — ingatlah bahwa privasi mereka sama pentingnya dengan privasi kita sendiri.</p>
+<div class="card">
+  <p style="margin:0 0 10px;color:var(--text);font-weight:600;">Pertanyaan yang perlu ditanyakan pada diri sendiri:</p>
+  <p style="margin:0;">"Apakah orang ini akan senang jika tahu aku membagikan ini? Sudahkah aku meminta izinnya?"</p>
+</div>
+`);
+
+/* ---------- 11. Latihan boleh/izin dulu ---------- */
+addSlide(`
+<h1 class="slide-title">Latihan: Boleh Dibagikan atau Harus Izin Dulu?</h1>
+<p class="lead">Ketuk setiap situasi, lalu ketuk kategori yang menurutmu tepat.</p>
+<div class="chip-row" id="privacyChips"></div>
+<div class="bucket-row" id="privacyBuckets">
+  <div class="bucket" data-cat="boleh">✅ Boleh Langsung</div>
+  <div class="bucket" data-cat="izin">🙋 Harus Izin Dulu</div>
+</div>
+<p id="privacyProgress" style="margin-top:14px;color:var(--text-faint);font-family:var(--font-mono);font-size:13px;">0 / 6 benar</p>
+`);
+
+/* ---------- 12. Lima pertanyaan sebelum mengunggah ---------- */
+addSlide(`
+<h1 class="slide-title">Berpikir Sebelum Mengunggah</h1>
+<p class="lead">Sebelum menekan tombol "Bagikan", tanyakan lima hal ini pada dirimu sendiri.</p>
+<div class="grid-3">
+  <div class="tip-card"><span class="ic">🔎</span><h3>Apakah ini benar?</h3><p>Sudah dicek kebenarannya dari sumber tepercaya, bukan sekadar dengar dari orang lain.</p></div>
+  <div class="tip-card"><span class="ic">💡</span><h3>Apakah ini bermanfaat?</h3><p>Informasi ini benar-benar berguna bagi orang yang menerimanya, bukan sekadar sensasi.</p></div>
+  <div class="tip-card"><span class="ic">🤝</span><h3>Apakah menghormati privasi?</h3><p>Tidak membocorkan data atau momen pribadi orang lain tanpa izin.</p></div>
+  <div class="tip-card"><span class="ic">⏳</span><h3>Apakah perlu sekarang?</h3><p>Tidak semua hal harus langsung dibagikan begitu diketahui — beri waktu untuk memastikan.</p></div>
+  <div class="tip-card"><span class="ic">💬</span><h3>Apakah disampaikan baik?</h3><p>Cara penyampaiannya tidak memancing kepanikan, kebencian, atau kesalahpahaman.</p></div>
+  <div class="tip-card"><span class="ic">✅</span><h3>Siap dibagikan</h3><p>Jika kelima hal di atas terpenuhi, informasi lebih layak untuk dibagikan.</p></div>
+</div>
+`);
+
+/* ---------- 13. Simulasi sebelum bagikan ---------- */
+addSlide(`
+<h1 class="slide-title">Simulasi: Sebelum Menekan "Bagikan"</h1>
+<p class="lead">Berikut draf pesan yang akan dibagikan Dini. Centang setiap pertanyaan yang sudah benar-benar terjawab "ya" sebelum tombol Bagikan bisa ditekan.</p>
+<div class="compose-box">
+  <div class="compose-draft">"AWAS! Ada penculik anak berkeliaran naik motor hitam di sekitar sekolah kita, SEBARKAN SEKARANG sebelum terlambat!!"</div>
+  <div class="compose-checks" id="composeChecks"></div>
+  <div class="compose-foot">
+    <span class="compose-msg" id="composeMsg">Centang semua pertanyaan untuk mengaktifkan tombol Bagikan.</span>
+    <button class="btn btn-primary" id="composeShareBtn" disabled>Bagikan Sekarang</button>
+  </div>
+</div>
+<div class="compose-success" id="composeSuccess">🎉 Kamu sudah berpikir matang sebelum membagikan. Kebiasaan seperti ini membuat informasi yang kamu sebarkan lebih bertanggung jawab — dan menghindarkan kepanikan yang tidak perlu.</div>
+`);
+
+/* ---------- 14. Dampak berbagi sembarangan ---------- */
+addSlide(`
+<h1 class="slide-title">Dampak Berbagi Informasi Sembarangan</h1>
+<div class="grid-3">
+  <div class="card"><span class="tag danger">Dampak Hukum</span><p style="margin-top:10px;">Menyebarkan informasi palsu atau data pribadi orang lain tanpa izin dapat berakibat pada masalah hukum.</p></div>
+  <div class="card"><span class="tag danger">Dampak Sosial</span><p style="margin-top:10px;">Orang lain bisa kehilangan kepercayaan pada kita jika kita dikenal sering membagikan informasi yang keliru.</p></div>
+  <div class="card"><span class="tag danger">Dampak Psikologis</span><p style="margin-top:10px;">Orang yang privasinya dilanggar bisa merasa malu, cemas, atau bahkan menjadi korban perundungan (bullying).</p></div>
+</div>
+`);
+
+/* ---------- 15. Latihan bertahap ---------- */
+addSlide(`
+<h1 class="slide-title">Latihan Bertahap</h1>
+<p class="lead">Kerjakan tiga tingkat latihan berikut.</p>
+<div id="tieredWrap"></div>
+`);
+
+/* ---------- 16. Studi kasus ---------- */
+addSlide(`
+<h1 class="slide-title">Studi Kasus: Pesan Viral dari Teman</h1>
+<p class="lead">Randi menerima pesan di grup kelas yang mengklaim sekolah akan diliburkan mendadak besok "karena alasan tertentu", tanpa sumber resmi apa pun, dan diminta segera disebarkan.</p>
+<div class="card">
+  <p style="margin:0 0 14px;color:var(--text);font-weight:600;">Apa langkah paling bijak yang sebaiknya Randi lakukan?</p>
+  <div id="caseOpts"></div>
+  <div class="hotspot-note" id="caseNote"></div>
+</div>
+`);
+
+/* ---------- 17. Etika membagikan info orang lain ---------- */
+addSlide(`
+<h1 class="slide-title">Etika Membagikan Informasi tentang Orang Lain</h1>
+<div class="grid-3">
+  <div class="tip-card"><span class="ic">🙋</span><h3>Minta izin dulu</h3><p>Tanyakan sebelum memposting foto atau video yang menampilkan orang lain.</p></div>
+  <div class="tip-card"><span class="ic">🔗</span><h3>Hindari tag sembarangan</h3><p>Jangan menandai (tag) seseorang tanpa persetujuannya, apalagi di momen pribadi.</p></div>
+  <div class="tip-card"><span class="ic">🗑️</span><h3>Hormati permintaan hapus</h3><p>Jika seseorang meminta kontennya dihapus, hargai dan segera lakukan.</p></div>
+  <div class="tip-card"><span class="ic">💬</span><h3>Jangan sebarkan percakapan pribadi</h3><p>Tangkapan layar (screenshot) chat pribadi orang lain tidak untuk dibagikan tanpa izin.</p></div>
+  <div class="tip-card"><span class="ic">📍</span><h3>Jaga info lokasi orang lain</h3><p>Berhati-hati membagikan lokasi atau jadwal orang lain yang bisa membahayakan mereka.</p></div>
+  <div class="tip-card"><span class="ic">❤️</span><h3>Pikirkan perasaannya</h3><p>Bayangkan bagaimana perasaanmu jika berada di posisi orang yang kontennya dibagikan.</p></div>
+</div>
+`);
+
+/* ---------- 18. Kuis ---------- */
+addSlide(`
+<h1 class="slide-title">Kuis: Uji Pemahamanmu</h1>
+<div id="quizArea"></div>
+`);
+
+/* ---------- 19. Refleksi ---------- */
+addSlide(`
+<h1 class="slide-title">Refleksi</h1>
+<p class="lead">Luangkan waktu sebentar untuk memikirkan proses belajarmu hari ini.</p>
+<div class="card" style="margin-bottom:16px;">
+  <p style="margin:0 0 8px;color:var(--text);font-weight:600;">Pernahkah kamu membagikan sesuatu tanpa berpikir panjang? Apa yang akan kamu lakukan berbeda sekarang?</p>
+  <textarea class="reflect" placeholder="Tulis di sini..."></textarea>
+</div>
+<div class="card" style="margin-bottom:16px;">
+  <p style="margin:0 0 8px;color:var(--text);font-weight:600;">Bagaimana caramu memeriksa sumber sebelum mempercayai sebuah informasi?</p>
+  <textarea class="reflect" placeholder="Tulis di sini..."></textarea>
+</div>
+<div class="card checklist">
+  <p style="margin:0 0 4px;color:var(--text);font-weight:600;">Centang jika kamu sudah bisa:</p>
+  <label><input type="checkbox"> Memilah informasi sebelum membagikannya</label>
+  <label><input type="checkbox"> Memeriksa kredibilitas sebuah sumber</label>
+  <label><input type="checkbox"> Menjaga privasi orang lain saat membagikan konten</label>
+  <label><input type="checkbox"> Berpikir dulu sebelum mengunggah sesuatu</label>
+</div>
+`);
+
+/* ---------- 20. Rangkuman ---------- */
+addSlide(`
+<h1 class="slide-title">Rangkuman</h1>
+<div class="summary-card"><b>Memilah informasi</b> berarti mengenali ciri hoaks, clickbait, opini, dan info lama yang didaur ulang sebelum mempercayainya.</div>
+<div class="summary-card"><b>Memeriksa sumber</b> dilakukan dengan melihat penulis, tanggal, membandingkan sumber lain, dan mencermati gaya bahasa.</div>
+<div class="summary-card"><b>Menjaga privasi orang lain</b> berarti meminta izin sebelum membagikan foto, video, atau informasi yang melibatkan mereka.</div>
+<div class="summary-card"><b>Berpikir sebelum mengunggah</b> membantu memastikan informasi yang kita bagikan benar, bermanfaat, dan tidak merugikan siapa pun.</div>
+`);
+
+/* ---------- 21. Penutup ---------- */
+addSlide(`
+<div class="cover-wrap">
+  <h1 class="slide-title">Kerja Bagus! 📲</h1>
+  <p class="sub">Kamu telah menyelesaikan pembelajaran "Bijak Membagikan Informasi". Jadikan kebiasaan berpikir sebelum mengunggah sebagai bagian dari caramu berinteraksi di dunia digital.</p>
+  <div class="btn-row" style="justify-content:center;">
+    <button class="btn btn-primary" id="restartBtn">↺ Ulangi dari Awal</button>
+  </div>
+</div>
+`);
+
+/* =========================================================================
+   RENDER SLIDES INTO DOM
+   ========================================================================= */
+const viewport = document.getElementById('viewport');
+const slideTitles = [
+  "Sampul","Apersepsi","Tujuan Pembelajaran","Mengapa Penting","Memilah Informasi",
+  "Latihan Fakta vs Hoaks","Memeriksa Sumber","Uji Kredibilitas Sumber","Tanda Mencurigakan",
+  "Menjaga Privasi Orang Lain","Latihan Privasi","5 Pertanyaan Sebelum Unggah","Simulasi Sebelum Bagikan",
+  "Dampak Berbagi Sembarangan","Latihan Bertahap","Studi Kasus","Etika Berbagi Info Orang Lain",
+  "Kuis","Refleksi","Rangkuman","Penutup"
+];
+
+SLIDES.forEach((html, i) => {
+  const section = document.createElement('section');
+  section.className = 'slide';
+  section.id = 'slide-' + i;
+  const showBar = i !== 0 && i !== SLIDES.length - 1;
+  section.innerHTML = (showBar ? `
+    <div class="review-bar">
+      <span class="ic">🔎</span>
+      <span class="tag2">TINJAUAN 7.5.${String(i).padStart(2,'0')}</span>
+      <span class="status">SIAP DIPERIKSA</span>
+      <span class="title">${slideTitles[i]}</span>
+    </div>` : '') + `<div class="slide-inner">${html}</div>`;
+  viewport.appendChild(section);
+});
+
+/* =========================================================================
+   NAVIGATION
+   ========================================================================= */
+let current = 0;
+const total = SLIDES.length;
+const slideEls = Array.from(document.querySelectorAll('.slide'));
+const progressFill = document.getElementById('progressFill');
+const counter = document.getElementById('slideCounter');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
 function goTo(idx){
   if(idx < 0 || idx >= total) return;
-  slides[current].classList.remove('active');
+  slideEls[current].classList.remove('active');
   current = idx;
-  slides[current].classList.add('active');
-  slides[current].scrollTop = 0;
-  document.getElementById('curNum').textContent = current + 1;
-  document.getElementById('progressFill').style.width = ((current+1)/total*100) + '%';
-  document.getElementById('prevBtn').disabled = current === 0;
-  document.getElementById('nextBtn').textContent = current === total - 1 ? 'Selesai ✓' : 'Berikutnya →';
-  renderDots();
+  slideEls[current].classList.add('active');
+  slideEls[current].scrollTop = 0;
+  progressFill.style.width = ((current)/(total-1)*100) + '%';
+  counter.textContent = (current+1) + ' / ' + total;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === total - 1;
 }
-function nextSlide(){ if(current < total - 1) goTo(current + 1); }
-function prevSlide(){ if(current > 0) goTo(current - 1); }
+prevBtn.addEventListener('click', () => goTo(current-1));
+nextBtn.addEventListener('click', () => goTo(current+1));
+document.getElementById('homeBtn').addEventListener('click', () => goTo(0));
 document.addEventListener('keydown', (e) => {
-  if(e.key === 'ArrowRight') nextSlide();
-  if(e.key === 'ArrowLeft') prevSlide();
+  const tag = (e.target.tagName || '').toLowerCase();
+  if(tag === 'textarea' || tag === 'input') return;
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
 });
-slides[0].classList.add('active');
 goTo(0);
+document.addEventListener('click', (e) => {
+  if(e.target.id === 'startBtn') goTo(1);
+  if(e.target.id === 'restartBtn') goTo(0);
+});
 
-function toggleAcc(el){ el.parentElement.classList.toggle('open'); }
-function toggleReveal(el){ el.classList.toggle('open'); }
-
-/* ================= LINE CHART HELPER ================= */
-// Draws a line chart into an svg element. data: array of numbers. labels: array of strings.
-// opts: {color, min, max, unit, pointRadius, showArea}
-function buildLineChartSVG(svg, data, labels, opts){
-  opts = opts || {};
-  const color = opts.color || '#6c8dff';
-  const vb = svg.viewBox.baseVal;
-  const W = vb.width || 320, H = vb.height || 200;
-  const padL = opts.padL !== undefined ? opts.padL : 34;
-  const padR = opts.padR !== undefined ? opts.padR : 14;
-  const padT = opts.padT !== undefined ? opts.padT : 18;
-  const padB = opts.padB !== undefined ? opts.padB : 30;
-  const min = opts.min !== undefined ? opts.min : Math.min(...data) - 4;
-  const max = opts.max !== undefined ? opts.max : Math.max(...data) + 4;
-  const plotW = W - padL - padR;
-  const plotH = H - padT - padB;
-  const n = data.length;
-  const xFor = (i) => padL + (n === 1 ? plotW/2 : (i/(n-1))*plotW);
-  const yFor = (v) => padT + plotH - ((v-min)/(max-min))*plotH;
-  let svgns = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs){
-    const e = document.createElementNS(svgns, tag);
-    for(const k in attrs) e.setAttribute(k, attrs[k]);
-    return e;
-  }
-  // axes
-  svg.appendChild(el('line', {x1:padL, y1:padT, x2:padL, y2:padT+plotH, stroke:'#2c3346', 'stroke-width':1.5}));
-  svg.appendChild(el('line', {x1:padL, y1:padT+plotH, x2:padL+plotW, y2:padT+plotH, stroke:'#2c3346', 'stroke-width':1.5}));
-  // labels x
-  labels.forEach((lab, i) => {
-    const t = el('text', {x:xFor(i), y:padT+plotH+16, fill:'#7d879c', 'font-size':'10', 'text-anchor':'middle'});
-    t.textContent = lab;
-    svg.appendChild(t);
-  });
-  // line path
-  const pts = data.map((v,i) => xFor(i)+','+yFor(v)).join(' ');
-  svg.appendChild(el('polyline', {points:pts, fill:'none', stroke:color, 'stroke-width':2.5, 'stroke-linejoin':'round', 'stroke-linecap':'round'}));
-  // points
-  const pointEls = [];
-  data.forEach((v,i) => {
-    const c = el('circle', {cx:xFor(i), cy:yFor(v), r: opts.pointRadius || 5, fill: color, stroke:'#0b0e14', 'stroke-width':1.5, class:'hotspot'});
-    c.dataset.value = v;
-    c.dataset.label = labels[i];
-    c.dataset.idx = i;
-    svg.appendChild(c);
-    pointEls.push(c);
-  });
-  return {xFor, yFor, pointEls};
-}
-
-/* ================= SLIDE 2: APERSEPSI CHART (decorative) ================= */
+/* =========================================================================
+   SLIDE 2 — Apersepsi
+   ========================================================================= */
 (function(){
-  const svg = document.getElementById('apersSvg');
-  buildLineChartSVG(svg, [22,26,24,29,27,31], ['S','S','R','K','J','S'], {color:'#3ddc97'});
-})();
-
-/* ================= SLIDE 4: PENGERTIAN CHART ================= */
-(function(){
-  const svg = document.getElementById('pengertianSvg');
-  buildLineChartSVG(svg, [24,27,26,30,29,32], ['Sen','Sel','Rab','Kam','Jum','Sab'], {color:'#6c8dff'});
-})();
-
-/* ================= SLIDE 5: UNSUR-UNSUR (hotspot labels) ================= */
-(function(){
-  const svg = document.getElementById('unsurSvg');
-  const svgns = 'http://www.w3.org/2000/svg';
-  function el(tag, attrs){ const e=document.createElementNS(svgns,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
-
-  // Title
-  const titleText = el('text', {x:170, y:16, fill:'#f1f3f9', 'font-size':'13', 'text-anchor':'middle', class:'hotspot', 'data-part':'judul'});
-  titleText.textContent = 'Suhu Udara Kota Belajar';
-  svg.appendChild(titleText);
-
-  const chart = buildLineChartSVG(svg, [24,27,26,30,29,32], ['Sen','Sel','Rab','Kam','Jum','Sab'], {padT:28, padB:36, color:'#ff8a5b'});
-
-  // Y axis label
-  const yLab = el('text', {x:10, y:130, fill:'#7d879c', 'font-size':'10', 'text-anchor':'middle', transform:'rotate(-90 10 130)', class:'hotspot', 'data-part':'sumbuY'});
-  yLab.textContent = 'Suhu (°C)';
-  svg.appendChild(yLab);
-
-  // X axis label
-  const xLab = el('text', {x:190, y:225, fill:'#7d879c', 'font-size':'10', 'text-anchor':'middle', class:'hotspot', 'data-part':'sumbuX'});
-  xLab.textContent = 'Hari';
-  svg.appendChild(xLab);
-
-  // mark parts on hotspots
-  svg.querySelectorAll('polyline').forEach(p => p.setAttribute('data-part','garis'));
-  chart.pointEls.forEach(p => p.setAttribute('data-part','titik'));
-
-  const unsurInfo = {
-    judul: {label:'Judul Diagram', desc:'Judul menjelaskan data apa yang disajikan, misalnya "Suhu Udara Kota Belajar", agar pembaca langsung memahami isi diagram.'},
-    sumbuX: {label:'Sumbu Mendatar (X)', desc:'Sumbu X biasanya menunjukkan waktu atau kategori, misalnya nama hari, bulan, atau tahun.'},
-    sumbuY: {label:'Sumbu Tegak (Y)', desc:'Sumbu Y menunjukkan nilai data, misalnya suhu dalam °C, dengan skala yang teratur.'},
-    titik: {label:'Titik Data', desc:'Setiap titik mewakili satu nilai data pada satu waktu tertentu.'},
-    garis: {label:'Garis Penghubung', desc:'Garis yang menghubungkan titik-titik data secara berurutan, menunjukkan arah perubahan data dari waktu ke waktu.'}
-  };
-  svg.querySelectorAll('.hotspot').forEach(h => {
-    h.addEventListener('click', () => {
-      const part = h.getAttribute('data-part');
-      const info = unsurInfo[part];
-      if(!info) return;
-      document.getElementById('unsurInfoCard').innerHTML =
-        '<p style="font-weight:700;color:var(--accent-1);margin-bottom:4px;">'+info.label+'</p><p class="small-note">'+info.desc+'</p>';
-    });
-  });
-})();
-
-/* ================= SLIDE 6: MEMBUAT DIAGRAM (live builder) ================= */
-function renderBuildChart(){
-  const svg = document.getElementById('buildSvg');
-  svg.innerHTML = '';
-  const inputs = document.querySelectorAll('.pt-input');
-  const data = Array.from(inputs).sort((a,b)=>a.dataset.idx-b.dataset.idx).map(i => parseFloat(i.value) || 0);
-  buildLineChartSVG(svg, data, ['Jan','Feb','Mar','Apr','Mei'], {color:'#3ddc97', min:0, max: Math.max(...data)+15});
-}
-document.querySelectorAll('.pt-input').forEach(inp => inp.addEventListener('input', renderBuildChart));
-renderBuildChart();
-
-/* ================= SLIDE 7: MEMBACA DIAGRAM ================= */
-const suhuData = [24,27,26,30,29,32];
-const suhuLabels = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-(function(){
-  const svg = document.getElementById('readSvg');
-  const chart = buildLineChartSVG(svg, suhuData, suhuLabels.map(l=>l.slice(0,3)), {color:'#6c8dff'});
-  chart.pointEls.forEach(p => {
-    p.addEventListener('click', () => {
-      chart.pointEls.forEach(x => x.setAttribute('r', 5));
-      p.setAttribute('r', 7);
-      const idx = p.dataset.idx;
-      document.getElementById('readInfoCard').innerHTML =
-        '<p style="font-weight:700;color:var(--accent-1);margin-bottom:4px;">Hari '+suhuLabels[idx]+'</p><p class="small-note">Suhu udara pada hari ini adalah <b style="color:var(--text-0)">'+p.dataset.value+'°C</b>.</p>';
-    });
-  });
-})();
-
-/* ================= SLIDE 8: MENENTUKAN PERUBAHAN DATA ================= */
-(function(){
-  const svg = document.getElementById('changeSvg');
-  buildLineChartSVG(svg, suhuData, suhuLabels.map(l=>l.slice(0,3)), {color:'#f4c744'});
-  const from = document.getElementById('dayFrom');
-  const to = document.getElementById('dayTo');
-  suhuLabels.forEach((l,i) => {
-    from.appendChild(new Option(l, i));
-    to.appendChild(new Option(l, i));
-  });
-  from.value = 0; to.value = 1;
-})();
-function computeChange(){
-  const fi = parseInt(document.getElementById('dayFrom').value);
-  const ti = parseInt(document.getElementById('dayTo').value);
-  const box = document.getElementById('changeResult');
-  box.classList.add('show');
-  if(fi === ti){
-    box.className = 'feedback-box show bad';
-    box.textContent = 'Pilih dua hari yang berbeda untuk melihat perubahannya.';
-    return;
-  }
-  const diff = suhuData[ti] - suhuData[fi];
-  const arah = diff > 0 ? 'naik' : (diff < 0 ? 'turun' : 'tetap');
-  box.className = 'feedback-box show ' + (diff === 0 ? '' : 'good');
-  box.innerHTML = 'Dari <b>'+suhuLabels[fi]+'</b> ('+suhuData[fi]+'°C) ke <b>'+suhuLabels[ti]+'</b> ('+suhuData[ti]+'°C): suhu '+arah+' sebesar <b>'+Math.abs(diff)+'°C</b>.<br><span class="mono">Perubahan = '+suhuData[ti]+' − '+suhuData[fi]+' = '+diff+'</span>';
-}
-
-/* ================= SLIDE 9: KENAIKAN / PENURUNAN ================= */
-(function(){
-  const svg = document.getElementById('trendSvg');
-  const chart = buildLineChartSVG(svg, suhuData, suhuLabels.map(l=>l.slice(0,3)), {color:'#7d879c'});
-  const segColors = {};
-  const gameWrap = document.getElementById('trendGame');
-  for(let i=0;i<suhuData.length-1;i++){
-    const diff = suhuData[i+1]-suhuData[i];
-    const correct = diff>0?'naik':(diff<0?'turun':'tetap');
-    const x1 = chart.xFor(i), y1 = chart.yFor(suhuData[i]);
-    const x2 = chart.xFor(i+1), y2 = chart.yFor(suhuData[i+1]);
-    const seg = document.createElementNS('http://www.w3.org/2000/svg','line');
-    seg.setAttribute('x1',x1); seg.setAttribute('y1',y1); seg.setAttribute('x2',x2); seg.setAttribute('y2',y2);
-    seg.setAttribute('stroke','#3a4258'); seg.setAttribute('stroke-width','7'); seg.setAttribute('stroke-linecap','round');
-    seg.style.cursor='pointer';
-    seg.dataset.idx = i;
-    svg.insertBefore(seg, svg.firstChild.nextSibling);
-
-    const row = document.createElement('div');
-    row.className = 'card tight';
-    row.innerHTML = '<p style="font-size:13px;color:var(--text-1);margin-bottom:8px;">'+suhuLabels[i]+' → '+suhuLabels[i+1]+' ('+suhuData[i]+'°C → '+suhuData[i+1]+'°C)</p>'+
-      '<div style="display:flex;gap:6px;">'+
-      '<button class="btn small ghost" data-ans="naik">Naik</button>'+
-      '<button class="btn small ghost" data-ans="turun">Turun</button>'+
-      '<button class="btn small ghost" data-ans="tetap">Tetap</button>'+
-      '</div>';
-    const btns = row.querySelectorAll('button');
-    const highlightSeg = () => { seg.setAttribute('stroke', diff>0?'#3ddc97':(diff<0?'#ff5d7a':'#f4c744')); };
-    btns.forEach(b => b.addEventListener('click', () => {
-      btns.forEach(x=>x.classList.add('disabled'));
-      if(b.getAttribute('data-ans')===correct){ b.style.borderColor='var(--accent-3)'; b.style.color='var(--accent-3)'; }
-      else { b.style.borderColor='var(--danger)'; b.style.color='var(--danger)';
-        const cb=[...btns].find(x=>x.getAttribute('data-ans')===correct);
-        cb.style.borderColor='var(--accent-3)'; cb.style.color='var(--accent-3)';
-      }
-      highlightSeg();
-    }));
-    seg.addEventListener('click', () => row.scrollIntoView({behavior:'smooth', block:'nearest'}));
-    gameWrap.appendChild(row);
-  }
-})();
-
-/* ================= SLIDE 10: MEMBANDINGKAN DATA ================= */
-(function(){
-  const svg = document.getElementById('compareSvg');
-  const dataA = [30,35,32,40];
-  const dataB = [25,28,34,38];
-  const labels = ['Mgg 1','Mgg 2','Mgg 3','Mgg 4'];
-  const chart = buildLineChartSVG(svg, dataA, labels, {color:'#6c8dff', min:15, max:45, padT:16, padB:30});
-  // draw second line manually reusing same scale
-  const svgns='http://www.w3.org/2000/svg';
-  function el(tag, attrs){ const e=document.createElementNS(svgns,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
-  const pts = dataB.map((v,i)=> chart.xFor(i)+','+chart.yFor(v)).join(' ');
-  svg.appendChild(el('polyline',{points:pts, fill:'none', stroke:'#ff8a5b', 'stroke-width':2.5, 'stroke-linejoin':'round','stroke-linecap':'round'}));
-  dataB.forEach((v,i)=>{
-    svg.appendChild(el('circle',{cx:chart.xFor(i), cy:chart.yFor(v), r:5, fill:'#ff8a5b', stroke:'#0b0e14','stroke-width':1.5}));
-  });
-})();
-
-/* ================= SLIDE 11: MENAFSIRKAN ================= */
-(function(){
-  const svg = document.getElementById('interpretSvg');
-  buildLineChartSVG(svg, suhuData, suhuLabels.map(l=>l.slice(0,3)), {color:'#3ddc97'});
-
-  const qs = [
-    {q:'Pada hari apa suhu udara tertinggi tercatat?', opts:['Rabu','Kamis','Sabtu','Senin'], correct:2, exp:'Suhu tertinggi adalah 32°C, tercatat pada hari Sabtu.'},
-    {q:'Pada hari apa suhu udara terendah tercatat?', opts:['Senin','Rabu','Jumat','Sabtu'], correct:0, exp:'Suhu terendah adalah 24°C, tercatat pada hari Senin.'},
-    {q:'Bagaimana kecenderungan (tren) suhu dari Senin hingga Sabtu secara umum?', opts:['Terus menurun','Terus meningkat dengan sedikit fluktuasi','Selalu tetap','Naik-turun tanpa pola'], correct:1, exp:'Meski sempat turun sedikit di Rabu dan Jumat, secara umum suhu cenderung meningkat dari 24°C menjadi 32°C.'}
+  const opts = [
+    {t:"Langsung meneruskan karena lebih baik siaga daripada menyesal", ok:false, msg:"Menyebarkan tanpa memeriksa bisa memicu kepanikan yang tidak perlu jika ternyata informasinya tidak benar."},
+    {t:"Memeriksa dulu kebenarannya lewat sumber resmi, misalnya pihak sekolah atau kepolisian setempat", ok:true, msg:"Tepat! Pesan berantai yang mendesak untuk segera disebarkan justru patut dicurigai. Memeriksa ke sumber resmi mencegah penyebaran informasi keliru dan kepanikan yang tidak perlu."},
+    {t:"Menghapus pesan tanpa memberi tahu siapa pun", ok:false, msg:"Menghapus saja tidak membantu mencegah orang lain yang mungkin sudah menyebarkannya lebih dulu tanpa klarifikasi."}
   ];
-  const wrap = document.getElementById('interpretQuestions');
-  qs.forEach((item, qi) => {
-    const box = document.createElement('div');
-    box.className = 'card tight';
-    box.innerHTML = '<p style="font-size:13.8px;font-weight:600;margin-bottom:8px;">'+item.q+'</p><div class="choice-grid"></div><div class="feedback-box" style="margin-top:8px;"></div>';
-    const grid = box.querySelector('.choice-grid');
-    const fb = box.querySelector('.feedback-box');
-    item.opts.forEach((opt, oi) => {
-      const b = document.createElement('button');
-      b.className = 'choice';
-      b.textContent = opt;
-      b.addEventListener('click', () => {
-        grid.querySelectorAll('.choice').forEach(c => c.classList.add('disabled'));
-        if(oi === item.correct) b.classList.add('correct');
-        else { b.classList.add('wrong'); grid.children[item.correct].classList.add('correct'); }
-        fb.classList.add('show', oi===item.correct?'good':'bad');
-        fb.textContent = (oi===item.correct?'✓ Benar. ':'✗ Kurang tepat. ') + item.exp;
-      });
-      grid.appendChild(b);
+  const wrap = document.getElementById('apersepsiOpts');
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = o.t;
+    b.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.opt-btn').forEach(x=>x.disabled=true);
+      b.classList.add(o.ok ? 'correct' : 'wrong');
+      const note = document.getElementById('apersepsiNote');
+      note.textContent = o.msg;
+      note.classList.add('show');
     });
-    wrap.appendChild(box);
+    wrap.appendChild(b);
   });
 })();
 
-/* ================= SLIDE 12: LATIHAN CHECK ================= */
-function checkAnswer(correct, inputId, fbId, explanation){
-  const val = parseFloat(document.getElementById(inputId).value);
-  const fb = document.getElementById(fbId);
-  fb.classList.add('show');
-  if(val === correct){
-    fb.className = 'feedback-box show good';
-    fb.innerHTML = '✓ Benar! ' + explanation;
-  } else {
-    fb.className = 'feedback-box show bad';
-    fb.innerHTML = '✗ Belum tepat. Jawaban: <b>'+correct+'</b>. ' + explanation;
-  }
+/* =========================================================================
+   SLIDE 5 — Accordion istilah
+   ========================================================================= */
+(function(){
+  const terms = [
+    {t:"🚫 Hoaks", d:"Informasi palsu yang sengaja dibuat untuk menyesatkan, sering kali dikemas agar terlihat meyakinkan."},
+    {t:"🎯 Clickbait", d:"Judul yang dibuat sangat sensasional untuk memancing klik, padahal isinya kadang tidak sesuai judul."},
+    {t:"💭 Opini vs Fakta", d:"Opini adalah pandangan pribadi yang bisa berbeda-beda, sedangkan fakta adalah hal yang bisa diverifikasi kebenarannya."},
+    {t:"♻️ Informasi Lama yang Didaur Ulang", d:"Foto atau video lama dibagikan ulang seolah-olah baru terjadi, sering digunakan untuk menyesatkan pembaca."}
+  ];
+  const wrap = document.getElementById('accordionTerms');
+  terms.forEach(term=>{
+    const item = document.createElement('div');
+    item.className = 'accordion-item';
+    item.innerHTML = `
+      <div class="accordion-head"><span class="term">${term.t}</span><span class="chev">▾</span></div>
+      <div class="accordion-body"><div class="accordion-body-inner">${term.d}</div></div>`;
+    item.querySelector('.accordion-head').addEventListener('click', ()=> item.classList.toggle('open'));
+    wrap.appendChild(item);
+  });
+})();
+
+/* =========================================================================
+   REUSABLE — classify chips + buckets
+   ========================================================================= */
+function initClassifyGame(chipsId, bucketsId, progressId, items){
+  const chipRow = document.getElementById(chipsId);
+  const progressEl = document.getElementById(progressId);
+  let selected = null;
+  let correctCount = 0;
+  items.forEach(it=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = it.v;
+    chip.dataset.cat = it.cat;
+    chip.addEventListener('click', ()=>{
+      if(chip.classList.contains('correct')) return;
+      chipRow.querySelectorAll('.chip').forEach(c=>c.classList.remove('picked'));
+      chip.classList.add('picked');
+      selected = chip;
+    });
+    chipRow.appendChild(chip);
+  });
+  document.querySelectorAll('#'+bucketsId+' .bucket').forEach(bucket=>{
+    bucket.addEventListener('click', ()=>{
+      if(!selected) return;
+      if(selected.dataset.cat === bucket.dataset.cat){
+        selected.classList.remove('picked');
+        selected.classList.add('correct');
+        selected.style.pointerEvents = 'none';
+        correctCount++;
+        progressEl.textContent = correctCount + ' / ' + items.length + ' benar';
+      } else {
+        selected.classList.add('wrong');
+        setTimeout(()=> selected.classList.remove('wrong'), 500);
+      }
+      selected = null;
+    });
+  });
 }
 
-/* ================= SLIDE 13: QUIZ ================= */
-const quizData = [
-  {q:'Diagram garis paling cocok digunakan untuk menyajikan data yang…', opts:['Tidak berhubungan satu sama lain','Berkesinambungan dan berubah dari waktu ke waktu','Hanya terdiri dari dua kategori','Berbentuk persentase'], correct:1, exp:'Diagram garis menonjolkan perubahan data yang berkesinambungan terhadap waktu, seperti suhu harian atau penjualan bulanan.'},
-  {q:'Unsur yang menunjukkan nilai data pada diagram garis adalah…', opts:['Sumbu mendatar (X)','Sumbu tegak (Y)','Judul','Legenda'], correct:1, exp:'Sumbu tegak (Y) memuat skala nilai data, sedangkan sumbu mendatar (X) biasanya memuat waktu/kategori.'},
-  {q:'Data suhu: Senin 22°C, Selasa 26°C. Perubahan suhu dari Senin ke Selasa adalah…', opts:['Naik 4°C','Turun 4°C','Naik 22°C','Tetap'], correct:0, exp:'Perubahan = nilai akhir − nilai awal = 26 − 22 = 4°C (naik).'},
-  {q:'Pada grafik diagram garis, ruas garis yang miring ke bawah menunjukkan…', opts:['Kenaikan data','Penurunan data','Data tetap','Data tidak valid'], correct:1, exp:'Garis yang miring ke bawah dari kiri ke kanan menunjukkan nilai data yang menurun.'},
-  {q:'Jika dua data digambarkan dalam satu diagram garis, unsur yang membantu membedakan kedua garis tersebut adalah…', opts:['Skala','Legenda','Judul','Sumbu X'], correct:1, exp:'Legenda menjelaskan warna/simbol garis mana yang mewakili data yang mana.'},
-  {q:'Penjualan toko selama 4 bulan: 20, 25, 18, 30. Bulan dengan penjualan tertinggi adalah…', opts:['Bulan 1','Bulan 2','Bulan 3','Bulan 4'], correct:3, exp:'Nilai tertinggi 30 terjadi pada bulan ke-4.'},
-  {q:'Langkah pertama dalam membuat diagram garis adalah…', opts:['Menghubungkan titik dengan garis','Memberi judul','Menggambar sumbu mendatar dan sumbu tegak','Menentukan legenda'], correct:2, exp:'Sebelum meletakkan titik data, kita perlu menggambar sumbu mendatar dan sumbu tegak terlebih dahulu.'},
-  {q:'Suhu pukul 06.00–15.00: 20°C, 24°C, 29°C, 26°C. Bagaimana pola perubahannya secara umum?', opts:['Terus naik lalu turun di akhir','Terus turun','Selalu tetap','Naik-turun tanpa arah jelas'], correct:0, exp:'Suhu naik dari 20°C ke 29°C, lalu turun menjadi 26°C pada pengamatan terakhir.'}
+/* Slide 6 */
+initClassifyGame('factHoaxChips','factHoaxBuckets','factHoaxProgress', [
+  {v:"Air mendidih pada suhu 100°C di permukaan laut", cat:"fakta"},
+  {v:"Minum air es bisa menyebabkan usus buntu", cat:"hoaks"},
+  {v:"Bumi mengelilingi Matahari", cat:"fakta"},
+  {v:"Vaksin mengandung chip pelacak pemerintah", cat:"hoaks"},
+  {v:"Gempa besar akan terjadi tepat pukul 15.00 besok", cat:"hoaks"},
+  {v:"Penduduk Indonesia berjumlah lebih dari 270 juta jiwa", cat:"fakta"}
+]);
+
+/* Slide 11 */
+initClassifyGame('privacyChips','privacyBuckets','privacyProgress', [
+  {v:"Foto pemandangan tanpa ada orang di dalamnya", cat:"boleh"},
+  {v:"Foto teman yang sedang tidur, diambil diam-diam", cat:"izin"},
+  {v:"Tangkapan layar chat pribadi teman", cat:"izin"},
+  {v:"Hasil pertandingan sekolah yang sudah diumumkan resmi", cat:"boleh"},
+  {v:"Video teman sedang menangis di momen pribadi", cat:"izin"},
+  {v:"Poster acara sekolah yang memang untuk disebarluaskan", cat:"boleh"}
+]);
+
+/* =========================================================================
+   SLIDE 8 — Uji kredibilitas sumber
+   ========================================================================= */
+(function(){
+  const sources = [
+    {d:"Blog pribadi tanpa nama penulis, memuat klaim mengejutkan tanpa data pendukung, dan tanpa tanggal terbit.", ok:false,
+     e:"❌ Perlu diperiksa lagi — tidak ada penulis yang bisa dimintai pertanggungjawaban, tidak ada data pendukung, dan tanggal tidak jelas."},
+    {d:"Situs berita nasional resmi, mencantumkan nama jurnalis, tanggal terbit jelas, dan menyertakan sumber data resmi.", ok:true,
+     e:"✅ Cukup kredibel — ada penulis yang jelas, tanggal terbit, dan sumber data yang bisa ditelusuri."},
+    {d:"Akun media sosial anonim yang meminta pesan segera dibagikan sebelum 'dihapus admin'.", ok:false,
+     e:"❌ Perlu diperiksa lagi — akun anonim dan ajakan mendesak untuk segera menyebarkan adalah tanda klasik informasi yang patut dicurigai."},
+    {d:"Artikel jurnal ilmiah yang ditinjau sejawat (peer-reviewed), memuat metode penelitian dan data secara rinci.", ok:true,
+     e:"✅ Kredibel — telah melalui proses tinjauan ilmiah dan menjelaskan metode penelitiannya secara terbuka."}
+  ];
+  const wrap = document.getElementById('sourceCards');
+  sources.forEach((s,i)=>{
+    const card = document.createElement('div');
+    card.className = 'source-card';
+    card.innerHTML = `
+      <span class="tag">Sumber ${i+1}</span>
+      <p style="margin-top:10px;">${s.d}</p>
+      <button class="btn" data-idx="${i}">Periksa Sumber Ini</button>
+      <div class="verdict ${s.ok ? 'ok':'bad'}" id="verdict${i}">${s.e}</div>
+    `;
+    wrap.appendChild(card);
+    card.querySelector('button').addEventListener('click', ()=>{
+      document.getElementById('verdict'+i).classList.add('show');
+    });
+  });
+})();
+
+/* =========================================================================
+   SLIDE 9 — Post hotspot
+   ========================================================================= */
+(function(){
+  const notes = {
+    account: "<b>Akun baru dan tidak dikenal</b> — nama akun generik dan handle dengan angka acak sering menandakan akun yang dibuat khusus untuk menyebarkan informasi tak jelas.",
+    urgency: "<b>Ajakan mendesak</b> — kalimat seperti 'SEBARKAN SEBELUM DIHAPUS' dirancang agar pembaca panik dan langsung membagikan tanpa berpikir.",
+    nosource: "<b>Tanpa tautan sumber</b> — jumlah dibagikan ulang yang besar bukan jaminan kebenaran jika tidak ada rujukan yang bisa ditelusuri.",
+    claim: "<b>Klaim tanpa bukti</b> — pernyataan 'percayalah, ini bukan hoaks' justru sering dipakai untuk menutupi ketiadaan bukti nyata."
+  };
+  document.querySelectorAll('#postWrap .hotspot').forEach(h=>{
+    h.addEventListener('click', ()=>{
+      const note = document.getElementById('postNote');
+      note.innerHTML = notes[h.dataset.note];
+      note.classList.add('show');
+    });
+  });
+})();
+
+/* =========================================================================
+   SLIDE 13 — Compose checklist wizard
+   ========================================================================= */
+(function(){
+  const questions = [
+    "Sudahkah aku memastikan ini benar lewat sumber resmi?",
+    "Apakah informasi ini benar-benar bermanfaat bagi penerimanya?",
+    "Apakah ini tidak melanggar privasi siapa pun?",
+    "Apakah aku yakin ini bukan sekadar rumor yang belum pasti?",
+    "Apakah cara penyampaiannya tidak memicu kepanikan?"
+  ];
+  const wrap = document.getElementById('composeChecks');
+  questions.forEach((q,i)=>{
+    const row = document.createElement('div');
+    row.className = 'check-row';
+    row.innerHTML = `<input type="checkbox" id="cchk${i}"><label for="cchk${i}">${q}</label>`;
+    wrap.appendChild(row);
+  });
+  const shareBtn = document.getElementById('composeShareBtn');
+  const msg = document.getElementById('composeMsg');
+  const success = document.getElementById('composeSuccess');
+  wrap.addEventListener('change', ()=>{
+    const boxes = wrap.querySelectorAll('input[type=checkbox]');
+    const allChecked = Array.from(boxes).every(b=>b.checked);
+    shareBtn.disabled = !allChecked;
+    msg.textContent = allChecked ? "Semua pertanyaan terjawab — kamu siap membagikan dengan bertanggung jawab." : "Centang semua pertanyaan untuk mengaktifkan tombol Bagikan.";
+  });
+  shareBtn.addEventListener('click', ()=>{
+    success.classList.add('show');
+    shareBtn.disabled = true;
+    msg.textContent = "Sudah dibagikan dengan penuh pertimbangan. 🎉";
+  });
+})();
+
+/* =========================================================================
+   SLIDE 15 — Latihan bertahap
+   ========================================================================= */
+(function(){
+  const tiers = [
+    {level:"Mudah", q:"Sebuah pesan meminta kamu untuk 'SEBARKAN SEKARANG SEBELUM DIHAPUS'. Apa yang sebaiknya kamu lakukan?",
+     opts:["Langsung menyebarkan ke semua grup","Memeriksa kebenarannya lebih dulu","Mengabaikan tanpa memberi tahu siapa pun","Menghapus pesan tanpa membacanya"], correct:1,
+     explain:"Ajakan mendesak untuk segera menyebarkan adalah tanda peringatan — periksa dulu kebenarannya sebelum bertindak."},
+    {level:"Sedang", q:"Manakah tanda bahwa sebuah sumber berita cukup kredibel?",
+     opts:["Tidak mencantumkan nama penulis","Mencantumkan tanggal, penulis, dan sumber data yang jelas","Menggunakan huruf kapital di seluruh judul","Meminta pembaca segera membagikan"], correct:1,
+     explain:"Sumber yang kredibel biasanya transparan: ada penulis, tanggal, dan data pendukung yang bisa ditelusuri."},
+    {level:"Menantang", q:"Temanmu memintamu membagikan foto dirinya yang sedang tertawa lepas dalam momen pribadi. Apa langkah paling tepat?",
+     opts:["Langsung membagikannya karena fotonya bagus","Menanyakan dulu apakah ia setuju foto itu dibagikan","Mengedit fotonya terlebih dahulu tanpa izin","Membagikannya hanya ke sebagian teman tanpa bertanya"], correct:1,
+     explain:"Meski terlihat sepele, tetap penting meminta izin sebelum membagikan foto orang lain, apa pun isinya."}
+  ];
+  const wrap = document.getElementById('tieredWrap');
+  tiers.forEach(t=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '14px';
+    card.innerHTML = `<span class="tag">${t.level}</span><p style="margin:10px 0 12px;color:var(--text);">${t.q}</p>`;
+    const optWrap = document.createElement('div');
+    t.opts.forEach((opt,i)=>{
+      const b = document.createElement('button');
+      b.className = 'opt-btn';
+      b.textContent = opt;
+      b.addEventListener('click', ()=>{
+        optWrap.querySelectorAll('.opt-btn').forEach(x=>x.disabled=true);
+        if(i === t.correct) b.classList.add('correct');
+        else { b.classList.add('wrong'); optWrap.children[t.correct].classList.add('correct'); }
+        exp.classList.add('show');
+      });
+      optWrap.appendChild(b);
+    });
+    card.appendChild(optWrap);
+    const exp = document.createElement('div');
+    exp.className = 'explain-box';
+    exp.textContent = t.explain;
+    card.appendChild(exp);
+    wrap.appendChild(card);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 16 — Studi kasus
+   ========================================================================= */
+(function(){
+  const opts = [
+    {t:"Segera meneruskan pesan itu ke seluruh grup sekolah agar semua tahu", ok:false, msg:"Menyebarkan tanpa verifikasi bisa memicu kepanikan yang tidak perlu jika informasinya ternyata tidak benar."},
+    {t:"Menanyakan kebenarannya ke pihak sekolah atau memeriksa kanal resmi sekolah terlebih dahulu", ok:true, msg:"Tepat sekali! Memverifikasi ke sumber resmi sebelum bertindak adalah langkah paling bijak untuk mencegah penyebaran informasi keliru."},
+    {t:"Membalas pesan itu dengan emoji tanpa melakukan apa pun", ok:false, msg:"Cara ini tidak membantu memastikan kebenaran informasi maupun mencegah kesalahpahaman yang mungkin sudah menyebar."}
+  ];
+  const wrap = document.getElementById('caseOpts');
+  opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = o.t;
+    b.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.opt-btn').forEach(x=>x.disabled=true);
+      b.classList.add(o.ok ? 'correct' : 'wrong');
+      const note = document.getElementById('caseNote');
+      note.textContent = o.msg;
+      note.classList.add('show');
+    });
+    wrap.appendChild(b);
+  });
+})();
+
+/* =========================================================================
+   SLIDE 18 — Kuis
+   ========================================================================= */
+const QUIZ = [
+  {q:"Informasi palsu yang sengaja dibuat untuk menyesatkan disebut...",
+   opts:["Clickbait","Hoaks","Opini","Fakta"], correct:1,
+   explain:"Hoaks adalah informasi palsu yang sengaja dibuat untuk menyesatkan pembaca."},
+  {q:"Salah satu ciri judul clickbait adalah...",
+   opts:["Mencantumkan tanggal terbit","Ditulis sangat sensasional untuk memancing klik","Mencantumkan nama penulis","Menyertakan data pendukung"], correct:1,
+   explain:"Clickbait sengaja dibuat sensasional agar orang tertarik mengklik, meski isinya belum tentu sesuai judul."},
+  {q:"Langkah pertama saat memeriksa sumber informasi adalah...",
+   opts:["Langsung membagikannya","Melihat siapa penulis atau penerbitnya","Menghapus pesan tersebut","Menambahkan emoji"], correct:1,
+   explain:"Mengetahui siapa penulis atau lembaga penerbitnya membantu menilai apakah sumber tersebut dapat dipercaya."},
+  {q:"Mengapa perlu membandingkan suatu informasi dengan sumber lain?",
+   opts:["Agar terlihat lebih rajin","Untuk memastikan kebenaran lewat cross-check","Karena diwajibkan oleh aplikasi","Agar informasi terlihat lebih panjang"], correct:1,
+   explain:"Membandingkan dengan sumber tepercaya lain (cross-check) membantu memastikan apakah informasi tersebut benar."},
+  {q:"Sebelum membagikan foto yang menampilkan temanmu, sebaiknya kamu...",
+   opts:["Langsung mengunggahnya karena fotonya bagus","Meminta izin terlebih dahulu kepada temanmu","Mengeditnya tanpa sepengetahuan temanmu","Menandai (tag) tanpa bertanya"], correct:1,
+   explain:"Meminta izin menunjukkan penghormatan terhadap privasi orang lain sebelum membagikan konten yang melibatkan mereka."},
+  {q:"Salah satu dari lima pertanyaan sebelum mengunggah adalah...",
+   opts:["Apakah ini akan viral?","Apakah ini bermanfaat bagi orang yang menerimanya?","Apakah ini akan menambah pengikut?","Apakah ini menarik secara visual?"], correct:1,
+   explain:"Menilai manfaat bagi penerima adalah salah satu dari lima pertanyaan penting sebelum membagikan sesuatu."},
+  {q:"Jika seseorang meminta kontennya (foto/video) dihapus, sebaiknya kita...",
+   opts:["Mengabaikan permintaan tersebut","Menghapusnya dan menghormati permintaan itu","Membagikannya lebih luas lagi","Menyimpannya secara diam-diam"], correct:1,
+   explain:"Menghormati permintaan untuk menghapus konten adalah bagian penting dari menjaga privasi orang lain."},
+  {q:"Manakah dampak yang bisa terjadi akibat menyebarkan informasi palsu?",
+   opts:["Meningkatkan kepercayaan orang lain","Menimbulkan kepanikan dan menyesatkan banyak orang","Membuat internet menjadi lebih cepat","Tidak ada dampak apa pun"], correct:1,
+   explain:"Informasi palsu yang tersebar luas dapat menimbulkan kepanikan dan menyesatkan banyak orang yang mempercayainya."},
+  {q:"Tanda umum akun penyebar informasi mencurigakan di media sosial adalah...",
+   opts:["Mencantumkan sumber yang jelas","Akun anonim dengan ajakan mendesak untuk segera menyebarkan","Menyertakan data pendukung","Ditulis oleh jurnalis resmi"], correct:1,
+   explain:"Akun anonim yang mendesak agar informasi segera disebarkan adalah tanda klasik informasi yang patut dicurigai."},
+  {q:"Sikap paling bijak saat menerima pesan berantai yang mendesak untuk segera disebarkan adalah...",
+   opts:["Langsung menyebarkannya ke banyak grup","Memeriksa kebenarannya dulu sebelum bertindak","Mengabaikannya tanpa berpikir","Menambahkan komentar tanpa memeriksa faktanya"], correct:1,
+   explain:"Memeriksa kebenaran sebelum bertindak mencegah penyebaran informasi keliru dan kepanikan yang tidak perlu."}
 ];
-let quizAnswers = new Array(quizData.length).fill(null);
+let quizAnswers = new Array(QUIZ.length).fill(null);
+let quizIndex = 0;
+
 function renderQuiz(){
   const area = document.getElementById('quizArea');
-  let html = '<div style="display:flex;flex-direction:column;gap:16px;">';
-  quizData.forEach((q, i) => {
-    html += '<div class="card tight quiz-q" data-qidx="'+i+'">';
-    html += '<p style="font-weight:600;margin-bottom:10px;">'+(i+1)+'. '+q.q+'</p>';
-    html += '<div class="choice-grid">';
-    q.opts.forEach((opt, oi) => {
-      html += '<button class="choice" data-oidx="'+oi+'" onclick="answerQuiz('+i+','+oi+')">'+opt+'</button>';
+  const allAnswered = quizAnswers.every(a => a !== null);
+  if(allAnswered){
+    const score = quizAnswers.reduce((s,a,i)=> s + (a === QUIZ[i].correct ? 1 : 0), 0);
+    area.innerHTML = `
+      <div class="quiz-score">
+        <div style="font-family:var(--font-mono);color:var(--text-muted);margin-bottom:6px;">Skor Akhir</div>
+        <div class="num">${score}</div>
+        <div class="of">dari ${QUIZ.length} soal</div>
+      </div>
+      <div class="btn-row" style="justify-content:center;"><button class="btn btn-primary" id="retryQuiz">↺ Ulangi Kuis</button></div>
+    `;
+    document.getElementById('retryQuiz').addEventListener('click', ()=>{
+      quizAnswers = new Array(QUIZ.length).fill(null);
+      quizIndex = 0;
+      renderQuiz();
     });
-    html += '</div><div class="feedback-box quiz-fb" id="quizFb'+i+'"></div></div>';
+    return;
+  }
+  if(quizAnswers[quizIndex] !== null){
+    const next = quizAnswers.findIndex(a=>a===null);
+    quizIndex = next === -1 ? quizIndex : next;
+  }
+  const item = QUIZ[quizIndex];
+  const dots = QUIZ.map((_,i)=>`<div class="quiz-dot ${quizAnswers[i]!==null?'answered':''} ${i===quizIndex?'current':''}"></div>`).join('');
+  area.innerHTML = `
+    <div class="quiz-progress">${dots}</div>
+    <div class="card">
+      <span class="tag">Soal ${quizIndex+1} / ${QUIZ.length}</span>
+      <p style="margin:12px 0 14px;color:var(--text);font-size:16px;">${item.q}</p>
+      <div id="quizOpts"></div>
+      <div class="explain-box" id="quizExplain">${item.explain}</div>
+      <div class="btn-row" id="quizNavRow" style="display:none;">
+        <button class="btn" id="quizPrev">‹ Soal sebelumnya</button>
+        <button class="btn btn-primary" id="quizNext">Soal berikutnya ›</button>
+      </div>
+    </div>
+  `;
+  const optWrap = document.getElementById('quizOpts');
+  item.opts.forEach((opt,i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt-btn';
+    b.textContent = opt;
+    b.addEventListener('click', ()=>{
+      quizAnswers[quizIndex] = i;
+      optWrap.querySelectorAll('.opt-btn').forEach((x,xi)=>{
+        x.disabled = true;
+        if(xi === item.correct) x.classList.add('correct');
+        else if(xi === i) x.classList.add('wrong');
+      });
+      document.getElementById('quizExplain').classList.add('show');
+      document.getElementById('quizNavRow').style.display = 'flex';
+      document.querySelector('#quizArea .quiz-dot.current')?.classList.add('answered');
+    });
+    optWrap.appendChild(b);
   });
-  html += '</div>';
-  html += '<div style="margin-top:18px;display:flex;gap:12px;align-items:center;"><button class="btn" onclick="submitQuiz()">Selesai &amp; Lihat Skor</button></div>';
-  html += '<div class="card" id="quizResult" style="display:none;margin-top:18px;text-align:center;">';
-  html += '<p class="small-note">SKOR KAMU</p><div class="badge-score" id="scoreDisplay">0/0</div>';
-  html += '<p class="lead" id="scoreMsg" style="margin-top:8px;"></p>';
-  html += '<button class="btn ghost" style="margin-top:14px;" onclick="resetQuiz()">↺ Ulangi Kuis</button></div>';
-  area.innerHTML = html;
-}
-function answerQuiz(qi, oi){
-  quizAnswers[qi] = oi;
-  const qBox = document.querySelector('.quiz-q[data-qidx="'+qi+'"]');
-  const btns = qBox.querySelectorAll('.choice');
-  btns.forEach(b => b.classList.add('disabled'));
-  const correctIdx = quizData[qi].correct;
-  btns[oi].classList.add(oi === correctIdx ? 'correct' : 'wrong');
-  if(oi !== correctIdx) btns[correctIdx].classList.add('correct');
-  const fb = document.getElementById('quizFb'+qi);
-  fb.classList.add('show', oi === correctIdx ? 'good' : 'bad');
-  fb.textContent = (oi === correctIdx ? '✓ Benar. ' : '✗ Kurang tepat. ') + quizData[qi].exp;
-}
-function submitQuiz(){
-  let score = 0;
-  quizData.forEach((q, i) => { if(quizAnswers[i] === q.correct) score++; });
-  document.getElementById('quizResult').style.display = 'block';
-  document.getElementById('scoreDisplay').textContent = score + '/' + quizData.length;
-  const pct = score / quizData.length;
-  let msg = pct===1 ? 'Sempurna! Kamu benar-benar menguasai materi diagram garis.' : (pct>=0.7 ? 'Bagus! Pemahamanmu sudah cukup kuat, coba tinjau lagi soal yang salah.' : 'Terus berlatih ya — buka kembali slide konsep sebelum mengulang kuis.');
-  document.getElementById('scoreMsg').textContent = msg;
-  document.getElementById('quizResult').scrollIntoView({behavior:'smooth', block:'nearest'});
-}
-function resetQuiz(){
-  quizAnswers = new Array(quizData.length).fill(null);
-  renderQuiz();
+  setTimeout(()=>{
+    const prevBtn2 = document.getElementById('quizPrev');
+    const nextBtn2 = document.getElementById('quizNext');
+    if(prevBtn2) prevBtn2.addEventListener('click', ()=>{ quizIndex = Math.max(0, quizIndex-1); renderQuiz(); });
+    if(nextBtn2) nextBtn2.addEventListener('click', ()=>{
+      quizIndex = quizIndex+1 < QUIZ.length ? quizIndex+1 : quizIndex;
+      renderQuiz();
+    });
+  },0);
 }
 renderQuiz();
 </script>

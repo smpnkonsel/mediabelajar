@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritma Perulangan dengan Jumlah Tertentu - Bab 8.3</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --dark-border: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 20px;
+            border: 1px solid var(--dark-border);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px 30px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border-bottom: 1px solid var(--dark-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-indicator {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: var(--dark-border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .description {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .card-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--primary-light);
+        }
+
+        .list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .list li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #a1d8ff;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .button.secondary {
+            background: var(--dark-card);
+            border: 1px solid var(--primary);
+            color: var(--primary-light);
+        }
+
+        .button.secondary:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .interactive-section {
+            background: rgba(99, 102, 241, 0.05);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-light);
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 15px;
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .output-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--dark-border);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            min-height: 80px;
+            color: #10b981;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary-light);
+            border: 1px solid var(--dark-border);
+        }
+
+        .table td {
+            padding: 12px;
+            border: 1px solid var(--dark-border);
+            color: var(--text-secondary);
+        }
+
+        .trace-table {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+        }
+
+        .trace-table td {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .trace-table tr.active td {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary-light);
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .quiz-question {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quiz-question h4 {
+            font-family: 'Fredoka', sans-serif;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            padding: 12px 15px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 2px solid var(--dark-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .result-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--success);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: #10b981;
+            margin-top: 20px;
+        }
+
+        .result-box.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error);
+            color: var(--error);
+        }
+
+        .footer {
+            padding: 20px 30px;
+            border-top: 1px solid var(--dark-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .comparison-card h4 {
+            font-family: 'Fredoka', sans-serif;
+            margin-bottom: 10px;
+            color: var(--primary-light);
+        }
+
+        .comparison-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: var(--dark-card);
+            border: 2px solid var(--dark-border);
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: var(--primary);
+        }
+
+        .step.active {
+            background: var(--gradient-1);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .step.completed {
+            background: var(--gradient-3);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .accordion {
+            margin-bottom: 15px;
+        }
+
+        .accordion-header {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid var(--dark-border);
+        }
+
+        .accordion-header:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+        }
+
+        .accordion-header.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+        }
+
+        .accordion-content {
+            display: none;
+            background: var(--dark-card);
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid var(--dark-border);
+            border-top: none;
+            margin-bottom: 10px;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .scroll-info {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .quiz-score {
+            text-align: center;
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .quiz-score .score-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 20px 0;
+        }
+
+        .visualization {
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .box {
+            display: inline-block;
+            padding: 10px 15px;
+            background: var(--dark-card);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            margin: 5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .arrow {
+            display: inline-block;
+            margin: 0 10px;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .content {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                margin: 20px;
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <div class="header-title">Bab 8.3 — Perulangan dengan Jumlah Tertentu</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 5px;">Algoritma Perulangan Terhitung</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <div class="slide-indicator"><span id="current-slide">1</span> / <span id="total-slides">20</span></div>
+            </div>
+        </div>
+
+        <div class="content" id="slides-container">
+            <!-- Slide 1: Judul -->
+            <div class="slide active">
+                <h1>Perulangan dengan Jumlah Tertentu</h1>
+                <p class="subtitle">Memahami Algoritma Perulangan Terhitung dan Penerapannya</p>
+                <div style="margin-top: 50px;">
+                    <p class="description">Bab 8.3 — Menentukan Jumlah Pengulangan dan Membuat Algoritma dengan Perulangan Terhitung</p>
+                    <div class="card" style="margin-top: 30px; background: rgba(99, 102, 241, 0.05); border: 2px solid var(--primary);">
+                        <p style="color: var(--text-secondary); line-height: 1.8;">
+                            Mari kita pelajari bagaimana membuat program yang dapat melakukan suatu tindakan berulang kali dengan jumlah tertentu yang sudah diketahui sebelumnya.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Apersepsi -->
+            <div class="slide">
+                <h2>Apersepsi: Perulangan dalam Kehidupan Sehari-hari</h2>
+                <p class="description">Perulangan adalah hal yang sering kita lakukan tanpa disadari.</p>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-card">
+                        <h4>📚 Membaca Buku</h4>
+                        <p>Membaca 10 halaman berturut-turut. Setiap halaman kita baca satu persatu sampai selesai 10 halaman.</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>⏃ Bermain Game</h4>
+                        <p>Mengulangi lompat sebanyak 5 kali di level tertentu untuk mengumpulkan poin maksimal.</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>🎯 Latihan Olahraga</h4>
+                        <p>Melakukan push-up sebanyak 20 kali. Menghitung dari 1 sampai 20, satu gerakan per hitungan.</p>
+                    </div>
+                    <div class="comparison-card">
+                        <h4>🏪 Belanja Barang</h4>
+                        <p>Mengisi keranjang dengan 3 jenis barang masing-masing 4 buah. Total ada 12 barang.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Kesamaan dalam Semua Contoh Ini:</p>
+                    <ul class="list">
+                        <li><strong>Tindakan yang sama</strong> diulang berkali-kali</li>
+                        <li><strong>Jumlah pengulangan sudah diketahui</strong> sebelum memulai</li>
+                        <li>Proses berakhir setelah mencapai <strong>jumlah tertentu</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 3: Tujuan Pembelajaran -->
+            <div class="slide">
+                <h2>🎯 Tujuan Pembelajaran</h2>
+                <p class="description">Setelah mempelajari materi ini, kalian akan dapat:</p>
+                
+                <div class="card">
+                    <ul class="list">
+                        <li><strong>Memahami konsep</strong> perulangan dengan jumlah tertentu (deterministic loop)</li>
+                        <li><strong>Membedakan</strong> antara perulangan terhitung dan tidak terhitung</li>
+                        <li><strong>Mengenal struktur</strong> dari berbagai jenis loop terhitung</li>
+                        <li><strong>Membaca dan menginterpretasi</strong> algoritma dengan perulangan terhitung</li>
+                        <li><strong>Membuat sendiri</strong> algoritma menggunakan perulangan terhitung</li>
+                        <li><strong>Menerapkan</strong> perulangan terhitung dalam pemecahan masalah nyata</li>
+                        <li><strong>Menggunakan</strong> loop bersarang untuk masalah yang lebih kompleks</li>
+                        <li><strong>Menganalisis</strong> efisiensi dan efektivitas penggunaan perulangan</li>
+                    </ul>
+                </div>
+
+                <div class="interactive-section">
+                    <p style="font-size: 14px; color: var(--text-secondary);">
+                        💡 <strong>Tip:</strong> Materi ini akan disajikan secara bertahap dengan banyak contoh interaktif. Jangan terburu-buru, pahami setiap konsep dengan baik!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Slide 4: Konsep Dasar -->
+            <div class="slide">
+                <h2>Konsep Dasar: Apa itu Perulangan Terhitung?</h2>
+                
+                <div class="card">
+                    <p class="card-title">Definisi</p>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        <strong>Perulangan terhitung</strong> adalah perulangan yang <strong>jumlah perulangannya sudah ditentukan sebelumnya</strong>. Kami tahu dengan pasti berapa kali suatu blok kode akan dieksekusi sebelum loop dimulai.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Istilah Penting</p>
+                    <ul class="list">
+                        <li><strong>Loop Counter / Iterator:</strong> Variabel yang menghitung berapa kali perulangan terjadi</li>
+                        <li><strong>Kondisi Awal:</strong> Nilai awal loop counter sebelum perulangan dimulai</li>
+                        <li><strong>Kondisi Akhir:</strong> Nilai yang harus dicapai untuk menghentikan perulangan</li>
+                        <li><strong>Kenaikan/Penurunan:</strong> Berapa banyak counter berubah setiap iterasi</li>
+                        <li><strong>Iterasi:</strong> Satu kali menjalankan blok kode dalam perulangan</li>
+                        <li><strong>Body Loop:</strong> Blok kode yang diulang</li>
+                    </ul>
+                </div>
+
+                <div class="visualization">
+                    <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;">Alur Eksekusi Perulangan Terhitung</p>
+                    <div style="display: flex; justify-content: center; align-items: center; flex-wrap: wrap;">
+                        <div class="box">Inisialisasi<br>(i = 1)</div>
+                        <div class="arrow">→</div>
+                        <div class="box">Cek Kondisi<br>(i ≤ 5?)</div>
+                        <div class="arrow">→</div>
+                        <div class="box">Eksekusi<br>Badan Loop</div>
+                        <div class="arrow">→</div>
+                        <div class="box">Update Counter<br>(i++)</div>
+                        <div class="arrow" style="transform: rotate(180deg); display: block; width: 100%; text-align: center; margin: 10px 0;">↻</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5: Perbedaan dengan Perulangan Tak Terhitung -->
+            <div class="slide">
+                <h2>Perbedaan: Perulangan Terhitung vs Tak Terhitung</h2>
+                
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Aspek</th>
+                            <th>Perulangan Terhitung</th>
+                            <th>Perulangan Tak Terhitung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Jumlah Iterasi</strong></td>
+                            <td>✓ Diketahui sebelumnya</td>
+                            <td>✗ Tidak diketahui sebelumnya</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Counter</strong></td>
+                            <td>✓ Ada counter yang jelas</td>
+                            <td>✗ Tidak ada counter eksplisit</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kondisi Berhenti</strong></td>
+                            <td>Counter mencapai nilai target</td>
+                            <td>Kondisi khusus terpenuhi</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tipe Loop</strong></td>
+                            <td>For loop, loop dengan hitung</td>
+                            <td>While loop, do-while loop</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Contoh Penggunaan</strong></td>
+                            <td>Tampilkan 10 baris output</td>
+                            <td>Minta input sampai user ketik 'selesai'</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="card">
+                    <p class="card-title">Kapan Menggunakan Perulangan Terhitung?</p>
+                    <ul class="list">
+                        <li>Ketika kita <strong>tahu pasti berapa kali</strong> harus mengulang</li>
+                        <li>Ketika perulangan bergantung pada <strong>nilai numerik yang pasti</strong></li>
+                        <li>Untuk <strong>memproses elemen dalam array atau list</strong> dengan jumlah elemen yang diketahui</li>
+                        <li>Untuk <strong>operasi teratur</strong> seperti pencetakan pola atau tabel</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 6: Struktur Loop For -->
+            <div class="slide">
+                <h2>Struktur Loop For (Perulangan Terhitung)</h2>
+                
+                <div class="card">
+                    <p class="card-title">Sintaks Umum (Pseudocode)</p>
+                    <div class="code-block">UNTUK i = 1 SAMPAI 10 DENGAN KENAIKAN 1
+    (Lakukan sesuatu dengan i)
+AKHIR UNTUK</div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Komponen Loop For</p>
+                    <div class="code-block">FOR (inisialisasi; kondisi; kenaikan)
+    badan_loop
+END FOR</div>
+                    
+                    <ul class="list" style="margin-top: 15px;">
+                        <li><strong>Inisialisasi (i = 1):</strong> Memberikan nilai awal ke variabel counter</li>
+                        <li><strong>Kondisi (i ≤ 10):</strong> Mengecek apakah counter masih memenuhi syarat untuk melanjutkan</li>
+                        <li><strong>Kenaikan (i++):</strong> Mengubah nilai counter setelah setiap iterasi</li>
+                        <li><strong>Badan Loop:</strong> Blok kode yang akan diulang</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Visualisasi Bagian-Bagian FOR</p>
+                    <div style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #a1d8ff;">
+                        <span style="color: #10b981;">FOR</span> (
+                        <span style="background: rgba(99,102,241,0.3); padding: 2px 6px; border-radius: 4px;">i = 1</span>;
+                        <span style="background: rgba(139,92,246,0.3); padding: 2px 6px; border-radius: 4px;">i ≤ 10</span>;
+                        <span style="background: rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 4px;">i++</span>)
+                        <br><span style="margin-left: 20px; color: #cbd5e1;">badan_loop</span><br>
+                        <span style="color: #10b981;">END FOR</span>
+                    </div>
+                    <div style="margin-top: 12px; font-size: 14px; color: var(--text-muted);">
+                        <div><span style="display: inline-block; width: 80px; background: rgba(99,102,241,0.3); padding: 2px 6px; border-radius: 4px; margin-bottom: 5px;">Inisialisasi</span> - Nilai awal</div>
+                        <div><span style="display: inline-block; width: 80px; background: rgba(139,92,246,0.3); padding: 2px 6px; border-radius: 4px; margin-bottom: 5px;">Kondisi</span> - Syarat melanjutkan</div>
+                        <div><span style="display: inline-block; width: 80px; background: rgba(245,158,11,0.3); padding: 2px 6px; border-radius: 4px;">Update</span> - Perubahan counter</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 7: Contoh Sederhana -->
+            <div class="slide">
+                <h2>Contoh 1: Loop Sederhana (Menampilkan Angka 1-5)</h2>
+                
+                <div class="card">
+                    <p class="card-title">Algoritma</p>
+                    <div class="code-block">UNTUK i = 1 SAMPAI 5 DENGAN KENAIKAN 1
+    TULISKAN i
+AKHIR UNTUK</div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Penjelasan Langkah Demi Langkah</p>
+                    <ul class="list">
+                        <li><strong>Iterasi 1:</strong> i = 1, outputkan 1, kemudian i bertambah menjadi 2</li>
+                        <li><strong>Iterasi 2:</strong> i = 2, outputkan 2, kemudian i bertambah menjadi 3</li>
+                        <li><strong>Iterasi 3:</strong> i = 3, outputkan 3, kemudian i bertambah menjadi 4</li>
+                        <li><strong>Iterasi 4:</strong> i = 4, outputkan 4, kemudian i bertambah menjadi 5</li>
+                        <li><strong>Iterasi 5:</strong> i = 5, outputkan 5, kemudian i bertambah menjadi 6</li>
+                        <li><strong>Pengecekan:</strong> i = 6, kondisi i ≤ 5 tidak terpenuhi → Loop berhenti</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Output</p>
+                    <div class="output-box">1
+2
+3
+4
+5</div>
+                </div>
+
+                <div class="interactive-section">
+                    <p><strong>Pertanyaan Refleksi:</strong> Berapa kali loop dijalankan? <span class="badge">Jawaban: 5 kali</span></p>
+                </div>
+            </div>
+
+            <!-- Slide 8: Trace Execution Table -->
+            <div class="slide">
+                <h2>Trace Execution: Melacak Perubahan Nilai</h2>
+                <p class="description">Mari kita lacak bagaimana nilai berubah di setiap iterasi</p>
+                
+                <div class="card">
+                    <p class="card-title">Tabel Trace untuk: UNTUK i = 1 SAMPAI 5</p>
+                    <div style="overflow-x: auto;">
+                        <table class="table trace-table">
+                            <thead>
+                                <tr>
+                                    <th>Iterasi</th>
+                                    <th>Nilai i</th>
+                                    <th>Kondisi (i ≤ 5)?</th>
+                                    <th>Eksekusi Loop?</th>
+                                    <th>Output</th>
+                                    <th>i++ (Kenaikan)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>1</td>
+                                    <td>True (1 ≤ 5)</td>
+                                    <td>✓ Ya</td>
+                                    <td>1</td>
+                                    <td>i = 2</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>2</td>
+                                    <td>True (2 ≤ 5)</td>
+                                    <td>✓ Ya</td>
+                                    <td>2</td>
+                                    <td>i = 3</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>3</td>
+                                    <td>True (3 ≤ 5)</td>
+                                    <td>✓ Ya</td>
+                                    <td>3</td>
+                                    <td>i = 4</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>4</td>
+                                    <td>True (4 ≤ 5)</td>
+                                    <td>✓ Ya</td>
+                                    <td>4</td>
+                                    <td>i = 5</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>5</td>
+                                    <td>True (5 ≤ 5)</td>
+                                    <td>✓ Ya</td>
+                                    <td>5</td>
+                                    <td>i = 6</td>
+                                </tr>
+                                <tr>
+                                    <td>-</td>
+                                    <td>6</td>
+                                    <td>False (6 > 5)</td>
+                                    <td>✗ Tidak</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Pembelajaran Penting</p>
+                    <ul class="list">
+                        <li>Loop akan terus berjalan <strong>selama kondisi bernilai TRUE</strong></li>
+                        <li>Ketika kondisi menjadi <strong>FALSE</strong>, loop akan berhenti <strong>tanpa mengeksekusi badan loop</strong></li>
+                        <li>Jumlah iterasi = 5 (dari i=1 sampai i=5)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 9: Parameter Loop -->
+            <div class="slide">
+                <h2>Variasi Parameter: Awal, Akhir, dan Kenaikan</h2>
+                
+                <div class="card">
+                    <p class="card-title">Parameter 1: Nilai Awal (Start)</p>
+                    <ul class="list">
+                        <li>Loop dapat dimulai dari nilai <strong>apa pun</strong>, tidak harus 1</li>
+                        <li>Contoh: UNTUK i = 5 SAMPAI 10</li>
+                        <li>Loop akan dijalankan 6 kali (5, 6, 7, 8, 9, 10)</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Parameter 2: Nilai Akhir (End)</p>
+                    <ul class="list">
+                        <li>Nilai akhir menentukan <strong>kapan loop berhenti</strong></li>
+                        <li>Menggunakan ≤ (kurang dari atau sama dengan) atau < (kurang dari)</li>
+                        <li>UNTUK i = 1 SAMPAI 5 berarti loop berakhir ketika i = 5</li>
+                        <li>UNTUK i = 1 SAMPAI < 5 berarti loop berakhir sebelum i = 5</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Parameter 3: Kenaikan (Step)</p>
+                    <ul class="list">
+                        <li>Kenaikan bisa 1 (i++), 2 (i += 2), atau nilai lainnya</li>
+                        <li>Kenaikan juga bisa <strong>negatif</strong> untuk menghitung menurun</li>
+                        <li>UNTUK i = 10 SAMPAI 1 DENGAN KENAIKAN -1</li>
+                        <li>Loop akan menampilkan: 10, 9, 8, 7, 6, 5, 4, 3, 2, 1</li>
+                    </ul>
+                </div>
+
+                <div class="visualization">
+                    <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 14px;">Bagaimana Jumlah Iterasi Dihitung?</p>
+                    <div class="code-block">Jumlah Iterasi = (Nilai Akhir - Nilai Awal) / Kenaikan + 1
+
+Contoh 1: UNTUK i = 1 SAMPAI 10 DENGAN +1
+Jumlah = (10 - 1) / 1 + 1 = 10 iterasi
+
+Contoh 2: UNTUK i = 1 SAMPAI 10 DENGAN +2
+Jumlah = (10 - 1) / 2 + 1 = 5 iterasi
+(i = 1, 3, 5, 7, 9)</div>
+                </div>
+            </div>
+
+            <!-- Slide 10: Contoh dengan Parameter Berbeda -->
+            <div class="slide">
+                <h2>Contoh 2: Berbagai Variasi Parameter</h2>
+                
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        ▸ Contoh A: Loop Menurun (10 sampai 1)
+                    </div>
+                    <div class="accordion-content">
+                        <div class="card">
+                            <p class="card-title">Algoritma</p>
+                            <div class="code-block">UNTUK i = 10 SAMPAI 1 DENGAN KENAIKAN -1
+    TULISKAN i
+AKHIR UNTUK</div>
+                        </div>
+                        <div class="card">
+                            <p class="card-title">Output</p>
+                            <div class="output-box">10
+9
+8
+7
+6
+5
+4
+3
+2
+1</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        ▸ Contoh B: Kenaikan dengan Lompatan (0, 2, 4, 6, 8, 10)
+                    </div>
+                    <div class="accordion-content">
+                        <div class="card">
+                            <p class="card-title">Algoritma</p>
+                            <div class="code-block">UNTUK i = 0 SAMPAI 10 DENGAN KENAIKAN 2
+    TULISKAN i
+AKHIR UNTUK</div>
+                        </div>
+                        <div class="card">
+                            <p class="card-title">Output</p>
+                            <div class="output-box">0
+2
+4
+6
+8
+10</div>
+                        </div>
+                        <div class="card">
+                            <p class="card-title">Penjelasan</p>
+                            <p style="color: var(--text-secondary);">Setiap iterasi, i ditambah 2. Mulai dari 0: 0 → 2 → 4 → 6 → 8 → 10. Total 6 iterasi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        ▸ Contoh C: Kenaikan Besar (1, 6, 11, 16, 21)
+                    </div>
+                    <div class="accordion-content">
+                        <div class="card">
+                            <p class="card-title">Algoritma</p>
+                            <div class="code-block">UNTUK i = 1 SAMPAI 25 DENGAN KENAIKAN 5
+    TULISKAN i
+AKHIR UNTUK</div>
+                        </div>
+                        <div class="card">
+                            <p class="card-title">Output</p>
+                            <div class="output-box">1
+6
+11
+16
+21</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11: Loop Bersarang -->
+            <div class="slide">
+                <h2>Loop Bersarang (Nested Loop)</h2>
+                <p class="description">Menggabungkan dua atau lebih loop dalam satu algoritma</p>
+                
+                <div class="card">
+                    <p class="card-title">Konsep Nested Loop</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; line-height: 1.8;">
+                        Nested loop adalah ketika satu loop berada <strong>di dalam loop lainnya</strong>. Loop dalam akan dijalankan <strong>berkali-kali untuk setiap iterasi loop luar</strong>.
+                    </p>
+                    <div class="code-block">UNTUK i = 1 SAMPAI 3
+    TULISKAN "Baris " + i
+    UNTUK j = 1 SAMPAI 2
+        TULISKAN "  - Item " + j
+    AKHIR UNTUK
+AKHIR UNTUK</div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Penghitungan Total Iterasi</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">
+                        Total iterasi = (Iterasi Loop Luar) × (Iterasi Loop Dalam)
+                    </p>
+                    <p style="color: var(--text-secondary);">
+                        Pada contoh di atas: 3 × 2 = <strong>6 iterasi</strong> loop dalam
+                    </p>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Output Nested Loop di Atas</p>
+                    <div class="output-box">Baris 1
+  - Item 1
+  - Item 2
+Baris 2
+  - Item 1
+  - Item 2
+Baris 3
+  - Item 1
+  - Item 2</div>
+                </div>
+
+                <div class="interactive-section">
+                    <p style="font-size: 14px; color: var(--text-secondary);">
+                        💡 <strong>Insight:</strong> Loop dalam (j) dijalankan 2 kali untuk setiap nilai i. Karena i = 1, 2, 3 (3 kali), maka loop dalam dijalankan total 3 × 2 = 6 kali.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Slide 12: Contoh Nested Loop -->
+            <div class="slide">
+                <h2>Contoh 3: Nested Loop - Tabel Perkalian</h2>
+                
+                <div class="card">
+                    <p class="card-title">Soal</p>
+                    <p style="color: var(--text-secondary);">Buat algoritma untuk menampilkan tabel perkalian 1×1 sampai 3×3</p>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Algoritma</p>
+                    <div class="code-block">UNTUK i = 1 SAMPAI 3
+    UNTUK j = 1 SAMPAI 3
+        TULISKAN i + " × " + j + " = " + (i * j)
+    AKHIR UNTUK
+    TULISKAN "" (baris kosong)
+AKHIR UNTUK</div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Output</p>
+                    <div class="output-box">1 × 1 = 1
+1 × 2 = 2
+1 × 3 = 3
+
+2 × 1 = 2
+2 × 2 = 4
+2 × 3 = 6
+
+3 × 1 = 3
+3 × 2 = 6
+3 × 3 = 9</div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Trace Eksekusi Singkat</p>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>i (Loop Luar)</th>
+                                <th>j (Loop Dalam)</th>
+                                <th>Output</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td rowspan="3">1</td>
+                                <td>1</td>
+                                <td>1 × 1 = 1</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>1 × 2 = 2</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>1 × 3 = 3</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3">2</td>
+                                <td>1</td>
+                                <td>2 × 1 = 2</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>2 × 2 = 4</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>2 × 3 = 6</td>
+                            </tr>
+                            <tr>
+                                <td rowspan="3">3</td>
+                                <td>1</td>
+                                <td>3 × 1 = 3</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>3 × 2 = 6</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>3 × 3 = 9</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slide 13: Aktivitas Interaktif -->
+            <div class="slide">
+                <h2>🎯 Aktivitas Interaktif: Jalankan Loop Sendiri</h2>
+                <p class="description">Pahami loop dengan menjalankan dan melihat hasilnya secara real-time</p>
+                
+                <div class="interactive-section">
+                    <p class="card-title">Aktivitas 1: Loop Sederhana yang Dapat Disesuaikan</p>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Ubah nilai mulai, akhir, dan kenaikan untuk melihat bagaimana output berubah.</p>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Nilai Mulai (Start):</label>
+                        <input type="number" id="loop-start" class="input-field" value="1" min="0" max="100">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Nilai Akhir (End):</label>
+                        <input type="number" id="loop-end" class="input-field" value="10" min="0" max="100">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label class="input-label">Kenaikan (Step):</label>
+                        <input type="number" id="loop-step" class="input-field" value="1" min="-100" max="100">
+                    </div>
+                    
+                    <button class="button" onclick="runLoopSimulation()">▶ Jalankan Loop</button>
+                    
+                    <div style="margin-top: 20px;">
+                        <p style="font-size: 14px; color: var(--primary-light); margin-bottom: 10px;">📊 Hasil Simulasi:</p>
+                        <div class="output-box" id="loop-output">Klik "Jalankan Loop" untuk melihat hasilnya</div>
+                    </div>
+
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(99, 102, 241, 0.1); border-radius: 6px; font-size: 14px; color: var(--text-secondary);">
+                        <strong>Jumlah Iterasi:</strong> <span id="iteration-count">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 14: Visualisasi Step by Step -->
+            <div class="slide">
+                <h2>Visualisasi: Pelacakan Eksekusi Step-by-Step</h2>
+                
+                <div class="card">
+                    <p class="card-title">Loop: UNTUK i = 1 SAMPAI 5</p>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 10px;">Pilih iterasi untuk dilihat:</p>
+                        <div class="step-indicator">
+                            <div class="step active" onclick="showStepVisualization(0)">1</div>
+                            <div class="step" onclick="showStepVisualization(1)">2</div>
+                            <div class="step" onclick="showStepVisualization(2)">3</div>
+                            <div class="step" onclick="showStepVisualization(3)">4</div>
+                            <div class="step" onclick="showStepVisualization(4)">5</div>
+                        </div>
+                    </div>
+
+                    <div id="step-visualization">
+                        <div class="card" style="background: rgba(99, 102, 241, 0.1); border: 2px solid var(--primary); margin: 0;">
+                            <p style="color: var(--primary-light); font-weight: 600; margin-bottom: 10px;">Iterasi ke-1</p>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8;">
+                                <div>i = <span style="background: rgba(99, 102, 241, 0.3); padding: 2px 6px; border-radius: 4px;">1</span></div>
+                                <div>Kondisi: i ≤ 5? <span style="color: #10b981;">TRUE</span></div>
+                                <div>Output: <span style="color: #a1d8ff;">1</span></div>
+                                <div>Update: i++ → i = 2</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">🔍 Informasi Penting di Setiap Step</p>
+                    <ul class="list">
+                        <li><strong>Nilai Variabel:</strong> Nilai i saat ini</li>
+                        <li><strong>Pengecekan Kondisi:</strong> Apakah kondisi (i ≤ 5) masih TRUE?</li>
+                        <li><strong>Eksekusi:</strong> Apa yang dilakukan (output nilai i)</li>
+                        <li><strong>Update Counter:</strong> Bagaimana i berubah untuk iterasi berikutnya</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 15: Latihan Level 1 -->
+            <div class="slide">
+                <h2>📝 Latihan Level 1: Mudah</h2>
+                <p class="description">Kerjakan soal-soal latihan ini untuk menguji pemahaman dasar Anda</p>
+                
+                <div class="quiz-question">
+                    <h4>Soal 1: Pernyataan Benar atau Salah</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Dalam loop "UNTUK i = 5 SAMPAI 10", variabel i akan memiliki nilai 5, 6, 7, 8, 9, 10. Pernyataan ini:</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan1(0)">✓ Benar</div>
+                        <div class="quiz-option" onclick="selectLatihan1(1)">✗ Salah</div>
+                    </div>
+                    <div id="result1" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 2: Hitung Iterasi</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Berapa banyak kali badan loop dijalankan dalam: UNTUK i = 2 SAMPAI 8 DENGAN KENAIKAN 2?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan2(0)">A. 3 kali</div>
+                        <div class="quiz-option" onclick="selectLatihan2(1)">B. 4 kali</div>
+                        <div class="quiz-option" onclick="selectLatihan2(2)">C. 5 kali</div>
+                        <div class="quiz-option" onclick="selectLatihan2(3)">D. 6 kali</div>
+                    </div>
+                    <div id="result2" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 3: Output Loop Menurun</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Apa output dari: UNTUK i = 3 SAMPAI 1 DENGAN KENAIKAN -1?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan3(0)">A. 3, 2, 1</div>
+                        <div class="quiz-option" onclick="selectLatihan3(1)">B. 1, 2, 3</div>
+                        <div class="quiz-option" onclick="selectLatihan3(2)">C. 3, 1</div>
+                        <div class="quiz-option" onclick="selectLatihan3(3)">D. Tidak ada output</div>
+                    </div>
+                    <div id="result3" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Slide 16: Latihan Level 2 -->
+            <div class="slide">
+                <h2>📝 Latihan Level 2: Sedang</h2>
+                <p class="description">Soal-soal yang memerlukan analisis sedikit lebih dalam</p>
+                
+                <div class="quiz-question">
+                    <h4>Soal 1: Trace Execution</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Perhatikan algoritma berikut:</p>
+                    <div class="code-block" style="margin-bottom: 15px;">jumlah = 0
+UNTUK i = 1 SAMPAI 4
+    jumlah = jumlah + i
+AKHIR UNTUK
+TULISKAN jumlah</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Berapa nilai yang akan ditampilkan?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan4(0)">A. 4</div>
+                        <div class="quiz-option" onclick="selectLatihan4(1)">B. 7</div>
+                        <div class="quiz-option" onclick="selectLatihan4(2)">C. 10</div>
+                        <div class="quiz-option" onclick="selectLatihan4(3)">D. 15</div>
+                    </div>
+                    <div id="result4" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 2: Nested Loop</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Algoritma nested loop berikut akan menghasilkan berapa baris output?</p>
+                    <div class="code-block" style="margin-bottom: 15px;">UNTUK i = 1 SAMPAI 3
+    UNTUK j = 1 SAMPAI 2
+        TULISKAN "*"
+    AKHIR UNTUK
+AKHIR UNTUK</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Jika dalam setiap iterasi j ditampilkan satu "*"</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan5(0)">A. 3 baris</div>
+                        <div class="quiz-option" onclick="selectLatihan5(1)">B. 6 baris</div>
+                        <div class="quiz-option" onclick="selectLatihan5(2)">C. 2 baris</div>
+                        <div class="quiz-option" onclick="selectLatihan5(3)">D. 5 baris</div>
+                    </div>
+                    <div id="result5" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 3: Mengubah Parameter Loop</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Untuk menampilkan: 10, 8, 6, 4, 2, loop mana yang tepat?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan6(0)">A. UNTUK i = 10 SAMPAI 2 DENGAN -1</div>
+                        <div class="quiz-option" onclick="selectLatihan6(1)">B. UNTUK i = 10 SAMPAI 2 DENGAN -2</div>
+                        <div class="quiz-option" onclick="selectLatihan6(2)">C. UNTUK i = 2 SAMPAI 10 DENGAN +2</div>
+                        <div class="quiz-option" onclick="selectLatihan6(3)">D. UNTUK i = 10 SAMPAI 1 DENGAN -2</div>
+                    </div>
+                    <div id="result6" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Slide 17: Latihan Level 3 -->
+            <div class="slide">
+                <h2>📝 Latihan Level 3: Menantang</h2>
+                <p class="description">Soal analisis dan aplikasi konsep perulangan terhitung</p>
+                
+                <div class="quiz-question">
+                    <h4>Soal 1: Analisis dan Penjelasan</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Perhatikan dua loop ini:</p>
+                    <div class="code-block" style="margin-bottom: 15px;">Loop A:
+UNTUK i = 1 SAMPAI 100 DENGAN 1
+    TULISKAN i
+
+Loop B:
+UNTUK i = 1 SAMPAI 100 DENGAN 2
+    TULISKAN i</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Berapa rasio jumlah output Loop B terhadap Loop A?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan7(0)">A. 1:1 (sama banyak)</div>
+                        <div class="quiz-option" onclick="selectLatihan7(1)">B. 1:2 (B setengah dari A)</div>
+                        <div class="quiz-option" onclick="selectLatihan7(2)">C. 2:1 (B dua kali A)</div>
+                        <div class="quiz-option" onclick="selectLatihan7(3)">D. Tidak bisa ditentukan</div>
+                    </div>
+                    <div id="result7" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 2: Nested Loop Kompleks</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Algoritma ini menghasilkan berapa total output?</p>
+                    <div class="code-block" style="margin-bottom: 15px;">UNTUK i = 1 SAMPAI 5
+    UNTUK j = i SAMPAI 5
+        TULISKAN "*"
+    AKHIR UNTUK
+AKHIR UNTUK</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">(Catatan: j dimulai dari i, bukan dari 1)</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan8(0)">A. 5 output</div>
+                        <div class="quiz-option" onclick="selectLatihan8(1)">B. 10 output</div>
+                        <div class="quiz-option" onclick="selectLatihan8(2)">C. 15 output</div>
+                        <div class="quiz-option" onclick="selectLatihan8(3)">D. 25 output</div>
+                    </div>
+                    <div id="result8" style="display: none; margin-top: 15px;"></div>
+                </div>
+
+                <div class="quiz-question">
+                    <h4>Soal 3: Optimasi Program</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Untuk menampilkan deret fibonacci pertama 10 angka menggunakan loop terhitung, bagaimana Anda akan membuat loop outer-nya?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="selectLatihan9(0)">A. UNTUK i = 0 SAMPAI 9</div>
+                        <div class="quiz-option" onclick="selectLatihan9(1)">B. UNTUK i = 1 SAMPAI 10</div>
+                        <div class="quiz-option" onclick="selectLatihan9(2)">C. Keduanya benar</div>
+                        <div class="quiz-option" onclick="selectLatihan9(3)">D. Tidak bisa menggunakan loop terhitung</div>
+                    </div>
+                    <div id="result9" style="display: none; margin-top: 15px;"></div>
+                </div>
+            </div>
+
+            <!-- Slide 18: Kuis Interaktif -->
+            <div class="slide">
+                <h2>✅ Kuis Pemahaman Akhir</h2>
+                <p class="description">Uji pemahaman Anda tentang seluruh materi perulangan terhitung</p>
+                
+                <div id="quiz-container"></div>
+                
+                <div id="quiz-results" style="display: none; text-align: center; margin-top: 30px;">
+                    <div class="result-box">
+                        <p style="font-size: 14px; margin-bottom: 10px;">Skor Kamu:</p>
+                        <div class="quiz-score" style="margin: 0;">
+                            <div class="score-number" id="final-score">0</div>
+                            <p style="color: var(--text-secondary);">dari <span id="total-quiz-questions">10</span> soal</p>
+                            <p style="color: var(--text-secondary); margin-top: 10px; line-height: 1.8;" id="score-message"></p>
+                        </div>
+                        <button class="button" onclick="retakeQuiz()" style="margin-top: 20px;">🔄 Ulangi Kuis</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 19: Rangkuman -->
+            <div class="slide">
+                <h2>📋 Rangkuman Materi</h2>
+                
+                <div class="card">
+                    <p class="card-title">1. Konsep Perulangan Terhitung</p>
+                    <ul class="list">
+                        <li>Perulangan terhitung adalah loop dengan <strong>jumlah iterasi yang sudah diketahui</strong> sebelumnya</li>
+                        <li>Berbeda dengan perulangan tak terhitung yang didasarkan pada <strong>kondisi umum</strong></li>
+                        <li>Menggunakan variabel counter yang berubah secara <strong>teratur dan terukur</strong></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">2. Struktur FOR Loop</p>
+                    <ul class="list">
+                        <li><strong>Inisialisasi:</strong> Memberikan nilai awal ke counter</li>
+                        <li><strong>Kondisi:</strong> Menentukan kapan loop harus berhenti</li>
+                        <li><strong>Update/Increment:</strong> Mengubah nilai counter setelah setiap iterasi</li>
+                        <li><strong>Body Loop:</strong> Blok kode yang diulang</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">3. Variasi Parameter</p>
+                    <ul class="list">
+                        <li>Loop dapat dimulai dari <strong>nilai apa pun</strong> (tidak harus 1)</li>
+                        <li>Kenaikan dapat <strong>positif atau negatif</strong> untuk loop menurun</li>
+                        <li>Jumlah iterasi dihitung: <strong>(Akhir - Awal) / Kenaikan + 1</strong></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">4. Nested Loop</p>
+                    <ul class="list">
+                        <li>Loop dalam akan dijalankan <strong>berkali-kali untuk setiap iterasi loop luar</strong></li>
+                        <li>Total iterasi = <strong>Iterasi Luar × Iterasi Dalam</strong></li>
+                        <li>Sangat berguna untuk <strong>memproses data 2D</strong> seperti matriks atau tabel</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">5. Kapan Menggunakan Perulangan Terhitung</p>
+                    <ul class="list">
+                        <li>Ketika <strong>tahu pasti berapa kali</strong> harus mengulang</li>
+                        <li>Untuk <strong>memproses elemen array</strong> dengan jumlah pasti</li>
+                        <li>Untuk <strong>operasi teratur</strong> seperti pola, tabel, atau deret angka</li>
+                        <li>Lebih <strong>efisien dan aman</strong> dibanding perulangan tak terhitung untuk kasus ini</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Slide 20: Penutup -->
+            <div class="slide">
+                <h2>🎓 Kesimpulan dan Penutup</h2>
+                
+                <div class="card">
+                    <p class="card-title">Apa yang Telah Kita Pelajari?</p>
+                    <p style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 15px;">
+                        Dalam bab 8.3 ini, kita telah mempelajari bagaimana membuat dan memahami algoritma perulangan dengan jumlah pengulangan yang tertentu. Dari konsep dasar hingga nested loop, kita sudah mengeksplorasi berbagai aspek dan aplikasi perulangan terhitung.
+                    </p>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        Kemampuan untuk memahami dan membuat perulangan terhitung adalah fondasi penting dalam pemrograman, karena hampir semua program modern menggunakan konsep ini.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <p class="card-title">Langkah Selanjutnya</p>
+                    <ul class="list">
+                        <li><strong>Praktik:</strong> Coba buat algoritma sendiri menggunakan perulangan terhitung</li>
+                        <li><strong>Aplikasi Nyata:</strong> Cari masalah dalam kehidupan yang bisa diselesaikan dengan perulangan terhitung</li>
+                        <li><strong>Optimasi:</strong> Pelajari cara membuat loop yang efisien dan tidak memboros sumber daya</li>
+                        <li><strong>Kombinasi:</strong> Pelajari cara menggabungkan perulangan dengan struktur kontrol lain (if-else)</li>
+                        <li><strong>Bab Berikutnya:</strong> Lanjut ke perulangan tak terhitung untuk masalah yang lebih kompleks</li>
+                    </ul>
+                </div>
+
+                <div class="card" style="background: rgba(139, 92, 246, 0.1); border: 2px solid var(--secondary);">
+                    <p class="card-title">💪 Motivasi</p>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        Perulangan adalah kekuatan yang membuat program dapat bekerja secara otomatis dan efisien. Dengan menguasai konsep ini, Anda sudah membuka pintu menuju programming yang lebih canggih dan produktif!
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 40px;">
+                    <p style="color: var(--text-muted); font-size: 14px;">Selamat! Anda telah menyelesaikan pembelajaran Bab 8.3</p>
+                    <p style="color: var(--primary-light); font-size: 18px; font-weight: 600; margin-top: 10px;">🎉 Bagus Sekali! 🎉</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="nav-buttons">
+                <button class="button secondary" id="prev-btn" onclick="previousSlide()">← Sebelumnya</button>
+                <button class="button" id="next-btn" onclick="nextSlide()">Berikutnya →</button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+                Gunakan ← → pada keyboard atau klik tombol untuk navigasi
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 20;
+        const quizData = [
+            {
+                question: "Perulangan terhitung adalah perulangan yang jumlah perulangannya...",
+                options: ["Tidak diketahui sebelumnya", "Sudah ditentukan sebelumnya", "Bergantung pada input user", "Dihitung secara otomatis"],
+                answer: 1
+            },
+            {
+                question: "Dalam loop FOR, komponen apa yang menentukan kapan loop berhenti?",
+                options: ["Inisialisasi", "Kondisi", "Kenaikan", "Body loop"],
+                answer: 1
+            },
+            {
+                question: "Berapa jumlah iterasi untuk: UNTUK i = 1 SAMPAI 20 DENGAN +5?",
+                options: ["3 kali", "4 kali", "5 kali", "20 kali"],
+                answer: 1
+            },
+            {
+                question: "Apa output dari: UNTUK i = 5 SAMPAI 8 DENGAN +1?",
+                options: ["5, 6, 7, 8", "1, 2, 3, 4", "8, 7, 6, 5", "5, 6, 7"],
+                answer: 0
+            },
+            {
+                question: "Dalam nested loop UNTUK i=1 TO 3 UNTUK j=1 TO 4, berapa total iterasi loop dalam?",
+                options: ["3", "4", "7", "12"],
+                answer: 3
+            },
+            {
+                question: "Untuk membuat loop menurun dari 10 ke 1, kenaikan yang tepat adalah...",
+                options: ["+1", "+10", "-1", "-10"],
+                answer: 2
+            },
+            {
+                question: "Pernyataan mana yang benar tentang trace execution?",
+                options: ["Melacak semua nilai variabel di setiap iterasi", "Menjalankan loop berkali-kali", "Menghitung output akhir", "Mengoptimasi loop"],
+                answer: 0
+            },
+            {
+                question: "Jika ingin menampilkan bilangan genap dari 2 sampai 20, kenaikan yang digunakan adalah...",
+                options: ["+1", "+2", "+10", "-2"],
+                answer: 1
+            },
+            {
+                question: "Pada perulangan: UNTUK i = 1 SAMPAI 5, berapa kali kondisi dievaluasi TRUE termasuk yang terakhir kali FALSE?",
+                options: ["5 kali", "6 kali", "4 kali", "7 kali"],
+                answer: 1
+            },
+            {
+                question: "Perulangan terhitung paling cocok digunakan untuk...",
+                options: ["Input data tanpa batas", "Memproses array dengan ukuran tetap", "Menunggu user menekan tombol", "Operasi acak"],
+                answer: 1
+            }
+        ];
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (n > totalSlides) {
+                currentSlide = totalSlides;
+            } else if (n < 1) {
+                currentSlide = 1;
+            } else {
+                currentSlide = n;
+            }
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+
+            document.getElementById('current-slide').textContent = currentSlide;
+            const progress = (currentSlide / totalSlides) * 100;
+            document.querySelector('.progress-fill').style.width = progress + '%';
+
+            document.getElementById('prev-btn').disabled = currentSlide === 1;
+            document.getElementById('next-btn').disabled = currentSlide === totalSlides;
+
+            if (currentSlide === 18) {
+                loadQuiz();
+            }
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function runLoopSimulation() {
+            const start = parseInt(document.getElementById('loop-start').value) || 0;
+            const end = parseInt(document.getElementById('loop-end').value) || 0;
+            const step = parseInt(document.getElementById('loop-step').value) || 1;
+
+            let output = '';
+            let iterations = 0;
+
+            if (step === 0) {
+                output = '⚠️ Kenaikan tidak boleh 0! Loop akan berjalan selamanya.';
+            } else if ((step > 0 && start > end) || (step < 0 && start < end)) {
+                output = '⚠️ Loop tidak akan dijalankan karena kondisi awal sudah tidak memenuhi syarat.';
+            } else {
+                if (step > 0) {
+                    for (let i = start; i <= end; i += step) {
+                        output += i + '\n';
+                        iterations++;
+                    }
+                } else {
+                    for (let i = start; i >= end; i += step) {
+                        output += i + '\n';
+                        iterations++;
+                    }
+                }
+            }
+
+            document.getElementById('loop-output').textContent = output || '(tidak ada output)';
+            document.getElementById('iteration-count').textContent = iterations + ' iterasi';
+        }
+
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+
+        function showStepVisualization(step) {
+            const steps = [
+                { iterasi: 1, nilai: 1, kondisi: 'TRUE (1 ≤ 5)', output: '1', update: 'i = 2' },
+                { iterasi: 2, nilai: 2, kondisi: 'TRUE (2 ≤ 5)', output: '2', update: 'i = 3' },
+                { iterasi: 3, nilai: 3, kondisi: 'TRUE (3 ≤ 5)', output: '3', update: 'i = 4' },
+                { iterasi: 4, nilai: 4, kondisi: 'TRUE (4 ≤ 5)', output: '4', update: 'i = 5' },
+                { iterasi: 5, nilai: 5, kondisi: 'TRUE (5 ≤ 5)', output: '5', update: 'i = 6' }
+            ];
+
+            const stepData = steps[step];
+            document.getElementById('step-visualization').innerHTML = `
+                <div class="card" style="background: rgba(99, 102, 241, 0.1); border: 2px solid var(--primary); margin: 0;">
+                    <p style="color: var(--primary-light); font-weight: 600; margin-bottom: 10px;">Iterasi ke-${stepData.iterasi}</p>
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.8;">
+                        <div>i = <span style="background: rgba(99, 102, 241, 0.3); padding: 2px 6px; border-radius: 4px;">${stepData.nilai}</span></div>
+                        <div>Kondisi: i ≤ 5? <span style="color: #10b981;">${stepData.kondisi}</span></div>
+                        <div>Output: <span style="color: #a1d8ff;">${stepData.output}</span></div>
+                        <div>Update: i++ → ${stepData.update}</div>
+                    </div>
+                </div>
+            `;
+
+            document.querySelectorAll('.step').forEach((s, index) => {
+                s.classList.remove('active');
+                if (index === step) s.classList.add('active');
+            });
+        }
+
+        function selectLatihan1(answer) {
+            const correct = answer === 0;
+            const result = document.getElementById('result1');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Pernyataan tersebut benar. Loop akan dijalankan 6 kali dengan nilai 5, 6, 7, 8, 9, 10.</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Pernyataan benar. Loop dimulai dari 5 dan berakhir pada 10, jadi ada 6 iterasi.</div>';
+        }
+
+        function selectLatihan2(answer) {
+            const correct = answer === 1;
+            const result = document.getElementById('result2');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Dari 2 sampai 8 dengan kenaikan 2: 2, 4, 6, 8 = 4 kali iterasi. Formula: (8-2)/2 + 1 = 4</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Loop: 2 → 4 → 6 → 8. Itu 4 kali, bukan jawaban yang Anda pilih.</div>';
+        }
+
+        function selectLatihan3(answer) {
+            const correct = answer === 0;
+            const result = document.getElementById('result3');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Dengan kenaikan -1, loop menurun: 3 → 2 → 1. Output: 3, 2, 1</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Kenaikan negatif membuat loop menurun. Jadi output adalah: 3, 2, 1</div>';
+        }
+
+        function selectLatihan4(answer) {
+            const correct = answer === 2;
+            const result = document.getElementById('result4');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Trace: jumlah = 0 + 1 + 2 + 3 + 4 = 10</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Nilai yang ditampilkan adalah penjumlahan semua i dari 1 sampai 4. Hasilnya adalah 10.</div>';
+        }
+
+        function selectLatihan5(answer) {
+            const correct = answer === 0;
+            const result = document.getElementById('result5');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Loop luar dijalankan 3 kali, setiap kali ada 2 baris output dari loop dalam. Tapi karena j (loop dalam) dijalankan 2 kali per i, total asterisk adalah 6. Jika setiap "*" satu baris, maka 6 baris, bukan 3. Mari ulang: Setiap iterasi i, loop j berjalan 2x. Loop i berjalan 3x. Jika setiap "*" dicetak dalam satu baris (TULISKAN "*" terpisah), hasilnya 6 baris.</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Loop luar 3x, loop dalam 2x per luar = 3×2 = 6 output asterisk. Jika setiap asterisk satu baris = 6 baris.</div>';
+        }
+
+        function selectLatihan6(answer) {
+            const correct = answer === 1;
+            const result = document.getElementById('result6');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Dari 10 ke 2 dengan kenaikan -2: 10 → 8 → 6 → 4 → 2. Tepat sesuai yang diinginkan.</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Untuk menurun dari 10 ke 2 dengan langkah 2: UNTUK i = 10 SAMPAI 2 DENGAN -2</div>';
+        }
+
+        function selectLatihan7(answer) {
+            const correct = answer === 1;
+            const result = document.getElementById('result7');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Loop A: 100 iterasi (1,2,3,...,100). Loop B: 50 iterasi (1,3,5,...,99). Rasio B:A = 50:100 = 1:2</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Loop B dengan kenaikan 2 hanya setengah dari jumlah iterasi Loop A. Rasio adalah 1:2.</div>';
+        }
+
+        function selectLatihan8(answer) {
+            const correct = answer === 2;
+            const result = document.getElementById('result8');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Trace: i=1: j=1→5 (5 kali), i=2: j=2→5 (4 kali), i=3: j=3→5 (3 kali), i=4: j=4→5 (2 kali), i=5: j=5→5 (1 kali). Total: 5+4+3+2+1 = 15</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Karena j dimulai dari i (bukan 1), jumlahnya berkurang setiap iterasi. Total: 5+4+3+2+1 = 15</div>';
+        }
+
+        function selectLatihan9(answer) {
+            const correct = answer === 2;
+            const result = document.getElementById('result9');
+            result.style.display = 'block';
+            result.innerHTML = correct ? 
+                '<div class="result-box"><strong>✓ Benar!</strong> Keduanya benar untuk menghasilkan 10 angka fibonacci. A: dari indeks 0-9, B: dari indeks 1-10. Tergantung konvensi yang dipilih.</div>' :
+                '<div class="result-box error"><strong>✗ Salah</strong> Baik UNTUK i = 0 SAMPAI 9 maupun UNTUK i = 1 SAMPAI 10 bisa digunakan untuk 10 iterasi.</div>';
+        }
+
+        function loadQuiz() {
+            const container = document.getElementById('quiz-container');
+            if (container.innerHTML === '') {
+                let quizHTML = '';
+                quizData.forEach((q, index) => {
+                    quizHTML += `
+                        <div class="quiz-question">
+                            <h4>Soal ${index + 1}</h4>
+                            <p style="color: var(--text-secondary); margin-bottom: 15px;">${q.question}</p>
+                            <div class="quiz-options">
+                                ${q.options.map((opt, optIndex) => `
+                                    <div class="quiz-option" onclick="selectQuizOption(${index}, ${optIndex})">
+                                        ${String.fromCharCode(65 + optIndex)}. ${opt}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div id="quiz-result-${index}" style="display: none; margin-top: 15px;"></div>
+                        </div>
+                    `;
+                });
+                quizHTML += `<button class="button" onclick="submitQuiz()" style="margin-top: 20px; width: 100%;">📊 Lihat Hasil Kuis</button>`;
+                container.innerHTML = quizHTML;
+            }
+        }
+
+        const quizAnswers = {};
+
+        function selectQuizOption(questionIndex, optionIndex) {
+            const option = event.target;
+            const options = option.parentElement.querySelectorAll('.quiz-option');
+            options.forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            quizAnswers[questionIndex] = optionIndex;
+        }
+
+        function submitQuiz() {
+            let score = 0;
+            quizData.forEach((q, index) => {
+                if (quizAnswers[index] === q.answer) {
+                    score++;
+                    document.getElementById(`quiz-result-${index}`).style.display = 'none';
+                } else {
+                    document.getElementById(`quiz-result-${index}`).style.display = 'block';
+                    document.getElementById(`quiz-result-${index}`).innerHTML = `<div class="result-box error">Jawaban yang benar adalah: ${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}</div>`;
+                }
+            });
+
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('quiz-results').style.display = 'block';
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('total-quiz-questions').textContent = quizData.length;
+
+            let message = '';
+            const percentage = (score / quizData.length) * 100;
+            if (percentage === 100) {
+                message = '🌟 Sempurna! Anda menguasai semua konsep perulangan terhitung!';
+            } else if (percentage >= 80) {
+                message = '🎉 Sangat bagus! Pemahaman Anda sangat kuat.';
+            } else if (percentage >= 60) {
+                message = '👍 Bagus! Namun ada beberapa konsep yang perlu diulang.';
+            } else {
+                message = '📚 Sebaiknya pelajari kembali materi yang belum dipahami.';
+            }
+            document.getElementById('score-message').textContent = message;
+        }
+
+        function retakeQuiz() {
+            document.getElementById('quiz-results').style.display = 'none';
+            document.getElementById('quiz-container').innerHTML = '';
+            for (const key in quizAnswers) delete quizAnswers[key];
+            loadQuiz();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') previousSlide();
+            if (e.key === 'ArrowRight') nextSlide();
+        });
+
+        showSlide(1);
+    </script>
+</body>
+</html>

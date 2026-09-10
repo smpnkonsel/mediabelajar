@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KW LEARNING — Arena Matematika</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ==========================================================================
+         MODA SETUP: Pilih Bab/Materi, Waktu, dan Nama Tim (tampil sebelum arena)
+         ========================================================================== -->
+    <div class="setup-overlay" id="setupScreen">
+        <div class="setup-card">
+            <div class="setup-header">
+                <h1>ARENA <span class="highlight">MATEMATIKA</span> — SETUP PERMAINAN</h1>
+                <p>Atur materi, waktu, dan tim sebelum permainan dimulai</p>
+            </div>
+
+            <div class="setup-section">
+                <h3>📖 PILIH BAB / MATERI</h3>
+                <div class="chapter-grid" id="chapterGrid">
+                    <!-- Chapter cards di-generate oleh JS dari daftar CHAPTERS -->
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h3>⏱️ WAKTU PERMAINAN</h3>
+                <div class="setup-row">
+                    <div class="setup-field">
+                        <label for="setupTimeInput">Durasi (menit)</label>
+                        <input type="number" id="setupTimeInput" class="input-field" min="1" max="90" value="5">
+                        <div class="time-quick-picks" id="timeQuickPicks">
+                            <button type="button" class="time-chip" data-min="5">5 Menit</button>
+                            <button type="button" class="time-chip" data-min="10">10 Menit</button>
+                            <button type="button" class="time-chip" data-min="15">15 Menit</button>
+                            <button type="button" class="time-chip" data-min="20">20 Menit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h3>🏆 NAMA TIM</h3>
+                <div class="team-setup-list" id="teamSetupList">
+                    <!-- Baris input nama tim di-generate oleh JS -->
+                </div>
+                <button type="button" class="add-team-btn" id="addTeamBtn">+ TAMBAH TIM</button>
+            </div>
+
+            <div class="setup-error" id="setupError"></div>
+
+            <div class="setup-footer">
+                <button type="button" class="btn btn-primary btn-lg" id="startGameBtn">🚀 MULAI PERMAINAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         ARENA UTAMA
+         ========================================================================== -->
+    <div class="app-container hidden" id="appContainer">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 40 40" width="36" height="36" class="logo-svg">
+                        <polygon points="20,2 38,12 20,22 2,12" fill="#00f0ff" opacity="0.9"/>
+                        <polygon points="20,22 38,12 38,26 20,36 2,26 2,12" fill="#0088ff" opacity="0.6"/>
+                        <circle cx="34" cy="20" r="3" fill="#ff007f"/>
+                    </svg>
+                    <div class="brand-text">
+                        <span class="brand-kw">KW</span>
+                        <span class="brand-sub">LEARNING</span>
+                    </div>
+                </div>
+                <div class="brand-divider"></div>
+                <div class="brand-title">
+                    <h1>ARENA <span class="highlight">MATEMATIKA</span></h1>
+                    <p class="tagline">Bersama Belajar • Bersama Berkembang</p>
+                </div>
+            </div>
+
+            <div class="header-bab-card">
+                <div class="bab-icon" id="babIcon">📖</div>
+                <div class="bab-info">
+                    <span class="bab-title" id="babTitle">Bab</span>
+                    <span class="bab-subtitle" id="babSubtitle">Kuis Interaktif SMP</span>
+                </div>
+            </div>
+
+            <div class="header-timer">
+                <div class="timer-icon">⏱️</div>
+                <div class="timer-display" id="timerDisplay">05:00</div>
+            </div>
+
+            <div class="header-controls">
+                <div class="header-mode-badge">
+                    <span class="mode-icon">🏆</span>
+                    <div class="mode-info">
+                        <span class="mode-label" id="modeLabel">Mode: Tim</span>
+                        <span class="mode-sub" id="modeSub">2 Tim</span>
+                    </div>
+                </div>
+                <button class="icon-btn" id="soundToggleBtn" title="Toggle Suara" aria-label="Toggle Suara">
+                    <span id="soundIcon">🔊</span>
+                </button>
+                <button class="icon-btn" id="settingsBtn" title="Pengaturan" aria-label="Pengaturan">⚙️</button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT (3 PANELS) -->
+        <main class="main-layout">
+            <!-- PANEL KIRI -->
+            <aside class="panel panel-left">
+                <div class="panel-section wheel-section">
+                    <div class="section-header">
+                        <h3>PILIH KARTU SOAL</h3>
+                        <p>Putar roda untuk mendapatkan nomor soal</p>
+                    </div>
+                    <div class="wheel-wrapper">
+                        <div class="wheel-pointer">▼</div>
+                        <div class="wheel-container" id="wheelContainer">
+                            <svg viewBox="0 0 300 300" id="wheelSvg" class="wheel-svg"></svg>
+                        </div>
+                        <button class="spin-btn" id="spinBtn">
+                            <span class="spin-icon">↻</span>
+                            <span class="spin-text">PUTAR</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel-section category-section">
+                    <div class="section-header"><h3>KATEGORI SOAL</h3></div>
+                    <div class="category-grid" id="categoryGrid">
+                        <!-- Generated by JS dari data kategori bab yang dipilih -->
+                    </div>
+                </div>
+
+                <div class="panel-section side-progress-section">
+                    <div class="section-header">
+                        <h3>PROGRESS KUIS</h3>
+                        <span class="progress-count" id="progressTextSide">0 / 0 Soal</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBarSide" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- AREA UTAMA -->
+            <section class="panel panel-center">
+                <div class="arena-stage">
+                    <div class="arena-background-grid"></div>
+                    <div class="arena-header-tag">SOAL TERPILIH</div>
+                    <div class="number-selector">
+                        <button class="nav-arrow" id="prevQuestionBtn" title="Soal Sebelumnya">❮</button>
+                        <div class="selected-number-badge" id="selectedNumberBadge">
+                            <span class="number-val" id="currentNumberDisplay">1</span>
+                        </div>
+                        <button class="nav-arrow" id="nextQuestionBtn" title="Soal Selanjutnya">❯</button>
+                    </div>
+                    <div class="stage-status" id="stageStatusText">Soal siap ditampilkan!</div>
+                </div>
+
+                <div class="question-card" id="questionCard">
+                    <div class="question-header">
+                        <div class="question-title">
+                            <span class="q-label">SOAL</span>
+                            <span class="q-num" id="qNumHeader">1</span>
+                        </div>
+                        <div class="question-badges">
+                            <span class="badge category-badge" id="qCategoryBadge">Kategori</span>
+                            <span class="badge difficulty-badge" id="qDifficultyBadge">Easy</span>
+                            <span class="badge points-badge" id="qPointsBadge">+10 Pts</span>
+                        </div>
+                    </div>
+
+                    <div class="question-body">
+                        <p class="question-text" id="questionText">Memuat pertanyaan...</p>
+                    </div>
+
+                    <div class="options-grid" id="optionsGrid"></div>
+
+                    <div class="submit-container">
+                        <button class="btn-submit" id="submitAnswerBtn">
+                            <span class="btn-text">➤ KIRIM JAWABAN</span>
+                        </button>
+                    </div>
+
+                    <div class="explanation-box hidden" id="explanationBox">
+                        <div class="feedback-header" id="feedbackHeader">
+                            <span class="feedback-icon" id="feedbackIcon">✓</span>
+                            <span class="feedback-title" id="feedbackTitle">JAWABAN BENAR!</span>
+                            <span class="feedback-pts" id="feedbackPts">+20 POIN</span>
+                        </div>
+                        <div class="explanation-content">
+                            <h4>PEMBAHASAN:</h4>
+                            <p id="explanationText">Pembahasan detail soal akan tampil di sini...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL KANAN -->
+            <aside class="panel panel-right">
+                <div class="panel-section active-team-card" id="activeTeamCard">
+                    <span class="card-label">GILIRAN TIM AKTIF:</span>
+                    <h2 class="active-team-name" id="activeTeamName">TIM 1</h2>
+                    <span class="active-team-indicator">⚡ SIAP MENJAWAB ⚡</span>
+                </div>
+
+                <div class="panel-section team-scores-section">
+                    <div class="section-header"><h3>SKOR TIM</h3></div>
+                    <div class="team-list" id="teamListContainer"></div>
+                </div>
+
+                <div class="panel-section leaderboard-section">
+                    <div class="section-header"><h3>PERINGKAT SEMENTARA</h3></div>
+                    <div class="leaderboard-table-wrapper">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr><th>#</th><th>TIM</th><th style="text-align: right;">POIN</th></tr>
+                            </thead>
+                            <tbody id="leaderboardTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel-section motivation-card">
+                    <div class="motivation-icon">🏆</div>
+                    <h4>Semangat!</h4>
+                    <p>Setiap jawaban adalah langkah menuju kemenangan arena!</p>
+                </div>
+            </aside>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer">
+            <div class="footer-stat-item"><span class="f-label">👥 Total Soal:</span> <span class="f-value" id="fTotal">0</span></div>
+            <div class="footer-divider"></div>
+            <div class="footer-stat-item"><span class="f-label">✓ Terjawab:</span> <span class="f-value" id="fAnswered">0</span></div>
+            <div class="footer-divider"></div>
+            <div class="footer-stat-item"><span class="f-label">✓ Benar:</span> <span class="f-value success" id="fCorrect">0</span></div>
+            <div class="footer-divider"></div>
+            <div class="footer-stat-item"><span class="f-label">✕ Salah:</span> <span class="f-value danger" id="fWrong">0</span></div>
+
+            <div class="footer-right">
+                <div class="footer-info">
+                    <span>💡 Mode: <strong>Tim</strong></span>
+                    <span>Waktu: <strong id="fTimer">05:00</strong></span>
+                </div>
+                <div class="footer-progress">
+                    <span class="progress-pct" id="fProgressPct">0%</span>
+                    <div class="progress-bar-container mini">
+                        <div class="progress-bar-fill" id="progressBarFooter" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL PENGATURAN -->
+    <div class="modal-overlay hidden" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>⚙️ PENGATURAN ARENA</h3>
+                <button class="close-modal-btn" id="closeSettingsBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="checkbox-label"><input type="checkbox" id="setSound" checked> <span>Efek Suara (Web Audio API)</span></label>
+                </div>
+                <div class="setting-group">
+                    <label class="checkbox-label"><input type="checkbox" id="setAnimation" checked> <span>Animasi & Transition Efek</span></label>
+                </div>
+                <div class="setting-group">
+                    <label class="checkbox-label"><input type="checkbox" id="setConfetti" checked> <span>Efek Confetti</span></label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="changeSetupBtn">🔁 GANTI BAB/TIM/WAKTU</button>
+                <button class="btn btn-secondary" id="resetGameBtn">🔄 RESET PERMAINAN</button>
+                <button class="btn btn-primary" id="saveSettingsBtn">SIMPAN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL HASIL AKHIR -->
+    <div class="modal-overlay hidden" id="resultModal">
+        <div class="modal-card modal-large text-center">
+            <div class="modal-header center"><h2 id="resultModalTitle">🏆 KUIS SELESAI!</h2></div>
+            <div class="modal-body">
+                <div class="winner-trophy">👑</div>
+                <h3 class="winner-team-title" id="winnerTeamName">TIM 1 JUARA!</h3>
+                <div class="winner-score-tag" id="winnerScoreTag">0 Poin</div>
+
+                <div class="stats-summary-grid">
+                    <div class="stat-box"><span class="s-label">Total Benar</span><span class="s-val text-success" id="finalCorrect">0</span></div>
+                    <div class="stat-box"><span class="s-label">Total Salah</span><span class="s-val text-danger" id="finalWrong">0</span></div>
+                    <div class="stat-box"><span class="s-label">Akurasi</span><span class="s-val text-cyan" id="finalAccuracy">0%</span></div>
+                </div>
+
+                <h4 class="mt-4 mb-2">RANKING AKHIR ARENA</h4>
+                <div class="final-rank-list" id="finalRankList"></div>
+            </div>
+            <div class="modal-footer center">
+                <button class="btn btn-primary btn-lg" id="playAgainBtn">🎮 MAIN LAGI</button>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>

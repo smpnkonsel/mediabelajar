@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Pemecahan Masalah dengan Perulangan — Bab 8.6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14;
+    --bg-soft:#101620;
+    --panel:#161d29;
+    --panel-2:#1c2432;
+    --panel-3:#212b3b;
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.16);
+    --text:#e9edf3;
+    --text-dim:#98a3b5;
+    --text-faint:#69748a;
+    --cyan:#22d3ee;
+    --cyan-dim:rgba(34,211,238,.14);
+    --amber:#f5b74a;
+    --amber-dim:rgba(245,183,74,.14);
+    --violet:#8f82f7;
+    --violet-dim:rgba(143,130,247,.14);
+    --red:#f2707a;
+    --red-dim:rgba(242,112,122,.14);
+    --green:#4ade93;
+    --green-dim:rgba(74,222,147,.14);
+    --radius-lg:24px;
+    --radius-md:16px;
+    --radius-sm:10px;
+    --font-head:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; font-family:var(--font-body);
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(143,130,247,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgba(34,211,238,.10), transparent 60%),
+      var(--bg);
+    color:var(--text); -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-family:var(--font-head); font-weight:600; margin:0; line-height:1.15;}
+  p{margin:0; line-height:1.65;}
+  ul,ol{margin:0; padding-left:1.2em; line-height:1.7;}
+  button{font-family:var(--font-body); cursor:pointer;}
+  code,.mono{font-family:var(--font-mono);}
+  ::selection{background:var(--cyan-dim); color:var(--text);}
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:3px; border-radius:6px;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important;} }
+
+  .app{height:100vh; height:100dvh; display:flex; flex-direction:column; max-width:980px; margin:0 auto; padding:0 18px;}
+  .topbar{flex:0 0 auto; padding:18px 2px 12px; display:flex; flex-direction:column; gap:10px;}
+  .topbar-row{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .brand{display:flex; align-items:center; gap:10px; min-width:0;}
+  .brand-badge{flex:0 0 auto; width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, var(--cyan), var(--violet)); display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:10px; color:#08151a;}
+  .brand-text{min-width:0;}
+  .brand-title{font-size:14.5px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .brand-sub{font-size:11.5px; color:var(--text-faint);}
+  .section-tag{font-family:var(--font-mono); font-size:11px; color:var(--cyan); background:var(--cyan-dim); padding:5px 10px; border-radius:999px; white-space:nowrap; flex:0 0 auto;}
+  .progress-track{height:6px; background:var(--panel); border-radius:999px; overflow:hidden; border:1px solid var(--border);}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--cyan), var(--violet)); border-radius:999px; transition:width .45s cubic-bezier(.4,0,.2,1);}
+
+  .stage{flex:1 1 auto; position:relative; overflow:hidden; border:1px solid var(--border); background:linear-gradient(180deg, var(--bg-soft), var(--panel) 140%); border-radius:var(--radius-lg); margin:4px 0 14px;}
+  .slide{display:none; height:100%; overflow-y:auto; padding:34px clamp(18px, 4vw, 48px) 30px;}
+  .slide.active{display:block; animation:slideIn .42s cubic-bezier(.2,.7,.3,1);}
+  @keyframes slideIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+  .slide-inner{max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:22px;}
+  .eyebrow{font-family:var(--font-mono); font-size:12px; color:var(--text-faint);}
+  .slide h2{font-size:clamp(22px,3.4vw,30px); color:var(--text);}
+  .slide h2 .accent{color:var(--cyan);}
+  .lead{font-size:16px; color:var(--text-dim); max-width:62ch;}
+
+  .card{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px;}
+  .card h3{font-size:16.5px; margin-bottom:8px;}
+  .card p{color:var(--text-dim); font-size:14.5px;}
+  .card.warn{border-color:var(--red); background:var(--red-dim);}
+  .card.warn h3{color:var(--red);}
+  .card.safe{border-color:var(--green); background:var(--green-dim);}
+  .card.safe h3{color:var(--green);}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:680px){ .grid-2, .grid-3{grid-template-columns:1fr;} }
+
+  .list-check{list-style:none; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .list-check li{display:flex; gap:10px; align-items:flex-start; background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; font-size:14.5px; color:var(--text-dim);}
+  .list-check li::before{content:""; flex:0 0 auto; width:18px; height:18px; margin-top:2px; border-radius:6px; background:var(--cyan-dim); border:1px solid var(--cyan);}
+
+  .code-block{
+    background:var(--panel-3); border:1px solid var(--border); border-radius:var(--radius-sm);
+    padding:14px 16px; font-family:var(--font-mono); font-size:13.5px; line-height:1.9;
+    color:var(--text); white-space:pre; overflow-x:auto;
+  }
+  .code-line{display:block; padding:1px 6px; border-radius:4px;}
+  .code-line.hl{background:var(--cyan-dim); color:var(--cyan); box-shadow:inset 2px 0 0 var(--cyan);}
+
+  .acc{display:flex; flex-direction:column; gap:10px;}
+  .acc-item{border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden; background:var(--panel-2);}
+  .acc-head{width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; background:transparent; border:none; color:var(--text); text-align:left; padding:14px 16px; font-size:15px; font-weight:600; font-family:var(--font-body);}
+  .acc-head .tag{font-family:var(--font-mono); font-size:11px; color:var(--cyan); font-weight:400;}
+  .acc-icon{flex:0 0 auto; width:22px; height:22px; border-radius:50%; border:1px solid var(--border-strong); display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--text-dim); transition:transform .3s ease;}
+  .acc-item.open .acc-icon{transform:rotate(45deg); color:var(--cyan); border-color:var(--cyan);}
+  .acc-body{max-height:0; overflow:hidden; transition:max-height .35s ease;}
+  .acc-body-in{padding:0 16px 16px; color:var(--text-dim); font-size:14.5px;}
+  .acc-item.open .acc-body{max-height:700px;}
+
+  .quiz-item{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; display:flex; flex-direction:column; gap:12px;}
+  .quiz-item .stmt{font-size:15px; color:var(--text);}
+  .opt-row{display:flex; flex-wrap:wrap; gap:8px;}
+  .opt-btn{padding:9px 16px; border-radius:999px; border:1px solid var(--border-strong); background:var(--panel-3); color:var(--text); font-size:13.5px; font-weight:500; transition:all .18s ease;}
+  .opt-btn:hover:not(:disabled){border-color:var(--cyan);}
+  .opt-btn.correct{background:var(--green-dim); border-color:var(--green); color:var(--green);}
+  .opt-btn.incorrect{background:var(--red-dim); border-color:var(--red); color:var(--red);}
+  .opt-btn:disabled{cursor:default; opacity:.55;}
+  .opt-btn:disabled.correct, .opt-btn:disabled.incorrect{opacity:1;}
+  .explain{display:none; font-size:13.5px; color:var(--text-dim); border-left:2px solid var(--cyan); padding-left:10px;}
+  .explain.show{display:block;}
+
+  .reveal-btn{align-self:flex-start; padding:9px 16px; border-radius:999px; border:1px solid var(--cyan); background:var(--cyan-dim); color:var(--cyan); font-size:13.5px; font-weight:600;}
+  .reveal-content{display:none; margin-top:6px;}
+  .reveal-content.show{display:block; animation:fadeIn .3s ease;}
+  @keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+
+  .btn{padding:11px 20px; border-radius:12px; border:1px solid var(--border-strong); background:var(--panel-3); color:var(--text); font-size:14px; font-weight:600; display:inline-flex; align-items:center; gap:8px;}
+  .btn:hover{border-color:var(--cyan);}
+  .btn.primary{background:linear-gradient(135deg, var(--cyan), #1aa9c2); color:#07222a; border:none;}
+  .btn.ghost{background:transparent;}
+  .btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .tab-btn{padding:9px 16px; border-radius:999px; border:1px solid var(--border-strong); background:var(--panel-3); color:var(--text-dim); font-size:13.5px; font-weight:600;}
+  .tab-btn.active{background:var(--violet-dim); border-color:var(--violet); color:var(--violet);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block; animation:fadeIn .3s ease;}
+
+  .cover{height:100%; display:flex; flex-direction:column; justify-content:center; gap:20px; text-align:left;}
+  .cover-badge{align-self:flex-start; font-family:var(--font-mono); font-size:12px; color:var(--cyan); background:var(--cyan-dim); border:1px solid var(--cyan); padding:5px 12px; border-radius:999px;}
+  .cover h1{font-size:clamp(28px,5.6vw,44px); max-width:17ch;}
+  .cover .sub2{font-family:var(--font-mono); font-size:13px; color:var(--cyan);}
+  .cover .sub{font-size:16px; color:var(--text-dim); max-width:56ch;}
+
+  .step-track{display:flex; gap:6px;}
+  .step-dot{flex:1; height:4px; border-radius:999px; background:var(--panel-3);}
+  .step-dot.done{background:var(--cyan);}
+
+  table.trace{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.trace th, table.trace td{border:1px solid var(--border); padding:8px 10px; text-align:center; font-family:var(--font-mono);}
+  table.trace th{background:var(--panel-3); color:var(--cyan); font-weight:600;}
+  table.trace tr.current td{background:var(--cyan-dim);}
+
+  .case-row{display:flex; align-items:center; gap:12px; padding:10px 14px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--panel-2); font-size:13.5px; cursor:pointer; transition:all .18s ease; font-family:var(--font-mono);}
+  .case-row.selected{border-color:var(--amber); background:var(--amber-dim);}
+  .case-row.result-correct{border-color:var(--green); background:var(--green-dim);}
+  .case-row.result-missed{border-color:var(--red); background:var(--red-dim);}
+
+  .quiz-card{background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px; display:flex; flex-direction:column; gap:12px;}
+  .quiz-card .qn{font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);}
+  .score-box{text-align:center; padding:26px; border-radius:var(--radius-md); background:var(--panel-2); border:1px solid var(--border); display:none; flex-direction:column; gap:10px; align-items:center;}
+  .score-box.show{display:flex;}
+  .score-num{font-family:var(--font-head); font-size:44px; color:var(--cyan);}
+
+  textarea.reflect{width:100%; min-height:110px; resize:vertical; background:var(--panel-2); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-family:var(--font-body); font-size:14.5px; padding:12px 14px;}
+
+  .controls{flex:0 0 auto; padding:2px 2px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+  .counter{font-family:var(--font-mono); font-size:12.5px; color:var(--text-faint); white-space:nowrap;}
+  .nav-btn{padding:11px 18px; border-radius:12px; border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text); font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px;}
+  .nav-btn.next{background:linear-gradient(135deg, var(--cyan), #1aa9c2); color:#07222a; border:none;}
+  .nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+
+  @media (max-width:560px){
+    .app{padding:0 10px;}
+    .slide{padding:24px 16px 24px;}
+    .brand-sub{display:none;}
+    .controls{padding-bottom:14px;}
+    .nav-btn span.label{display:none;}
+    .code-block{font-size:12.5px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <div class="brand-badge">8.6</div>
+        <div class="brand-text">
+          <div class="brand-title">Pemecahan Masalah dengan Perulangan</div>
+          <div class="brand-sub">Bab 8 — Menerapkan Algoritma Perulangan</div>
+        </div>
+      </div>
+      <div class="section-tag" id="sectionTag">Pembuka</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <main class="stage" id="stage">
+
+    <!-- 0 : COVER -->
+    <section class="slide active" data-section="Pembuka">
+      <div class="cover">
+        <div class="cover-badge">Bab 8 — Menerapkan Algoritma Perulangan</div>
+        <h1>Pemecahan Masalah dengan Perulangan</h1>
+        <div class="sub2">Merancang Algoritma · Menemukan Pola · Memperbaiki Algoritma · Menyelesaikan Masalah</div>
+        <p class="sub">Perulangan bukan cuma soal sintaks — ini soal cara berpikir. Yuk belajar merancang, menguji, dan memperbaiki algoritma perulangan lewat contoh dan simulasi interaktif.</p>
+        <div><button class="btn primary" onclick="goTo(1)">Mulai Belajar →</button></div>
+      </div>
+    </section>
+
+    <!-- 1 : APERSEPSI -->
+    <section class="slide" data-section="Apersepsi">
+      <div class="slide-inner">
+        <div class="eyebrow">Apersepsi</div>
+        <h2>Kamu sudah <span class="accent">"melakukan perulangan"</span> setiap hari</h2>
+        <p class="lead">Perulangan sebenarnya adalah pola pikir yang sangat familiar, jauh sebelum kamu mengenal kode program.</p>
+        <div class="grid-3">
+          <div class="card"><h3>Senam pagi</h3><p>Gerakan diulang sebanyak hitungan tertentu, misalnya "ulangi gerakan ini 8 kali".</p></div>
+          <div class="card"><h3>Menyapu lantai</h3><p>Gerakan menyapu diulang terus-menerus sampai lantai benar-benar bersih (syarat tertentu tercapai).</p></div>
+          <div class="card"><h3>Menghafal perkalian</h3><p>Kamu mengulang "6 kali 1, 6 kali 2, ..." mengikuti pola yang teratur.</p></div>
+        </div>
+        <div class="card">
+          <h3>Pertanyaan pemantik</h3>
+          <p>Jika kamu ingin menghitung total nilai ulangan 30 siswa tanpa menjumlahkannya satu per satu secara manual, bagaimana caranya merancang langkah agar komputer bisa melakukannya secara otomatis dan berulang?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 : TUJUAN -->
+    <section class="slide" data-section="Tujuan">
+      <div class="slide-inner">
+        <div class="eyebrow">Tujuan Pembelajaran</div>
+        <h2>Setelah mempelajari materi ini, kamu mampu:</h2>
+        <ul class="list-check">
+          <li>Merancang algoritma sederhana yang menggunakan struktur perulangan untuk menyelesaikan suatu masalah.</li>
+          <li>Menemukan pola dalam suatu masalah sebagai dasar merancang perulangan yang tepat.</li>
+          <li>Menelusuri (trace) jalannya algoritma perulangan untuk memeriksa apakah hasilnya sudah benar.</li>
+          <li>Mengidentifikasi dan memperbaiki kesalahan umum pada algoritma perulangan.</li>
+          <li>Menyelesaikan masalah sehari-hari menggunakan algoritma berbasis perulangan.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3 : PETA KONSEP -->
+    <section class="slide" data-section="Peta Konsep">
+      <div class="slide-inner">
+        <div class="eyebrow">Peta Konsep</div>
+        <h2>Empat langkah besar dalam materi ini</h2>
+        <svg viewBox="0 0 760 420" style="width:100%; height:auto;">
+          <defs>
+            <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#22d3ee"/>
+              <stop offset="1" stop-color="#8f82f7"/>
+            </linearGradient>
+          </defs>
+          <line x1="380" y1="210" x2="140" y2="70" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="620" y2="70" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="140" y2="350" stroke="url(#lineGrad)" stroke-width="2"/>
+          <line x1="380" y1="210" x2="620" y2="350" stroke="url(#lineGrad)" stroke-width="2"/>
+          <circle cx="380" cy="210" r="80" fill="#1c2432" stroke="#22d3ee" stroke-width="2"/>
+          <text x="380" y="200" text-anchor="middle" fill="#e9edf3" font-family="Fredoka" font-size="13">Pemecahan Masalah</text>
+          <text x="380" y="220" text-anchor="middle" fill="#e9edf3" font-family="Fredoka" font-size="13">dengan Perulangan</text>
+          <rect x="55" y="35" width="170" height="70" rx="16" fill="#161d29" stroke="#8f82f7" stroke-width="1.5"/>
+          <text x="140" y="65" text-anchor="middle" fill="#e9edf3" font-family="Plus Jakarta Sans" font-size="13.5" font-weight="600">Merancang Algoritma</text>
+          <text x="140" y="84" text-anchor="middle" fill="#98a3b5" font-family="Plus Jakarta Sans" font-size="11">pseudocode &amp; struktur</text>
+          <rect x="535" y="35" width="170" height="70" rx="16" fill="#161d29" stroke="#8f82f7" stroke-width="1.5"/>
+          <text x="620" y="65" text-anchor="middle" fill="#e9edf3" font-family="Plus Jakarta Sans" font-size="13.5" font-weight="600">Menemukan Pola</text>
+          <text x="620" y="84" text-anchor="middle" fill="#98a3b5" font-family="Plus Jakarta Sans" font-size="11">keteraturan pada masalah</text>
+          <rect x="55" y="315" width="170" height="70" rx="16" fill="#161d29" stroke="#f5b74a" stroke-width="1.5"/>
+          <text x="140" y="345" text-anchor="middle" fill="#e9edf3" font-family="Plus Jakarta Sans" font-size="13.5" font-weight="600">Memperbaiki Algoritma</text>
+          <text x="140" y="364" text-anchor="middle" fill="#98a3b5" font-family="Plus Jakarta Sans" font-size="11">uji coba &amp; debugging</text>
+          <rect x="535" y="315" width="170" height="70" rx="16" fill="#161d29" stroke="#f5b74a" stroke-width="1.5"/>
+          <text x="620" y="345" text-anchor="middle" fill="#e9edf3" font-family="Plus Jakarta Sans" font-size="13.5" font-weight="600">Menyelesaikan Masalah</text>
+          <text x="620" y="364" text-anchor="middle" fill="#98a3b5" font-family="Plus Jakarta Sans" font-size="11">studi kasus nyata</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 4 : RECAP PERULANGAN -->
+    <section class="slide" data-section="Mengingat Kembali">
+      <div class="slide-inner">
+        <div class="eyebrow">Mengingat Kembali</div>
+        <h2>Sebelum lanjut, ingat kembali <span class="accent">apa itu perulangan</span></h2>
+        <div class="card">
+          <p><strong>Perulangan (looping)</strong> adalah struktur algoritma yang menjalankan satu atau beberapa instruksi secara berulang, tanpa harus menuliskan instruksi yang sama berkali-kali.</p>
+        </div>
+        <div class="grid-2">
+          <div class="card"><h3>Jumlah pengulangan diketahui</h3><p>Digunakan saat kita sudah tahu persis berapa kali perulangan harus berjalan. Contoh: mencetak angka 1 sampai 10.</p></div>
+          <div class="card"><h3>Jumlah pengulangan belum diketahui</h3><p>Digunakan saat perulangan berhenti berdasarkan syarat tertentu, bukan jumlah pasti. Contoh: terus bertanya sampai pengguna memasukkan jawaban yang benar.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 : LANGKAH PEMECAHAN MASALAH -->
+    <section class="slide" data-section="Proses Pemecahan Masalah">
+      <div class="slide-inner">
+        <div class="eyebrow">Proses Pemecahan Masalah</div>
+        <h2>Lima langkah menyelesaikan masalah dengan perulangan</h2>
+        <p class="lead">Klik tiap langkah untuk melihat penjelasannya.</p>
+        <div class="acc">
+          <div class="acc-item open"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">01</span> Pahami Masalah</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Kenali apa yang diketahui dan apa yang ingin dicari. Misalnya: diketahui 5 nilai ulangan, dicari totalnya.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">02</span> Temukan Pola</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Cari bagian yang berulang dengan cara yang sama. Misalnya: setiap nilai ditambahkan satu per satu ke total.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">03</span> Rancang Algoritma</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Tuliskan langkah-langkah dalam bentuk pseudocode atau flowchart menggunakan struktur perulangan yang sesuai.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">04</span> Uji Coba</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Jalankan algoritma dengan data sederhana, telusuri (trace) hasilnya langkah demi langkah untuk memastikan sudah sesuai harapan.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)"><span><span class="tag">05</span> Perbaiki</span><span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Jika hasil belum sesuai, temukan letak kesalahannya, lalu revisi algoritma dan uji coba lagi.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 : MERANCANG ALGORITMA - PENGERTIAN -->
+    <section class="slide" data-section="Merancang Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Merancang Algoritma · 1 dari 2</div>
+        <h2>Menulis rancangan dalam <span class="accent">pseudocode</span></h2>
+        <p class="lead">Sebelum menjadi kode program, algoritma biasanya dirancang dulu dalam bentuk pseudocode — langkah-langkah yang ditulis dengan bahasa sederhana dan terstruktur.</p>
+        <div class="card">
+          <h3>Contoh: mencetak angka 1 sampai 10</h3>
+          <div class="code-block">MULAI
+  UNTUK i DARI 1 SAMPAI 10
+    TAMPILKAN i
+  AKHIR UNTUK
+SELESAI</div>
+        </div>
+        <div class="card"><p>Perhatikan bahwa instruksi <span class="mono">TAMPILKAN i</span> hanya ditulis satu kali, namun akan dijalankan berulang sebanyak 10 kali dengan nilai <span class="mono">i</span> yang terus berubah.</p></div>
+      </div>
+    </section>
+
+    <!-- 7 : MERANCANG ALGORITMA - LATIHAN -->
+    <section class="slide" data-section="Merancang Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Merancang Algoritma · 2 dari 2</div>
+        <h2>Coba rancang sendiri</h2>
+        <div class="card">
+          <h3>Soal</h3>
+          <p>Rancanglah algoritma untuk mencetak semua bilangan kelipatan 3 dari 1 sampai 15 (yaitu 3, 6, 9, 12, 15).</p>
+        </div>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Contoh Jawaban</button>
+        <div class="reveal-content"><div class="card">
+          <div class="code-block">MULAI
+  UNTUK i DARI 1 SAMPAI 15
+    JIKA i HABIS DIBAGI 3 MAKA
+      TAMPILKAN i
+    AKHIR JIKA
+  AKHIR UNTUK
+SELESAI</div>
+          <p style="margin-top:10px;">Perulangan tetap berjalan 15 kali, tetapi instruksi <span class="mono">TAMPILKAN i</span> hanya dijalankan ketika syarat "habis dibagi 3" terpenuhi.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- 8 : MENEMUKAN POLA - PENGANTAR -->
+    <section class="slide" data-section="Menemukan Pola">
+      <div class="slide-inner">
+        <div class="eyebrow">Menemukan Pola · 1 dari 3</div>
+        <h2>Mengapa <span class="accent">pola</span> penting sebelum membuat perulangan?</h2>
+        <p class="lead">Perulangan hanya bisa dirancang dengan baik jika kita sudah menemukan bagian mana dari masalah yang berulang dengan cara yang sama.</p>
+        <div class="card">
+          <h3>Contoh sederhana</h3>
+          <p>Barisan bilangan: 2, 4, 6, 8, 10 — pola yang terlihat adalah setiap suku merupakan 2 dikalikan nomor urutannya. Suku ke-<span class="mono">i</span> = 2 × <span class="mono">i</span>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 : MENEMUKAN POLA - CONTOH VISUAL -->
+    <section class="slide" data-section="Menemukan Pola">
+      <div class="slide-inner">
+        <div class="eyebrow">Menemukan Pola · 2 dari 3</div>
+        <h2>Contoh pola visual: segitiga bintang</h2>
+        <p class="lead">Klik tombol untuk membangun pola baris demi baris, lalu perhatikan keteraturannya.</p>
+        <div class="code-block" id="starPattern" style="min-height:120px;"></div>
+        <button class="btn primary" onclick="buildStar()">Tambah Baris</button>
+        <button class="btn ghost" onclick="resetStar()">Ulangi</button>
+        <div class="card">
+          <p><strong>Pola yang ditemukan:</strong> baris ke-<span class="mono">i</span> berisi sebanyak <span class="mono">i</span> buah bintang. Karena ada baris (perulangan luar) dan bintang dalam tiap baris (perulangan dalam), pola ini membutuhkan <strong>dua perulangan bersarang (nested loop)</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 : MENEMUKAN POLA - LATIHAN -->
+    <section class="slide" data-section="Menemukan Pola">
+      <div class="slide-inner">
+        <div class="eyebrow">Menemukan Pola · 3 dari 3</div>
+        <h2>Latihan menemukan pola</h2>
+        <div class="acc">
+          <div class="quiz-item">
+            <div class="stmt">1. Barisan 5, 10, 15, 20 — berapakah rumus suku ke-i?</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">i + 5</button>
+              <button class="opt-btn" data-correct="true">5 × i</button>
+              <button class="opt-btn" data-correct="false">i × i</button>
+            </div>
+            <div class="explain">Benar — setiap suku adalah kelipatan 5 dari nomor urutannya (5×1=5, 5×2=10, dst).</div>
+          </div>
+          <div class="quiz-item">
+            <div class="stmt">2. Barisan 1, 4, 9, 16 — berapakah rumus suku ke-i?</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">4 × i</button>
+              <button class="opt-btn" data-correct="false">i + 3</button>
+              <button class="opt-btn" data-correct="true">i × i</button>
+            </div>
+            <div class="explain">Benar — setiap suku adalah kuadrat dari nomor urutannya (1×1=1, 2×2=4, 3×3=9, dst).</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 : MEMPERBAIKI ALGORITMA - PENGANTAR -->
+    <section class="slide" data-section="Memperbaiki Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Memperbaiki Algoritma · 1 dari 3</div>
+        <h2>Mengenal <span class="accent">kesalahan umum</span> pada perulangan</h2>
+        <div class="acc">
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Perulangan tak berhenti (infinite loop) <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Terjadi ketika variabel yang menentukan syarat berhenti tidak pernah berubah, sehingga syaratnya selalu terpenuhi dan perulangan berjalan terus-menerus.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kesalahan batas (off-by-one) <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Terjadi ketika batas awal atau akhir perulangan keliru satu angka, misalnya seharusnya "sampai 10" tapi tertulis "sampai 9", sehingga ada satu data yang terlewat.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Kesalahan pada variabel penampung (accumulator) <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Terjadi ketika nilai baru menggantikan nilai lama, bukan ditambahkan padanya — sehingga hasil akhirnya salah.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 : MEMPERBAIKI ALGORITMA - STUDI KASUS -->
+    <section class="slide" data-section="Memperbaiki Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Memperbaiki Algoritma · 2 dari 3</div>
+        <h2>Temukan kesalahan pada algoritma ini</h2>
+        <p class="lead">Algoritma berikut seharusnya menjumlahkan angka 1 sampai 5, tapi hasilnya salah. Klik baris yang menurutmu keliru.</p>
+        <div id="bugRows" class="code-block" style="display:flex; flex-direction:column; gap:2px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="checkBug()">Periksa Jawaban</button>
+          <button class="btn ghost" onclick="resetBug()">Ulangi</button>
+        </div>
+        <div class="reveal-content" id="bugExplain">
+          <div class="card">
+            <p>Baris <span class="mono">total &lt;- i</span> keliru karena setiap kali perulangan berjalan, nilai <span class="mono">total</span> justru digantikan oleh <span class="mono">i</span>, bukan ditambahkan. Akibatnya, hasil akhir hanya bernilai <strong>5</strong> (nilai <span class="mono">i</span> terakhir), bukan <strong>15</strong> (jumlah 1+2+3+4+5). Perbaikannya adalah menuliskan <span class="mono">total &lt;- total + i</span>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 : MEMPERBAIKI ALGORITMA - LATIHAN INFINITE LOOP -->
+    <section class="slide" data-section="Memperbaiki Algoritma">
+      <div class="slide-inner">
+        <div class="eyebrow">Memperbaiki Algoritma · 3 dari 3</div>
+        <h2>Kenapa perulangan ini tidak pernah berhenti?</h2>
+        <div class="card">
+          <div class="code-block">MULAI
+  i <- 1
+  SELAMA i <= 5
+    TAMPILKAN i
+  AKHIR SELAMA
+SELESAI</div>
+        </div>
+        <div class="acc" id="quiz-infinite">
+          <div class="quiz-item">
+            <div class="stmt">Apa penyebab algoritma di atas menjadi perulangan tak berhenti (infinite loop)?</div>
+            <div class="opt-row">
+              <button class="opt-btn" data-correct="false">Batas akhirnya terlalu besar</button>
+              <button class="opt-btn" data-correct="true">Nilai i tidak pernah bertambah di dalam perulangan</button>
+              <button class="opt-btn" data-correct="false">Instruksi TAMPILKAN salah ditulis</button>
+            </div>
+            <div class="explain">Benar — karena tidak ada instruksi seperti <span class="mono">i &lt;- i + 1</span>, nilai i tetap 1 selamanya sehingga syarat i &lt;= 5 selalu benar.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 : SIMULASI TRACE TABLE -->
+    <section class="slide" data-section="Uji Coba">
+      <div class="slide-inner">
+        <div class="eyebrow">Uji Coba (Trace)</div>
+        <h2>Simulasi: menelusuri jalannya perulangan</h2>
+        <p class="lead">Klik "Langkah Berikutnya" untuk menjalankan algoritma penjumlahan 1 sampai 5, baris demi baris.</p>
+        <div class="code-block" id="traceCode"></div>
+        <table class="trace" id="traceTable">
+          <tr><th>i</th><th>Aksi</th><th>total</th></tr>
+        </table>
+        <div class="step-nav" style="display:flex; align-items:center; gap:10px;">
+          <button class="btn ghost" id="tracePrev" onclick="traceStep(-1)">← Sebelumnya</button>
+          <button class="btn primary" id="traceNext" onclick="traceStep(1)">Langkah Berikutnya →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 : STUDI KASUS 1 -->
+    <section class="slide" data-section="Menyelesaikan Masalah">
+      <div class="slide-inner">
+        <div class="eyebrow">Menyelesaikan Masalah · Studi Kasus 1</div>
+        <h2>Menghitung Rata-rata Nilai Ulangan</h2>
+        <div class="card">
+          <h3>Masalah</h3>
+          <p>Diketahui nilai ulangan 5 siswa: 80, 90, 70, 85, 75. Tentukan total dan rata-ratanya menggunakan algoritma perulangan.</p>
+        </div>
+        <div class="card">
+          <h3>Algoritma</h3>
+          <div class="code-block">MULAI
+  total <- 0
+  UNTUK i DARI 1 SAMPAI 5
+    total <- total + nilai[i]
+  AKHIR UNTUK
+  rata2 <- total / 5
+  TAMPILKAN total, rata2
+SELESAI</div>
+        </div>
+        <div class="card"><p><strong>Hasil uji coba:</strong> total = 80+90+70+85+75 = <strong>400</strong>, rata-rata = 400 ÷ 5 = <strong>80</strong>.</p></div>
+      </div>
+    </section>
+
+    <!-- 16 : STUDI KASUS 2 (CONTOH SOAL LENGKAP) -->
+    <section class="slide" data-section="Menyelesaikan Masalah">
+      <div class="slide-inner">
+        <div class="eyebrow">Menyelesaikan Masalah · Studi Kasus 2</div>
+        <h2>Coba selesaikan bersama, langkah demi langkah</h2>
+        <div class="card">
+          <h3>Soal</h3>
+          <p>Rancanglah algoritma untuk mencetak tabel perkalian angka 6, dari 6×1 sampai 6×5.</p>
+        </div>
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Petunjuk</button>
+        <div class="reveal-content"><div class="card"><p>Temukan pola terlebih dahulu: setiap baris adalah 6 dikalikan nomor urutan baris (i), dengan i berjalan dari 1 sampai 5.</p></div></div>
+
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Langkah Penyelesaian</button>
+        <div class="reveal-content"><div class="card">
+          <div class="code-block">MULAI
+  UNTUK i DARI 1 SAMPAI 5
+    hasil <- 6 * i
+    TAMPILKAN "6 x ", i, " = ", hasil
+  AKHIR UNTUK
+SELESAI</div>
+        </div></div>
+
+        <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban &amp; Pembahasan</button>
+        <div class="reveal-content"><div class="card">
+          <p><strong>Jawaban:</strong> 6×1=6, 6×2=12, 6×3=18, 6×4=24, 6×5=30.</p>
+          <p><strong>Pembahasan:</strong> Karena polanya adalah "6 dikalikan i", perulangan cukup mengganti nilai i dari 1 sampai 5, dan instruksi perkalian ditulis satu kali saja di dalam perulangan.</p>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- 17 : LATIHAN MANDIRI BERTAHAP -->
+    <section class="slide" data-section="Latihan">
+      <div class="slide-inner">
+        <div class="eyebrow">Latihan Mandiri</div>
+        <h2>Coba kerjakan sendiri, sesuai levelmu</h2>
+        <div class="tabs" id="levelTabs">
+          <button class="tab-btn active" data-level="mudah" onclick="switchLevel('mudah')">Mudah</button>
+          <button class="tab-btn" data-level="sedang" onclick="switchLevel('sedang')">Sedang</button>
+          <button class="tab-btn" data-level="menantang" onclick="switchLevel('menantang')">Menantang</button>
+        </div>
+
+        <div class="tab-panel active" data-level="mudah">
+          <div class="card"><h3>Soal Mudah</h3><div class="code-block">MULAI
+  UNTUK i DARI 1 SAMPAI 4
+    TAMPILKAN i
+  AKHIR UNTUK
+SELESAI</div><p style="margin-top:10px;">Tuliskan output yang dihasilkan algoritma di atas.</p></div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card"><p class="mono">1 2 3 4</p></div></div>
+        </div>
+
+        <div class="tab-panel" data-level="sedang">
+          <div class="card"><h3>Soal Sedang</h3><div class="code-block">MULAI
+  total <- 0
+  UNTUK i DARI 1 SAMPAI 10
+    JIKA i HABIS DIBAGI 2 MAKA
+      total <- total + i
+    AKHIR JIKA
+  AKHIR UNTUK
+  TAMPILKAN total
+SELESAI</div><p style="margin-top:10px;">Berapa nilai <span class="mono">total</span> yang akan ditampilkan?</p></div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card"><p>Algoritma menjumlahkan bilangan genap dari 1 sampai 10: 2+4+6+8+10 = <strong>30</strong>.</p></div></div>
+        </div>
+
+        <div class="tab-panel" data-level="menantang">
+          <div class="card"><h3>Soal Menantang</h3><p>Rancanglah algoritma untuk menghitung faktorial dari suatu bilangan n (misalnya n = 5, maka 5! = 5×4×3×2×1 = 120), lalu telusuri (trace) hasilnya untuk n = 4.</p></div>
+          <button class="reveal-btn" onclick="toggleReveal(this)">Tampilkan Jawaban</button>
+          <div class="reveal-content"><div class="card">
+            <div class="code-block">MULAI
+  n <- 4
+  hasil <- 1
+  UNTUK i DARI 1 SAMPAI n
+    hasil <- hasil * i
+  AKHIR UNTUK
+  TAMPILKAN hasil
+SELESAI</div>
+            <p style="margin-top:10px;">Penelusuran: i=1 → hasil=1; i=2 → hasil=2; i=3 → hasil=6; i=4 → hasil=24. Jadi 4! = <strong>24</strong>.</p>
+          </div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 : KUIS AKHIR -->
+    <section class="slide" data-section="Evaluasi">
+      <div class="slide-inner">
+        <div class="eyebrow">Kuis Akhir</div>
+        <h2>Uji pemahamanmu</h2>
+        <p class="lead">Jawab semua soal, lalu klik "Lihat Skor" di bagian bawah.</p>
+        <div id="finalQuiz" style="display:flex; flex-direction:column; gap:14px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" onclick="scoreQuiz()">Lihat Skor</button>
+          <button class="btn ghost" onclick="resetQuiz()">Ulangi Kuis</button>
+        </div>
+        <div class="score-box" id="scoreBox">
+          <div class="score-num" id="scoreNum">0/0</div>
+          <div id="scoreMsg" style="color:var(--text-dim); font-size:14.5px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 : REFLEKSI -->
+    <section class="slide" data-section="Refleksi">
+      <div class="slide-inner">
+        <div class="eyebrow">Refleksi</div>
+        <h2>Sebelum lanjut, coba renungkan sejenak</h2>
+        <div class="card"><p>1. Langkah mana dalam proses pemecahan masalah (memahami, menemukan pola, merancang, uji coba, memperbaiki) yang menurutmu paling menantang?</p></div>
+        <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+        <div class="card"><p>2. Coba pikirkan satu masalah sehari-hari yang bisa diselesaikan dengan perulangan. Bagaimana pola yang kamu temukan?</p></div>
+        <textarea class="reflect" placeholder="Tulis jawabanmu di sini..."></textarea>
+      </div>
+    </section>
+
+    <!-- 20 : RANGKUMAN -->
+    <section class="slide" data-section="Rangkuman">
+      <div class="slide-inner">
+        <div class="eyebrow">Rangkuman</div>
+        <h2>Empat hal penting hari ini</h2>
+        <div class="acc">
+          <div class="acc-item open"><button class="acc-head" onclick="toggleAcc(this)">Merancang Algoritma <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Menuliskan langkah-langkah penyelesaian masalah dalam bentuk pseudocode yang menggunakan struktur perulangan.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Menemukan Pola <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Mengenali bagian masalah yang berulang dengan cara yang sama, sebagai dasar merancang perulangan yang tepat.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Memperbaiki Algoritma <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Menelusuri (trace) hasil algoritma, mengenali kesalahan umum seperti infinite loop atau kesalahan accumulator, lalu memperbaikinya.</div></div></div>
+          <div class="acc-item"><button class="acc-head" onclick="toggleAcc(this)">Menyelesaikan Masalah <span class="acc-icon">+</span></button><div class="acc-body"><div class="acc-body-in">Menerapkan seluruh proses di atas untuk menyelesaikan masalah nyata, seperti menghitung total, rata-rata, atau mencetak pola tertentu.</div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 : PENUTUP -->
+    <section class="slide" data-section="Penutup">
+      <div class="slide-inner" style="justify-content:center; min-height:60%; display:flex; flex-direction:column; gap:18px;">
+        <div class="eyebrow">Penutup</div>
+        <h2>Kerja bagus menyelesaikan materi ini!</h2>
+        <p class="lead">Kamu sekarang memahami bahwa perulangan bukan sekadar sintaks, tapi cara berpikir sistematis: memahami masalah, menemukan pola, merancang, menguji, dan memperbaiki. Teruslah berlatih dengan masalah-masalah baru di sekitarmu.</p>
+        <div><button class="btn primary" onclick="goTo(0)">↺ Kembali ke Awal</button></div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="controls">
+    <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← <span class="label">Sebelumnya</span></button>
+    <div class="counter" id="counter">1 / 22</div>
+    <button class="nav-btn next" id="nextBtn" onclick="nextSlide()"><span class="label">Berikutnya</span> →</button>
+  </div>
+
+</div>
+
+<script>
+/* ========== NAVIGATION ========== */
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let current = 0;
+
+function updateUI(){
+  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
+  document.getElementById('progressFill').style.width = ((current+1)/total*100) + '%';
+  document.getElementById('counter').textContent = (current+1) + ' / ' + total;
+  document.getElementById('sectionTag').textContent = slides[current].dataset.section || '';
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === total - 1;
+  slides[current].scrollTop = 0;
+}
+function goTo(i){ if(i<0||i>=total) return; current=i; updateUI(); }
+function nextSlide(){ if(current<total-1){ current++; updateUI(); } }
+function prevSlide(){ if(current>0){ current--; updateUI(); } }
+
+document.addEventListener('keydown', (e)=>{
+  const tag = document.activeElement.tagName;
+  if(tag === 'TEXTAREA' || tag === 'INPUT') return;
+  if(e.key === 'ArrowRight') nextSlide();
+  if(e.key === 'ArrowLeft') prevSlide();
+});
+updateUI();
+
+/* ========== ACCORDION ========== */
+function toggleAcc(btn){ btn.closest('.acc-item').classList.toggle('open'); }
+
+/* ========== GENERIC CLASSIFICATION QUIZ ITEMS ========== */
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('.opt-btn');
+  if(!btn) return;
+  const item = btn.closest('.quiz-item');
+  if(!item) return;
+  const isCorrect = btn.dataset.correct === 'true';
+  item.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.correct === 'true') b.classList.add('correct');
+  });
+  if(!isCorrect) btn.classList.add('incorrect');
+  const explain = item.querySelector('.explain');
+  if(explain) explain.classList.add('show');
+});
+
+/* ========== REVEAL BUTTONS ========== */
+function toggleReveal(btn){
+  const content = btn.nextElementSibling;
+  const showing = content.classList.toggle('show');
+  btn.textContent = showing ? btn.textContent.replace('Tampilkan','Sembunyikan') : btn.textContent.replace('Sembunyikan','Tampilkan');
+}
+
+/* ========== STAR PATTERN BUILDER ========== */
+let starRows = 0;
+function buildStar(){
+  if(starRows >= 5) return;
+  starRows++;
+  renderStar();
+}
+function resetStar(){ starRows = 0; renderStar(); }
+function renderStar(){
+  const el = document.getElementById('starPattern');
+  let out = '';
+  for(let i=1;i<=starRows;i++){ out += '*'.repeat(i) + '\n'; }
+  el.textContent = out || ' ';
+}
+renderStar();
+
+/* ========== BUG FINDER ========== */
+const bugLines = [
+  'MULAI',
+  '  total <- 0',
+  '  UNTUK i DARI 1 SAMPAI 5',
+  '    total <- i',
+  '  AKHIR UNTUK',
+  '  TAMPILKAN total',
+  'SELESAI'
+];
+const buggyLineIdx = 3;
+const bugRowsEl = document.getElementById('bugRows');
+function renderBugRows(){
+  bugRowsEl.innerHTML = '';
+  bugLines.forEach((line, idx)=>{
+    const row = document.createElement('div');
+    row.className = 'case-row';
+    row.style.fontFamily = 'inherit';
+    row.style.background = 'transparent';
+    row.style.border = '1px solid transparent';
+    row.textContent = line;
+    row.dataset.idx = idx;
+    row.addEventListener('click', ()=> row.classList.toggle('selected'));
+    bugRowsEl.appendChild(row);
+  });
+}
+renderBugRows();
+function checkBug(){
+  const rows = bugRowsEl.querySelectorAll('.case-row');
+  rows.forEach(r=>{
+    const idx = Number(r.dataset.idx);
+    const selected = r.classList.contains('selected');
+    r.classList.remove('selected','result-correct','result-missed');
+    if(idx === buggyLineIdx && selected) r.classList.add('result-correct');
+    else if(idx === buggyLineIdx && !selected) r.classList.add('result-missed');
+    else if(idx !== buggyLineIdx && selected) r.classList.add('result-missed');
+  });
+  document.getElementById('bugExplain').classList.add('show');
+}
+function resetBug(){
+  renderBugRows();
+  document.getElementById('bugExplain').classList.remove('show');
+}
+
+/* ========== TRACE TABLE SIMULATION ========== */
+const traceCodeLines = [
+  'MULAI',
+  '  total <- 0',
+  '  UNTUK i DARI 1 SAMPAI 5',
+  '    total <- total + i',
+  '  AKHIR UNTUK',
+  '  TAMPILKAN total',
+  'SELESAI'
+];
+const traceSteps = [
+  {line:1, i:'-', aksi:'total diberi nilai awal 0', total:0},
+  {line:3, i:1, aksi:'total <- total + 1', total:1},
+  {line:3, i:2, aksi:'total <- total + 2', total:3},
+  {line:3, i:3, aksi:'total <- total + 3', total:6},
+  {line:3, i:4, aksi:'total <- total + 4', total:10},
+  {line:3, i:5, aksi:'total <- total + 5', total:15},
+  {line:5, i:'-', aksi:'TAMPILKAN total → 15', total:15},
+];
+let traceIdx = 0;
+function renderTraceCode(){
+  const el = document.getElementById('traceCode');
+  el.innerHTML = '';
+  const currentLine = traceSteps[traceIdx].line;
+  traceCodeLines.forEach((l,idx)=>{
+    const span = document.createElement('span');
+    span.className = 'code-line' + (idx === currentLine ? ' hl' : '');
+    span.textContent = l;
+    el.appendChild(span);
+  });
+}
+function renderTraceTable(){
+  const table = document.getElementById('traceTable');
+  table.innerHTML = '<tr><th>i</th><th>Aksi</th><th>total</th></tr>';
+  for(let s=0; s<=traceIdx; s++){
+    const step = traceSteps[s];
+    const tr = document.createElement('tr');
+    if(s === traceIdx) tr.className = 'current';
+    tr.innerHTML = '<td>'+step.i+'</td><td>'+step.aksi+'</td><td>'+step.total+'</td>';
+    table.appendChild(tr);
+  }
+}
+function renderTrace(){
+  renderTraceCode();
+  renderTraceTable();
+  document.getElementById('tracePrev').disabled = traceIdx === 0;
+  document.getElementById('traceNext').disabled = traceIdx === traceSteps.length-1;
+}
+function traceStep(dir){
+  traceIdx = Math.max(0, Math.min(traceSteps.length-1, traceIdx+dir));
+  renderTrace();
+}
+renderTrace();
+
+/* ========== LATIHAN MANDIRI TABS ========== */
+function switchLevel(level){
+  document.querySelectorAll('#levelTabs .tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.level===level));
+  document.querySelectorAll('.tab-panel[data-level]').forEach(p=> p.classList.toggle('active', p.dataset.level===level));
+}
+
+/* ========== KUIS AKHIR ========== */
+const quizData = [
+  {q:'Perulangan yang jumlah pengulangannya sudah diketahui sejak awal disebut perulangan berdasarkan...', opts:['Kondisi','Jumlah','Kesalahan','Variabel'], correct:1,
+   exp:'Perulangan berdasarkan jumlah dipakai ketika kita sudah tahu persis berapa kali perulangan berjalan.'},
+  {q:'Algoritma "UNTUK i DARI 1 SAMPAI 4: TAMPILKAN i*2" akan menghasilkan output...', opts:['1 2 3 4','2 4 6 8','2 4 8 16','1 4 9 16'], correct:1,
+   exp:'Setiap i dikalikan 2: 1×2=2, 2×2=4, 3×2=6, 4×2=8.'},
+  {q:'Penyebab utama perulangan SELAMA (while) menjadi tidak berhenti (infinite loop) adalah...', opts:['Batas awal salah', 'Variabel syarat tidak pernah diperbarui', 'Terlalu banyak instruksi', 'Nama variabel terlalu panjang'], correct:1,
+   exp:'Jika variabel penentu syarat tidak berubah, syarat perulangan akan selalu terpenuhi.'},
+  {q:'Langkah pertama dalam proses pemecahan masalah dengan perulangan adalah...', opts:['Menguji coba algoritma', 'Memahami masalah', 'Memperbaiki kesalahan', 'Menulis kode program'], correct:1,
+   exp:'Sebelum merancang apa pun, kita perlu memahami dulu apa yang diketahui dan apa yang dicari.'},
+  {q:'Barisan bilangan 3, 6, 9, 12 mengikuti pola suku ke-i sama dengan...', opts:['i + 3','3 × i','i × i','i - 3'], correct:1,
+   exp:'Setiap suku merupakan kelipatan 3 dari nomor urutannya.'},
+  {q:'Pada algoritma penjumlahan, penulisan "total <- i" (bukan "total <- total + i") menyebabkan...', opts:['Perulangan menjadi lebih cepat', 'Hasil akhir hanya bernilai i terakhir, bukan jumlah keseluruhan', 'Algoritma menjadi tidak berhenti', 'Tidak ada pengaruh sama sekali'], correct:1,
+   exp:'Nilai total terus digantikan oleh i, bukan diakumulasikan, sehingga hasil akhirnya salah.'},
+  {q:'Kegiatan menjalankan algoritma dengan data sederhana untuk memeriksa kebenaran hasilnya disebut...', opts:['Debugging','Uji coba (trace)','Refactoring','Kompilasi'], correct:1,
+   exp:'Uji coba atau trace adalah proses menelusuri jalannya algoritma untuk memeriksa hasilnya.'},
+  {q:'Jika hasil algoritma masih salah setelah diuji coba, langkah selanjutnya adalah...', opts:['Menghapus semua kode dan berhenti', 'Memperbaiki algoritma lalu menguji coba lagi', 'Mengubah nama variabel saja', 'Membiarkannya karena sudah cukup baik'], correct:1,
+   exp:'Kita perlu menemukan kesalahannya, memperbaikinya, lalu menguji coba kembali sampai hasilnya benar.'},
+];
+
+const finalQuizEl = document.getElementById('finalQuiz');
+function renderQuiz(){
+  finalQuizEl.innerHTML = '';
+  quizData.forEach((item, qi)=>{
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.dataset.qi = qi;
+    card.innerHTML = '<div class="qn">Soal '+(qi+1)+' dari '+quizData.length+'</div>'+
+      '<div class="stmt">'+item.q+'</div>'+
+      '<div class="opt-row" style="flex-direction:column; align-items:stretch;">'+
+      item.opts.map((o,oi)=>'<button class="opt-btn" style="text-align:left;" data-oi="'+oi+'" onclick="selectQuizOption(this,'+qi+','+oi+')">'+o+'</button>').join('')+
+      '</div>'+
+      '<div class="explain" data-role="exp">'+item.exp+'</div>';
+    finalQuizEl.appendChild(card);
+  });
+}
+renderQuiz();
+
+const quizAnswers = {};
+function selectQuizOption(btn, qi, oi){
+  quizAnswers[qi] = oi;
+  const card = btn.closest('.quiz-card');
+  card.querySelectorAll('.opt-btn').forEach(b=>{ b.style.borderColor=''; b.style.background=''; });
+  btn.style.borderColor = 'var(--violet)';
+  btn.style.background = 'var(--violet-dim)';
+}
+
+function scoreQuiz(){
+  let score = 0;
+  finalQuizEl.querySelectorAll('.quiz-card').forEach(card=>{
+    const qi = Number(card.dataset.qi);
+    const correct = quizData[qi].correct;
+    const chosen = quizAnswers[qi];
+    card.querySelectorAll('.opt-btn').forEach((b,oi)=>{
+      b.disabled = true;
+      if(oi === correct) b.classList.add('correct');
+      else if(oi === chosen) b.classList.add('incorrect');
+    });
+    card.querySelector('.explain').classList.add('show');
+    if(chosen === correct) score++;
+  });
+  const box = document.getElementById('scoreBox');
+  box.classList.add('show');
+  document.getElementById('scoreNum').textContent = score + '/' + quizData.length;
+  const pct = score/quizData.length;
+  let msg = '';
+  if(pct === 1) msg = 'Sempurna! Kamu sudah sangat memahami cara memecahkan masalah dengan perulangan.';
+  else if(pct >= 0.7) msg = 'Bagus! Pemahamanmu sudah cukup kuat, cek kembali soal yang salah.';
+  else msg = 'Coba pelajari lagi bagian yang masih keliru, lalu ulangi kuis ini.';
+  document.getElementById('scoreMsg').textContent = msg;
+}
+function resetQuiz(){
+  for(const k in quizAnswers) delete quizAnswers[k];
+  renderQuiz();
+  document.getElementById('scoreBox').classList.remove('show');
+}
+</script>
+</body>
+</html>

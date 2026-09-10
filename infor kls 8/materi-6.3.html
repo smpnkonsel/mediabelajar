@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keamanan Data dan Privasi — Bab 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0f14;
+    --bg-soft:#101821;
+    --panel:#152029;
+    --panel-2:#1b2733;
+    --line: rgba(148,196,192,0.14);
+    --text:#e8f1f2;
+    --text-dim:#8fa3ab;
+    --text-faint:#576a72;
+    --shield:#4fd1c5;
+    --lock:#7cc4ff;
+    --warn:#ffb454;
+    --danger:#ff6b7f;
+    --safe:#4fd18b;
+    --accent: #4fd1c5;
+    --radius: 18px;
+    --radius-sm: 10px;
+    --shadow: 0 20px 50px -20px rgba(0,0,0,0.65);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background:
+      radial-gradient(ellipse 900px 600px at 10% -10%, rgba(79,209,197,0.13), transparent 60%),
+      radial-gradient(ellipse 800px 500px at 100% 110%, rgba(124,196,255,0.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Plus Jakarta Sans', sans-serif;
+    overflow:hidden;
+  }
+  h1,h2,h3,.font-head{ font-family:'Fredoka', sans-serif; font-weight:600; letter-spacing:0.2px; }
+  .mono{ font-family:'JetBrains Mono', monospace; }
+  ::selection{ background: rgba(79,209,197,0.32); }
+
+  #app{ position:relative; width:100vw; height:100vh; display:flex; flex-direction:column; }
+
+  #topbar{ display:flex; align-items:center; gap:14px; padding:14px 24px 10px 24px; flex-shrink:0; }
+  #topbar .kode{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-faint); border:1px solid var(--line); padding:3px 9px; border-radius:999px; }
+  #topbar .judul-mini{ font-size:13px; color:var(--text-dim); }
+  #progress-wrap{ flex:1; height:6px; background:var(--panel); border-radius:999px; overflow:hidden; margin:0 6px; }
+  #progress-bar{ height:100%; width:0%; background: linear-gradient(90deg, var(--shield), var(--lock)); border-radius:999px; transition: width .45s cubic-bezier(.65,0,.35,1); }
+  #slide-counter{ font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-faint); min-width:52px; text-align:right; }
+
+  #stage{ position:relative; flex:1; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center;
+    padding: 28px 56px 34px 56px;
+    opacity:0; visibility:hidden; transform: translateY(14px) scale(0.99);
+    transition: opacity .5s cubic-bezier(.65,0,.35,1), transform .5s cubic-bezier(.65,0,.35,1);
+    overflow-y:auto;
+  }
+  .slide.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); }
+  .slide-inner{ max-width:980px; margin:0 auto; width:100%; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; color:var(--text-dim); margin-bottom:10px; }
+  .eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .slide h2{ font-size:clamp(22px,3.4vw,34px); margin:0 0 6px 0; line-height:1.15; }
+  .lead{ color:var(--text-dim); font-size:15px; margin:0 0 22px 0; max-width:660px; line-height:1.55; }
+
+  .card{ background: linear-gradient(180deg, var(--panel), var(--panel-2)); border:1px solid var(--line); border-radius: var(--radius); padding:20px 22px; box-shadow: var(--shadow); }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  @media (max-width:820px){ .grid2,.grid3,.grid4{ grid-template-columns:1fr; } }
+
+  .chip{ display:inline-block; font-size:12px; padding:3px 10px; border-radius:999px; border:1px solid var(--line); color:var(--text-dim); margin-bottom:10px; }
+
+  .acc-item{ border:1px solid var(--line); border-radius:var(--radius-sm); margin-bottom:10px; overflow:hidden; background:var(--bg-soft); }
+  .acc-head{ display:flex; align-items:center; justify-content:space-between; padding:13px 16px; cursor:pointer; user-select:none; font-size:14.5px; font-weight:600; }
+  .acc-head:hover{ background:rgba(255,255,255,0.03); }
+  .acc-head .arrow{ transition: transform .3s; color:var(--text-faint); }
+  .acc-item.open .acc-head .arrow{ transform:rotate(180deg); }
+  .acc-body{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .acc-item.open .acc-body{ max-height:400px; }
+  .acc-body-inner{ padding:0 16px 15px 16px; font-size:14px; color:var(--text-dim); line-height:1.6; }
+
+  button{ font-family:inherit; cursor:pointer; }
+  .btn{ border:1px solid var(--line); background:var(--panel-2); color:var(--text); padding:9px 16px; border-radius:10px; font-size:13.5px; font-weight:600; transition: all .2s; display:inline-flex; align-items:center; gap:6px; }
+  .btn:hover{ border-color:rgba(79,209,197,0.5); transform:translateY(-1px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-accent{ background: linear-gradient(135deg, var(--shield), #35a89d); border:none; color:#04120f; }
+  .btn-accent:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; transform:none; }
+
+  .reveal-box{ border:1px dashed var(--line); border-radius:var(--radius-sm); padding:14px 16px; background:var(--bg-soft); }
+  .reveal-content{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .reveal-content.open{ max-height:600px; margin-top:10px; }
+
+  .opt{ display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--bg-soft); color:var(--text); padding:11px 15px; border-radius:12px; margin-bottom:9px; font-size:14px; transition: all .18s; }
+  .opt:hover:not(:disabled){ border-color:var(--accent); background:rgba(79,209,197,0.08); }
+  .opt.correct{ border-color:var(--safe); background:rgba(79,209,139,0.14); }
+  .opt.wrong{ border-color:var(--danger); background:rgba(255,107,127,0.14); }
+  .opt:disabled{ cursor:default; }
+
+  .feedback{ font-size:13.5px; margin-top:10px; padding:10px 13px; border-radius:10px; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.good{ background:rgba(79,209,139,0.12); color:var(--safe); border:1px solid rgba(79,209,139,0.3); }
+  .feedback.bad{ background:rgba(255,107,127,0.12); color:var(--danger); border:1px solid rgba(255,107,127,0.3); }
+
+  .kbd{ font-family:'JetBrains Mono',monospace; font-size:11px; border:1px solid var(--line); padding:2px 6px; border-radius:6px; color:var(--text-dim); }
+
+  .cover-icons{ display:flex; gap:14px; margin:22px 0 6px 0; }
+  .cover-icons .ic{ width:56px; height:56px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; border:1px solid var(--line); }
+
+  .match-card{ border:1px solid var(--line); background:var(--bg-soft); border-radius:12px; padding:12px 14px; margin-bottom:8px; cursor:pointer; font-size:13.5px; transition:all .18s; }
+  .match-card.selected{ border-color:var(--accent); background:rgba(79,209,197,0.1); }
+  .match-card.matched{ border-color:var(--safe); background:rgba(79,209,139,0.1); opacity:0.75; cursor:default; }
+  .match-card.shake{ animation: shake .35s; border-color:var(--danger); }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+
+  .score-circle{ width:150px; height:150px; border-radius:50%; margin:16px auto; display:flex; align-items:center; justify-content:center; flex-direction:column; background: conic-gradient(var(--safe) calc(var(--pct,0) * 1%), var(--panel) 0); position:relative; }
+  .score-circle::before{ content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-soft); }
+  .score-circle .val{ position:relative; font-family:'Fredoka'; font-size:30px; font-weight:600; }
+  .score-circle .lbl{ position:relative; font-size:11px; color:var(--text-dim); }
+
+  /* data classify card */
+  .classify-card{ border:1px solid var(--line); background:var(--bg-soft); border-radius:12px; padding:13px 15px; margin-bottom:9px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .classify-card .txt{ font-size:13.5px; }
+  .classify-card .btns{ display:flex; gap:6px; flex-shrink:0; }
+  .classify-card .mini-btn{ font-size:11.5px; padding:6px 11px; border-radius:8px; border:1px solid var(--line); background:var(--panel-2); color:var(--text-dim); }
+  .classify-card .mini-btn:hover{ color:var(--text); }
+  .classify-card.done-yes{ border-color:rgba(255,107,127,0.4); }
+  .classify-card.done-no{ border-color:rgba(79,209,139,0.4); }
+  .classify-card .verdict{ font-size:11.5px; font-weight:700; display:none; }
+  .classify-card.done-yes .verdict.v-yes{ display:inline; color:var(--danger); }
+  .classify-card.done-no .verdict.v-no{ display:inline; color:var(--safe); }
+  .classify-card.done-yes .btns, .classify-card.done-no .btns{ display:none; }
+
+  /* password meter */
+  .pw-meter{ height:8px; border-radius:999px; background:var(--panel); overflow:hidden; margin-top:10px; }
+  .pw-meter-fill{ height:100%; width:0%; border-radius:999px; transition:all .3s; }
+  input[type=text], input[type=range]{ width:100%; accent-color: var(--shield); }
+  input[type=text]{
+    background:var(--bg-soft); border:1px solid var(--line); color:var(--text);
+    padding:11px 14px; border-radius:10px; font-family:'JetBrains Mono', monospace; font-size:14px;
+  }
+  input[type=text]:focus{ outline:none; border-color:var(--accent); }
+
+  /* toggle switch */
+  .toggle-row{ display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--line); }
+  .toggle-row:last-child{ border-bottom:none; }
+  .toggle-row .lbl-main{ font-size:13.5px; }
+  .toggle-row .lbl-sub{ font-size:11.5px; color:var(--text-faint); margin-top:2px; }
+  .switch{ position:relative; width:44px; height:24px; flex-shrink:0; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider-toggle{ position:absolute; cursor:pointer; inset:0; background:var(--panel-2); border:1px solid var(--line); border-radius:999px; transition:.25s; }
+  .slider-toggle::before{ content:''; position:absolute; width:17px; height:17px; left:3px; top:2.5px; background:var(--text-dim); border-radius:50%; transition:.25s; }
+  input:checked + .slider-toggle{ background:rgba(79,209,197,0.25); border-color:var(--accent); }
+  input:checked + .slider-toggle::before{ transform:translateX(20px); background:var(--shield); }
+
+  .flag-check{ display:flex; align-items:flex-start; gap:10px; padding:11px 13px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; background:var(--bg-soft); cursor:pointer; }
+  .flag-check input{ margin-top:3px; accent-color:var(--shield); }
+  .flag-check .t{ font-size:13.5px; line-height:1.5; }
+
+  #navbar{ flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:14px 24px 20px 24px; gap:14px; }
+  #dots{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:60%; }
+  .dot-btn{ width:7px; height:7px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer; transition:all .25s; }
+  .dot-btn.active{ width:20px; border-radius:5px; background:var(--accent); }
+  .navbtn{ width:42px; height:42px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:17px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+  .navbtn:hover:not(:disabled){ background:var(--panel-2); border-color:var(--accent); }
+  .navbtn:disabled{ opacity:.3; cursor:not-allowed; }
+
+  .badge-good{ color:var(--safe); font-weight:700; }
+  .badge-bad{ color:var(--danger); font-weight:700; }
+  .badge-warn{ color:var(--warn); font-weight:700; }
+  ul.spaced li{ margin-bottom:6px; }
+
+  .phish-box{ border:1px solid var(--line); border-radius:14px; overflow:hidden; background:var(--bg-soft); }
+  .phish-head{ background:var(--panel-2); padding:10px 16px; font-size:12px; color:var(--text-dim); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; }
+  .phish-body{ padding:16px; font-size:13.5px; line-height:1.7; }
+
+  @media (max-width:720px){
+    .slide{ padding:20px 18px 24px 18px; }
+    #topbar{ padding:12px 16px 8px 16px; }
+    #navbar{ padding:10px 16px 16px 16px; }
+    #dots{ display:none; }
+    .grid3,.grid4{ grid-template-columns:1fr; }
+    .classify-card{ flex-direction:column; align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="topbar">
+    <span class="kode mono">Bab 6</span>
+    <span class="judul-mini">Keamanan Data dan Privasi</span>
+    <div id="progress-wrap"><div id="progress-bar"></div></div>
+    <span id="slide-counter" class="mono">1 / 1</span>
+  </div>
+
+  <div id="stage"></div>
+
+  <div id="navbar">
+    <button class="navbtn" id="btn-prev" onclick="prevSlide()">‹</button>
+    <div id="dots"></div>
+    <button class="navbtn" id="btn-next" onclick="nextSlide()">›</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   SLIDE DEFINITIONS
+   ========================================================= */
+const slides = [];
+
+/* ---- 1. PEMBUKA ---- */
+slides.push({title:'Pembuka', html:`
+  <div class="eyebrow"><span class="dot"></span>Informatika · Bab 6 · Komunikasi dan Keamanan Data</div>
+  <h2>Keamanan Data dan Privasi</h2>
+  <p class="lead">Mengenal apa itu keamanan data, privasi digital, data pribadi, dan mengapa melindungi informasi kita itu penting di dunia digital.</p>
+  <div class="cover-icons">
+    <div class="ic" style="background:rgba(79,209,197,0.12); color:var(--shield);">🛡</div>
+    <div class="ic" style="background:rgba(124,196,255,0.12); color:var(--lock);">🔒</div>
+    <div class="ic" style="background:rgba(255,180,84,0.12); color:var(--warn);">⚠</div>
+    <div class="ic" style="background:rgba(79,209,139,0.12); color:var(--safe);">👤</div>
+  </div>
+  <p style="color:var(--text-faint); font-size:13px; margin-top:18px;">Geser dengan tombol di bawah, atau gunakan tombol panah keyboard.</p>
+`});
+
+/* ---- 2. APERSEPSI ---- */
+slides.push({title:'Apersepsi', html:`
+  <div class="eyebrow"><span class="dot"></span>Apersepsi</div>
+  <h2>Sadarkah kamu, seberapa banyak data yang kamu bagikan hari ini?</h2>
+  <p class="lead">Coba ingat-ingat aktivitas digitalmu hari ini.</p>
+  <div class="grid3">
+    <div class="card"><div class="chip">Mendaftar akun</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Mengisi nama, tanggal lahir, dan nomor HP di sebuah aplikasi baru.</p></div>
+    <div class="card"><div class="chip">Media sosial</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Mengunggah foto dan menandai lokasi tempat kamu berada.</p></div>
+    <div class="card"><div class="chip">Pesan masuk</div><p style="font-size:13.5px; color:var(--text-dim); line-height:1.6;">Menerima pesan berisi tautan "Kamu memenangkan hadiah! Klik di sini."</p></div>
+  </div>
+  <div class="reveal-box" style="margin-top:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('rv-aper')">
+      <strong style="font-size:14px;">🤔 Apa yang mungkin terjadi jika data-data itu jatuh ke tangan yang salah?</strong>
+      <span class="btn" style="pointer-events:none;">Lihat gambaran</span>
+    </div>
+    <div class="reveal-content" id="rv-aper">
+      <p style="font-size:13.5px; color:var(--text-dim); line-height:1.6; padding-top:10px;">
+      Data yang bocor bisa disalahgunakan untuk penipuan, pencurian identitas, atau bahkan mengancam keselamatan kita. Karena itu, memahami keamanan data dan privasi digital menjadi keterampilan penting di era digital. Itulah yang akan kita pelajari hari ini.
+      </p>
+    </div>
+  </div>
+`});
+
+/* ---- 3. TUJUAN ---- */
+slides.push({title:'Tujuan Pembelajaran', html:`
+  <div class="eyebrow"><span class="dot"></span>Tujuan Pembelajaran</div>
+  <h2>Setelah pembelajaran ini, kamu mampu:</h2>
+  <div class="card">
+    <ul class="spaced" style="font-size:14.5px; line-height:1.7; padding-left:20px; margin:0;">
+      <li>Menjelaskan pengertian <strong>keamanan data</strong> dan <strong>privasi digital</strong>.</li>
+      <li>Mengidentifikasi contoh <strong>data pribadi</strong> dalam kehidupan sehari-hari.</li>
+      <li>Menjelaskan mengapa <strong>melindungi informasi pribadi</strong> itu penting.</li>
+      <li>Mengenali <strong>ancaman umum</strong> terhadap keamanan data, seperti phishing dan kata sandi lemah.</li>
+      <li>Menerapkan <strong>langkah-langkah sederhana</strong> untuk melindungi data pribadi di dunia digital.</li>
+    </ul>
+  </div>
+`});
+
+/* ---- 4. KONSEP: KEAMANAN DATA ---- */
+slides.push({title:'Konsep — Keamanan Data', html:`
+  <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+  <h2>Apa itu keamanan data?</h2>
+  <p class="lead"><strong>Keamanan data (data security)</strong> adalah segala upaya untuk melindungi data dari akses, perubahan, pencurian, atau kerusakan yang tidak sah — baik data milik pribadi, sekolah, maupun perusahaan.</p>
+  <div class="card">
+    <div class="chip">Analogi sederhana</div>
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.7;">Bayangkan datamu seperti barang berharga di rumah. <strong>Keamanan data</strong> ibarat kunci pintu, pagar, dan brankas — cara-cara untuk menjaga agar barang itu tidak dicuri atau dirusak orang lain.</p>
+  </div>
+`});
+
+/* ---- 5. KONSEP: PRIVASI DIGITAL ---- */
+slides.push({title:'Konsep — Privasi Digital', html:`
+  <div class="eyebrow"><span class="dot"></span>Konsep Dasar</div>
+  <h2>Apa itu privasi digital?</h2>
+  <p class="lead"><strong>Privasi digital</strong> adalah hak seseorang untuk menentukan sendiri informasi apa tentang dirinya yang boleh diketahui, disimpan, atau dibagikan orang lain di dunia digital.</p>
+  <div class="grid2">
+    <div class="acc-item" id="acc-1"><div class="acc-head" onclick="toggleAcc('acc-1')"><span>Apa bedanya keamanan data dan privasi digital?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner"><strong>Keamanan data</strong> berfokus pada cara <em>melindungi</em> data dari pencurian atau kerusakan. <strong>Privasi digital</strong> berfokus pada <em>hak dan kontrol</em> seseorang atas informasi pribadinya — siapa yang boleh tahu, dan sejauh apa.</div></div></div>
+    <div class="acc-item" id="acc-2"><div class="acc-head" onclick="toggleAcc('acc-2')"><span>Contoh pelanggaran privasi digital</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Aplikasi membagikan nomor HP penggunanya ke pihak lain tanpa izin, atau seseorang menyebarkan foto pribadi orang lain tanpa persetujuan.</div></div></div>
+  </div>
+`});
+
+/* ---- 6. DATA PRIBADI: pengertian & jenis ---- */
+slides.push({title:'Data Pribadi — Pengertian', html:`
+  <div class="eyebrow"><span class="dot"></span>Data Pribadi</div>
+  <h2>Apa saja yang termasuk data pribadi?</h2>
+  <p class="lead"><strong>Data pribadi</strong> adalah setiap informasi yang dapat digunakan untuk mengenali atau menghubungkan suatu data dengan seseorang tertentu, baik secara langsung maupun tidak langsung.</p>
+  <div class="grid4">
+    <div class="card"><div class="chip">Identitas</div><p style="font-size:12.5px; color:var(--text-dim);">Nama lengkap, tanggal lahir, NIK</p></div>
+    <div class="card"><div class="chip">Kontak</div><p style="font-size:12.5px; color:var(--text-dim);">Nomor HP, alamat email, alamat rumah</p></div>
+    <div class="card"><div class="chip">Finansial</div><p style="font-size:12.5px; color:var(--text-dim);">Nomor rekening, kata sandi akun</p></div>
+    <div class="card"><div class="chip">Biometrik & lokasi</div><p style="font-size:12.5px; color:var(--text-dim);">Sidik jari, wajah, titik lokasi GPS</p></div>
+  </div>
+`});
+
+/* ---- 7. DATA PRIBADI: klasifikasi interaktif ---- */
+slides.push({title:'Data Pribadi — Klasifikasi', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Klasifikasi</div>
+  <h2>Termasuk data pribadi atau bukan?</h2>
+  <p class="lead">Untuk setiap contoh, tentukan apakah itu termasuk data pribadi.</p>
+  <div id="classify-list"></div>
+`});
+
+/* ---- 8. PENTINGNYA MELINDUNGI DATA ---- */
+slides.push({title:'Pentingnya Melindungi Data', html:`
+  <div class="eyebrow"><span class="dot"></span>Mengapa Ini Penting</div>
+  <h2>Apa akibatnya jika data pribadi bocor?</h2>
+  <div class="grid2">
+    <div class="card"><div class="chip" style="color:var(--danger); border-color:rgba(255,107,127,0.4);">Pencurian identitas</div><p style="font-size:13.5px; color:var(--text-dim);">Data seperti NIK dan nomor rekening disalahgunakan untuk berpura-pura menjadi diri kita.</p></div>
+    <div class="card"><div class="chip" style="color:var(--danger); border-color:rgba(255,107,127,0.4);">Penipuan online</div><p style="font-size:13.5px; color:var(--text-dim);">Data kontak dipakai untuk mengirim pesan penipuan yang terkesan meyakinkan.</p></div>
+    <div class="card"><div class="chip" style="color:var(--danger); border-color:rgba(255,107,127,0.4);">Kerugian finansial</div><p style="font-size:13.5px; color:var(--text-dim);">Akun keuangan dibobol karena kata sandi atau data kartu bocor.</p></div>
+    <div class="card"><div class="chip" style="color:var(--danger); border-color:rgba(255,107,127,0.4);">Kerugian reputasi</div><p style="font-size:13.5px; color:var(--text-dim);">Foto atau informasi pribadi disebarluaskan tanpa izin dan mencoreng nama baik.</p></div>
+  </div>
+`});
+
+/* ---- 9. ANCAMAN UMUM ---- */
+slides.push({title:'Ancaman Umum', html:`
+  <div class="eyebrow"><span class="dot"></span>Ancaman Keamanan Data</div>
+  <h2>Kenali ancaman-ancaman ini</h2>
+  <div class="acc-item" id="th-1"><div class="acc-head" onclick="toggleAcc('th-1')"><span>🎣 Phishing</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Upaya menipu seseorang agar memberikan data pribadi melalui pesan, email, atau tautan palsu yang tampak meyakinkan.</div></div></div>
+  <div class="acc-item" id="th-2"><div class="acc-head" onclick="toggleAcc('th-2')"><span>🦠 Malware</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Program berbahaya yang dapat mencuri, merusak, atau mengunci data di perangkat tanpa sepengetahuan pemiliknya.</div></div></div>
+  <div class="acc-item" id="th-3"><div class="acc-head" onclick="toggleAcc('th-3')"><span>🔑 Kata sandi lemah</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Kata sandi yang mudah ditebak (seperti "123456" atau tanggal lahir) memudahkan orang lain membobol akun kita.</div></div></div>
+  <div class="acc-item" id="th-4"><div class="acc-head" onclick="toggleAcc('th-4')"><span>📶 Wi-Fi publik tidak aman</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Jaringan Wi-Fi gratis tanpa kata sandi rentan disadap, sehingga data yang dikirim melalui jaringan itu bisa dicuri.</div></div></div>
+  <div class="acc-item" id="th-5"><div class="acc-head" onclick="toggleAcc('th-5')"><span>🎭 Rekayasa sosial</span><span class="arrow">▾</span></div>
+    <div class="acc-body"><div class="acc-body-inner">Manipulasi psikologis agar seseorang secara sukarela membocorkan data, misalnya berpura-pura menjadi petugas resmi.</div></div></div>
+`});
+
+/* ---- 10. DETEKSI PHISHING INTERAKTIF ---- */
+slides.push({title:'Mendeteksi Phishing', html:`
+  <div class="eyebrow"><span class="dot"></span>Studi Kasus</div>
+  <h2>Cermati pesan berikut ini</h2>
+  <p class="lead">Centang ciri-ciri yang menurutmu menunjukkan bahwa pesan ini adalah phishing (penipuan), lalu klik periksa.</p>
+  <div class="phish-box">
+    <div class="phish-head"><span>Pesan Masuk</span><span>Tidak dikenal</span></div>
+    <div class="phish-body">
+      "Selamat! Nomor Anda terpilih memenangkan hadiah Rp 10.000.000. Segera klik <span class="mono" style="color:var(--lock);">bit.ly/klaim-hadiah-cepat</span> dan masukkan NOMOR REKENING serta KATA SANDI akun Anda dalam 1 jam, atau hadiah akan hangus!"
+    </div>
+  </div>
+  <div style="margin-top:16px;" id="phish-checks">
+    <label class="flag-check"><input type="checkbox" data-i="0"><span class="t">Menjanjikan hadiah besar secara tiba-tiba</span></label>
+    <label class="flag-check"><input type="checkbox" data-i="1"><span class="t">Meminta data rekening dan kata sandi</span></label>
+    <label class="flag-check"><input type="checkbox" data-i="2"><span class="t">Menggunakan tautan singkat yang mencurigakan</span></label>
+    <label class="flag-check"><input type="checkbox" data-i="3"><span class="t">Memberi tekanan waktu agar cepat bertindak</span></label>
+  </div>
+  <button class="btn btn-accent" style="margin-top:6px;" onclick="checkPhishing()">Periksa jawabanku</button>
+  <div class="feedback" id="phish-fb"></div>
+`});
+
+/* ---- 11. CARA MELINDUNGI DATA ---- */
+slides.push({title:'Cara Melindungi Data', html:`
+  <div class="eyebrow"><span class="dot"></span>Langkah Perlindungan</div>
+  <h2>Bagaimana cara melindungi data pribadi?</h2>
+  <div class="grid3">
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Kata sandi kuat</div><p style="font-size:13px; color:var(--text-dim);">Gunakan kombinasi huruf besar, kecil, angka, dan simbol yang tidak mudah ditebak.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Autentikasi dua faktor</div><p style="font-size:13px; color:var(--text-dim);">Tambahkan lapisan verifikasi kedua, seperti kode OTP, selain kata sandi.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Berhati-hati berbagi</div><p style="font-size:13px; color:var(--text-dim);">Pikirkan dulu sebelum membagikan data pribadi ke aplikasi atau orang asing.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Periksa pengaturan privasi</div><p style="font-size:13px; color:var(--text-dim);">Atur siapa saja yang bisa melihat profil dan unggahanmu di media sosial.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Waspada tautan asing</div><p style="font-size:13px; color:var(--text-dim);">Jangan asal klik tautan atau lampiran dari pengirim yang tidak dikenal.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Perbarui perangkat lunak</div><p style="font-size:13px; color:var(--text-dim);">Selalu perbarui aplikasi dan sistem agar celah keamanan lama tertutup.</p></div>
+  </div>
+`});
+
+/* ---- 12. SIMULASI KEKUATAN KATA SANDI ---- */
+slides.push({title:'Simulasi Kekuatan Kata Sandi', html:`
+  <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+  <h2>Seberapa kuat kata sandimu?</h2>
+  <p class="lead">Ketik contoh kata sandi (bukan kata sandi asli akunmu ya!) untuk melihat simulasi tingkat kekuatannya.</p>
+  <div class="card">
+    <input type="text" id="pw-input" placeholder="Ketik contoh kata sandi di sini..." oninput="checkPasswordStrength(this.value)">
+    <div class="pw-meter"><div class="pw-meter-fill" id="pw-fill"></div></div>
+    <div id="pw-label" style="margin-top:10px; font-size:13.5px; color:var(--text-dim);">Mulai ketik untuk melihat tingkat kekuatan.</div>
+    <ul id="pw-tips" style="font-size:12.5px; color:var(--text-faint); margin-top:10px; padding-left:18px; line-height:1.8;"></ul>
+  </div>
+`});
+
+/* ---- 13. SIMULASI PENGATURAN PRIVASI ---- */
+slides.push({title:'Simulasi Pengaturan Privasi', html:`
+  <div class="eyebrow"><span class="dot"></span>Coba Sendiri</div>
+  <h2>Atur privasi akun media sosialmu</h2>
+  <p class="lead">Ini adalah simulasi. Coba nyalakan/matikan pengaturan berikut dan lihat bagaimana pengaruhnya terhadap keamanan datamu.</p>
+  <div class="card">
+    <div class="toggle-row">
+      <div><div class="lbl-main">Profil privat</div><div class="lbl-sub">Hanya pengikut yang disetujui bisa melihat unggahanmu</div></div>
+      <label class="switch"><input type="checkbox" checked onchange="updatePrivacyScore()"><span class="slider-toggle"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="lbl-main">Bagikan lokasi otomatis</div><div class="lbl-sub">Lokasimu ditandai otomatis di setiap unggahan</div></div>
+      <label class="switch"><input type="checkbox" onchange="updatePrivacyScore()"><span class="slider-toggle"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="lbl-main">Autentikasi dua faktor</div><div class="lbl-sub">Butuh kode tambahan saat masuk dari perangkat baru</div></div>
+      <label class="switch"><input type="checkbox" checked onchange="updatePrivacyScore()"><span class="slider-toggle"></span></label>
+    </div>
+    <div class="toggle-row">
+      <div><div class="lbl-main">Terima permintaan dari siapa saja</div><div class="lbl-sub">Orang tak dikenal bisa langsung mengirim pesan ke kamu</div></div>
+      <label class="switch"><input type="checkbox" onchange="updatePrivacyScore()"><span class="slider-toggle"></span></label>
+    </div>
+  </div>
+  <div class="reveal-box" style="margin-top:14px;">
+    <span id="privacy-verdict" style="font-size:13.5px;"></span>
+  </div>
+`});
+
+/* ---- 14. LATIHAN BENAR/SALAH ---- */
+slides.push({title:'Latihan Benar/Salah', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan</div>
+  <h2>Benar atau salah?</h2>
+  <p class="lead">Klik pernyataan untuk memeriksa jawabanmu.</p>
+  <div id="tf-list"></div>
+`});
+
+/* ---- 15. LATIHAN MATCHING ---- */
+slides.push({title:'Latihan — Ancaman & Pencegahan', html:`
+  <div class="eyebrow"><span class="dot"></span>Latihan Mencocokkan</div>
+  <h2>Pasangkan ancaman dengan cara pencegahannya</h2>
+  <p class="lead">Klik satu kartu ancaman di kiri, lalu klik cara pencegahan yang paling cocok di kanan.</p>
+  <div class="grid2">
+    <div><div class="chip">Ancaman</div><div id="match-left"></div></div>
+    <div><div class="chip">Cara pencegahan</div><div id="match-right"></div></div>
+  </div>
+  <div class="feedback" id="match-feedback"></div>
+`});
+
+/* ---- 16. KUIS ---- */
+slides.push({title:'Kuis', html:`
+  <div class="eyebrow"><span class="dot"></span>Kuis Akhir</div>
+  <h2>Uji Pemahamanmu</h2>
+  <div id="quiz-area"></div>
+`});
+
+/* ---- 17. REFLEKSI ---- */
+slides.push({title:'Refleksi', html:`
+  <div class="eyebrow"><span class="dot"></span>Refleksi</div>
+  <h2>Sebelum lanjut, coba renungkan</h2>
+  <div class="grid2">
+    <div class="acc-item" id="r1"><div class="acc-head" onclick="toggleAcc('r1')"><span>Pernahkah kamu membagikan data pribadi tanpa berpikir panjang?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Coba ingat kembali situasi tersebut. Apakah yang akan kamu lakukan berbeda sekarang setelah mempelajari materi ini?</div></div></div>
+    <div class="acc-item" id="r2"><div class="acc-head" onclick="toggleAcc('r2')"><span>Satu kebiasaan digital apa yang ingin kamu ubah mulai sekarang?</span><span class="arrow">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Misalnya membuat kata sandi lebih kuat, mengaktifkan autentikasi dua faktor, atau lebih berhati-hati mengklik tautan asing.</div></div></div>
+  </div>
+`});
+
+/* ---- 18. RANGKUMAN ---- */
+slides.push({title:'Rangkuman', html:`
+  <div class="eyebrow"><span class="dot"></span>Rangkuman</div>
+  <h2>Yang telah kita pelajari</h2>
+  <div class="grid2">
+    <div class="card"><div class="chip" style="color:var(--shield); border-color:rgba(79,209,197,0.4);">Keamanan Data</div><p style="font-size:13.5px; color:var(--text-dim);">Upaya melindungi data dari akses, pencurian, atau kerusakan yang tidak sah.</p></div>
+    <div class="card"><div class="chip" style="color:var(--lock); border-color:rgba(124,196,255,0.4);">Privasi Digital</div><p style="font-size:13.5px; color:var(--text-dim);">Hak seseorang menentukan siapa yang boleh tahu informasi pribadinya.</p></div>
+    <div class="card"><div class="chip" style="color:var(--warn); border-color:rgba(255,180,84,0.4);">Data Pribadi</div><p style="font-size:13.5px; color:var(--text-dim);">Informasi yang dapat mengenali seseorang: identitas, kontak, finansial, biometrik.</p></div>
+    <div class="card"><div class="chip" style="color:var(--safe); border-color:rgba(79,209,139,0.4);">Melindungi Informasi</div><p style="font-size:13.5px; color:var(--text-dim);">Kata sandi kuat, dua faktor, hati-hati berbagi, dan waspada tautan asing.</p></div>
+  </div>
+  <p class="lead" style="margin-top:16px;">Kunci utamanya: <strong>pikirkan dulu sebelum membagikan data</strong>, dan selalu waspada terhadap pesan atau tautan yang mencurigakan.</p>
+`});
+
+/* ---- 19. PENUTUP ---- */
+slides.push({title:'Penutup', html:`
+  <div class="eyebrow"><span class="dot"></span>Penutup</div>
+  <h2>Selesai! 🎉</h2>
+  <p class="lead">Kamu telah menyelesaikan materi <strong>Bab 6 — Keamanan Data dan Privasi</strong>: pengertian keamanan data, privasi digital, data pribadi, dan pentingnya melindungi informasi.</p>
+  <div class="card">
+    <p style="font-size:13.5px; color:var(--text-dim); line-height:1.7;">Mulai sekarang, coba terapkan satu kebiasaan baru: periksa pengaturan privasi akun media sosialmu, atau perkuat kata sandi akun pentingmu.</p>
+  </div>
+  <button class="btn btn-accent" style="margin-top:18px;" onclick="goTo(0)">↺ Ulangi dari awal</button>
+`});
+
+/* =========================================================
+   RENDER SLIDES
+   ========================================================= */
+const stage = document.getElementById('stage');
+slides.forEach((s,i)=>{
+  const div = document.createElement('div');
+  div.className = 'slide';
+  div.id = 'slide-'+i;
+  div.innerHTML = `<div class="slide-inner">${s.html}</div>`;
+  stage.appendChild(div);
+});
+const dotsWrap = document.getElementById('dots');
+slides.forEach((s,i)=>{
+  const b = document.createElement('button');
+  b.className='dot-btn';
+  b.title = s.title;
+  b.onclick = ()=>goTo(i);
+  dotsWrap.appendChild(b);
+});
+
+let current = 0;
+function render(){
+  slides.forEach((s,i)=>{
+    document.getElementById('slide-'+i).classList.toggle('active', i===current);
+  });
+  document.querySelectorAll('.dot-btn').forEach((d,i)=>d.classList.toggle('active', i===current));
+  document.getElementById('progress-bar').style.width = ((current+1)/slides.length*100)+'%';
+  document.getElementById('slide-counter').textContent = (current+1)+' / '+slides.length;
+  document.getElementById('btn-prev').disabled = current===0;
+  document.getElementById('btn-next').disabled = current===slides.length-1;
+}
+function goTo(i){ current = Math.max(0, Math.min(slides.length-1, i)); render(); }
+function nextSlide(){ goTo(current+1); }
+function prevSlide(){ goTo(current-1); }
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') nextSlide();
+  if(e.key==='ArrowLeft') prevSlide();
+});
+render();
+
+/* =========================================================
+   ACCORDION + REVEAL
+   ========================================================= */
+function toggleAcc(id){ document.getElementById(id).classList.toggle('open'); }
+function toggleReveal(id){ document.getElementById(id).classList.toggle('open'); }
+
+/* =========================================================
+   DATA PRIBADI — KLASIFIKASI
+   ========================================================= */
+const classifyItems = [
+  {txt:'Nama lengkap dan tanggal lahir', isPersonal:true},
+  {txt:'Warna favorit yang kamu sebutkan di kelas', isPersonal:false},
+  {txt:'Nomor Induk Kependudukan (NIK)', isPersonal:true},
+  {txt:'Judul buku pelajaran yang dipakai di sekolah', isPersonal:false},
+  {txt:'Nomor HP dan alamat rumah', isPersonal:true},
+  {txt:'Nama ibu kota provinsi tempat tinggalmu', isPersonal:false},
+];
+function renderClassify(){
+  const wrap = document.getElementById('classify-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  classifyItems.forEach((item,i)=>{
+    const el = document.createElement('div');
+    el.className='classify-card';
+    el.id='cl-'+i;
+    el.innerHTML = `
+      <span class="txt">${item.txt}</span>
+      <div class="btns">
+        <button class="mini-btn" onclick="classifyAnswer(${i}, true)">Data pribadi</button>
+        <button class="mini-btn" onclick="classifyAnswer(${i}, false)">Bukan</button>
+      </div>
+      <span class="verdict v-yes">✓ Data pribadi</span>
+      <span class="verdict v-no">✓ Bukan data pribadi</span>
+    `;
+    wrap.appendChild(el);
+  });
+}
+function classifyAnswer(i, guess){
+  const item = classifyItems[i];
+  const el = document.getElementById('cl-'+i);
+  if(guess === item.isPersonal){
+    el.classList.add(item.isPersonal ? 'done-yes' : 'done-no');
+  } else {
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'), 350);
+  }
+}
+renderClassify();
+
+/* =========================================================
+   DETEKSI PHISHING
+   ========================================================= */
+function checkPhishing(){
+  const boxes = document.querySelectorAll('#phish-checks input');
+  let checkedCount = 0;
+  boxes.forEach(b=>{ if(b.checked) checkedCount++; });
+  const fb = document.getElementById('phish-fb');
+  if(checkedCount === boxes.length){
+    fb.className='feedback show good';
+    fb.textContent = '✓ Tepat sekali! Semua ciri itu — hadiah tiba-tiba, permintaan data rekening & kata sandi, tautan mencurigakan, dan tekanan waktu — adalah tanda klasik phishing. Jangan pernah klik atau membalas pesan seperti ini.';
+  } else {
+    fb.className='feedback show bad';
+    fb.textContent = '✗ Sebenarnya keempat ciri pada pesan itu adalah tanda-tanda phishing. Coba centang semuanya, lalu periksa lagi.';
+  }
+}
+
+/* =========================================================
+   SIMULASI KEKUATAN KATA SANDI
+   ========================================================= */
+function checkPasswordStrength(val){
+  const fill = document.getElementById('pw-fill');
+  const label = document.getElementById('pw-label');
+  const tipsEl = document.getElementById('pw-tips');
+  if(!val){
+    fill.style.width='0%'; fill.style.background='var(--panel-2)';
+    label.textContent='Mulai ketik untuk melihat tingkat kekuatan.';
+    tipsEl.innerHTML=''; return;
+  }
+  let score=0;
+  const tips=[];
+  if(val.length>=8) score++; else tips.push('Gunakan minimal 8 karakter.');
+  if(/[A-Z]/.test(val)) score++; else tips.push('Tambahkan huruf besar (A-Z).');
+  if(/[a-z]/.test(val)) score++; else tips.push('Tambahkan huruf kecil (a-z).');
+  if(/[0-9]/.test(val)) score++; else tips.push('Tambahkan angka (0-9).');
+  if(/[^A-Za-z0-9]/.test(val)) score++; else tips.push('Tambahkan simbol (!,@,#, dst).');
+
+  const levels = [
+    {min:0,label:'Sangat lemah', color:'var(--danger)', pct:15},
+    {min:2,label:'Lemah', color:'var(--warn)', pct:40},
+    {min:3,label:'Sedang', color:'var(--warn)', pct:60},
+    {min:4,label:'Kuat', color:'var(--safe)', pct:80},
+    {min:5,label:'Sangat kuat', color:'var(--safe)', pct:100},
+  ];
+  let lvl = levels[0];
+  levels.forEach(l=>{ if(score>=l.min) lvl=l; });
+  fill.style.width = lvl.pct+'%';
+  fill.style.background = lvl.color;
+  label.innerHTML = `Tingkat kekuatan: <strong style="color:${lvl.color};">${lvl.label}</strong>`;
+  tipsEl.innerHTML = tips.map(t=>'<li>'+t+'</li>').join('');
+}
+
+/* =========================================================
+   SIMULASI PENGATURAN PRIVASI
+   ========================================================= */
+function updatePrivacyScore(){
+  const toggles = document.querySelectorAll('.toggle-row .switch input');
+  const states = Array.from(toggles).map(t=>t.checked);
+  // states[0]=profil privat(baik jika ON), [1]=bagikan lokasi(baik jika OFF), [2]=2FA(baik jika ON), [3]=terima siapa saja(baik jika OFF)
+  let score=0;
+  if(states[0]) score++;
+  if(!states[1]) score++;
+  if(states[2]) score++;
+  if(!states[3]) score++;
+  const verdict = document.getElementById('privacy-verdict');
+  const msgs = [
+    'Pengaturan ini sangat rawan — data dan lokasimu mudah diakses orang tak dikenal.',
+    'Masih ada beberapa celah privasi yang perlu diperbaiki.',
+    'Sudah cukup baik, tapi masih bisa lebih aman lagi.',
+    'Cukup aman! Sebagian besar pengaturan sudah melindungi privasimu.',
+    '🎉 Pengaturan ini sudah sangat aman dan menjaga privasimu dengan baik!'
+  ];
+  const colors = ['var(--danger)','var(--danger)','var(--warn)','var(--safe)','var(--safe)'];
+  verdict.style.color = colors[score];
+  verdict.innerHTML = '<strong>Skor privasi: '+score+'/4</strong> — '+msgs[score];
+}
+updatePrivacyScore();
+
+/* =========================================================
+   LATIHAN BENAR/SALAH
+   ========================================================= */
+const tfItems = [
+  {txt:'Menggunakan kata sandi yang sama untuk semua akun adalah praktik yang aman.', answer:false, exp:'Salah. Jika satu akun bocor, semua akun lain ikut berisiko dibobol. Gunakan kata sandi berbeda untuk tiap akun.'},
+  {txt:'Nomor telepon dan alamat rumah termasuk data pribadi.', answer:true, exp:'Benar. Keduanya dapat digunakan untuk mengenali dan menghubungi seseorang secara langsung.'},
+  {txt:'Autentikasi dua faktor membuat akun lebih sulit dibobol.', answer:true, exp:'Benar. Dua faktor menambah lapisan keamanan selain kata sandi, misalnya kode OTP.'},
+  {txt:'Semua pesan yang menjanjikan hadiah besar secara tiba-tiba pasti aman untuk diklik.', answer:false, exp:'Salah. Ini justru ciri umum pesan phishing yang perlu diwaspadai.'},
+];
+function renderTF(){
+  const wrap = document.getElementById('tf-list');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  tfItems.forEach((item,i)=>{
+    const box = document.createElement('div');
+    box.className='reveal-box';
+    box.style.marginBottom='10px';
+    box.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleReveal('tf-${i}')">
+        <span style="font-size:13.5px;">${item.txt}</span>
+        <span class="btn" style="pointer-events:none; font-size:12px; padding:5px 10px; flex-shrink:0; margin-left:10px;">Cek</span>
+      </div>
+      <div class="reveal-content" id="tf-${i}">
+        <p style="padding-top:8px; font-size:13.5px; color:var(--text-dim);"><span class="${item.answer?'badge-good':'badge-bad'}">${item.answer?'BENAR':'SALAH'}</span> — ${item.exp}</p>
+      </div>
+    `;
+    wrap.appendChild(box);
+  });
+}
+renderTF();
+
+/* =========================================================
+   MATCHING LATIHAN
+   ========================================================= */
+const matchPairs = [
+  {id:'a', situasi:'Pesan berisi tautan mencurigakan yang meminta data akun', bentuk:'phishing'},
+  {id:'b', situasi:'Kata sandi "123456" dipakai untuk semua akun', bentuk:'sandi'},
+  {id:'c', situasi:'Transaksi perbankan dilakukan lewat Wi-Fi gratis di kafe', bentuk:'wifi'},
+  {id:'d', situasi:'Seseorang mengaku petugas bank dan meminta kode OTP', bentuk:'sosial'},
+];
+const bentukLabel = {phishing:'Jangan klik tautan asing, verifikasi sumbernya', sandi:'Gunakan kata sandi kuat & berbeda tiap akun', wifi:'Hindari transaksi penting di Wi-Fi publik', sosial:'Jangan bagikan kode OTP ke siapa pun'};
+let selectedSituasi = null;
+let matchedCount = 0;
+
+function renderMatch(){
+  const left = document.getElementById('match-left');
+  const right = document.getElementById('match-right');
+  if(!left) return;
+  left.innerHTML=''; right.innerHTML='';
+  matchPairs.forEach(p=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='sit-'+p.id;
+    el.textContent = p.situasi;
+    el.onclick = ()=>selectSituasi(p.id, el);
+    left.appendChild(el);
+  });
+  const bentukOrder = ['phishing','sandi','wifi','sosial'];
+  bentukOrder.forEach(b=>{
+    const el = document.createElement('div');
+    el.className='match-card';
+    el.id='bnt-'+b;
+    el.textContent = bentukLabel[b];
+    el.onclick = ()=>selectBentuk(b, el);
+    right.appendChild(el);
+  });
+}
+function selectSituasi(id, el){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-left .match-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSituasi = id;
+}
+function selectBentuk(bentuk, el){
+  if(el.classList.contains('matched') || !selectedSituasi) return;
+  const pair = matchPairs.find(p=>p.id===selectedSituasi);
+  const fb = document.getElementById('match-feedback');
+  if(pair.bentuk === bentuk){
+    document.getElementById('sit-'+selectedSituasi).classList.add('matched');
+    document.getElementById('sit-'+selectedSituasi).classList.remove('selected');
+    el.classList.add('matched');
+    matchedCount++;
+    fb.className='feedback show good';
+    fb.textContent = '✓ Tepat! Cara terbaik menghadapi "'+pair.situasi+'" adalah: '+bentukLabel[bentuk]+'.';
+    if(matchedCount===matchPairs.length){ fb.textContent += ' 🎉 Semua pasangan sudah tepat!'; }
+  } else {
+    el.classList.add('shake');
+    setTimeout(()=>el.classList.remove('shake'), 350);
+    fb.className='feedback show bad';
+    fb.textContent = '✗ Belum tepat, coba pikirkan lagi ancaman apa yang paling sesuai dengan cara pencegahan itu.';
+  }
+  selectedSituasi = null;
+}
+renderMatch();
+
+/* =========================================================
+   KUIS
+   ========================================================= */
+const quizData = [
+  {q:'Upaya melindungi data dari akses, pencurian, atau kerusakan yang tidak sah disebut…', options:['Privasi digital','Keamanan data','Data pribadi','Rekayasa sosial'], correct:1, exp:'Keamanan data adalah segala upaya untuk melindungi data dari akses, perubahan, pencurian, atau kerusakan yang tidak sah.'},
+  {q:'Manakah yang TERMASUK data pribadi?', options:['Warna favorit kelas','Nomor Induk Kependudukan (NIK)','Nama ibu kota negara','Judul buku pelajaran'], correct:1, exp:'NIK dapat digunakan untuk mengenali seseorang secara langsung, sehingga termasuk data pribadi.'},
+  {q:'Pesan yang menjanjikan hadiah besar dan meminta data rekening secara mendesak adalah ciri dari…', options:['Autentikasi dua faktor','Privasi digital','Phishing','Kata sandi kuat'], correct:2, exp:'Ciri-ciri tersebut merupakan pola khas serangan phishing (penipuan digital).'},
+  {q:'Apa manfaat utama autentikasi dua faktor?', options:['Membuat akun lebih mudah diingat','Menambah lapisan keamanan selain kata sandi','Menghapus kebutuhan kata sandi','Mempercepat login tanpa verifikasi'], correct:1, exp:'Autentikasi dua faktor menambahkan lapisan verifikasi kedua (misalnya kode OTP) agar akun lebih sulit dibobol.'},
+  {q:'Mengapa sebaiknya kita tidak melakukan transaksi perbankan lewat Wi-Fi publik yang tidak aman?', options:['Karena koneksinya terlalu cepat','Karena data yang dikirim rentan disadap','Karena baterai HP lebih boros','Karena aplikasi bank jadi lebih lambat'], correct:1, exp:'Wi-Fi publik tanpa kata sandi rentan disadap sehingga data yang dikirim melalui jaringan itu bisa dicuri.'},
+];
+let quizIndex=0, quizScore=0, quizAnswered=false;
+function renderQuiz(){
+  const area = document.getElementById('quiz-area');
+  if(!area) return;
+  if(quizIndex >= quizData.length){
+    const pct = Math.round(quizScore/quizData.length*100);
+    area.innerHTML = `
+      <div class="card" style="text-align:center;">
+        <div class="score-circle" style="--pct:${pct};">
+          <div class="val">${quizScore}/${quizData.length}</div>
+          <div class="lbl">skor kamu</div>
+        </div>
+        <p style="font-size:14px; color:var(--text-dim);">${pct>=80?'Luar biasa! Pemahamanmu tentang keamanan data sudah sangat baik. 🌟':pct>=60?'Bagus! Sedikit lagi kamu akan menguasai materi ini. 👍':'Yuk pelajari lagi bagian yang belum dipahami, lalu coba lagi. 💪'}</p>
+        <button class="btn btn-accent" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+      </div>`;
+    return;
+  }
+  const q = quizData[quizIndex];
+  area.innerHTML = `
+    <div class="chip">Soal ${quizIndex+1} dari ${quizData.length}</div>
+    <div class="card">
+      <p style="font-size:15px; margin:0 0 16px 0;">${q.q}</p>
+      <div id="quiz-opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}" onclick="answerQuiz(${i})">${o}</button>`).join('')}</div>
+      <div class="feedback" id="quiz-fb"></div>
+    </div>`;
+  quizAnswered=false;
+}
+function answerQuiz(i){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('#quiz-opts .opt');
+  opts.forEach((o,idx)=>{
+    o.disabled=true;
+    if(idx===q.correct) o.classList.add('correct');
+    else if(idx===i) o.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-fb');
+  const isCorrect = i===q.correct;
+  if(isCorrect) quizScore++;
+  fb.className='feedback show '+(isCorrect?'good':'bad');
+  fb.innerHTML=(isCorrect?'✓ Benar! ':'✗ Belum tepat. ')+q.exp+
+    `<div style="margin-top:10px;"><button class="btn btn-accent" onclick="nextQuiz()">${quizIndex<quizData.length-1?'Soal berikutnya →':'Lihat skor →'}</button></div>`;
+}
+function nextQuiz(){ quizIndex++; renderQuiz(); }
+function restartQuiz(){ quizIndex=0; quizScore=0; renderQuiz(); }
+renderQuiz();
+
+</script>
+</body>
+</html>

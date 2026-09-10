@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8.2 Perulangan dengan Kondisi — Bab 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0C1016;
+  --bg-1:#121826;
+  --bg-2:#182236;
+  --bg-3:#1F2C45;
+  --line:#2A3654;
+  --ink-0:#F4F6FB;
+  --ink-1:#C4CCDE;
+  --ink-2:#8593B0;
+  --amber:#F5A524;
+  --amber-dim:#8A6420;
+  --teal:#2FD0C8;
+  --violet:#8B7CF6;
+  --rose:#F16E8C;
+  --green:#4ADE80;
+  --red:#F16565;
+  --grad-1: linear-gradient(135deg,#2FD0C8 0%, #8B7CF6 100%);
+  --grad-2: linear-gradient(135deg,#F5A524 0%, #F16E8C 100%);
+  --shadow: 0 20px 50px -20px rgba(0,0,0,.6);
+  --radius: 18px;
+  --font-title:'Fredoka', sans-serif;
+  --font-body:'Plus Jakarta Sans', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:var(--font-body);
+  background:
+    radial-gradient(circle at 15% 8%, rgba(47,208,200,.10), transparent 45%),
+    radial-gradient(circle at 85% 92%, rgba(139,124,246,.12), transparent 45%),
+    var(--bg-0);
+  color:var(--ink-0);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.app{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:14px 22px;
+  border-bottom:1px solid var(--line);
+  background:rgba(18,24,38,.7);
+  backdrop-filter: blur(10px);
+  z-index:20;
+}
+.topbar .brand{
+  font-family:var(--font-title);
+  font-weight:600;
+  font-size:15px;
+  color:var(--ink-0);
+  white-space:nowrap;
+}
+.topbar .brand span{color:var(--teal);}
+.progress-track{
+  flex:1;
+  height:6px;
+  border-radius:99px;
+  background:var(--bg-3);
+  overflow:hidden;
+  position:relative;
+}
+.progress-fill{
+  height:100%;
+  border-radius:99px;
+  background:var(--grad-1);
+  width:0%;
+  transition:width .4s cubic-bezier(.4,0,.2,1);
+}
+.slide-counter{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  color:var(--ink-2);
+  white-space:nowrap;
+  min-width:52px;
+  text-align:right;
+}
+.btn-home{
+  border:1px solid var(--line);
+  background:var(--bg-2);
+  color:var(--ink-1);
+  width:34px;height:34px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:.2s;
+  flex-shrink:0;
+}
+.btn-home:hover{background:var(--bg-3); color:var(--ink-0);}
+
+/* ===== SLIDE VIEWPORT ===== */
+.viewport{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:38px 8vw 30px;
+  overflow-y:auto;
+  opacity:0;
+  transform:translateX(40px);
+  pointer-events:none;
+  transition:opacity .38s ease, transform .38s ease;
+}
+.slide.active{
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:auto;
+}
+.slide.prev{
+  transform:translateX(-40px);
+}
+.slide-inner{
+  width:100%;
+  max-width:920px;
+  margin:auto 0;
+  padding:10px 0 20px;
+}
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12px;
+  letter-spacing:.02em;
+  color:var(--teal);
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
+h1.slide-title{
+  font-family:var(--font-title);
+  font-weight:600;
+  font-size:clamp(26px,4vw,42px);
+  line-height:1.18;
+  color:var(--ink-0);
+  margin-bottom:14px;
+}
+p.lead{
+  font-size:17px;
+  line-height:1.7;
+  color:var(--ink-1);
+  max-width:70ch;
+  margin-bottom:18px;
+}
+.card{
+  background:var(--bg-1);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  box-shadow:var(--shadow);
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:760px){ .grid2,.grid3{grid-template-columns:1fr;} }
+
+/* ===== NAV BAR BOTTOM ===== */
+.navbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 22px;
+  border-top:1px solid var(--line);
+  background:rgba(18,24,38,.7);
+  backdrop-filter:blur(10px);
+  z-index:20;
+}
+.nav-btn{
+  font-family:var(--font-body);
+  font-weight:600;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 18px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--bg-2);
+  color:var(--ink-0);
+  cursor:pointer;
+  transition:.2s;
+}
+.nav-btn:hover:not(:disabled){background:var(--bg-3); transform:translateY(-1px);}
+.nav-btn:disabled{opacity:.35; cursor:not-allowed;}
+.nav-btn.primary{
+  background:var(--grad-1);
+  border:none;
+  color:#08161a;
+}
+.nav-btn.primary:hover{filter:brightness(1.08);}
+.dots{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:center;
+  max-width:40vw;
+  overflow:hidden;
+}
+.dots .d{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--bg-3);
+  cursor:pointer;
+  transition:.2s;
+  flex-shrink:0;
+}
+.dots .d.on{background:var(--teal); width:20px; border-radius:4px;}
+.dots .d.done{background:var(--violet);}
+@media (max-width:700px){ .dots{display:none;} .nav-btn span.txt{display:none;} }
+
+/* ===== COMPONENTS ===== */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:var(--font-mono);
+  font-size:12px;
+  padding:5px 11px;
+  border-radius:99px;
+  border:1px solid var(--line);
+  color:var(--ink-2);
+  background:var(--bg-2);
+}
+ul.clean{list-style:none;}
+ul.clean li{
+  position:relative;
+  padding-left:26px;
+  margin-bottom:10px;
+  color:var(--ink-1);
+  line-height:1.6;
+  font-size:15.5px;
+}
+ul.clean li::before{
+  content:"";
+  position:absolute; left:0; top:7px;
+  width:9px;height:9px;
+  border-radius:3px;
+  background:var(--teal);
+}
+.accordion{border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:12px; background:var(--bg-1);}
+.accordion .acc-head{
+  padding:16px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  cursor:pointer;
+  font-weight:600;
+  font-size:15.5px;
+  color:var(--ink-0);
+  transition:.2s;
+}
+.accordion .acc-head:hover{background:var(--bg-2);}
+.accordion .acc-head .chev{transition:.25s; color:var(--teal); font-size:14px;}
+.accordion.open .acc-head .chev{transform:rotate(180deg);}
+.accordion .acc-body{
+  max-height:0; overflow:hidden; transition:max-height .3s ease;
+  border-top:1px solid transparent;
+}
+.accordion.open .acc-body{border-top:1px solid var(--line);}
+.accordion .acc-body-inner{padding:16px 18px; color:var(--ink-1); font-size:15px; line-height:1.7;}
+
+.reveal-box{
+  border:1px dashed var(--line);
+  border-radius:14px;
+  padding:16px 18px;
+  cursor:pointer;
+  background:var(--bg-1);
+  transition:.2s;
+}
+.reveal-box:hover{border-color:var(--teal);}
+.reveal-box .rq{font-weight:600; color:var(--ink-0); font-size:15.5px;}
+.reveal-box .ra{
+  margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+  color:var(--teal); display:none; font-size:15px; line-height:1.65;
+}
+.reveal-box.shown .ra{display:block;}
+.reveal-box .hint{font-size:12px; color:var(--ink-2); margin-top:8px; font-family:var(--font-mono);}
+
+.code-block{
+  font-family:var(--font-mono);
+  background:#0A0F18;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:18px 20px;
+  font-size:14px;
+  line-height:1.85;
+  color:#D8E1F5;
+  overflow-x:auto;
+}
+.code-block .kw{color:var(--violet); font-weight:700;}
+.code-block .cm{color:var(--ink-2); font-style:italic;}
+.code-block .num{color:var(--amber);}
+.code-block .str{color:var(--green);}
+
+.mcq-option{
+  display:flex; align-items:center; gap:12px;
+  padding:13px 16px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-bottom:10px;
+  cursor:pointer;
+  background:var(--bg-1);
+  transition:.15s;
+  font-size:15px;
+  color:var(--ink-1);
+}
+.mcq-option:hover{border-color:var(--teal); background:var(--bg-2);}
+.mcq-option .letter{
+  width:26px;height:26px;border-radius:8px;
+  background:var(--bg-3); color:var(--ink-1);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:12.5px; flex-shrink:0;
+}
+.mcq-option.correct{border-color:var(--green); background:rgba(74,222,128,.08);}
+.mcq-option.correct .letter{background:var(--green); color:#08210f;}
+.mcq-option.wrong{border-color:var(--red); background:rgba(241,101,101,.08);}
+.mcq-option.wrong .letter{background:var(--red); color:#2a0808;}
+.mcq-option.disabled{pointer-events:none;}
+.feedback-box{
+  margin-top:14px; padding:14px 16px; border-radius:12px;
+  font-size:14.5px; line-height:1.65; display:none;
+}
+.feedback-box.show{display:block;}
+.feedback-box.ok{background:rgba(74,222,128,.08); border:1px solid var(--green); color:#C9F7DA;}
+.feedback-box.bad{background:rgba(241,101,101,.08); border:1px solid var(--red); color:#FCD3D3;}
+
+.tag-btn{
+  padding:8px 16px; border-radius:99px; border:1px solid var(--line);
+  background:var(--bg-2); color:var(--ink-1); cursor:pointer;
+  font-size:14px; font-weight:600; transition:.2s;
+}
+.tag-btn.active{background:var(--grad-1); color:#08161a; border-color:transparent;}
+
+.badge-diff{
+  display:inline-block; font-family:var(--font-mono); font-size:11px;
+  padding:4px 10px; border-radius:99px; margin-bottom:10px;
+}
+.badge-easy{background:rgba(74,222,128,.15); color:var(--green);}
+.badge-med{background:rgba(245,165,36,.15); color:var(--amber);}
+.badge-hard{background:rgba(241,110,140,.15); color:var(--rose);}
+
+.flow-box{
+  fill:var(--bg-2); stroke:var(--line); stroke-width:2;
+}
+.flow-box.active{ stroke:var(--teal); fill:rgba(47,208,200,.12); }
+.flow-decision{fill:var(--bg-2); stroke:var(--line); stroke-width:2;}
+.flow-decision.active{stroke:var(--amber); fill:rgba(245,165,36,.12);}
+.flow-text{font-family:var(--font-body); font-size:13px; fill:var(--ink-0); text-anchor:middle;}
+.flow-text.small{font-size:11px; fill:var(--ink-2);}
+.flow-arrow{stroke:var(--ink-2); stroke-width:1.6; fill:none; marker-end:url(#arrowhead);}
+.flow-arrow.active{stroke:var(--teal); stroke-width:2.2;}
+
+.bucket-wrap{display:flex; align-items:flex-end; gap:40px; justify-content:center; flex-wrap:wrap; padding:14px 0;}
+.bucket-svg{filter:drop-shadow(0 10px 20px rgba(0,0,0,.4));}
+.sim-controls{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap;}
+
+.dropzone{
+  min-height:52px; border:1.5px dashed var(--line); border-radius:12px;
+  display:flex; align-items:center; gap:8px; padding:8px 12px; flex-wrap:wrap;
+  background:var(--bg-1); transition:.2s;
+}
+.dropzone.over{border-color:var(--teal); background:rgba(47,208,200,.06);}
+.drag-chip{
+  padding:9px 14px; border-radius:10px; background:var(--bg-3);
+  border:1px solid var(--line); font-family:var(--font-mono); font-size:13px;
+  cursor:grab; color:var(--ink-0); user-select:none;
+}
+.drag-chip:active{cursor:grabbing;}
+.drag-pool{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+.slot-num{font-family:var(--font-mono); color:var(--ink-2); font-size:12px; width:20px; flex-shrink:0;}
+
+.score-ring{
+  width:150px; height:150px; margin:0 auto 10px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:conic-gradient(var(--teal) calc(var(--pct)*1%), var(--bg-3) 0);
+  position:relative;
+}
+.score-ring::before{
+  content:""; position:absolute; inset:10px; border-radius:50%; background:var(--bg-1);
+}
+.score-ring .score-num{position:relative; font-family:var(--font-title); font-size:32px; z-index:2;}
+
+.kv-table{width:100%; border-collapse:collapse; font-size:14.5px;}
+.kv-table th,.kv-table td{
+  padding:11px 14px; text-align:left; border-bottom:1px solid var(--line); color:var(--ink-1);
+}
+.kv-table th{color:var(--ink-2); font-weight:600; font-size:12.5px; text-transform:uppercase; letter-spacing:.03em;}
+.kv-table tr:last-child td{border-bottom:none;}
+.kv-table td.mono{font-family:var(--font-mono); color:var(--teal);}
+
+.icon-circle{
+  width:46px; height:46px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; flex-shrink:0;
+}
+
+.slider-wrap{padding:10px 4px;}
+input[type=range]{
+  -webkit-appearance:none; width:100%; height:6px; border-radius:99px;
+  background:var(--bg-3); outline:none;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
+  background:var(--teal); cursor:pointer; border:3px solid var(--bg-0);
+}
+
+.end-hero{text-align:center; padding:40px 0;}
+.end-hero .big-check{
+  width:88px; height:88px; margin:0 auto 22px; border-radius:26px;
+  background:var(--grad-1); display:flex; align-items:center; justify-content:center;
+  font-size:40px;
+}
+@keyframes pop{0%{transform:scale(.9); opacity:0;} 100%{transform:scale(1); opacity:1;}}
+.pop-in{animation:pop .35s ease;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg-3); border-radius:99px;}
+
+.kbd{
+  font-family:var(--font-mono); font-size:11px; background:var(--bg-3);
+  border:1px solid var(--line); border-radius:5px; padding:2px 6px; color:var(--ink-1);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">Bab 8 <span>›</span> 8.2 Perulangan dengan Kondisi</div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 20</div>
+    <button class="btn-home" id="homeBtn" title="Kembali ke awal">⟲</button>
+  </div>
+
+  <div class="viewport" id="viewport"></div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="prevBtn">‹ <span class="txt">Sebelumnya</span></button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn primary" id="nextBtn"><span class="txt">Berikutnya</span> ›</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   DATA & KONTEN
+   ============================================================ */
+const TOTAL_HINT = "gunakan ← / → untuk berpindah slide";
+
+/* ============================================================
+   SLIDE RENDER FUNCTIONS
+   Setiap fungsi mengembalikan innerHTML string untuk 1 slide.
+   ============================================================ */
+
+function slideCover(){
+  return `
+  <div class="slide-inner" style="text-align:center; padding-top:6vh;">
+    <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>INFORMATIKA · KURIKULUM MERDEKA</div>
+    <h1 class="slide-title" style="font-size:clamp(30px,5.4vw,54px);">Perulangan<br>dengan Kondisi</h1>
+    <p class="lead" style="margin:0 auto 26px;">Bab 8 — Menerapkan Algoritma Perulangan &nbsp;·&nbsp; Submateri 8.2</p>
+    <div class="card" style="max-width:640px; margin:0 auto; text-align:left;">
+      <p style="color:var(--ink-1); font-size:15px; line-height:1.7;">
+      Pada bagian ini kamu akan belajar bagaimana sebuah proses dapat diulang bukan berdasarkan jumlah yang tetap,
+      melainkan berdasarkan <strong style="color:var(--teal);">syarat atau kondisi tertentu</strong> — proses berhenti
+      ketika kondisi tersebut sudah tidak terpenuhi lagi.
+      </p>
+    </div>
+    <p style="margin-top:26px; color:var(--ink-2); font-size:13px; font-family:var(--font-mono);">Tekan "Berikutnya" atau tombol → untuk mulai</p>
+  </div>`;
+}
+
+function slideApersepsi(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>APERSEPSI</div>
+    <h1 class="slide-title">Sadarkah kamu, kita sering "mengulang sampai..."?</h1>
+    <p class="lead">Coba klik tiap kartu di bawah ini. Perhatikan kata kuncinya: semua berhenti karena ada <em>syarat</em> yang tercapai, bukan karena hitungan jumlah tertentu.</p>
+    <div class="grid3" id="apersepsiGrid"></div>
+  </div>`;
+}
+
+function slideTujuan(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>TUJUAN PEMBELAJARAN</div>
+    <h1 class="slide-title">Setelah mempelajari bagian ini, kamu mampu:</h1>
+    <div class="card">
+      <ul class="clean" style="margin-bottom:0;">
+        <li>Menjelaskan konsep perulangan yang dikendalikan oleh <strong style="color:var(--ink-0);">kondisi</strong>, bukan jumlah tetap.</li>
+        <li>Mengidentifikasi <strong style="color:var(--ink-0);">syarat perulangan</strong> (kondisi benar/salah) dalam sebuah algoritma.</li>
+        <li>Membedakan perulangan dengan <strong style="color:var(--ink-0);">kondisi diperiksa di awal</strong> dan <strong style="color:var(--ink-0);">di akhir</strong> proses.</li>
+        <li>Menerapkan perulangan berkondisi untuk menyelesaikan persoalan sehari-hari secara algoritmik.</li>
+        <li>Menelusuri (trace) jalannya sebuah perulangan berkondisi langkah demi langkah.</li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+function slideKonsepDasar(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>KONSEP DASAR</div>
+    <h1 class="slide-title">Apa itu perulangan dengan kondisi?</h1>
+    <p class="lead">Pada bagian sebelumnya (8.1) kamu belajar perulangan dengan <strong>jumlah pasti</strong>, misalnya "ulangi 5 kali". Pada 8.2 ini, perulangan berhenti berdasarkan sebuah <strong style="color:var(--teal);">kondisi (syarat)</strong> yang diperiksa setiap putaran.</p>
+    <div class="grid2">
+      <div class="card">
+        <div class="icon-circle" style="background:rgba(139,124,246,.15); color:var(--violet); margin-bottom:12px;">🔢</div>
+        <h3 style="font-family:var(--font-title); font-size:17px; margin-bottom:8px;">Perulangan Jumlah Pasti</h3>
+        <p style="color:var(--ink-1); font-size:14.5px; line-height:1.6;">"Ulangi sebanyak 10 kali." Jumlah pengulangan sudah diketahui sejak awal, tidak berubah.</p>
+      </div>
+      <div class="card" style="border-color:var(--teal);">
+        <div class="icon-circle" style="background:rgba(47,208,200,.15); color:var(--teal); margin-bottom:12px;">🔁</div>
+        <h3 style="font-family:var(--font-title); font-size:17px; margin-bottom:8px;">Perulangan Berkondisi</h3>
+        <p style="color:var(--ink-1); font-size:14.5px; line-height:1.6;">"Ulangi <em>selama</em> ember belum penuh." Jumlah pengulangan tidak diketahui pasti — bergantung kapan syarat terpenuhi.</p>
+      </div>
+    </div>
+    <div class="reveal-box" id="konsepReveal" style="margin-top:16px;">
+      <div class="rq">💡 Kenapa perulangan berkondisi ini penting dipelajari? (klik untuk membuka jawaban)</div>
+      <div class="ra">Karena di dunia nyata, banyak proses yang tidak bisa ditentukan jumlah ulangannya di awal — misalnya mencari kata dalam kamus, menunggu koneksi internet tersambung, atau memproses data sampai habis. Perulangan berkondisi membuat algoritma menjadi fleksibel terhadap situasi yang berubah-ubah.</div>
+    </div>
+  </div>`;
+}
+
+function slideSyarat(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>KONSEP INTI</div>
+    <h1 class="slide-title">Mengenal syarat (kondisi) perulangan</h1>
+    <p class="lead">Setiap perulangan berkondisi punya sebuah <strong style="color:var(--teal);">pernyataan kondisi</strong> yang nilainya selalu <span class="pill">BENAR</span> atau <span class="pill">SALAH</span>. Selama kondisi bernilai <strong>BENAR</strong>, perulangan terus berjalan.</p>
+    <div class="card">
+      <table class="kv-table">
+        <tr><th>Istilah</th><th>Arti</th><th>Contoh</th></tr>
+        <tr><td><strong style="color:var(--ink-0);">Kondisi</strong></td><td>Pernyataan yang bisa bernilai benar/salah</td><td class="mono">air &lt; 5 liter</td></tr>
+        <tr><td><strong style="color:var(--ink-0);">Badan perulangan</strong></td><td>Langkah yang diulang selama kondisi benar</td><td class="mono">tambahkan 1 liter air</td></tr>
+        <tr><td><strong style="color:var(--ink-0);">Pembaruan</strong></td><td>Perubahan nilai agar kondisi akhirnya salah</td><td class="mono">air = air + 1</td></tr>
+        <tr><td><strong style="color:var(--ink-0);">Penghentian</strong></td><td>Saat kondisi menjadi salah, perulangan berhenti</td><td class="mono">air = 5 → berhenti</td></tr>
+      </table>
+    </div>
+    <div class="card" style="margin-top:14px; border-color:var(--amber); background:rgba(245,165,36,.05);">
+      <p style="font-size:14.5px; color:var(--ink-1); line-height:1.6;"><strong style="color:var(--amber);">⚠ Perhatian:</strong> Jika langkah "pembaruan" lupa ditulis, kondisi tidak akan pernah bernilai salah — ini menyebabkan <strong style="color:var(--ink-0);">perulangan tak berhenti (infinite loop)</strong>.</p>
+    </div>
+  </div>`;
+}
+
+function slideFlowchart(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>VISUALISASI</div>
+    <h1 class="slide-title">Diagram alur perulangan berkondisi</h1>
+    <p class="lead">Klik tombol <strong>Jalankan Langkah</strong> untuk melihat urutan aliran diagram, blok mana yang aktif di setiap tahap.</p>
+    <div class="card" style="display:flex; justify-content:center; overflow-x:auto;">
+      <svg id="flowSvg" width="560" height="460" viewBox="0 0 560 460">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--ink-2)"></path>
+          </marker>
+        </defs>
+        <!-- start -->
+        <ellipse class="flow-box" id="fb-start" cx="280" cy="34" rx="66" ry="24"></ellipse>
+        <text class="flow-text" x="280" y="39">Mulai</text>
+        <path class="flow-arrow" id="fa-1" d="M280,58 L280,86"></path>
+
+        <!-- init -->
+        <rect class="flow-box" id="fb-init" x="190" y="86" width="180" height="42" rx="10"></rect>
+        <text class="flow-text" x="280" y="112">air = 0</text>
+        <path class="flow-arrow" id="fa-2" d="M280,128 L280,156"></path>
+
+        <!-- decision -->
+        <polygon class="flow-decision" id="fb-cond" points="280,156 360,206 280,256 200,206"></polygon>
+        <text class="flow-text" x="280" y="202">air &lt; 5 ?</text>
+        <text class="flow-text small" x="280" y="218">(kondisi)</text>
+        <path class="flow-arrow" id="fa-3" d="M280,256 L280,284"></path>
+        <text class="flow-text small" x="300" y="272">BENAR</text>
+
+        <!-- body -->
+        <rect class="flow-box" id="fb-body" x="180" y="284" width="200" height="42" rx="10"></rect>
+        <text class="flow-text" x="280" y="310">tambahkan 1 liter air</text>
+        <path class="flow-arrow" id="fa-4" d="M280,326 L280,344 L380,344 L380,206 L360,206"></path>
+
+        <!-- exit -->
+        <path class="flow-arrow" id="fa-5" d="M200,206 L110,206 L110,380"></path>
+        <text class="flow-text small" x="150" y="196">SALAH</text>
+        <rect class="flow-box" id="fb-end" x="30" y="380" width="160" height="42" rx="10"></rect>
+        <text class="flow-text" x="110" y="406">Ember penuh, selesai</text>
+      </svg>
+    </div>
+    <div class="sim-controls">
+      <button class="nav-btn" id="flowStepBtn">▶ Jalankan Langkah</button>
+      <button class="nav-btn" id="flowResetBtn">↺ Ulangi</button>
+      <span class="pill" id="flowStatus">Status: belum dimulai</span>
+    </div>
+  </div>`;
+}
+
+function slideJenis(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>JENIS PERULANGAN BERKONDISI</div>
+    <h1 class="slide-title">Kondisi diperiksa di awal vs. di akhir</h1>
+    <p class="lead">Klik masing-masing kartu untuk membuka penjelasan lebih dalam.</p>
+    <div class="accordion" id="acc1">
+      <div class="acc-head"><span>① Kondisi diperiksa di awal — <em style="color:var(--ink-2); font-weight:500;">"selama ... maka ..."</em></span><span class="chev">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">
+        Kondisi dicek <strong style="color:var(--ink-0);">sebelum</strong> badan perulangan dijalankan. Jika sejak awal kondisi sudah salah, badan perulangan bisa jadi <strong>tidak pernah dijalankan sama sekali</strong>.<br><br>
+        Contoh: "Selama masih ada tiket tersisa, jual tiket satu per satu." Jika tiket sudah habis sejak awal, penjualan tidak pernah dimulai.
+      </div></div>
+    </div>
+    <div class="accordion" id="acc2">
+      <div class="acc-head"><span>② Kondisi diperiksa di akhir — <em style="color:var(--ink-2); font-weight:500;">"lakukan ... sampai ..."</em></span><span class="chev">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">
+        Badan perulangan dijalankan <strong style="color:var(--ink-0);">terlebih dahulu satu kali</strong>, baru kemudian kondisi diperiksa. Artinya badan perulangan <strong>pasti dijalankan minimal sekali</strong>, walaupun kondisinya langsung salah.<br><br>
+        Contoh: "Kocok dadu, ulangi sampai muncul angka 6." Kamu pasti mengocok dadu minimal satu kali sebelum tahu hasilnya.
+      </div></div>
+    </div>
+    <div class="card" style="margin-top:14px;">
+      <p style="font-size:14px; color:var(--ink-1); line-height:1.6;">🔑 <strong style="color:var(--ink-0);">Intinya:</strong> perbedaan utama keduanya terletak pada <strong style="color:var(--teal);">kapan</strong> kondisi diperiksa — sebelum atau sesudah badan perulangan dijalankan sekali.</p>
+    </div>
+  </div>`;
+}
+
+function slideSehari(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>CONTOH KEHIDUPAN SEHARI-HARI</div>
+    <h1 class="slide-title">Kenali kondisi & syarat perulangannya</h1>
+    <p class="lead">Klik setiap contoh untuk melihat bagaimana kondisinya dituliskan secara algoritmik.</p>
+    <div class="grid2" id="sehariGrid"></div>
+  </div>`;
+}
+
+function slideContoh1(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>CONTOH TERBIMBING · 1</div>
+    <h1 class="slide-title">Mengisi ember air sampai penuh</h1>
+    <p class="lead">Ember berkapasitas <strong style="color:var(--ink-0);">5 liter</strong>. Setiap gayung menambahkan <strong style="color:var(--ink-0);">1 liter</strong>. Geser slider untuk melihat simulasi, lalu perhatikan berapa kali gayung dituang.</p>
+    <div class="card">
+      <div class="bucket-wrap" id="bucketWrap"></div>
+      <div class="slider-wrap">
+        <input type="range" id="bucketSlider" min="0" max="5" value="0" step="1">
+      </div>
+      <p style="text-align:center; color:var(--ink-1); font-size:14.5px; margin-top:6px;" id="bucketLabel">Air: 0 liter — kondisi <span class="pill">air &lt; 5</span> bernilai <strong style="color:var(--green);">BENAR</strong> → perulangan berlanjut</p>
+    </div>
+    <div class="code-block" style="margin-top:14px;">
+<span class="kw">mulai</span><br>
+&nbsp;&nbsp;air ← <span class="num">0</span><br>
+&nbsp;&nbsp;<span class="kw">selama</span> air &lt; <span class="num">5</span> <span class="kw">lakukan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;tuang <span class="num">1</span> liter air ke ember<br>
+&nbsp;&nbsp;&nbsp;&nbsp;air ← air + <span class="num">1</span><br>
+&nbsp;&nbsp;<span class="kw">selesai selama</span><br>
+&nbsp;&nbsp;tampilkan <span class="str">"Ember penuh"</span><br>
+<span class="kw">selesai</span>
+    </div>
+  </div>`;
+}
+
+function slideContoh2(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>CONTOH TERBIMBING · 2</div>
+    <h1 class="slide-title">Mencari kelipatan 7 pertama yang lebih dari 20</h1>
+    <p class="lead">Perulangan tidak selalu tentang menambah air — bisa juga tentang <strong style="color:var(--ink-0);">mencari nilai</strong> sampai syarat tertentu terpenuhi. Klik <strong>Langkah Berikutnya</strong> untuk menelusuri prosesnya.</p>
+    <div class="card">
+      <div class="code-block" style="margin-bottom:16px;">
+<span class="kw">mulai</span><br>
+&nbsp;&nbsp;n ← <span class="num">7</span><br>
+&nbsp;&nbsp;<span class="kw">selama</span> n ≤ <span class="num">20</span> <span class="kw">lakukan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;n ← n + <span class="num">7</span><br>
+&nbsp;&nbsp;<span class="kw">selesai selama</span><br>
+&nbsp;&nbsp;tampilkan n<br>
+<span class="kw">selesai</span>
+      </div>
+      <table class="kv-table" id="traceTable">
+        <tr><th>Putaran</th><th>Nilai n (sebelum)</th><th>n ≤ 20 ?</th><th>Aksi</th></tr>
+      </table>
+      <div class="sim-controls">
+        <button class="nav-btn" id="traceStepBtn">▶ Langkah Berikutnya</button>
+        <button class="nav-btn" id="traceResetBtn">↺ Ulangi</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function slideLatihanMudah(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>LATIHAN</div>
+    <span class="badge-diff badge-easy">MUDAH</span>
+    <h1 class="slide-title">Kenali kondisi perulangan</h1>
+    <p class="lead">Perhatikan pernyataan berikut, lalu klik jawaban yang menurutmu tepat.</p>
+    <div class="card">
+      <p style="font-size:15.5px; color:var(--ink-0); margin-bottom:16px; font-weight:600;">Seseorang berkata: "Aku akan terus mengetuk pintu selama belum ada yang membuka." Apa yang menjadi <strong style="color:var(--teal);">kondisi perulangan</strong> pada pernyataan tersebut?</p>
+      <div id="q_easy"></div>
+      <div class="feedback-box" id="fb_easy"></div>
+    </div>
+  </div>`;
+}
+
+function slideLatihanSedang(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>LATIHAN</div>
+    <span class="badge-diff badge-med">SEDANG</span>
+    <h1 class="slide-title">Telusuri hasil akhir perulangan</h1>
+    <p class="lead">Perhatikan algoritma berikut, lalu tentukan nilai akhir <span class="pill">x</span> saat perulangan berhenti.</p>
+    <div class="card">
+      <div class="code-block" style="margin-bottom:16px;">
+<span class="kw">mulai</span><br>
+&nbsp;&nbsp;x ← <span class="num">2</span><br>
+&nbsp;&nbsp;<span class="kw">selama</span> x &lt; <span class="num">30</span> <span class="kw">lakukan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;x ← x * <span class="num">2</span><br>
+&nbsp;&nbsp;<span class="kw">selesai selama</span><br>
+<span class="kw">selesai</span>
+      </div>
+      <div id="q_med"></div>
+      <div class="feedback-box" id="fb_med"></div>
+    </div>
+  </div>`;
+}
+
+function slideLatihanSulit(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>LATIHAN</div>
+    <span class="badge-diff badge-hard">MENANTANG</span>
+    <h1 class="slide-title">Susun ulang langkah algoritma</h1>
+    <p class="lead">Seret (drag) kartu langkah dari kolom bawah ke kotak urutan yang benar, agar algoritma "hitung mundur dari 5 sampai 1" berjalan dengan benar.</p>
+    <div class="card">
+      <p style="font-size:13.5px; color:var(--ink-2); margin-bottom:12px; font-family:var(--font-mono);">Tujuan: menampilkan angka 5, 4, 3, 2, 1 lalu berhenti saat angka kurang dari 1.</p>
+      <div id="dropSlots"></div>
+      <div class="drag-pool" id="dragPool"></div>
+      <div class="sim-controls">
+        <button class="nav-btn" id="checkOrderBtn">✓ Periksa Urutan</button>
+        <button class="nav-btn" id="resetOrderBtn">↺ Ulangi</button>
+      </div>
+      <div class="feedback-box" id="fb_order"></div>
+    </div>
+  </div>`;
+}
+
+function slideKuisIntro(){
+  return `
+  <div class="slide-inner" style="text-align:center;">
+    <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>KUIS AKHIR</div>
+    <h1 class="slide-title">Uji Pemahamanmu</h1>
+    <p class="lead" style="margin:0 auto 22px;">Kuis ini terdiri dari 6 soal pilihan ganda seputar perulangan dengan kondisi. Skor akan dihitung otomatis di akhir. Semangat!</p>
+    <div class="card" style="max-width:420px; margin:0 auto;">
+      <ul class="clean" style="text-align:left;">
+        <li>6 soal pilihan ganda</li>
+        <li>Setiap soal memiliki pembahasan</li>
+        <li>Kamu bisa mengulang kuis kapan saja</li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+const QUIZ = [
+  {
+    q:"Apa perbedaan utama perulangan dengan kondisi dibanding perulangan dengan jumlah pasti?",
+    options:[
+      "Perulangan berkondisi tidak memakai badan perulangan",
+      "Perulangan berkondisi berhenti berdasarkan syarat yang diperiksa, bukan jumlah yang sudah ditentukan",
+      "Perulangan berkondisi hanya bisa dijalankan satu kali",
+      "Tidak ada perbedaan, keduanya sama persis"
+    ],
+    correct:1,
+    explain:"Perulangan berkondisi tidak memiliki jumlah ulangan yang pasti sejak awal; ia terus berjalan selama syarat/kondisinya masih bernilai benar."
+  },
+  {
+    q:"Pada perulangan yang kondisinya diperiksa di awal, apa yang terjadi jika kondisi sudah salah sejak pertama kali diperiksa?",
+    options:[
+      "Badan perulangan tetap dijalankan satu kali",
+      "Terjadi error pada program",
+      "Badan perulangan tidak pernah dijalankan sama sekali",
+      "Perulangan akan berjalan tanpa henti"
+    ],
+    correct:2,
+    explain:"Karena kondisi diperiksa sebelum badan perulangan dijalankan, jika sejak awal sudah salah maka badan perulangan sama sekali tidak dieksekusi."
+  },
+  {
+    q:"Apa yang menyebabkan sebuah perulangan berkondisi menjadi 'infinite loop' (tidak pernah berhenti)?",
+    options:[
+      "Kondisi awal bernilai salah",
+      "Langkah pembaruan nilai lupa dituliskan sehingga kondisi tidak pernah menjadi salah",
+      "Badan perulangan terlalu pendek",
+      "Menggunakan variabel bertipe angka"
+    ],
+    correct:1,
+    explain:"Jika nilai yang diperiksa dalam kondisi tidak pernah diperbarui, kondisi akan terus bernilai benar selamanya sehingga perulangan tidak pernah berhenti."
+  },
+  {
+    q:"Perhatikan algoritma: x ← 3; selama x < 15 lakukan (x ← x + 3). Berapa nilai x saat perulangan berhenti?",
+    options:["12", "15", "18", "9"],
+    correct:1,
+    explain:"3 → 6 → 9 → 12 → 15. Saat x = 15, kondisi x < 15 menjadi salah sehingga perulangan berhenti dengan nilai akhir x = 15."
+  },
+  {
+    q:"Pernyataan: 'Kocok dadu berulang kali sampai muncul angka genap.' Kapan kondisi pada pernyataan ini diperiksa?",
+    options:[
+      "Sebelum dadu dikocok pertama kali",
+      "Setelah dadu dikocok, karena hasilnya baru diketahui sesudah dikocok",
+      "Kondisi tidak pernah diperiksa",
+      "Diperiksa dua kali di setiap putaran"
+    ],
+    correct:1,
+    explain:"Karena hasil kocokan baru diketahui setelah dadu dikocok, kondisi ini termasuk jenis yang diperiksa di akhir — dadu pasti dikocok minimal satu kali."
+  },
+  {
+    q:"Manakah contoh sehari-hari yang paling tepat menggambarkan perulangan dengan kondisi?",
+    options:[
+      "Membaca tepat 10 halaman buku setiap hari",
+      "Mengisi bensin sampai tangki penuh",
+      "Mengucapkan salam satu kali di awal pertemuan",
+      "Menekan bel rumah tepat 3 kali"
+    ],
+    correct:1,
+    explain:"Mengisi bensin dilakukan terus-menerus sampai kondisi 'tangki penuh' terpenuhi — jumlah pastinya tidak diketahui sejak awal, berbeda dari opsi lain yang jumlahnya sudah ditentukan pasti."
+  }
+];
+
+function slideQuizQuestion(i){
+  const item = QUIZ[i];
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>KUIS · SOAL ${i+1} DARI ${QUIZ.length}</div>
+    <h1 class="slide-title" style="font-size:clamp(20px,3vw,28px);">${item.q}</h1>
+    <div class="card">
+      <div id="quizOptions_${i}"></div>
+      <div class="feedback-box" id="quizFeedback_${i}"></div>
+    </div>
+  </div>`;
+}
+
+function slideQuizResult(){
+  return `
+  <div class="slide-inner" style="text-align:center;">
+    <div class="eyebrow" style="justify-content:center;"><span class="dot"></span>HASIL KUIS</div>
+    <h1 class="slide-title">Hasil Akhir Kuis</h1>
+    <div class="card" style="max-width:420px; margin:0 auto;">
+      <div class="score-ring pop-in" id="scoreRing" style="--pct:0;"><div class="score-num" id="scoreNum">0/6</div></div>
+      <p id="scoreMsg" style="color:var(--ink-1); font-size:15px; margin-top:6px;"></p>
+      <button class="nav-btn primary" id="retryQuizBtn" style="margin-top:14px; width:100%; justify-content:center;">↺ Ulangi Kuis</button>
+    </div>
+  </div>`;
+}
+
+function slideRefleksi(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>REFLEKSI</div>
+    <h1 class="slide-title">Sebelum lanjut, coba renungkan sejenak</h1>
+    <div class="accordion" id="ref1">
+      <div class="acc-head"><span>Apa bagian yang paling mudah kamu pahami dari materi ini?</span><span class="chev">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Coba tuliskan di buku catatanmu — biasanya bagian "contoh kehidupan sehari-hari" atau simulasi ember air paling mudah dipahami karena konkret dan bisa dibayangkan langsung.</div></div>
+    </div>
+    <div class="accordion" id="ref2">
+      <div class="acc-head"><span>Bagian apa yang masih terasa membingungkan?</span><span class="chev">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Banyak siswa merasa perbedaan "kondisi diperiksa di awal" vs "di akhir" agak membingungkan pada awalnya. Jika ini yang kamu rasakan, coba baca ulang bagian "Jenis Perulangan Berkondisi" dan bandingkan dengan contoh dadu vs contoh tiket.</div></div>
+    </div>
+    <div class="accordion" id="ref3">
+      <div class="acc-head"><span>Bisakah kamu membuat satu contoh perulangan berkondisi dari kehidupanmu sendiri?</span><span class="chev">▾</span></div>
+      <div class="acc-body"><div class="acc-body-inner">Coba pikirkan aktivitas yang kamu lakukan berulang sampai suatu syarat tercapai — misalnya berlatih soal sampai nilai latihan mencapai 80, atau menyapu sampai lantai bersih. Tuliskan kondisi dan langkah pembaruannya.</div></div>
+    </div>
+  </div>`;
+}
+
+function slideRangkuman(){
+  return `
+  <div class="slide-inner">
+    <div class="eyebrow"><span class="dot"></span>RANGKUMAN</div>
+    <h1 class="slide-title">Yang perlu kamu ingat dari 8.2</h1>
+    <div class="card">
+      <ul class="clean" style="margin-bottom:0;">
+        <li><strong style="color:var(--ink-0);">Perulangan berkondisi</strong> berhenti berdasarkan syarat/kondisi yang diperiksa tiap putaran, bukan jumlah tetap.</li>
+        <li>Setiap perulangan berkondisi memerlukan tiga bagian: <strong style="color:var(--ink-0);">kondisi</strong>, <strong style="color:var(--ink-0);">badan perulangan</strong>, dan <strong style="color:var(--ink-0);">pembaruan nilai</strong>.</li>
+        <li>Lupa menuliskan pembaruan nilai dapat menyebabkan <strong style="color:var(--ink-0);">perulangan tak berhenti (infinite loop)</strong>.</li>
+        <li>Kondisi bisa diperiksa <strong style="color:var(--ink-0);">di awal</strong> (badan perulangan mungkin tidak dijalankan sama sekali) atau <strong style="color:var(--ink-0);">di akhir</strong> (badan perulangan pasti dijalankan minimal satu kali).</li>
+        <li>Perulangan berkondisi sangat berguna untuk situasi yang jumlah ulangannya tidak diketahui sejak awal.</li>
+      </ul>
+    </div>
+  </div>`;
+}
+
+function slidePenutup(){
+  return `
+  <div class="slide-inner end-hero">
+    <div class="big-check pop-in">✓</div>
+    <h1 class="slide-title" style="text-align:center;">Selamat, kamu telah menyelesaikan 8.2!</h1>
+    <p class="lead" style="margin:0 auto 8px; text-align:center;">Kamu sudah memahami konsep kondisi, syarat perulangan, dan cara menerapkan perulangan berdasarkan kondisi tertentu.</p>
+    <p style="color:var(--ink-2); font-size:13.5px; margin-top:18px;">Lanjutkan ke submateri berikutnya untuk memperdalam algoritma perulangan.</p>
+    <button class="nav-btn primary" id="restartAllBtn" style="margin-top:22px;">⟲ Ulangi dari Awal</button>
+  </div>`;
+}
+
+/* ============================================================
+   SLIDE REGISTRY
+   ============================================================ */
+const slides = [
+  {id:'cover', render:slideCover, label:'Pembuka'},
+  {id:'apersepsi', render:slideApersepsi, label:'Apersepsi'},
+  {id:'tujuan', render:slideTujuan, label:'Tujuan'},
+  {id:'konsep', render:slideKonsepDasar, label:'Konsep Dasar'},
+  {id:'syarat', render:slideSyarat, label:'Syarat Kondisi'},
+  {id:'flowchart', render:slideFlowchart, label:'Diagram Alur'},
+  {id:'jenis', render:slideJenis, label:'Jenis Perulangan'},
+  {id:'sehari', render:slideSehari, label:'Contoh Sehari-hari'},
+  {id:'contoh1', render:slideContoh1, label:'Contoh 1'},
+  {id:'contoh2', render:slideContoh2, label:'Contoh 2'},
+  {id:'latihan_mudah', render:slideLatihanMudah, label:'Latihan Mudah'},
+  {id:'latihan_sedang', render:slideLatihanSedang, label:'Latihan Sedang'},
+  {id:'latihan_sulit', render:slideLatihanSulit, label:'Latihan Menantang'},
+  {id:'kuis_intro', render:slideKuisIntro, label:'Kuis'},
+];
+QUIZ.forEach((_,i)=> slides.push({id:'quiz_'+i, render:()=>slideQuizQuestion(i), label:'Soal '+(i+1)}));
+slides.push({id:'quiz_result', render:slideQuizResult, label:'Hasil Kuis'});
+slides.push({id:'refleksi', render:slideRefleksi, label:'Refleksi'});
+slides.push({id:'rangkuman', render:slideRangkuman, label:'Rangkuman'});
+slides.push({id:'penutup', render:slidePenutup, label:'Penutup'});
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let current = 0;
+const viewport = document.getElementById('viewport');
+const quizState = { answered:{}, correctCount:0 };
+
+/* ============================================================
+   RENDER ENGINE
+   ============================================================ */
+function buildViewport(){
+  viewport.innerHTML = slides.map((s,i)=>`<div class="slide" data-idx="${i}" id="slide-${i}"></div>`).join('');
+}
+buildViewport();
+
+function goTo(idx, skipInit){
+  if(idx < 0 || idx >= slides.length) return;
+  const prevIdx = current;
+  current = idx;
+  document.querySelectorAll('.slide').forEach((el,i)=>{
+    el.classList.remove('active','prev');
+    if(i === idx){
+      el.innerHTML = slides[i].render();
+      el.classList.add('active');
+      requestAnimationFrame(()=> initSlide(slides[i].id, i));
+    } else if(i === prevIdx){
+      el.classList.add('prev');
+    }
+  });
+  updateChrome();
+  window.scrollTo(0,0);
+}
+
+function updateChrome(){
+  const pct = (current/(slides.length-1))*100;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('slideCounter').textContent = (current+1)+' / '+slides.length;
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').textContent = '';
+  const nb = document.getElementById('nextBtn');
+  if(current === slides.length-1){
+    nb.innerHTML = '<span class="txt">Selesai</span> ✓';
+  } else {
+    nb.innerHTML = '<span class="txt">Berikutnya</span> ›';
+  }
+  renderDots();
+}
+
+function renderDots(){
+  const dotsEl = document.getElementById('dots');
+  dotsEl.innerHTML = slides.map((s,i)=>
+    `<div class="d ${i===current?'on':(i<current?'done':'')}" data-goto="${i}" title="${s.label}"></div>`
+  ).join('');
+  dotsEl.querySelectorAll('.d').forEach(d=>{
+    d.addEventListener('click', ()=> goTo(parseInt(d.dataset.goto)));
+  });
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=> goTo(current-1));
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(current === slides.length-1){ goTo(0); } else { goTo(current+1); }
+});
+document.getElementById('homeBtn').addEventListener('click', ()=> goTo(0));
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') { e.preventDefault(); goTo(Math.min(current+1, slides.length-1)); }
+  if(e.key === 'ArrowLeft') { e.preventDefault(); goTo(Math.max(current-1, 0)); }
+});
+
+/* ============================================================
+   PER-SLIDE INTERACTIVITY INIT
+   ============================================================ */
+function initSlide(id, idx){
+  if(id === 'apersepsi') initApersepsi();
+  if(id === 'konsep') initReveal('konsepReveal');
+  if(id === 'jenis') { initAccordion('acc1'); initAccordion('acc2'); }
+  if(id === 'sehari') initSehari();
+  if(id === 'flowchart') initFlowchart();
+  if(id === 'contoh1') initBucket();
+  if(id === 'contoh2') initTrace();
+  if(id === 'latihan_mudah') initEasyQuiz();
+  if(id === 'latihan_sedang') initMedQuiz();
+  if(id === 'latihan_sulit') initDragOrder();
+  if(id === 'refleksi') { initAccordion('ref1'); initAccordion('ref2'); initAccordion('ref3'); }
+  if(id.startsWith('quiz_') && id !== 'quiz_result') initQuizQuestion(parseInt(id.split('_')[1]));
+  if(id === 'quiz_result') initQuizResult();
+  if(id === 'penutup') document.getElementById('restartAllBtn').addEventListener('click', ()=> goTo(0));
+}
+
+function initAccordion(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const head = el.querySelector('.acc-head');
+  const body = el.querySelector('.acc-body');
+  head.addEventListener('click', ()=>{
+    const isOpen = el.classList.contains('open');
+    if(isOpen){
+      el.classList.remove('open');
+      body.style.maxHeight = null;
+    } else {
+      el.classList.add('open');
+      body.style.maxHeight = body.scrollHeight + 'px';
+    }
+  });
+}
+
+function initReveal(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.addEventListener('click', ()=> el.classList.toggle('shown'));
+}
+
+/* ---- Apersepsi cards ---- */
+const APERSEPSI_DATA = [
+  {icon:'🪥', color:'var(--teal)', title:'Menyikat gigi', body:'"Sikat gigi terus sampai terasa bersih." Berhenti bukan karena hitungan tertentu, tapi karena syarat "bersih" sudah tercapai.'},
+  {icon:'🚰', color:'var(--violet)', title:'Mengisi galon air', body:'"Isi terus sampai galon penuh." Jumlah tuangan air tidak ditentukan di awal — bergantung kapan galon terasa penuh.'},
+  {icon:'📖', color:'var(--rose)', title:'Mencari halaman', body:'"Buka halaman satu per satu sampai menemukan bab yang dicari." Perulangan berhenti saat syarat "ketemu bab" terpenuhi.'}
+];
+function initApersepsi(){
+  const grid = document.getElementById('apersepsiGrid');
+  grid.innerHTML = APERSEPSI_DATA.map((d,i)=>`
+    <div class="card apers-card" data-i="${i}" style="cursor:pointer;">
+      <div class="icon-circle" style="background:rgba(255,255,255,.06); color:${d.color}; margin-bottom:12px; font-size:22px;">${d.icon}</div>
+      <h3 style="font-family:var(--font-title); font-size:16px; margin-bottom:6px;">${d.title}</h3>
+      <p class="apers-body" style="color:var(--ink-2); font-size:13.5px; line-height:1.55;">Klik untuk melihat penjelasan →</p>
+    </div>`).join('');
+  grid.querySelectorAll('.apers-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const d = APERSEPSI_DATA[card.dataset.i];
+      card.querySelector('.apers-body').textContent = d.body;
+      card.querySelector('.apers-body').style.color = 'var(--ink-1)';
+      card.style.borderColor = d.color;
+    });
+  });
+}
+
+/* ---- Sehari-hari cards ---- */
+const SEHARI_DATA = [
+  {title:'☕ Menyeduh kopi', cond:'selama gula belum larut', body:'"Aduk kopi selama gula belum larut sepenuhnya." Kondisi: gula belum larut → BENAR = lanjut mengaduk.'},
+  {title:'📚 Belajar untuk ujian', cond:'sampai paham materi', body:'"Baca ulang bab ini sampai kamu benar-benar paham." Kondisi: belum paham → BENAR = lanjut membaca.'},
+  {title:'🎮 Bermain game', cond:'selama nyawa masih ada', body:'"Lanjutkan permainan selama nyawa pemain masih tersisa." Kondisi: nyawa > 0 → BENAR = permainan berlanjut.'},
+  {title:'🧺 Mencuci baju', cond:'sampai air bilasan jernih', body:'"Bilas baju berulang kali sampai air bilasan terlihat jernih." Kondisi: air belum jernih → BENAR = lanjut membilas.'}
+];
+function initSehari(){
+  const grid = document.getElementById('sehariGrid');
+  grid.innerHTML = SEHARI_DATA.map((d,i)=>`
+    <div class="reveal-box" data-i="${i}">
+      <div class="rq">${d.title}</div>
+      <div class="hint">kondisi: ${d.cond} — klik untuk penjelasan</div>
+      <div class="ra">${d.body}</div>
+    </div>`).join('');
+  grid.querySelectorAll('.reveal-box').forEach(box=>{
+    box.addEventListener('click', ()=> box.classList.toggle('shown'));
+  });
+}
+
+/* ---- Flowchart simulation ---- */
+function initFlowchart(){
+  const steps = ['fb-start','fa-1','fb-init','fa-2','fb-cond','fa-3','fb-body','fa-4','fb-cond','fa-3','fb-body','fa-4','fb-cond','fa-5','fb-end'];
+  let stepIdx = -1;
+  const statusEl = document.getElementById('flowStatus');
+  const msgs = [
+    'Mulai program','Menuju inisialisasi','air = 0 (inisialisasi)','Menuju pemeriksaan kondisi',
+    'Periksa kondisi: air < 5 → BENAR (0<5)','Masuk ke badan perulangan','Tambahkan air (air=1)','Kembali ke pemeriksaan kondisi',
+    'Periksa kondisi lagi: masih BENAR','Masuk badan perulangan lagi','Tambahkan air','Kembali ke pemeriksaan kondisi',
+    'Diulang terus hingga air = 5 → kondisi SALAH','Keluar dari perulangan','Ember penuh — selesai'
+  ];
+  function reset(){
+    document.querySelectorAll('#flowSvg .flow-box, #flowSvg .flow-decision, #flowSvg .flow-arrow').forEach(el=> el.classList.remove('active'));
+    stepIdx = -1;
+    statusEl.textContent = 'Status: belum dimulai';
+  }
+  document.getElementById('flowStepBtn').addEventListener('click', ()=>{
+    document.querySelectorAll('#flowSvg .active').forEach(el=>el.classList.remove('active'));
+    stepIdx++;
+    if(stepIdx >= steps.length){ reset(); return; }
+    const elId = steps[stepIdx];
+    document.querySelectorAll('#'+elId).forEach(el=> el.classList.add('active'));
+    statusEl.textContent = 'Status: '+msgs[stepIdx];
+  });
+  document.getElementById('flowResetBtn').addEventListener('click', reset);
+  reset();
+}
+
+/* ---- Bucket simulation (slider) ---- */
+function drawBucket(level){
+  const capacity = 5;
+  const pct = Math.min(level/capacity,1);
+  const h = 140, w = 110;
+  const waterH = h*pct;
+  return `
+  <svg width="${w}" height="${h+30}" class="bucket-svg" viewBox="0 0 ${w} ${h+30}">
+    <path d="M15,10 L${w-15},10 L${w-25},${h+10} L25,${h+10} Z" fill="none" stroke="var(--line)" stroke-width="3"/>
+    <clipPath id="bucketClip"><path d="M17,12 L${w-17},12 L${w-26},${h+8} L26,${h+8} Z"/></clipPath>
+    <rect x="0" y="${10+h-waterH}" width="${w}" height="${waterH}" fill="var(--teal)" opacity="0.55" clip-path="url(#bucketClip)"/>
+    <text x="${w/2}" y="${h+26}" text-anchor="middle" font-family="JetBrains Mono" font-size="13" fill="var(--ink-1)">${level} / ${capacity} L</text>
+  </svg>`;
+}
+function initBucket(){
+  const wrap = document.getElementById('bucketWrap');
+  const slider = document.getElementById('bucketSlider');
+  const label = document.getElementById('bucketLabel');
+  function update(v){
+    wrap.innerHTML = drawBucket(parseInt(v));
+    const cond = parseInt(v) < 5;
+    label.innerHTML = `Air: ${v} liter — kondisi <span class="pill">air &lt; 5</span> bernilai <strong style="color:${cond?'var(--green)':'var(--red)'};">${cond?'BENAR':'SALAH'}</strong> → ${cond?'perulangan berlanjut':'perulangan berhenti, ember penuh!'}`;
+  }
+  slider.addEventListener('input', (e)=> update(e.target.value));
+  update(0);
+}
+
+/* ---- Trace table (contoh 2) ---- */
+function initTrace(){
+  const table = document.getElementById('traceTable');
+  let n = 7, round = 0, done = false;
+  function reset(){
+    n = 7; round = 0; done = false;
+    table.innerHTML = '<tr><th>Putaran</th><th>Nilai n (sebelum)</th><th>n ≤ 20 ?</th><th>Aksi</th></tr>';
+  }
+  document.getElementById('traceStepBtn').addEventListener('click', ()=>{
+    if(done) return;
+    round++;
+    const condTrue = n <= 20;
+    const row = document.createElement('tr');
+    if(condTrue){
+      row.innerHTML = `<td>${round}</td><td class="mono">${n}</td><td style="color:var(--green);">BENAR</td><td>n ← n + 7 = <span class="mono">${n+7}</span></td>`;
+      n = n + 7;
+    } else {
+      row.innerHTML = `<td>${round}</td><td class="mono">${n}</td><td style="color:var(--red);">SALAH</td><td>Perulangan berhenti. Tampilkan n = <strong style="color:var(--teal);">${n}</strong></td>`;
+      done = true;
+    }
+    table.appendChild(row);
+  });
+  document.getElementById('traceResetBtn').addEventListener('click', reset);
+  reset();
+}
+
+/* ---- Latihan Mudah ---- */
+function initEasyQuiz(){
+  const opts = [
+    'Suara ketukan pintu',
+    'Belum ada yang membuka pintu',
+    'Jumlah ketukan sudah 10 kali',
+    'Pintu berwarna cokelat'
+  ];
+  const correctIdx = 1;
+  const container = document.getElementById('q_easy');
+  container.innerHTML = opts.map((o,i)=>`
+    <div class="mcq-option" data-i="${i}">
+      <div class="letter">${String.fromCharCode(65+i)}</div>
+      <div>${o}</div>
+    </div>`).join('');
+  const fb = document.getElementById('fb_easy');
+  container.querySelectorAll('.mcq-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = '1';
+      const i = parseInt(opt.dataset.i);
+      container.querySelectorAll('.mcq-option').forEach(o=> o.classList.add('disabled'));
+      if(i === correctIdx){
+        opt.classList.add('correct');
+        fb.className = 'feedback-box show ok';
+        fb.textContent = '✓ Tepat! Kondisi perulangan di sini adalah "belum ada yang membuka pintu" — selama kondisi ini masih benar, ketukan terus berlanjut.';
+      } else {
+        opt.classList.add('wrong');
+        container.querySelectorAll('.mcq-option')[correctIdx].classList.add('correct');
+        fb.className = 'feedback-box show bad';
+        fb.textContent = '✗ Belum tepat. Kondisi perulangannya adalah "belum ada yang membuka pintu" — inilah syarat yang membuat ketukan terus berlanjut.';
+      }
+    });
+  });
+}
+
+/* ---- Latihan Sedang ---- */
+function initMedQuiz(){
+  const opts = ['16','32','30','64'];
+  const correctIdx = 1;
+  const container = document.getElementById('q_med');
+  container.innerHTML = opts.map((o,i)=>`
+    <div class="mcq-option" data-i="${i}">
+      <div class="letter">${String.fromCharCode(65+i)}</div>
+      <div class="mono">x = ${o}</div>
+    </div>`).join('');
+  const fb = document.getElementById('fb_med');
+  container.querySelectorAll('.mcq-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = '1';
+      const i = parseInt(opt.dataset.i);
+      container.querySelectorAll('.mcq-option').forEach(o=> o.classList.add('disabled'));
+      if(i === correctIdx){
+        opt.classList.add('correct');
+        fb.className = 'feedback-box show ok';
+        fb.textContent = '✓ Benar! Urutannya: 2 → 4 → 8 → 16 → 32. Saat x=16, kondisi x<30 masih benar sehingga diulang sekali lagi menjadi 32. Saat x=32, kondisi x<30 salah, perulangan berhenti.';
+      } else {
+        opt.classList.add('wrong');
+        container.querySelectorAll('.mcq-option')[correctIdx].classList.add('correct');
+        fb.className = 'feedback-box show bad';
+        fb.textContent = '✗ Belum tepat. Telusuri: 2 → 4 → 8 → 16 → 32. Nilai x=32 adalah saat pertama kondisi x<30 menjadi salah, sehingga perulangan berhenti di x=32.';
+      }
+    });
+  });
+}
+
+/* ---- Latihan Sulit: drag & drop ---- */
+const ORDER_STEPS = [
+  {id:'a', text:'n ← 5'},
+  {id:'b', text:'selama n ≥ 1 lakukan'},
+  {id:'c', text:'tampilkan n'},
+  {id:'d', text:'n ← n − 1'},
+  {id:'e', text:'selesai selama'}
+];
+function initDragOrder(){
+  const shuffled = [...ORDER_STEPS].sort(()=>Math.random()-0.5);
+  const slotsEl = document.getElementById('dropSlots');
+  const poolEl = document.getElementById('dragPool');
+  slotsEl.innerHTML = ORDER_STEPS.map((_,i)=>`
+    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+      <span class="slot-num">${i+1}.</span>
+      <div class="dropzone" data-slot="${i}"></div>
+    </div>`).join('');
+  poolEl.innerHTML = shuffled.map(s=>`<div class="drag-chip" draggable="true" data-id="${s.id}">${s.text}</div>`).join('');
+
+  function addDnD(chip){
+    chip.addEventListener('dragstart', (e)=>{
+      e.dataTransfer.setData('text/plain', chip.dataset.id);
+      setTimeout(()=> chip.style.opacity='0.3',0);
+    });
+    chip.addEventListener('dragend', ()=> chip.style.opacity='1');
+  }
+  poolEl.querySelectorAll('.drag-chip').forEach(addDnD);
+
+  document.querySelectorAll('.dropzone').forEach(zone=>{
+    zone.addEventListener('dragover', (e)=>{ e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', ()=> zone.classList.remove('over'));
+    zone.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      zone.classList.remove('over');
+      const id = e.dataTransfer.getData('text/plain');
+      const chip = document.querySelector(`.drag-chip[data-id="${id}"]`);
+      if(!chip) return;
+      if(zone.children.length > 0){
+        poolEl.appendChild(zone.children[0]);
+      }
+      zone.appendChild(chip);
+    });
+  });
+
+  document.getElementById('checkOrderBtn').addEventListener('click', ()=>{
+    const zones = document.querySelectorAll('.dropzone');
+    let allFilled = true, allCorrect = true;
+    zones.forEach((z,i)=>{
+      if(z.children.length === 0){ allFilled = false; return; }
+      const id = z.children[0].dataset.id;
+      if(id !== ORDER_STEPS[i].id) allCorrect = false;
+    });
+    const fb = document.getElementById('fb_order');
+    if(!allFilled){
+      fb.className = 'feedback-box show bad';
+      fb.textContent = 'Lengkapi dulu semua kotak urutan sebelum diperiksa.';
+      return;
+    }
+    if(allCorrect){
+      fb.className = 'feedback-box show ok';
+      fb.textContent = '✓ Tepat sekali! Urutan ini akan menampilkan 5, 4, 3, 2, 1 lalu berhenti saat n menjadi 0 (kondisi n ≥ 1 menjadi salah).';
+    } else {
+      fb.className = 'feedback-box show bad';
+      fb.textContent = '✗ Urutan belum tepat. Ingat: inisialisasi nilai dulu → periksa kondisi → jalankan badan perulangan (tampilkan, lalu kurangi) → tutup perulangan.';
+    }
+  });
+  document.getElementById('resetOrderBtn').addEventListener('click', initDragOrder);
+}
+
+/* ---- Quiz questions ---- */
+function initQuizQuestion(i){
+  const item = QUIZ[i];
+  const container = document.getElementById('quizOptions_'+i);
+  container.innerHTML = item.options.map((o,oi)=>`
+    <div class="mcq-option" data-i="${oi}">
+      <div class="letter">${String.fromCharCode(65+oi)}</div>
+      <div>${o}</div>
+    </div>`).join('');
+  const fb = document.getElementById('quizFeedback_'+i);
+  if(quizState.answered[i] !== undefined){
+    // already answered, restore state
+    const chosen = quizState.answered[i];
+    container.querySelectorAll('.mcq-option').forEach(o=> o.classList.add('disabled'));
+    container.querySelectorAll('.mcq-option')[item.correct].classList.add('correct');
+    if(chosen !== item.correct) container.querySelectorAll('.mcq-option')[chosen].classList.add('wrong');
+    fb.className = 'feedback-box show ' + (chosen===item.correct ? 'ok':'bad');
+    fb.textContent = (chosen===item.correct ? '✓ Benar! ' : '✗ Kurang tepat. ') + item.explain;
+    return;
+  }
+  container.querySelectorAll('.mcq-option').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      if(quizState.answered[i] !== undefined) return;
+      const oi = parseInt(opt.dataset.i);
+      quizState.answered[i] = oi;
+      container.querySelectorAll('.mcq-option').forEach(o=> o.classList.add('disabled'));
+      if(oi === item.correct){
+        opt.classList.add('correct');
+        quizState.correctCount++;
+        fb.className = 'feedback-box show ok';
+        fb.textContent = '✓ Benar! ' + item.explain;
+      } else {
+        opt.classList.add('wrong');
+        container.querySelectorAll('.mcq-option')[item.correct].classList.add('correct');
+        fb.className = 'feedback-box show bad';
+        fb.textContent = '✗ Kurang tepat. ' + item.explain;
+      }
+    });
+  });
+}
+
+function initQuizResult(){
+  const total = QUIZ.length;
+  const score = Object.keys(quizState.answered).length ? QUIZ.reduce((acc,item,i)=> acc + (quizState.answered[i]===item.correct?1:0), 0) : 0;
+  const pct = Math.round((score/total)*100);
+  document.getElementById('scoreRing').style.setProperty('--pct', pct);
+  document.getElementById('scoreNum').textContent = score+'/'+total;
+  let msg = '';
+  if(pct >= 80) msg = 'Luar biasa! Pemahamanmu tentang perulangan dengan kondisi sudah sangat baik.';
+  else if(pct >= 50) msg = 'Bagus! Beberapa konsep masih perlu ditinjau ulang, coba baca kembali bagian yang terasa sulit.';
+  else msg = 'Jangan menyerah! Coba pelajari ulang bagian konsep dasar dan syarat perulangan, lalu ulangi kuisnya.';
+  document.getElementById('scoreMsg').textContent = msg;
+  document.getElementById('retryQuizBtn').addEventListener('click', ()=>{
+    quizState.answered = {};
+    quizState.correctCount = 0;
+    goTo(slides.findIndex(s=>s.id==='quiz_0'));
+  });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+goTo(0);
+</script>
+</body>
+</html>

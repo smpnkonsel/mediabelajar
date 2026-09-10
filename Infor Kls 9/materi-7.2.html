@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Interaktif: Literasi & Informasi Digital</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #475569;
+            --font-title: 'Fredoka', cursive, sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Header & Progress Bar */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-title {
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            transition: width 0.3s ease;
+        }
+
+        .slide-counter {
+            font-family: var(--font-code);
+            background: var(--bg-card);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Main Container & Slide Layout */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography & Components */
+        h1, h2, h3 {
+            font-family: var(--font-title);
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        h1 { font-size: 2.2rem; color: #fff; }
+        h2 { font-size: 1.6rem; color: var(--accent-cyan); }
+        h3 { font-size: 1.2rem; color: var(--accent-purple); }
+
+        p {
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .badge-purple { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+        .badge-green { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-cyan);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg-card);
+            border-color: var(--text-muted);
+        }
+
+        /* Interactive Elements */
+        .interactive-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px dashed var(--accent-cyan);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .accordion-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .accordion-header {
+            padding: 14px 18px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .accordion-content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 14px 18px;
+            max-height: 300px;
+        }
+
+        .flip-card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            height: 160px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .flip-card-front {
+            background: var(--bg-card);
+            color: var(--accent-cyan);
+            font-weight: bold;
+        }
+
+        .flip-card-back {
+            background: var(--accent-purple);
+            color: white;
+            transform: rotateY(180deg);
+            font-size: 0.9rem;
+        }
+
+        /* Simulator Styles */
+        .search-sim-input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: #fff;
+            font-family: var(--font-body);
+            margin-bottom: 12px;
+        }
+
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .search-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+        }
+
+        .search-item-title {
+            color: #60a5fa;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .search-item-url {
+            color: var(--accent-green);
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+        }
+
+        /* Quiz UI */
+        .quiz-option {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--accent-green);
+            color: #4ade80;
+        }
+
+        .quiz-option.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--accent-red);
+            color: #f87171;
+        }
+
+        .feedback-box {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* SVG Visuals */
+        .svg-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        /* Bottom Navigation */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-btns {
+            display: flex;
+            gap: 12px;
+        }
+
+        @media (max-width: 640px) {
+            main { padding: 12px; }
+            .slide { padding: 20px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.3rem; }
+            footer { flex-direction: column; gap: 12px; }
+            .nav-btns { width: 100%; justify-content: space-between; }
+            .btn { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand-title">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            Literasi Digital
+        </div>
+        <div class="slide-counter" id="slideCounter">Slide 1 / 10</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+    </header>
+
+    <!-- Main Content Slide Deck -->
+    <main>
+
+        <!-- SLIDE 1: Pembuka & Judul -->
+        <section class="slide active" id="slide-1">
+            <span class="badge badge-purple">Bab 7 — Kecerdasan Digital</span>
+            <h1>7.2 Literasi dan Informasi Digital</h1>
+            <p>Selamat datang di modul interaktif! Di era limpahan informasi digital saat ini, kemampuan mencari, menganalisis, dan memverifikasi data adalah keahlian utama yang harus dimiliki setiap individu.</p>
+            
+            <div class="interactive-box" style="text-align: center;">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.5" style="margin:0 auto 10px auto;">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <p><strong>Fokus Pembelajaran:</strong> Mencari, Memahami, Evaluasi, dan Menggunakan Informasi Digital secara tepat dan etis.</p>
+            </div>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">Gunakan tombol <strong>Berikutnya</strong> atau panah keyboard (&rarr;) untuk memulai.</p>
+        </section>
+
+        <!-- SLIDE 2: Pertanyaan Pemantik & Apersepsi -->
+        <section class="slide" id="slide-2">
+            <span class="badge badge-blue">Apersepsi</span>
+            <h2>Seberapa Kritis Anda di Dunia Digital?</h2>
+            <p>Bayangkan Anda membaca berita heboh di grup WhatsApp keluarga: <em>"Awas! Mengonsumsi buah X dapat menyebabkan kejang mendadak!"</em> Apa langkah pertama yang akan Anda lakukan?</p>
+            
+            <div class="interactive-box">
+                <p><strong>Klik pilihan di bawah untuk melihat kecenderungan respons Anda:</strong></p>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                    <button class="btn btn-outline" onclick="showApersepsiFeedback(1)">A. Langsung membagikan berita tersebut ke grup lain agar orang terhindar bahaya.</button>
+                    <button class="btn btn-outline" onclick="showApersepsiFeedback(2)">B. Mengabaikannya begitu saja tanpa peduli.</button>
+                    <button class="btn btn-outline" onclick="showApersepsiFeedback(3)">C. Memeriksa kebenaran berita tersebut di mesin pencari atau situs resmi medis terlebih dahulu.</button>
+                </div>
+                <div id="apersepsi-feedback" class="feedback-box" style="margin-top: 15px;"></div>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: Tujuan Pembelajaran -->
+        <section class="slide" id="slide-3">
+            <span class="badge badge-purple">Tujuan Pembelajaran</span>
+            <h2>Empat Pilar Literasi Informasi Digital</h2>
+            <p>Setelah menyelesaikan modul interaktif ini, Anda diharapkan mampu menguasai 4 alur literasi informasi berikut:</p>
+            
+            <div class="card-grid">
+                <div class="card">
+                    <h3 style="color:var(--accent-cyan)">1. Mencari (Search)</h3>
+                    <p style="font-size:0.85rem">Menerapkan teknik pencarian informasi yang efektif menggunakan kata kunci spesifik dan operator pencarian.</p>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--accent-blue)">2. Memahami (Understand)</h3>
+                    <p style="font-size:0.85rem">Menganalisis konten, mengidentifikasi konteks, dan membedakan jenis-jenis media digital.</p>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--accent-yellow)">3. Mengevaluasi (Evaluate)</h3>
+                    <p style="font-size:0.85rem">Menguji keabsahan, kredibilitas sumber, serta mengenali bias dan disinformasi (hoaks).</p>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--accent-green)">4. Menggunakan (Use)</h3>
+                    <p style="font-size:0.85rem">Etika memanfaatkan, mendistribusikan, dan menyitir informasi digital tanpa melanggar hak cipta.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: Konsep 1 - Teknik Mencari Informasi -->
+        <section class="slide" id="slide-4">
+            <span class="badge badge-blue">Konsep 1: Mencari</span>
+            <h2>Teknik Pencarian Tingkat Lanjut (Search Operators)</h2>
+            <p>Mencari informasi di internet bukan sekadar mengetikkan kata umum. Gunakan operator logika untuk mempersempit hasil pencarian:</p>
+
+            <div class="interactive-box">
+                <h3>Simulasi Operator Pencarian Google</h3>
+                <input type="text" id="simSearchInput" class="search-sim-input" placeholder="Coba ketik: filetype:pdf literasi digital" value="literasi digital">
+                <button class="btn" onclick="runSearchSim()">Uji Pencarian</button>
+
+                <div style="margin-top: 15px;" id="simResults" class="search-results">
+                    <!-- Dinamis via JS -->
+                </div>
+            </div>
+
+            <p style="font-size:0.85rem; color:var(--text-muted)">*Tips: Gunakan <code>"..."</code> untuk frasa persis, <code>site:go.id</code> untuk situs pemerintah, dan <code>filetype:pdf</code> untuk dokumen spesifik.</p>
+        </section>
+
+        <!-- SLIDE 5: Konsep 2 - Memahami & Membedakan Informasi -->
+        <section class="slide" id="slide-5">
+            <span class="badge badge-purple">Konsep 2: Memahami</span>
+            <h2>Kategori Informasi Digital</h2>
+            <p>Klik setiap kartu di bawah untuk membuka definisi dan perbedaan antara Misinformasi, Disinformasi, dan Malinformasi:</p>
+
+            <div class="flip-card-container">
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            Misinformasi 🔄
+                            <span style="font-size:0.75rem; font-weight:normal; margin-top:8px;">(Klik untuk membalik)</span>
+                        </div>
+                        <div class="flip-card-back">
+                            Informasi salah, tetapi tidak ada niat sengaja dari pembuatnya untuk merugikan atau menyesatkan orang lain.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            Disinformasi ⚠️
+                            <span style="font-size:0.75rem; font-weight:normal; margin-top:8px;">(Klik untuk membalik)</span>
+                        </div>
+                        <div class="flip-card-back">
+                            Informasi salah yang sengaja dibuat dan disebarkan untuk menyesatkan, merugikan, atau memanipulasi publik.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            Malinformasi 🚨
+                            <span style="font-size:0.75rem; font-weight:normal; margin-top:8px;">(Klik untuk membalik)</span>
+                        </div>
+                        <div class="flip-card-back">
+                            Informasi yang berdasarkan fakta nyata, tetapi digunakan untuk merusak reputasi seseorang atau lembaga.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: Konsep 3 - Metode Evaluasi Informasi (CRAAP Test) -->
+        <section class="slide" id="slide-6">
+            <span class="badge badge-green">Konsep 3: Mengevaluasi</span>
+            <h2>Evaluasi Kredibilitas Informasi (Metode CRAAP)</h2>
+            <p>Untuk memastikan sebuah informasi digital layak dipercaya, gunakan panduan evaluasi CRAAP berikut. Klik tiap opsi untuk membaca penjelasannya:</p>
+
+            <div id="craap-accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>C - Currency (Kebaruan)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Kapan informasi diterbitkan atau diperbarui? Apakah informasi ini masih relevan dengan kondisi saat ini?</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>R - Relevance (Relevansi)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Apakah informasi tersebut menjawab kebutuhan Anda? Siapa audiens yang dituju oleh penulis?</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>A - Authority (Otoritas/Penulis)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Siapa penulis/penerbitnya? Apakah mereka memiliki kualifikasi, reputasi, atau keahlian di bidang tersebut?</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>A - Accuracy (Akurasi)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Apakah data didukung oleh bukti dan rujukan jelas? Apakah terdapat kesalahan ejaan atau bahasa yang provokatif?</p>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span>P - Purpose (Tujuan)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Apa tujuan informasi ini dibuat? Apakah untuk mengedukasi, menjual produk, menghibur, atau mempropagandakan isu tertentu?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: Latihan Interaktif - Analisis Studi Kasus -->
+        <section class="slide" id="slide-7">
+            <span class="badge badge-yellow">Latihan Interaktif</span>
+            <h2>Studi Kasus: Deteksi Kredibilitas Berita</h2>
+            <p>Perhatikan contoh tangkapan layar artikel berita fiktif di bawah ini:</p>
+
+            <div class="interactive-box">
+                <div style="background:var(--bg-card); padding:16px; border-radius:8px; border:1px solid #ef4444; margin-bottom:16px;">
+                    <span style="color:#ef4444; font-size:0.75rem; font-weight:bold;">[HOT NEWS - VIRAL!]</span>
+                    <h3 style="color:#fff; margin-top:4px;">"Para Ilmuwan Terkejut! Minum Air Garam Hangat Setiap Jam Bisa Menyembuhkan Semua Jenis Penyakit!"</h3>
+                    <p style="font-size:0.8rem; color:var(--text-muted);">Diterbitkan oleh: <em>beritaviral-bebas21.blogspot.com</em> | Penulis: Admin</p>
+                </div>
+
+                <p><strong>Berdasarkan analisis Anda, apakah berita di atas dapat dipercaya?</strong></p>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn btn-outline" onclick="checkCaseStudy(false)">Dapat Dipercaya</button>
+                    <button class="btn btn-outline" onclick="checkCaseStudy(true)">TIDAK Dapat Dipercaya (Hoaks)</button>
+                </div>
+                <div id="case-feedback" class="feedback-box"></div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: Konsep 4 - Menggunakan Informasi & Etika Hak Cipta -->
+        <section class="slide" id="slide-8">
+            <span class="badge badge-green">Konsep 4: Menggunakan</span>
+            <h2>Etika Etiket Digital & Lisensi Creative Commons</h2>
+            <p>Saat menggunakan kembali informasi digital dari internet, kita harus menghormati Hak Kekayaan Intelektual (HKI) pemilik konten.</p>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3 style="color:var(--accent-cyan)">Sitasi & Kutipan</h3>
+                    <p style="font-size:0.85rem">Selalu cantumkan nama pembuat asli, judul karya, dan tautan sumber saat menggunakan artikel atau gambar.</p>
+                </div>
+                <div class="card">
+                    <h3 style="color:var(--accent-purple)">Creative Commons (CC)</h3>
+                    <p style="font-size:0.85rem">Lisensi yang memberi izin publik untuk membagikan/menggunakan karya cipta dengan syarat tertentu (misal: Non-Komersial/Atribusi).</p>
+                </div>
+            </div>
+
+            <div class="interactive-box" style="margin-top:16px;">
+                <p><strong>Cek Pemahaman Singkat:</strong> Apa sebutan untuk tindakan menyalin karya orang lain dan mengklaimnya sebagai milik sendiri tanpa mencantumkan sumber?</p>
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <input type="text" id="plagiarismInput" class="search-sim-input" style="margin:0;" placeholder="Ketik jawaban Anda...">
+                    <button class="btn" onclick="checkPlagiarism()">Kirim</button>
+                </div>
+                <div id="plag-feedback" class="feedback-box"></div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: Kuis Interaktif -->
+        <section class="slide" id="slide-9">
+            <span class="badge badge-yellow">Evaluasi Akhir</span>
+            <h2>Kuis Literasi Digital</h2>
+            <p>Uji pemahaman Anda melalui kuis di bawah ini:</p>
+
+            <div id="quiz-container">
+                <div id="quiz-question" style="font-size:1.1rem; font-weight:600; margin-bottom:12px; color:var(--accent-cyan);"></div>
+                <div id="quiz-options"></div>
+                <div id="quiz-explanation" class="feedback-box"></div>
+                <button id="nextQuestionBtn" class="btn" style="margin-top:12px; display:none;" onclick="nextQuestion()">Soal Berikutnya</button>
+            </div>
+
+            <div id="quiz-results" style="display:none; text-align:center; padding:20px;">
+                <h3 style="font-size:1.8rem; color:var(--accent-green);">Kuis Selesai!</h3>
+                <p id="quiz-score-text" style="font-size:1.2rem; margin:16px 0;"></p>
+                <button class="btn" onclick="resetQuiz()">Ulangi Kuis</button>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: Rangkuman & Refleksi -->
+        <section class="slide" id="slide-10">
+            <span class="badge badge-purple">Rangkuman & Refleksi</span>
+            <h2>Menjadi Warga Digital yang Bijak</h2>
+            <div class="interactive-box">
+                <h3>Rangkuman Penting:</h3>
+                <ul style="margin-left: 20px; line-height: 1.8; color: #cbd5e1;">
+                    <li>Gunakan operator pencarian untuk menemukan data akurat dengan cepat.</li>
+                    <li>Saring sebelum membagikan informasi (Saring Informasi sebelum Sharing).</li>
+                    <li>Gunakan metode CRAAP untuk menguji kredibilitas sumber berita.</li>
+                    <li>Hargai karya cipta orang lain dengan mencantumkan sumber dan menyitir secara benar.</li>
+                </ul>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px; font-weight: 600; color: var(--accent-cyan);">
+                "Kecerdasan digital bukan sekadar kemampuan menggunakan teknologi, melainkan kemampuan bersikap kritis, bijak, dan bertanggung jawab atas informasi."
+            </p>
+        </section>
+
+    </main>
+
+    <!-- Footer Navigation -->
+    <footer>
+        <div style="font-size:0.85rem; color:var(--text-muted)">
+            Petunjuk: Gunakan tombol navigasi atau tombol keyboard &larr; &rarr;
+        </div>
+        <div class="nav-btns">
+            <button class="btn btn-outline" id="prevBtn" onclick="changeSlide(-1)">Sebelumnya</button>
+            <button class="btn" id="nextBtn" onclick="changeSlide(1)">Berikutnya</button>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Slide Management State
+        let currentSlide = 1;
+        const totalSlides = 10;
+
+        function updateSlide() {
+            // Hide all slides
+            document.querySelectorAll('.slide').forEach(slide => slide.classList.remove('active'));
+            
+            // Show current slide
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide) activeSlide.classList.add('active');
+
+            // Update Header & Counter
+            document.getElementById('slideCounter').innerText = `Slide ${currentSlide} / ${totalSlides}`;
+            const progressPercent = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+            // Update Nav Buttons
+            document.getElementById('prevBtn').disabled = (currentSlide === 1);
+            if (currentSlide === totalSlides) {
+                document.getElementById('nextBtn').innerText = 'Selesai';
+            } else {
+                document.getElementById('nextBtn').innerText = 'Berikutnya';
+            }
+        }
+
+        function changeSlide(direction) {
+            if (direction === 1 && currentSlide < totalSlides) {
+                currentSlide++;
+            } else if (direction === -1 && currentSlide > 1) {
+                currentSlide--;
+            }
+            updateSlide();
+        }
+
+        // Keyboard Navigation Listener
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                if (currentSlide < totalSlides) {
+                    currentSlide++;
+                    updateSlide();
+                }
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                if (currentSlide > 1) {
+                    currentSlide--;
+                    updateSlide();
+                }
+            }
+        });
+
+        // Slide 2: Apersepsi Interactive Logic
+        function showApersepsiFeedback(option) {
+            const feedbackEl = document.getElementById('apersepsi-feedback');
+            feedbackEl.style.display = 'block';
+            
+            if (option === 1) {
+                feedbackEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                feedbackEl.style.color = '#f87171';
+                feedbackEl.innerHTML = '<strong>Hati-hati!</strong> Membagikan berita tanpa memverifikasinya terlebih dahulu berpotensi menyebarkan misinformasi atau hoaks berbahaya.';
+            } else if (option === 2) {
+                feedbackEl.style.background = 'rgba(245, 158, 11, 0.2)';
+                feedbackEl.style.color = '#fbbf24';
+                feedbackEl.innerHTML = '<strong>Kurang Tepat:</strong> Acuh tak acuh memang menghindari penyebaran hoaks, tetapi tidak membantu meningkatkan literasi digital keluarga Anda.';
+            } else {
+                feedbackEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                feedbackEl.style.color = '#4ade80';
+                feedbackEl.innerHTML = '<strong>Tepat Sekali!</strong> Berhenti sejenak dan memverifikasi informasi ke sumber resmi adalah langkah utama seorang warganet yang kritis digital.';
+            }
+        }
+
+        // Slide 4: Search Simulator
+        function runSearchSim() {
+            const query = document.getElementById('simSearchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('simResults');
+            resultsContainer.innerHTML = '';
+
+            if (query.includes('site:go.id')) {
+                resultsContainer.innerHTML = `
+                    <div class="search-item">
+                        <div class="search-item-url">https://literasidigital.kominfo.go.id</div>
+                        <div class="search-item-title">Peta Jalan Literasi Digital Indonesia - Kominfo</div>
+                        <p style="font-size:0.8rem; color:#cbd5e1; margin:0;">Panduan resmi pengembangan kecerdasan digital masyarakat dari situs pemerintah.</p>
+                    </div>
+                `;
+            } else if (query.includes('filetype:pdf')) {
+                resultsContainer.innerHTML = `
+                    <div class="search-item">
+                        <div class="search-item-url">https://kemdikbud.go.id/docs/modul_literasi.pdf [PDF]</div>
+                        <div class="search-item-title">[PDF] Modul Pembelajaran Literasi & Informasi Digital</div>
+                        <p style="font-size:0.8rem; color:#cbd5e1; margin:0;">Dokumen lengkap modul pembelajaran resmi format PDF.</p>
+                    </div>
+                `;
+            } else {
+                resultsContainer.innerHTML = `
+                    <div class="search-item">
+                        <div class="search-item-url">https://id.wikipedia.org/wiki/Literasi_digital</div>
+                        <div class="search-item-title">Literasi Digital - Ensiklopedia Bebas</div>
+                        <p style="font-size:0.8rem; color:#cbd5e1; margin:0;">Pengertian umum literasi digital beserta perkembangannya secara global.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Slide 6: Accordion Logic
+        function toggleAccordion(headerEl) {
+            const item = headerEl.parentElement;
+            item.classList.toggle('active');
+        }
+
+        // Slide 7: Case Study Check
+        function checkCaseStudy(isFake) {
+            const feedbackEl = document.getElementById('case-feedback');
+            feedbackEl.style.display = 'block';
+
+            if (isFake) {
+                feedbackEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                feedbackEl.style.color = '#4ade80';
+                feedbackEl.innerHTML = '<strong>Jawaban Anda Benar!</strong> Berita tersebut memiliki indikasi kuat hoaks/disinformasi: Judul sensasional/provokatif, domain blog gratisan (blogspot), penulis tidak jelas, dan klaim medis tidak masuk akal.';
+            } else {
+                feedbackEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                feedbackEl.style.color = '#f87171';
+                feedbackEl.innerHTML = '<strong>Jawaban Kurang Tepat:</strong> Berita tersebut sangat mencurigakan. Perhatikan penggunaan judul yang bombastis dan domain situs yang tidak resmi.';
+            }
+        }
+
+        // Slide 8: Plagiarism Input Check
+        function checkPlagiarism() {
+            const val = document.getElementById('plagiarismInput').value.trim().toLowerCase();
+            const feedbackEl = document.getElementById('plag-feedback');
+            feedbackEl.style.display = 'block';
+
+            if (val === 'plagiat' || val === 'plagiarisme') {
+                feedbackEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                feedbackEl.style.color = '#4ade80';
+                feedbackEl.innerHTML = '<strong>Tepat Sekali!</strong> Tindakan tersebut dinamakan Plagiarisme, yang melanggar etika dan hak cipta karya digital.';
+            } else {
+                feedbackEl.style.background = 'rgba(245, 158, 11, 0.2)';
+                feedbackEl.style.color = '#fbbf24';
+                feedbackEl.innerHTML = '<strong>Petunjuk:</strong> Istilah ini diawali dengan huruf "P" (Contoh: Plagiarisme).';
+            }
+        }
+
+        // Slide 9: Quiz System
+        const quizData = [
+            {
+                question: "1. Apa perbedaan utama antara Misinformasi dan Disinformasi?",
+                options: [
+                    "Misinformasi menggunakan bahasa Inggris, Disinformasi bahasa Indonesia.",
+                    "Misinformasi terjadi tanpa kesengajaan, sedangkan Disinformasi dibuat sengaja untuk menyesatkan.",
+                    "Disinformasi selalu disebarkan lewat media cetak.",
+                    "Tidak ada perbedaan sama sekali."
+                ],
+                correct: 1,
+                explanation: "Misinformasi adalah informasi salah tanpa niat buruk, sedangkan disinformasi dibuat sengaja untuk memanipulasi."
+            },
+            {
+                question: "2. Operator pencarian mana yang digunakan untuk mencari dokumen berformat PDF?",
+                options: [
+                    "site:pdf",
+                    "filetype:pdf",
+                    "search.pdf",
+                    "doc:pdf"
+                ],
+                correct: 1,
+                explanation: "Operator 'filetype:pdf' membatasi hasil pencarian khusus pada berkas ekstensi PDF."
+            },
+            {
+                question: "3. Dalam metode CRAAP untuk evaluasi informasi, huruf 'A' pertama mewakili...",
+                options: [
+                    "Algorithm (Algoritma)",
+                    "Authority (Otoritas/Penulis)",
+                    "Application (Aplikasi)",
+                    "Automation (Otomatisasi)"
+                ],
+                correct: 1,
+                explanation: "'Authority' menguji kredibilitas penulis, lembaga, atau penerbit informasi."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+
+        function loadQuizQuestion() {
+            const q = quizData[currentQuizIndex];
+            document.getElementById('quiz-question').innerText = q.question;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            const explanationEl = document.getElementById('quiz-explanation');
+            explanationEl.style.display = 'none';
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'quiz-option';
+                btn.innerText = opt;
+                btn.onclick = () => selectQuizAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIndex) {
+            const q = quizData[currentQuizIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Disable all options
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+
+            const explanationEl = document.getElementById('quiz-explanation');
+            explanationEl.style.display = 'block';
+
+            if (selectedIndex === q.correct) {
+                options[selectedIndex].classList.add('correct');
+                explanationEl.style.background = 'rgba(16, 185, 129, 0.2)';
+                explanationEl.style.color = '#4ade80';
+                explanationEl.innerHTML = `<strong>Benar!</strong> ${q.explanation}`;
+                quizScore++;
+            } else {
+                options[selectedIndex].classList.add('wrong');
+                options[q.correct].classList.add('correct');
+                explanationEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                explanationEl.style.color = '#f87171';
+                explanationEl.innerHTML = `<strong>Kurang Tepat.</strong> ${q.explanation}`;
+            }
+
+            document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-container').style.display = 'none';
+            const resultsEl = document.getElementById('quiz-results');
+            resultsEl.style.display = 'block';
+            document.getElementById('quiz-score-text').innerText = `Skor Anda: ${quizScore} dari ${quizData.length} Soal Benar (${Math.round((quizScore/quizData.length)*100)}%)`;
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-results').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'block';
+            loadQuizQuestion();
+        }
+
+        // Initialize Application
+        window.onload = () => {
+            updateSlide();
+            runSearchSim();
+            loadQuizQuestion();
+        };
+    </script>
+</body>
+</html>

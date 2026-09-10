@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translasi Konsep Perulangan: Visual ke Tekstual</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            /* Accent Colors */
+            --cyan: #38bdf8;
+            --indigo: #818cf8;
+            --emerald: #34d399;
+            --amber: #fbbf24;
+            --rose: #f43f5e;
+            
+            /* Block Colors (Scratch-like) */
+            --block-loop: #ffab19;
+            --block-motion: #4c97ff;
+            --block-text-bg: #2d3748;
+            
+            /* Typography */
+            --font-title: 'Fredoka', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* HEADER & PROGRESS */
+        header {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--card-border);
+            padding: 0.8rem 1.5rem;
+        }
+
+        .header-wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .slide-counter {
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+
+        .slide-counter span {
+            color: var(--cyan);
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--cyan), var(--indigo));
+            transition: width 0.3s ease;
+        }
+
+        /* MAIN LAYOUT */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARD & TYPOGRAPHY */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2.2rem;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-title);
+            color: var(--text-main);
+            margin-bottom: 0.8rem;
+        }
+
+        h1 { font-size: 2.2rem; line-height: 1.2; }
+        h2 { font-size: 1.6rem; color: var(--cyan); }
+        h3 { font-size: 1.2rem; color: var(--indigo); }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+        }
+        .badge-cyan { background: rgba(56, 189, 248, 0.15); color: var(--cyan); border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-indigo { background: rgba(129, 140, 248, 0.15); color: var(--indigo); border: 1px solid rgba(129, 140, 248, 0.3); }
+        .badge-emerald { background: rgba(52, 211, 153, 0.15); color: var(--emerald); border: 1px solid rgba(52, 211, 153, 0.3); }
+        .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--amber); border: 1px solid rgba(251, 191, 36, 0.3); }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .card { padding: 1.4rem; }
+            h1 { font-size: 1.7rem; }
+            h2 { font-size: 1.3rem; }
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: linear-gradient(135deg, var(--cyan), var(--indigo));
+            color: #0f172a;
+            font-weight: 700;
+            font-family: var(--font-body);
+            padding: 0.75rem 1.6rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* CODE & VISUAL BLOCK STYLES */
+        pre, code {
+            font-family: var(--font-code);
+        }
+
+        .code-block {
+            background: #090d16;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-keyword { color: #f43f5e; font-weight: bold; }
+        .code-func { color: #38bdf8; }
+        .code-string { color: #34d399; }
+        .code-number { color: #fbbf24; }
+        .code-comment { color: #64748b; font-style: italic; }
+
+        /* Scratch-like Visual Block Components */
+        .v-block-repeat {
+            background: var(--block-loop);
+            color: #fff;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px 8px 0 0;
+            font-family: var(--font-body);
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 3px 0 #c98200;
+        }
+
+        .v-block-body {
+            border-left: 12px solid var(--block-loop);
+            padding: 0.6rem 0.6rem 0.6rem 1rem;
+            background: rgba(255, 171, 25, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .v-block-bottom {
+            background: var(--block-loop);
+            height: 12px;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 3px 0 #c98200;
+        }
+
+        .v-block-inner {
+            background: var(--block-motion);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 0 #2a6cc4;
+            width: fit-content;
+        }
+
+        .v-input {
+            background: white;
+            color: #000;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* ACCORDIONS */
+        .accordion {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.4);
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--cyan);
+        }
+
+        .accordion-content {
+            padding: 0 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .accordion-item.active .accordion-content {
+            padding: 1rem;
+            max-height: 400px;
+        }
+
+        /* SIMULATION CANVAS & INTERACTIVES */
+        .sim-container {
+            background: #090d16;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sim-track {
+            width: 100%;
+            height: 80px;
+            background: #1e293b;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            border: 1px dashed var(--card-border);
+        }
+
+        .sim-avatar {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--cyan), var(--indigo));
+            border-radius: 50%;
+            position: absolute;
+            top: 18px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+        }
+
+        .sim-log {
+            font-family: var(--font-code);
+            background: #000;
+            border-radius: 8px;
+            padding: 0.8rem;
+            width: 100%;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            color: var(--emerald);
+            border: 1px solid var(--card-border);
+        }
+
+        /* QUIZ STYLES */
+        .quiz-opt {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--cyan);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .quiz-opt.selected { border-color: var(--indigo); background: rgba(129, 140, 248, 0.1); }
+        .quiz-opt.correct { border-color: var(--emerald); background: rgba(52, 211, 153, 0.15); color: var(--emerald); }
+        .quiz-opt.wrong { border-color: var(--rose); background: rgba(244, 63, 94, 0.15); color: var(--rose); }
+
+        .feedback-box {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        /* FOOTER NAV */
+        footer {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--card-border);
+            padding: 0.8rem 1.5rem;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+        }
+
+        .nav-wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* TABLE CUSTOM */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .custom-table th, .custom-table td {
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--card-border);
+            text-align: left;
+        }
+
+        .custom-table th {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--cyan);
+            font-family: var(--font-title);
+        }
+
+        /* REVEAL ANSWER BOX */
+        .reveal-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed var(--card-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .reveal-content {
+            display: none;
+            text-align: left;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        /* SLIDER COMPONENT */
+        .slider-control {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--cyan);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="header-wrap">
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>
+                <span>Informatika Merdeka</span>
+            </div>
+            <div class="slide-counter">Slide <span id="cur-slide">1</span> dari <span id="total-slide">12</span></div>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar" id="p-bar"></div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main>
+
+        <!-- SLIDE 1: COVER -->
+        <div class="slide active" id="s-1">
+            <div class="card" style="text-align: center; padding: 3.5rem 1.5rem;">
+                <span class="badge badge-cyan">Bab 6 — Translasi Pemrograman</span>
+                <h1 style="margin-top: 0.5rem;">Subbab 6.5: Perulangan dalam Pemrograman</h1>
+                <p style="max-width: 620px; margin: 0 auto 2rem auto; font-size: 1.05rem;">
+                    Belajar menerjemahkan logika perulangan dari paradigma **Pemrograman Visual (Blok)** menuju **Pemrograman Tekstual (Python)** secara sistematis dan menyenangkan.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <div style="background: rgba(255, 171, 25, 0.15); border: 1px solid var(--block-loop); padding: 0.8rem 1.2rem; border-radius: 12px; font-family: var(--font-title); color: var(--block-loop);">
+                        🧩 Blok Visual (Scratch/Blockly)
+                    </div>
+                    <div style="font-size: 1.5rem; align-self: center;">➔</div>
+                    <div style="background: rgba(56, 189, 248, 0.15); border: 1px solid var(--cyan); padding: 0.8rem 1.2rem; border-radius: 12px; font-family: var(--font-code); color: var(--cyan);">
+                        🐍 Tekstual (Python)
+                    </div>
+                </div>
+                <button class="btn" onclick="nextSlide()">Mulai Pembelajaran &rarr;</button>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: APERSEPSI & PERTANYAAN PEMANTIK -->
+        <div class="slide" id="s-2">
+            <div class="card">
+                <span class="badge badge-indigo">Apersepsi</span>
+                <h2>Bayangkan Pekerjaan Berulang Ini!</h2>
+                <p>Bagaimana jika guru Anda meminta Anda menulis kalimat berikut sebanyak 100 kali di papan tulis?</p>
+                
+                <div style="background: #090d16; padding: 1rem; border-radius: 12px; border-left: 4px solid var(--amber); margin-bottom: 1.5rem;">
+                    <code style="color: var(--amber); font-size: 1rem;">"Saya tidak akan terlambat masuk kelas lagi."</code>
+                </div>
+
+                <div class="grid-2">
+                    <div style="background: rgba(244, 63, 94, 0.05); border: 1px solid rgba(244, 63, 94, 0.2); padding: 1.2rem; border-radius: 12px;">
+                        <h3 style="color: var(--rose);">❌ Tanpa Perulangan (Manual)</h3>
+                        <p style="font-size: 0.88rem; margin: 0;">Anda harus mengetik perintah <code style="color:var(--cyan)">print()</code> sebanyak 100 baris secara manual. Kode menjadi sangat panjang, membosankan, dan rentan salah ketik!</p>
+                    </div>
+                    <div style="background: rgba(52, 211, 153, 0.05); border: 1px solid rgba(52, 211, 153, 0.2); padding: 1.2rem; border-radius: 12px;">
+                        <h3 style="color: var(--emerald);">✔️ Dengan Perulangan (Loop)</h3>
+                        <p style="font-size: 0.88rem; margin: 0;">Anda cukup menulis 2 baris instruksi dan memberi tahu komputer: <i>"Ulangi perintah cetak ini sebanyak 100 kali!"</i></p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem; background: rgba(56, 189, 248, 0.08); padding: 1rem; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2);">
+                    <p style="margin: 0; color: var(--text-main); font-weight: 500;">
+                        💡 <strong>Pertanyaan Pemantik:</strong> Komputer sangat hebat dalam melakukan pekerjaan repetitif tanpa merasa lelah. Bagaimana cara kita memberikan perintah perulangan tersebut dari blok visual ke bahasa tekstual?
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: TUJUAN PEMBELAJARAN -->
+        <div class="slide" id="s-3">
+            <div class="card">
+                <span class="badge badge-emerald">Tujuan Pembelajaran</span>
+                <h2>Target Hasil Belajar Anda</h2>
+                <p>Melalui media interaktif ini, Anda akan menguasai indikator-indikator berikut:</p>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <div style="background: var(--cyan); color: #000; font-weight: bold; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+                        <div>
+                            <h3 style="margin-bottom: 0.2rem;">Memahami Konsep Dasar Perulangan</h3>
+                            <p style="margin:0; font-size: 0.9rem;">Menjelaskan fungsi perulangan (looping) dalam efisiensi baris kode eksekusi.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <div style="background: var(--indigo); color: #000; font-weight: bold; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+                        <div>
+                            <h3 style="margin-bottom: 0.2rem;">Translasi Perulangan Terhitung (Counted Loop)</h3>
+                            <p style="margin:0; font-size: 0.9rem;">Menerjemahkan blok <code>repeat (N)</code> ke sintaks Python <code>for i in range(N)</code>.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <div style="background: var(--emerald); color: #000; font-weight: bold; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+                        <div>
+                            <h3 style="margin-bottom: 0.2rem;">Translasi Perulangan Bersyarat (Conditional Loop)</h3>
+                            <p style="margin:0; font-size: 0.9rem;">Menerjemahkan blok <code>repeat until / repeat while</code> ke sintaks Python <code>while</code>.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                        <div style="background: var(--amber); color: #000; font-weight: bold; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">4</div>
+                        <div>
+                            <h3 style="margin-bottom: 0.2rem;">Memahami Aturan Indentasi (Tab)</h3>
+                            <p style="margin:0; font-size: 0.9rem;">Menganalisis peranan penting blok indentasi sebagai pengganti 'cangkang' blok visual.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: PEMETAAN DUA JENIS PERULANGAN -->
+        <div class="slide" id="s-4">
+            <div class="card">
+                <span class="badge badge-amber">Konsep Dasar</span>
+                <h2>Dua Kategori Utama Perulangan</h2>
+                <p>Secara umum, baik dalam pemrograman visual maupun tekstual, perulangan dibagi menjadi dua kategori:</p>
+
+                <div class="grid-2" style="margin-top: 1.5rem;">
+                    <div style="background: rgba(255, 171, 25, 0.05); border: 1px solid rgba(255, 171, 25, 0.3); border-radius: 14px; padding: 1.2rem;">
+                        <span style="font-size: 1.8rem;">🔢</span>
+                        <h3 style="color: var(--amber);">1. Counted Loop (Terhitung)</h3>
+                        <p style="font-size: 0.88rem;">Digunakan ketika kita <strong>sudah mengetahui pasti</strong> berapa kali iterasi / pengulangan harus dilakukan.</p>
+                        <div style="margin-top: 1rem;">
+                            <small style="color: var(--cyan); display: block;">Visual: Block <code>repeat (N)</code></small>
+                            <small style="color: var(--emerald); display: block;">Tekstual: <code>for i in range(N):</code></small>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(129, 140, 248, 0.05); border: 1px solid rgba(129, 140, 248, 0.3); border-radius: 14px; padding: 1.2rem;">
+                        <span style="font-size: 1.8rem;">🎯</span>
+                        <h3 style="color: var(--indigo);">2. Uncounted Loop (Bersyarat)</h3>
+                        <p style="font-size: 0.88rem;">Digunakan ketika jumlah perulangan <strong>belum pasti</strong>, tergantung pada terpenuhinya suatu kondisi/syarat tertentu.</p>
+                        <div style="margin-top: 1rem;">
+                            <small style="color: var(--cyan); display: block;">Visual: Block <code>repeat until [kondisi]</code></small>
+                            <small style="color: var(--emerald); display: block;">Tekstual: <code>while not [kondisi]:</code></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: TRANSLASI COUNTED LOOP (REPEAT -> FOR) -->
+        <div class="slide" id="s-5">
+            <div class="card">
+                <span class="badge badge-cyan">Translasi #1</span>
+                <h2>Counted Loop: Repeat (N) ➔ For Loop</h2>
+                <p>Mari kita bandingkan bagaimana perulangan terhitung disajikan pada kedua dunia pemrograman:</p>
+
+                <div class="grid-2" style="margin-top: 1rem; align-items: start;">
+                    <!-- Blok Visual -->
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--amber);">Pemrograman Visual (Scratch)</h3>
+                        <div style="margin-top: 0.5rem;">
+                            <div class="v-block-repeat">
+                                repeat <span class="v-input">4</span>
+                            </div>
+                            <div class="v-block-body">
+                                <div class="v-block-inner">move (10) steps</div>
+                                <div class="v-block-inner" style="background:#4cbfe6;">turn ↻ (90) degrees</div>
+                            </div>
+                            <div class="v-block-bottom"></div>
+                        </div>
+                        <p style="font-size: 0.8rem; margin-top: 0.8rem;">Badan instruksi dimasukkan ke **dalam cangkang** blok <i>repeat</i>.</p>
+                    </div>
+
+                    <!-- Python -->
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--cyan);">Pemrograman Tekstual (Python)</h3>
+                        <div class="code-block" style="margin-top: 0.5rem;">
+<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">4</span>):
+    <span class="code-func">move</span>(<span class="code-number">10</span>)    <span class="code-comment"># Spasi Indentasi</span>
+    <span class="code-func">turn</span>(<span class="code-number">90</span>)    <span class="code-comment"># Spasi Indentasi</span>
+                        </div>
+                        <p style="font-size: 0.8rem; margin-top: 0.8rem;">Cangkang blok digantikan oleh **tanda titik dua (<code>:</code>)** dan **Indentasi (4 spasi)**.</p>
+                    </div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 0.8rem; margin-top: 1rem; border: 1px solid var(--card-border);">
+                    <strong style="color: var(--amber); font-size: 0.9rem;">🔍 Rahasia Translasi:</strong>
+                    <p style="font-size: 0.85rem; margin: 0;">Fungsi <code style="color: var(--cyan);">range(4)</code> di Python akan menghasilkan urutan angka <code style="color: var(--amber)">0, 1, 2, 3</code> (berjumlah 4 kali putaran).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: DETAIL INDENTASI (PENGGANTI CANGKANG BLOK) -->
+        <div class="slide" id="s-6">
+            <div class="card">
+                <span class="badge badge-rose">Kunci Penting</span>
+                <h2>Indentasi: Pengganti "Cangkang" Blok</h2>
+                <p>Dalam blok visual, Anda tahu suatu perintah berada di dalam perulangan karena ditaruh **di dalam cangkang**. Bagaimana dengan tekstual?</p>
+
+                <div class="grid-2" style="margin-top: 1rem;">
+                    <div class="code-block">
+                        <div style="color: var(--rose); font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem;">⚠️ CONTOH BENAR</div>
+<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">3</span>):
+    <span class="code-func">print</span>(<span class="code-string">"Langkah"</span>) <span class="code-comment"># Dalam loop</span>
+    <span class="code-func">print</span>(i)         <span class="code-comment"># Dalam loop</span>
+<span class="code-func">print</span>(<span class="code-string">"Selesai"</span>)       <span class="code-comment"># Luar loop</span>
+                    </div>
+
+                    <div class="code-block">
+                        <div style="color: var(--amber); font-size: 0.8rem; font-weight: bold; margin-bottom: 0.5rem;">❌ KESALAHAN UMUM (IndentationError)</div>
+<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">3</span>):
+<span class="code-func">print</span>(<span class="code-string">"Langkah"</span>) <span class="code-comment"># ERROR! Tidak ada indentasi</span>
+                    </div>
+                </div>
+
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            📌 Mengapa Indentasi Sangat Krusial di Python?
+                            <span>+</span>
+                        </div>
+                        <div class="accordion-content">
+                            Python tidak menggunakan tanda kurung kurawal `{}` atau cangkang visual untuk menandai batas blok program. Python sepenuhnya mengandalkan **spasi indentasi** (biasanya 4 spasi atau 1 Tab). Semua baris yang menjorok ke dalam dianggap sebagai isi badan dari perulangan tersebut.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: TRANSLASI UNCOUNTED LOOP (REPEAT UNTIL -> WHILE) -->
+        <div class="slide" id="s-7">
+            <div class="card">
+                <span class="badge badge-indigo">Translasi #2</span>
+                <h2>Uncounted Loop: Repeat Until ➔ While Loop</h2>
+                <p>Perulangan bersyarat berjalan selama suatu kondisi belum/masih terpenuhi.</p>
+
+                <div class="grid-2" style="margin-top: 1rem;">
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--amber);">Block Visual (Scratch)</h3>
+                        <div style="margin-top: 0.5rem;">
+                            <div class="v-block-repeat" style="background: #ff6680;">
+                                repeat until <span class="v-input" style="background: #e6002e; color:white;">touching [Dinding]?</span>
+                            </div>
+                            <div class="v-block-body" style="border-color: #ff6680; background: rgba(255, 102, 128, 0.1);">
+                                <div class="v-block-inner">move (5) steps</div>
+                            </div>
+                            <div class="v-block-bottom" style="background: #ff6680;"></div>
+                        </div>
+                        <p style="font-size: 0.8rem; margin-top: 0.8rem;">Ulangi **SAMPAI** menyentuh dinding.</p>
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 1rem; color: var(--cyan);">Python (While Loop)</h3>
+                        <div class="code-block" style="margin-top: 0.5rem;">
+<span class="code-keyword">while not</span> <span class="code-func">touching_wall</span>():
+    <span class="code-func">move</span>(<span class="code-number">5</span>)
+                        </div>
+                        <p style="font-size: 0.8rem; margin-top: 0.8rem;">Jalan **SELAMA TIDAK** menyentuh dinding.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.2rem; background: rgba(129, 140, 248, 0.1); border: 1px solid var(--indigo); padding: 1rem; border-radius: 10px;">
+                    <strong style="color: var(--indigo); font-size: 0.9rem;">⚠️ Perbedaan Logika Penting:</strong>
+                    <p style="font-size: 0.85rem; margin: 0; color: var(--text-main);">
+                        Block <code>repeat until</code> berhenti ketika kondisi bernilai **TRUE**. Sedangkan Python <code>while</code> berjalan selama kondisi bernilai **TRUE** (berhenti saat FALSE). Maka dari itu, kita sering menggunakan kata kunci <code>not</code> untuk menyesuaikan logikanya!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: SIMULASI INTERAKTIF PERULANGAN -->
+        <div class="slide" id="s-8">
+            <div class="card">
+                <span class="badge badge-emerald">Simulasi Interaktif</span>
+                <h2>Eksperimen Perulangan Visual & Kode</h2>
+                <p>Atur jumlah perulangan pada slider, lalu jalankan eksekusinya untuk melihat pergerakan karakter dan pembentukan baris kode Python secara langsung!</p>
+
+                <div class="sim-container">
+                    <div class="slider-control">
+                        <label for="loop-count" style="font-size: 0.9rem; color: var(--cyan); font-weight: bold;">
+                            Jumlah Perulangan (N): <span id="loop-val" style="color: var(--amber);">3</span>
+                        </label>
+                        <input type="range" id="loop-count" min="1" max="6" value="3" oninput="updateSimValue(this.value)">
+                    </div>
+
+                    <div class="sim-track">
+                        <div class="sim-avatar" id="avatar">🤖</div>
+                    </div>
+
+                    <div class="grid-2" style="width: 100%;">
+                        <div class="code-block" id="generated-code" style="font-size: 0.8rem;">
+<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">3</span>):
+    <span class="code-func">move_forward</span>()
+    <span class="code-func">print</span>(<span class="code-string">"Langkah ke-"</span>, i)
+                        </div>
+                        <div class="sim-log" id="sim-log">
+> Klik 'Jalankan Perulangan' untuk memulai...
+                        </div>
+                    </div>
+
+                    <button class="btn" id="run-sim-btn" onclick="runSimulation()">▶️ Jalankan Perulangan</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: TABEL PERBANDINGAN SINTAKS -->
+        <div class="slide" id="s-9">
+            <div class="card">
+                <span class="badge badge-cyan">Rangkuman Sintaks</span>
+                <h2>Tabel Komparasi Blok Visual vs Python</h2>
+                <p>Gunakan tabel rujukan cepat ini saat Anda melakukan translasi proyek pemrograman:</p>
+
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Fitur Perulangan</th>
+                            <th>Blok Visual (Scratch)</th>
+                            <th>Pemrograman Python</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mengulang N Kali</td>
+                            <td><code style="color:var(--amber)">repeat (N)</code></td>
+                            <td><code style="color:var(--cyan)">for i in range(N):</code></td>
+                        </tr>
+                        <tr>
+                            <td>Perulangan Tak Terbatas</td>
+                            <td><code style="color:var(--amber)">forever</code></td>
+                            <td><code style="color:var(--cyan)">while True:</code></td>
+                        </tr>
+                        <tr>
+                            <td>Mengulang Sampai Kondisi</td>
+                            <td><code style="color:var(--amber)">repeat until [Kondisi]</code></td>
+                            <td><code style="color:var(--cyan)">while not [Kondisi]:</code></td>
+                        </tr>
+                        <tr>
+                            <td>Pengelompokan Isi Loop</td>
+                            <td>Dimasukkan dalam Cangkang Blok</td>
+                            <td>Menggunakan **Indentasi (4 Spasi)**</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: LATIHAN DENGAN JAWABAN TERSEMBUNYI -->
+        <div class="slide" id="s-10">
+            <div class="card">
+                <span class="badge badge-amber">Latihan Pemahaman</span>
+                <h2>Tantangan Translasi Mandiri</h2>
+                <p>Cobalah menerjemahkan kasus skenario berikut sebelum membuka kunci jawabannya!</p>
+
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); padding: 1.2rem; border-radius: 12px;">
+                    <h3>📜 Soal Skenario:</h3>
+                    <p style="font-size: 0.95rem; color: var(--text-main);">
+                        Buatlah struktur perulangan Python yang akan mencetak kata <code style="color:var(--emerald)">"Informatika"</code> sebanyak <strong>5 kali</strong>, dan setelah perulangan selesai, cetak kata <code style="color:var(--cyan)">"Selesai!"</code> sebanyak <strong>1 kali</strong>.
+                    </p>
+
+                    <div class="reveal-box">
+                        <button class="btn btn-outline" id="reveal-btn" onclick="toggleAnswer()">👁️ Tampilkan Jawaban & Pembahasan</button>
+                        <div class="reveal-content" id="reveal-target">
+                            <div class="code-block">
+<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">5</span>):
+    <span class="code-func">print</span>(<span class="code-string">"Informatika"</span>)  <span class="code-comment"># Menggunakan Indentasi (Didalam loop)</span>
+
+<span class="code-func">print</span>(<span class="code-string">"Selesai!"</span>)        <span class="code-comment"># Tanpa Indentasi (Di luar loop)</span>
+                            </div>
+                            <p style="font-size: 0.85rem; margin-top: 0.8rem; color: var(--text-muted);">
+                                💡 <strong>Pembahasan:</strong> Baris <code style="color:var(--cyan)">print("Selesai!")</code> tidak diberi indentasi agar hanya dieksekusi **satu kali saja** tepat setelah perulangan <code style="color:var(--amber)">for</code> rampung seluruhnya.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: KUIS INTERAKTIF - SOAL 1 & 2 -->
+        <div class="slide" id="s-11">
+            <div class="card">
+                <span class="badge badge-indigo">Evaluasi Kuis (1/2)</span>
+                <h2>Uji Pemahaman Translasi</h2>
+
+                <!-- SOAL 1 -->
+                <div style="margin-bottom: 2rem;">
+                    <p style="font-weight: 600; color: var(--text-main);">1. Konstruksi Python manakah yang paling tepat untuk menerjemahkan blok Scratch <code>repeat (10)</code>?</p>
+                    <div id="q1-opts">
+                        <div class="quiz-opt" onclick="checkQuiz(1, 0, false)">A. <code>repeat(10):</code></div>
+                        <div class="quiz-opt" onclick="checkQuiz(1, 1, true)">B. <code>for i in range(10):</code></div>
+                        <div class="quiz-opt" onclick="checkQuiz(1, 2, false)">C. <code>while range(10):</code></div>
+                        <div class="quiz-opt" onclick="checkQuiz(1, 3, false)">D. <code>loop 10 times:</code></div>
+                    </div>
+                    <div id="q1-fb" class="feedback-box"></div>
+                </div>
+
+                <!-- SOAL 2 -->
+                <div>
+                    <p style="font-weight: 600; color: var(--text-main);">2. Apa akibatnya jika Anda lupa memberikan indentasi pada baris kode di dalam perintah <code>for</code> pada Python?</p>
+                    <div id="q2-opts">
+                        <div class="quiz-opt" onclick="checkQuiz(2, 0, false)">A. Kode tetap berjalan normal tanpa hambatan.</div>
+                        <div class="quiz-opt" onclick="checkQuiz(2, 1, false)">B. Program akan melakukan perulangan tak terbatas (infinite loop).</div>
+                        <div class="quiz-opt" onclick="checkQuiz(2, 2, true)">C. Muncul pesan kesalahan sintaks: IndentationError.</div>
+                        <div class="quiz-opt" onclick="checkQuiz(2, 3, false)">D. Komputer akan menghapus kode secara otomatis.</div>
+                    </div>
+                    <div id="q2-fb" class="feedback-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: RANGKUMAN, SKOR KUIS, REFLEKSI -->
+        <div class="slide" id="s-12">
+            <div class="card" style="text-align: center;">
+                <span class="badge badge-emerald">Refleksi & Rangkuman</span>
+                <h2>Selamat! Anda Telah Menyelesaikan Modul</h2>
+
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 1.5rem; border-radius: 16px; margin: 1.5rem 0;">
+                    <h3>Hasil Kuis Evaluasi Anda:</h3>
+                    <div id="quiz-score" style="font-size: 2.8rem; font-family: var(--font-title); color: var(--cyan); margin: 0.5rem 0;">0 / 100</div>
+                    <p id="quiz-msg" style="font-size: 0.95rem;"></p>
+                    <button class="btn btn-outline" onclick="resetQuiz()" style="margin-top: 0.5rem;">🔄 Coba Kuis Lagi</button>
+                </div>
+
+                <div style="text-align: left; background: rgba(15, 23, 42, 0.6); padding: 1.2rem; border-radius: 12px; border-left: 4px solid var(--cyan); margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--cyan); font-size: 1.1rem; margin-bottom: 0.5rem;">📌 3 Kunci Utama Translasi Perulangan:</h3>
+                    <ul style="font-size: 0.88rem; padding-left: 1.2rem; color: var(--text-muted);">
+                        <li><strong>Repeat (N)</strong> diterjemahkan menjadi <strong>for i in range(N):</strong></li>
+                        <li><strong>Repeat Until</strong> diterjemahkan menjadi <strong>while not [Kondisi]:</strong></li>
+                        <li><strong>Cangkang Blok Visual</strong> digantikan oleh **Tanda Titik Dua (<code>:</code>) dan Indentasi 4 Spasi**.</li>
+                    </ul>
+                </div>
+
+                <button class="btn" onclick="goToSlide(1)">🏠 Kembali ke Halaman Utama</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER NAV -->
+    <footer>
+        <div class="nav-wrap">
+            <button class="btn btn-outline" id="prev-btn" onclick="prevSlide()">← Sebelumnya</button>
+            <button class="btn" id="next-btn" onclick="nextSlide()">Berikutnya →</button>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+        let quizState = { q1: 0, q2: 0 };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateSlideUI();
+
+            // Keyboard Navigation
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "ArrowRight") nextSlide();
+                if (e.key === "ArrowLeft") prevSlide();
+            });
+        });
+
+        function updateSlideUI() {
+            // Manage Slide Displays
+            document.querySelectorAll(".slide").forEach(s => s.classList.remove("active"));
+            const activeS = document.getElementById(`s-${currentSlide}`);
+            if (activeS) activeS.classList.add("active");
+
+            // Update Counter & Progress Bar
+            document.getElementById("cur-slide").innerText = currentSlide;
+            document.getElementById("total-slide").innerText = totalSlides;
+            const progress = ((currentSlide - 1) / (totalSlides - 1)) * 100;
+            document.getElementById("p-bar").style.width = `${progress}%`;
+
+            // Navigation Buttons
+            document.getElementById("prev-btn").style.visibility = currentSlide === 1 ? "hidden" : "visible";
+            document.getElementById("next-btn").style.visibility = currentSlide === totalSlides ? "hidden" : "visible";
+
+            // Final Slide Action
+            if (currentSlide === 12) {
+                calcScore();
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(num) {
+            currentSlide = num;
+            updateSlideUI();
+        }
+
+        /* ACCORDION HANDLER */
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            item.classList.toggle("active");
+            const span = header.querySelector("span");
+            span.innerText = item.classList.contains("active") ? "-" : "+";
+        }
+
+        /* REVEAL ANSWER HANDLER */
+        function toggleAnswer() {
+            const target = document.getElementById("reveal-target");
+            const btn = document.getElementById("reveal-btn");
+            if (target.style.display === "block") {
+                target.style.display = "none";
+                btn.innerText = "👁️ Tampilkan Jawaban & Pembahasan";
+            } else {
+                target.style.display = "block";
+                btn.innerText = "🙈 Sembunyikan Jawaban";
+            }
+        }
+
+        /* SIMULATION INTERACTIVE LOGIC */
+        function updateSimValue(val) {
+            document.getElementById("loop-val").innerText = val;
+            document.getElementById("generated-code").innerHTML = 
+`<span class="code-keyword">for</span> i <span class="code-keyword">in</span> <span class="code-func">range</span>(<span class="code-number">${val}</span>):
+    <span class="code-func">move_forward</span>()
+    <span class="code-func">print</span>(<span class="code-string">"Langkah ke-"</span>, i)`;
+        }
+
+        async function runSimulation() {
+            const btn = document.getElementById("run-sim-btn");
+            const avatar = document.getElementById("avatar");
+            const log = document.getElementById("sim-log");
+            const count = parseInt(document.getElementById("loop-count").value);
+
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            avatar.style.left = "10px";
+            log.innerHTML = `> Memulai Loop Python: for i in range(${count})...<br>`;
+
+            const trackWidth = document.querySelector(".sim-track").clientWidth - 60;
+            const stepSize = trackWidth / count;
+
+            for (let i = 0; i < count; i++) {
+                await new Promise(r => setTimeout(r, 600));
+                const newPos = 10 + (stepSize * (i + 1));
+                avatar.style.left = `${newPos}px`;
+                log.innerHTML += `> Iterasi i = ${i}: [AKSI] Robot maju. <br>`;
+                log.scrollTop = log.scrollHeight;
+            }
+
+            await new Promise(r => setTimeout(r, 400));
+            log.innerHTML += `<span style="color:var(--cyan)">> Loop Selesai! Total ${count} iterasi dijalankan.</span>`;
+            btn.disabled = false;
+            btn.style.opacity = "1";
+        }
+
+        /* QUIZ SYSTEM */
+        function checkQuiz(qNum, optIdx, isCorrect) {
+            const optsContainer = document.getElementById(`q${qNum}-opts`);
+            const opts = optsContainer.children;
+            const fb = document.getElementById(`q${qNum}-fb`);
+
+            for (let opt of opts) {
+                opt.className = "quiz-opt";
+            }
+
+            if (isCorrect) {
+                opts[optIdx].classList.add("correct");
+                fb.style.display = "block";
+                fb.style.background = "rgba(52, 211, 153, 0.15)";
+                fb.style.border = "1px solid var(--emerald)";
+                fb.style.color = "var(--emerald)";
+                fb.innerHTML = "✅ <strong>Jawaban Benar!</strong> Pemahaman sintaks Anda sangat akurat.";
+                quizState[`q${qNum}`] = 50;
+            } else {
+                opts[optIdx].classList.add("wrong");
+                fb.style.display = "block";
+                fb.style.background = "rgba(244, 63, 94, 0.15)";
+                fb.style.border = "1px solid var(--rose)";
+                fb.style.color = "var(--rose)";
+                fb.innerHTML = "❌ <strong>Jawaban Belum Tepat.</strong> Perhatikan kembali sintaks resmi dan aturan indentasi Python.";
+                quizState[`q${qNum}`] = 0;
+            }
+        }
+
+        function calcScore() {
+            const score = (quizState.q1 || 0) + (quizState.q2 || 0);
+            const display = document.getElementById("quiz-score");
+            const msg = document.getElementById("quiz-msg");
+
+            display.innerText = `${score} / 100`;
+
+            if (score === 100) {
+                msg.innerText = "🌟 Sempurna! Anda telah menguasai translasi perulangan visual ke tekstual!";
+                msg.style.color = "var(--emerald)";
+            } else if (score === 50) {
+                msg.innerText = "👍 Cukup Baik! Pelajari kembali bagian yang belum tepat untuk hasil sempurna.";
+                msg.style.color = "var(--amber)";
+            } else {
+                msg.innerText = "📖 Mari mengulang kembali slide konsep agar pemahaman Anda lebih kokoh.";
+                msg.style.color = "var(--rose)";
+            }
+        }
+
+        function resetQuiz() {
+            quizState = { q1: 0, q2: 0 };
+            document.querySelectorAll('.feedback-box').forEach(f => f.style.display = 'none');
+            document.querySelectorAll('.quiz-opt').forEach(o => o.className = 'quiz-opt');
+            goToSlide(11);
+        }
+    </script>
+</body>
+</html>

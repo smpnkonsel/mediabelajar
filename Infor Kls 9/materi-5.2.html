@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bab 5 — Mengumpulkan dan Memasukkan Data</title>
+  
+  <!-- Typography Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --bg-card: rgba(23, 32, 54, 0.75);
+      --bg-card-hover: rgba(35, 48, 78, 0.85);
+      --primary: #06b6d4;
+      --primary-light: #67e8f9;
+      --secondary: #3b82f6;
+      --accent: #f59e0b;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.12);
+      --glass-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(168, 85, 247, 0.1) 0px, transparent 60%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-heading {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    .code-font {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Top Navigation Header */
+    header {
+      padding: 1rem 2rem;
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-title {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    .header-title span {
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .progress-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary), var(--purple));
+      transition: width 0.3s ease;
+    }
+
+    /* Main Slide Container */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 960px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: var(--glass-shadow);
+      animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Badge & Headings */
+    .slide-badge {
+      display: inline-block;
+      padding: 0.35rem 0.85rem;
+      background: rgba(6, 182, 212, 0.18);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      color: var(--primary-light);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+    }
+
+    .slide-title {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.25;
+    }
+
+    .slide-desc {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Layout Grids */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: rgba(10, 15, 29, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(6, 182, 212, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .card h4 {
+      color: var(--primary-light);
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    /* Interactive Elements & Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      box-shadow: 0 4px 14px 0 rgba(6, 182, 212, 0.35);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--emerald), #059669);
+      color: white;
+    }
+
+    /* Accordion */
+    .accordion-item {
+      margin-bottom: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(10, 15, 29, 0.4);
+    }
+
+    .accordion-header {
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.02);
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .accordion-content {
+      padding: 0 1.25rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s ease;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .accordion-item.active .accordion-content {
+      padding: 1rem 1.25rem;
+      max-height: 400px;
+    }
+
+    .accordion-item.active .accordion-icon {
+      transform: rotate(180deg);
+    }
+
+    .accordion-icon {
+      transition: transform 0.3s ease;
+      color: var(--primary-light);
+    }
+
+    /* Interactive Box & Simulation */
+    .sim-box {
+      background: rgba(6, 10, 20, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .quiz-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--primary-light);
+      background: rgba(6, 182, 212, 0.1);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.2) !important;
+      border-color: var(--emerald) !important;
+      color: #a7f3d0;
+    }
+
+    .quiz-option.wrong {
+      background: rgba(244, 63, 94, 0.2) !important;
+      border-color: var(--rose) !important;
+      color: #fecdd3;
+    }
+
+    .feedback {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      display: none;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* Spreadsheet Interactive Table */
+    .sheet-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 1rem;
+    }
+
+    .spreadsheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #0d1322;
+      font-size: 0.9rem;
+    }
+
+    .spreadsheet-table th, .spreadsheet-table td {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    .spreadsheet-table th {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+
+    .spreadsheet-table th.col-header {
+      background: #151d30;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .spreadsheet-table td.row-header {
+      background: #151d30;
+      color: var(--text-muted);
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+      width: 40px;
+    }
+
+    .sheet-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .sheet-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(6, 182, 212, 0.1);
+    }
+
+    .type-badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .type-text { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    .type-number { background: rgba(16, 185, 129, 0.2); color: #a7f3d0; }
+    .type-date { background: rgba(245, 158, 11, 0.2); color: #fde68a; }
+
+    /* Drag & Drop Matching Game */
+    .match-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .match-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .match-card:hover {
+      border-color: var(--primary-light);
+      background: rgba(6, 182, 212, 0.08);
+    }
+
+    .match-card.selected {
+      border-color: var(--accent);
+      background: rgba(245, 158, 11, 0.18);
+    }
+
+    .match-card.matched {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.15);
+      color: #a7f3d0;
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    /* Footer Navigation */
+    footer {
+      padding: 1rem 2rem;
+      background: rgba(10, 15, 29, 0.85);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .slide-number {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .match-grid { grid-template-columns: 1fr; }
+      .slide { padding: 1.5rem; }
+      .slide-title { font-size: 1.7rem; }
+      header, footer { padding: 0.8rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header & Progress -->
+  <header>
+    <div class="header-title">Bab 5 Mengolah Data &bull; <span>5.2 Mengumpulkan & Memasukkan Data</span></div>
+    <div class="slide-number" id="slideIndicator">Slide 1 dari 14</div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </header>
+
+  <!-- App Main Content -->
+  <main>
+
+    <!-- Slide 1: Cover / Pembuka -->
+    <div class="slide active">
+      <span class="slide-badge">Modul Pembelajaran Interaktif</span>
+      <h1 class="slide-title">Mengumpulkan dan Memasukkan Data</h1>
+      <p class="slide-desc">Memahami teknik pengumpulan data yang valid, mengenali sumber data primer & sekunder, serta menguasai tata cara entri data yang terstruktur ke dalam tabel atau spreadsheet.</p>
+      
+      <div class="card" style="margin-bottom: 1.5rem; border-left: 4px solid var(--primary);">
+        <h4>💡 Mengapa Pengumpulan & Entri Data Sangat Krusial?</h4>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Prinsip dasar ilmu data adalah <em>"Garbage In, Garbage Out"</em> (GIGO). Jika data yang kita kumpulkan salah atau dimasukkan berantakan, maka analisis dan keputusan yang dihasilkan juga akan salah!</p>
+      </div>
+
+      <button class="btn btn-primary" onclick="nextSlide()">Mulai Pembelajaran &rarr;</button>
+    </div>
+
+    <!-- Slide 2: Apersepsi & Pertanyaan Pemantik -->
+    <div class="slide">
+      <span class="slide-badge">Apersepsi</span>
+      <h2 class="slide-title">Studi Kasus: Pendataan Kebiasaan Belajar</h2>
+      <p class="slide-desc">Pengurus OSIS ingin mengetahui berapa jam rata-rata siswa belajar di rumah setiap harinya untuk merancang program bimbingan belajar.</p>
+
+      <div class="sim-box">
+        <p style="color: var(--primary-light); font-weight: 600; margin-bottom: 0.5rem;">❓ Pertanyaan Pemantik:</p>
+        <p style="color: #cbd5e1; font-style: italic;">"Jika OSIS hanya menebak angka belajar siswa tanpa bertanya, atau mencatat jawaban siswa secara asal-asalan tanpa tabel yang jelas, apa akibatnya?"</p>
+      </div>
+
+      <p style="margin-bottom: 1rem; font-size: 0.95rem; font-weight: 600;">Apa langkah pertama yang benar menurutmu?</p>
+
+      <button class="quiz-option" onclick="selectApersepsi(this, 'salah')">A. Langsung membuat grafik berwarna-warni tanpa mengumpulkan data nyata.</button>
+      <button class="quiz-option" onclick="selectApersepsi(this, 'benar')">B. Menentukan metode pengumpulan data (misal: angket/kuesioner) lalu menyusun tabel entri data yang rapi.</button>
+      <button class="quiz-option" onclick="selectApersepsi(this, 'salah')">C. Mengutip data lama dari sekolah lain yang tidak relevan.</button>
+
+      <div id="apersepsiFeedback" class="feedback"></div>
+    </div>
+
+    <!-- Slide 3: Tujuan Pembelajaran -->
+    <div class="slide">
+      <span class="slide-badge">Tujuan Pembelajaran</span>
+      <h2 class="slide-title">Target Kemampuan Kamu</h2>
+      <p class="slide-desc">Setelah menyelesaikan modul pembelajaran ini, kamu akan mampu:</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4>1. Membedakan Sumber Data</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Mengidentifikasi karakteristik sumber data primer (langsung) dan sekunder (tidak langsung).</p>
+        </div>
+        <div class="card">
+          <h4>2. Menguasai Teknik Pengumpulan</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Memilih teknik pengumpulan data yang tepat (Observasi, Wawancara, Kuesioner, Eksperimen).</p>
+        </div>
+        <div class="card">
+          <h4>3. Memahami Tipe Data Spreadsheet</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Mengenali tipe data Teks (String), Angka (Numeric), dan Tanggal (Date/Time).</p>
+        </div>
+        <div class="card">
+          <h4>4. Memasukkan Data Secara Terstruktur</h4>
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Menyusun tabel entri data yang bersih, valid, dan siap diolah fungsi spreadsheet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Sumber Data (Primer vs Sekunder) -->
+    <div class="slide">
+      <span class="slide-badge">Konsep 1</span>
+      <h2 class="slide-title">Sumber Data: Primer vs Sekunder</h2>
+      <p class="slide-desc">Berdasarkan cara memperolehnya, data dibagi menjadi dua sumber utama:</p>
+
+      <div class="grid-2">
+        <div class="card" style="border-top: 4px solid var(--primary);">
+          <h3 style="color: var(--primary-light); margin-bottom: 0.5rem;">1. Data Primer</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            Data yang diperoleh dan dikumpulkan <strong>secara langsung</strong> dari objek penelitian oleh peneliti/pengumpul data.
+          </p>
+          <div style="margin-top: 1rem; padding: 0.6rem; background: rgba(6, 182, 212, 0.1); border-radius: 8px; font-size: 0.85rem;">
+            <em>Contoh:</em> Hasil wawancara langsung, pengisian angket oleh siswa, hasil pengukuran tinggi badan.
+          </div>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--purple);">
+          <h3 style="color: var(--purple); margin-bottom: 0.5rem;">2. Data Sekunder</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            Data yang diperoleh secara <strong>tidak langsung</strong> dari pihak lain, dokumen, atau publikasi yang sudah ada sebelumnya.
+          </p>
+          <div style="margin-top: 1rem; padding: 0.6rem; background: rgba(168, 85, 247, 0.1); border-radius: 8px; font-size: 0.85rem;">
+            <em>Contoh:</em> Data sensus BPS, catatan presensi perpustakaan tahun lalu, artikel jurnal, atau data iklim BMKG.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Interaktif - Match Sumber Data -->
+    <div class="slide">
+      <span class="slide-badge">Latihan Interaktif</span>
+      <h2 class="slide-title">Latihan: Kelompokkan Sumber Data</h2>
+      <p class="slide-desc">Klik satu item di kolom kiri, lalu pilih jenis sumber data yang sesuai di kolom kanan:</p>
+
+      <div class="match-grid">
+        <div class="match-card" id="m1" onclick="selectMatch('m1', 'Primer')">1. Hasil Survei Google Form Online</div>
+        <div class="match-card" id="target1" onclick="selectTarget('Primer')">DATA PRIMER</div>
+        <div class="match-card" id="m2" onclick="selectMatch('m2', 'Sekunder')">2. Laporan Statistik Sensus BPS</div>
+        <div class="match-card" id="target2" onclick="selectTarget('Sekunder')">DATA SEKUNDER</div>
+        <div class="match-card" id="m3" onclick="selectMatch('m3', 'Primer')">3. Pengukuran Suhu dengan Termometer</div>
+        <div class="match-card" style="visibility: hidden;"></div>
+      </div>
+
+      <div id="matchFeedback" class="feedback"></div>
+    </div>
+
+    <!-- Slide 6: Teknik Pengumpulan Data -->
+    <div class="slide">
+      <span class="slide-badge">Konsep 2</span>
+      <h2 class="slide-title">4 Teknik Pengumpulan Data</h2>
+      <p class="slide-desc">Pilih teknik yang paling sesuai dengan tujuan pendataan kamu. Klik untuk membaca detail:</p>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🔍 1. Observasi (Pengamatan Langsung)
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          Mengamati dan mencatat perilaku atau fenomena secara langsung tanpa mengintervensi objek. <br>
+          <em>Contoh:</em> Mencatat jumlah kendaraan yang melintas di depan sekolah setiap jam 07.00 - 08.00.
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🗣️ 2. Wawancara (Interview)
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          Tanya jawab secara lisan (langsung atau daring) untuk menggali informasi mendalam dari narasumber.<br>
+          <em>Contoh:</em> Mewawancarai Kepala Perpustakaan mengenai minat baca siswa.
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          📝 3. Kuesioner / Angket
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          Daftar pertanyaan tertulis yang dibagikan kepada banyak responden sekaligus.<br>
+          <em>Contoh:</em> Menyebarkan Google Form berisi pertanyaan pilihan ganda makanan favorit di kantin.
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🧪 4. Eksperimen / Pengukuran
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          Pengujian laboratorium atau pengukuran fisik menggunakan alat ukur baku.<br>
+          <em>Contoh:</em> Mengukur tinggi dan berat badan siswa menggunakan timbangan dan meteran.
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Tipe Data dalam Spreadsheet -->
+    <div class="slide">
+      <span class="slide-badge">Konsep 3</span>
+      <h2 class="slide-title">Tipe Data dalam Spreadsheet</h2>
+      <p class="slide-desc">Saat memasukkan data ke spreadsheet (Google Sheets / MS Excel), setiap sel berisi tipe data tertentu:</p>
+
+      <div class="grid-3">
+        <div class="card" style="border-top: 3px solid var(--secondary);">
+          <h4>Teks / String</h4>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Secara bawaan rata <strong>KIRI</strong>.</p>
+          <div class="code-font" style="margin-top: 0.8rem; background: #020617; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; color: #93c5fd;">
+            "Ahmad Budi"<br>"Kelas 10A"<br>"NISN: 00543"
+          </div>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--emerald);">
+          <h4>Angka / Numeric</h4>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Secara bawaan rata <strong>KANAN</strong>. Bisa dihitung (SUM, AVERAGE).</p>
+          <div class="code-font" style="margin-top: 0.8rem; background: #020617; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; color: #a7f3d0;">
+            175<br>85.5<br>Rp 50.000
+          </div>
+        </div>
+
+        <div class="card" style="border-top: 3px solid var(--accent);">
+          <h4>Tanggal / Date</h4>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.4rem;">Format tanggal baku (YYYY-MM-DD atau DD/MM/YYYY).</p>
+          <div class="code-font" style="margin-top: 0.8rem; background: #020617; padding: 0.5rem; border-radius: 6px; font-size: 0.8rem; color: #fde68a;">
+            2026-09-10<br>15/08/2024
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Aturan Entri Data yang Baik -->
+    <div class="slide">
+      <span class="slide-badge">Prosedur Praktis</span>
+      <h2 class="slide-title">Aturan Memasukkan Data (Good Data Entry)</h2>
+      <p class="slide-desc">Agar data siap diolah dan tidak error saat dibuat rumus, patuhi aturan emas berikut:</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h4 style="color: var(--rose);">❌ Hindari (Penyebab Error):</h4>
+          <ul style="color: var(--text-muted); font-size: 0.88rem; padding-left: 1.2rem; line-height: 1.6; margin-top: 0.5rem;">
+            <li>Mencampur angka dan teks dalam satu sel (misal: "170 cm" daripada angka 170).</li>
+            <li>Menggunakan spasi berlebihan atau format tanggal tidak konsisten.</li>
+            <li>Membuat judul kolom berulang-ulang di tengah tabel data.</li>
+            <li>Membuat sel gabungan (Merge Cells) pada area data transaksi.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4 style="color: var(--emerald);">✅ Lakukan (Best Practice):</h4>
+          <ul style="color: var(--text-muted); font-size: 0.88rem; padding-left: 1.2rem; line-height: 1.6; margin-top: 0.5rem;">
+            <li>Gunakan 1 Baris Pertama sebagai Header Kolom yang jelas.</li>
+            <li>Satu jenis data untuk setiap kolom secara konsisten.</li>
+            <li>Tuliskan satuan pada Header Kolom (misal: "Tinggi (cm)").</li>
+            <li>Pastikan setiap baris mewakili 1 entitas/responden unik.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Visualisasi & Simulasi Spreadsheet Interaktif -->
+    <div class="slide">
+      <span class="slide-badge">Simulasi Interaktif</span>
+      <h2 class="slide-title">Simulasi Entri Data Spreadsheet</h2>
+      <p class="slide-desc">Cobalah memasukkan data siswa pada tabel di bawah ini. Perhatikan bagaimana jenis data secara otomatis teridentifikasi:</p>
+
+      <div class="sheet-wrapper">
+        <table class="spreadsheet-table">
+          <thead>
+            <tr>
+              <th class="col-header">#</th>
+              <th class="col-header">A</th>
+              <th class="col-header">B</th>
+              <th class="col-header">C</th>
+              <th class="col-header">D</th>
+            </tr>
+            <tr>
+              <th>Row</th>
+              <th>Nama Siswa (Text)</th>
+              <th>Nilai Ujian (Number)</th>
+              <th>Tgl Lahir (Date)</th>
+              <th>Deteksi Tipe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-header">1</td>
+              <td><input type="text" class="sheet-input" id="cellA1" value="Andi Pratama" oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellB1" value="88" oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellC1" value="2008-05-14" oninput="updateSheetSim()"></td>
+              <td id="type1"><span class="type-badge type-text">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="row-header">2</td>
+              <td><input type="text" class="sheet-input" id="cellA2" value="Siti Rahma" oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellB2" value="92" oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellC2" value="2008-11-20" oninput="updateSheetSim()"></td>
+              <td id="type2"><span class="type-badge type-text">Valid</span></td>
+            </tr>
+            <tr>
+              <td class="row-header">3</td>
+              <td><input type="text" class="sheet-input" id="cellA3" placeholder="Ketik nama..." oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellB3" placeholder="Ketik angka..." oninput="updateSheetSim()"></td>
+              <td><input type="text" class="sheet-input" id="cellC3" placeholder="YYYY-MM-DD" oninput="updateSheetSim()"></td>
+              <td id="type3"><span class="type-badge" style="background: rgba(255,255,255,0.1);">Kosong</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="simSheetStatus" class="sim-box" style="margin-top: 1rem; font-size: 0.9rem;">
+        <strong>Saran Otomatis:</strong> Masukkan data pada Baris 3 untuk menguji validasi entri data.
+      </div>
+    </div>
+
+    <!-- Slide 10: Contoh Soal & Pembahasan Step-by-Step -->
+    <div class="slide">
+      <span class="slide-badge">Contoh & Pembahasan</span>
+      <h2 class="slide-title">Analisis Kesalahan Entri Data</h2>
+      <p class="slide-desc">Perhatikan potongan tabel hasil entri data berikut:</p>
+
+      <div class="sim-box">
+        <p class="code-font" style="font-size: 0.85rem; color: var(--rose);">
+          [Baris 1 Header] : Nama | Berat Badan | Tanggal Masuk<br>
+          [Baris 2 Data]   : Budi | 65 kg       | 12 Januari 2026<br>
+          [Baris 3 Data]   : Ani  | 52          | 2026/01/15
+        </p>
+      </div>
+
+      <p style="font-size: 0.95rem; margin-bottom: 0.8rem;">Pertanyaan: Mengapa Baris 2 pada kolom "Berat Badan" dapat menyebabkan masalah saat kita menghitung rata-rata dengan rumus `=AVERAGE()`?</p>
+
+      <button class="btn btn-secondary" id="btnRevealEx" onclick="revealExample()">Lihat Pembahasan Analisis &rarr;</button>
+
+      <div id="exampleSolution" style="display: none; margin-top: 1rem;" class="card">
+        <h4 style="color: var(--emerald);">Pembahasan Lengkap:</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.4rem; line-height: 1.6;">
+          Pada Baris 2, entri ditulis sebagai <strong>"65 kg"</strong> (menggabungkan angka dan teks). Spreadsheet akan menganggap nilai tersebut sebagai <strong>TEKS (Text)</strong>, sehingga rumus matematika seperti `=AVERAGE()` atau `=SUM()` akan mengabaikan nilai tersebut atau menghasilkan error `#VALUE!`.
+          <br><br>
+          <strong>Solusi Perbaikan:</strong> Ubah header kolom menjadi <code>Berat Badan (kg)</code> dan isi sel hanya dengan angka murni <code>65</code>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 11: Latihan Bertahap (Mudah - Sedang - Menantang) -->
+    <div class="slide">
+      <span class="slide-badge">Latihan Bertahap</span>
+      <h2 class="slide-title">Uji Keterampilan Entri Data</h2>
+      <p class="slide-desc">Selesaikan 3 tingkat tantangan pemahaman berikut:</p>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🟢 Tingkat Mudah: Memilih Teknik Pengumpulan
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          <p>Jika kamu ingin mengetahui tingkat kepuasan 300 siswa terhadap menu kantin, teknik apa yang paling efisien?</p>
+          <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="checkLevel(this, 'Kuesioner/Angket (misal Google Form) karena dapat menjangkau banyak responden sekaligus dengan cepat.')">Tampilkan Jawaban</button>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🟡 Tingkat Sedang: Menentukan Tipe Data
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          <p>Sebutkan tipe data yang tepat untuk sel berikut: (1) "0812345678" (Nomor HP), (2) 15000 (Harga Makanan).</p>
+          <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="checkLevel(this, '(1) Nomor HP disimpan sebagai Teks/Text agar angka 0 di depan tidak hilang, (2) Harga Makanan disimpan sebagai Angka/Numeric.')">Tampilkan Jawaban</button>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <div class="accordion-header" onclick="toggleAccordion(this)">
+          🔴 Tingkat Menantang: Memperbaiki Format
+          <span class="accordion-icon">&#9660;</span>
+        </div>
+        <div class="accordion-content">
+          <p>Bagaimana cara memperbaiki data berikut agar ramah spreadsheet: Sel A1 = "Rp 25.000,00 per unit"?</p>
+          <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="checkLevel(this, 'Pisahkan: Ubah Header menjadi Harga Per Unit (Rp), lalu isi sel A1 hanya dengan angka murni 25000 (Gunakan Currency Formatting di spreadsheet untuk menampilkan Rp).')">Tampilkan Jawaban</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Kuis Evaluasi Interaktif -->
+    <div class="slide">
+      <span class="slide-badge">Kuis Evaluasi</span>
+      <h2 class="slide-title">Uji Pemahaman Komprehensif</h2>
+      <p class="slide-desc" id="quizProgressText">Soal 1 dari 3</p>
+
+      <div id="quizContainer">
+        <!-- Loaded dynamically via JS -->
+      </div>
+    </div>
+
+    <!-- Slide 13: Refleksi & Rangkuman -->
+    <div class="slide">
+      <span class="slide-badge">Rangkuman</span>
+      <h2 class="slide-title">Rangkuman Pembelajaran</h2>
+
+      <div class="card" style="margin-bottom: 1rem;">
+        <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.7; padding-left: 1.2rem;">
+          <li><strong>Sumber Data:</strong> Data Primer (diambil langsung) & Data Sekunder (diambil dari sumber terpublikasi).</li>
+          <li><strong>Teknik Pengumpulan:</strong> Observasi, Wawancara, Kuesioner/Angket, dan Eksperimen/Pengukuran.</li>
+          <li><strong>Tipe Data Spreadsheet:</strong> Text (String), Numeric (Angka), Date/Time (Tanggal/Waktu).</li>
+          <li><strong>Good Data Entry:</strong> Hindari mencampur angka & teks dalam sel murni, gunakan header terstruktur, dan pastikan format konsisten.</li>
+        </ul>
+      </div>
+
+      <div class="card" style="border-color: var(--accent);">
+        <h4 style="color: var(--accent);">💭 Refleksi Diri</h4>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">
+          "Ketika kamu mengumpulkan data untuk tugas sekolah, apakah kamu sudah mencatatnya secara teratur dalam spreadsheet, atau masih mencatat secara acak di kertas?"
+        </p>
+      </div>
+    </div>
+
+    <!-- Slide 14: Penutup -->
+    <div class="slide">
+      <span class="slide-badge">Penutup</span>
+      <h2 class="slide-title">Selamat! Kamu Telah Menyelesaikan Modul</h2>
+      <p class="slide-desc">Kini kamu telah memiliki landasan kuat dalam mengumpulkan dan memasukkan data secara profesional!</p>
+
+      <div style="text-align: center; margin: 2rem 0;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📊📈✨</div>
+        <p style="color: var(--text-muted);">"Data yang rapi adalah kunci utama analisis yang akurat dan terpercaya."</p>
+      </div>
+
+      <div style="display: flex; justify-content: center;">
+        <button class="btn btn-primary" onclick="goToSlide(0)">Mulai Ulang Pembelajaran</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <button class="btn btn-secondary" id="btnPrev" onclick="prevSlide()">&larr; Sebelumnya</button>
+    <div>
+      <button class="btn btn-secondary" onclick="goToSlide(0)">🏠 Awal</button>
+    </div>
+    <button class="btn btn-primary" id="btnNext" onclick="nextSlide()">Berikutnya &rarr;</button>
+  </footer>
+
+  <script>
+    // Navigation State Management
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const progressBar = document.getElementById('progressBar');
+    const slideIndicator = document.getElementById('slideIndicator');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+
+    function updateNavigation() {
+      slides.forEach((slide, idx) => {
+        slide.classList.toggle('active', idx === currentSlide);
+      });
+
+      const progress = ((currentSlide + 1) / totalSlides) * 100;
+      progressBar.style.width = `${progress}%`;
+      slideIndicator.textContent = `Slide ${currentSlide + 1} dari ${totalSlides}`;
+
+      btnPrev.style.visibility = currentSlide === 0 ? 'hidden' : 'visible';
+      if (currentSlide === totalSlides - 1) {
+        btnNext.style.display = 'none';
+      } else {
+        btnNext.style.display = 'inline-flex';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateNavigation();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateNavigation();
+      }
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateNavigation();
+    }
+
+    // Keyboard Shortcuts (Arrow Left & Right)
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // Accordion Toggle Function
+    function toggleAccordion(header) {
+      const item = header.parentElement;
+      item.classList.toggle('active');
+    }
+
+    // Apersepsi Interactive Handler
+    function selectApersepsi(btn, result) {
+      const feedback = document.getElementById('apersepsiFeedback');
+      feedback.style.display = 'block';
+
+      if (result === 'benar') {
+        feedback.style.background = 'rgba(16, 185, 129, 0.2)';
+        feedback.style.color = '#a7f3d0';
+        feedback.style.border = '1px solid var(--emerald)';
+        feedback.innerHTML = '<strong>Tepat Sekali!</strong> Pengumpulan data ilmiah membutuhkan metode yang tepat serta pencatatan yang terstruktur agar hasilnya valid.';
+      } else {
+        feedback.style.background = 'rgba(244, 63, 94, 0.2)';
+        feedback.style.color = '#fecdd3';
+        feedback.style.border = '1px solid var(--rose)';
+        feedback.innerHTML = '<strong>Kurang Tepat.</strong> Mengandalkan tebakan atau data yang tidak relevan akan menghasilkan analisis yang menyesatkan.';
+      }
+    }
+
+    // Matching Game Logic
+    let selectedMatchId = null;
+    let selectedType = null;
+
+    function selectMatch(id, type) {
+      if (document.getElementById(id).classList.contains('matched')) return;
+
+      document.querySelectorAll('.match-card').forEach(c => {
+        if (!c.classList.contains('matched')) c.classList.remove('selected');
+      });
+
+      selectedMatchId = id;
+      selectedType = type;
+      document.getElementById(id).classList.add('selected');
+    }
+
+    function selectTarget(targetType) {
+      if (!selectedMatchId) return;
+
+      const feedback = document.getElementById('matchFeedback');
+      feedback.style.display = 'block';
+
+      if (selectedType === targetType) {
+        document.getElementById(selectedMatchId).classList.remove('selected');
+        document.getElementById(selectedMatchId).classList.add('matched');
+        
+        feedback.style.background = 'rgba(16, 185, 129, 0.2)';
+        feedback.style.color = '#a7f3d0';
+        feedback.style.border = '1px solid var(--emerald)';
+        feedback.innerHTML = '✅ <strong>Pasangan Benar!</strong> Pengelompokan sumber data tepat.';
+        
+        selectedMatchId = null;
+        selectedType = null;
+      } else {
+        feedback.style.background = 'rgba(244, 63, 94, 0.2)';
+        feedback.style.color = '#fecdd3';
+        feedback.style.border = '1px solid var(--rose)';
+        feedback.innerHTML = '❌ <strong>Pasangan Kurang Tepat.</strong> Coba analisis kembali cara memperoleh data tersebut!';
+      }
+    }
+
+    // Spreadsheet Simulation Update
+    function updateSheetSim() {
+      const valA3 = document.getElementById('cellA3').value.trim();
+      const valB3 = document.getElementById('cellB3').value.trim();
+      const valC3 = document.getElementById('cellC3').value.trim();
+      const typeBox = document.getElementById('type3');
+      const status = document.getElementById('simSheetStatus');
+
+      if (!valA3 && !valB3 && !valC3) {
+        typeBox.innerHTML = `<span class="type-badge" style="background: rgba(255,255,255,0.1);">Kosong</span>`;
+        status.innerHTML = `<strong>Saran Otomatis:</strong> Masukkan data pada Baris 3 untuk menguji validasi entri data.`;
+        return;
+      }
+
+      let isBNumber = !isNaN(valB3) && valB3 !== '';
+      let isCDate = /^\d{4}-\d{2}-\d{2}$/.test(valC3);
+
+      if (valB3 && !isBNumber) {
+        typeBox.innerHTML = `<span class="type-badge" style="background: rgba(244,63,94,0.3); color:#fecdd3;">Peringatan</span>`;
+        status.innerHTML = `<span style="color: var(--rose);">⚠️ <strong>Peringatan Kolom B:</strong> Nilai Ujian harus berisi angka murni (tanpa huruf/satuan).</span>`;
+      } else if (valC3 && !isCDate) {
+        typeBox.innerHTML = `<span class="type-badge" style="background: rgba(245,158,11,0.3); color:#fde68a;">Format Tgl</span>`;
+        status.innerHTML = `<span style="color: var(--accent);">⚠️ <strong>Format Tanggal:</strong> Gunakan format baku YYYY-MM-DD (Contoh: 2008-04-12).</span>`;
+      } else {
+        typeBox.innerHTML = `<span class="type-badge type-number">Valid ✅</span>`;
+        status.innerHTML = `<span style="color: var(--emerald);">🎉 <strong>Data Terstruktur Bagus!</strong> Entri data memenuhi aturan standar spreadsheet.</span>`;
+      }
+    }
+
+    // Example Reveal
+    function revealExample() {
+      const box = document.getElementById('exampleSolution');
+      const btn = document.getElementById('btnRevealEx');
+      if (box.style.display === 'none') {
+        box.style.display = 'block';
+        btn.textContent = 'Sembunyikan Pembahasan';
+      } else {
+        box.style.display = 'none';
+        btn.textContent = 'Lihat Pembahasan Analisis →';
+      }
+    }
+
+    // Level answer helper
+    function checkLevel(btn, text) {
+      let p = btn.nextElementSibling;
+      if (!p || !p.classList.contains('level-ans')) {
+        p = document.createElement('p');
+        p.className = 'level-ans';
+        p.style.marginTop = '0.5rem';
+        p.style.color = 'var(--primary-light)';
+        p.style.fontSize = '0.9rem';
+        p.style.lineHeight = '1.5';
+        p.innerHTML = '<strong>Jawaban:</strong> ' + text;
+        btn.parentNode.appendChild(p);
+      }
+    }
+
+    // Quiz Data & System
+    const quizData = [
+      {
+        q: "Data yang diperoleh peneliti secara langsung melalui pengisian angket oleh responden dinamakan...",
+        options: ["Data Sekunder", "Data Primer", "Data Kualitatif Terikat", "Data Eksternal"],
+        ans: 1,
+        exp: "Data Primer adalah data yang diperoleh secara langsung dari sumber pertama (responden)."
+      },
+      {
+        q: "Manakah di bawah ini yang merupakan contoh entri data yang SALAH pada kolom 'Tinggi Badan (cm)'?",
+        options: ["165", "172.5", "168 cm", "160"],
+        ans: 2,
+        exp: "Memasukkan '168 cm' mencampur angka dan teks dalam sel, sehingga spreadsheet menganggapnya sebagai teks dan tidak dapat dihitung."
+      },
+      {
+        q: "Teknik pengumpulan data yang dilakukan dengan cara mengamati dan mencatat kejadian di lapangan secara langsung adalah...",
+        options: ["Wawancara", "Kuesioner", "Observasi", "Studi Dokumentasi"],
+        ans: 2,
+        exp: "Observasi dilakukan dengan cara mengamati objek/fenomena secara langsung tanpa melakukan tanya jawab."
+      }
+    ];
+
+    let currentQuizIndex = 0;
+    let score = 0;
+
+    function renderQuiz() {
+      const container = document.getElementById('quizContainer');
+      const qText = document.getElementById('quizProgressText');
+
+      if (currentQuizIndex >= quizData.length) {
+        qText.textContent = "Kuis Selesai!";
+        container.innerHTML = `
+          <div style="text-align: center; padding: 1.5rem;">
+            <h3 style="font-size: 1.8rem; color: var(--emerald);">Skor Akhir Anda: ${score} / ${quizData.length * 100}</h3>
+            <p style="color: var(--text-muted); margin: 1rem 0;">${score === 300 ? 'Sempurna! Kamu memahami teknik pengumpulan dan entri data dengan sangat baik!' : 'Bagus! Pelajari kembali slide yang masih belum dikuasai.'}</p>
+            <button class="btn btn-primary" onclick="resetQuiz()">Ulangi Kuis</button>
+          </div>
+        `;
+        return;
+      }
+
+      qText.textContent = `Soal ${currentQuizIndex + 1} dari ${quizData.length}`;
+      const q = quizData[currentQuizIndex];
+
+      let html = `<p style="font-size: 1.1rem; margin-bottom: 1.2rem;">${q.q}</p>`;
+      q.options.forEach((opt, idx) => {
+        html += `<button class="quiz-option" onclick="submitQuizAnswer(${idx})">${opt}</button>`;
+      });
+      html += `<div id="quizFeedback" class="feedback"></div>`;
+
+      container.innerHTML = html;
+    }
+
+    function submitQuizAnswer(selectedIdx) {
+      const q = quizData[currentQuizIndex];
+      const feedback = document.getElementById('quizFeedback');
+      const options = document.querySelectorAll('#quizContainer .quiz-option');
+
+      options.forEach(opt => opt.style.pointerEvents = 'none');
+      feedback.style.display = 'block';
+
+      if (selectedIdx === q.ans) {
+        score += 100;
+        options[selectedIdx].classList.add('correct');
+        feedback.style.background = 'rgba(16, 185, 129, 0.2)';
+        feedback.style.color = '#a7f3d0';
+        feedback.style.border = '1px solid var(--emerald)';
+        feedback.innerHTML = `<strong>Benar!</strong> ${q.exp}`;
+      } else {
+        options[selectedIdx].classList.add('wrong');
+        options[q.ans].classList.add('correct');
+        feedback.style.background = 'rgba(244, 63, 94, 0.2)';
+        feedback.style.color = '#fecdd3';
+        feedback.style.border = '1px solid var(--rose)';
+        feedback.innerHTML = `<strong>Salah.</strong> Jawaban benar: ${q.options[q.ans]}. ${q.exp}`;
+      }
+
+      setTimeout(() => {
+        currentQuizIndex++;
+        renderQuiz();
+      }, 3000);
+    }
+
+    function resetQuiz() {
+      currentQuizIndex = 0;
+      score = 0;
+      renderQuiz();
+    }
+
+    // Init Quiz on Load
+    renderQuiz();
+  </script>
+</body>
+</html>

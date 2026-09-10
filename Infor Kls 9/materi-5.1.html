@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Pembelajaran Interaktif: Konsep Dasar Data</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --accent-primary: #6366f1;
+            --accent-secondary: #06b6d4;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --font-title: 'Fredoka', cursive, sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow-x: hidden;
+        }
+
+        /* Header & Navigation Bar */
+        header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-info h1 {
+            font-family: var(--font-title);
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slide-counter {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-card);
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Main Container & Slide Layout */
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .slide-deck {
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            min-height: 520px;
+        }
+
+        .slide {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            min-height: 520px;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+            position: relative;
+        }
+
+        /* Typography Inside Slides */
+        .slide-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .slide-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--accent-primary);
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .slide-title {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .slide-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+            flex: 1;
+        }
+
+        .slide-content p {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .highlight {
+            color: var(--accent-secondary);
+            font-weight: 600;
+        }
+
+        /* Components & Interactive Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .interactive-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .interactive-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            border-color: var(--accent-primary);
+        }
+
+        .interactive-card i.icon {
+            font-size: 2rem;
+            color: var(--accent-primary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .interactive-card h4 {
+            color: var(--text-main);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .interactive-card p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Revealable Box */
+        .reveal-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .reveal-box:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(6, 182, 212, 0.05);
+        }
+
+        .reveal-content {
+            display: none;
+            margin-top: 1rem;
+            text-align: left;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        /* Process Flow Diagram */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .process-step {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.25rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .process-step .step-num {
+            width: 32px;
+            height: 32px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 0.75rem;
+        }
+
+        .process-arrow {
+            color: var(--accent-secondary);
+            font-size: 1.5rem;
+        }
+
+        /* Interactive Sorting / Matching Game */
+        .drag-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .drop-zone {
+            background: rgba(15, 23, 42, 0.5);
+            border: 2px dashed var(--border-color);
+            border-radius: 16px;
+            padding: 1rem;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .drop-zone h5 {
+            text-align: center;
+            color: var(--accent-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .draggable-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .draggable {
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .draggable:hover {
+            transform: scale(1.05);
+        }
+
+        /* Quiz UI */
+        .quiz-option {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .quiz-option:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-primary);
+        }
+
+        .quiz-option.correct {
+            background: rgba(16, 185, 129, 0.2) !important;
+            border-color: var(--accent-success) !important;
+            color: #a7f3d0;
+        }
+
+        .quiz-option.incorrect {
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-color: var(--accent-danger) !important;
+            color: #fecaca;
+        }
+
+        .quiz-option .opt-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .explanation-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        /* Footer Controls */
+        footer {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: 12px;
+            border: none;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Interactive SVG Chart Container */
+        .chart-container {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 1.5rem;
+                min-height: 480px;
+            }
+
+            .slide-title {
+                font-size: 1.5rem;
+            }
+
+            .process-flow {
+                flex-direction: column;
+            }
+
+            .process-arrow {
+                transform: rotate(90deg);
+            }
+
+            .drag-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="brand-info">
+            <h1>Bab 5 — Mengolah & Menginterpretasikan Data</h1>
+            <p>5.1 Konsep Dasar Data</p>
+        </div>
+        <div class="header-controls">
+            <button class="btn btn-secondary" onclick="goToSlide(0)" title="Kembali ke Awal"><i class="fa-solid fa-house"></i></button>
+            <div class="slide-counter"><span id="current-slide-num">1</span> / <span id="total-slides-num">12</span></div>
+        </div>
+    </header>
+
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <!-- Main Slide Container -->
+    <main>
+        <div class="slide-deck">
+
+            <!-- SLIDE 1: Pembuka & Apersepsi -->
+            <div class="slide active">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Apersepsi</span>
+                        <h2 class="slide-title">Selamat Datang di Dunia Data! 📊</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p>Pernahkah kamu membayangkan berapa banyak pesan, foto, atau angka yang masuk ke ponselmu setiap hari?</p>
+                        <p>Di era digital saat ini, kita dikelilingi oleh lautan fakta mentah. Namun, apakah semua angka dan teks tersebut langsung bermanfaat bagi kita? Mari kita mulai petualangan untuk memahami bagaimana fakta mentah diubah menjadi keputusan yang cerdas!</p>
+                        
+                        <div class="reveal-box" onclick="toggleReveal('apersepsi-box')">
+                            <i class="fa-solid fa-lightbulb" style="font-size: 1.8rem; color: var(--accent-warning);"></i>
+                            <p style="margin-top: 0.5rem; font-weight: 600;">Klik di sini untuk melihat Pertanyaan Pemantik!</p>
+                            <div id="apersepsi-box" class="reveal-content">
+                                <p style="color: var(--accent-secondary); font-style: italic;">
+                                    "Jika guru mencatat angka '85, 90, 78, 92' di papan tulis tanpa nama pelajaran dan tanpa nama siswa, apakah angka tersebut langsung berguna bagi sekolah? Mengapa?"
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: Tujuan Pembelajaran -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Tujuan Pembelajaran</span>
+                        <h2 class="slide-title">Apa yang Akan Kamu Kuasai?</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p>Setelah menyelesaikan modul interaktif ini, kamu diharapkan mampu:</p>
+                        <div class="card-grid">
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-brain icon"></i>
+                                <h4>Membedakan Konsep</h4>
+                                <p>Menjelaskan perbedaan fundamental antara data dan informasi dengan tepat.</p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-layer-group icon"></i>
+                                <h4>Mengklasifikasi Jenis Data</h4>
+                                <p>Mengelompokkan data berdasarkan sifat, sumber, dan waktu pengumpulannya.</p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-chart-line icon"></i>
+                                <h4>Memahami Manfaat</h4>
+                                <p>Mengidentifikasi peran dan manfaat data dalam pengambilan keputusan sehari-hari.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Pengertian Data vs Informasi -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Konsep Utama</span>
+                        <h2 class="slide-title">Data vs Informasi: Apa Bedanya?</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div class="card-grid">
+                            <div class="interactive-card" style="border-left: 4px solid var(--accent-primary);">
+                                <i class="fa-solid fa-database icon"></i>
+                                <h4>DATA (Fakta Mentah)</h4>
+                                <p>Kumpulan fakta, angka, teks, gambar, atau simbol mentah yang diperoleh dari pengamatan atau pengukuran yang <strong>belum diolah</strong> dan belum memiliki arti yang jelas.</p>
+                            </div>
+                            <div class="interactive-card" style="border-left: 4px solid var(--accent-secondary);">
+                                <i class="fa-solid fa-chart-pie icon"></i>
+                                <h4>INFORMASI (Hasil Olahan)</h4>
+                                <p>Hasil dari pengolahan data yang sudah terstruktur, memiliki konteks, dan <strong>memberikan makna</strong> serta nilai tambah bagi penerimanya.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: Visualisasi Proses Pengolahan Data -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Prosedur Konseptual</span>
+                        <h2 class="slide-title">Bagaimana Data Menjadi Informasi?</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p>Klik setiap langkah di bawah ini untuk memahami proses transformasinya:</p>
+                        <div class="process-flow">
+                            <div class="process-step" onclick="alert('DATA MENTAH: Contoh angka suhu harian: 33°C, 34°C, 35°C, 33°C.')">
+                                <div class="step-num">1</div>
+                                <h4>Input Data</h4>
+                                <p style="font-size: 0.8rem;">Fakta mentah dikumpulkan</p>
+                            </div>
+                            <div class="process-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="process-step" onclick="alert('PENGOLAHAN: Menghitung rata-rata suhu harian selama seminggu.')">
+                                <div class="step-num">2</div>
+                                <h4>Pengolahan</h4>
+                                <p style="font-size: 0.8rem;">Dihitung, dikelompokkan, dianalisis</p>
+                            </div>
+                            <div class="process-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+                            <div class="process-step" onclick="alert('INFORMASI: Kesimpulan bahwa terjadi gelombang panas minggu ini.')">
+                                <div class="step-num">3</div>
+                                <h4>Output Informasi</h4>
+                                <p style="font-size: 0.8rem;">Makna yang siap pakai</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: Klasifikasi Data Berdasarkan Sifat -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Jenis Data (1)</span>
+                        <h2 class="slide-title">Berdasarkan Sifatnya</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div class="card-grid">
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-hashtag icon" style="color: var(--accent-secondary);"></i>
+                                <h4>Data Kuantitatif</h4>
+                                <p>Data berbentuk <strong>angka atau nilai numerik</strong> yang dapat diukur, dihitung, dan dioperasi matematika-kan.</p>
+                                <hr style="margin: 0.8rem 0; border-color: var(--border-color);">
+                                <p style="font-size: 0.8rem; color: var(--accent-secondary);"><strong>Contoh:</strong> Tinggi badan (165 cm), Jumlah siswa (36 orang), Suhu ruangan (24°C).</p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-font icon" style="color: var(--accent-warning);"></i>
+                                <h4>Data Kualitatif</h4>
+                                <p>Data berbentuk <strong>deskripsi, kata-kata, atau narasi</strong> yang menggambarkan kualitas, ciri, atau karakteristik.</p>
+                                <hr style="margin: 0.8rem 0; border-color: var(--border-color);">
+                                <p style="font-size: 0.8rem; color: var(--accent-warning);"><strong>Contoh:</strong> Warna kesukaan, Tingkat kepuasan (Sangat Puas), Opini konsumen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: Klasifikasi Data Berdasarkan Sumber -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Jenis Data (2)</span>
+                        <h2 class="slide-title">Berdasarkan Sumber Pengambilan</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div class="card-grid">
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-bullseye icon" style="color: var(--accent-success);"></i>
+                                <h4>Data Primer</h4>
+                                <p>Data yang diperoleh <strong>secara langsung dari sumber utama</strong> oleh peneliti atau pengumpul data.</p>
+                                <p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted);"><em>Metode: Wawancara langsung, kuesioner, observasi lapangan, eksperimen.</em></p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-book-bookmark icon" style="color: var(--accent-primary);"></i>
+                                <h4>Data Sekunder</h4>
+                                <p>Data yang diperoleh dari <strong>pihak kedua atau sumber yang sudah publikasi sebelumnya</strong>.</p>
+                                <p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--text-muted);"><em>Metode: Laporan BPS, dokumen sekolah, artikel jurnal, buku.</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: Klasifikasi Data Berdasarkan Waktu -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Jenis Data (3)</span>
+                        <h2 class="slide-title">Berdasarkan Waktu Pengumpulan</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div class="card-grid">
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-camera icon" style="color: var(--accent-secondary);"></i>
+                                <h4>Data Cross-Section</h4>
+                                <p>Data yang dikumpulkan pada <strong>satu titik waktu tertentu</strong> untuk menggambarkan keadaan saat itu.</p>
+                                <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);"><em>Contoh: Data jumlah siswa aktif SMP Merdeka pada Bulan September 2026.</em></p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-chart-line icon" style="color: var(--accent-success);"></i>
+                                <h4>Data Time Series (Runtut Waktu)</h4>
+                                <p>Data yang dikumpulkan <strong>secara berkala dari waktu ke waktu</strong> untuk mengamati tren atau perkembangan.</p>
+                                <p style="font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-muted);"><em>Contoh: Grafik rata-rata kelulusan siswa dari tahun 2020 hingga 2026.</em></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: Aktivitas Interaktif Classify (Drag/Click Game) -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Aktivitas Interaktif</span>
+                        <h2 class="slide-title">Uji Pemahaman: Kelompokkan Data!</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p>Klik opsi item di bawah untuk memasukkannya ke dalam kategori yang tepat:</p>
+                        
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;" id="item-pool">
+                            <button class="draggable" onclick="classifyItem(this, 'kuantitatif')">Tinggi Badan 170cm</button>
+                            <button class="draggable" onclick="classifyItem(this, 'kualitatif')">Aroma Harum Bunga</button>
+                            <button class="draggable" onclick="classifyItem(this, 'kuantitatif')">Nilai Ujian 95</button>
+                            <button class="draggable" onclick="classifyItem(this, 'kualitatif')">Warna Cat Merah</button>
+                        </div>
+
+                        <div class="drag-container">
+                            <div class="drop-zone" id="zone-kuantitatif">
+                                <h5>Data Kuantitatif (Angka)</h5>
+                            </div>
+                            <div class="drop-zone" id="zone-kualitatif">
+                                <h5>Data Kualitatif (Sifat/Deskripsi)</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: Manfaat Data dalam Kehidupan Sehari-hari -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Penerapan</span>
+                        <h2 class="slide-title">Manfaat Data dalam Sehari-hari</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div class="card-grid">
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-compass icon"></i>
+                                <h4>Pengambilan Keputusan</h4>
+                                <p>Memilih rute jalan tercepat berdasarkan data lalu lintas jam ini di aplikasi peta.</p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-calendar-check icon"></i>
+                                <h4>Bahan Perencanaan</h4>
+                                <p>Menyusun anggaran belanja bulanan berdasarkan data pengeluaran bulan lalu.</p>
+                            </div>
+                            <div class="interactive-card">
+                                <i class="fa-solid fa-sliders icon"></i>
+                                <h4>Alat Evaluasi</h4>
+                                <p>Mengetahui tingkat kebugaran tubuh berdasarkan pencatatan jumlah langkah kaki harian.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 10: Kuis Interaktif - Soal 1 -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Kuis Interaktif (1/2)</span>
+                        <h2 class="slide-title">Uji Pemahaman Konsep</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p style="margin-bottom: 1rem; font-weight: 600;">Seorang peneliti membagikan kuesioner secara langsung kepada 50 siswa untuk mengetahui tingkat kepuasan fasilitas kantin. Data yang diperoleh peneliti tersebut termasuk ke dalam jenis data...</p>
+                        
+                        <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')">
+                            <div class="opt-btn">A</div>
+                            <div>Data Sekunder</div>
+                        </div>
+                        <div class="quiz-option" onclick="checkQuiz(this, true, 'q1-exp')">
+                            <div class="opt-btn">B</div>
+                            <div>Data Primer</div>
+                        </div>
+                        <div class="quiz-option" onclick="checkQuiz(this, false, 'q1-exp')">
+                            <div class="opt-btn">C</div>
+                            <div>Data Time Series</div>
+                        </div>
+
+                        <div id="q1-exp" class="explanation-box">
+                            <strong>Pembahasan:</strong> Tepat sekali! Karena data diperoleh secara <em>langsung dari sumber utama</em> (siswa) melalui kuesioner yang dibagikan oleh peneliti, maka data tersebut adalah <strong>Data Primer</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: Kuis Interaktif - Soal 2 -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Kuis Interaktif (2/2)</span>
+                        <h2 class="slide-title">Uji Pemahaman Konsep</h2>
+                    </div>
+                    <div class="slide-content">
+                        <p style="margin-bottom: 1rem; font-weight: 600;">Manakah di bawah ini yang merupakan contoh dari DATA KUANTITATIF?</p>
+                        
+                        <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')">
+                            <div class="opt-btn">A</div>
+                            <div>Tingkat kepuasan pelanggan (Sangat Puas, Cukup, Kurang)</div>
+                        </div>
+                        <div class="quiz-option" onclick="checkQuiz(this, true, 'q2-exp')">
+                            <div class="opt-btn">B</div>
+                            <div>Suhu tubuh pasien sebesar 37.5 °C</div>
+                        </div>
+                        <div class="quiz-option" onclick="checkQuiz(this, false, 'q2-exp')">
+                            <div class="opt-btn">C</div>
+                            <div>Tekstur permukaan kain yang halus</div>
+                        </div>
+
+                        <div id="q2-exp" class="explanation-box">
+                            <strong>Pembahasan:</strong> Benar! Suhu 37.5 °C dinyatakan dalam bentuk angka (numerik) yang dapat diukur secara pasti, sehingga tergolong <strong>Data Kuantitatif</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 12: Rangkuman & Refleksi -->
+            <div class="slide">
+                <div>
+                    <div class="slide-header">
+                        <span class="slide-tag">Rangkuman</span>
+                        <h2 class="slide-title">Rangkuman & Refleksi 💡</h2>
+                    </div>
+                    <div class="slide-content">
+                        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.25rem; margin-bottom: 1rem;">
+                            <ul style="padding-left: 1.2rem; color: #cbd5e1; font-size: 0.95rem;">
+                                <li style="margin-bottom: 0.5rem;"><strong>Data</strong> adalah fakta mentah, sedangkan <strong>Informasi</strong> adalah data yang telah diolah dan memiliki makna.</li>
+                                <li style="margin-bottom: 0.5rem;"><strong>Jenis Data:</strong> Kuantitatif (Angka) & Kualitatif (Deskripsi); Primer (Langsung) & Sekunder (Tidak Langsung).</li>
+                                <li><strong>Manfaat Data:</strong> Menjadi landasan utama dalam membuat keputusan yang akurat dan berbasis fakta.</li>
+                            </ul>
+                        </div>
+                        <p style="font-size: 0.9rem; text-align: center; color: var(--accent-secondary);">
+                            🎉 <em>Selamat! Kamu telah menyelesaikan modul pembelajaran Konsep Dasar Data.</em>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer Controls -->
+    <footer>
+        <button class="btn btn-secondary" id="btn-prev" onclick="changeSlide(-1)"><i class="fa-solid fa-arrow-left"></i> Sebelumnya</button>
+        <button class="btn btn-primary" id="btn-next" onclick="changeSlide(1)">Berikutnya <i class="fa-solid fa-arrow-right"></i></button>
+    </footer>
+
+    <!-- Vanilla JavaScript -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const progressBar = document.getElementById('progress-bar');
+        const currentSlideNum = document.getElementById('current-slide-num');
+        const totalSlidesNum = document.getElementById('total-slides-num');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function updateSlideUI() {
+            slides.forEach((slide, index) => {
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            currentSlideNum.textContent = currentSlide + 1;
+            const progressPercent = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            btnPrev.disabled = currentSlide === 0;
+            if (currentSlide === totalSlides - 1) {
+                btnNext.innerHTML = 'Selesai <i class="fa-solid fa-check"></i>';
+            } else {
+                btnNext.innerHTML = 'Berikutnya <i class="fa-solid fa-arrow-right"></i>';
+            }
+        }
+
+        function changeSlide(direction) {
+            if (currentSlide + direction >= 0 && currentSlide + direction < totalSlides) {
+                currentSlide += direction;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            if (index >= 0 && index < totalSlides) {
+                currentSlide = index;
+                updateSlideUI();
+            }
+        }
+
+        // Reveal Box Function
+        function toggleReveal(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === 'block') {
+                el.style.display = 'none';
+            } else {
+                el.style.display = 'block';
+            }
+        }
+
+        // Classification Interactive Feature
+        function classifyItem(btn, type) {
+            const targetZone = document.getElementById(`zone-${type}`);
+            targetZone.appendChild(btn);
+            btn.style.cursor = 'default';
+            btn.onclick = null;
+        }
+
+        // Quiz Handling
+        function checkQuiz(element, isCorrect, expId) {
+            const parent = element.parentElement;
+            const options = parent.querySelectorAll('.quiz-option');
+            
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+            }
+
+            const expBox = document.getElementById(expId);
+            if (expBox) {
+                expBox.style.display = 'block';
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Initialize UI
+        updateSlideUI();
+    </script>
+</body>
+</html>

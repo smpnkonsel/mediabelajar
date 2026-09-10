@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Perulangan Bersarang | Bab 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-0:#0a0e1a;
+  --bg-1:#0f1424;
+  --bg-2:#151b30;
+  --card:#161d33;
+  --card-hi:#1c2440;
+  --border:#252e4d;
+  --coral:#ff6b6b;
+  --coral-dim:#ff6b6b33;
+  --teal:#2dd4bf;
+  --teal-dim:#2dd4bf33;
+  --amber:#fbbf24;
+  --amber-dim:#fbbf2433;
+  --violet:#a78bfa;
+  --text-1:#eef1fb;
+  --text-2:#9aa3c7;
+  --text-3:#6b7396;
+  --ok:#34d399;
+  --bad:#fb7185;
+  --radius-lg:24px;
+  --radius-md:16px;
+  --radius-sm:10px;
+  --shadow:0 20px 50px -20px rgba(0,0,0,0.6);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:'Plus Jakarta Sans', sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, #1c2a4a55 0%, transparent 45%),
+    radial-gradient(circle at 90% 85%, #2a1c3f55 0%, transparent 45%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 60%, var(--bg-0));
+  color:var(--text-1);
+  min-height:100vh;
+  overflow:hidden;
+  -webkit-tap-highlight-color:transparent;
+}
+h1,h2,h3,.brand,.big-num{font-family:'Fredoka', sans-serif;}
+.mono{font-family:'JetBrains Mono', monospace;}
+
+#app{
+  display:flex; flex-direction:column;
+  height:100vh; width:100vw;
+  max-width:1100px; margin:0 auto;
+  padding:14px 18px 10px;
+}
+
+.topbar{display:flex; align-items:center; gap:14px; margin-bottom:10px;}
+.topbar .brand{font-size:15px; font-weight:600; color:var(--text-2); white-space:nowrap;}
+.progress-track{flex:1; height:7px; border-radius:99px; background:var(--border); overflow:hidden;}
+.progress-fill{height:100%; border-radius:99px; background:linear-gradient(90deg, var(--coral), var(--amber)); transition:width .4s cubic-bezier(.4,0,.2,1); width:0%;}
+.slide-counter{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--text-2); white-space:nowrap;}
+
+#stage{flex:1; position:relative; overflow:hidden; border-radius:var(--radius-lg);}
+.slide{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  padding:26px clamp(16px,4vw,52px);
+  opacity:0; transform:translateX(40px) scale(.98);
+  pointer-events:none; transition:opacity .45s ease, transform .45s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+}
+.slide.active{opacity:1; transform:translateX(0) scale(1); pointer-events:auto;}
+.slide::-webkit-scrollbar{width:6px;}
+.slide::-webkit-scrollbar-thumb{background:var(--border); border-radius:99px;}
+
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px; width:fit-content;
+  font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--teal); background:var(--teal-dim); border:1px solid #2dd4bf55;
+  padding:6px 14px; border-radius:99px; margin-bottom:16px;
+}
+.eyebrow.amber{color:var(--amber); background:var(--amber-dim); border-color:#fbbf2455;}
+.eyebrow.coral{color:var(--coral); background:var(--coral-dim); border-color:#ff6b6b55;}
+.eyebrow.violet{color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;}
+.eyebrow.bad{color:var(--bad); background:#fb718533; border-color:#fb718555;}
+
+h2.slide-title{font-size:clamp(22px,4vw,34px); font-weight:600; line-height:1.25; margin-bottom:6px;}
+.slide-sub{color:var(--text-2); font-size:clamp(13.5px,2vw,16px); margin-bottom:20px; max-width:720px;}
+
+.card{
+  background:linear-gradient(180deg, var(--card-hi), var(--card));
+  border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:20px 22px; box-shadow:var(--shadow);
+}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+@media (max-width:720px){ .grid2, .grid3{grid-template-columns:1fr;} }
+
+.btn{
+  cursor:pointer; border:none; font-family:'Plus Jakarta Sans',sans-serif; font-weight:700;
+  border-radius:99px; padding:12px 22px; font-size:14.5px; transition:transform .15s, box-shadow .15s, opacity .15s;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn:active{transform:scale(.96);}
+.btn-primary{background:linear-gradient(120deg, var(--coral), #ff9770); color:#1a0e0e; box-shadow:0 10px 26px -10px #ff6b6b88;}
+.btn-primary:hover{box-shadow:0 14px 30px -8px #ff6b6bcc;}
+.btn-outline{background:transparent; border:1.5px solid var(--border); color:var(--text-1);}
+.btn-outline:hover{border-color:var(--teal); color:var(--teal);}
+.btn:disabled{opacity:.35; cursor:not-allowed;}
+
+.navbar{display:flex; align-items:center; justify-content:space-between; margin-top:12px; gap:10px;}
+.dots{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; max-width:60vw;}
+.dot{width:8px; height:8px; border-radius:99px; background:var(--border); cursor:pointer; transition:.25s; flex-shrink:0;}
+.dot.active{width:22px; background:var(--coral);}
+.dot.done{background:var(--teal);}
+.nav-btn{
+  width:46px; height:46px; border-radius:50%; border:1px solid var(--border); background:var(--card);
+  color:var(--text-1); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:.2s;
+}
+.nav-btn:hover:not(:disabled){border-color:var(--coral); color:var(--coral); transform:translateY(-2px);}
+.nav-btn:disabled{opacity:.3; cursor:not-allowed;}
+
+.info-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:18px 20px; position:relative; overflow:hidden;}
+.info-card .icon{font-size:26px; margin-bottom:10px; display:block;}
+.info-card h3{font-size:16.5px; font-weight:700; margin-bottom:6px;}
+.info-card p{font-size:14px; color:var(--text-2); line-height:1.55;}
+
+.term-box{border-left:4px solid var(--amber); background:#fbbf2412; border-radius:10px; padding:14px 18px; margin:14px 0;}
+.term-box b{color:var(--amber);}
+
+.compare-wrap{display:flex; gap:0; border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border);}
+.compare-col{flex:1; padding:20px; }
+.compare-col.left{background:linear-gradient(180deg,#ff6b6b1c, transparent);}
+.compare-col.right{background:linear-gradient(180deg,#2dd4bf1c, transparent);}
+.compare-col h4{font-size:16px; margin-bottom:10px;}
+.compare-col.left h4{color:var(--coral);}
+.compare-col.right h4{color:var(--teal);}
+.compare-col ul{padding-left:18px; font-size:13.5px; color:var(--text-2); line-height:1.9;}
+.compare-mid{width:1px; background:var(--border);}
+@media(max-width:700px){.compare-wrap{flex-direction:column;} .compare-mid{width:100%; height:1px;}}
+
+.reveal-btn{cursor:pointer; border:1px dashed var(--teal); color:var(--teal); background:transparent; border-radius:10px; padding:10px 16px; font-weight:700; font-size:13.5px; width:100%; margin-top:10px;}
+.reveal-content{max-height:0; overflow:hidden; transition:max-height .4s ease; margin-top:0;}
+.reveal-content.open{max-height:700px; margin-top:12px;}
+
+.step-flow{display:flex; flex-direction:column; gap:0;}
+.step-item{display:flex; gap:16px; align-items:flex-start; position:relative; padding-bottom:26px;}
+.step-item:last-child{padding-bottom:0;}
+.step-item::before{content:''; position:absolute; left:19px; top:42px; bottom:0; width:2px; background:var(--border);}
+.step-item:last-child::before{display:none;}
+.step-num{width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg, var(--coral), var(--amber)); color:#1a0e0e; display:flex; align-items:center; justify-content:center; font-weight:800; font-family:'Fredoka'; flex-shrink:0; z-index:1;}
+.step-text h4{font-size:15px; margin-bottom:4px;}
+.step-text p{font-size:13.5px; color:var(--text-2); line-height:1.6;}
+
+.example-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}
+.example-tag{display:inline-block; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:99px; margin-bottom:10px;}
+.tag-easy{background:#34d39933; color:#34d399;}
+.tag-med{background:#fbbf2433; color:#fbbf24;}
+.tag-hard{background:#fb718533; color:#fb7185;}
+
+.mc-options{display:flex; flex-direction:column; gap:10px; margin-top:14px;}
+.mc-opt{border:1.5px solid var(--border); background:var(--card); border-radius:12px; padding:13px 16px; cursor:pointer; font-size:14px; transition:.2s; display:flex; align-items:center; gap:10px;}
+.mc-opt:hover{border-color:var(--teal);}
+.mc-opt.correct{border-color:var(--ok); background:#34d39922; color:var(--ok);}
+.mc-opt.wrong{border-color:var(--bad); background:#fb718522; color:var(--bad);}
+.mc-opt .letter{width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;}
+.mc-opt pre{margin:0; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.4; white-space:pre;}
+.feedback{margin-top:12px; padding:12px 16px; border-radius:10px; font-size:13.5px; display:none;}
+.feedback.show{display:block;}
+.feedback.ok{background:#34d39922; border:1px solid #34d39955; color:#a7f3d0;}
+.feedback.bad{background:#fb718522; border:1px solid #fb718555; color:#fecdd3;}
+
+.accordion-item{border:1px solid var(--border); border-radius:var(--radius-sm); margin-bottom:10px; overflow:hidden; background:var(--card);}
+.accordion-head{padding:14px 18px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; font-weight:700; font-size:14.5px;}
+.accordion-head .arrow{transition:transform .3s; color:var(--teal);}
+.accordion-item.open .arrow{transform:rotate(180deg);}
+.accordion-body{max-height:0; overflow:hidden; transition:max-height .35s ease; padding:0 18px;}
+.accordion-item.open .accordion-body{max-height:400px; padding:0 18px 16px;}
+.accordion-body p{color:var(--text-2); font-size:13.8px; line-height:1.6;}
+
+.quiz-progress{display:flex; gap:5px; margin-bottom:16px;}
+.quiz-progress span{flex:1; height:5px; border-radius:99px; background:var(--border);}
+.quiz-progress span.done{background:var(--teal);}
+.quiz-progress span.wrong{background:var(--bad);}
+
+.big-num{font-size:clamp(40px,7vw,64px); font-weight:700; background:linear-gradient(120deg,var(--coral),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent; line-height:1;}
+
+.tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.tag-pill{font-size:12.5px; font-weight:700; padding:6px 13px; border-radius:99px; background:var(--card); border:1px solid var(--border); color:var(--text-2);}
+
+/* code block */
+.code-block{background:#0d1220; border:1px solid var(--border); border-radius:14px; padding:16px 18px; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.85; color:#d7ddf5; overflow-x:auto;}
+.code-block .ln{color:var(--text-3); user-select:none; display:inline-block; width:20px;}
+.code-block .kw{color:var(--violet);}
+.code-block .fn{color:var(--teal);}
+.code-block .num{color:var(--amber);}
+.code-block .cm{color:var(--text-3); font-style:italic;}
+.code-line{transition:background .3s; border-radius:4px;}
+.code-line.lit{background:#2dd4bf22;}
+
+.output-box{background:#0d1220; border:1px solid var(--border); border-radius:14px; padding:16px 18px; font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ok); min-height:60px; margin-top:14px;}
+.output-box .placeholder{color:var(--text-3); font-style:italic;}
+
+/* nested loop diagram */
+.nest-diagram{display:flex; justify-content:center; margin:18px 0;}
+.nest-outer{border:2px solid var(--coral); border-radius:16px; padding:18px; position:relative; width:100%; max-width:420px;}
+.nest-outer .lbl{position:absolute; top:-12px; left:14px; background:var(--bg-0); padding:0 8px; color:var(--coral); font-size:12px; font-weight:700;}
+.nest-inner{border:2px solid var(--teal); border-radius:12px; padding:20px 16px; margin-top:10px; position:relative;}
+.nest-inner .lbl{position:absolute; top:-12px; left:14px; background:var(--bg-0); padding:0 8px; color:var(--teal); font-size:12px; font-weight:700;}
+.nest-inner p{font-size:12.5px; color:var(--text-2); text-align:center; font-family:'JetBrains Mono',monospace;}
+
+/* trace table */
+.trace-table{width:100%; border-collapse:collapse; margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:13px;}
+.trace-table th{text-align:left; color:var(--text-2); font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; padding:6px 10px; border-bottom:1px solid var(--border);}
+.trace-table td{padding:7px 10px; border-bottom:1px solid var(--border); color:var(--text-3); opacity:.35; transition:.3s;}
+.trace-table tr.lit td{color:var(--text-1); opacity:1; background:#2dd4bf14;}
+
+/* star pattern */
+.star-box{background:#0d1220; border:1px solid var(--border); border-radius:14px; padding:18px; font-family:'JetBrains Mono',monospace; color:var(--amber); min-height:130px; font-size:16px; line-height:1.5; letter-spacing:3px;}
+
+/* mult table */
+.mult-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin-top:14px; max-width:420px;}
+.mult-cell{background:var(--card); border:1px solid var(--border); border-radius:8px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-3); transition:.25s;}
+.mult-cell.head{background:transparent; border:none; color:var(--text-2); font-weight:700;}
+.mult-cell.filled{background:#2dd4bf22; border-color:#2dd4bf55; color:var(--text-1); font-weight:700;}
+.mult-cell.active{background:var(--teal); color:#052; transform:scale(1.1);}
+
+footer.hint{text-align:center; font-size:11.5px; color:var(--text-3); margin-top:8px;}
+::selection{background:var(--coral); color:#1a0e0e;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <span class="brand">🔁 Perulangan Bersarang</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="slide-counter" id="slideCounter">1 / 16</span>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="navbar">
+    <button class="nav-btn" id="btnPrev" aria-label="Sebelumnya">←</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" id="btnNext" aria-label="Berikutnya">→</button>
+  </div>
+  <footer class="hint">Gunakan tombol ← → atau geser layar untuk berpindah slide</footer>
+</div>
+
+<script>
+/* ================= SLIDE DEFINITIONS ================= */
+const slides = [
+  // 0. COVER
+  {
+    id:'cover',
+    render: () => `
+      <div style="display:flex; flex-direction:column; justify-content:center; align-items:flex-start; height:100%;">
+        <span class="eyebrow">Bab 8 &middot; Kode 8.5</span>
+        <h1 style="font-size:clamp(30px,6vw,50px); font-weight:700; line-height:1.15; max-width:780px;">
+          Perulangan<br><span style="background:linear-gradient(120deg,var(--coral),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent;">Bersarang</span>
+        </h1>
+        <p style="margin-top:16px; color:var(--text-2); font-size:16px; max-width:620px; line-height:1.7;">
+          Konsep perulangan bersarang (nested loop) dan penerapannya untuk menyelesaikan masalah sederhana.
+        </p>
+        <div style="display:flex; gap:10px; margin-top:28px; flex-wrap:wrap;">
+          <span class="tag-pill mono">for i</span>
+          <span class="tag-pill mono">for j</span>
+          <span class="tag-pill">⭐ Pola</span>
+          <span class="tag-pill">🔢 Tabel</span>
+        </div>
+        <button class="btn btn-primary" style="margin-top:34px;" onclick="goTo(1)">Mulai Belajar &rarr;</button>
+      </div>`
+  },
+  // 1. APERSEPSI
+  {
+    id:'apersepsi',
+    render: () => `
+      <span class="eyebrow amber">Apersepsi</span>
+      <h2 class="slide-title">Pengulangan di Dalam Pengulangan</h2>
+      <p class="slide-sub">Perhatikan situasi sehari-hari berikut ini.</p>
+      <div class="grid3">
+        <div class="info-card"><span class="icon">💺</span><h3>Menata Kursi</h3><p>Untuk setiap baris kursi (5 baris), kamu menata beberapa kursi (4 kursi) di dalamnya.</p></div>
+        <div class="info-card"><span class="icon">📅</span><h3>Kalender</h3><p>Untuk setiap minggu (4 minggu), ada beberapa hari (7 hari) yang berulang di dalamnya.</p></div>
+        <div class="info-card"><span class="icon">🧮</span><h3>Tabel Perkalian</h3><p>Untuk setiap baris angka (1-5), kamu mengalikan dengan beberapa kolom angka (1-5).</p></div>
+      </div>
+      <div class="term-box" style="margin-top:22px;">
+        <p>🤔 <b>Pertanyaan pemantik:</b> Pada semua contoh di atas, ada "pengulangan besar" yang di dalamnya terdapat "pengulangan kecil" lagi. Bagaimana jika hal ini kita terapkan dalam algoritma pemrograman?</p>
+      </div>`
+  },
+  // 2. TUJUAN
+  {
+    id:'tujuan',
+    render: () => `
+      <span class="eyebrow">Tujuan Pembelajaran</span>
+      <h2 class="slide-title">Setelah mempelajari materi ini, kamu diharapkan mampu:</h2>
+      <div class="step-flow" style="margin-top:10px;">
+        <div class="step-item"><div class="step-num">1</div><div class="step-text"><h4>Menjelaskan konsep perulangan bersarang</h4><p>Memahami apa yang dimaksud dengan perulangan di dalam perulangan.</p></div></div>
+        <div class="step-item"><div class="step-num">2</div><div class="step-text"><h4>Menjelaskan cara kerja perulangan bersarang</h4><p>Memahami bagaimana perulangan luar dan dalam saling berkaitan.</p></div></div>
+        <div class="step-item"><div class="step-num">3</div><div class="step-text"><h4>Menerapkan perulangan bersarang</h4><p>Menggunakan perulangan bersarang untuk membuat pola dan tabel sederhana.</p></div></div>
+        <div class="step-item"><div class="step-num">4</div><div class="step-text"><h4>Membandingkan perulangan tunggal dan bersarang</h4><p>Memahami kapan sebaiknya menggunakan masing-masing jenis perulangan.</p></div></div>
+      </div>`
+  },
+  // 3. RECALL: PERULANGAN TUNGGAL
+  {
+    id:'recall',
+    render: () => `
+      <span class="eyebrow coral">Mengingat Kembali</span>
+      <h2 class="slide-title">Perulangan Tunggal (Sebelumnya)</h2>
+      <div class="card">
+        <p style="font-size:14.5px; line-height:1.75; margin-bottom:12px;">Perulangan tunggal menggunakan satu variabel kontrol untuk mengulang satu blok perintah.</p>
+        <div class="code-block">
+<span class="ln">1</span><span class="kw">untuk</span> i = 1 <span class="kw">sampai</span> 5
+<span class="ln">2</span>&nbsp;&nbsp;<span class="fn">tampilkan</span>(i)
+        </div>
+        <div class="output-box">1&nbsp;&nbsp;2&nbsp;&nbsp;3&nbsp;&nbsp;4&nbsp;&nbsp;5</div>
+      </div>
+      <div class="term-box" style="margin-top:16px;">
+        <p>💡 Perulangan tunggal cocok untuk mengulang satu deretan langkah sederhana. Tapi bagaimana jika kita perlu mengulang sesuatu <b>di dalam</b> pengulangan lain, seperti membuat tabel atau pola?</p>
+      </div>`
+  },
+  // 4. PENGERTIAN PERULANGAN BERSARANG
+  {
+    id:'pengertian',
+    render: () => `
+      <span class="eyebrow coral">Konsep Utama</span>
+      <h2 class="slide-title">Apa itu Perulangan Bersarang?</h2>
+      <div class="card">
+        <p style="font-size:15.5px; line-height:1.8;">
+          <b style="color:var(--coral);">Perulangan bersarang (nested loop)</b> adalah struktur perulangan yang berada di dalam perulangan lain. Perulangan yang berada di luar disebut <b style="color:var(--coral);">perulangan luar (outer loop)</b>, dan perulangan yang berada di dalamnya disebut <b style="color:var(--teal);">perulangan dalam (inner loop)</b>.
+        </p>
+      </div>
+      <div class="nest-diagram">
+        <div class="nest-outer">
+          <span class="lbl">PERULANGAN LUAR (i)</span>
+          <div class="nest-inner">
+            <span class="lbl">PERULANGAN DALAM (j)</span>
+            <p>tampilkan(i, j)</p>
+          </div>
+        </div>
+      </div>
+      <div class="term-box">
+        <p><b>Aturan penting:</b> setiap satu putaran perulangan luar berjalan, seluruh putaran perulangan dalam akan dijalankan sampai selesai terlebih dahulu, baru kembali ke perulangan luar.</p>
+      </div>`
+  },
+  // 5. CARA KERJA - simulasi trace
+  {
+    id:'cara-kerja',
+    render: () => `
+      <span class="eyebrow" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Konsep Utama (lanjutan)</span>
+      <h2 class="slide-title">Bagaimana Cara Kerjanya?</h2>
+      <p class="slide-sub">Perhatikan contoh: perulangan luar <span class="mono">i = 1 sampai 3</span>, perulangan dalam <span class="mono">j = 1 sampai 2</span>. Klik tombol untuk melihat urutan prosesnya.</p>
+      <button class="btn btn-outline" onclick="playTrace()">▶️ Jalankan Simulasi</button>
+      <table class="trace-table" id="traceTable">
+        <thead><tr><th>Urutan</th><th>i (luar)</th><th>j (dalam)</th><th>Aksi</th></tr></thead>
+        <tbody id="traceBody"></tbody>
+      </table>`,
+    afterRender: () => buildTraceTable()
+  },
+  // 6. CONTOH KODE & OUTPUT
+  {
+    id:'kode-output',
+    render: () => `
+      <span class="eyebrow" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Konsep Utama (lanjutan)</span>
+      <h2 class="slide-title">Contoh Kode Sederhana</h2>
+      <div class="code-block" id="codeBlock1">
+<span class="ln">1</span><span class="kw">untuk</span> i = 1 <span class="kw">sampai</span> 3
+<span class="ln">2</span>&nbsp;&nbsp;<span class="kw">untuk</span> j = 1 <span class="kw">sampai</span> 2
+<span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">tampilkan</span>(i, j)
+      </div>
+      <button class="btn btn-primary" style="margin:14px auto 0; display:flex;" onclick="runCodeDemo()">▶️ Jalankan Kode</button>
+      <div class="output-box" id="codeOutput"><span class="placeholder">Output akan muncul di sini...</span></div>`
+  },
+  // 7. STUDI KASUS 1: POLA SEGITIGA BINTANG
+  {
+    id:'kasus1',
+    render: () => `
+      <span class="eyebrow" style="color:var(--amber);">Studi Kasus 1</span>
+      <h2 class="slide-title">Membuat Pola Segitiga Bintang</h2>
+      <p class="slide-sub">Perulangan luar mengatur baris, perulangan dalam mencetak bintang sebanyak nomor barisnya.</p>
+      <div class="code-block">
+<span class="ln">1</span><span class="kw">untuk</span> baris = 1 <span class="kw">sampai</span> 5
+<span class="ln">2</span>&nbsp;&nbsp;<span class="kw">untuk</span> kolom = 1 <span class="kw">sampai</span> baris
+<span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">tampilkan</span>("*")
+<span class="ln">4</span>&nbsp;&nbsp;<span class="fn">baris_baru</span>()
+      </div>
+      <button class="btn btn-primary" style="margin:14px auto 0; display:flex;" onclick="runStarPattern()">▶️ Jalankan</button>
+      <div class="star-box" id="starOutput"></div>`
+  },
+  // 8. STUDI KASUS 2: TABEL PERKALIAN
+  {
+    id:'kasus2',
+    render: () => `
+      <span class="eyebrow" style="color:var(--amber);">Studi Kasus 2</span>
+      <h2 class="slide-title">Membuat Tabel Perkalian</h2>
+      <p class="slide-sub">Perulangan luar mengatur baris, perulangan dalam mengatur kolom, setiap sel diisi hasil baris &times; kolom.</p>
+      <div class="code-block">
+<span class="ln">1</span><span class="kw">untuk</span> baris = 1 <span class="kw">sampai</span> 5
+<span class="ln">2</span>&nbsp;&nbsp;<span class="kw">untuk</span> kolom = 1 <span class="kw">sampai</span> 5
+<span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">tampilkan</span>(baris &times; kolom)
+      </div>
+      <button class="btn btn-primary" style="margin:14px auto 0; display:flex;" onclick="runMultTable()">▶️ Buat Tabel</button>
+      <div class="mult-grid" id="multGrid"></div>`,
+    afterRender: () => buildMultGrid()
+  },
+  // 9. PERBANDINGAN TUNGGAL VS BERSARANG
+  {
+    id:'perbandingan',
+    render: () => `
+      <span class="eyebrow" style="color:var(--teal);">Perbandingan</span>
+      <h2 class="slide-title">Perulangan Tunggal vs Bersarang</h2>
+      <div class="compare-wrap">
+        <div class="compare-col left">
+          <h4>🔂 Perulangan Tunggal</h4>
+          <ul>
+            <li>Menggunakan satu variabel kontrol</li>
+            <li>Cocok untuk data satu dimensi (daftar/baris)</li>
+            <li>Jumlah iterasi = jumlah putaran loop tersebut</li>
+            <li>Contoh: mencetak angka 1-5</li>
+          </ul>
+        </div>
+        <div class="compare-mid"></div>
+        <div class="compare-col right">
+          <h4>🔁 Perulangan Bersarang</h4>
+          <ul>
+            <li>Menggunakan dua (atau lebih) variabel kontrol</li>
+            <li>Cocok untuk data dua dimensi (tabel/pola/grid)</li>
+            <li>Jumlah iterasi = iterasi luar &times; iterasi dalam</li>
+            <li>Contoh: membuat tabel perkalian, pola bintang</li>
+          </ul>
+        </div>
+      </div>`
+  },
+  // 10. CONTOH SOAL 1 (mudah)
+  {
+    id:'contoh1',
+    render: () => `
+      <span class="eyebrow coral">Contoh 1</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-easy">Mudah</span>
+        <h3 style="font-size:16px; margin-bottom:14px;">Jika perulangan luar berjalan 2 kali, dan untuk setiap putaran luar, perulangan dalam berjalan 3 kali, berapa total baris <span class="mono">tampilkan(i, j)</span> yang akan dieksekusi?</h3>
+        <div class="mc-options" id="ex1-options">
+          <div class="mc-opt" onclick="answerMC(this,'ex1')"><span class="letter">A</span> 2 kali</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex1')"><span class="letter">B</span> 3 kali</div>
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex1')"><span class="letter">C</span> 6 kali</div>
+        </div>
+        <div class="feedback" id="ex1-feedback"></div>
+      </div>`
+  },
+  // 11. CONTOH SOAL 2 (sedang)
+  {
+    id:'contoh2',
+    render: () => `
+      <span class="eyebrow amber">Contoh 2</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-med">Sedang</span>
+        <h3 style="font-size:16px; margin-bottom:14px;">Sebuah pola bintang dibuat dengan perulangan bersarang: untuk baris = 1 sampai 4, dan setiap baris mencetak bintang sebanyak nomor barisnya (baris 1 → 1 bintang, baris 2 → 2 bintang, dst). Berapa total bintang yang tercetak?</h3>
+        <div class="mc-options" id="ex2-options">
+          <div class="mc-opt" onclick="answerMC(this,'ex2')"><span class="letter">A</span> 4</div>
+          <div class="mc-opt" onclick="answerMC(this,'ex2')"><span class="letter">B</span> 8</div>
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex2')"><span class="letter">C</span> 10</div>
+        </div>
+        <div class="feedback" id="ex2-feedback"></div>
+        <button class="reveal-btn" onclick="toggleReveal(this)">💡 Lihat Petunjuk</button>
+        <div class="reveal-content"><div class="term-box">Jumlahkan bintang tiap baris: 1 + 2 + 3 + 4 = ...</div></div>
+      </div>`
+  },
+  // 12. CONTOH SOAL 3 (menantang)
+  {
+    id:'contoh3',
+    render: () => `
+      <span class="eyebrow bad">Contoh 3</span>
+      <div class="example-card" style="padding:22px;">
+        <span class="example-tag tag-hard">Menantang</span>
+        <h3 style="font-size:16px; margin-bottom:6px;">Perhatikan pseudocode berikut:</h3>
+        <div class="code-block" style="margin-bottom:14px;">
+<span class="ln">1</span><span class="kw">untuk</span> baris = 1 <span class="kw">sampai</span> 3
+<span class="ln">2</span>&nbsp;&nbsp;<span class="kw">untuk</span> kolom = 1 <span class="kw">sampai</span> baris
+<span class="ln">3</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">tampilkan</span>("*")
+<span class="ln">4</span>&nbsp;&nbsp;<span class="fn">baris_baru</span>()
+        </div>
+        <p style="font-size:14.5px; margin-bottom:10px; color:var(--text-2);">Manakah pola keluaran (output) yang akan dihasilkan?</p>
+        <div class="mc-options" id="ex3-options">
+          <div class="mc-opt" onclick="answerMC(this,'ex3')"><span class="letter">A</span><pre>***
+***
+***</pre></div>
+          <div class="mc-opt" data-correct="true" onclick="answerMC(this,'ex3')"><span class="letter">B</span><pre>*
+**
+***</pre></div>
+          <div class="mc-opt" onclick="answerMC(this,'ex3')"><span class="letter">C</span><pre>***
+**
+*</pre></div>
+        </div>
+        <div class="feedback" id="ex3-feedback"></div>
+        <div class="reveal-btn" style="margin-top:14px; border-style:solid;" onclick="toggleReveal(this)">📖 Lihat Pembahasan Lengkap</div>
+        <div class="reveal-content">
+          <div class="term-box">Pada baris=1, kolom berjalan dari 1 sampai 1 (1 bintang). Pada baris=2, kolom berjalan dari 1 sampai 2 (2 bintang). Pada baris=3, kolom berjalan dari 1 sampai 3 (3 bintang). Sehingga terbentuk pola segitiga yang membesar ke bawah.</div>
+        </div>
+      </div>`
+  },
+  // 13. LATIHAN BENAR/SALAH
+  {
+    id:'latihan',
+    render: () => `
+      <span class="eyebrow violet" style="color:var(--violet); background:#a78bfa33; border-color:#a78bfa55;">Latihan Mandiri</span>
+      <h2 class="slide-title">Benar atau Salah?</h2>
+      <p class="slide-sub">Klik pernyataan untuk memeriksa jawabanmu.</p>
+      <div id="trueFalseList"></div>`,
+    afterRender: () => {
+      const items = [
+        {text:'Perulangan bersarang adalah perulangan yang berada di dalam perulangan lain.', correct:true},
+        {text:'Pada perulangan bersarang, perulangan dalam hanya dijalankan satu kali walaupun perulangan luar berulang beberapa kali.', correct:false, note:'Perulangan dalam akan dijalankan penuh dari awal sampai akhir untuk setiap satu putaran perulangan luar.'},
+        {text:'Total iterasi perulangan bersarang dapat dihitung dengan mengalikan jumlah iterasi luar dan iterasi dalam.', correct:true},
+        {text:'Perulangan bersarang tidak dapat digunakan untuk membuat tabel atau pola.', correct:false, note:'Perulangan bersarang justru sangat cocok digunakan untuk membuat tabel dan pola dua dimensi.'}
+      ];
+      document.getElementById('trueFalseList').innerHTML = items.map((it,i)=>`
+        <div class="accordion-item">
+          <div class="accordion-head" style="cursor:pointer;" onclick="answerTF(this, ${it.correct})">
+            <span>${i+1}. ${it.text}</span>
+            <span class="arrow" style="font-size:12px;">Pilih</span>
+          </div>
+          <div class="tf-result" style="padding:0 18px; font-size:13px;"></div>
+        </div>`).join('');
+    }
+  },
+  // 14. KUIS
+  {
+    id:'kuis',
+    render: () => `
+      <span class="eyebrow coral">Kuis</span>
+      <h2 class="slide-title" id="quizTitle">Uji Pemahamanmu</h2>
+      <div class="quiz-progress" id="quizProgress"></div>
+      <div id="quizBody"></div>`,
+    afterRender: () => initQuiz()
+  },
+  // 15. REFLEKSI + RANGKUMAN + PENUTUP
+  {
+    id:'penutup',
+    render: () => `
+      <span class="eyebrow" style="color:var(--teal);">Refleksi &amp; Rangkuman</span>
+      <h2 class="slide-title">Sampai di Sini Dulu!</h2>
+      <div class="grid2">
+        <div class="card">
+          <h3 style="margin-bottom:10px; font-size:15.5px;">🪞 Refleksi</h3>
+          <p style="font-size:13.8px; color:var(--text-2); line-height:1.7;">Coba pikirkan satu pola atau tabel yang pernah kamu buat secara manual. Bagaimana jika kamu membuatnya menggunakan perulangan bersarang?</p>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:10px; font-size:15.5px;">📌 Rangkuman</h3>
+          <ul style="font-size:13.5px; color:var(--text-2); line-height:1.9; padding-left:18px;">
+            <li><b style="color:var(--text-1);">Perulangan bersarang</b>: perulangan yang berada di dalam perulangan lain (outer &amp; inner loop).</li>
+            <li><b style="color:var(--text-1);">Cara kerja</b>: untuk setiap satu putaran luar, seluruh putaran dalam dijalankan penuh.</li>
+            <li><b style="color:var(--text-1);">Total iterasi</b>: iterasi luar &times; iterasi dalam.</li>
+            <li><b style="color:var(--text-1);">Penerapan</b>: membuat pola (segitiga bintang) dan tabel (tabel perkalian).</li>
+          </ul>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:30px;">
+        <p style="color:var(--text-2); font-size:14.5px; margin-bottom:14px;">Terima kasih sudah belajar dengan tekun! 🎉</p>
+        <button class="btn btn-primary" onclick="goTo(0)">Ulangi dari Awal</button>
+      </div>`
+  }
+];
+
+/* ================= QUIZ DATA ================= */
+const quizQuestions = [
+  {q:'Manakah pengertian yang paling tepat untuk "perulangan bersarang"?', opts:['Perulangan yang hanya berjalan satu kali','Perulangan yang berada di dalam perulangan lain','Perulangan yang tidak memiliki kondisi berhenti','Perulangan yang menggunakan variabel bernama sama'], correct:1, exp:'Perulangan bersarang adalah struktur perulangan yang berada di dalam perulangan lain (outer dan inner loop).'},
+  {q:'Jika perulangan luar berjalan 4 kali dan perulangan dalam berjalan 3 kali untuk setiap putaran luar, total baris perintah di dalam perulangan dalam akan dieksekusi sebanyak...', opts:['4 kali','3 kali','7 kali','12 kali'], correct:3, exp:'Total iterasi dihitung dengan mengalikan jumlah iterasi luar dan dalam: 4 × 3 = 12.'},
+  {q:'Pada perulangan bersarang, urutan proses yang benar adalah...', opts:['Perulangan dalam berjalan sekali, lalu perulangan luar mengulang','Untuk setiap satu putaran luar, seluruh putaran dalam dijalankan penuh terlebih dahulu','Perulangan luar dan dalam berjalan bersamaan tanpa urutan','Perulangan dalam berjalan sebelum perulangan luar dimulai'], correct:1, exp:'Untuk setiap satu putaran perulangan luar, seluruh putaran perulangan dalam dijalankan sampai selesai baru kembali ke luar.'},
+  {q:'Perulangan bersarang paling cocok digunakan untuk membuat...', opts:['Satu baris angka saja','Tabel atau pola dua dimensi','Variabel tunggal','Kondisi benar/salah'], correct:1, exp:'Perulangan bersarang cocok untuk data dua dimensi seperti tabel perkalian dan pola bintang.'},
+  {q:'Sebuah pola bintang dibuat dengan baris = 1 sampai 3, dan setiap baris mencetak bintang sebanyak nomor barisnya. Bentuk pola yang dihasilkan adalah...', opts:['Segiempat penuh','Segitiga yang membesar ke bawah','Segitiga yang mengecil ke bawah','Garis lurus'], correct:1, exp:'Karena jumlah bintang bertambah seiring nomor baris (1, 2, 3), pola yang terbentuk adalah segitiga membesar ke bawah.'},
+  {q:'Dibandingkan perulangan tunggal, perulangan bersarang menggunakan...', opts:['Lebih sedikit variabel kontrol','Variabel kontrol yang sama persis','Dua atau lebih variabel kontrol','Tidak memerlukan variabel kontrol'], correct:2, exp:'Perulangan bersarang menggunakan minimal dua variabel kontrol, yaitu untuk perulangan luar dan perulangan dalam.'}
+];
+let quizState = {current:0, score:0, answered:false, log:[]};
+
+function initQuiz(){
+  quizState = {current:0, score:0, answered:false, log:[]};
+  renderQuizProgress();
+  renderQuizQuestion();
+}
+function renderQuizProgress(){
+  const el = document.getElementById('quizProgress');
+  if(!el) return;
+  el.innerHTML = quizQuestions.map((_,i)=>{
+    let cls='';
+    if(quizState.log[i]===true) cls='done';
+    if(quizState.log[i]===false) cls='wrong';
+    return `<span class="${cls}"></span>`;
+  }).join('');
+}
+function renderQuizQuestion(){
+  const body = document.getElementById('quizBody');
+  if(!body) return;
+  if(quizState.current >= quizQuestions.length){
+    const pct = Math.round((quizState.score/quizQuestions.length)*100);
+    let msg = pct>=80 ? 'Luar biasa! Pemahamanmu tentang perulangan bersarang sangat baik. 🌟' : pct>=60 ? 'Bagus! Terus berlatih agar semakin mahir. 💪' : 'Jangan menyerah, coba pelajari lagi materinya. 📘';
+    body.innerHTML = `
+      <div style="text-align:center; padding:20px 0;">
+        <div class="big-num">${quizState.score}/${quizQuestions.length}</div>
+        <p style="color:var(--text-2); margin:10px 0 4px; font-size:15px;">Skor kamu: <b class="mono" style="color:var(--text-1);">${pct}%</b></p>
+        <p style="color:var(--text-2); font-size:14px; max-width:420px; margin:10px auto 22px;">${msg}</p>
+        <button class="btn btn-primary" onclick="initQuiz()">🔄 Ulangi Kuis</button>
+      </div>`;
+    document.getElementById('quizTitle').textContent = 'Hasil Kuis';
+    return;
+  }
+  const q = quizQuestions[quizState.current];
+  document.getElementById('quizTitle').textContent = `Soal ${quizState.current+1} dari ${quizQuestions.length}`;
+  quizState.answered = false;
+  body.innerHTML = `
+    <div class="card">
+      <p style="font-size:15px; font-weight:600; margin-bottom:4px;">${q.q}</p>
+      <div class="mc-options">
+        ${q.opts.map((o,i)=>`<div class="mc-opt" data-i="${i}" onclick="answerQuiz(${i})"><span class="letter">${String.fromCharCode(65+i)}</span> ${o}</div>`).join('')}
+      </div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+        <button class="btn btn-outline" id="quizNextBtn" style="display:none;" onclick="nextQuizQuestion()">Lanjut &rarr;</button>
+      </div>
+    </div>`;
+}
+function answerQuiz(i){
+  if(quizState.answered) return;
+  quizState.answered = true;
+  const q = quizQuestions[quizState.current];
+  const opts = document.querySelectorAll('#quizBody .mc-opt');
+  const correct = i === q.correct;
+  if(correct) quizState.score++;
+  quizState.log[quizState.current] = correct;
+  opts.forEach((el,idx)=>{
+    if(idx===q.correct) el.classList.add('correct');
+    else if(idx===i) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('quizFeedback');
+  fb.className = 'feedback show ' + (correct ? 'ok' : 'bad');
+  fb.innerHTML = (correct ? '✅ <b>Benar!</b> ' : '❌ <b>Belum tepat.</b> ') + q.exp;
+  document.getElementById('quizNextBtn').style.display = 'inline-flex';
+  renderQuizProgress();
+}
+function nextQuizQuestion(){
+  quizState.current++;
+  renderQuizQuestion();
+}
+
+/* ================= HELPERS ================= */
+function toggleReveal(btn){
+  const content = btn.nextElementSibling;
+  content.classList.toggle('open');
+}
+function answerMC(el, prefix){
+  const parent = el.parentElement;
+  if(parent.dataset.locked) return;
+  parent.dataset.locked = '1';
+  const opts = parent.querySelectorAll('.mc-opt');
+  const isCorrect = el.dataset.correct === 'true';
+  opts.forEach(o=>{
+    if(o.dataset.correct==='true') o.classList.add('correct');
+    else if(o===el) o.classList.add('wrong');
+  });
+  const fb = document.getElementById(prefix+'-feedback');
+  fb.className = 'feedback show ' + (isCorrect?'ok':'bad');
+  fb.innerHTML = isCorrect ? '✅ <b>Tepat sekali!</b>' : '❌ <b>Belum tepat.</b> Perhatikan kembali penjelasan materi di atas.';
+}
+function answerTF(headEl, correct){
+  const item = headEl.parentElement;
+  const resultBox = item.querySelector('.tf-result');
+  if(resultBox.dataset.answered) return;
+  resultBox.dataset.answered = '1';
+  resultBox.innerHTML = correct
+    ? `<div class="feedback show ok" style="margin:10px 0 14px;">✅ <b>Benar</b> — pernyataan ini sesuai konsep.</div>`
+    : `<div class="feedback show bad" style="margin:10px 0 14px;">❌ <b>Ini salah.</b></div>`;
+}
+
+/* ================= TRACE TABLE SIMULATION ================= */
+function buildTraceTable(){
+  const rows = [];
+  let n = 1;
+  for(let i=1;i<=3;i++){
+    for(let j=1;j<=2;j++){
+      rows.push({n:n++, i, j, aksi:`tampilkan(${i}, ${j})`});
+    }
+  }
+  document.getElementById('traceBody').innerHTML = rows.map(r=>`
+    <tr id="trace-${r.n}"><td>${r.n}</td><td>${r.i}</td><td>${r.j}</td><td>${r.aksi}</td></tr>`).join('');
+}
+function playTrace(){
+  const rows = document.querySelectorAll('#traceBody tr');
+  rows.forEach(r=>r.classList.remove('lit'));
+  let i = 0;
+  const timer = setInterval(()=>{
+    rows.forEach(r=>r.classList.remove('lit'));
+    if(i < rows.length){ rows[i].classList.add('lit'); i++; }
+    else clearInterval(timer);
+  }, 500);
+}
+
+/* ================= CODE DEMO ================= */
+function runCodeDemo(){
+  const out = document.getElementById('codeOutput');
+  out.innerHTML = '';
+  const pairs = [];
+  for(let i=1;i<=3;i++) for(let j=1;j<=2;j++) pairs.push(`(${i}, ${j})`);
+  let idx = 0;
+  const timer = setInterval(()=>{
+    if(idx >= pairs.length){ clearInterval(timer); return; }
+    out.innerHTML += (idx>0 ? '&nbsp;&nbsp;' : '') + pairs[idx];
+    idx++;
+  }, 350);
+}
+
+/* ================= STAR PATTERN ================= */
+function runStarPattern(){
+  const box = document.getElementById('starOutput');
+  box.innerHTML = '';
+  let baris = 1;
+  const timer = setInterval(()=>{
+    if(baris > 5){ clearInterval(timer); return; }
+    box.innerHTML += '*'.repeat(baris) + '\n';
+    baris++;
+  }, 450);
+}
+
+/* ================= MULT TABLE ================= */
+function buildMultGrid(){
+  const grid = document.getElementById('multGrid');
+  let html = '<div class="mult-cell head"></div>';
+  for(let k=1;k<=5;k++) html += `<div class="mult-cell head">${k}</div>`;
+  for(let b=1;b<=5;b++){
+    html += `<div class="mult-cell head">${b}</div>`;
+    for(let k=1;k<=5;k++){
+      html += `<div class="mult-cell" id="cell-${b}-${k}"></div>`;
+    }
+  }
+  grid.innerHTML = html;
+}
+function runMultTable(){
+  buildMultGrid();
+  const cells = [];
+  for(let b=1;b<=5;b++) for(let k=1;k<=5;k++) cells.push([b,k]);
+  let idx = 0;
+  const timer = setInterval(()=>{
+    document.querySelectorAll('.mult-cell.active').forEach(c=>c.classList.remove('active'));
+    if(idx >= cells.length){ clearInterval(timer); return; }
+    const [b,k] = cells[idx];
+    const cell = document.getElementById(`cell-${b}-${k}`);
+    cell.textContent = b*k;
+    cell.classList.add('filled','active');
+    idx++;
+  }, 90);
+}
+
+/* ================= ENGINE: navigation ================= */
+let currentSlide = 0;
+const stage = document.getElementById('stage');
+const dotsWrap = document.getElementById('dots');
+
+function buildDots(){
+  dotsWrap.innerHTML = slides.map((_,i)=>`<div class="dot" onclick="goTo(${i})"></div>`).join('');
+}
+function renderSlide(idx){
+  stage.innerHTML = `<div class="slide" id="slideEl">${slides[idx].render()}</div>`;
+  const el = document.getElementById('slideEl');
+  requestAnimationFrame(()=> el.classList.add('active'));
+  if(slides[idx].afterRender) slides[idx].afterRender();
+  updateChrome(idx);
+}
+function updateChrome(idx){
+  document.getElementById('slideCounter').textContent = `${idx+1} / ${slides.length}`;
+  document.getElementById('progressFill').style.width = `${((idx+1)/slides.length)*100}%`;
+  document.querySelectorAll('.dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===idx);
+    d.classList.toggle('done', i<idx);
+  });
+  document.getElementById('btnPrev').disabled = idx===0;
+  document.getElementById('btnNext').disabled = idx===slides.length-1;
+}
+function goTo(idx){
+  if(idx<0 || idx>=slides.length) return;
+  if(idx===currentSlide) return;
+  currentSlide = Math.max(0, Math.min(slides.length-1, idx));
+  renderSlide(currentSlide);
+}
+document.getElementById('btnPrev').addEventListener('click', ()=> goTo(currentSlide-1));
+document.getElementById('btnNext').addEventListener('click', ()=> goTo(currentSlide+1));
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight') goTo(currentSlide+1);
+  if(e.key==='ArrowLeft') goTo(currentSlide-1);
+});
+let touchStartX = 0;
+stage.addEventListener('touchstart', e=> touchStartX = e.changedTouches[0].screenX, {passive:true});
+stage.addEventListener('touchend', e=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  if(Math.abs(dx) > 50){ dx<0 ? goTo(currentSlide+1) : goTo(currentSlide-1); }
+}, {passive:true});
+
+/* ================= INIT ================= */
+buildDots();
+renderSlide(0);
+</script>
+</body>
+</html>

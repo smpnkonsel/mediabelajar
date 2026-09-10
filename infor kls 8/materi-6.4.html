@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ancaman Keamanan Digital — Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#0A0D10;
+    --bg-1:#10151A;
+    --panel:#141B22;
+    --panel-soft:#182029;
+    --line:#263140;
+    --ink:#EAF1F5;
+    --ink-dim:#9FB0BE;
+    --ink-faint:#65788A;
+    --safe:#3DDC8A;
+    --safe-soft:#3DDC8A20;
+    --warn:#F2B33D;
+    --warn-soft:#F2B33D20;
+    --danger:#F2495C;
+    --danger-soft:#F2495C20;
+    --info:#4FA8F2;
+    --info-soft:#4FA8F220;
+    --grad-safe: linear-gradient(135deg,#3DDC8A,#22A6B3);
+    --grad-danger: linear-gradient(135deg,#F2495C,#F2833D);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-title:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --shadow-soft: 0 20px 60px -20px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1000px 560px at 90% -10%, #12241E 0%, transparent 58%),
+      radial-gradient(900px 520px at -10% 108%, #1B141A 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:38px 38px;
+    opacity:.04;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  #app{height:100vh; display:flex; flex-direction:column; position:relative; z-index:1;}
+
+  header.top{
+    display:flex; align-items:center; gap:16px;
+    padding:14px clamp(16px,4vw,40px);
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, rgba(16,21,26,.92), rgba(16,21,26,.5));
+    backdrop-filter:blur(6px);
+    z-index:20;
+  }
+  .brand{display:flex;align-items:center;gap:10px; font-family:var(--font-title); font-weight:600; font-size:15px; color:var(--ink); white-space:nowrap;}
+  .brand .dot{width:10px;height:10px;border-radius:50%; background:var(--grad-safe); box-shadow:0 0 0 4px var(--safe-soft); flex:none;}
+  .brand small{display:block;font-family:var(--font-body);font-weight:500;color:var(--ink-faint);font-size:11px;margin-top:1px;}
+
+  .progress-wrap{flex:1; height:8px; background:var(--panel-soft); border-radius:99px; overflow:hidden; position:relative; border:1px solid var(--line);}
+  .progress-bar{height:100%; width:0%; background:var(--grad-safe); border-radius:99px; transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .slide-counter{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; min-width:56px; text-align:right;}
+
+  main.stage{flex:1; position:relative; overflow:hidden;}
+  .slide{position:absolute; inset:0; display:none; overflow-y:auto; padding:clamp(20px,5vw,56px) clamp(16px,7vw,120px) 40px;}
+  .slide.active{display:block; animation:rise .5s cubic-bezier(.22,1,.36,1);}
+  @keyframes rise{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  .slide-inner{max-width:980px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; justify-content:center;}
+
+  .eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:var(--safe); margin:0 0 10px;}
+  h1.slide-title{font-family:var(--font-title); font-weight:600; font-size:clamp(26px,4.4vw,44px); line-height:1.12; margin:0 0 14px; color:var(--ink);}
+  h2.section-title{font-family:var(--font-title); font-weight:600; font-size:clamp(21px,3vw,30px); margin:0 0 12px; color:var(--ink);}
+  p.lead{font-size:clamp(15px,2vw,18px); line-height:1.65; color:var(--ink-dim); max-width:70ch; margin:0 0 20px;}
+  p.body-text{font-size:15.5px; line-height:1.7; color:var(--ink-dim); margin:0 0 14px; max-width:72ch;}
+  strong.hl{color:var(--danger); font-weight:700;}
+  strong.hl-safe{color:var(--safe); font-weight:700;}
+  strong.hl-warn{color:var(--warn); font-weight:700;}
+
+  .card{background:linear-gradient(180deg, var(--panel), var(--panel-soft)); border:1px solid var(--line); border-radius:var(--radius-lg); padding:clamp(18px,3vw,30px); box-shadow:var(--shadow-soft);}
+  .card + .card{margin-top:16px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} .grid3{grid-template-columns:1fr;} }
+
+  .tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; padding:4px 10px; border-radius:99px; background:var(--info-soft); color:var(--info); border:1px solid #4FA8F255;}
+  .tag-danger{background:var(--danger-soft); color:var(--danger); border-color:#F2495C55;}
+  .tag-safe{background:var(--safe-soft); color:var(--safe); border-color:#3DDC8A55;}
+  .tag-warn{background:var(--warn-soft); color:var(--warn); border-color:#F2B33D55;}
+
+  .btn{font-family:var(--font-body); font-weight:700; font-size:14px; border:none; cursor:pointer; padding:11px 20px; border-radius:99px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--grad-safe); color:#04241C;}
+  .btn-primary:hover{box-shadow:0 8px 22px -6px #3DDC8A77;}
+  .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn-outline:hover{border-color:var(--safe); color:var(--safe);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+
+  footer.bottom-nav{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px clamp(16px,4vw,40px); border-top:1px solid var(--line); background:linear-gradient(0deg, rgba(16,21,26,.94), rgba(16,21,26,.55)); backdrop-filter:blur(6px); z-index:20;}
+  .nav-group{display:flex; align-items:center; gap:10px;}
+  .dots{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; max-width:46vw;}
+  .dots .d{width:7px;height:7px;border-radius:50%; background:var(--line); cursor:pointer; transition:all .2s ease; flex:none;}
+  .dots .d.active{width:20px; border-radius:5px; background:var(--grad-safe);}
+  .dots .d.done{background:var(--info);}
+  .hint-key{display:none; font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+  @media (min-width:900px){ .hint-key{display:block;} }
+
+  .accordion{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:var(--bg-1);}
+  .accordion summary{list-style:none; cursor:pointer; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .accordion summary::-webkit-details-marker{display:none;}
+  .accordion summary:after{content:'+'; font-family:var(--font-mono); color:var(--safe); font-size:18px; transition:transform .25s ease;}
+  .accordion[open] summary:after{transform:rotate(45deg);}
+  .accordion .acc-body{padding:0 16px 16px; color:var(--ink-dim); font-size:14.5px; line-height:1.65;}
+
+  .reveal-box{border:1px dashed var(--line); border-radius:var(--radius-md); padding:14px 16px; cursor:pointer; background:var(--bg-1); transition:border-color .2s ease;}
+  .reveal-box:hover{border-color:var(--safe);}
+  .reveal-box .rq{font-weight:700; color:var(--ink); font-size:14.5px;}
+  .reveal-box .ra{display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); color:var(--safe); font-size:14px; line-height:1.6;}
+  .reveal-box.open .ra{display:block;}
+  .reveal-box .ra::before{content:'✓ '; font-weight:700;}
+  .reveal-hint{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:6px;}
+
+  .mcq-opt{display:block; width:100%; text-align:left; padding:12px 14px; margin-bottom:8px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--bg-1); color:var(--ink); font-family:var(--font-body); font-size:14.5px; cursor:pointer; transition:all .15s ease;}
+  .mcq-opt:hover{border-color:var(--info);}
+  .mcq-opt.correct{border-color:var(--safe); background:var(--safe-soft); color:var(--safe);}
+  .mcq-opt.wrong{border-color:var(--danger); background:var(--danger-soft); color:var(--danger);}
+  .mcq-opt:disabled{cursor:default;}
+  .feedback{margin-top:10px; font-size:14px; line-height:1.6; padding:12px 14px; border-radius:var(--radius-sm); display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--safe-soft); color:var(--safe); border:1px solid #3DDC8A55;}
+  .feedback.bad{background:var(--danger-soft); color:var(--danger); border:1px solid #F2495C55;}
+
+  .input-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px;}
+  .input-row input[type=text], .input-row input[type=password]{flex:1; min-width:160px; background:var(--bg-1); border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px 14px; color:var(--ink); font-family:var(--font-mono); font-size:14.5px;}
+  .input-row input:focus{outline:none; border-color:var(--safe);}
+
+  .stepper{display:flex; flex-direction:column; gap:10px;}
+  .step-item{display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px; background:var(--bg-1);}
+  .step-num{flex:none; width:26px; height:26px; border-radius:50%; background:var(--grad-safe); color:#04241C; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:12.5px;}
+  .step-txt{font-size:14.5px; color:var(--ink-dim); line-height:1.6; padding-top:3px;}
+  .step-txt b{color:var(--ink);}
+
+  .quiz-progress{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); margin-bottom:10px;}
+  .quiz-score-ring{width:140px; height:140px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; background:conic-gradient(var(--safe) calc(var(--pct,0)*1%), var(--panel-soft) 0); position:relative;}
+  .quiz-score-ring::before{content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-1);}
+  .quiz-score-ring .score-txt{position:relative; font-family:var(--font-title); font-size:26px; font-weight:600; color:var(--ink);}
+  .quiz-score-ring .score-sub{position:relative; font-size:11px; color:var(--ink-faint);}
+
+  .pill-toggle{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .pill-toggle button{font-family:var(--font-mono); font-size:12px; padding:7px 13px; border-radius:99px; border:1px solid var(--line); background:var(--bg-1); color:var(--ink-dim); cursor:pointer;}
+  .pill-toggle button.on{background:var(--grad-safe); color:#04241C; border-color:transparent; font-weight:700;}
+
+  /* Message / email mock */
+  .msg-mock{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; background:var(--bg-1);}
+  .msg-head{padding:12px 16px; border-bottom:1px solid var(--line); font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); display:flex; flex-direction:column; gap:3px;}
+  .msg-head b{color:var(--ink); font-family:var(--font-body); font-size:13.5px;}
+  .msg-body{padding:16px; font-size:14.5px; line-height:1.7; color:var(--ink-dim);}
+  .msg-link{color:var(--info); text-decoration:underline; cursor:pointer;}
+
+  .hotspot-wrap{position:relative; display:inline-block; width:100%;}
+  .hotspot{position:absolute; border:2px dashed var(--danger); border-radius:6px; cursor:pointer; background:var(--danger-soft); transition:background .2s ease;}
+  .hotspot:hover, .hotspot.found{background:#F2495C55;}
+  .hotspot.found{border-style:solid;}
+
+  .checklist{display:flex; flex-direction:column; gap:8px;}
+  .check-item{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--bg-1); cursor:pointer;}
+  .check-item input{margin-top:3px; accent-color:var(--safe); width:16px; height:16px; flex:none;}
+  .check-item span{font-size:14px; color:var(--ink-dim); line-height:1.55;}
+  .check-item.checked span{color:var(--safe); text-decoration:line-through; opacity:.75;}
+
+  .pw-meter{height:9px; border-radius:99px; background:var(--panel-soft); overflow:hidden; border:1px solid var(--line); margin-top:10px;}
+  .pw-meter-fill{height:100%; width:0%; border-radius:99px; transition:width .3s ease, background .3s ease;}
+  .pw-label{font-family:var(--font-mono); font-size:12.5px; margin-top:8px; color:var(--ink-dim);}
+  .pw-rules{margin-top:10px; display:flex; flex-direction:column; gap:5px;}
+  .pw-rule{font-size:12.5px; font-family:var(--font-mono); color:var(--ink-faint); display:flex; gap:7px; align-items:center;}
+  .pw-rule.met{color:var(--safe);}
+  .pw-rule .ic{width:14px;}
+
+  .threat-card{border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; background:var(--bg-1);}
+  .threat-card .ic-wrap{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;}
+  .threat-card h4{font-family:var(--font-title); font-weight:600; font-size:16px; margin:0 0 6px; color:var(--ink);}
+  .threat-card p{font-size:13.5px; color:var(--ink-dim); line-height:1.6; margin:0;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+
+  .kbd{font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink-dim);}
+
+  .cover-hero{display:flex; flex-direction:column; align-items:flex-start; gap:18px;}
+  .cover-icon{width:64px; height:64px; border-radius:18px; background:var(--grad-safe); display:flex; align-items:center; justify-content:center; box-shadow:0 14px 34px -10px #3DDC8A66;}
+  .cover-meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+
+  @media (max-width:600px){
+    .brand small{display:none;}
+    .quiz-score-ring{width:120px; height:120px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        Bab 6 — Komunikasi &amp; Keamanan Data
+        <small>Phishing • Malware • Penipuan Daring • Pencurian Data</small>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 1</div>
+  </header>
+
+  <main class="stage" id="stage"></main>
+
+  <footer class="bottom-nav">
+    <button class="btn btn-outline" id="btnPrev">← Sebelumnya</button>
+    <div class="nav-group"><div class="dots" id="dots"></div></div>
+    <div class="nav-group">
+      <span class="hint-key"><span class="kbd">←</span> / <span class="kbd">→</span> untuk navigasi</span>
+      <button class="btn btn-primary" id="btnNext">Berikutnya →</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA MATERI
+   ========================================================= */
+const slidesData = [];
+function addSlide(html){ slidesData.push(html); }
+
+/* ---------- Slide 1 : Cover ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2L4 5v6c0 5.2 3.4 9.8 8 11 4.6-1.2 8-5.8 8-11V5l-8-3z" stroke="#04241C" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M9 12l2 2 4-4" stroke="#04241C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <p class="eyebrow">BAB 6 — KOMUNIKASI DAN KEAMANAN DATA</p>
+    <h1 class="slide-title">Ancaman Keamanan Digital</h1>
+    <p class="lead">Kenali <em>phishing</em>, <em>malware</em>, penipuan daring, dan pencurian data — empat ancaman digital yang paling sering menyerang pengguna internet — sekaligus pelajari cara mengenali dan menghindarinya.</p>
+    <div class="cover-meta">
+      <span class="tag tag-danger">🎣 Phishing</span>
+      <span class="tag tag-danger">🦠 Malware</span>
+      <span class="tag tag-warn">💸 Penipuan Daring</span>
+      <span class="tag tag-warn">🔓 Pencurian Data</span>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 2 : Apersepsi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">APERSEPSI</p>
+    <h2 class="section-title">Pernah dapat pesan seperti ini?</h2>
+    <p class="body-text">Coba amati pesan berikut yang diterima seseorang lewat SMS.</p>
+    <div class="card">
+      <div class="msg-mock">
+        <div class="msg-head"><b>+62 812-xxxx-xxxx</b><span>Hari ini, 09:14</span></div>
+        <div class="msg-body">
+          Selamat! Nomor Anda terpilih memenangkan hadiah Rp25.000.000 dari BANK NASIONAL. Klik link berikut untuk klaim sebelum kadaluarsa: <span class="msg-link">bit.ly/klaim-hadiah-resmi</span>. Masukkan nomor rekening &amp; PIN Anda untuk verifikasi.
+        </div>
+      </div>
+      <div class="reveal-box" style="margin-top:16px;" onclick="this.classList.toggle('open')">
+        <div class="rq">🤔 Menurutmu, apakah pesan ini aman untuk dibalas atau diklik?</div>
+        <div class="ra">Tidak aman! Ini adalah contoh <b>phishing</b> — pesan palsu yang menjebak korban agar memberikan data rekening dan PIN. Bank resmi <b>tidak pernah</b> meminta PIN lewat SMS atau tautan mencurigakan.</div>
+        <div class="reveal-hint">👆 Klik kotak ini untuk melihat jawabannya</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 3 : Tujuan Pembelajaran ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">TUJUAN PEMBELAJARAN</p>
+    <h2 class="section-title">Setelah pembelajaran ini, kamu dapat:</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt">Menjelaskan pengertian dan ciri-ciri <b>phishing</b>, serta cara menghindarinya.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt">Mengidentifikasi berbagai jenis <b>malware</b> dan tanda-tanda perangkat yang terinfeksi.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt">Mengenali pola-pola <b>penipuan daring</b> yang umum terjadi di internet.</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt">Memahami bagaimana <b>pencurian data</b> terjadi dan cara melindungi data pribadi.</div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-txt">Menerapkan kebiasaan digital yang aman dalam kehidupan sehari-hari.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 4 : Konsep dasar keamanan digital ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KONSEP DASAR</p>
+    <h2 class="section-title">Apa itu keamanan digital?</h2>
+    <p class="body-text"><strong class="hl-safe">Keamanan digital</strong> adalah usaha melindungi perangkat, akun, dan data pribadi kita dari akses, penggunaan, atau perubahan yang tidak sah oleh pihak yang tidak berwenang.</p>
+    <p class="body-text">Empat ancaman utama yang akan kita pelajari:</p>
+    <div class="grid2">
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--danger-soft);">🎣</div><h4>Phishing</h4><p>Penipuan untuk mencuri data lewat pesan atau situs palsu yang menyamar sebagai pihak resmi.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--danger-soft);">🦠</div><h4>Malware</h4><p>Perangkat lunak berbahaya yang dirancang untuk merusak atau mengambil alih perangkat.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">💸</div><h4>Penipuan Daring</h4><p>Tipu daya untuk mendapatkan uang atau keuntungan dari korban secara daring.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">🔓</div><h4>Pencurian Data</h4><p>Pengambilan data pribadi tanpa izin, sering digunakan untuk kejahatan lain.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 5 : Sub 1 - Phishing konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — PHISHING</p>
+    <h2 class="section-title">Apa itu phishing?</h2>
+    <p class="body-text"><strong class="hl">Phishing</strong> (dibaca "fishing" — memancing) adalah upaya penipuan dengan menyamar sebagai pihak tepercaya (bank, e-commerce, sekolah, dsb.) melalui email, SMS, atau situs palsu, untuk memancing korban memberikan data pribadi seperti kata sandi, PIN, atau nomor kartu.</p>
+    <div class="card">
+      <div class="tag tag-danger">🚩 Ciri-ciri umum pesan phishing</div>
+      <div class="stepper" style="margin-top:12px;">
+        <div class="step-item"><div class="step-num">!</div><div class="step-txt">Menciptakan rasa <b>urgensi/terburu-buru</b> ("segera", "sebelum kadaluarsa").</div></div>
+        <div class="step-item"><div class="step-num">!</div><div class="step-txt">Meminta data sensitif seperti <b>PIN, OTP, atau kata sandi</b> secara langsung.</div></div>
+        <div class="step-item"><div class="step-num">!</div><div class="step-txt">Tautan/link mencurigakan yang <b>tidak sesuai domain resmi</b>.</div></div>
+        <div class="step-item"><div class="step-num">!</div><div class="step-txt">Tawaran yang <b>terlalu bagus untuk jadi kenyataan</b> (hadiah besar tiba-tiba).</div></div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 6 : Latihan phishing - hotspot cari ciri mencurigakan ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — PHISHING</p>
+    <h2 class="section-title">Temukan ciri-ciri phishing pada email ini</h2>
+    <p class="body-text">Klik pada bagian teks yang menurutmu mencurigakan (ada 3 bagian).</p>
+    <div class="card">
+      <div class="msg-mock">
+        <div class="msg-head"><b id="phSender">admin@bank-verifikasi-akun.info</b><span>Perihal: Akun Anda akan dinonaktifkan!</span></div>
+        <div class="msg-body" id="phBody" style="position:relative; line-height:2.1;"></div>
+      </div>
+      <p class="feedback show ok" id="phFound" style="margin-top:14px;">Ditemukan: <b id="phCount">0</b> / 3 ciri mencurigakan</p>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 7 : Latihan MCQ phishing ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — PHISHING</p>
+    <h2 class="section-title">Apa yang sebaiknya kamu lakukan?</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Kamu menerima email seperti di slide sebelumnya. Tindakan paling tepat adalah…</b></p>
+      <div id="mcq1"></div>
+      <div class="feedback" id="fb1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 8 : Sub 2 - Malware konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 2 — MALWARE</p>
+    <h2 class="section-title">Mengenal jenis-jenis malware</h2>
+    <p class="body-text"><strong class="hl">Malware</strong> (malicious software) adalah perangkat lunak yang sengaja dibuat untuk merusak, mencuri data, atau mengambil alih kendali perangkat tanpa izin pemiliknya.</p>
+    <div class="grid3">
+      <div class="accordion"><summary>🦠 Virus</summary><div class="acc-body">Menyisip ke file/program lain dan menyebar saat file tersebut dijalankan atau dibagikan.</div></div>
+      <div class="accordion"><summary>🐛 Worm</summary><div class="acc-body">Menyebar sendiri lewat jaringan tanpa perlu file "inang" atau tindakan pengguna.</div></div>
+      <div class="accordion"><summary>🐴 Trojan</summary><div class="acc-body">Menyamar sebagai aplikasi berguna, padahal diam-diam merusak atau mencuri data.</div></div>
+      <div class="accordion"><summary>🔒 Ransomware</summary><div class="acc-body">Mengunci/mengenkripsi data korban lalu meminta tebusan agar data bisa diakses kembali.</div></div>
+      <div class="accordion"><summary>🕵️ Spyware</summary><div class="acc-body">Diam-diam memantau aktivitas pengguna, termasuk mencatat ketikan kata sandi.</div></div>
+      <div class="accordion"><summary>📢 Adware</summary><div class="acc-body">Menampilkan iklan berlebihan/mengganggu, kadang sambil mengumpulkan data pengguna.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 9 : Tanda-tanda perangkat terkena malware ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 2 — MALWARE</p>
+    <h2 class="section-title">Kenali tanda perangkat terinfeksi malware</h2>
+    <p class="body-text">Klik tiap tanda untuk melihat penjelasan mengapa ini bisa jadi indikasi malware.</p>
+    <div class="grid2">
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">🐢 Perangkat tiba-tiba jadi sangat lambat</div><div class="ra">Malware sering berjalan di latar belakang dan menghabiskan sumber daya (CPU/RAM) perangkat.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">🔋 Baterai boros tanpa sebab jelas</div><div class="ra">Proses malware yang berjalan terus-menerus menguras daya baterai lebih cepat dari biasanya.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">📢 Muncul iklan pop-up berlebihan</div><div class="ra">Ini ciri khas adware — menampilkan iklan yang tidak wajar, bahkan saat aplikasi tidak dibuka.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">📱 Ada aplikasi asing yang tidak pernah diinstal</div><div class="ra">Bisa jadi trojan yang menginstal aplikasi lain secara diam-diam tanpa izin pengguna.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 10 : Latihan malware ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — MALWARE</p>
+    <h2 class="section-title">Cocokkan jenis malware dengan cirinya</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Andi mengunduh aplikasi "Pembersih HP Gratis" dari sumber tidak resmi. Setelah diinstal, semua fotonya terkunci dan muncul pesan minta uang tebusan agar bisa dibuka lagi. Jenis malware apa ini kemungkinan besar?</b></p>
+      <div id="mcq2"></div>
+      <div class="feedback" id="fb2"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 11 : Sub 3 - Penipuan daring konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 3 — PENIPUAN DARING</p>
+    <h2 class="section-title">Ragam penipuan daring</h2>
+    <p class="body-text">Berbeda dari phishing (fokus mencuri data), <strong class="hl-warn">penipuan daring</strong> umumnya bertujuan langsung mengambil uang korban melalui berbagai modus.</p>
+    <div class="accordion"><summary>🛒 Penipuan jual-beli online</summary><div class="acc-body">Penjual fiktif meminta pembayaran di muka, namun barang tidak pernah dikirim, atau barang yang diterima tidak sesuai.</div></div>
+    <div class="accordion"><summary>🎁 Undian/hadiah palsu</summary><div class="acc-body">Korban diberitahu "menang undian" padahal tidak pernah ikut, lalu diminta membayar "biaya admin" untuk mencairkan hadiah.</div></div>
+    <div class="accordion"><summary>💘 Penipuan asmara (love scam)</summary><div class="acc-body">Pelaku membangun hubungan romantis palsu secara online, lalu meminta uang dengan berbagai alasan mendesak.</div></div>
+    <div class="accordion"><summary>💼 Lowongan kerja palsu</summary><div class="acc-body">Menawarkan pekerjaan dengan gaji tinggi tapi meminta korban membayar "biaya pendaftaran" terlebih dahulu.</div></div>
+  </div>
+`);
+
+/* ---------- Slide 12 : Contoh interaktif penipuan daring ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">CONTOH — PENIPUAN DARING</p>
+    <h2 class="section-title">Kenali pola penipuannya</h2>
+    <div class="card">
+      <div class="msg-mock">
+        <div class="msg-head"><b>Toko "Elektronik Murah Jaya"</b><span>Marketplace tidak resmi via WhatsApp</span></div>
+        <div class="msg-body">"Kak, laptop gaming ini harga normal 12 juta, promo hari ini cuma 3 juta! Buruan transfer ke rekening pribadi ya, stok tinggal 1, gak pakai rekening bersama (rekber) biar cepat."</div>
+      </div>
+      <div class="reveal-box" style="margin-top:16px;" onclick="this.classList.toggle('open')">
+        <div class="rq">❓ Apa dua tanda bahaya (red flags) dalam pesan ini?</div>
+        <div class="ra">1) Harga <b>jauh di bawah wajar</b> (diskon 75%) yang tidak masuk akal untuk barang asli. 2) Penjual <b>menghindari transaksi aman</b> (rekening bersama/rekber) dan meminta transfer langsung ke rekening pribadi — pola khas penipuan jual-beli online.</div>
+        <div class="reveal-hint">👆 Klik untuk cek jawaban</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 13 : Latihan penipuan daring ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — PENIPUAN DARING</p>
+    <h2 class="section-title">Analisis skenario</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Seseorang yang baru dikenal di media sosial rutin mengajak chat mesra selama sebulan, lalu tiba-tiba meminta ditransfer uang untuk "biaya rumah sakit keluarganya". Situasi ini paling mencerminkan modus…</b></p>
+      <div id="mcq3"></div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 14 : Sub 4 - Pencurian data konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 4 — PENCURIAN DATA</p>
+    <h2 class="section-title">Bagaimana data pribadi bisa dicuri?</h2>
+    <p class="body-text"><strong class="hl">Pencurian data</strong> adalah pengambilan informasi pribadi (nama, alamat, nomor identitas, kata sandi, data keuangan) tanpa izin, yang sering dijadikan bekal untuk kejahatan lain seperti penipuan atau pembobolan akun.</p>
+    <div class="grid2">
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">📶</div><h4>WiFi publik tidak aman</h4><p>Data yang dikirim lewat WiFi publik tanpa enkripsi bisa disadap oleh pihak lain di jaringan yang sama.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">🔑</div><h4>Kata sandi lemah</h4><p>Kata sandi yang mudah ditebak (misal "123456") membuat akun mudah dibobol.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">📝</div><h4>Formulir/kuis palsu</h4><p>Kuis atau survei online yang meminta data pribadi berlebihan, sering dipakai memancing informasi.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">🔓</div><h4>Kebocoran data (data breach)</h4><p>Data yang tersimpan di server suatu layanan bocor akibat serangan siber pada perusahaan tersebut.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 15 : Cek kekuatan kata sandi (widget interaktif nyata) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — MELINDUNGI DATA</p>
+    <h2 class="section-title">Coba cek kekuatan kata sandimu</h2>
+    <p class="body-text">Ketik contoh kata sandi (jangan gunakan kata sandi asli akunmu!) untuk melihat seberapa kuat kata sandi tersebut.</p>
+    <div class="card">
+      <div class="input-row">
+        <input type="text" id="pwInput" placeholder="Ketik contoh kata sandi di sini...">
+      </div>
+      <div class="pw-meter"><div class="pw-meter-fill" id="pwFill"></div></div>
+      <div class="pw-label" id="pwLabel">Belum ada kata sandi diketik</div>
+      <div class="pw-rules" id="pwRules">
+        <div class="pw-rule" data-r="len"><span class="ic">○</span> Minimal 8 karakter</div>
+        <div class="pw-rule" data-r="upper"><span class="ic">○</span> Mengandung huruf besar</div>
+        <div class="pw-rule" data-r="lower"><span class="ic">○</span> Mengandung huruf kecil</div>
+        <div class="pw-rule" data-r="num"><span class="ic">○</span> Mengandung angka</div>
+        <div class="pw-rule" data-r="sym"><span class="ic">○</span> Mengandung simbol (!@#$%, dst.)</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 16 : Latihan pencurian data ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — PENCURIAN DATA</p>
+    <h2 class="section-title">Kebiasaan mana yang paling aman?</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Pilih kebiasaan yang paling tepat untuk melindungi data pribadi saat menggunakan WiFi publik di kafe:</b></p>
+      <div id="mcq4"></div>
+      <div class="feedback" id="fb4"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 17 : Checklist cara mengenali & menghindari ancaman ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RINGKASAN PRAKTIS</p>
+    <h2 class="section-title">Checklist kebiasaan aman berinternet</h2>
+    <p class="body-text">Centang kebiasaan yang sudah kamu terapkan. Semakin banyak tercentang, semakin aman aktivitas digitalmu!</p>
+    <div class="card">
+      <div class="checklist" id="checklistBox">
+        <label class="check-item"><input type="checkbox"><span>Tidak pernah membagikan PIN, OTP, atau kata sandi kepada siapa pun.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Selalu memeriksa alamat pengirim &amp; tautan sebelum mengklik.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Menggunakan kata sandi kuat &amp; berbeda untuk tiap akun.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Mengaktifkan verifikasi dua langkah (2FA) di akun penting.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Hanya mengunduh aplikasi dari sumber resmi (Play Store/App Store).</span></label>
+        <label class="check-item"><input type="checkbox"><span>Curiga pada penawaran/hadiah yang terdengar terlalu bagus.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Berhati-hati bertransaksi melalui WiFi publik.</span></label>
+      </div>
+      <p class="pw-label" id="checklistScore" style="margin-top:14px;">0 dari 7 kebiasaan diterapkan</p>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 18 : Latihan gabungan skenario ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN GABUNGAN — STUDI KASUS</p>
+    <h2 class="section-title">Ancaman apa ini?</h2>
+    <p class="body-text">Cocokkan setiap skenario dengan jenis ancaman yang paling tepat.</p>
+    <div class="card" id="matchCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 19 : Kuis ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KUIS AKHIR</p>
+    <h2 class="section-title">Uji Pemahaman Menyeluruh</h2>
+    <div class="card" id="quizCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 20 : Refleksi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">REFLEKSI</p>
+    <h2 class="section-title">Yuk, renungkan sejenak</h2>
+    <div class="card">
+      <div class="accordion"><summary>🌱 Ancaman mana yang paling baru kamu ketahui?</summary><div class="acc-body">Pikirkan kembali: phishing, malware, penipuan daring, atau pencurian data? Tuliskan dalam catatanmu.</div></div>
+      <div class="accordion"><summary>🔍 Pernahkah kamu (atau orang terdekatmu) hampir jadi korban?</summary><div class="acc-body">Coba ingat pengalaman serupa — pesan mencurigakan, aplikasi aneh, atau tawaran yang terlalu bagus.</div></div>
+      <div class="accordion"><summary>🛡️ Kebiasaan digital apa yang akan kamu perbaiki mulai hari ini?</summary><div class="acc-body">Lihat kembali checklist di slide sebelumnya, lalu pilih satu kebiasaan untuk mulai diterapkan konsisten.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 21 : Rangkuman ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RANGKUMAN</p>
+    <h2 class="section-title">Yang perlu kamu ingat</h2>
+    <div class="grid2">
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--danger-soft);">🎣</div><h4>Phishing</h4><p>Waspadai pesan mendesak yang meminta data sensitif atau berisi tautan mencurigakan.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--danger-soft);">🦠</div><h4>Malware</h4><p>Unduh aplikasi hanya dari sumber resmi; waspadai perangkat yang tiba-tiba melambat.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">💸</div><h4>Penipuan Daring</h4><p>Curiga pada harga/hadiah tidak masuk akal dan permintaan transfer di luar jalur aman.</p></div>
+      <div class="threat-card"><div class="ic-wrap" style="background:var(--warn-soft);">🔓</div><h4>Pencurian Data</h4><p>Gunakan kata sandi kuat, aktifkan 2FA, dan berhati-hati di WiFi publik.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 22 : Penutup ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon" style="background:var(--grad-safe);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#04241C" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="eyebrow">PENUTUP</p>
+    <h1 class="slide-title">Selamat! Kamu kini lebih siap menghadapi dunia digital 🛡️</h1>
+    <p class="lead">Ancaman digital terus berkembang, tapi dengan kewaspadaan dan kebiasaan yang tepat, kamu bisa menjaga dirimu dan data pribadimu tetap aman. Selalu berpikir kritis sebelum klik, bagikan, atau percaya!</p>
+    <button class="btn btn-primary" onclick="goTo(0)">⟲ Ulangi dari Awal</button>
+  </div>
+`);
+
+/* =========================================================
+   RENDER ENGINE
+   ========================================================= */
+const stage = document.getElementById('stage');
+let current = 0;
+
+function render(){
+  stage.innerHTML = slidesData.map((html,i)=>`<section class="slide" data-i="${i}">${html}</section>`).join('');
+  buildDots();
+  goTo(0, true);
+}
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = slidesData.map((_,i)=>`<span class="d" data-i="${i}" onclick="goTo(${i})"></span>`).join('');
+}
+
+function goTo(i){
+  if(i<0 || i>=slidesData.length) return;
+  current = i;
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  const el = document.querySelector(`.slide[data-i="${i}"]`);
+  el.classList.add('active');
+  el.scrollTop = 0;
+
+  document.getElementById('progressBar').style.width = ((i+1)/slidesData.length*100)+'%';
+  document.getElementById('slideCounter').textContent = (i+1)+' / '+slidesData.length;
+  document.querySelectorAll('.dots .d').forEach((d,idx)=>{
+    d.classList.toggle('active', idx===i);
+    d.classList.toggle('done', idx<i);
+  });
+  document.getElementById('btnPrev').disabled = (i===0);
+  document.getElementById('btnNext').disabled = (i===slidesData.length-1);
+
+  initSlideWidgets(i);
+}
+
+document.getElementById('btnPrev').addEventListener('click', ()=>goTo(current-1));
+document.getElementById('btnNext').addEventListener('click', ()=>goTo(current+1));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
+});
+
+/* =========================================================
+   WIDGET INITIALIZERS
+   ========================================================= */
+const initedSlides = new Set();
+
+function initSlideWidgets(i){
+  if(initedSlides.has(i)) return;
+  initedSlides.add(i);
+
+  if(i===5) buildPhishingHotspot();
+
+  if(i===6) buildMCQ('mcq1','fb1',
+    ['Segera klik tautan dan isi data sesuai permintaan agar akun tidak dinonaktifkan','Mengabaikan/menghapus pesan, lalu memeriksa langsung lewat aplikasi resmi bank jika ragu','Membalas email untuk bertanya apakah ini benar dari bank','Meneruskan email ke teman agar mereka juga tahu'],
+    1,
+    'Tepat! Jangan pernah klik tautan mencurigakan. Jika ragu, selalu verifikasi langsung lewat aplikasi/nomor resmi milik lembaga terkait, bukan lewat tautan di pesan tersebut.',
+    'Ingat: langkah teraman adalah TIDAK mengklik tautan mencurigakan sama sekali dan memverifikasi lewat jalur resmi.');
+
+  if(i===9) buildMCQ('mcq2','fb2',
+    ['Worm','Ransomware','Adware','Spyware'],
+    1,
+    'Benar! Mengunci data dan meminta tebusan adalah ciri khas ransomware.',
+    'Ingat ciri utamanya: mengunci/mengenkripsi data lalu meminta "tebusan" — ini adalah salah satu dari 6 jenis malware yang sudah dipelajari.');
+
+  if(i===12) buildMCQ('mcq3','fb3',
+    ['Phishing','Malware','Penipuan asmara (love scam)','Kebocoran data'],
+    2,
+    'Tepat! Membangun hubungan romantis palsu lalu meminta uang dengan alasan mendesak adalah ciri khas love scam.',
+    'Perhatikan pola: hubungan romantis dibangun dulu, baru diikuti permintaan uang mendadak — ini pola khas salah satu jenis penipuan daring.');
+
+  if(i===15) buildPasswordChecker();
+
+  if(i===16) buildMCQ('mcq4','fb4',
+    ['Langsung transfer uang dan login ke internet banking seperti biasa','Menghindari transaksi perbankan/mengisi data sensitif saat memakai WiFi publik','Membagikan kata sandi WiFi ke teman agar bisa dipakai bersama','Mematikan mode pesawat agar koneksi lebih cepat'],
+    1,
+    'Benar! WiFi publik rentan disadap, jadi sebaiknya hindari aktivitas sensitif (perbankan, login akun penting) saat terhubung ke jaringan publik.',
+    'Ingat risiko WiFi publik: data yang dikirim bisa disadap pihak lain di jaringan yang sama.');
+
+  if(i===17) buildChecklist();
+
+  if(i===18) buildMatchGame();
+
+  if(i===19) buildQuiz();
+}
+
+/* ---------- Phishing hotspot (Slide 6) ---------- */
+function buildPhishingHotspot(){
+  const body = document.getElementById('phBody');
+  body.innerHTML = `Yth. Nasabah, kami mendeteksi aktivitas mencurigakan pada akun Anda. <span class="hotspot-word" data-w="1">Akun akan dinonaktifkan dalam 24 jam</span> jika tidak diverifikasi. Klik tautan berikut untuk verifikasi: <span class="hotspot-word" data-w="2">verifikasi-akun-resmi.info/login</span>. Mohon segera masukkan <span class="hotspot-word" data-w="3">nomor kartu dan PIN ATM Anda</span> untuk melanjutkan.`;
+  const style = document.createElement('style');
+  style.textContent = `.hotspot-word{border-bottom:2px dotted var(--danger); cursor:pointer; padding:2px 1px;} .hotspot-word.found{background:var(--danger-soft); color:var(--danger); border-radius:4px; border-bottom-style:solid;}`;
+  document.head.appendChild(style);
+  const found = new Set();
+  body.querySelectorAll('.hotspot-word').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      if(found.has(el.dataset.w)) return;
+      found.add(el.dataset.w);
+      el.classList.add('found');
+      document.getElementById('phCount').textContent = found.size;
+      if(found.size===3){
+        document.getElementById('phFound').insertAdjacentHTML('beforeend', '<br><span style="color:var(--safe);">✓ Bagus! Kamu menemukan ketiganya: rasa urgensi/ancaman, tautan tidak resmi, dan permintaan data sensitif (PIN).</span>');
+      }
+    });
+  });
+}
+
+/* ---------- MCQ builder ---------- */
+function buildMCQ(mountId, fbId, options, correctIdx, correctMsg, wrongMsg){
+  const mount = document.getElementById(mountId);
+  const fb = document.getElementById(fbId);
+  mount.innerHTML = options.map((opt,idx)=>`<button class="mcq-opt" data-idx="${idx}">${opt}</button>`).join('');
+  mount.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx);
+      mount.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===correctIdx){
+        btn.classList.add('correct');
+        fb.textContent = '✓ '+correctMsg;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        mount.querySelector(`[data-idx="${correctIdx}"]`).classList.add('correct');
+        fb.textContent = '✗ '+wrongMsg;
+        fb.className='feedback show bad';
+      }
+    });
+  });
+}
+
+/* ---------- Password strength checker (Slide 15) ---------- */
+function buildPasswordChecker(){
+  const input = document.getElementById('pwInput');
+  const fill = document.getElementById('pwFill');
+  const label = document.getElementById('pwLabel');
+  const rules = document.getElementById('pwRules');
+  input.addEventListener('input', ()=>{
+    const v = input.value;
+    const checks = {
+      len: v.length>=8,
+      upper: /[A-Z]/.test(v),
+      lower: /[a-z]/.test(v),
+      num: /[0-9]/.test(v),
+      sym: /[^A-Za-z0-9]/.test(v),
+    };
+    let score = Object.values(checks).filter(Boolean).length;
+    Object.entries(checks).forEach(([k,met])=>{
+      const el = rules.querySelector(`[data-r="${k}"]`);
+      el.classList.toggle('met', met);
+      el.querySelector('.ic').textContent = met ? '✓' : '○';
+    });
+    if(v.length===0){
+      fill.style.width='0%'; label.textContent='Belum ada kata sandi diketik'; fill.style.background='var(--line)';
+      return;
+    }
+    const pct = (score/5)*100;
+    fill.style.width = pct+'%';
+    let lvl='Sangat Lemah', color='var(--danger)';
+    if(score>=5){lvl='Sangat Kuat'; color='var(--safe)';}
+    else if(score===4){lvl='Kuat'; color='var(--safe)';}
+    else if(score===3){lvl='Cukup'; color='var(--warn)';}
+    else if(score===2){lvl='Lemah'; color='var(--warn)';}
+    fill.style.background = color;
+    label.innerHTML = `Kekuatan: <b style="color:${color}">${lvl}</b> (${score}/5 kriteria terpenuhi)`;
+  });
+}
+
+/* ---------- Checklist (Slide 17) ---------- */
+function buildChecklist(){
+  const box = document.getElementById('checklistBox');
+  const score = document.getElementById('checklistScore');
+  const items = box.querySelectorAll('.check-item');
+  function update(){
+    const checked = box.querySelectorAll('input:checked').length;
+    score.textContent = `${checked} dari ${items.length} kebiasaan diterapkan`;
+  }
+  items.forEach(item=>{
+    const cb = item.querySelector('input');
+    cb.addEventListener('change', ()=>{
+      item.classList.toggle('checked', cb.checked);
+      update();
+    });
+  });
+}
+
+/* ---------- Matching scenario game (Slide 18) ---------- */
+const matchScenarios = [
+  {s:'Email dari "PT Bank Terpercaya" meminta klik tautan untuk "memperbarui data" dengan ancaman akun ditutup.', ans:'Phishing'},
+  {s:'Setelah instal aplikasi dari luar Play Store, HP jadi lambat dan muncul iklan terus-menerus.', ans:'Malware'},
+  {s:'Akun media sosial diretas setelah login lewat WiFi gratis di bandara tanpa VPN.', ans:'Pencurian Data'},
+  {s:'Penjual online meminta pembayaran penuh di muka tanpa rekening bersama, lalu menghilang.', ans:'Penipuan Daring'},
+];
+const matchOptions = ['Phishing','Malware','Penipuan Daring','Pencurian Data'];
+let matchState = {};
+function buildMatchGame(){
+  const card = document.getElementById('matchCard');
+  matchState = {};
+  card.innerHTML = matchScenarios.map((m,idx)=>`
+    <div style="margin-bottom:18px; padding-bottom:16px; ${idx<matchScenarios.length-1?'border-bottom:1px solid var(--line);':''}">
+      <p class="body-text" style="margin-bottom:10px;">${idx+1}. ${m.s}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;" id="matchOpts${idx}">
+        ${matchOptions.map(o=>`<button class="pill-toggle-btn mcq-opt" style="width:auto; display:inline-block; padding:8px 14px; margin-bottom:0;" data-opt="${o}" data-idx="${idx}">${o}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  matchScenarios.forEach((m,idx)=>{
+    document.querySelectorAll(`#matchOpts${idx} button`).forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(matchState[idx]) return;
+        matchState[idx]=true;
+        const opt = btn.dataset.opt;
+        document.querySelectorAll(`#matchOpts${idx} button`).forEach(b=>b.disabled=true);
+        if(opt===m.ans){ btn.classList.add('correct'); }
+        else{
+          btn.classList.add('wrong');
+          document.querySelector(`#matchOpts${idx} [data-opt="${m.ans}"]`).classList.add('correct');
+        }
+      });
+    });
+  });
+}
+
+/* =========================================================
+   QUIZ (Slide 19)
+   ========================================================= */
+const quizQuestions = [
+  {
+    q:'Ciri utama pesan phishing yang paling umum adalah…',
+    opts:['Bahasa yang sangat formal dan resmi','Menciptakan urgensi dan meminta data sensitif secara langsung','Selalu dikirim lewat surat fisik','Berasal dari kontak yang sudah lama dikenal'],
+    correct:1,
+    exp:'Phishing khas menciptakan rasa mendesak/terburu-buru dan meminta data sensitif seperti PIN atau kata sandi.'
+  },
+  {
+    q:'Malware yang mengunci data korban dan meminta tebusan disebut…',
+    opts:['Worm','Spyware','Ransomware','Adware'],
+    correct:2,
+    exp:'Ransomware mengenkripsi/mengunci data lalu meminta pembayaran tebusan untuk membukanya kembali.'
+  },
+  {
+    q:'Tawaran barang dengan harga jauh di bawah pasar dan meminta transfer langsung ke rekening pribadi (tanpa rekber) adalah tanda…',
+    opts:['Transaksi yang aman dan menguntungkan','Kemungkinan besar penipuan jual-beli online','Malware pada aplikasi marketplace','Phishing lewat email'],
+    correct:1,
+    exp:'Harga tidak masuk akal dan penghindaran metode pembayaran aman adalah tanda klasik penipuan jual-beli daring.'
+  },
+  {
+    q:'Cara paling efektif melindungi data saat menggunakan WiFi publik adalah…',
+    opts:['Login ke semua akun penting seperti biasa','Menghindari aktivitas sensitif (perbankan, data pribadi) di jaringan publik','Membagikan kata sandi WiFi ke banyak orang','Mematikan antivirus agar koneksi lebih cepat'],
+    correct:1,
+    exp:'Data di WiFi publik rentan disadap, sehingga aktivitas sensitif sebaiknya dihindari di jaringan tersebut.'
+  },
+  {
+    q:'Kata sandi manakah yang PALING kuat?',
+    opts:['123456','password','Rumah@Biru77!','namaku'],
+    correct:2,
+    exp:'"Rumah@Biru77!" memenuhi banyak kriteria: panjang, huruf besar-kecil, angka, dan simbol — jauh lebih sulit ditebak.'
+  },
+  {
+    q:'Seseorang yang baru dikenal online membangun hubungan romantis lalu tiba-tiba meminta uang mendesak — ini contoh…',
+    opts:['Malware','Ransomware','Love scam (penipuan asmara)','Kebocoran data perusahaan'],
+    correct:2,
+    exp:'Modus membangun kedekatan emosional lalu meminta uang adalah ciri khas love scam.'
+  }
+];
+let quizState = { idx:0, score:0, answered:false };
+
+function buildQuiz(){
+  quizState = { idx:0, score:0, answered:false };
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const card = document.getElementById('quizCard');
+  if(quizState.idx >= quizQuestions.length){
+    renderQuizResult();
+    return;
+  }
+  const q = quizQuestions[quizState.idx];
+  card.innerHTML = `
+    <div class="quiz-progress">Soal ${quizState.idx+1} dari ${quizQuestions.length}</div>
+    <p class="body-text" style="margin-bottom:14px; color:var(--ink); font-weight:700; font-size:16px;">${q.q}</p>
+    <div id="quizOpts"></div>
+    <div class="feedback" id="quizFb"></div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="btn btn-primary" id="quizNextBtn" style="display:none;">Lanjut →</button>
+    </div>
+  `;
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = q.opts.map((o,idx)=>`<button class="mcq-opt" data-idx="${idx}">${o}</button>`).join('');
+  quizState.answered = false;
+  opts.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quizState.answered) return;
+      quizState.answered = true;
+      const idx = parseInt(btn.dataset.idx);
+      const fb = document.getElementById('quizFb');
+      opts.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===q.correct){
+        btn.classList.add('correct');
+        quizState.score++;
+        fb.textContent = '✓ Benar! '+q.exp;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        opts.querySelector(`[data-idx="${q.correct}"]`).classList.add('correct');
+        fb.textContent = '✗ Kurang tepat. '+q.exp;
+        fb.className='feedback show bad';
+      }
+      document.getElementById('quizNextBtn').style.display='inline-flex';
+    });
+  });
+  document.getElementById('quizNextBtn').addEventListener('click', ()=>{
+    quizState.idx++;
+    renderQuizQuestion();
+  });
+}
+
+function renderQuizResult(){
+  const card = document.getElementById('quizCard');
+  const pct = Math.round(quizState.score/quizQuestions.length*100);
+  let msg = 'Terus berlatih ya, tetap waspada dan jangan mudah percaya di dunia digital!';
+  if(pct>=80) msg = 'Luar biasa! Kamu sudah sangat memahami cara mengenali ancaman keamanan digital. 🛡️';
+  else if(pct>=60) msg = 'Bagus! Pemahamanmu cukup baik, coba tinjau lagi bagian yang masih salah.';
+  card.innerHTML = `
+    <div class="quiz-score-ring" style="--pct:${pct}"><span class="score-txt">${pct}%</span><span class="score-sub">${quizState.score}/${quizQuestions.length} benar</span></div>
+    <p class="body-text" style="text-align:center;">${msg}</p>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-outline" onclick="buildQuiz()">⟲ Ulangi Kuis</button>
+    </div>
+  `;
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+render();
+</script>
+</body>
+</html>

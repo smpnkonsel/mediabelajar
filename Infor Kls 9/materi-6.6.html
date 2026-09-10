@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembelajaran Interaktif — Bab 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07111f;--bg2:#0d1b2e;--card:#10243b;--card2:#142d49;--text:#edf6ff;
+  --muted:#9fb3c8;--primary:#55d6be;--secondary:#6ea8fe;--accent:#ffcc66;
+  --danger:#ff7b8a;--border:rgba(255,255,255,.10);--shadow:0 18px 50px rgba(0,0,0,.28);
+  --radius:24px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0%,#14345a 0,#07111f 38%,#050b14 100%);color:var(--text);font-family:"Plus Jakarta Sans",sans-serif}
+body{overflow-x:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(5,12,22,.84);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.topbar-inner{max-width:1200px;margin:auto;padding:14px 20px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#07111f;font-weight:900;box-shadow:0 8px 25px rgba(85,214,190,.2)}
+.brand-text{min-width:0}.brand-text strong{font-family:Fredoka;font-size:18px}.brand-text small{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:390px}
+.progress-wrap{margin-left:auto;display:flex;align-items:center;gap:10px}.progress{width:190px;height:8px;background:#1b3149;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--secondary));transition:.35s}.counter{font-family:"JetBrains Mono";font-size:12px;color:var(--muted);white-space:nowrap}
+main{width:min(100%,1100px);margin:0 auto;padding:34px 20px 125px;flex:1}
+.slide{display:none;animation:in .4s ease}.slide.active{display:block}@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.kicker{color:var(--primary);font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:12px;margin-bottom:10px}
+h1,h2,h3{font-family:Fredoka;margin:0 0 14px;line-height:1.12}
+h1{font-size:clamp(40px,7vw,76px)}h2{font-size:clamp(30px,5vw,48px)}h3{font-size:22px}
+p{line-height:1.75;color:#d6e3ef;margin:10px 0}.lead{font-size:18px;color:#c4d6e8;max-width:820px}
+.grid{display:grid;gap:18px}.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}.grid3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:linear-gradient(145deg,rgba(20,45,73,.96),rgba(10,28,47,.96));border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow)}
+.hero{min-height:62vh;display:grid;align-items:center}.hero-card{padding:clamp(28px,6vw,70px);position:relative;overflow:hidden}.hero-card:after{content:"</>";position:absolute;right:3%;bottom:-16%;font:900 170px "JetBrains Mono";color:rgba(110,168,254,.08);transform:rotate(-8deg)}
+.badge{display:inline-flex;padding:8px 12px;border:1px solid rgba(85,214,190,.25);background:rgba(85,214,190,.08);border-radius:99px;color:var(--primary);font-size:12px;font-weight:800;margin:4px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.btn{border:0;border-radius:14px;padding:12px 18px;font-weight:800;color:#07111f;background:linear-gradient(135deg,var(--primary),#9bf2df);transition:.2s;box-shadow:0 8px 22px rgba(85,214,190,.15)}
+.btn:hover{transform:translateY(-2px)}.btn.secondary{background:#1a3553;color:var(--text);border:1px solid var(--border);box-shadow:none}.btn.warn{background:var(--accent)}.btn.danger{background:var(--danger)}
+.nav{position:fixed;bottom:0;left:0;right:0;z-index:30;background:rgba(5,12,22,.9);backdrop-filter:blur(18px);border-top:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:10px}.nav-center{flex:1;text-align:center;color:var(--muted);font-size:12px}
+.iconbtn{width:44px;height:44px;border-radius:13px;border:1px solid var(--border);background:#122942;color:var(--text);font-weight:900}
+.callout{border-left:4px solid var(--primary);background:rgba(85,214,190,.07);padding:17px 19px;border-radius:0 16px 16px 0;margin:18px 0}
+.warnbox{border-left-color:var(--accent);background:rgba(255,204,102,.07)}.dangerbox{border-left-color:var(--danger);background:rgba(255,123,138,.07)}
+.code{background:#06101b;border:1px solid var(--border);border-radius:18px;padding:20px;overflow:auto;font:14px/1.7 "JetBrains Mono";color:#dff9f4;white-space:pre}
+.code .kw{color:#6ea8fe}.code .str{color:#ffcc66}.code .cm{color:#7190aa}.code .fn{color:#55d6be}
+.step{display:flex;gap:15px;align-items:flex-start}.num{flex:0 0 38px;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--secondary),var(--primary));color:#07111f;font-weight:900;display:grid;place-items:center}
+.progress-steps{display:flex;gap:8px;margin:16px 0}.progress-steps span{height:7px;flex:1;background:#203a55;border-radius:99px}.progress-steps span.on{background:linear-gradient(90deg,var(--primary),var(--secondary))}
+.reveal{display:none;margin-top:14px}.reveal.show{display:block;animation:in .3s ease}
+.question{margin:16px 0}.option{display:block;width:100%;text-align:left;padding:14px 16px;margin:9px 0;border-radius:14px;background:#0d2036;border:1px solid var(--border);color:var(--text);transition:.2s}.option:hover{background:#173653}.option.correct{border-color:var(--primary);background:rgba(85,214,190,.12)}.option.wrong{border-color:var(--danger);background:rgba(255,123,138,.10)}
+.feedback{min-height:28px;font-weight:800;margin-top:10px}.good{color:var(--primary)}.bad{color:var(--danger)}
+input[type=text],input[type=number]{width:100%;padding:14px 16px;background:#081727;border:1px solid var(--border);border-radius:14px;color:var(--text);outline:none}.inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.inline input{max-width:220px}
+.diagram{display:grid;grid-template-columns:1fr 80px 1fr;gap:12px;align-items:center;margin:20px 0}.domain,.codomain{display:grid;gap:10px}.node{padding:12px;border-radius:13px;background:#102a45;border:1px solid var(--border);text-align:center;font-family:"JetBrains Mono"}.arrow{color:var(--primary);text-align:center;font-size:26px}
+.visual{min-height:220px;border-radius:18px;background:#071522;border:1px solid var(--border);display:grid;place-items:center;overflow:hidden}
+canvas{max-width:100%;height:auto}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{padding:10px 13px;border-radius:12px;border:1px solid var(--border);background:#0d2036;color:var(--muted)}.tab.active{background:#173b5b;color:var(--text)}
+.hidden{display:none!important}.score{font:800 46px Fredoka;color:var(--primary)}
+.timeline{position:relative;margin:22px 0}.timeline:before{content:"";position:absolute;left:18px;top:0;bottom:0;width:2px;background:#29425e}.timeline .step{position:relative;margin:18px 0}.timeline .num{z-index:1}
+table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--primary)}
+.footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:30px}
+@media(max-width:760px){.topbar-inner{padding:11px 13px}.brand-text small{max-width:180px}.progress{width:80px}.grid2,.grid3{grid-template-columns:1fr}.diagram{grid-template-columns:1fr;}.arrow{transform:rotate(90deg)}main{padding:25px 14px 120px}.card{padding:19px}.nav-inner{padding:10px 12px}.nav-center{font-size:11px}.btn{padding:11px 14px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo">&lt;/&gt;</div>
+      <div class="brand-text"><strong id="materiLabel"></strong><small id="submateriLabel"></small></div>
+    </div>
+    <div class="progress-wrap"><div class="progress"><i id="bar"></i></div><div class="counter" id="counter"></div></div>
+  </div>
+</header>
+
+<main id="slides">
+
+<section class="slide active hero">
+  <div class="card hero-card">
+    <div class="kicker">Media Pembelajaran Interaktif • Informatika</div>
+    <div class="pills"><span class="badge">Bab 6</span><span class="badge">Pemrograman</span><span class="badge">Visual → Tekstual</span></div>
+    <h1 id="heroTitle"></h1>
+    <p class="lead">Belajar mengubah ide atau alur pemrograman visual menjadi program berbasis teks, lalu menggunakannya untuk memecahkan masalah sederhana secara sistematis.</p>
+    <div class="callout"><strong>Misi belajar:</strong> pahami masalah → susun algoritma → terjemahkan blok/konsep → tulis kode → uji → perbaiki.</div>
+    <button class="btn" onclick="nextSlide()">Mulai Belajar →</button>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">01 • Apersepsi</div><h2>Dari blok ke baris kode</h2>
+  <p class="lead">Pernah melihat program dibuat dengan menyusun blok seperti puzzle? Pemrograman tekstual menggunakan gagasan yang sama, tetapi ditulis menggunakan aturan bahasa pemrograman.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>🧩 Pemrograman visual</h3><p>Perintah disusun melalui blok. Bentuk visual membantu kita melihat urutan, kondisi, pengulangan, dan data.</p><div class="pills"><span class="badge">Urutan</span><span class="badge">Kondisi</span><span class="badge">Pengulangan</span><span class="badge">Variabel</span></div></div>
+    <div class="card"><h3>⌨️ Pemrograman tekstual</h3><p>Perintah ditulis menggunakan sintaks bahasa tertentu. Contoh yang digunakan pada pembelajaran ini adalah JavaScript.</p><div class="pills"><span class="badge">Sintaks</span><span class="badge">Variabel</span><span class="badge">if</span><span class="badge">for</span></div></div>
+  </div>
+  <div class="callout warnbox"><strong>Pertanyaan pemantik:</strong> Jika sebuah blok berkata “jika nilai ≥ 75, tampilkan Lulus”, bagaimana ide itu ditulis dalam kode?</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">02 • Tujuan Pembelajaran</div><h2>Setelah belajar, kamu mampu…</h2>
+  <div class="grid grid2">
+    <div class="card"><h3>01</h3><p>Menjelaskan hubungan konsep pemrograman visual dengan pemrograman tekstual.</p></div>
+    <div class="card"><h3>02</h3><p>Mengidentifikasi input, proses, dan output dari masalah sederhana.</p></div>
+    <div class="card"><h3>03</h3><p>Menerjemahkan urutan, kondisi, pengulangan, dan variabel ke bentuk kode tekstual.</p></div>
+    <div class="card"><h3>04</h3><p>Membuat dan menguji program tekstual sederhana untuk menyelesaikan masalah.</p></div>
+  </div>
+  <div class="callout"><strong>Indikator keberhasilan:</strong> bukan sekadar bisa menyalin kode, tetapi dapat menjelaskan mengapa setiap bagian kode diperlukan.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">03 • Konsep Inti</div><h2>Apa itu translasi konsep?</h2>
+  <p>Translasi berarti <strong>menerjemahkan ide/struktur program</strong> dari satu bentuk representasi ke bentuk lain tanpa mengubah tujuan logikanya.</p>
+  <div class="grid grid3">
+    <div class="card"><h3>🟦 Visual</h3><p>Blok “set nilai”, “jika…maka”, atau “ulangi”.</p></div>
+    <div class="card"><h3>↔️ Logika</h3><p>Aturan dan hubungan antarperintah tetap dipertahankan.</p></div>
+    <div class="card"><h3>🟩 Tekstual</h3><p>Logika ditulis dengan sintaks bahasa seperti JavaScript.</p></div>
+  </div>
+  <div class="callout"><strong>Prinsip:</strong> yang diterjemahkan adalah <em>logikanya</em>, bukan bentuk bloknya satu per satu.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">04 • Fondasi Pemecahan Masalah</div><h2>Kenali IPO: Input → Process → Output</h2>
+  <div class="grid grid3">
+    <div class="card"><h3>📥 Input</h3><p>Data yang masuk ke program.</p><p><strong>Contoh:</strong> nilai siswa = 82</p></div>
+    <div class="card"><h3>⚙️ Process</h3><p>Aturan/perhitungan yang dilakukan.</p><p><strong>Contoh:</strong> bandingkan nilai dengan 75.</p></div>
+    <div class="card"><h3>📤 Output</h3><p>Informasi yang dihasilkan.</p><p><strong>Contoh:</strong> “Lulus”.</p></div>
+  </div>
+  <div class="callout"><strong>Aktivitas cepat:</strong> Untuk program menghitung luas persegi panjang, <strong>panjang dan lebar</strong> adalah input, <strong>p × l</strong> adalah proses, dan <strong>luas</strong> adalah output.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">05 • Translasi 1</div><h2>Urutan perintah → kode berurutan</h2>
+  <p>Konsep visual “lakukan A, lalu B, lalu C” biasanya diterjemahkan menjadi baris kode yang dieksekusi dari atas ke bawah.</p>
+  <div class="grid grid2">
+    <div class="card">
+      <h3>Alur logika</h3>
+      <div class="timeline">
+        <div class="step"><div class="num">1</div><div><strong>Simpan nilai panjang</strong><p>p = 8</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Simpan nilai lebar</strong><p>l = 5</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Hitung luas</strong><p>luas = p × l</p></div></div>
+      </div>
+    </div>
+    <div class="card"><h3>JavaScript</h3><pre class="code"><span class="kw">let</span> p = <span class="str">8</span>;
+<span class="kw">let</span> l = <span class="str">5</span>;
+<span class="kw">let</span> luas = p * l;
+
+console.log(luas);</pre><div class="callout">Output program: <strong>40</strong></div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">06 • Translasi 2</div><h2>Variabel: “kotak” untuk menyimpan data</h2>
+  <p>Dalam pemrograman visual, kita dapat membayangkan variabel sebagai tempat bernama untuk menyimpan nilai. Dalam JavaScript, salah satu cara membuatnya adalah dengan <code>let</code>.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>Konsep</h3><div class="visual"><div class="pills"><span class="badge">nama → "Ayu"</span><span class="badge">umur → 13</span><span class="badge">nilai → 88</span></div></div></div>
+    <div class="card"><h3>Kode</h3><pre class="code"><span class="kw">let</span> nama = <span class="str">"Ayu"</span>;
+<span class="kw">let</span> umur = <span class="str">13</span>;
+<span class="kw">let</span> nilai = <span class="str">88</span>;</pre></div>
+  </div>
+  <button class="btn secondary" onclick="toggle('varReveal')">Buka catatan penting</button>
+  <div id="varReveal" class="reveal card"><strong>Ingat:</strong> nama variabel sebaiknya jelas dan menggambarkan data yang disimpan. Nilai dapat berubah selama program berjalan.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">07 • Translasi 3</div><h2>Kondisi “jika…maka” → <code>if</code></h2>
+  <p>Kondisi digunakan saat program harus memilih tindakan berdasarkan suatu keadaan.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>Logika visual</h3><div class="callout">Jika <strong>nilai ≥ 75</strong> → tampilkan <strong>“Lulus”</strong>.</div><div class="callout warnbox">Jika tidak → tampilkan <strong>“Belum Lulus”</strong>.</div></div>
+    <div class="card"><h3>JavaScript</h3><pre class="code"><span class="kw">if</span> (nilai &gt;= <span class="str">75</span>) {
+  console.log(<span class="str">"Lulus"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Belum Lulus"</span>);
+}</pre></div>
+  </div>
+  <div class="callout"><strong>Simbol penting:</strong> <code>&gt;=</code> berarti “lebih besar atau sama dengan”. Jangan tertukar dengan <code>=</code> yang digunakan untuk memberi nilai pada variabel.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">08 • Aktivitas Interaktif</div><h2>Coba aturan kelulusan</h2>
+  <p>Masukkan nilai. Program di bawah menerapkan logika <strong>nilai ≥ 75</strong>.</p>
+  <div class="card">
+    <div class="inline"><input id="nilaiInput" type="number" min="0" max="100" placeholder="Masukkan nilai 0–100"><button class="btn" onclick="cekNilai()">Periksa</button></div>
+    <div id="nilaiResult" class="callout hidden"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">09 • Translasi 4</div><h2>Pengulangan → <code>for</code></h2>
+  <p>Jika suatu tindakan dilakukan berkali-kali, kita tidak perlu menulis perintah yang sama berulang-ulang. Konsep pengulangan dapat diterjemahkan ke struktur <code>for</code>.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>Ide algoritma</h3><div class="step"><div class="num">1</div><div>Mulai dari 1.</div></div><div class="step"><div class="num">2</div><div>Ulangi selama angka ≤ 5.</div></div><div class="step"><div class="num">3</div><div>Tampilkan angka.</div></div></div>
+    <div class="card"><h3>Kode</h3><pre class="code"><span class="kw">for</span> (<span class="kw">let</span> i = <span class="str">1</span>; i &lt;= <span class="str">5</span>; i++) {
+  console.log(i);
+}</pre><p>Hasil: 1, 2, 3, 4, 5</p></div>
+  </div>
+  <div class="callout"><strong>i++</strong> berarti nilai <code>i</code> bertambah 1 setiap pengulangan.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">10 • Translasi 5</div><h2>Operator dan ekspresi</h2>
+  <p>Perhitungan dalam program juga mengikuti logika matematika yang kita kenal.</p>
+  <div class="card">
+    <table><thead><tr><th>Tujuan</th><th>JavaScript</th><th>Makna</th></tr></thead><tbody>
+      <tr><td>Penjumlahan</td><td><code>a + b</code></td><td>a ditambah b</td></tr>
+      <tr><td>Pengurangan</td><td><code>a - b</code></td><td>a dikurangi b</td></tr>
+      <tr><td>Perkalian</td><td><code>a * b</code></td><td>a dikali b</td></tr>
+      <tr><td>Pembagian</td><td><code>a / b</code></td><td>a dibagi b</td></tr>
+      <tr><td>Perbandingan</td><td><code>a &gt; b</code></td><td>a lebih besar dari b</td></tr>
+      <tr><td>Kesamaan nilai</td><td><code>a === b</code></td><td>nilai dan tipe sama</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">11 • Prosedur</div><h2>Bagaimana menerjemahkan program visual?</h2>
+  <div class="card">
+    <div class="timeline">
+      <div class="step"><div class="num">1</div><div><h3>Pahami masalah</h3><p>Tentukan apa yang ingin diselesaikan.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h3>Identifikasi IPO</h3><p>Catat input, proses, dan output.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h3>Ambil logika visual</h3><p>Kenali variabel, urutan, kondisi, dan pengulangan.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h3>Tulis pseudocode</h3><p>Jelaskan langkah dengan bahasa sederhana sebelum menulis sintaks.</p></div></div>
+      <div class="step"><div class="num">5</div><div><h3>Terjemahkan ke kode</h3><p>Gunakan sintaks JavaScript yang sesuai.</p></div></div>
+      <div class="step"><div class="num">6</div><div><h3>Uji dan debug</h3><p>Jalankan program, cari kesalahan, lalu perbaiki.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">12 • Contoh Terpandu</div><h2>Program menghitung luas persegi panjang</h2>
+  <div class="grid grid2">
+    <div class="card">
+      <h3>Masalah</h3><p>Diketahui panjang dan lebar sebuah persegi panjang. Buat program untuk menghitung luasnya.</p>
+      <div class="callout"><strong>Input:</strong> panjang, lebar<br><strong>Proses:</strong> luas = panjang × lebar<br><strong>Output:</strong> luas</div>
+      <h3>Pseudocode</h3><pre class="code">Masukkan panjang
+Masukkan lebar
+luas ← panjang × lebar
+Tampilkan luas</pre>
+    </div>
+    <div class="card">
+      <h3>Program tekstual</h3>
+      <pre class="code"><span class="kw">let</span> panjang = <span class="str">12</span>;
+<span class="kw">let</span> lebar = <span class="str">7</span>;
+<span class="kw">let</span> luas = panjang * lebar;
+
+console.log(<span class="str">"Luas = "</span> + luas);</pre>
+      <button class="btn secondary" onclick="toggle('contohLuas')">Lihat pembahasan</button>
+      <div id="contohLuas" class="reveal callout">12 × 7 = <strong>84</strong>. Variabel <code>panjang</code> dan <code>lebar</code> menjadi input, operasi perkalian menjadi proses, dan <code>luas</code> menjadi output.</div>
+    </div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">13 • Contoh Kondisi</div><h2>Menentukan bilangan genap atau ganjil</h2>
+  <p>Masalah: tentukan apakah sebuah bilangan termasuk genap atau ganjil.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>Logika</h3><p>Jika sisa pembagian bilangan dengan 2 adalah 0, bilangan itu genap. Jika tidak, ganjil.</p><pre class="code">Jika n mod 2 = 0
+  tampilkan "Genap"
+Jika tidak
+  tampilkan "Ganjil"</pre></div>
+    <div class="card"><h3>JavaScript</h3><pre class="code"><span class="kw">let</span> n = <span class="str">17</span>;
+
+<span class="kw">if</span> (n % <span class="str">2</span> === <span class="str">0</span>) {
+  console.log(<span class="str">"Genap"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Ganjil"</span>);
+}</pre><div class="callout">Operator <code>%</code> menghasilkan sisa pembagian.</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">14 • Simulator</div><h2>Uji sendiri: genap atau ganjil</h2>
+  <div class="card">
+    <div class="inline"><input id="angkaInput" type="number" placeholder="Contoh: 24"><button class="btn" onclick="cekGenap()">Jalankan Program</button></div>
+    <div id="angkaResult" class="callout hidden"></div>
+  </div>
+  <div class="card" style="margin-top:18px"><h3>Hubungkan dengan kode</h3><pre class="code"><span class="kw">if</span> (n % <span class="str">2</span> === <span class="str">0</span>) {
+  hasil = <span class="str">"Genap"</span>;
+} <span class="kw">else</span> {
+  hasil = <span class="str">"Ganjil"</span>;
+}</pre></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">15 • Debugging</div><h2>Program tidak selalu benar pada percobaan pertama</h2>
+  <p>Debugging adalah proses menemukan dan memperbaiki kesalahan pada program.</p>
+  <div class="grid grid3">
+    <div class="card"><h3>🔤 Sintaks</h3><p>Aturan penulisan kode salah, misalnya tanda kurung tidak lengkap.</p></div>
+    <div class="card"><h3>🧠 Logika</h3><p>Kode berjalan tetapi hasilnya tidak sesuai tujuan.</p></div>
+    <div class="card"><h3>📊 Data</h3><p>Input tidak sesuai kebutuhan, misalnya pembagian dengan 0.</p></div>
+  </div>
+  <div class="callout warnbox"><strong>Kebiasaan baik:</strong> uji program dengan beberapa kasus, termasuk nilai kecil, nilai batas, dan kondisi yang berbeda.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">16 • Latihan Bertahap</div><h2>Latihan 1 — Lengkapi logika</h2>
+  <div class="card">
+    <p>Lengkapi kalimat: “Jika suhu <strong>≥ 30</strong>, tampilkan <strong>Panas</strong>. Jika tidak, tampilkan <strong>Sejuk</strong>.”</p>
+    <div class="inline"><input id="lat1" type="text" placeholder="Ketik: if"><button class="btn" onclick="cekLat1()">Periksa</button></div>
+    <div id="lat1fb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">17 • Latihan Bertahap</div><h2>Latihan 2 — Hitung total</h2>
+  <div class="card">
+    <p>Sebuah toko memiliki harga barang <strong>15.000</strong> dan jumlah pembelian <strong>3</strong>. Berapa total harga?</p>
+    <div class="inline"><input id="lat2" type="number" placeholder="Masukkan jawaban"><button class="btn" onclick="cekLat2()">Periksa</button></div>
+    <div id="lat2fb" class="feedback"></div>
+  </div>
+  <div class="callout">Pola programnya: <code>total = harga * jumlah</code>.</div>
+</section>
+
+<section class="slide">
+  <div class="kicker">18 • Latihan Bertahap</div><h2>Latihan 3 — Pilih struktur</h2>
+  <div class="card">
+    <p>Program harus menampilkan angka 1 sampai 10. Struktur yang paling tepat adalah…</p>
+    <div class="question" id="qstruktur">
+      <button class="option" onclick="pick(this,false,'qstruktur','Gunakan pengulangan karena perintah yang sama dilakukan berkali-kali.')">A. if</button>
+      <button class="option" onclick="pick(this,true,'qstruktur','Benar! for cocok untuk pengulangan dengan batas yang jelas.')">B. for</button>
+      <button class="option" onclick="pick(this,false,'qstruktur','Coba pikirkan struktur untuk melakukan perintah berulang.')">C. let</button>
+    </div>
+    <div id="qstrukturfb" class="feedback"></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">19 • Tantangan</div><h2>Rancang solusi mini</h2>
+  <p>Bayangkan kamu membuat program yang menerima tiga nilai, menghitung rata-rata, lalu menentukan apakah siswa lulus.</p>
+  <div class="grid grid2">
+    <div class="card"><h3>Susun IPO</h3><div class="callout"><strong>Input:</strong> nilai1, nilai2, nilai3</div><div class="callout"><strong>Proses:</strong> rata-rata = (nilai1 + nilai2 + nilai3) / 3</div><div class="callout"><strong>Output:</strong> rata-rata dan status</div></div>
+    <div class="card"><h3>Pikirkan struktur</h3><p>Variabel untuk menyimpan nilai.</p><p>Operasi matematika untuk rata-rata.</p><p><code>if...else</code> untuk menentukan status.</p><button class="btn secondary" onclick="toggle('tantanganJawab')">Tampilkan contoh solusi</button></div>
+  </div>
+  <div id="tantanganJawab" class="reveal card"><pre class="code"><span class="kw">let</span> n1 = <span class="str">80</span>;
+<span class="kw">let</span> n2 = <span class="str">75</span>;
+<span class="kw">let</span> n3 = <span class="str">85</span>;
+
+<span class="kw">let</span> rata = (n1 + n2 + n3) / <span class="str">3</span>;
+
+<span class="kw">if</span> (rata &gt;= <span class="str">75</span>) {
+  console.log(<span class="str">"Lulus"</span>);
+} <span class="kw">else</span> {
+  console.log(<span class="str">"Belum Lulus"</span>);
+}</pre><p>Rata-rata = 80, sehingga statusnya <strong>Lulus</strong>.</p></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">20 • Kuis Akhir</div><h2>Uji Pemahamanmu</h2>
+  <p>Pilih jawaban yang paling tepat. Skor dihitung otomatis.</p>
+  <div id="quizBox"></div>
+  <button class="btn" id="submitQuiz" onclick="finishQuiz()">Selesai & Hitung Skor</button>
+  <button class="btn secondary hidden" id="retryQuiz" onclick="resetQuiz()">Ulangi Kuis</button>
+  <div id="quizResult" class="card hidden" style="margin-top:18px"></div>
+</section>
+
+<section class="slide">
+  <div class="kicker">21 • Refleksi</div><h2>Berhenti sejenak dan pikirkan</h2>
+  <div class="grid grid2">
+    <div class="card"><h3>💡 Saya sudah paham</h3><p>Konsep apa yang paling mudah kamu pahami?</p><button class="btn secondary" onclick="toggle('ref1')">Buka contoh jawaban</button><div id="ref1" class="reveal callout">Contoh: “Saya sudah memahami bahwa blok kondisi dapat diterjemahkan menjadi if...else.”</div></div>
+    <div class="card"><h3>🔎 Saya masih perlu latihan</h3><p>Bagian mana yang perlu kamu ulangi?</p><button class="btn secondary" onclick="toggle('ref2')">Buka strategi</button><div id="ref2" class="reveal callout">Kembali ke IPO → tulis pseudocode → baru tulis kode → uji dengan contoh sederhana.</div></div>
+  </div>
+</section>
+
+<section class="slide">
+  <div class="kicker">22 • Rangkuman</div><h2>Inti pembelajaran</h2>
+  <div class="card">
+    <div class="step"><div class="num">✓</div><div><strong>Translasi konsep</strong><p>Menerjemahkan logika program visual ke bentuk tekstual tanpa mengubah tujuan program.</p></div></div>
+    <div class="step"><div class="num">✓</div><div><strong>IPO</strong><p>Input → Process → Output membantu memahami masalah sebelum menulis kode.</p></div></div>
+    <div class="step"><div class="num">✓</div><div><strong>Struktur dasar</strong><p>Urutan, variabel, kondisi, pengulangan, dan operator adalah fondasi solusi program sederhana.</p></div></div>
+    <div class="step"><div class="num">✓</div><div><strong>Debugging</strong><p>Program perlu diuji dan diperbaiki berdasarkan hasil yang diperoleh.</p></div></div>
+  </div>
+  <div class="callout"><strong>Rumus kerja yang dapat diingat:</strong> <span class="badge">Pahami</span> → <span class="badge">Rancang</span> → <span class="badge">Terjemahkan</span> → <span class="badge">Uji</span> → <span class="badge">Perbaiki</span></div>
+</section>
+
+<section class="slide hero">
+  <div class="card hero-card">
+    <div class="kicker">23 • Penutup</div><h2>Siap membuat programmu sendiri? 🚀</h2>
+    <p class="lead">Mulailah dari masalah kecil. Tentukan input, proses, dan output. Susun algoritma. Terjemahkan konsep visual ke kode tekstual. Kemudian uji dan perbaiki.</p>
+    <div class="pills"><span class="badge">Problem Solving</span><span class="badge">Algoritma</span><span class="badge">Coding</span><span class="badge">Debugging</span></div>
+    <button class="btn" onclick="goTo(1)">↻ Kembali ke Awal</button>
+    <div class="footer-note">Pembelajaran interaktif • HTML5 + CSS3 + Vanilla JavaScript</div>
+  </div>
+</section>
+
+</main>
+
+<div class="nav">
+  <div class="nav-inner">
+    <button class="iconbtn" onclick="goTo(1)" title="Kembali ke awal">⌂</button>
+    <button class="btn secondary" onclick="prevSlide()">← Sebelumnya</button>
+    <div class="nav-center" id="navTitle">Pembelajaran Interaktif</div>
+    <button class="btn" onclick="nextSlide()">Berikutnya →</button>
+  </div>
+</div>
+</div>
+
+<script>
+/* =========================================================
+   INPUT UTAMA — cukup ubah dua nilai ini.
+   Seluruh judul/label utama mengikuti variabel ini.
+========================================================= */
+const MATERI = "Bab 6 — Translasi Konsep Pemrograman Visual dan Konsep Pemrograman Tekstual";
+const SUBMATERI = "6.6 Pemecahan Masalah dengan Pemrograman Tekstual";
+
+/* Konten pembelajaran dikembangkan otomatis dari topik:
+   menerapkan hasil translasi konsep visual ke program tekstual
+   untuk menyelesaikan masalah sederhana. */
+
+const slides=[...document.querySelectorAll(".slide")];
+let current=0;
+
+document.getElementById("materiLabel").textContent=MATERI;
+document.getElementById("submateriLabel").textContent=SUBMATERI;
+document.getElementById("heroTitle").textContent=SUBMATERI;
+
+const titles=[
+"Pembuka","Apersepsi","Tujuan Pembelajaran","Konsep Inti","IPO",
+"Urutan → Kode","Variabel","Kondisi → if","Aktivitas Kondisi","Pengulangan → for",
+"Operator","Prosedur Translasi","Contoh Luas","Contoh Genap/Ganjil","Debugging",
+"Latihan 1","Latihan 2","Latihan 3","Tantangan","Kuis Akhir","Refleksi","Rangkuman","Penutup"
+];
+
+function update(){
+  slides.forEach((s,i)=>s.classList.toggle("active",i===current));
+  const n=slides.length;
+  document.getElementById("bar").style.width=((current+1)/n*100)+"%";
+  document.getElementById("counter").textContent=`${current+1} / ${n}`;
+  document.getElementById("navTitle").textContent=titles[current]||"Pembelajaran";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function nextSlide(){if(current<slides.length-1){current++;update()}}
+function prevSlide(){if(current>0){current--;update()}}
+function goTo(n){current=Math.max(0,Math.min(slides.length-1,n-1));update()}
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight")nextSlide();
+  if(e.key==="ArrowLeft")prevSlide();
+  if(e.key==="Home")goTo(1);
+});
+function toggle(id){document.getElementById(id).classList.toggle("show")}
+
+function cekNilai(){
+  const el=document.getElementById("nilaiInput"), out=document.getElementById("nilaiResult");
+  const v=Number(el.value);
+  out.classList.remove("hidden");
+  if(el.value==="" || v<0 || v>100){out.innerHTML="Masukkan nilai antara <strong>0–100</strong>.";out.className="callout dangerbox";return}
+  if(v>=75){out.innerHTML=`Nilai <strong>${v}</strong> → <strong>Lulus</strong> 🎉`;out.className="callout"}
+  else{out.innerHTML=`Nilai <strong>${v}</strong> → <strong>Belum Lulus</strong>. Tetap semangat berlatih!`;out.className="callout warnbox"}
+}
+function cekGenap(){
+  const el=document.getElementById("angkaInput"),out=document.getElementById("angkaResult");
+  const n=Number(el.value);out.classList.remove("hidden");
+  if(el.value===""){out.innerHTML="Masukkan sebuah bilangan.";out.className="callout dangerbox";return}
+  const hasil=n%2===0?"Genap":"Ganjil";
+  out.innerHTML=`Program memeriksa <strong>${n} % 2</strong>. Hasilnya: <strong>${hasil}</strong>.`;
+  out.className="callout";
+}
+function cekLat1(){
+  const v=document.getElementById("lat1").value.trim().toLowerCase(),fb=document.getElementById("lat1fb");
+  if(v==="if"||v.includes("if")){fb.textContent="Benar! Struktur if digunakan untuk menjalankan perintah berdasarkan kondisi.";fb.className="feedback good"}
+  else{fb.textContent="Belum tepat. Petunjuk: struktur kondisi JavaScript dimulai dengan kata “if”.";fb.className="feedback bad"}
+}
+function cekLat2(){
+  const v=Number(document.getElementById("lat2").value),fb=document.getElementById("lat2fb");
+  if(v===45000){fb.textContent="Benar! 15.000 × 3 = 45.000.";fb.className="feedback good"}
+  else{fb.textContent="Coba lagi. Gunakan total = harga × jumlah.";fb.className="feedback bad"}
+}
+function pick(btn,correct,id,msg){
+  document.querySelectorAll("#"+id+" .option").forEach(x=>x.disabled=true);
+  btn.classList.add(correct?"correct":"wrong");
+  const fb=document.getElementById(id+"fb");fb.textContent=msg;fb.className="feedback "+(correct?"good":"bad");
+}
+
+/* Kuis akhir */
+const quiz=[
+ {q:"Apa tujuan translasi konsep pemrograman visual ke tekstual?",o:["Mengubah tujuan program","Menghilangkan algoritma","Mempertahankan logika dalam bentuk sintaks teks","Membuat program tanpa aturan"],a:2,e:"Translasi mempertahankan logika/tujuan program, lalu menuliskannya dalam bahasa pemrograman."},
+ {q:"Dalam IPO, data yang dimasukkan pengguna disebut…",o:["Input","Process","Output","Debug"],a:0,e:"Input adalah data yang masuk ke program."},
+ {q:"Struktur JavaScript untuk percabangan adalah…",o:["for","if...else","let","console"],a:1,e:"if...else digunakan untuk memilih tindakan berdasarkan kondisi."},
+ {q:"Operator % digunakan untuk…",o:["Perkalian","Mencari sisa pembagian","Membandingkan teks","Membuat variabel"],a:1,e:"% menghasilkan remainder atau sisa pembagian."},
+ {q:"Struktur yang tepat untuk menampilkan angka 1 sampai 5 adalah…",o:["if","for","else","const saja"],a:1,e:"for cocok untuk pengulangan dengan batas yang jelas."},
+ {q:"Jika nilai = 80 dan syarat lulus adalah nilai ≥ 75, hasilnya…",o:["Belum Lulus","Lulus","Error pasti","Tidak ada output"],a:1,e:"80 memenuhi kondisi 80 ≥ 75."},
+ {q:"Setelah menulis program, langkah penting berikutnya adalah…",o:["Menghapus kode","Menguji program","Mengganti semua variabel","Menghindari input"],a:1,e:"Program perlu diuji untuk memastikan hasil sesuai tujuan."},
+ {q:"Kesalahan ketika program berjalan tetapi hasil logikanya salah disebut…",o:["Kesalahan logika","Input valid","Output benar","Komentar"],a:0,e:"Kesalahan logika membuat program menghasilkan perilaku/hasil yang tidak sesuai tujuan."}
+];
+let answers=Array(quiz.length).fill(null);
+function renderQuiz(){
+  const box=document.getElementById("quizBox");
+  box.innerHTML=quiz.map((x,i)=>`
+    <div class="card question">
+      <h3>${i+1}. ${x.q}</h3>
+      ${x.o.map((op,j)=>`<button class="option quizopt" data-i="${i}" data-j="${j}" onclick="answerQuiz(${i},${j},this)">${String.fromCharCode(65+j)}. ${op}</button>`).join("")}
+      <div id="qfb${i}" class="feedback"></div>
+    </div>`).join("");
+}
+function answerQuiz(i,j,btn){
+  answers[i]=j;
+  document.querySelectorAll(`.quizopt[data-i="${i}"]`).forEach(b=>{b.classList.remove("correct","wrong");b.style.outline="none"});
+  btn.style.outline="2px solid var(--secondary)";
+}
+function finishQuiz(){
+  let score=0;
+  quiz.forEach((x,i)=>{
+    const fb=document.getElementById("qfb"+i);
+    document.querySelectorAll(`.quizopt[data-i="${i}"]`).forEach(b=>{
+      const j=Number(b.dataset.j);
+      b.disabled=true;
+      if(j===x.a)b.classList.add("correct");
+      if(answers[i]===j && j!==x.a)b.classList.add("wrong");
+    });
+    if(answers[i]===x.a){score++;fb.innerHTML="✓ Benar. "+x.e;fb.className="feedback good"}
+    else{fb.innerHTML="✗ Belum tepat. "+x.e;fb.className="feedback bad"}
+  });
+  const pct=Math.round(score/quiz.length*100);
+  const result=document.getElementById("quizResult");
+  result.classList.remove("hidden");
+  result.innerHTML=`<div class="kicker">HASIL KUIS</div><div class="score">${score}/${quiz.length}</div><p><strong>${pct}%</strong> — ${pct>=80?"Pemahaman sangat baik!":"Terus berlatih dan ulangi bagian yang masih membingungkan."}</p>`;
+  document.getElementById("submitQuiz").classList.add("hidden");
+  document.getElementById("retryQuiz").classList.remove("hidden");
+}
+function resetQuiz(){
+  answers=Array(quiz.length).fill(null);
+  document.getElementById("submitQuiz").classList.remove("hidden");
+  document.getElementById("retryQuiz").classList.add("hidden");
+  document.getElementById("quizResult").classList.add("hidden");
+  renderQuiz();
+}
+renderQuiz();
+update();
+</script>
+</body>
+</html>

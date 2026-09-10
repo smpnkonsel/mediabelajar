@@ -2,892 +2,957 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title>Bab 7: Statistika — Diagram Batang</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Cara Melindungi Data Pribadi — Pembelajaran Interaktif</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0d0f16;
-  --bg-soft:#12151f;
-  --panel:#1a1f2e;
-  --panel-2:#212739;
-  --line:#2b3247;
-  --text:#e8eaf2;
-  --text-dim:#98a0b8;
-  --text-faint:#6b7288;
-  --cyan:#2dd4e8;
-  --cyan-dim:#1a8a99;
-  --amber:#f5b942;
-  --amber-dim:#a67c1f;
-  --good:#4fd67a;
-  --bad:#f2617a;
-  --font-head:'Fredoka', sans-serif;
-  --font-body:'Plus Jakarta Sans', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-  --radius:18px;
-  --radius-sm:10px;
-}
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  background:
-    radial-gradient(1200px 700px at 85% -10%, rgba(45,212,232,0.10), transparent 60%),
-    radial-gradient(900px 600px at -10% 110%, rgba(245,185,66,0.08), transparent 55%),
-    var(--bg);
-  color:var(--text);
-  font-family:var(--font-body);
-  min-height:100vh;
-  overflow-x:hidden;
-}
-h1,h2,h3,.headline{font-family:var(--font-head); font-weight:600; letter-spacing:0.2px;}
-.mono{font-family:var(--font-mono);}
+  :root{
+    --bg-0:#090B14;
+    --bg-1:#0E1220;
+    --panel:#131829;
+    --panel-soft:#171D32;
+    --line:#262E48;
+    --ink:#EDEFFB;
+    --ink-dim:#A6ADC9;
+    --ink-faint:#6B7295;
+    --trust:#4C8DFF;
+    --trust-soft:#4C8DFF20;
+    --violet:#9A7CF2;
+    --violet-soft:#9A7CF220;
+    --amber:#F2B33D;
+    --amber-soft:#F2B33D20;
+    --danger:#F2495C;
+    --danger-soft:#F2495C20;
+    --grad-trust: linear-gradient(135deg,#4C8DFF,#8B7CF6);
+    --grad-lock: linear-gradient(135deg,#39D0A8,#4C8DFF);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-title:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --shadow-soft: 0 20px 60px -20px rgba(0,0,0,.6);
+  }
 
-#app{
-  max-width:1180px;
-  margin:0 auto;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  padding:18px 22px 14px;
-}
-.topbar{display:flex; align-items:center; gap:16px; margin-bottom:14px;}
-.topbar .brand{font-family:var(--font-head); font-size:15px; color:var(--text-dim); white-space:nowrap;}
-.topbar .brand b{color:var(--cyan);}
-.progress-track{flex:1; height:8px; background:var(--panel); border-radius:99px; overflow:hidden; border:1px solid var(--line);}
-.progress-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--cyan), var(--amber)); border-radius:99px; transition:width .45s cubic-bezier(.65,0,.35,1);}
-.topbar .counter{font-family:var(--font-mono); font-size:13px; color:var(--text-faint); white-space:nowrap;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1000px 560px at 90% -10%, #1B2140 0%, transparent 58%),
+      radial-gradient(900px 520px at -10% 108%, #1A1730 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
 
-.stage{position:relative; flex:1; min-height:560px;}
-.slide{
-  position:absolute; inset:0; display:none; flex-direction:column;
-  background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
-  padding:36px 40px; overflow-y:auto; animation:slideIn .5s cubic-bezier(.2,.8,.3,1);
-}
-.slide::-webkit-scrollbar{width:8px;}
-.slide::-webkit-scrollbar-thumb{background:var(--panel-2); border-radius:8px;}
-.slide.active{display:flex;}
-@keyframes slideIn{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
-.eyebrow{font-family:var(--font-mono); font-size:12.5px; color:var(--cyan); margin-bottom:10px;}
-.slide h2{font-size:30px; margin:0 0 6px; color:var(--text);}
-.slide .sub{color:var(--text-dim); font-size:15.5px; margin:0 0 22px; max-width:680px; line-height:1.6;}
-.slide-body{flex:1; display:flex; flex-direction:column; gap:18px;}
+  #app{height:100vh; display:flex; flex-direction:column;}
 
-.bottombar{display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:14px;}
-.navbtn{
-  display:flex; align-items:center; gap:8px; background:var(--panel-2); border:1px solid var(--line);
-  color:var(--text); font-family:var(--font-body); font-weight:600; font-size:14.5px;
-  padding:11px 20px; border-radius:99px; cursor:pointer; transition:transform .15s ease, background .2s ease, border-color .2s ease;
-}
-.navbtn:hover:not(:disabled){background:#262e44; border-color:var(--cyan-dim); transform:translateY(-1px);}
-.navbtn:active:not(:disabled){transform:translateY(0);}
-.navbtn:disabled{opacity:0.35; cursor:not-allowed;}
-.navbtn.primary{background:linear-gradient(135deg, var(--cyan), #1baecf); color:#03181c; border:none;}
-.navbtn.primary:hover{filter:brightness(1.08);}
-.homebtn{background:none; border:1px solid var(--line); color:var(--text-faint); width:42px; height:42px; border-radius:50%; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center;}
-.homebtn:hover{color:var(--amber); border-color:var(--amber-dim);}
-.hint{font-size:12.5px; color:var(--text-faint); text-align:center;}
+  header.top{display:flex; align-items:center; gap:16px; padding:14px clamp(16px,4vw,40px); border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(14,18,32,.92), rgba(14,18,32,.5)); backdrop-filter:blur(6px); z-index:20;}
+  .brand{display:flex;align-items:center;gap:10px; font-family:var(--font-title); font-weight:600; font-size:15px; color:var(--ink); white-space:nowrap;}
+  .brand .dot{width:10px;height:10px;border-radius:50%; background:var(--grad-trust); box-shadow:0 0 0 4px var(--trust-soft); flex:none;}
+  .brand small{display:block;font-family:var(--font-body);font-weight:500;color:var(--ink-faint);font-size:11px;margin-top:1px;}
 
-.card{background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius-sm); padding:20px;}
-.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
-.grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px;}
-@media(max-width:820px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+  .progress-wrap{flex:1; height:8px; background:var(--panel-soft); border-radius:99px; overflow:hidden; position:relative; border:1px solid var(--line);}
+  .progress-bar{height:100%; width:0%; background:var(--grad-trust); border-radius:99px; transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .slide-counter{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; min-width:56px; text-align:right;}
 
-.badge{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; padding:4px 10px; border-radius:99px; border:1px solid var(--line); color:var(--text-dim); width:fit-content;}
-.badge.cyan{color:var(--cyan); border-color:var(--cyan-dim); background:rgba(45,212,232,0.08);}
-.badge.amber{color:var(--amber); border-color:var(--amber-dim); background:rgba(245,185,66,0.08);}
-.badge.good{color:var(--good); border-color:#2c6b46; background:rgba(79,214,122,0.08);}
-.badge.bad{color:var(--bad); border-color:#7a2f3d; background:rgba(242,97,122,0.08);}
+  main.stage{flex:1; position:relative; overflow:hidden;}
+  .slide{position:absolute; inset:0; display:none; overflow-y:auto; padding:clamp(20px,5vw,56px) clamp(16px,7vw,120px) 40px;}
+  .slide.active{display:block; animation:rise .5s cubic-bezier(.22,1,.36,1);}
+  @keyframes rise{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  .slide-inner{max-width:980px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; justify-content:center;}
 
-.reveal-btn{background:var(--panel); border:1px dashed var(--line); color:var(--cyan); font-family:var(--font-body); font-weight:600; font-size:14px; padding:10px 18px; border-radius:10px; cursor:pointer; width:fit-content; transition:background .2s ease, border-color .2s ease;}
-.reveal-btn:hover{background:var(--panel-2); border-color:var(--cyan-dim); border-style:solid;}
-.reveal-content{display:none; margin-top:8px; padding:16px; background:var(--bg-soft); border-left:3px solid var(--cyan); border-radius:0 10px 10px 0; line-height:1.7; color:var(--text);}
-.reveal-content.shown{display:block; animation:fadeIn .35s ease;}
-@keyframes fadeIn{from{opacity:0;} to{opacity:1;}}
+  .eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:var(--trust); margin:0 0 10px;}
+  h1.slide-title{font-family:var(--font-title); font-weight:600; font-size:clamp(26px,4.4vw,44px); line-height:1.12; margin:0 0 14px; color:var(--ink);}
+  h2.section-title{font-family:var(--font-title); font-weight:600; font-size:clamp(21px,3vw,30px); margin:0 0 12px; color:var(--ink);}
+  p.lead{font-size:clamp(15px,2vw,18px); line-height:1.65; color:var(--ink-dim); max-width:70ch; margin:0 0 20px;}
+  p.body-text{font-size:15.5px; line-height:1.7; color:var(--ink-dim); margin:0 0 14px; max-width:72ch;}
+  strong.hl{color:var(--trust); font-weight:700;}
+  strong.hl-violet{color:var(--violet); font-weight:700;}
+  strong.hl-amber{color:var(--amber); font-weight:700;}
 
-ul.clean{margin:0; padding-left:20px; line-height:1.85;}
-ul.clean li{margin-bottom:4px;}
-.formula{font-family:var(--font-mono); background:var(--bg-soft); border:1px solid var(--line); border-radius:10px; padding:14px 18px; color:var(--amber); font-size:15px; width:fit-content;}
+  .card{background:linear-gradient(180deg, var(--panel), var(--panel-soft)); border:1px solid var(--line); border-radius:var(--radius-lg); padding:clamp(18px,3vw,30px); box-shadow:var(--shadow-soft);}
+  .card + .card{margin-top:16px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} .grid4{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .grid4{grid-template-columns:1fr;} }
 
-.mcq-opts{display:flex; flex-direction:column; gap:10px; margin-top:10px;}
-.mcq-opt{text-align:left; background:var(--panel); border:1px solid var(--line); color:var(--text); padding:13px 16px; border-radius:10px; cursor:pointer; font-family:var(--font-body); font-size:14.5px; transition:border-color .15s ease, background .15s ease;}
-.mcq-opt:hover{border-color:var(--cyan-dim);}
-.mcq-opt.correct{background:rgba(79,214,122,0.12); border-color:var(--good); color:var(--good);}
-.mcq-opt.wrong{background:rgba(242,97,122,0.12); border-color:var(--bad); color:var(--bad);}
-.mcq-opt.disabled{pointer-events:none;}
-.feedback{margin-top:10px; font-size:14px; line-height:1.6; display:none;}
-.feedback.shown{display:block; animation:fadeIn .3s ease;}
-.feedback.good{color:var(--good);}
-.feedback.bad{color:var(--bad);}
+  .tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; padding:4px 10px; border-radius:99px; background:var(--trust-soft); color:var(--trust); border:1px solid #4C8DFF55;}
+  .tag-violet{background:var(--violet-soft); color:var(--violet); border-color:#9A7CF255;}
+  .tag-amber{background:var(--amber-soft); color:var(--amber); border-color:#F2B33D55;}
 
-.steps-wrap{display:flex; flex-direction:column; gap:10px;}
-.step-item{border:1px solid var(--line); border-radius:10px; padding:14px 18px; background:var(--panel); opacity:0.35; transition:opacity .3s ease;}
-.step-item.active{opacity:1; border-color:var(--cyan-dim);}
-.step-item .step-label{font-family:var(--font-mono); font-size:11.5px; color:var(--cyan); margin-bottom:6px;}
+  .btn{font-family:var(--font-body); font-weight:700; font-size:14px; border:none; cursor:pointer; padding:11px 20px; border-radius:99px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--grad-trust); color:#0A0E1E;}
+  .btn-primary:hover{box-shadow:0 8px 22px -6px #4C8DFF77;}
+  .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn-outline:hover{border-color:var(--trust); color:var(--trust);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
 
-.slider-row{display:flex; align-items:center; gap:14px;}
-.slider-row input[type=range]{flex:1; accent-color:var(--cyan); height:4px;}
-.slider-val{font-family:var(--font-mono); color:var(--amber); font-weight:700; min-width:44px; text-align:right;}
+  footer.bottom-nav{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px clamp(16px,4vw,40px); border-top:1px solid var(--line); background:linear-gradient(0deg, rgba(14,18,32,.94), rgba(14,18,32,.55)); backdrop-filter:blur(6px); z-index:20;}
+  .nav-group{display:flex; align-items:center; gap:10px;}
+  .dots{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; max-width:46vw;}
+  .dots .d{width:7px;height:7px;border-radius:50%; background:var(--line); cursor:pointer; transition:all .2s ease; flex:none;}
+  .dots .d.active{width:20px; border-radius:5px; background:var(--grad-trust);}
+  .dots .d.done{background:var(--violet);}
+  .hint-key{display:none; font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+  @media (min-width:900px){ .hint-key{display:block;} }
 
-.input-row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
-.input-row input[type=text],.input-row input[type=number]{background:var(--bg-soft); border:1px solid var(--line); color:var(--text); border-radius:8px; padding:10px 12px; font-family:var(--font-mono); font-size:14px; width:140px;}
-.check-btn{background:var(--amber); border:none; color:#241a03; font-weight:700; padding:10px 18px; border-radius:8px; cursor:pointer; font-family:var(--font-body);}
-.check-btn:hover{filter:brightness(1.07);}
+  .accordion{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:var(--bg-1);}
+  .accordion summary{list-style:none; cursor:pointer; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .accordion summary::-webkit-details-marker{display:none;}
+  .accordion summary:after{content:'+'; font-family:var(--font-mono); color:var(--trust); font-size:18px; transition:transform .25s ease;}
+  .accordion[open] summary:after{transform:rotate(45deg);}
+  .accordion .acc-body{padding:0 16px 16px; color:var(--ink-dim); font-size:14.5px; line-height:1.65;}
 
-.summary-list{display:flex; flex-direction:column; gap:12px;}
-.summary-list .card{display:flex; gap:14px; align-items:flex-start;}
-.summary-num{font-family:var(--font-head); font-size:18px; color:var(--cyan); background:var(--bg-soft); border:1px solid var(--cyan-dim); border-radius:50%; width:34px; height:34px; min-width:34px; display:flex; align-items:center; justify-content:center;}
+  .reveal-box{border:1px dashed var(--line); border-radius:var(--radius-md); padding:14px 16px; cursor:pointer; background:var(--bg-1); transition:border-color .2s ease;}
+  .reveal-box:hover{border-color:var(--trust);}
+  .reveal-box .rq{font-weight:700; color:var(--ink); font-size:14.5px;}
+  .reveal-box .ra{display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); color:var(--trust); font-size:14px; line-height:1.6;}
+  .reveal-box.open .ra{display:block;}
+  .reveal-box .ra::before{content:'✓ '; font-weight:700;}
+  .reveal-hint{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:6px;}
 
-.cover{align-items:center; justify-content:center; text-align:center;}
-.cover .cover-badge{font-family:var(--font-mono); color:var(--amber); font-size:13px; letter-spacing:1px; border:1px solid var(--amber-dim); padding:6px 16px; border-radius:99px; margin-bottom:22px;}
-.cover h1{font-size:44px; margin:0 0 12px; line-height:1.15;}
-.cover h1 span{color:var(--cyan);}
-.cover p{color:var(--text-dim); font-size:16px; max-width:560px; margin:0 auto 26px;}
-.cover-shapes{display:flex; gap:26px; justify-content:center; margin-bottom:30px;}
+  .mcq-opt{display:block; width:100%; text-align:left; padding:12px 14px; margin-bottom:8px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--bg-1); color:var(--ink); font-family:var(--font-body); font-size:14.5px; cursor:pointer; transition:all .15s ease;}
+  .mcq-opt:hover{border-color:var(--violet);}
+  .mcq-opt.correct{border-color:#39D0A8; background:#39D0A820; color:#39D0A8;}
+  .mcq-opt.wrong{border-color:var(--danger); background:var(--danger-soft); color:var(--danger);}
+  .mcq-opt:disabled{cursor:default;}
+  .feedback{margin-top:10px; font-size:14px; line-height:1.6; padding:12px 14px; border-radius:var(--radius-sm); display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#39D0A820; color:#39D0A8; border:1px solid #39D0A855;}
+  .feedback.bad{background:var(--danger-soft); color:var(--danger); border:1px solid #F2495C55;}
 
-.quiz-progress{display:flex; gap:6px; margin-bottom:18px;}
-.quiz-dot{width:24px; height:6px; border-radius:99px; background:var(--line);}
-.quiz-dot.done{background:var(--good);}
-.quiz-dot.active{background:var(--cyan);}
-.quiz-result{text-align:center; padding:30px 10px;}
-.quiz-result .score-big{font-family:var(--font-head); font-size:56px; color:var(--amber); margin:8px 0;}
+  .input-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:8px;}
+  .input-row input[type=text]{flex:1; min-width:160px; background:var(--bg-1); border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px 14px; color:var(--ink); font-family:var(--font-mono); font-size:14.5px;}
+  .input-row input:focus{outline:none; border-color:var(--trust);}
 
-svg text{font-family:'JetBrains Mono', monospace;}
-.svg-wrap{display:flex; justify-content:center; padding:10px 0;}
-.chart-legend{display:flex; gap:18px; justify-content:center; font-size:12.5px; color:var(--text-dim);}
-.chart-legend span{display:inline-flex; align-items:center; gap:6px;}
-.legend-dot{width:10px; height:10px; border-radius:3px; display:inline-block;}
-table.data-table{border-collapse:collapse; width:100%; font-size:14px;}
-table.data-table th, table.data-table td{border:1px solid var(--line); padding:9px 12px; text-align:center;}
-table.data-table th{background:var(--bg-soft); color:var(--cyan); font-family:var(--font-mono); font-size:12.5px;}
-.status-line{font-size:14px; color:var(--text-dim); min-height:22px;}
-.status-line.good{color:var(--good);}
-.status-line.bad{color:var(--bad);}
+  .stepper{display:flex; flex-direction:column; gap:10px;}
+  .step-item{display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px; background:var(--bg-1);}
+  .step-num{flex:none; width:26px; height:26px; border-radius:50%; background:var(--grad-trust); color:#0A0E1E; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:12.5px;}
+  .step-txt{font-size:14.5px; color:var(--ink-dim); line-height:1.6; padding-top:3px;}
+  .step-txt b{color:var(--ink);}
+
+  .quiz-progress{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); margin-bottom:10px;}
+  .quiz-score-ring{width:140px; height:140px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; background:conic-gradient(var(--trust) calc(var(--pct,0)*1%), var(--panel-soft) 0); position:relative;}
+  .quiz-score-ring::before{content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-1);}
+  .quiz-score-ring .score-txt{position:relative; font-family:var(--font-title); font-size:26px; font-weight:600; color:var(--ink);}
+  .quiz-score-ring .score-sub{position:relative; font-size:11px; color:var(--ink-faint);}
+
+  .pill-toggle{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .pill-toggle button{font-family:var(--font-mono); font-size:12px; padding:7px 13px; border-radius:99px; border:1px solid var(--line); background:var(--bg-1); color:var(--ink-dim); cursor:pointer;}
+  .pill-toggle button.on{background:var(--grad-trust); color:#0A0E1E; border-color:transparent; font-weight:700;}
+
+  /* App mockup / phone screen */
+  .app-mock{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; background:var(--bg-1);}
+  .app-head{padding:12px 16px; border-bottom:1px solid var(--line); font-family:var(--font-body); font-weight:700; font-size:14px; color:var(--ink); display:flex; align-items:center; gap:8px;}
+  .app-body{padding:6px 0;}
+  .setting-row{display:flex; align-items:center; justify-content:space-between; padding:13px 16px; border-bottom:1px solid var(--line);}
+  .setting-row:last-child{border-bottom:none;}
+  .setting-txt{font-size:13.5px; color:var(--ink-dim); max-width:70%;}
+  .setting-txt b{color:var(--ink); display:block; font-size:14px; margin-bottom:2px;}
+
+  .switch{position:relative; width:44px; height:25px; flex:none;}
+  .switch input{opacity:0; width:0; height:0;}
+  .switch .slider-el{position:absolute; cursor:pointer; inset:0; background:var(--line); border-radius:99px; transition:.25s;}
+  .switch .slider-el:before{position:absolute; content:''; height:19px; width:19px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.25s;}
+  .switch input:checked + .slider-el{background:var(--grad-trust);}
+  .switch input:checked + .slider-el:before{transform:translateX(19px);}
+
+  .privacy-verdict{margin-top:14px; padding:12px 16px; border-radius:var(--radius-sm); font-size:13.5px; line-height:1.6; transition:all .3s ease;}
+
+  .pw-meter{height:9px; border-radius:99px; background:var(--panel-soft); overflow:hidden; border:1px solid var(--line); margin-top:10px;}
+  .pw-meter-fill{height:100%; width:0%; border-radius:99px; transition:width .3s ease, background .3s ease;}
+  .pw-label{font-family:var(--font-mono); font-size:12.5px; margin-top:8px; color:var(--ink-dim);}
+  .pw-rules{margin-top:10px; display:flex; flex-direction:column; gap:5px;}
+  .pw-rule{font-size:12.5px; font-family:var(--font-mono); color:var(--ink-faint); display:flex; gap:7px; align-items:center;}
+  .pw-rule.met{color:#39D0A8;}
+  .pw-rule .ic{width:14px;}
+
+  .checklist{display:flex; flex-direction:column; gap:8px;}
+  .check-item{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--bg-1); cursor:pointer;}
+  .check-item input{margin-top:3px; accent-color:var(--trust); width:16px; height:16px; flex:none;}
+  .check-item span{font-size:14px; color:var(--ink-dim); line-height:1.55;}
+  .check-item.checked span{color:#39D0A8; text-decoration:line-through; opacity:.75;}
+
+  .info-card{border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; background:var(--bg-1);}
+  .info-card .ic-wrap{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;}
+  .info-card h4{font-family:var(--font-title); font-weight:600; font-size:16px; margin:0 0 6px; color:var(--ink);}
+  .info-card p{font-size:13.5px; color:var(--ink-dim); line-height:1.6; margin:0;}
+
+  /* 2FA phone simulation */
+  .phone-sim{max-width:280px; margin:0 auto; border:1px solid var(--line); border-radius:24px; overflow:hidden; background:var(--bg-1); box-shadow:var(--shadow-soft);}
+  .phone-notch{height:22px; background:var(--panel); display:flex; align-items:center; justify-content:center;}
+  .phone-notch .bump{width:50px; height:6px; border-radius:99px; background:var(--line);}
+  .phone-screen{padding:24px 20px; min-height:260px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:14px;}
+  .phone-icon{width:52px; height:52px; border-radius:16px; background:var(--grad-trust); display:flex; align-items:center; justify-content:center; font-size:24px;}
+  .otp-boxes{display:flex; gap:8px; justify-content:center; margin:8px 0;}
+  .otp-boxes input{width:34px; height:42px; text-align:center; font-family:var(--font-mono); font-size:18px; background:var(--panel-soft); border:1px solid var(--line); border-radius:8px; color:var(--ink);}
+  .otp-boxes input:focus{outline:none; border-color:var(--trust);}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+
+  .kbd{font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink-dim);}
+
+  .cover-hero{display:flex; flex-direction:column; align-items:flex-start; gap:18px;}
+  .cover-icon{width:64px; height:64px; border-radius:18px; background:var(--grad-trust); display:flex; align-items:center; justify-content:center; box-shadow:0 14px 34px -10px #4C8DFF66;}
+  .cover-meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+
+  @media (max-width:600px){
+    .brand small{display:none;}
+    .quiz-score-ring{width:120px; height:120px;}
+  }
 </style>
 </head>
 <body>
+
 <div id="app">
-
-  <div class="topbar">
-    <button class="homebtn" onclick="goTo(0)" title="Kembali ke awal">⌂</button>
-    <div class="brand">Bab 7 · <b>Statistika</b> — Diagram Batang</div>
-    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="counter" id="counter">1 / 1</div>
-  </div>
-
-  <div class="stage" id="stage">
-
-    <!-- SLIDE 0: COVER -->
-    <section class="slide">
-      <div class="slide-body cover">
-        <div class="cover-badge">MATEMATIKA · KURIKULUM MERDEKA</div>
-        <div class="cover-shapes">
-          <svg width="120" height="90" viewBox="0 0 120 90">
-            <rect x="10" y="45" width="18" height="35" fill="#2dd4e8"/>
-            <rect x="38" y="25" width="18" height="55" fill="#f5b942"/>
-            <rect x="66" y="55" width="18" height="25" fill="#2dd4e8"/>
-            <rect x="94" y="10" width="18" height="70" fill="#f5b942"/>
-          </svg>
-        </div>
-        <h1>Bab 7 — Statistika<br><span>Diagram Batang</span></h1>
-        <p>Ayo belajar membaca, membuat, dan menafsirkan data menggunakan salah satu jenis diagram yang paling sering kita temui sehari-hari.</p>
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        Bab 7 — Melindungi Data Pribadi
+        <small>7.4 Privasi • Kata Sandi • Autentikasi • Keamanan Perangkat</small>
       </div>
-    </section>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 1</div>
+  </header>
 
-    <!-- SLIDE 1: APERSEPSI -->
-    <section class="slide">
-      <div class="eyebrow">APERSEPSI</div>
-      <h2>Coba perhatikan, di mana kamu pernah melihat ini?</h2>
-      <p class="sub">Diagram batang bukan hal asing — kita menjumpainya hampir setiap hari tanpa sadar.</p>
-      <div class="slide-body">
-        <div class="grid-3">
-          <div class="card">
-            <svg width="100%" height="80" viewBox="0 0 180 80">
-              <rect x="15" y="30" width="20" height="45" fill="#2dd4e8"/>
-              <rect x="45" y="15" width="20" height="60" fill="#2dd4e8"/>
-              <rect x="75" y="40" width="20" height="35" fill="#2dd4e8"/>
-              <rect x="105" y="10" width="20" height="65" fill="#2dd4e8"/>
-              <rect x="135" y="25" width="20" height="50" fill="#2dd4e8"/>
-            </svg>
-            <h3 style="font-size:16px; margin:10px 0 6px;">Laporan cuaca</h3>
-            <p style="color:var(--text-dim); font-size:13.5px; line-height:1.6; margin:0;">Grafik suhu atau curah hujan mingguan yang ditampilkan di berita.</p>
-          </div>
-          <div class="card">
-            <svg width="100%" height="80" viewBox="0 0 180 80">
-              <rect x="20" y="20" width="26" height="55" fill="#f5b942"/>
-              <rect x="70" y="45" width="26" height="30" fill="#f5b942"/>
-              <rect x="120" y="10" width="26" height="65" fill="#f5b942"/>
-            </svg>
-            <h3 style="font-size:16px; margin:10px 0 6px;">Rapor hasil belajar</h3>
-            <p style="color:var(--text-dim); font-size:13.5px; line-height:1.6; margin:0;">Perbandingan nilai beberapa mata pelajaran ditampilkan dalam bentuk batang.</p>
-          </div>
-          <div class="card">
-            <svg width="100%" height="80" viewBox="0 0 180 80">
-              <rect x="15" y="35" width="18" height="40" fill="#2dd4e8"/>
-              <rect x="40" y="35" width="18" height="40" fill="#f5b942"/>
-              <rect x="70" y="15" width="18" height="60" fill="#2dd4e8"/>
-              <rect x="95" y="20" width="18" height="55" fill="#f5b942"/>
-            </svg>
-            <h3 style="font-size:16px; margin:10px 0 6px;">Hasil survei / voting</h3>
-            <p style="color:var(--text-dim); font-size:13.5px; line-height:1.6; margin:0;">Jumlah suara atau pendapat yang dibandingkan antar pilihan.</p>
-          </div>
-        </div>
-        <button class="reveal-btn" onclick="toggleReveal(this)">💡 Mengapa data-data itu ditampilkan sebagai batang, bukan angka biasa?</button>
-        <div class="reveal-content">Karena diagram batang membuat perbandingan antar kategori menjadi <b>mudah dilihat sekilas</b> — tinggi batang langsung menunjukkan besar-kecilnya nilai, tanpa harus membaca satu per satu angka dalam tabel.</div>
-      </div>
-    </section>
+  <main class="stage" id="stage"></main>
 
-    <!-- SLIDE 2: TUJUAN -->
-    <section class="slide">
-      <div class="eyebrow">TUJUAN PEMBELAJARAN</div>
-      <h2>Setelah mempelajari materi ini, kamu akan mampu:</h2>
-      <div class="slide-body">
-        <div class="summary-list">
-          <div class="card"><div class="summary-num">1</div><div><b>Menjelaskan</b> pengertian dan kegunaan diagram batang.</div></div>
-          <div class="card"><div class="summary-num">2</div><div><b>Mengidentifikasi</b> unsur-unsur penyusun diagram batang.</div></div>
-          <div class="card"><div class="summary-num">3</div><div><b>Membuat</b> diagram batang dari data yang diberikan.</div></div>
-          <div class="card"><div class="summary-num">4</div><div><b>Membaca dan menentukan nilai</b> data dari diagram batang.</div></div>
-          <div class="card"><div class="summary-num">5</div><div><b>Membandingkan data</b> serta menentukan nilai terbesar dan terkecil.</div></div>
-          <div class="card"><div class="summary-num">6</div><div><b>Menafsirkan</b> makna atau kecenderungan dari diagram batang.</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 3: PENGERTIAN -->
-    <section class="slide">
-      <div class="eyebrow">KONSEP DASAR</div>
-      <h2>Apa itu diagram batang?</h2>
-      <div class="slide-body">
-        <div class="card">
-          <p style="line-height:1.8; margin:0;"><b style="color:var(--cyan);">Diagram batang</b> adalah cara menyajikan data dalam bentuk kumpulan batang persegi panjang, di mana <b>tinggi (atau panjang) setiap batang</b> menunjukkan besar nilai suatu kategori data. Diagram ini paling cocok digunakan untuk <b>membandingkan</b> beberapa kategori data yang terpisah (misalnya per hari, per kelas, atau per jenis barang).</p>
-        </div>
-        <div class="svg-wrap"><div id="chartIntro"></div></div>
-        <p style="text-align:center; color:var(--text-dim); font-size:13.5px; margin-top:-10px;">Contoh: banyak buku yang dipinjam siswa di perpustakaan selama lima hari.</p>
-      </div>
-    </section>
-
-    <!-- SLIDE 4: UNSUR-UNSUR -->
-    <section class="slide">
-      <div class="eyebrow">UNSUR-UNSUR DIAGRAM BATANG</div>
-      <h2>Bagian-bagian penyusun diagram batang</h2>
-      <p class="sub">Klik setiap unsur di bawah untuk melihat penjelasannya, lalu bandingkan dengan diagram di atas.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartUnsur"></div></div>
-        <div class="grid-2">
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">① Judul diagram</button>
-            <div class="reveal-content">Judul menjelaskan data apa yang disajikan, biasanya diletakkan di bagian atas diagram. Contoh: "Data Peminjaman Buku Perpustakaan".</div>
-          </div>
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">② Sumbu mendatar (sumbu-X)</button>
-            <div class="reveal-content">Sumbu mendatar biasanya memuat <b>kategori</b> data, misalnya nama hari, nama kelas, atau jenis barang.</div>
-          </div>
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">③ Sumbu tegak (sumbu-Y)</button>
-            <div class="reveal-content">Sumbu tegak memuat <b>nilai/jumlah</b> data, lengkap dengan skala angkanya (misalnya kelipatan 5 atau 10).</div>
-          </div>
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">④ Batang (bar)</button>
-            <div class="reveal-content">Batang persegi panjang yang tingginya <b>sebanding dengan nilai data</b>. Semakin tinggi batang, semakin besar nilainya.</div>
-          </div>
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">⑤ Skala</button>
-            <div class="reveal-content">Skala adalah jarak antar garis bantu pada sumbu-Y (misalnya setiap garis mewakili 5 satuan), digunakan untuk membaca nilai data secara tepat.</div>
-          </div>
-          <div>
-            <button class="reveal-btn" onclick="toggleReveal(this)">⑥ Keterangan/label nilai</button>
-            <div class="reveal-content">Angka yang dituliskan di atas atau di dalam batang untuk mempermudah pembaca mengetahui nilai persis tanpa harus menghitung dari skala.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 5: MEMBUAT DIAGRAM BATANG (step by step) -->
-    <section class="slide">
-      <div class="eyebrow">LANGKAH-LANGKAH</div>
-      <h2>Membuat diagram batang dari data</h2>
-      <p class="sub">Ikuti proses berikut untuk mengubah tabel data menjadi diagram batang.</p>
-      <div class="slide-body">
-        <div class="card">
-          <p style="margin:0 0 10px; font-weight:600;">Data jumlah siswa pada setiap kegiatan ekstrakurikuler:</p>
-          <table class="data-table">
-            <tr><th>Ekstrakurikuler</th><td>Pramuka</td><td>Basket</td><td>Paduan Suara</td><td>Robotik</td></tr>
-            <tr><th>Jumlah siswa</th><td>30</td><td>18</td><td>12</td><td>24</td></tr>
-          </table>
-        </div>
-        <div class="steps-wrap" id="stepsBuild">
-          <div class="step-item active" data-step="0">
-            <div class="step-label">LANGKAH 1</div>
-            Siapkan tabel data yang berisi kategori (nama ekstrakurikuler) dan nilainya (jumlah siswa), seperti tabel di atas.
-          </div>
-          <div class="step-item" data-step="1">
-            <div class="step-label">LANGKAH 2</div>
-            Gambar dua sumbu: sumbu mendatar untuk kategori (nama ekstrakurikuler), sumbu tegak untuk nilai (jumlah siswa).
-          </div>
-          <div class="step-item" data-step="2">
-            <div class="step-label">LANGKAH 3</div>
-            Tentukan skala pada sumbu tegak, misalnya setiap garis mewakili 5 siswa, dari 0 sampai melebihi nilai terbesar (30).
-          </div>
-          <div class="step-item" data-step="3">
-            <div class="step-label">LANGKAH 4</div>
-            Gambar batang untuk setiap kategori dengan tinggi sesuai nilainya. Beri jarak yang sama antar batang.
-          </div>
-          <div class="step-item" data-step="4">
-            <div class="step-label">LANGKAH 5 — HASIL AKHIR</div>
-            Tambahkan judul diagram dan label nilai di atas setiap batang agar mudah dibaca.
-            <div class="svg-wrap" id="chartBuildResult" style="margin-top:12px;"></div>
-          </div>
-        </div>
-        <button class="reveal-btn" id="stepBtnBuild" onclick="nextStepBuild()">Langkah berikutnya →</button>
-      </div>
-    </section>
-
-    <!-- SLIDE 6: LATIHAN MEMBUAT (interactive builder) -->
-    <section class="slide">
-      <div class="eyebrow">COBA SENDIRI</div>
-      <h2>Bangun diagram batangmu sendiri</h2>
-      <p class="sub">Geser slider berikut untuk mengubah jumlah buku yang dipinjam pada tiap kategori, dan amati bagaimana diagram batang berubah secara langsung.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartBuilder"></div></div>
-        <div class="card">
-          <div class="slider-row"><span style="width:110px; font-size:13.5px; color:var(--text-dim);">Fiksi</span><input type="range" min="0" max="40" value="18" id="slFiksi" oninput="updateBuilder()"><span class="slider-val" id="valFiksi">18</span></div>
-          <div class="slider-row" style="margin-top:10px;"><span style="width:110px; font-size:13.5px; color:var(--text-dim);">Nonfiksi</span><input type="range" min="0" max="40" value="12" id="slNonfiksi" oninput="updateBuilder()"><span class="slider-val" id="valNonfiksi">12</span></div>
-          <div class="slider-row" style="margin-top:10px;"><span style="width:110px; font-size:13.5px; color:var(--text-dim);">Majalah</span><input type="range" min="0" max="40" value="8" id="slMajalah" oninput="updateBuilder()"><span class="slider-val" id="valMajalah">8</span></div>
-          <div class="slider-row" style="margin-top:10px;"><span style="width:110px; font-size:13.5px; color:var(--text-dim);">Komik</span><input type="range" min="0" max="40" value="25" id="slKomik" oninput="updateBuilder()"><span class="slider-val" id="valKomik">25</span></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 7: MEMBACA DIAGRAM BATANG -->
-    <section class="slide">
-      <div class="eyebrow">MEMBACA DATA</div>
-      <h2>Membaca diagram batang</h2>
-      <p class="sub">Perhatikan diagram data peminjaman buku perpustakaan selama lima hari berikut, lalu jawab pertanyaannya.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartRead"></div></div>
-        <div class="grid-2">
-          <div class="card">
-            <p style="margin:0 0 8px; font-weight:600; font-size:14px;">1. Berapa buku yang dipinjam pada hari Rabu?</p>
-            <div class="mcq-opts">
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbRead1')">15</button>
-              <button class="mcq-opt" onclick="checkMcq(this,true,'fbRead1')">18</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbRead1')">22</button>
-            </div>
-            <div class="feedback" id="fbRead1"></div>
-          </div>
-          <div class="card">
-            <p style="margin:0 0 8px; font-weight:600; font-size:14px;">2. Pada hari apa terjadi 22 peminjaman?</p>
-            <div class="mcq-opts">
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbRead2')">Senin</button>
-              <button class="mcq-opt" onclick="checkMcq(this,true,'fbRead2')">Selasa</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbRead2')">Kamis</button>
-            </div>
-            <div class="feedback" id="fbRead2"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 8: MENENTUKAN NILAI (step by step) -->
-    <section class="slide">
-      <div class="eyebrow">CONTOH SOAL</div>
-      <h2>Menentukan nilai dari diagram batang</h2>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartValue"></div></div>
-        <div class="card">
-          <b>Soal:</b> Berapa total buku yang dipinjam selama Senin, Selasa, dan Rabu?
-        </div>
-        <div class="steps-wrap" id="stepsValue">
-          <div class="step-item active" data-step="0">
-            <div class="step-label">LANGKAH 1 — BACA NILAI SETIAP BATANG</div>
-            Senin = 15, Selasa = 22, Rabu = 18 (dibaca dari tinggi batang dan label angkanya).
-          </div>
-          <div class="step-item" data-step="1">
-            <div class="step-label">LANGKAH 2 — JUMLAHKAN</div>
-            <span class="mono">15 + 22 + 18 = 55</span>
-          </div>
-          <div class="step-item" data-step="2">
-            <div class="step-label">JAWABAN</div>
-            Total buku yang dipinjam selama tiga hari tersebut adalah <span class="mono" style="color:var(--good);">55 buku</span>.
-          </div>
-        </div>
-        <button class="reveal-btn" id="stepBtnValue" onclick="nextStep('stepsValue','stepBtnValue')">Langkah berikutnya →</button>
-
-        <div class="card">
-          <p style="margin:0 0 10px; font-weight:600;">Sekarang coba sendiri: berapa selisih peminjaman antara hari Kamis dan hari Jumat?</p>
-          <div class="input-row">
-            <input type="number" id="ansValue1" placeholder="buku">
-            <button class="check-btn" onclick="checkNumeric('ansValue1',13,'fbValue1')">Periksa jawaban</button>
-          </div>
-          <div class="feedback" id="fbValue1"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 9: MEMBANDINGKAN DATA -->
-    <section class="slide">
-      <div class="eyebrow">MEMBANDINGKAN DATA</div>
-      <h2>Membandingkan dua kelompok data</h2>
-      <p class="sub">Diagram berikut membandingkan jumlah pengunjung perpustakaan pada tahun 2024 dan 2025.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartCompare"></div></div>
-        <div class="chart-legend">
-          <span><span class="legend-dot" style="background:#2dd4e8;"></span>Tahun 2024</span>
-          <span><span class="legend-dot" style="background:#f5b942;"></span>Tahun 2025</span>
-        </div>
-        <div class="grid-2">
-          <div class="card">
-            <p style="margin:0 0 8px; font-weight:600; font-size:14px;">1. Bulan apa yang mengalami peningkatan pengunjung paling besar dari 2024 ke 2025?</p>
-            <div class="mcq-opts">
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp1')">Januari</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp1')">Februari</button>
-              <button class="mcq-opt" onclick="checkMcq(this,true,'fbComp1')">Maret</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp1')">April</button>
-            </div>
-            <div class="feedback" id="fbComp1"></div>
-          </div>
-          <div class="card">
-            <p style="margin:0 0 8px; font-weight:600; font-size:14px;">2. Pada tahun 2025, bulan dengan pengunjung terbanyak adalah...</p>
-            <div class="mcq-opts">
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp2')">Januari</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp2')">Februari</button>
-              <button class="mcq-opt" onclick="checkMcq(this,false,'fbComp2')">Maret</button>
-              <button class="mcq-opt" onclick="checkMcq(this,true,'fbComp2')">April</button>
-            </div>
-            <div class="feedback" id="fbComp2"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 10: TERBESAR & TERKECIL (interactive click) -->
-    <section class="slide">
-      <div class="eyebrow">AKTIVITAS INTERAKTIF</div>
-      <h2>Menentukan data terbesar dan terkecil</h2>
-      <p class="sub">Klik batang yang menurutmu memiliki nilai <b>terbesar</b>, lalu klik batang yang memiliki nilai <b>terkecil</b> pada diagram peminjaman buku perpustakaan.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartMinMax"></div></div>
-        <div class="card">
-          <p class="status-line" id="minMaxStatus">Silakan klik batang yang menurutmu paling TINGGI (nilai terbesar).</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 11: MENAFSIRKAN -->
-    <section class="slide">
-      <div class="eyebrow">MENAFSIRKAN DATA</div>
-      <h2>Menafsirkan diagram batang</h2>
-      <p class="sub">Membaca diagram tidak cukup hanya menyebut angka — kita juga perlu memahami apa <b>arti</b> di balik data tersebut.</p>
-      <div class="slide-body">
-        <div class="svg-wrap"><div id="chartInterpret"></div></div>
-        <p style="text-align:center; color:var(--text-dim); font-size:13.5px; margin-top:-10px;">Data penjualan es krim Toko Dingin Segar bulan Januari–Mei.</p>
-        <div class="card">
-          <p style="margin:0 0 10px; font-weight:600;">Menurutmu, apa yang bisa kita simpulkan dari pola diagram ini?</p>
-          <button class="reveal-btn" onclick="toggleReveal(this)">💡 Lihat contoh tafsiran</button>
-          <div class="reveal-content">Diagram menunjukkan <b>tren kenaikan terus-menerus</b> dari Januari hingga Mei. Kemungkinan penyebabnya adalah cuaca yang semakin panas menjelang pertengahan tahun, sehingga permintaan es krim ikut meningkat. Inilah contoh menafsirkan data: tidak hanya membaca angka, tetapi juga mencari <b>pola dan kemungkinan penyebabnya</b>.</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 12: LATIHAN BERTAHAP -->
-    <section class="slide">
-      <div class="eyebrow">LATIHAN MANDIRI</div>
-      <h2>Latihan bertingkat</h2>
-      <p class="sub">Gunakan data peminjaman buku (Senin=15, Selasa=22, Rabu=18, Kamis=25, Jumat=12) untuk menjawab soal berikut.</p>
-      <div class="slide-body">
-        <div class="card">
-          <span class="badge good">MUDAH</span>
-          <p style="margin:10px 0;">Berapa buku yang dipinjam pada hari dengan peminjaman paling banyak?</p>
-          <div class="input-row">
-            <input type="number" id="latihan1"><span style="color:var(--text-dim); font-size:13px;">buku</span>
-            <button class="check-btn" onclick="checkNumeric('latihan1',25,'fbLatihan1')">Periksa</button>
-          </div>
-          <div class="feedback" id="fbLatihan1"></div>
-        </div>
-        <div class="card">
-          <span class="badge amber">SEDANG</span>
-          <p style="margin:10px 0;">Berapa rata-rata peminjaman buku per hari selama lima hari tersebut?</p>
-          <div class="input-row">
-            <input type="number" id="latihan2"><span style="color:var(--text-dim); font-size:13px;">buku</span>
-            <button class="check-btn" onclick="checkNumeric('latihan2',18.4,'fbLatihan2')">Periksa</button>
-          </div>
-          <div class="feedback" id="fbLatihan2"></div>
-        </div>
-        <div class="card">
-          <span class="badge bad">MENANTANG</span>
-          <p style="margin:10px 0;">Jika pada hari Sabtu perpustakaan tetap buka dan peminjaman naik 20% dari hari Jumat, berapa perkiraan peminjaman hari Sabtu?</p>
-          <div class="input-row">
-            <input type="number" id="latihan3"><span style="color:var(--text-dim); font-size:13px;">buku</span>
-            <button class="check-btn" onclick="checkNumeric('latihan3',14.4,'fbLatihan3')">Periksa</button>
-          </div>
-          <div class="feedback" id="fbLatihan3"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 13: QUIZ -->
-    <section class="slide">
-      <div class="eyebrow">KUIS AKHIR</div>
-      <h2>Uji pemahamanmu</h2>
-      <p class="sub">Kuis ini terdiri atas 8 soal pilihan ganda. Skor akan dihitung otomatis di akhir.</p>
-      <div class="slide-body" id="quizArea"></div>
-    </section>
-
-    <!-- SLIDE 14: RANGKUMAN -->
-    <section class="slide">
-      <div class="eyebrow">RANGKUMAN</div>
-      <h2>Yang perlu kamu ingat</h2>
-      <div class="slide-body">
-        <div class="summary-list">
-          <div class="card"><div class="summary-num">1</div><div><b>Diagram batang</b> menyajikan data dengan tinggi batang yang sebanding dengan nilainya, cocok untuk membandingkan kategori.</div></div>
-          <div class="card"><div class="summary-num">2</div><div>Unsur utamanya: <b>judul, sumbu-X, sumbu-Y, batang, skala,</b> dan <b>label nilai</b>.</div></div>
-          <div class="card"><div class="summary-num">3</div><div>Untuk membuat diagram batang: susun tabel data → buat sumbu → tentukan skala → gambar batang → beri judul dan label.</div></div>
-          <div class="card"><div class="summary-num">4</div><div>Membaca nilai dilakukan dengan melihat tinggi batang terhadap skala pada sumbu-Y.</div></div>
-          <div class="card"><div class="summary-num">5</div><div>Data terbesar ditunjukkan oleh batang <b>tertinggi</b>, data terkecil oleh batang <b>terpendek</b>.</div></div>
-          <div class="card"><div class="summary-num">6</div><div>Menafsirkan data berarti mencari <b>pola dan makna</b> di balik angka, bukan sekadar membacanya.</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SLIDE 15: PENUTUP -->
-    <section class="slide">
-      <div class="slide-body cover">
-        <div class="cover-badge">SELESAI</div>
-        <h1>Kerja bagus! <span>🎉</span></h1>
-        <p>Kamu sudah menyelesaikan pembelajaran interaktif Bab 7 — Statistika: Diagram Batang. Lanjutkan ke submateri berikutnya, atau ulangi kuis untuk memperkuat pemahamanmu.</p>
-        <button class="navbtn primary" onclick="goTo(0)">↺ Ulangi dari awal</button>
-      </div>
-    </section>
-
-  </div>
-
-  <div class="bottombar">
-    <button class="navbtn" id="prevBtn" onclick="prevSlide()">← Sebelumnya</button>
-    <div class="hint">Gunakan tombol ← → pada keyboard untuk berpindah slide</div>
-    <button class="navbtn primary" id="nextBtn" onclick="nextSlide()">Berikutnya →</button>
-  </div>
-
+  <footer class="bottom-nav">
+    <button class="btn btn-outline" id="btnPrev">← Sebelumnya</button>
+    <div class="nav-group"><div class="dots" id="dots"></div></div>
+    <div class="nav-group">
+      <span class="hint-key"><span class="kbd">←</span> / <span class="kbd">→</span> untuk navigasi</span>
+      <button class="btn btn-primary" id="btnNext">Berikutnya →</button>
+    </div>
+  </footer>
 </div>
 
 <script>
-/* ---------------- Core navigation ---------------- */
-const slides = document.querySelectorAll('.slide');
-const total = slides.length;
+/* =========================================================
+   DATA MATERI
+   ========================================================= */
+const slidesData = [];
+function addSlide(html){ slidesData.push(html); }
+
+/* ---------- Slide 1 : Cover ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <rect x="5" y="11" width="14" height="10" rx="2" stroke="#0A0E1E" stroke-width="2"/>
+        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#0A0E1E" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="12" cy="16" r="1.6" fill="#0A0E1E"/>
+      </svg>
+    </div>
+    <p class="eyebrow">BAB 7 — MEMBAGIKAN INFORMASI DAN PERLINDUNGAN DATA PRIBADI · 7.4</p>
+    <h1 class="slide-title">Cara Melindungi Data Pribadi</h1>
+    <p class="lead">Pelajari empat kunci utama menjaga data pribadimu tetap aman: mengatur privasi dengan bijak, membuat kata sandi kuat, menggunakan autentikasi berlapis, dan menjaga keamanan perangkat.</p>
+    <div class="cover-meta">
+      <span class="tag">🔐 Pengaturan Privasi</span>
+      <span class="tag tag-violet">🔑 Kata Sandi</span>
+      <span class="tag">📲 Autentikasi</span>
+      <span class="tag tag-amber">🛡️ Keamanan Perangkat</span>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 2 : Apersepsi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">APERSEPSI</p>
+    <h2 class="section-title">Coba pikirkan sejenak</h2>
+    <p class="body-text">Bayangkan buku harianmu — tentu kamu tidak akan meninggalkannya terbuka di meja umum, bukan? Data pribadi digital bekerja dengan cara yang sama.</p>
+    <div class="card">
+      <div class="reveal-box" onclick="this.classList.toggle('open')">
+        <div class="rq">🤔 Menurutmu, apa saja yang termasuk "data pribadi" yang perlu dilindungi di dunia digital?</div>
+        <div class="ra">Banyak sekali! Nama lengkap, alamat rumah, nomor telepon, foto/video pribadi, lokasi terkini, kata sandi akun, nomor identitas (NIK), data kesehatan, bahkan kebiasaan berbelanja — semuanya adalah data pribadi yang bisa disalahgunakan jika jatuh ke tangan yang salah.</div>
+        <div class="reveal-hint">👆 Klik kotak ini untuk melihat jawabannya</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 3 : Tujuan Pembelajaran ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">TUJUAN PEMBELAJARAN</p>
+    <h2 class="section-title">Setelah pembelajaran ini, kamu dapat:</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt">Mengatur <b>pengaturan privasi</b> pada akun dan aplikasi secara bijak.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt">Membuat dan mengelola <b>kata sandi</b> yang kuat dan aman.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt">Memahami dan menerapkan <b>autentikasi</b> berlapis (misalnya 2FA).</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt">Menjaga <b>keamanan perangkat</b> yang digunakan sehari-hari.</div></div>
+      <div class="step-item"><div class="step-num">5</div><div class="step-txt">Menerapkan langkah-langkah <b>perlindungan data pribadi</b> secara menyeluruh.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 4 : Konsep dasar ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KONSEP DASAR</p>
+    <h2 class="section-title">Mengapa data pribadi perlu dilindungi?</h2>
+    <p class="body-text">Jika data pribadi jatuh ke tangan yang tidak bertanggung jawab, risikonya nyata: <strong class="hl">penipuan</strong>, <strong class="hl-violet">pencurian identitas</strong>, akun dibobol, hingga <strong class="hl-amber">pelecehan/perundungan digital</strong>.</p>
+    <p class="body-text">Empat pilar utama perlindungan data pribadi yang akan kita pelajari:</p>
+    <div class="grid4">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">🔐</div><h4>Privasi</h4><p>Mengatur siapa yang bisa melihat informasimu.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--violet-soft);">🔑</div><h4>Kata Sandi</h4><p>Kunci utama menuju akun-akunmu.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">📲</div><h4>Autentikasi</h4><p>Lapisan verifikasi tambahan saat login.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🛡️</div><h4>Perangkat</h4><p>Menjaga HP/laptop tetap aman dari serangan.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 5 : Sub 1 - Pengaturan privasi konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — PENGATURAN PRIVASI</p>
+    <h2 class="section-title">Mengatur privasi di media sosial &amp; aplikasi</h2>
+    <p class="body-text"><strong class="hl">Pengaturan privasi</strong> menentukan siapa saja yang dapat melihat profil, unggahan, lokasi, atau informasi pribadimu di sebuah aplikasi. Prinsip pentingnya: <em>bagikan seperlunya, kepada yang tepat</em>.</p>
+    <div class="grid2">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">👤</div><h4>Visibilitas Profil</h4><p>Atur apakah profilmu bisa dilihat publik, hanya teman, atau tertutup total.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">📍</div><h4>Berbagi Lokasi</h4><p>Matikan berbagi lokasi otomatis kecuali benar-benar diperlukan.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">🏷️</div><h4>Tag &amp; Sebutan</h4><p>Atur siapa yang boleh menandai (tag) dirimu di unggahan mereka.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">📇</div><h4>Info Kontak</h4><p>Batasi siapa yang bisa melihat nomor telepon/email di profilmu.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 6 : Simulasi pengaturan privasi interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — PENGATURAN PRIVASI</p>
+    <h2 class="section-title">Coba atur privasi akun media sosial ini</h2>
+    <p class="body-text">Geser tiap sakelar dan lihat bagaimana tingkat keamanan akun berubah secara langsung.</p>
+    <div class="card">
+      <div class="app-mock">
+        <div class="app-head">⚙️ Pengaturan Privasi Akun</div>
+        <div class="app-body" id="privacySettings">
+          <div class="setting-row"><div class="setting-txt"><b>Profil Publik</b>Siapa saja bisa melihat profilmu tanpa berteman</div><label class="switch"><input type="checkbox" data-w="2" checked><span class="slider-el"></span></label></div>
+          <div class="setting-row"><div class="setting-txt"><b>Bagikan Lokasi Otomatis</b>Lokasimu ditampilkan real-time di setiap unggahan</div><label class="switch"><input type="checkbox" data-w="3" checked><span class="slider-el"></span></label></div>
+          <div class="setting-row"><div class="setting-txt"><b>Nomor Telepon Terlihat</b>Nomor HP-mu ditampilkan di profil publik</div><label class="switch"><input type="checkbox" data-w="3" checked><span class="slider-el"></span></label></div>
+          <div class="setting-row"><div class="setting-txt"><b>Verifikasi 2 Langkah</b>Lapisan keamanan tambahan saat login</div><label class="switch"><input type="checkbox" data-w="-3"><span class="slider-el"></span></label></div>
+        </div>
+      </div>
+      <div class="privacy-verdict" id="privacyVerdict"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 7 : Latihan pengaturan privasi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — PENGATURAN PRIVASI</p>
+    <h2 class="section-title">Manakah pengaturan yang paling aman?</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Seorang pelajar ingin tetap bisa berbagi momen dengan teman dekat tapi menjaga keamanannya. Pengaturan yang paling tepat adalah…</b></p>
+      <div id="mcq1"></div>
+      <div class="feedback" id="fb1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 8 : Sub 2 - Kata sandi konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 2 — KATA SANDI</p>
+    <h2 class="section-title">Membuat kata sandi yang kuat</h2>
+    <p class="body-text">Kata sandi adalah <strong class="hl-violet">gerbang utama</strong> menuju akun digitalmu. Kata sandi yang lemah membuat akunmu mudah dibobol.</p>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">✓</div><div class="step-txt">Gunakan minimal <b>8–12 karakter</b>, semakin panjang semakin kuat.</div></div>
+      <div class="step-item"><div class="step-num">✓</div><div class="step-txt">Kombinasikan <b>huruf besar, huruf kecil, angka, dan simbol</b>.</div></div>
+      <div class="step-item"><div class="step-num">✓</div><div class="step-txt">Hindari data pribadi yang mudah ditebak (tanggal lahir, nama sendiri).</div></div>
+      <div class="step-item"><div class="step-num">✓</div><div class="step-txt">Gunakan <b>kata sandi berbeda</b> untuk setiap akun penting.</div></div>
+      <div class="step-item"><div class="step-num">✓</div><div class="step-txt">Pertimbangkan memakai <b>pengelola kata sandi (password manager)</b>.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 9 : Password checker interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — KATA SANDI</p>
+    <h2 class="section-title">Coba cek kekuatan kata sandimu</h2>
+    <p class="body-text">Ketik contoh kata sandi (jangan gunakan kata sandi asli akunmu!).</p>
+    <div class="card">
+      <div class="input-row"><input type="text" id="pwInput" placeholder="Ketik contoh kata sandi di sini..."></div>
+      <div class="pw-meter"><div class="pw-meter-fill" id="pwFill"></div></div>
+      <div class="pw-label" id="pwLabel">Belum ada kata sandi diketik</div>
+      <div class="pw-rules" id="pwRules">
+        <div class="pw-rule" data-r="len"><span class="ic">○</span> Minimal 8 karakter</div>
+        <div class="pw-rule" data-r="upper"><span class="ic">○</span> Mengandung huruf besar</div>
+        <div class="pw-rule" data-r="lower"><span class="ic">○</span> Mengandung huruf kecil</div>
+        <div class="pw-rule" data-r="num"><span class="ic">○</span> Mengandung angka</div>
+        <div class="pw-rule" data-r="sym"><span class="ic">○</span> Mengandung simbol (!@#$%, dst.)</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 10 : Latihan kata sandi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — KATA SANDI</p>
+    <h2 class="section-title">Pilih kata sandi terkuat</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Dari empat pilihan berikut, mana kata sandi yang paling aman digunakan?</b></p>
+      <div id="mcq2"></div>
+      <div class="feedback" id="fb2"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 11 : Sub 3 - Autentikasi konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 3 — AUTENTIKASI</p>
+    <h2 class="section-title">Apa itu autentikasi berlapis?</h2>
+    <p class="body-text"><strong class="hl">Autentikasi</strong> adalah proses membuktikan bahwa kamu benar-benar pemilik akun. <strong class="hl">Autentikasi dua langkah (2FA/Two-Factor Authentication)</strong> menambah lapisan keamanan ekstra selain kata sandi.</p>
+    <div class="grid2">
+      <div class="accordion" open><summary>1️⃣ Sesuatu yang kamu tahu</summary><div class="acc-body">Contoh: kata sandi atau PIN. Ini lapisan dasar yang paling umum digunakan.</div></div>
+      <div class="accordion"><summary>2️⃣ Sesuatu yang kamu punya</summary><div class="acc-body">Contoh: kode OTP dari SMS/aplikasi authenticator, atau HP yang menerima notifikasi login.</div></div>
+      <div class="accordion"><summary>3️⃣ Sesuatu yang ada pada dirimu</summary><div class="acc-body">Contoh: sidik jari (fingerprint) atau pengenalan wajah (face ID) — biometrik.</div></div>
+      <div class="accordion"><summary>💡 Mengapa 2FA penting?</summary><div class="acc-body">Meski kata sandimu bocor, pelaku tetap tidak bisa masuk tanpa faktor kedua (misalnya kode OTP di HP-mu).</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 12 : Simulasi 2FA interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — AUTENTIKASI</p>
+    <h2 class="section-title">Coba simulasi login dengan 2FA</h2>
+    <p class="body-text">Ikuti langkah simulasi berikut untuk memahami cara kerja verifikasi dua langkah.</p>
+    <div class="card">
+      <div class="phone-sim">
+        <div class="phone-notch"><div class="bump"></div></div>
+        <div class="phone-screen" id="phoneScreen"></div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 13 : Latihan autentikasi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — AUTENTIKASI</p>
+    <h2 class="section-title">Uji pemahamanmu</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Seseorang mengetahui kata sandi akun temanmu, tapi akun itu sudah mengaktifkan 2FA. Apa yang akan terjadi?</b></p>
+      <div id="mcq3"></div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 14 : Sub 4 - Keamanan perangkat konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 4 — KEAMANAN PERANGKAT</p>
+    <h2 class="section-title">Menjaga keamanan perangkat</h2>
+    <p class="body-text">Kata sandi kuat saja tidak cukup jika <strong class="hl-amber">perangkatmu sendiri</strong> tidak aman. Berikut langkah-langkah pentingnya:</p>
+    <div class="grid2">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🔄</div><h4>Perbarui Perangkat Lunak</h4><p>Update sistem &amp; aplikasi secara rutin untuk menutup celah keamanan.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🔒</div><h4>Kunci Layar</h4><p>Aktifkan PIN, pola, sidik jari, atau face ID pada perangkatmu.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🧰</div><h4>Antivirus &amp; Keamanan</h4><p>Gunakan aplikasi keamanan resmi untuk mendeteksi ancaman.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">📥</div><h4>Sumber Aplikasi Resmi</h4><p>Unduh aplikasi hanya dari Play Store/App Store, hindari file APK sembarangan.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 15 : Checklist keamanan perangkat ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — KEAMANAN PERANGKAT</p>
+    <h2 class="section-title">Checklist keamanan perangkatmu</h2>
+    <p class="body-text">Centang kebiasaan yang sudah kamu terapkan pada HP/laptopmu.</p>
+    <div class="card">
+      <div class="checklist" id="checklistBox">
+        <label class="check-item"><input type="checkbox"><span>Perangkat selalu diperbarui ke versi sistem terbaru.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Layar terkunci otomatis dengan PIN/pola/biometrik.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Hanya menginstal aplikasi dari toko aplikasi resmi.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Tidak sembarangan menyambungkan perangkat ke USB/charger publik.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Mengaktifkan fitur "temukan perangkat saya" jika hilang/dicuri.</span></label>
+        <label class="check-item"><input type="checkbox"><span>Rutin memeriksa izin aplikasi (kamera, lokasi, kontak) yang terpasang.</span></label>
+      </div>
+      <p class="pw-label" id="checklistScore" style="margin-top:14px;">0 dari 6 kebiasaan diterapkan</p>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 16 : Latihan keamanan perangkat ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — KEAMANAN PERANGKAT</p>
+    <h2 class="section-title">Apa yang harus dilakukan?</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>HP-mu hilang di tempat umum dan tidak dikunci layar. Apa risiko terbesar yang bisa terjadi?</b></p>
+      <div id="mcq4"></div>
+      <div class="feedback" id="fb4"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 17 : Langkah perlindungan data pribadi menyeluruh ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RINGKASAN PRAKTIS</p>
+    <h2 class="section-title">4 langkah perlindungan data pribadi</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt"><b>Atur privasi</b> — tinjau ulang siapa yang bisa melihat informasimu di tiap aplikasi.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt"><b>Perkuat kata sandi</b> — gunakan kombinasi rumit &amp; berbeda tiap akun, pertimbangkan password manager.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt"><b>Aktifkan autentikasi 2 langkah</b> — pada semua akun penting (email, media sosial, perbankan).</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt"><b>Amankan perangkat</b> — update rutin, kunci layar, dan hanya instal aplikasi resmi.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 18 : Latihan gabungan studi kasus ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN GABUNGAN — STUDI KASUS</p>
+    <h2 class="section-title">Bagian mana yang perlu diperbaiki?</h2>
+    <p class="body-text">Cocokkan setiap masalah dengan pilar perlindungan data yang paling tepat untuk mengatasinya.</p>
+    <div class="card" id="matchCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 19 : Kuis ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KUIS AKHIR</p>
+    <h2 class="section-title">Uji Pemahaman Menyeluruh</h2>
+    <div class="card" id="quizCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 20 : Refleksi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">REFLEKSI</p>
+    <h2 class="section-title">Yuk, renungkan sejenak</h2>
+    <div class="card">
+      <div class="accordion"><summary>🔍 Pengaturan privasi mana di akunmu yang perlu ditinjau ulang?</summary><div class="acc-body">Coba buka aplikasi media sosialmu dan periksa siapa saja yang bisa melihat profil, lokasi, dan kontakmu.</div></div>
+      <div class="accordion"><summary>🔑 Apakah kata sandimu selama ini cukup kuat?</summary><div class="acc-body">Bandingkan kata sandimu dengan 5 kriteria yang sudah dipelajari — panjang, huruf besar/kecil, angka, dan simbol.</div></div>
+      <div class="accordion"><summary>📲 Akun penting mana yang belum kamu lindungi dengan 2FA?</summary><div class="acc-body">Pikirkan akun email, media sosial, atau perbankan — mana yang paling perlu diaktifkan verifikasi dua langkahnya segera?</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 21 : Rangkuman ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RANGKUMAN</p>
+    <h2 class="section-title">Yang perlu kamu ingat</h2>
+    <div class="grid4">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">🔐</div><h4>Privasi</h4><p>Bagikan informasi seperlunya, kepada orang yang tepat saja.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--violet-soft);">🔑</div><h4>Kata Sandi</h4><p>Panjang, unik, dan kombinasi karakter yang beragam.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--trust-soft);">📲</div><h4>Autentikasi</h4><p>Aktifkan 2FA sebagai lapisan keamanan tambahan.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🛡️</div><h4>Perangkat</h4><p>Selalu perbarui &amp; kunci perangkat, unduh aplikasi resmi saja.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 22 : Penutup ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon" style="background:var(--grad-lock);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#08130F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="eyebrow">PENUTUP</p>
+    <h1 class="slide-title">Selamat! Data pribadimu kini lebih terlindungi 🔐</h1>
+    <p class="lead">Melindungi data pribadi bukan sekali jadi, tapi kebiasaan yang perlu terus dijaga. Mulai dari sekarang, tinjau pengaturan privasimu, perkuat kata sandi, aktifkan 2FA, dan jaga keamanan perangkatmu setiap hari.</p>
+    <button class="btn btn-primary" onclick="goTo(0)">⟲ Ulangi dari Awal</button>
+  </div>
+`);
+
+/* =========================================================
+   RENDER ENGINE
+   ========================================================= */
+const stage = document.getElementById('stage');
 let current = 0;
 
 function render(){
-  slides.forEach((s,i)=> s.classList.toggle('active', i===current));
-  document.getElementById('progressFill').style.width = ((current+1)/total*100)+'%';
-  document.getElementById('counter').textContent = (current+1)+' / '+total;
-  document.getElementById('prevBtn').disabled = current===0;
-  const nextBtn = document.getElementById('nextBtn');
-  if(current===total-1){ nextBtn.textContent='Selesai ✓'; nextBtn.disabled=true; }
-  else{ nextBtn.textContent='Berikutnya →'; nextBtn.disabled=false; }
-  slides[current].scrollTop = 0;
+  stage.innerHTML = slidesData.map((html,i)=>`<section class="slide" data-i="${i}">${html}</section>`).join('');
+  buildDots();
+  goTo(0, true);
 }
-function goTo(i){ current = Math.max(0, Math.min(total-1, i)); render(); }
-function nextSlide(){ if(current<total-1){ current++; render(); } }
-function prevSlide(){ if(current>0){ current--; render(); } }
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = slidesData.map((_,i)=>`<span class="d" data-i="${i}" onclick="goTo(${i})"></span>`).join('');
+}
+
+function goTo(i){
+  if(i<0 || i>=slidesData.length) return;
+  current = i;
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  const el = document.querySelector(`.slide[data-i="${i}"]`);
+  el.classList.add('active');
+  el.scrollTop = 0;
+
+  document.getElementById('progressBar').style.width = ((i+1)/slidesData.length*100)+'%';
+  document.getElementById('slideCounter').textContent = (i+1)+' / '+slidesData.length;
+  document.querySelectorAll('.dots .d').forEach((d,idx)=>{
+    d.classList.toggle('active', idx===i);
+    d.classList.toggle('done', idx<i);
+  });
+  document.getElementById('btnPrev').disabled = (i===0);
+  document.getElementById('btnNext').disabled = (i===slidesData.length-1);
+
+  initSlideWidgets(i);
+}
+
+document.getElementById('btnPrev').addEventListener('click', ()=>goTo(current-1));
+document.getElementById('btnNext').addEventListener('click', ()=>goTo(current+1));
 document.addEventListener('keydown', (e)=>{
-  if(e.key==='ArrowRight') nextSlide();
-  if(e.key==='ArrowLeft') prevSlide();
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
 });
-render();
 
-/* ---------------- Reveal buttons ---------------- */
-function toggleReveal(btn){
-  const content = btn.nextElementSibling;
-  content.classList.toggle('shown');
+/* =========================================================
+   WIDGET INITIALIZERS
+   ========================================================= */
+const initedSlides = new Set();
+
+function initSlideWidgets(i){
+  if(initedSlides.has(i)) return;
+  initedSlides.add(i);
+
+  if(i===5) buildPrivacySim();
+
+  if(i===6) buildMCQ('mcq1','fb1',
+    ['Profil publik penuh, lokasi selalu aktif, nomor HP terlihat semua orang','Profil hanya untuk teman, lokasi dimatikan, nomor HP disembunyikan, 2FA aktif','Menghapus akun sepenuhnya agar 100% aman','Membagikan kata sandi ke teman dekat agar bisa saling membantu'],
+    1,
+    'Tepat! Membatasi profil ke teman saja, mematikan lokasi otomatis, menyembunyikan nomor HP, dan mengaktifkan 2FA memberi keseimbangan antara tetap terhubung dan tetap aman.',
+    'Ingat prinsip "bagikan seperlunya, kepada yang tepat" — pengaturan paling terbuka bukan berarti paling nyaman digunakan.');
+
+  if(i===8) buildPasswordChecker();
+
+  if(i===9) buildMCQ('mcq2','fb2',
+    ['budi2010 (tanggal lahir)','password123','Bnt3ng&Awan99!','12345678'],
+    2,
+    'Benar! "Bnt3ng&Awan99!" menggabungkan huruf besar-kecil, angka, dan simbol, serta tidak mudah ditebak dari data pribadi.',
+    'Hindari kata sandi yang berisi tanggal lahir, kata umum, atau urutan angka sederhana — semua itu mudah ditebak.');
+
+  if(i===11) buildPhoneSim();
+
+  if(i===12) buildMCQ('mcq3','fb3',
+    ['Pelaku langsung bisa masuk tanpa hambatan','Pelaku tetap butuh kode verifikasi tambahan (OTP/biometrik) yang tidak dimilikinya, sehingga sulit masuk','2FA akan otomatis terhapus','Akun akan otomatis diblokir selamanya'],
+    1,
+    'Tepat! Inilah manfaat utama 2FA — meski kata sandi bocor, pelaku tetap terhambat oleh faktor kedua yang hanya dimiliki pemilik akun asli.',
+    'Ingat konsep 2FA: kata sandi saja ("sesuatu yang kamu tahu") tidak cukup tanpa faktor kedua seperti OTP di HP.');
+
+  if(i===14) buildChecklist();
+
+  if(i===15) buildMCQ('mcq4','fb4',
+    ['Tidak ada risiko karena HP mahal pasti aman','Orang lain bisa langsung mengakses foto, akun, dan data pribadi tanpa hambatan apa pun','HP akan otomatis terkunci sendiri','Risiko hanya kehilangan HP-nya saja, data tetap aman'],
+    1,
+    'Benar! Tanpa kunci layar, siapa pun yang menemukan HP bisa langsung mengakses semua aplikasi, foto, dan akun yang tersimpan di dalamnya.',
+    'Ingat: kunci layar adalah garis pertahanan pertama saat perangkat hilang atau dicuri.');
+
+  if(i===17) buildMatchGame();
+
+  if(i===18) buildQuiz();
 }
 
-/* ---------------- Generic MCQ checker ---------------- */
-function checkMcq(btn, isCorrect, fbId){
-  const group = btn.parentElement;
-  [...group.children].forEach(b=>b.classList.add('disabled'));
-  btn.classList.add(isCorrect ? 'correct' : 'wrong');
-  if(!isCorrect){
-    [...group.children].forEach(b=>{
-      if(b.getAttribute('onclick').includes(',true,')) b.classList.add('correct');
+/* ---------- Privacy toggle simulation (Slide 6) ---------- */
+function buildPrivacySim(){
+  const box = document.getElementById('privacySettings');
+  const verdict = document.getElementById('privacyVerdict');
+  function update(){
+    let score = 10;
+    box.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+      const w = parseInt(cb.dataset.w);
+      if(cb.checked) score += w;
     });
+    score = Math.max(0, Math.min(10, score));
+    let level, color, msg;
+    if(score>=8){ level='Sangat Aman'; color='#39D0A8'; msg='Pengaturanmu sudah cukup ketat — informasi pribadi hanya terlihat oleh pihak yang tepat.'; }
+    else if(score>=5){ level='Cukup Aman'; color='var(--amber)'; msg='Lumayan, tapi masih ada celah. Coba matikan berbagi lokasi otomatis dan sembunyikan nomor telepon.'; }
+    else { level='Berisiko'; color='var(--danger)'; msg='Pengaturan ini membuat data pribadimu sangat terbuka untuk umum — sebaiknya batasi visibilitas profil, lokasi, dan nomor telepon segera!'; }
+    verdict.style.background = color+'20';
+    verdict.style.border = '1px solid '+color+'55';
+    verdict.style.color = color;
+    verdict.innerHTML = `<b>Tingkat keamanan: ${level}</b><br>${msg}`;
   }
-  const fb = document.getElementById(fbId);
-  if(fb){
-    fb.textContent = isCorrect ? '✓ Tepat sekali!' : '✗ Belum tepat. Jawaban benar sudah ditandai hijau.';
-    fb.classList.remove('good','bad');
-    fb.classList.add(isCorrect?'good':'bad','shown');
-  }
+  box.querySelectorAll('input[type=checkbox]').forEach(cb=> cb.addEventListener('change', update));
+  update();
 }
 
-/* ---------------- Step-through examples (generic) ---------------- */
-function nextStep(wrapId, btnId){
-  const wrap = document.getElementById(wrapId);
-  const items = [...wrap.children];
-  let activeIdx = items.findIndex(i=>i.classList.contains('active'));
-  if(activeIdx < items.length-1){
-    items[activeIdx].classList.remove('active');
-    items[activeIdx+1].classList.add('active');
-  }
-  if(activeIdx+1 === items.length-1){
-    document.getElementById(btnId).textContent = 'Selesai ✓';
-    document.getElementById(btnId).onclick = null;
-    document.getElementById(btnId).style.opacity = '0.5';
-    document.getElementById(btnId).style.cursor = 'default';
-  }
+/* ---------- MCQ builder ---------- */
+function buildMCQ(mountId, fbId, options, correctIdx, correctMsg, wrongMsg){
+  const mount = document.getElementById(mountId);
+  const fb = document.getElementById(fbId);
+  mount.innerHTML = options.map((opt,idx)=>`<button class="mcq-opt" data-idx="${idx}">${opt}</button>`).join('');
+  mount.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx);
+      mount.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===correctIdx){
+        btn.classList.add('correct');
+        fb.textContent = '✓ '+correctMsg;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        mount.querySelector(`[data-idx="${correctIdx}"]`).classList.add('correct');
+        fb.textContent = '✗ '+wrongMsg;
+        fb.className='feedback show bad';
+      }
+    });
+  });
 }
 
-/* ---------------- Numeric answer checker ---------------- */
-function checkNumeric(inputId, correctVal, fbId){
-  const val = parseFloat(document.getElementById(inputId).value);
-  const fb = document.getElementById(fbId);
-  fb.classList.remove('good','bad');
-  if(isNaN(val)){
-    fb.textContent = 'Isi jawabanmu terlebih dahulu.';
-    fb.classList.add('bad','shown');
+/* ---------- Password strength checker (Slide 9) ---------- */
+function buildPasswordChecker(){
+  const input = document.getElementById('pwInput');
+  const fill = document.getElementById('pwFill');
+  const label = document.getElementById('pwLabel');
+  const rules = document.getElementById('pwRules');
+  input.addEventListener('input', ()=>{
+    const v = input.value;
+    const checks = {
+      len: v.length>=8,
+      upper: /[A-Z]/.test(v),
+      lower: /[a-z]/.test(v),
+      num: /[0-9]/.test(v),
+      sym: /[^A-Za-z0-9]/.test(v),
+    };
+    let score = Object.values(checks).filter(Boolean).length;
+    Object.entries(checks).forEach(([k,met])=>{
+      const el = rules.querySelector(`[data-r="${k}"]`);
+      el.classList.toggle('met', met);
+      el.querySelector('.ic').textContent = met ? '✓' : '○';
+    });
+    if(v.length===0){
+      fill.style.width='0%'; label.textContent='Belum ada kata sandi diketik'; fill.style.background='var(--line)';
+      return;
+    }
+    const pct = (score/5)*100;
+    fill.style.width = pct+'%';
+    let lvl='Sangat Lemah', color='var(--danger)';
+    if(score>=5){lvl='Sangat Kuat'; color='#39D0A8';}
+    else if(score===4){lvl='Kuat'; color='#39D0A8';}
+    else if(score===3){lvl='Cukup'; color='var(--amber)';}
+    else if(score===2){lvl='Lemah'; color='var(--amber)';}
+    fill.style.background = color;
+    label.innerHTML = `Kekuatan: <b style="color:${color}">${lvl}</b> (${score}/5 kriteria terpenuhi)`;
+  });
+}
+
+/* ---------- 2FA phone simulation (Slide 12) ---------- */
+function buildPhoneSim(){
+  const screen = document.getElementById('phoneScreen');
+  let step = 0;
+  const steps = [
+    ()=>`
+      <div class="phone-icon">🔑</div>
+      <div style="font-weight:700; font-size:14.5px;">Langkah 1: Masukkan kata sandi</div>
+      <div style="font-family:var(--font-mono); font-size:12px; color:var(--ink-faint);">Username: siswa_hebat</div>
+      <div style="width:100%; background:var(--panel-soft); border:1px solid var(--line); border-radius:8px; padding:10px; font-family:var(--font-mono); color:var(--ink-dim); font-size:13px;">••••••••••</div>
+      <button class="btn btn-primary" onclick="phoneNext()" style="width:100%; justify-content:center;">Masuk (Login)</button>
+    `,
+    ()=>`
+      <div class="phone-icon">📩</div>
+      <div style="font-weight:700; font-size:14.5px;">Langkah 2: Verifikasi 2 Langkah</div>
+      <div style="font-size:12.5px; color:var(--ink-faint);">Kode OTP telah dikirim ke HP terdaftar. Masukkan 4 digit kode:</div>
+      <div class="otp-boxes">
+        <input maxlength="1" type="text"><input maxlength="1" type="text"><input maxlength="1" type="text"><input maxlength="1" type="text">
+      </div>
+      <button class="btn btn-primary" onclick="phoneNext()" style="width:100%; justify-content:center;">Verifikasi</button>
+    `,
+    ()=>`
+      <div class="phone-icon" style="background:var(--grad-lock);">✅</div>
+      <div style="font-weight:700; font-size:14.5px; color:#39D0A8;">Berhasil masuk dengan aman!</div>
+      <div style="font-size:12.5px; color:var(--ink-faint); line-height:1.6;">Karena akun ini pakai 2FA, meski seseorang tahu kata sandimu, mereka tetap tidak bisa masuk tanpa kode OTP di HP-mu.</div>
+      <button class="btn btn-outline" onclick="phoneReset()" style="width:100%; justify-content:center;">⟲ Ulangi Simulasi</button>
+    `
+  ];
+  window.phoneNext = ()=>{ step = Math.min(step+1, steps.length-1); screen.innerHTML = steps[step](); };
+  window.phoneReset = ()=>{ step = 0; screen.innerHTML = steps[step](); };
+  screen.innerHTML = steps[step]();
+}
+
+/* ---------- Checklist (Slide 15) ---------- */
+function buildChecklist(){
+  const box = document.getElementById('checklistBox');
+  const score = document.getElementById('checklistScore');
+  const items = box.querySelectorAll('.check-item');
+  function update(){
+    const checked = box.querySelectorAll('input:checked').length;
+    score.textContent = `${checked} dari ${items.length} kebiasaan diterapkan`;
+  }
+  items.forEach(item=>{
+    const cb = item.querySelector('input');
+    cb.addEventListener('change', ()=>{
+      item.classList.toggle('checked', cb.checked);
+      update();
+    });
+  });
+}
+
+/* ---------- Matching scenario game (Slide 18) ---------- */
+const matchScenarios = [
+  {s:'Akun media sosial diatur "publik penuh" — lokasi, nomor HP, dan unggahan bisa dilihat siapa saja.', ans:'Pengaturan Privasi'},
+  {s:'Kata sandi yang dipakai adalah "namaayah123" dan sama untuk semua akun.', ans:'Kata Sandi'},
+  {s:'Akun email penting belum mengaktifkan verifikasi dua langkah sama sekali.', ans:'Autentikasi'},
+  {s:'HP tidak pernah diperbarui sistemnya dan tidak dikunci dengan PIN/pola.', ans:'Keamanan Perangkat'},
+];
+const matchOptions = ['Pengaturan Privasi','Kata Sandi','Autentikasi','Keamanan Perangkat'];
+let matchState = {};
+function buildMatchGame(){
+  const card = document.getElementById('matchCard');
+  matchState = {};
+  card.innerHTML = matchScenarios.map((m,idx)=>`
+    <div style="margin-bottom:18px; padding-bottom:16px; ${idx<matchScenarios.length-1?'border-bottom:1px solid var(--line);':''}">
+      <p class="body-text" style="margin-bottom:10px;">${idx+1}. ${m.s}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;" id="matchOpts${idx}">
+        ${matchOptions.map(o=>`<button class="mcq-opt" style="width:auto; display:inline-block; padding:8px 14px; margin-bottom:0;" data-opt="${o}" data-idx="${idx}">${o}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  matchScenarios.forEach((m,idx)=>{
+    document.querySelectorAll(`#matchOpts${idx} button`).forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(matchState[idx]) return;
+        matchState[idx]=true;
+        const opt = btn.dataset.opt;
+        document.querySelectorAll(`#matchOpts${idx} button`).forEach(b=>b.disabled=true);
+        if(opt===m.ans){ btn.classList.add('correct'); }
+        else{
+          btn.classList.add('wrong');
+          document.querySelector(`#matchOpts${idx} [data-opt="${m.ans}"]`).classList.add('correct');
+        }
+      });
+    });
+  });
+}
+
+/* =========================================================
+   QUIZ (Slide 19)
+   ========================================================= */
+const quizQuestions = [
+  {
+    q:'Prinsip utama dalam mengatur privasi di media sosial adalah…',
+    opts:['Membagikan semua informasi agar terlihat aktif','Membagikan informasi seperlunya, kepada orang yang tepat','Menonaktifkan seluruh akun media sosial','Selalu mengaktifkan berbagi lokasi otomatis'],
+    correct:1,
+    exp:'Prinsip privasi yang baik adalah membagikan informasi secukupnya dan hanya kepada pihak yang memang perlu mengetahuinya.'
+  },
+  {
+    q:'Kata sandi yang paling aman adalah yang…',
+    opts:['Mudah diingat meski sama untuk semua akun','Menggunakan tanggal lahir agar mudah diingat','Panjang, unik, dan mengombinasikan huruf besar-kecil, angka, dan simbol','Terdiri dari angka berurutan seperti 123456'],
+    correct:2,
+    exp:'Kombinasi karakter yang beragam dan panjang membuat kata sandi jauh lebih sulit ditebak atau dibobol.'
+  },
+  {
+    q:'Manfaat utama autentikasi dua langkah (2FA) adalah…',
+    opts:['Membuat login jadi lebih lambat tanpa manfaat lain','Menambah lapisan keamanan sehingga akun tetap terlindungi walau kata sandi bocor','Mengganti kata sandi secara otomatis','Menghapus kebutuhan akan kata sandi sama sekali'],
+    correct:1,
+    exp:'2FA menambahkan faktor verifikasi kedua, sehingga akun tetap aman meski kata sandi diketahui orang lain.'
+  },
+  {
+    q:'Langkah paling penting untuk keamanan perangkat adalah…',
+    opts:['Menginstal semua aplikasi tanpa memeriksa sumbernya','Membiarkan sistem operasi tidak pernah diperbarui','Mengunci layar dan memperbarui sistem secara rutin','Menyambungkan perangkat ke charger publik sesering mungkin'],
+    correct:2,
+    exp:'Mengunci layar dan rutin memperbarui sistem menutup celah keamanan yang sering dimanfaatkan pelaku kejahatan siber.'
+  },
+  {
+    q:'Contoh "sesuatu yang kamu punya" dalam autentikasi berlapis adalah…',
+    opts:['Kata sandi','Kode OTP yang dikirim ke HP','Nama pengguna (username)','Alamat email'],
+    correct:1,
+    exp:'Kode OTP di HP adalah contoh faktor "sesuatu yang kamu punya", berbeda dari kata sandi yang termasuk "sesuatu yang kamu tahu".'
+  },
+  {
+    q:'Jika HP hilang tanpa kunci layar, risiko terbesarnya adalah…',
+    opts:['Baterai HP akan cepat habis','Orang lain bisa langsung mengakses akun, foto, dan data pribadi di dalamnya','HP akan otomatis reset ke pengaturan pabrik','Tidak ada risiko selama HP mahal'],
+    correct:1,
+    exp:'Tanpa kunci layar, siapa pun yang menemukan HP dapat mengakses seluruh data dan akun yang tersimpan di dalamnya.'
+  }
+];
+let quizState = { idx:0, score:0, answered:false };
+
+function buildQuiz(){
+  quizState = { idx:0, score:0, answered:false };
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const card = document.getElementById('quizCard');
+  if(quizState.idx >= quizQuestions.length){
+    renderQuizResult();
     return;
   }
-  if(Math.abs(val-correctVal) < 0.05){
-    fb.textContent = '✓ Benar! Jawabannya adalah '+correctVal+'.';
-    fb.classList.add('good','shown');
-  } else {
-    fb.textContent = '✗ Belum tepat. Coba periksa kembali perhitunganmu.';
-    fb.classList.add('bad','shown');
-  }
-}
-
-/* ---------------- Generic bar chart renderer ---------------- */
-function renderBarSVG(id, data, opts){
-  opts = opts || {};
-  const w = opts.width || 380, h = opts.height || 210;
-  const padLeft = 34, padBottom = 32, padTop = 26;
-  const chartW = w - padLeft - 14;
-  const chartH = h - padBottom - padTop;
-  const rawMax = Math.max(...data.map(d=>d.val));
-  const maxVal = opts.max || rawMax*1.2;
-  const n = data.length;
-  const gap = chartW/n;
-  const barW = gap*0.55;
-  let bars = '';
-  data.forEach((d,i)=>{
-    const bh = (d.val/maxVal)*chartH;
-    const x = padLeft + i*gap + (gap-barW)/2;
-    const y = padTop + (chartH-bh);
-    const color = d.color || '#2dd4e8';
-    const clickAttr = opts.onClick ? ' onclick="'+opts.onClick+'('+i+')" style="cursor:pointer;"' : '';
-    bars += '<rect data-idx="'+i+'" x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+color+'" rx="3"'+clickAttr+'></rect>';
-    bars += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-7).toFixed(1)+'" font-size="11" fill="#e8eaf2" text-anchor="middle">'+d.val+'</text>';
-    bars += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(h-padBottom+16).toFixed(1)+'" font-size="10.5" fill="#98a0b8" text-anchor="middle">'+d.label+'</text>';
-  });
-  const axis = '<line x1="'+padLeft+'" y1="'+padTop+'" x2="'+padLeft+'" y2="'+(h-padBottom)+'" stroke="#2b3247" stroke-width="1.5"/><line x1="'+padLeft+'" y1="'+(h-padBottom)+'" x2="'+(w-6)+'" y2="'+(h-padBottom)+'" stroke="#2b3247" stroke-width="1.5"/>';
-  document.getElementById(id).innerHTML = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:'+w+'px;">'+axis+bars+'</svg>';
-}
-
-function renderGroupedBarSVG(id, categories, seriesA, seriesB, opts){
-  opts = opts || {};
-  const w = opts.width || 420, h = opts.height || 220;
-  const padLeft = 36, padBottom = 32, padTop = 26;
-  const chartW = w - padLeft - 14;
-  const chartH = h - padBottom - padTop;
-  const allVals = seriesA.vals.concat(seriesB.vals);
-  const maxVal = opts.max || Math.max(...allVals)*1.2;
-  const n = categories.length;
-  const gap = chartW/n;
-  const barW = gap*0.32;
-  let bars = '';
-  categories.forEach((cat,i)=>{
-    const groupX = padLeft + i*gap + gap*0.18;
-    [ [seriesA.vals[i], seriesA.color, 0], [seriesB.vals[i], seriesB.color, 1] ].forEach(([val,color,offsetIdx])=>{
-      const bh = (val/maxVal)*chartH;
-      const x = groupX + offsetIdx*(barW+4);
-      const y = padTop + (chartH-bh);
-      bars += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+bh.toFixed(1)+'" fill="'+color+'" rx="2.5"></rect>';
-      bars += '<text x="'+(x+barW/2).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" font-size="9.5" fill="#e8eaf2" text-anchor="middle">'+val+'</text>';
+  const q = quizQuestions[quizState.idx];
+  card.innerHTML = `
+    <div class="quiz-progress">Soal ${quizState.idx+1} dari ${quizQuestions.length}</div>
+    <p class="body-text" style="margin-bottom:14px; color:var(--ink); font-weight:700; font-size:16px;">${q.q}</p>
+    <div id="quizOpts"></div>
+    <div class="feedback" id="quizFb"></div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="btn btn-primary" id="quizNextBtn" style="display:none;">Lanjut →</button>
+    </div>
+  `;
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = q.opts.map((o,idx)=>`<button class="mcq-opt" data-idx="${idx}">${o}</button>`).join('');
+  quizState.answered = false;
+  opts.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quizState.answered) return;
+      quizState.answered = true;
+      const idx = parseInt(btn.dataset.idx);
+      const fb = document.getElementById('quizFb');
+      opts.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===q.correct){
+        btn.classList.add('correct');
+        quizState.score++;
+        fb.textContent = '✓ Benar! '+q.exp;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        opts.querySelector(`[data-idx="${q.correct}"]`).classList.add('correct');
+        fb.textContent = '✗ Kurang tepat. '+q.exp;
+        fb.className='feedback show bad';
+      }
+      document.getElementById('quizNextBtn').style.display='inline-flex';
     });
-    bars += '<text x="'+(groupX+barW).toFixed(1)+'" y="'+(h-padBottom+16).toFixed(1)+'" font-size="10.5" fill="#98a0b8" text-anchor="middle">'+cat+'</text>';
   });
-  const axis = '<line x1="'+padLeft+'" y1="'+padTop+'" x2="'+padLeft+'" y2="'+(h-padBottom)+'" stroke="#2b3247" stroke-width="1.5"/><line x1="'+padLeft+'" y1="'+(h-padBottom)+'" x2="'+(w-6)+'" y2="'+(h-padBottom)+'" stroke="#2b3247" stroke-width="1.5"/>';
-  document.getElementById(id).innerHTML = '<svg viewBox="0 0 '+w+' '+h+'" width="100%" style="max-width:'+w+'px;">'+axis+bars+'</svg>';
-}
-
-/* ---------------- Data sets ---------------- */
-const perpusData = [
-  {label:'Sen', val:15, color:'#2dd4e8'},
-  {label:'Sel', val:22, color:'#2dd4e8'},
-  {label:'Rab', val:18, color:'#2dd4e8'},
-  {label:'Kam', val:25, color:'#2dd4e8'},
-  {label:'Jum', val:12, color:'#2dd4e8'}
-];
-const ekskulData = [
-  {label:'Pramuka', val:30, color:'#f5b942'},
-  {label:'Basket', val:18, color:'#f5b942'},
-  {label:'Paduan Suara', val:12, color:'#f5b942'},
-  {label:'Robotik', val:24, color:'#f5b942'}
-];
-const iceCreamData = [
-  {label:'Jan', val:10, color:'#2dd4e8'},
-  {label:'Feb', val:14, color:'#2dd4e8'},
-  {label:'Mar', val:18, color:'#f5b942'},
-  {label:'Apr', val:25, color:'#f5b942'},
-  {label:'Mei', val:32, color:'#f5b942'}
-];
-const compareCategories = ['Jan','Feb','Mar','Apr'];
-const compare2024 = {vals:[100,130,110,150], color:'#2dd4e8'};
-const compare2025 = {vals:[120,135,150,155], color:'#f5b942'};
-
-/* render static charts on load */
-renderBarSVG('chartIntro', perpusData, {width:400,height:210});
-renderBarSVG('chartUnsur', perpusData, {width:400,height:210});
-renderBarSVG('chartRead', perpusData, {width:400,height:210});
-renderBarSVG('chartValue', perpusData, {width:400,height:210});
-renderBarSVG('chartInterpret', iceCreamData, {width:400,height:210});
-renderGroupedBarSVG('chartCompare', compareCategories, compare2024, compare2025, {width:420,height:220});
-
-/* ---------------- Build steps chart reveal ---------------- */
-function nextStepBuild(){
-  nextStep('stepsBuild','stepBtnBuild');
-  const wrap = document.getElementById('stepsBuild');
-  const items = [...wrap.children];
-  const activeIdx = items.findIndex(i=>i.classList.contains('active'));
-  if(activeIdx === items.length-1){
-    renderBarSVG('chartBuildResult', ekskulData, {width:360,height:200});
-  }
-}
-
-/* ---------------- Interactive builder ---------------- */
-function updateBuilder(){
-  const fiksi = parseInt(document.getElementById('slFiksi').value);
-  const nonfiksi = parseInt(document.getElementById('slNonfiksi').value);
-  const majalah = parseInt(document.getElementById('slMajalah').value);
-  const komik = parseInt(document.getElementById('slKomik').value);
-  document.getElementById('valFiksi').textContent = fiksi;
-  document.getElementById('valNonfiksi').textContent = nonfiksi;
-  document.getElementById('valMajalah').textContent = majalah;
-  document.getElementById('valKomik').textContent = komik;
-  renderBarSVG('chartBuilder', [
-    {label:'Fiksi', val:fiksi, color:'#2dd4e8'},
-    {label:'Nonfiksi', val:nonfiksi, color:'#f5b942'},
-    {label:'Majalah', val:majalah, color:'#2dd4e8'},
-    {label:'Komik', val:komik, color:'#f5b942'}
-  ], {width:400,height:210, max:44});
-}
-updateBuilder();
-
-/* ---------------- Terbesar & terkecil interactive ---------------- */
-let foundMax = false, foundMin = false;
-const maxIdx = perpusData.reduce((best,d,i,arr)=> d.val>arr[best].val?i:best, 0);
-const minIdx = perpusData.reduce((best,d,i,arr)=> d.val<arr[best].val?i:best, 0);
-function renderMinMaxChart(){
-  const data = perpusData.map((d,i)=>{
-    let color = '#2dd4e8';
-    if(i===maxIdx && foundMax) color = '#4fd67a';
-    if(i===minIdx && foundMin) color = '#f5b942';
-    return {label:d.label, val:d.val, color};
+  document.getElementById('quizNextBtn').addEventListener('click', ()=>{
+    quizState.idx++;
+    renderQuizQuestion();
   });
-  renderBarSVG('chartMinMax', data, {width:400,height:210,onClick:'handleMinMaxClick'});
-}
-function handleMinMaxClick(i){
-  const status = document.getElementById('minMaxStatus');
-  if(i===maxIdx && !foundMax){
-    foundMax = true;
-    status.textContent = '✓ Benar, batang hari Kamis (25) adalah yang TERTINGGI. Sekarang klik batang yang PALING PENDEK (nilai terkecil).';
-    status.className = 'status-line good';
-  } else if(i===minIdx && !foundMin){
-    foundMin = true;
-    status.textContent = foundMax ? '✓ Mantap! Kamu sudah menemukan keduanya: Kamis (terbesar) dan Jumat (terkecil).' : '✓ Benar, batang hari Jumat (12) adalah yang TERPENDEK. Sekarang klik batang yang PALING TINGGI (nilai terbesar).';
-    status.className = 'status-line good';
-  } else if(foundMax && foundMin){
-    status.textContent = 'Kamu sudah menyelesaikan aktivitas ini. Lanjutkan ke slide berikutnya!';
-    status.className = 'status-line good';
-  } else {
-    status.textContent = '✗ Coba lagi, perhatikan baik-baik tinggi setiap batang.';
-    status.className = 'status-line bad';
-  }
-  renderMinMaxChart();
-}
-renderMinMaxChart();
-
-/* ---------------- Quiz ---------------- */
-const quizData = [
-  {q:"Diagram batang paling tepat digunakan untuk menyajikan data yang bersifat...", opts:["Kategorik yang akan dibandingkan jumlahnya","Data yang terus-menerus tanpa jeda waktu","Data hubungan sebab akibat","Data acak tanpa pola tertentu"], correct:0,
-   exp:"Diagram batang cocok untuk membandingkan nilai antar kategori yang terpisah, misalnya per hari atau per jenis barang."},
-  {q:"Berikut ini yang BUKAN merupakan unsur diagram batang adalah...", opts:["Judul diagram","Sumbu-X dan sumbu-Y","Batang dengan tinggi sesuai data","Gradasi warna pelangi pada setiap batang"], correct:3,
-   exp:"Judul, sumbu, dan batang adalah unsur wajib. Gradasi warna pelangi hanyalah hiasan, bukan unsur yang menentukan makna data."},
-  {q:"Data kunjungan perpustakaan: Senin 15, Selasa 22, Rabu 18, Kamis 25, Jumat 12. Total kunjungan pada hari Selasa dan Kamis adalah...", opts:["37","40","47","33"], correct:2,
-   exp:"22 + 25 = 47."},
-  {q:"Dari data yang sama, hari dengan kunjungan TERBANYAK adalah...", opts:["Senin","Selasa","Rabu","Kamis"], correct:3,
-   exp:"Kamis memiliki nilai tertinggi, yaitu 25 kunjungan."},
-  {q:"Dari data yang sama, hari dengan kunjungan PALING SEDIKIT adalah...", opts:["Senin (15)","Rabu (18)","Jumat (12)","Kamis (25)"], correct:2,
-   exp:"Jumat memiliki nilai terendah, yaitu 12 kunjungan."},
-  {q:"Selisih kunjungan tertinggi (Kamis = 25) dan terendah (Jumat = 12) adalah...", opts:["10","13","15","17"], correct:1,
-   exp:"25 - 12 = 13."},
-  {q:"Skala pada sumbu diagram batang berfungsi untuk...", opts:["Menentukan warna batang","Membantu membaca nilai data secara tepat","Menentukan jumlah batang yang dibuat","Mengganti fungsi judul diagram"], correct:1,
-   exp:"Skala pada sumbu-Y membantu pembaca memperkirakan dan membaca nilai setiap batang dengan tepat."},
-  {q:"Jika diagram batang menunjukkan tren kenaikan terus-menerus dari bulan ke bulan, maka dapat ditafsirkan bahwa...", opts:["Data tersebut mengalami peningkatan seiring waktu","Data tersebut tidak dapat dibaca","Semua nilai data besarnya sama","Terjadi kesalahan dalam pembuatan diagram"], correct:0,
-   exp:"Pola batang yang terus meninggi dari waktu ke waktu menunjukkan adanya tren peningkatan nilai data."}
-];
-let quizIdx = 0, quizScore = 0, quizAnswered = false;
-
-function renderQuiz(){
-  const area = document.getElementById('quizArea');
-  const item = quizData[quizIdx];
-  let dots = '';
-  for(let i=0;i<quizData.length;i++){
-    let cls = i<quizIdx ? 'done' : (i===quizIdx ? 'active' : '');
-    dots += '<div class="quiz-dot '+cls+'"></div>';
-  }
-  let optsHtml = '';
-  item.opts.forEach((o,i)=>{
-    optsHtml += '<button class="mcq-opt" onclick="answerQuiz('+i+')">'+o+'</button>';
-  });
-  area.innerHTML =
-    '<div class="quiz-progress">'+dots+'</div>'+
-    '<div class="card">'+
-      '<p style="margin:0 0 4px; color:var(--text-faint); font-size:12.5px;" class="mono">SOAL '+(quizIdx+1)+' DARI '+quizData.length+'</p>'+
-      '<p style="margin:0 0 12px; font-weight:600; font-size:16px;">'+item.q+'</p>'+
-      '<div class="mcq-opts">'+optsHtml+'</div>'+
-      '<div class="feedback" id="quizFb"></div>'+
-    '</div>';
-  quizAnswered = false;
 }
 
-function answerQuiz(i){
-  if(quizAnswered) return;
-  quizAnswered = true;
-  const item = quizData[quizIdx];
-  const opts = document.querySelectorAll('#quizArea .mcq-opt');
-  opts.forEach((b,idx)=>{
-    b.classList.add('disabled');
-    if(idx===item.correct) b.classList.add('correct');
-    else if(idx===i) b.classList.add('wrong');
-  });
-  const correct = (i===item.correct);
-  if(correct) quizScore++;
-  const fb = document.getElementById('quizFb');
-  fb.classList.add('shown', correct?'good':'bad');
-  fb.innerHTML = (correct?'✓ Benar! ':'✗ Belum tepat. ') + item.exp;
+function renderQuizResult(){
+  const card = document.getElementById('quizCard');
+  const pct = Math.round(quizState.score/quizQuestions.length*100);
+  let msg = 'Terus berlatih ya — lindungi data pribadimu mulai dari kebiasaan kecil setiap hari!';
+  if(pct>=80) msg = 'Luar biasa! Kamu sudah sangat memahami cara melindungi data pribadi. 🔐';
+  else if(pct>=60) msg = 'Bagus! Pemahamanmu cukup baik, coba tinjau lagi bagian yang masih salah.';
+  card.innerHTML = `
+    <div class="quiz-score-ring" style="--pct:${pct}"><span class="score-txt">${pct}%</span><span class="score-sub">${quizState.score}/${quizQuestions.length} benar</span></div>
+    <p class="body-text" style="text-align:center;">${msg}</p>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-outline" onclick="buildQuiz()">⟲ Ulangi Kuis</button>
+    </div>
+  `;
+}
 
-  const area = document.getElementById('quizArea');
-  const nextWrap = document.createElement('div');
-  nextWrap.style.marginTop = '14px';
-  const isLast = quizIdx === quizData.length-1;
-  nextWrap.innerHTML = '<button class="navbtn primary" onclick="'+(isLast?'showQuizResult()':'nextQuiz()')+'">'+(isLast?'Lihat hasil akhir →':'Soal berikutnya →')+'</button>';
-  area.appendChild(nextWrap);
-}
-function nextQuiz(){ quizIdx++; renderQuiz(); }
-function showQuizResult(){
-  const area = document.getElementById('quizArea');
-  const pct = Math.round((quizScore/quizData.length)*100);
-  let msg = pct>=80 ? 'Luar biasa! Pemahamanmu sangat baik.' : pct>=60 ? 'Bagus! Sedikit lagi lebih mantap.' : 'Yuk pelajari lagi materi sebelumnya, lalu coba lagi.';
-  area.innerHTML =
-    '<div class="quiz-result">'+
-      '<div class="badge amber" style="margin:0 auto;">HASIL KUIS</div>'+
-      '<div class="score-big">'+quizScore+' / '+quizData.length+'</div>'+
-      '<p style="color:var(--text-dim);">'+msg+'</p>'+
-      '<button class="navbtn primary" onclick="resetQuiz()">↺ Ulangi Kuis</button>'+
-    '</div>';
-}
-function resetQuiz(){ quizIdx=0; quizScore=0; renderQuiz(); }
-renderQuiz();
+/* =========================================================
+   INIT
+   ========================================================= */
+render();
 </script>
 </body>
 </html>

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mengenali Data Pribadi dan Privasi — Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#100B14;
+    --bg-1:#161020;
+    --panel:#1B1428;
+    --panel-soft:#20182F;
+    --line:#332A45;
+    --ink:#F3EEFB;
+    --ink-dim:#B4A9C9;
+    --ink-faint:#79708F;
+    --rose:#F2508A;
+    --rose-soft:#F2508A20;
+    --crimson:#E8384F;
+    --crimson-soft:#E8384F20;
+    --teal:#3DD9C4;
+    --teal-soft:#3DD9C420;
+    --amber:#F2A63D;
+    --amber-soft:#F2A63D20;
+    --grad-rose: linear-gradient(135deg,#F2508A,#F2833D);
+    --grad-crimson: linear-gradient(135deg,#E8384F,#F2508A);
+    --grad-teal: linear-gradient(135deg,#3DD9C4,#3D8CF2);
+    --radius-lg:22px;
+    --radius-md:14px;
+    --radius-sm:9px;
+    --font-title:'Fredoka',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-mono:'JetBrains Mono',monospace;
+    --shadow-soft: 0 20px 60px -20px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1000px 560px at 90% -10%, #2A1730 0%, transparent 58%),
+      radial-gradient(900px 520px at -10% 108%, #17202E 0%, transparent 55%),
+      var(--bg-0);
+    color:var(--ink);
+    font-family:var(--font-body);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  #app{height:100vh; display:flex; flex-direction:column;}
+
+  header.top{display:flex; align-items:center; gap:16px; padding:14px clamp(16px,4vw,40px); border-bottom:1px solid var(--line); background:linear-gradient(180deg, rgba(22,16,32,.92), rgba(22,16,32,.5)); backdrop-filter:blur(6px); z-index:20;}
+  .brand{display:flex;align-items:center;gap:10px; font-family:var(--font-title); font-weight:600; font-size:15px; color:var(--ink); white-space:nowrap;}
+  .brand .dot{width:10px;height:10px;border-radius:50%; background:var(--grad-rose); box-shadow:0 0 0 4px var(--rose-soft); flex:none;}
+  .brand small{display:block;font-family:var(--font-body);font-weight:500;color:var(--ink-faint);font-size:11px;margin-top:1px;}
+
+  .progress-wrap{flex:1; height:8px; background:var(--panel-soft); border-radius:99px; overflow:hidden; position:relative; border:1px solid var(--line);}
+  .progress-bar{height:100%; width:0%; background:var(--grad-rose); border-radius:99px; transition:width .45s cubic-bezier(.4,0,.2,1);}
+  .slide-counter{font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; min-width:56px; text-align:right;}
+
+  main.stage{flex:1; position:relative; overflow:hidden;}
+  .slide{position:absolute; inset:0; display:none; overflow-y:auto; padding:clamp(20px,5vw,56px) clamp(16px,7vw,120px) 40px;}
+  .slide.active{display:block; animation:rise .5s cubic-bezier(.22,1,.36,1);}
+  @keyframes rise{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:translateY(0);}}
+  .slide-inner{max-width:980px; margin:0 auto; min-height:100%; display:flex; flex-direction:column; justify-content:center;}
+
+  .eyebrow{font-family:var(--font-mono); font-size:12px; letter-spacing:.03em; color:var(--rose); margin:0 0 10px;}
+  h1.slide-title{font-family:var(--font-title); font-weight:600; font-size:clamp(26px,4.4vw,44px); line-height:1.12; margin:0 0 14px; color:var(--ink);}
+  h2.section-title{font-family:var(--font-title); font-weight:600; font-size:clamp(21px,3vw,30px); margin:0 0 12px; color:var(--ink);}
+  p.lead{font-size:clamp(15px,2vw,18px); line-height:1.65; color:var(--ink-dim); max-width:70ch; margin:0 0 20px;}
+  p.body-text{font-size:15.5px; line-height:1.7; color:var(--ink-dim); margin:0 0 14px; max-width:72ch;}
+  strong.hl{color:var(--rose); font-weight:700;}
+  strong.hl-crimson{color:var(--crimson); font-weight:700;}
+  strong.hl-teal{color:var(--teal); font-weight:700;}
+
+  .card{background:linear-gradient(180deg, var(--panel), var(--panel-soft)); border:1px solid var(--line); border-radius:var(--radius-lg); padding:clamp(18px,3vw,30px); box-shadow:var(--shadow-soft);}
+  .card + .card{margin-top:16px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .grid4{display:grid; grid-template-columns:repeat(4,1fr); gap:12px;}
+  @media (max-width:760px){ .grid2{grid-template-columns:1fr;} .grid3{grid-template-columns:1fr;} .grid4{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .grid4{grid-template-columns:1fr;} }
+
+  .tag{display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11.5px; padding:4px 10px; border-radius:99px; background:var(--rose-soft); color:var(--rose); border:1px solid #F2508A55;}
+  .tag-crimson{background:var(--crimson-soft); color:var(--crimson); border-color:#E8384F55;}
+  .tag-teal{background:var(--teal-soft); color:var(--teal); border-color:#3DD9C455;}
+  .tag-amber{background:var(--amber-soft); color:var(--amber); border-color:#F2A63D55;}
+
+  .btn{font-family:var(--font-body); font-weight:700; font-size:14px; border:none; cursor:pointer; padding:11px 20px; border-radius:99px; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;}
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--grad-rose); color:#1F0A10;}
+  .btn-primary:hover{box-shadow:0 8px 22px -6px #F2508A77;}
+  .btn-outline{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  .btn-outline:hover{border-color:var(--rose); color:var(--rose);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn-sm{padding:7px 13px; font-size:12.5px;}
+
+  footer.bottom-nav{display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px clamp(16px,4vw,40px); border-top:1px solid var(--line); background:linear-gradient(0deg, rgba(22,16,32,.94), rgba(22,16,32,.55)); backdrop-filter:blur(6px); z-index:20;}
+  .nav-group{display:flex; align-items:center; gap:10px;}
+  .dots{display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; max-width:46vw;}
+  .dots .d{width:7px;height:7px;border-radius:50%; background:var(--line); cursor:pointer; transition:all .2s ease; flex:none;}
+  .dots .d.active{width:20px; border-radius:5px; background:var(--grad-rose);}
+  .dots .d.done{background:var(--teal);}
+  .hint-key{display:none; font-family:var(--font-mono); font-size:11px; color:var(--ink-faint);}
+  @media (min-width:900px){ .hint-key{display:block;} }
+
+  .accordion{border:1px solid var(--line); border-radius:var(--radius-md); overflow:hidden; margin-bottom:10px; background:var(--bg-1);}
+  .accordion summary{list-style:none; cursor:pointer; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; font-weight:700; font-size:14.5px; color:var(--ink);}
+  .accordion summary::-webkit-details-marker{display:none;}
+  .accordion summary:after{content:'+'; font-family:var(--font-mono); color:var(--rose); font-size:18px; transition:transform .25s ease;}
+  .accordion[open] summary:after{transform:rotate(45deg);}
+  .accordion .acc-body{padding:0 16px 16px; color:var(--ink-dim); font-size:14.5px; line-height:1.65;}
+
+  .reveal-box{border:1px dashed var(--line); border-radius:var(--radius-md); padding:14px 16px; cursor:pointer; background:var(--bg-1); transition:border-color .2s ease;}
+  .reveal-box:hover{border-color:var(--rose);}
+  .reveal-box .rq{font-weight:700; color:var(--ink); font-size:14.5px;}
+  .reveal-box .ra{display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--line); color:var(--rose); font-size:14px; line-height:1.6;}
+  .reveal-box.open .ra{display:block;}
+  .reveal-box .ra::before{content:'✓ '; font-weight:700;}
+  .reveal-hint{font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); margin-top:6px;}
+
+  .mcq-opt{display:block; width:100%; text-align:left; padding:12px 14px; margin-bottom:8px; border-radius:var(--radius-sm); border:1px solid var(--line); background:var(--bg-1); color:var(--ink); font-family:var(--font-body); font-size:14.5px; cursor:pointer; transition:all .15s ease;}
+  .mcq-opt:hover{border-color:var(--teal);}
+  .mcq-opt.correct{border-color:var(--teal); background:var(--teal-soft); color:var(--teal);}
+  .mcq-opt.wrong{border-color:var(--crimson); background:var(--crimson-soft); color:var(--crimson);}
+  .mcq-opt:disabled{cursor:default;}
+  .feedback{margin-top:10px; font-size:14px; line-height:1.6; padding:12px 14px; border-radius:var(--radius-sm); display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--teal-soft); color:var(--teal); border:1px solid #3DD9C455;}
+  .feedback.bad{background:var(--crimson-soft); color:var(--crimson); border:1px solid #E8384F55;}
+
+  .stepper{display:flex; flex-direction:column; gap:10px;}
+  .step-item{display:flex; gap:12px; align-items:flex-start; border:1px solid var(--line); border-radius:var(--radius-md); padding:12px 14px; background:var(--bg-1);}
+  .step-num{flex:none; width:26px; height:26px; border-radius:50%; background:var(--grad-rose); color:#1F0A10; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-weight:700; font-size:12.5px;}
+  .step-txt{font-size:14.5px; color:var(--ink-dim); line-height:1.6; padding-top:3px;}
+  .step-txt b{color:var(--ink);}
+
+  .quiz-progress{font-family:var(--font-mono); font-size:12.5px; color:var(--ink-faint); margin-bottom:10px;}
+  .quiz-score-ring{width:140px; height:140px; margin:0 auto 18px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; background:conic-gradient(var(--rose) calc(var(--pct,0)*1%), var(--panel-soft) 0); position:relative;}
+  .quiz-score-ring::before{content:''; position:absolute; inset:9px; border-radius:50%; background:var(--bg-1);}
+  .quiz-score-ring .score-txt{position:relative; font-family:var(--font-title); font-size:26px; font-weight:600; color:var(--ink);}
+  .quiz-score-ring .score-sub{position:relative; font-size:11px; color:var(--ink-faint);}
+
+  .info-card{border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; background:var(--bg-1);}
+  .info-card .ic-wrap{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;}
+  .info-card h4{font-family:var(--font-title); font-weight:600; font-size:16px; margin:0 0 6px; color:var(--ink);}
+  .info-card p{font-size:13.5px; color:var(--ink-dim); line-height:1.6; margin:0;}
+
+  /* Classification game */
+  .sort-item{border:1px solid var(--line); border-radius:var(--radius-md); padding:13px 16px; background:var(--bg-1); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .sort-item .si-txt{font-size:14px; color:var(--ink); flex:1; min-width:160px;}
+  .sort-item .si-btns{display:flex; gap:8px;}
+  .sort-btn{font-family:var(--font-mono); font-size:11.5px; padding:7px 12px; border-radius:99px; border:1px solid var(--line); background:var(--bg-0); color:var(--ink-dim); cursor:pointer;}
+  .sort-btn:hover{border-color:var(--rose);}
+  .sort-item.done .sort-btn{cursor:default;}
+  .sort-item.correct{border-color:var(--teal); background:var(--teal-soft);}
+  .sort-item.wrong{border-color:var(--crimson); background:var(--crimson-soft);}
+  .sort-badge{font-family:var(--font-mono); font-size:11px; padding:3px 9px; border-radius:99px; display:none;}
+  .sort-item.done .sort-badge{display:inline-block;}
+  .sort-score{font-family:var(--font-mono); font-size:13px; color:var(--ink-dim); margin-top:6px;}
+
+  .footprint-grid{display:flex; flex-direction:column; gap:10px;}
+
+  ::-webkit-scrollbar{width:9px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:99px;}
+
+  .kbd{font-family:var(--font-mono); font-size:11px; border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:1px 6px; color:var(--ink-dim);}
+
+  .cover-hero{display:flex; flex-direction:column; align-items:flex-start; gap:18px;}
+  .cover-icon{width:64px; height:64px; border-radius:18px; background:var(--grad-rose); display:flex; align-items:center; justify-content:center; box-shadow:0 14px 34px -10px #F2508A66;}
+  .cover-meta{display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;}
+
+  @media (max-width:600px){
+    .brand small{display:none;}
+    .quiz-score-ring{width:120px; height:120px;}
+    .sort-item{flex-direction:column; align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        Bab 4 — Manajemen Keamanan Data
+        <small>4.2 Data Pribadi • Data Sensitif • Privasi Digital • Risiko</small>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="slide-counter" id="slideCounter">1 / 1</div>
+  </header>
+
+  <main class="stage" id="stage"></main>
+
+  <footer class="bottom-nav">
+    <button class="btn btn-outline" id="btnPrev">← Sebelumnya</button>
+    <div class="nav-group"><div class="dots" id="dots"></div></div>
+    <div class="nav-group">
+      <span class="hint-key"><span class="kbd">←</span> / <span class="kbd">→</span> untuk navigasi</span>
+      <button class="btn btn-primary" id="btnNext">Berikutnya →</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+/* =========================================================
+   DATA MATERI
+   ========================================================= */
+const slidesData = [];
+function addSlide(html){ slidesData.push(html); }
+
+/* ---------- Slide 1 : Cover ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8" r="3.4" stroke="#1F0A10" stroke-width="2"/>
+        <path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7" stroke="#1F0A10" stroke-width="2" stroke-linecap="round"/>
+        <path d="M4 4l16 16" stroke="#1F0A10" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+      </svg>
+    </div>
+    <p class="eyebrow">BAB 4 — MANAJEMEN KEAMANAN DATA DAN PERLINDUNGAN PRIVASI · 4.2</p>
+    <h1 class="slide-title">Mengenali Data Pribadi dan Privasi</h1>
+    <p class="lead">Sebelum bisa melindungi data pribadi, kita harus tahu dulu: apa saja yang termasuk data pribadi, mana yang tergolong data sensitif, apa itu privasi digital, dan risiko apa yang mengintai jika data disalahgunakan.</p>
+    <div class="cover-meta">
+      <span class="tag">🪪 Jenis Data Pribadi</span>
+      <span class="tag tag-crimson">🔴 Data Sensitif</span>
+      <span class="tag tag-teal">🕶️ Privasi Digital</span>
+      <span class="tag tag-amber">⚠️ Risiko Penyalahgunaan</span>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 2 : Apersepsi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">APERSEPSI</p>
+    <h2 class="section-title">Coba isi formulir berikut (dalam bayangan)</h2>
+    <p class="body-text">Sebuah aplikasi kuis online meminta kamu mengisi: nama lengkap, tanggal lahir, nomor HP, golongan darah, dan riwayat penyakit — hanya untuk "ikut kuis berhadiah".</p>
+    <div class="card">
+      <div class="reveal-box" onclick="this.classList.toggle('open')">
+        <div class="rq">🤔 Menurutmu, apakah wajar sebuah kuis meminta data selengkap itu? Data mana yang paling berisiko jika bocor?</div>
+        <div class="ra">Tidak wajar! Kuis berhadiah biasanya tidak butuh data sedetail itu. <b>Riwayat penyakit dan golongan darah</b> termasuk <em>data sensitif</em> — jika bocor, risikonya jauh lebih besar daripada sekadar nama atau nomor HP. Ini contoh bagaimana kita perlu mengenali jenis data sebelum sembarangan membagikannya.</div>
+        <div class="reveal-hint">👆 Klik kotak ini untuk melihat jawabannya</div>
+      </div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 3 : Tujuan Pembelajaran ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">TUJUAN PEMBELAJARAN</p>
+    <h2 class="section-title">Setelah pembelajaran ini, kamu dapat:</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt">Mengidentifikasi berbagai <b>jenis data pribadi</b> dalam kehidupan sehari-hari.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt">Membedakan <b>data pribadi umum</b> dan <b>data pribadi bersifat spesifik/sensitif</b>.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt">Menjelaskan konsep <b>privasi digital</b> dan jejak digital.</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt">Menganalisis <b>risiko penyalahgunaan data</b> pribadi yang tidak terlindungi.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 4 : Konsep dasar ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KONSEP DASAR</p>
+    <h2 class="section-title">Apa itu data pribadi?</h2>
+    <p class="body-text"><strong class="hl">Data pribadi</strong> adalah setiap informasi yang dapat digunakan untuk mengidentifikasi seseorang, baik secara langsung (nama, NIK) maupun tidak langsung (kombinasi data lain yang mengarah pada satu orang tertentu).</p>
+    <p class="body-text">Materi ini akan membahas empat hal penting yang saling berkaitan:</p>
+    <div class="grid4">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--rose-soft);">🪪</div><h4>Jenis Data</h4><p>Identitas, kontak, finansial, lokasi, dsb.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">🔴</div><h4>Data Sensitif</h4><p>Data khusus yang butuh perlindungan ekstra.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--teal-soft);">🕶️</div><h4>Privasi Digital</h4><p>Kontrol atas informasi diri di dunia maya.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">⚠️</div><h4>Risiko</h4><p>Bahaya jika data disalahgunakan pihak lain.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 5 : Sub 1 - Jenis data pribadi konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 1 — JENIS DATA PRIBADI</p>
+    <h2 class="section-title">Ragam jenis data pribadi</h2>
+    <p class="body-text">Data pribadi tidak hanya soal nama — ada banyak kategorinya. Klik tiap kategori untuk melihat contohnya.</p>
+    <div class="grid2">
+      <div class="accordion"><summary>🆔 Data Identitas</summary><div class="acc-body">Nama lengkap, NIK, tanggal lahir, jenis kelamin, foto wajah.</div></div>
+      <div class="accordion"><summary>📞 Data Kontak</summary><div class="acc-body">Nomor telepon, alamat email, alamat rumah.</div></div>
+      <div class="accordion"><summary>💳 Data Finansial</summary><div class="acc-body">Nomor rekening, nomor kartu kredit/debit, riwayat transaksi.</div></div>
+      <div class="accordion"><summary>📍 Data Lokasi</summary><div class="acc-body">Lokasi GPS real-time, riwayat perjalanan, alamat sering dikunjungi.</div></div>
+      <div class="accordion"><summary>🖥️ Data Perangkat &amp; Akun</summary><div class="acc-body">Alamat IP, ID perangkat, username, kata sandi.</div></div>
+      <div class="accordion"><summary>🧾 Data Aktivitas</summary><div class="acc-body">Riwayat pencarian, riwayat belanja, kebiasaan menggunakan aplikasi.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 6 : Klasifikasi interaktif - jenis data ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — JENIS DATA PRIBADI</p>
+    <h2 class="section-title">Termasuk kategori apa data ini?</h2>
+    <p class="body-text">Klik tombol kategori yang paling sesuai untuk tiap contoh data.</p>
+    <div class="card">
+      <div id="sortGame1"></div>
+      <div class="sort-score" id="sortScore1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 7 : Latihan jenis data pribadi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — JENIS DATA PRIBADI</p>
+    <h2 class="section-title">Uji pemahamanmu</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Manakah yang TERMASUK data pribadi seseorang?</b></p>
+      <div id="mcq1"></div>
+      <div class="feedback" id="fb1"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 8 : Sub 2 - Data sensitif konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 2 — DATA SENSITIF</p>
+    <h2 class="section-title">Apa itu data pribadi sensitif?</h2>
+    <p class="body-text"><strong class="hl-crimson">Data sensitif</strong> adalah data pribadi yang jika bocor atau disalahgunakan dapat menimbulkan dampak serius — mulai dari diskriminasi, pemerasan, hingga kerugian besar bagi pemiliknya. Data jenis ini memerlukan tingkat perlindungan yang <b>lebih ketat</b> dibanding data pribadi umum.</p>
+    <div class="grid3">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">🏥</div><h4>Data Kesehatan</h4><p>Riwayat penyakit, golongan darah, kondisi disabilitas.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">🙏</div><h4>Keyakinan &amp; Ras</h4><p>Agama, kepercayaan, suku, ras, etnis.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">👆</div><h4>Data Biometrik</h4><p>Sidik jari, wajah untuk pengenalan (face recognition), retina mata.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">⚖️</div><h4>Data Hukum</h4><p>Catatan kejahatan, data anak, kondisi keuangan pribadi rinci.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">❤️</div><h4>Orientasi &amp; Kehidupan Pribadi</h4><p>Orientasi seksual, kehidupan/perilaku seksual seseorang.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">🧬</div><h4>Data Genetik</h4><p>Informasi DNA atau hasil tes genetik.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 9 : Klasifikasi interaktif - data umum vs sensitif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">AKTIVITAS INTERAKTIF — DATA UMUM vs SENSITIF</p>
+    <h2 class="section-title">Data umum atau data sensitif?</h2>
+    <p class="body-text">Klasifikasikan tiap contoh data ke kategori yang tepat.</p>
+    <div class="card">
+      <div id="sortGame2"></div>
+      <div class="sort-score" id="sortScore2"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 10 : Latihan data sensitif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — DATA SENSITIF</p>
+    <h2 class="section-title">Studi kasus</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Sebuah aplikasi kencan online membocorkan data orientasi seksual penggunanya ke publik. Mengapa ini dianggap pelanggaran yang sangat serius?</b></p>
+      <div id="mcq2"></div>
+      <div class="feedback" id="fb2"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 11 : Sub 3 - Privasi digital konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 3 — PRIVASI DIGITAL</p>
+    <h2 class="section-title">Apa itu privasi digital?</h2>
+    <p class="body-text"><strong class="hl-teal">Privasi digital</strong> adalah hak dan kemampuan seseorang untuk mengontrol informasi pribadinya di dunia maya — menentukan apa yang dibagikan, kepada siapa, dan bagaimana data tersebut digunakan.</p>
+    <div class="card">
+      <div class="tag tag-teal">💡 Konsep penting: Jejak Digital</div>
+      <p class="body-text" style="margin-top:10px;">Setiap aktivitas online meninggalkan <b>jejak digital</b> — data yang tertinggal dan bisa dilacak, meskipun kita merasa "hanya sekadar melihat-lihat".</p>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 12 : Contoh jejak digital interaktif ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">CONTOH — PRIVASI DIGITAL &amp; JEJAK DIGITAL</p>
+    <h2 class="section-title">Apa yang sebenarnya tertinggal saat kamu online?</h2>
+    <p class="body-text">Klik tiap aktivitas untuk melihat jejak digital tersembunyi di baliknya.</p>
+    <div class="footprint-grid">
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">🔍 Mencari sesuatu di mesin pencari</div><div class="ra">Riwayat pencarian tersimpan dan bisa dipakai untuk membentuk profil minat/kebiasaanmu, bahkan untuk menargetkan iklan.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">📸 Mengunggah foto di media sosial</div><div class="ra">Foto bisa menyimpan data lokasi (metadata GPS) dan wajahmu bisa dikenali sistem pengenalan wajah tanpa kamu sadari.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">🛍️ Belanja di aplikasi online</div><div class="ra">Riwayat belanja, alamat pengiriman, dan preferensi produkmu tersimpan dan bisa dianalisis atau dibagikan ke pihak ketiga.</div></div>
+      <div class="reveal-box" onclick="this.classList.toggle('open')"><div class="rq">👍 Menyukai (like) sebuah unggahan</div><div class="ra">Setiap "like" membentuk data preferensi yang bisa dipakai untuk memprofilkan pandangan atau kepribadianmu.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 13 : Latihan privasi digital ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — PRIVASI DIGITAL</p>
+    <h2 class="section-title">Uji pemahamanmu</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Manakah pernyataan yang paling tepat tentang privasi digital?</b></p>
+      <div id="mcq3"></div>
+      <div class="feedback" id="fb3"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 14 : Sub 4 - Risiko penyalahgunaan konsep ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">SUBMATERI 4 — RISIKO PENYALAHGUNAAN DATA</p>
+    <h2 class="section-title">Apa yang terjadi jika data disalahgunakan?</h2>
+    <p class="body-text">Ketika data pribadi jatuh ke tangan yang salah, berbagai risiko serius dapat terjadi:</p>
+    <div class="grid2">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🎭</div><h4>Pencurian Identitas</h4><p>Data dipakai untuk berpura-pura menjadi korban, misalnya membuka pinjaman online atas nama korban.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">📢</div><h4>Doxxing</h4><p>Data pribadi disebarluaskan secara publik untuk mempermalukan atau mengintimidasi seseorang.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">💰</div><h4>Penipuan Finansial</h4><p>Data rekening/kartu digunakan untuk transaksi ilegal tanpa sepengetahuan pemilik.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">🎯</div><h4>Diskriminasi</h4><p>Data sensitif (agama, kesehatan, orientasi) digunakan untuk memperlakukan seseorang secara tidak adil.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 15 : Studi kasus interaktif risiko ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">STUDI KASUS — RISIKO PENYALAHGUNAAN DATA</p>
+    <h2 class="section-title">Analisis kasus nyata (fiktif)</h2>
+    <div class="card">
+      <p class="body-text">Data KTP dan foto selfie yang diunggah seseorang untuk verifikasi sebuah aplikasi pinjaman online abal-abal ternyata bocor dan dijual ke pihak lain. Tak lama, korban menerima tagihan pinjaman online di berbagai platform yang tidak pernah ia ajukan.</p>
+      <div class="accordion"><summary>❓ Risiko apa yang dialami korban dalam kasus ini?</summary><div class="acc-body">Ini adalah kasus <b>pencurian identitas</b> — data pribadi (KTP + foto) disalahgunakan pihak lain untuk mengajukan pinjaman atas nama korban tanpa izin.</div></div>
+      <div class="accordion"><summary>💡 Apa yang seharusnya dilakukan sebelum mengunggah data seperti ini?</summary><div class="acc-body">Memastikan aplikasi resmi dan tepercaya, membaca kebijakan privasi, serta tidak sembarangan mengunggah dokumen identitas ke platform yang tidak jelas keamanannya.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 16 : Latihan risiko penyalahgunaan ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN — RISIKO PENYALAHGUNAAN DATA</p>
+    <h2 class="section-title">Kenali jenis risikonya</h2>
+    <div class="card">
+      <p class="body-text" style="margin-bottom:6px;"><b>Alamat rumah dan jadwal harian seorang figur publik disebarkan di internet oleh orang yang tidak menyukainya, membuatnya merasa terancam. Ini adalah contoh…</b></p>
+      <div id="mcq4"></div>
+      <div class="feedback" id="fb4"></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 17 : Ringkasan praktis cara menjaga ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RINGKASAN PRAKTIS</p>
+    <h2 class="section-title">Cara bijak mengelola data pribadi</h2>
+    <div class="stepper">
+      <div class="step-item"><div class="step-num">1</div><div class="step-txt"><b>Kenali</b> jenis data yang kamu miliki — mana yang umum, mana yang sensitif.</div></div>
+      <div class="step-item"><div class="step-num">2</div><div class="step-txt"><b>Pikirkan dua kali</b> sebelum membagikan data sensitif ke platform yang tidak jelas.</div></div>
+      <div class="step-item"><div class="step-num">3</div><div class="step-txt"><b>Kelola jejak digital</b> — sadari bahwa setiap aktivitas online meninggalkan data.</div></div>
+      <div class="step-item"><div class="step-num">4</div><div class="step-txt"><b>Waspadai risiko</b> penyalahgunaan seperti pencurian identitas, doxxing, dan diskriminasi.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 18 : Latihan gabungan (matching) ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">LATIHAN GABUNGAN — STUDI KASUS</p>
+    <h2 class="section-title">Cocokkan kasus dengan konsepnya</h2>
+    <p class="body-text">Pilih konsep yang paling sesuai untuk tiap kasus berikut.</p>
+    <div class="card" id="matchCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 19 : Kuis ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">KUIS AKHIR</p>
+    <h2 class="section-title">Uji Pemahaman Menyeluruh</h2>
+    <div class="card" id="quizCard"></div>
+  </div>
+`);
+
+/* ---------- Slide 20 : Refleksi ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">REFLEKSI</p>
+    <h2 class="section-title">Yuk, renungkan sejenak</h2>
+    <div class="card">
+      <div class="accordion"><summary>🪪 Data pribadi apa saja yang selama ini sering kamu bagikan tanpa berpikir panjang?</summary><div class="acc-body">Coba ingat aplikasi/formulir yang pernah kamu isi — apakah semua datanya benar-benar diperlukan?</div></div>
+      <div class="accordion"><summary>🔴 Apakah kamu pernah tanpa sadar membagikan data sensitif?</summary><div class="acc-body">Misalnya lewat kuis kepribadian, survei kesehatan, atau aplikasi yang meminta info berlebihan.</div></div>
+      <div class="accordion"><summary>🕶️ Bagaimana jejak digitalmu selama ini — apakah kamu cukup berhati-hati?</summary><div class="acc-body">Pikirkan kebiasaan online-mu sehari-hari dan apa yang bisa kamu perbaiki mulai sekarang.</div></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 21 : Rangkuman ---------- */
+addSlide(`
+  <div class="slide-inner">
+    <p class="eyebrow">RANGKUMAN</p>
+    <h2 class="section-title">Yang perlu kamu ingat</h2>
+    <div class="grid4">
+      <div class="info-card"><div class="ic-wrap" style="background:var(--rose-soft);">🪪</div><h4>Jenis Data</h4><p>Identitas, kontak, finansial, lokasi, perangkat, dan aktivitas.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--crimson-soft);">🔴</div><h4>Data Sensitif</h4><p>Kesehatan, keyakinan, biometrik, hukum, orientasi, dan genetik — butuh perlindungan ekstra.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--teal-soft);">🕶️</div><h4>Privasi Digital</h4><p>Kontrol atas info diri; setiap aktivitas online meninggalkan jejak digital.</p></div>
+      <div class="info-card"><div class="ic-wrap" style="background:var(--amber-soft);">⚠️</div><h4>Risiko</h4><p>Pencurian identitas, doxxing, penipuan finansial, dan diskriminasi.</p></div>
+    </div>
+  </div>
+`);
+
+/* ---------- Slide 22 : Penutup ---------- */
+addSlide(`
+  <div class="slide-inner cover-hero">
+    <div class="cover-icon" style="background:var(--grad-teal);">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#0A1F1B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <p class="eyebrow">PENUTUP</p>
+    <h1 class="slide-title">Selamat! Kamu kini lebih peka terhadap data pribadi 🕶️</h1>
+    <p class="lead">Mengenali jenis data, memahami mana yang sensitif, sadar akan jejak digital, dan waspada terhadap risikonya adalah langkah awal untuk menjadi pengguna internet yang cerdas dan bertanggung jawab.</p>
+    <button class="btn btn-primary" onclick="goTo(0)">⟲ Ulangi dari Awal</button>
+  </div>
+`);
+
+/* =========================================================
+   RENDER ENGINE
+   ========================================================= */
+const stage = document.getElementById('stage');
+let current = 0;
+
+function render(){
+  stage.innerHTML = slidesData.map((html,i)=>`<section class="slide" data-i="${i}">${html}</section>`).join('');
+  buildDots();
+  goTo(0, true);
+}
+
+function buildDots(){
+  const dots = document.getElementById('dots');
+  dots.innerHTML = slidesData.map((_,i)=>`<span class="d" data-i="${i}" onclick="goTo(${i})"></span>`).join('');
+}
+
+function goTo(i){
+  if(i<0 || i>=slidesData.length) return;
+  current = i;
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  const el = document.querySelector(`.slide[data-i="${i}"]`);
+  el.classList.add('active');
+  el.scrollTop = 0;
+
+  document.getElementById('progressBar').style.width = ((i+1)/slidesData.length*100)+'%';
+  document.getElementById('slideCounter').textContent = (i+1)+' / '+slidesData.length;
+  document.querySelectorAll('.dots .d').forEach((d,idx)=>{
+    d.classList.toggle('active', idx===i);
+    d.classList.toggle('done', idx<i);
+  });
+  document.getElementById('btnPrev').disabled = (i===0);
+  document.getElementById('btnNext').disabled = (i===slidesData.length-1);
+
+  initSlideWidgets(i);
+}
+
+document.getElementById('btnPrev').addEventListener('click', ()=>goTo(current-1));
+document.getElementById('btnNext').addEventListener('click', ()=>goTo(current+1));
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='ArrowRight') goTo(current+1);
+  if(e.key==='ArrowLeft') goTo(current-1);
+});
+
+/* =========================================================
+   WIDGET INITIALIZERS
+   ========================================================= */
+const initedSlides = new Set();
+
+function initSlideWidgets(i){
+  if(initedSlides.has(i)) return;
+  initedSlides.add(i);
+
+  if(i===5) buildSortGame('sortGame1','sortScore1',
+    ['Identitas','Kontak','Finansial','Lokasi'],
+    [
+      {txt:'Nomor Induk Kependudukan (NIK)', ans:'Identitas'},
+      {txt:'Alamat email pribadi', ans:'Kontak'},
+      {txt:'Nomor rekening bank', ans:'Finansial'},
+      {txt:'Titik koordinat GPS rumahmu', ans:'Lokasi'},
+      {txt:'Nomor telepon genggam', ans:'Kontak'},
+      {txt:'Riwayat transaksi kartu debit', ans:'Finansial'},
+    ]);
+
+  if(i===6) buildMCQ('mcq1','fb1',
+    ['Hanya nama lengkap seseorang','Nama, NIK, nomor HP, alamat rumah, dan foto wajah — semuanya termasuk data pribadi','Hanya data yang ada di KTP','Hanya data yang bersifat rahasia negara'],
+    1,
+    'Tepat! Data pribadi mencakup semua informasi yang bisa mengidentifikasi seseorang — nama, NIK, kontak, lokasi, hingga foto wajah.',
+    'Ingat kembali kategori-kategori data pribadi yang sudah dipelajari — cakupannya lebih luas dari sekadar satu jenis data saja.');
+
+  if(i===8) buildSortGame('sortGame2','sortScore2',
+    ['Data Umum','Data Sensitif'],
+    [
+      {txt:'Nama lengkap', ans:'Data Umum'},
+      {txt:'Riwayat penyakit/kondisi kesehatan', ans:'Data Sensitif'},
+      {txt:'Alamat email', ans:'Data Umum'},
+      {txt:'Data sidik jari (biometrik)', ans:'Data Sensitif'},
+      {txt:'Agama/keyakinan', ans:'Data Sensitif'},
+      {txt:'Nomor telepon', ans:'Data Umum'},
+    ]);
+
+  if(i===9) buildMCQ('mcq2','fb2',
+    ['Karena orientasi seksual termasuk data sensitif yang bisa memicu diskriminasi atau bahaya bagi pemiliknya','Karena data itu sebenarnya tidak penting','Karena aplikasi kencan memang seharusnya membagikan data penggunanya','Karena hanya berdampak kecil bagi pengguna'],
+    0,
+    'Benar! Data sensitif seperti orientasi seksual bisa memicu diskriminasi, stigma, bahkan ancaman keselamatan jika bocor ke publik — karena itu perlindungannya harus jauh lebih ketat.',
+    'Ingat kembali mengapa data sensitif memerlukan perlindungan ekstra — dampaknya terhadap pemiliknya jauh lebih besar dibanding data umum.');
+
+  if(i===12) buildMCQ('mcq3','fb3',
+    ['Privasi digital hanya penting bagi orang yang menyembunyikan sesuatu','Privasi digital berarti tidak boleh menggunakan internet sama sekali','Privasi digital adalah hak untuk mengontrol informasi pribadi yang dibagikan di dunia maya','Privasi digital hanya berlaku untuk data finansial'],
+    2,
+    'Tepat! Privasi digital adalah tentang kemampuan dan hak untuk mengontrol apa, kapan, dan kepada siapa informasi pribadi kita dibagikan secara online.',
+    'Privasi digital bukan soal "menyembunyikan sesuatu yang salah", tapi soal hak mengontrol informasi pribadi kita sendiri.');
+
+  if(i===15) buildMCQ('mcq4','fb4',
+    ['Pencurian identitas','Doxxing','Malware','Autentikasi'],
+    1,
+    'Benar! Menyebarkan data pribadi seseorang (alamat, jadwal) secara publik untuk mengintimidasi disebut doxxing.',
+    'Ingat definisi doxxing: menyebarluaskan data pribadi seseorang secara publik, biasanya dengan niat mengintimidasi atau mempermalukan.');
+
+  if(i===17) buildMatchGame();
+
+  if(i===18) buildQuiz();
+}
+
+/* ---------- Sorting/classification game ---------- */
+function buildSortGame(mountId, scoreId, categories, items){
+  const mount = document.getElementById(mountId);
+  const scoreEl = document.getElementById(scoreId);
+  let done = 0;
+  mount.innerHTML = items.map((it,idx)=>`
+    <div class="sort-item" id="${mountId}-item${idx}">
+      <div class="si-txt">${it.txt}</div>
+      <div class="si-btns">${categories.map(c=>`<button class="sort-btn" data-cat="${c}" data-idx="${idx}">${c}</button>`).join('')}</div>
+      <span class="sort-badge" id="${mountId}-badge${idx}"></span>
+    </div>
+  `).join('');
+  function updateScore(){
+    scoreEl.textContent = `Terjawab: ${done} / ${items.length}`;
+  }
+  updateScore();
+  items.forEach((it,idx)=>{
+    const itemEl = document.getElementById(`${mountId}-item${idx}`);
+    itemEl.querySelectorAll('.sort-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(itemEl.classList.contains('done')) return;
+        itemEl.classList.add('done');
+        done++;
+        const cat = btn.dataset.cat;
+        const badge = document.getElementById(`${mountId}-badge${idx}`);
+        if(cat===it.ans){
+          itemEl.classList.add('correct');
+          badge.textContent='✓ Benar: '+it.ans;
+          badge.style.color='var(--teal)';
+        } else {
+          itemEl.classList.add('wrong');
+          badge.textContent='✗ Jawaban tepat: '+it.ans;
+          badge.style.color='var(--crimson)';
+        }
+        updateScore();
+      });
+    });
+  });
+}
+
+/* ---------- MCQ builder ---------- */
+function buildMCQ(mountId, fbId, options, correctIdx, correctMsg, wrongMsg){
+  const mount = document.getElementById(mountId);
+  const fb = document.getElementById(fbId);
+  mount.innerHTML = options.map((opt,idx)=>`<button class="mcq-opt" data-idx="${idx}">${opt}</button>`).join('');
+  mount.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.dataset.idx);
+      mount.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===correctIdx){
+        btn.classList.add('correct');
+        fb.textContent = '✓ '+correctMsg;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        mount.querySelector(`[data-idx="${correctIdx}"]`).classList.add('correct');
+        fb.textContent = '✗ '+wrongMsg;
+        fb.className='feedback show bad';
+      }
+    });
+  });
+}
+
+/* ---------- Matching scenario game (Slide 18) ---------- */
+const matchScenarios = [
+  {s:'Seseorang mengisi formulir survei yang meminta nama, alamat, dan nomor HP — semuanya wajar untuk keperluan pengiriman hadiah.', ans:'Jenis Data Pribadi'},
+  {s:'Aplikasi kesehatan membocorkan data riwayat penyakit jiwa penggunanya ke publik.', ans:'Data Sensitif'},
+  {s:'Seseorang sadar bahwa histori pencariannya digunakan untuk menargetkan iklan tanpa ia sadari sebelumnya.', ans:'Privasi Digital'},
+  {s:'Data KTP yang bocor digunakan orang lain untuk membuka pinjaman online atas nama korban.', ans:'Risiko Penyalahgunaan'},
+];
+const matchOptions = ['Jenis Data Pribadi','Data Sensitif','Privasi Digital','Risiko Penyalahgunaan'];
+let matchState = {};
+function buildMatchGame(){
+  const card = document.getElementById('matchCard');
+  matchState = {};
+  card.innerHTML = matchScenarios.map((m,idx)=>`
+    <div style="margin-bottom:18px; padding-bottom:16px; ${idx<matchScenarios.length-1?'border-bottom:1px solid var(--line);':''}">
+      <p class="body-text" style="margin-bottom:10px;">${idx+1}. ${m.s}</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;" id="matchOpts${idx}">
+        ${matchOptions.map(o=>`<button class="mcq-opt" style="width:auto; display:inline-block; padding:8px 14px; margin-bottom:0;" data-opt="${o}" data-idx="${idx}">${o}</button>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  matchScenarios.forEach((m,idx)=>{
+    document.querySelectorAll(`#matchOpts${idx} button`).forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(matchState[idx]) return;
+        matchState[idx]=true;
+        const opt = btn.dataset.opt;
+        document.querySelectorAll(`#matchOpts${idx} button`).forEach(b=>b.disabled=true);
+        if(opt===m.ans){ btn.classList.add('correct'); }
+        else{
+          btn.classList.add('wrong');
+          document.querySelector(`#matchOpts${idx} [data-opt="${m.ans}"]`).classList.add('correct');
+        }
+      });
+    });
+  });
+}
+
+/* =========================================================
+   QUIZ (Slide 19)
+   ========================================================= */
+const quizQuestions = [
+  {
+    q:'Yang termasuk contoh data pribadi adalah…',
+    opts:['Nama, NIK, dan nomor telepon seseorang','Suhu udara hari ini','Harga barang di toko','Jadwal libur nasional'],
+    correct:0,
+    exp:'Nama, NIK, dan nomor telepon adalah data yang bisa mengidentifikasi seseorang secara langsung, sehingga termasuk data pribadi.'
+  },
+  {
+    q:'Mengapa data kesehatan digolongkan sebagai data sensitif?',
+    opts:['Karena datanya sangat panjang','Karena jika bocor bisa menimbulkan diskriminasi atau dampak serius bagi pemiliknya','Karena tidak ada orang yang peduli data kesehatan','Karena data kesehatan selalu bersifat publik'],
+    correct:1,
+    exp:'Data sensitif seperti data kesehatan berisiko tinggi menimbulkan diskriminasi, stigma, atau kerugian serius jika disalahgunakan.'
+  },
+  {
+    q:'Jejak digital terbentuk ketika…',
+    opts:['Kita mematikan semua perangkat elektronik','Kita melakukan aktivitas apa pun secara online, seperti mencari, mengunggah, atau membeli sesuatu','Hanya saat kita login ke email','Hanya saat kita mengunggah foto'],
+    correct:1,
+    exp:'Hampir semua aktivitas online — pencarian, unggahan, transaksi, bahkan "like" — meninggalkan jejak digital yang tersimpan dan bisa dilacak.'
+  },
+  {
+    q:'Doxxing adalah tindakan…',
+    opts:['Melindungi data pribadi seseorang dengan enkripsi','Menyebarluaskan data pribadi seseorang secara publik untuk mengintimidasi/mempermalukan','Membuat kata sandi yang kuat','Memperbarui sistem operasi perangkat'],
+    correct:1,
+    exp:'Doxxing adalah penyebaran data pribadi seseorang secara publik tanpa izin, biasanya dengan niat buruk seperti intimidasi.'
+  },
+  {
+    q:'Data biometrik termasuk dalam kategori…',
+    opts:['Data umum yang boleh dibagikan bebas','Data sensitif yang memerlukan perlindungan ekstra','Bukan data pribadi sama sekali','Data yang hanya dimiliki oleh figur publik'],
+    correct:1,
+    exp:'Data biometrik (sidik jari, wajah, retina) termasuk data sensitif karena unik dan tidak dapat diganti jika disalahgunakan.'
+  },
+  {
+    q:'Risiko utama jika data KTP dan foto selfie bocor ke pihak tidak bertanggung jawab adalah…',
+    opts:['Tidak ada risiko karena KTP hanya kartu biasa','Berpotensi disalahgunakan untuk pencurian identitas, misalnya pengajuan pinjaman online ilegal atas nama korban','Data tersebut akan otomatis dihapus sistem','Hanya berdampak pada tampilan aplikasi'],
+    correct:1,
+    exp:'KTP dan foto selfie sering dipakai untuk verifikasi identitas, sehingga jika bocor, sangat rawan disalahgunakan untuk pencurian identitas.'
+  }
+];
+let quizState = { idx:0, score:0, answered:false };
+
+function buildQuiz(){
+  quizState = { idx:0, score:0, answered:false };
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  const card = document.getElementById('quizCard');
+  if(quizState.idx >= quizQuestions.length){
+    renderQuizResult();
+    return;
+  }
+  const q = quizQuestions[quizState.idx];
+  card.innerHTML = `
+    <div class="quiz-progress">Soal ${quizState.idx+1} dari ${quizQuestions.length}</div>
+    <p class="body-text" style="margin-bottom:14px; color:var(--ink); font-weight:700; font-size:16px;">${q.q}</p>
+    <div id="quizOpts"></div>
+    <div class="feedback" id="quizFb"></div>
+    <div style="margin-top:16px; text-align:right;">
+      <button class="btn btn-primary" id="quizNextBtn" style="display:none;">Lanjut →</button>
+    </div>
+  `;
+  const opts = document.getElementById('quizOpts');
+  opts.innerHTML = q.opts.map((o,idx)=>`<button class="mcq-opt" data-idx="${idx}">${o}</button>`).join('');
+  quizState.answered = false;
+  opts.querySelectorAll('.mcq-opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(quizState.answered) return;
+      quizState.answered = true;
+      const idx = parseInt(btn.dataset.idx);
+      const fb = document.getElementById('quizFb');
+      opts.querySelectorAll('.mcq-opt').forEach(b=>b.disabled=true);
+      if(idx===q.correct){
+        btn.classList.add('correct');
+        quizState.score++;
+        fb.textContent = '✓ Benar! '+q.exp;
+        fb.className='feedback show ok';
+      } else {
+        btn.classList.add('wrong');
+        opts.querySelector(`[data-idx="${q.correct}"]`).classList.add('correct');
+        fb.textContent = '✗ Kurang tepat. '+q.exp;
+        fb.className='feedback show bad';
+      }
+      document.getElementById('quizNextBtn').style.display='inline-flex';
+    });
+  });
+  document.getElementById('quizNextBtn').addEventListener('click', ()=>{
+    quizState.idx++;
+    renderQuizQuestion();
+  });
+}
+
+function renderQuizResult(){
+  const card = document.getElementById('quizCard');
+  const pct = Math.round(quizState.score/quizQuestions.length*100);
+  let msg = 'Terus berlatih ya — semakin peka mengenali data pribadi, semakin mudah melindunginya!';
+  if(pct>=80) msg = 'Luar biasa! Kamu sudah sangat memahami cara mengenali data pribadi dan privasi. 🕶️';
+  else if(pct>=60) msg = 'Bagus! Pemahamanmu cukup baik, coba tinjau lagi bagian yang masih salah.';
+  card.innerHTML = `
+    <div class="quiz-score-ring" style="--pct:${pct}"><span class="score-txt">${pct}%</span><span class="score-sub">${quizState.score}/${quizQuestions.length} benar</span></div>
+    <p class="body-text" style="text-align:center;">${msg}</p>
+    <div style="text-align:center; margin-top:12px;">
+      <button class="btn btn-outline" onclick="buildQuiz()">⟲ Ulangi Kuis</button>
+    </div>
+  `;
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+render();
+</script>
+</body>
+</html>
