@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.5 Garis Singgung Lingkaran — Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1526;
+  --bg-deep:#080f1c;
+  --card:#152040;
+  --card-2:#1c2b52;
+  --line:rgba(255,255,255,0.10);
+  --text:#f3f5fb;
+  --dim:#9aabcd;
+  --pi:#ffc857;
+  --sing:#4ecdc4;
+  --jari:#c4e86b;
+  --ungu:#a78bfa;
+  --salah:#ff6b6b;
+  --benar:#5ee39b;
+  --r-lg:20px;
+  --r-md:14px;
+  --f-judul:'Fredoka', sans-serif;
+  --f-teks:'Plus Jakarta Sans', sans-serif;
+  --f-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+img,svg,canvas{max-width:100%;}
+html,body{height:100%; width:100%; overflow-x:hidden;}
+body{
+  font-family:var(--f-teks); color:var(--text);
+  background:
+    radial-gradient(ellipse at 12% -10%, #1b2b57 0%, transparent 55%),
+    radial-gradient(ellipse at 92% 108%, #23315e 0%, transparent 50%),
+    linear-gradient(var(--bg), var(--bg-deep));
+  background-color:var(--bg);
+  min-height:100dvh;
+}
+.app{ display:flex; flex-direction:column; min-height:100dvh; }
+
+.topbar{ position:sticky; top:0; z-index:20; background:rgba(13,21,38,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+.topbar-inner{ display:flex; align-items:center; gap:10px; padding:10px clamp(14px,4vw,40px); flex-wrap:wrap; }
+.brand{ display:flex; align-items:center; gap:8px; font-family:var(--f-judul); font-weight:600; font-size:clamp(12.5px,3.4vw,15px); color:var(--dim); }
+.logo{ width:20px; height:20px; border-radius:50%; border:2.5px solid var(--sing); position:relative; flex-shrink:0; }
+.logo::after{ content:""; position:absolute; left:-4px; top:1px; width:26px; height:2px; background:var(--pi); transform:rotate(-38deg); }
+.status-chip{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; padding:4px 10px; border-radius:100px; border:1px solid var(--line); color:var(--pi); background:var(--card); white-space:nowrap; }
+.counter{ margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--dim); }
+.progress-track{ height:4px; background:rgba(255,255,255,0.08); }
+.progress-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--pi),var(--sing),var(--jari)); transition:width .45s cubic-bezier(.65,0,.35,1); }
+
+.stage{ flex:1; position:relative; }
+.slide{ display:none; padding:clamp(20px,5vw,44px) clamp(16px,5vw,56px) 124px; animation:masuk .4s ease; }
+.slide.active{ display:block; }
+@keyframes masuk{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+.inner{ max-width:1020px; margin:0 auto; }
+
+.eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:var(--f-mono); font-size:11.5px; color:var(--sing); margin-bottom:10px; }
+.eyebrow::before{ content:""; width:16px; height:2px; background:var(--sing); border-radius:2px; }
+h1{ font-family:var(--f-judul); font-weight:700; font-size:clamp(24px,6vw,42px); line-height:1.15; margin-bottom:12px; }
+h2{ font-family:var(--f-judul); font-weight:600; font-size:clamp(18px,4.4vw,25px); margin:20px 0 10px; }
+h3{ font-family:var(--f-judul); font-weight:600; font-size:clamp(15px,3.8vw,18px); margin-bottom:8px; }
+p.lead{ color:var(--dim); font-size:clamp(14px,3.6vw,16.5px); line-height:1.7; max-width:64ch; }
+.mono{ font-family:var(--f-mono); }
+
+.card{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(16px,4vw,24px); }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; margin-top:18px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+@media(max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
+
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:var(--f-teks); font-weight:600;
+  font-size:clamp(13.5px,3.6vw,15px); padding:12px 20px; border-radius:100px; border:1px solid var(--line);
+  background:var(--card-2); color:var(--text); cursor:pointer; min-height:46px; transition:transform .15s, border-color .2s; }
+.btn:hover{ border-color:var(--sing); }
+.btn:active{ transform:scale(.97); }
+.btn.utama{ background:linear-gradient(120deg,var(--pi),#ffb02e); color:#20170a; border-color:transparent; }
+.btn.hijau{ background:linear-gradient(120deg,var(--sing),#2fb3ab); color:#052623; border-color:transparent; }
+.btn:disabled{ opacity:.45; cursor:default; }
+.btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+a.btn{ text-decoration:none; }
+
+.hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:26px; align-items:center; }
+@media(max-width:780px){ .hero{ grid-template-columns:1fr; } }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+.chip{ font-size:12px; padding:6px 12px; border-radius:100px; background:var(--card); border:1px solid var(--line); color:var(--dim); }
+.resume{ margin-top:16px; font-size:13px; color:var(--dim); }
+
+.tujuan{ list-style:none; display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+.tujuan li{ display:flex; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:12px 16px; font-size:14.5px; line-height:1.6; }
+.tujuan li span{ color:var(--pi); font-family:var(--f-mono); }
+
+.hot{ cursor:pointer; transition:opacity .2s; }
+.hot:hover{ opacity:.72; }
+.infobox{ background:var(--card-2); border:1px solid var(--line); border-radius:var(--r-md); padding:14px 16px; font-size:14px; line-height:1.65; min-height:78px; }
+.infobox.kosong{ color:var(--dim); font-style:italic; }
+.legend{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px; font-size:12px; color:var(--dim); font-family:var(--f-mono); }
+.legend b{ width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:middle; }
+
+.slider-card .lbl{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; font-size:13.5px; color:var(--dim); }
+.slider-card .lbl b{ font-family:var(--f-judul); font-size:20px; color:var(--pi); }
+input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:6px; background:var(--line); outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:24px; height:24px; border-radius:50%; background:var(--pi); border:4px solid var(--bg-deep); cursor:pointer; }
+input[type=range]::-moz-range-thumb{ width:22px; height:22px; border-radius:50%; background:var(--pi); border:4px solid var(--bg-deep); cursor:pointer; }
+.hasil{ font-family:var(--f-mono); font-size:14px; line-height:2; color:var(--dim); word-break:break-word; }
+.hasil .akhir{ font-family:var(--f-judul); font-size:clamp(20px,5vw,26px); display:block; margin-top:6px; }
+.status-ket{ font-family:var(--f-judul); font-size:clamp(16px,4.6vw,21px); margin-top:8px; }
+
+.rumus-hero{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--card-2),var(--card)); border:1px solid var(--line); border-radius:var(--r-lg); padding:22px 14px; margin:18px 0; }
+.rumus-hero .t{ font-family:var(--f-mono); font-weight:700; font-size:clamp(17px,5.4vw,30px); padding:6px 14px; border-radius:12px; }
+.t.s{ color:var(--sing); background:rgba(78,205,196,.16); }
+.t.j{ color:var(--jari); background:rgba(196,232,107,.16); }
+.t.p{ color:var(--pi); background:rgba(255,200,87,.16); }
+.rumus-kartu{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px; text-align:center; }
+.rumus-kartu .ket{ font-size:12px; color:var(--dim); margin-bottom:8px; }
+.rumus-kartu .f{ font-family:var(--f-mono); font-weight:700; font-size:16px; }
+
+.langkah{ display:none; border-left:3px solid var(--sing); background:var(--card-2); border-radius:0 10px 10px 0; padding:12px 14px; margin-bottom:10px; font-size:14px; line-height:1.65; }
+.langkah.tampil{ display:block; animation:masuk .3s ease; }
+.langkah.akhir{ border-left-color:var(--benar); }
+.langkah .f{ font-family:var(--f-mono); color:var(--pi); }
+.langkah.akhir .f{ color:var(--benar); }
+.soal-teks{ font-size:15px; line-height:1.7; margin-bottom:14px; }
+.soal-teks b{ color:var(--pi); }
+
+.latihan{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:18px; margin-bottom:14px; }
+.tingkat{ font-family:var(--f-mono); font-size:10.5px; padding:3px 9px; border-radius:100px; border:1px solid var(--line); color:var(--dim); }
+.baris{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+.baris input{ flex:1 1 130px; min-width:110px; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-deep); color:var(--text); font-family:var(--f-mono); font-size:15px; }
+.umpan{ font-size:13px; font-family:var(--f-mono); width:100%; line-height:1.7; }
+.umpan.ok{ color:var(--benar); }
+.umpan.no{ color:var(--salah); }
+
+.kuis-dots{ display:flex; gap:5px; margin-bottom:16px; }
+.kuis-dots i{ flex:1; height:5px; border-radius:4px; background:var(--card-2); }
+.kuis-dots i.ok{ background:var(--benar); }
+.kuis-dots i.no{ background:var(--salah); }
+.opsi{ display:flex; flex-direction:column; gap:10px; }
+.opsi button{ text-align:left; background:var(--bg-deep); border:1px solid var(--line); border-radius:12px; padding:13px 16px;
+  color:var(--text); font-family:var(--f-teks); font-size:14.5px; cursor:pointer; min-height:46px; }
+.opsi button:hover:not(:disabled){ border-color:var(--sing); }
+.opsi button.benar{ border-color:var(--benar); background:rgba(94,227,155,.14); }
+.opsi button.salah{ border-color:var(--salah); background:rgba(255,107,107,.14); }
+.opsi button:disabled{ cursor:default; }
+.kuis-umpan{ margin-top:14px; font-size:13.5px; line-height:1.65; color:var(--dim); }
+.kuis-bar{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.skor-besar{ font-family:var(--f-judul); font-size:clamp(38px,12vw,58px); color:var(--pi); }
+.stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0; }
+@media(max-width:560px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat{ background:var(--card-2); border:1px solid var(--line); border-radius:var(--r-md); padding:12px; text-align:center; }
+.stat b{ display:block; font-family:var(--f-judul); font-size:20px; }
+.stat span{ font-size:11.5px; color:var(--dim); }
+
+.bahas{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px; margin-bottom:12px; }
+.bahas .soal{ font-size:14.5px; line-height:1.6; margin-bottom:8px; }
+.bahas .jwb{ font-family:var(--f-mono); font-size:13px; color:var(--benar); }
+.bahas .pjls{ font-size:13.5px; color:var(--dim); line-height:1.7; margin-top:6px; }
+
+.ring-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:16px; }
+@media(max-width:700px){ .ring-grid{ grid-template-columns:1fr; } }
+.ring{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px 18px; font-size:14px; line-height:1.65; }
+.ring .judul{ font-family:var(--f-mono); font-size:11.5px; color:var(--pi); display:block; margin-bottom:6px; letter-spacing:.05em; }
+.ring .f{ font-family:var(--f-mono); color:var(--sing); }
+.salah-umum{ border-left:3px solid var(--salah); }
+
+.tengah{ text-align:center; }
+.game-box{ background:linear-gradient(135deg,#1f2a55,#152040); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(24px,6vw,40px); text-align:center; }
+.game-emoji{ font-size:clamp(46px,14vw,70px); display:block; margin-bottom:10px; }
+.selesai-box{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(20px,5vw,32px); text-align:center; }
+.identitas{ font-family:var(--f-mono); font-size:13px; color:var(--dim); line-height:2; margin:14px 0; }
+.identitas b{ color:var(--text); }
+#statusSelesai{ display:none; margin-top:18px; font-family:var(--f-judul); font-size:clamp(17px,5vw,22px); color:var(--benar); }
+#statusSelesai.tampil{ display:block; animation:pop .6s cubic-bezier(.2,1.3,.4,1); }
+@keyframes pop{ 0%{opacity:0; transform:scale(.6);} 100%{opacity:1; transform:scale(1);} }
+.ceklis{ width:74px; height:74px; margin:0 auto 12px; border-radius:50%; border:4px solid var(--benar); display:flex; align-items:center; justify-content:center; font-size:36px; }
+
+.navbar{ position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:10px clamp(10px,4vw,32px); background:rgba(8,15,28,0.94); backdrop-filter:blur(10px); border-top:1px solid var(--line); }
+.nav-btn{ width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card-2); color:var(--text); font-size:19px; cursor:pointer; flex-shrink:0; }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.nav-tengah{ flex:1; text-align:center; min-width:0; }
+.nav-judul{ font-family:var(--f-mono); font-size:11.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.titik{ display:flex; gap:6px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
+.titik i{ width:7px; height:7px; border-radius:50%; background:var(--card-2); border:1px solid var(--line); cursor:pointer; }
+.titik i.aktif{ background:var(--pi); width:18px; border-radius:4px; border-color:var(--pi); }
+@media(max-width:680px){ .titik{ display:none; } }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="logo"></span> 2.5 Garis Singgung Lingkaran</div>
+      <span class="status-chip" id="statusChip">BELUM MULAI</span>
+      <span class="counter"><span id="slideNow">1</span>/<span id="slideTotal">22</span></span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </header>
+
+  <main class="stage">
+
+    <!-- 1 PEMBUKA -->
+    <section class="slide active" data-judul="Pembuka">
+      <div class="inner hero">
+        <div>
+          <div class="eyebrow">Matematika SMP · Bab Lingkaran</div>
+          <h1>Garis Singgung Lingkaran</h1>
+          <p class="lead">Rantai sepeda yang melingkari dua gir, tali yang mengikat dua pipa, jalan yang menyentuh tepi bundaran — semuanya berbicara tentang garis singgung. Di sini kamu akan mengenal pengertiannya, sifat istimewanya, cara menghitung panjangnya, sampai garis singgung persekutuan dua lingkaran.</p>
+          <div class="chips">
+            <span class="chip">📐 Simulasi kedudukan garis</span>
+            <span class="chip">🧮 Kalkulator panjang</span>
+            <span class="chip">📝 Kuis &amp; pembahasan</span>
+            <span class="chip">🎮 Game</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn utama" onclick="keSlide(1)">Mulai Belajar</button>
+            <button class="btn" onclick="keSlide(17)">Langsung ke Kuis</button>
+          </div>
+          <div class="resume" id="resumeInfo"></div>
+        </div>
+        <div>
+          <svg viewBox="0 0 300 250" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; display:block; margin:0 auto;">
+            <circle cx="115" cy="130" r="72" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3.5"/>
+            <line x1="30" y1="58" x2="285" y2="58" stroke="var(--pi)" stroke-width="4" stroke-linecap="round"/>
+            <line x1="115" y1="130" x2="115" y2="58" stroke="var(--jari)" stroke-width="3.5"/>
+            <rect x="115" y="58" width="18" height="18" fill="none" stroke="#fff" stroke-width="2"/>
+            <circle cx="115" cy="58" r="6" fill="var(--pi)"/>
+            <circle cx="115" cy="130" r="4.5" fill="#fff"/>
+            <text x="86" y="100" fill="var(--jari)" font-family="JetBrains Mono" font-size="14" font-weight="700">r</text>
+            <text x="140" y="48" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">garis singgung</text>
+            <text x="122" y="145" fill="#fff" font-family="JetBrains Mono" font-size="13">O</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 APERSEPSI -->
+    <section class="slide" data-judul="Apersepsi">
+      <div class="inner">
+        <div class="eyebrow">Apersepsi</div>
+        <h1>Pernah memperhatikan hal ini?</h1>
+        <p class="lead">Ketuk tiap kartu untuk melihat arah jawabannya sebelum kita masuk ke konsepnya.</p>
+        <div class="grid2">
+          <div class="card hot" onclick="pemantik('Ban menyentuh jalan hanya pada satu titik (jika dianggap lingkaran sempurna). Garis jalan itulah <b>garis singgung</b>, dan titik sentuhnya disebut titik singgung.')">
+            <h3>🚗 Berapa titik sentuh ban mobil dengan jalan yang rata?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Jari-jari ke titik sentuh selalu <b>tegak lurus</b> terhadap jalan. Inilah sifat utama garis singgung yang membuat kita bisa memakai Teorema Pythagoras.')">
+            <h3>📏 Bagaimana posisi jari-jari ban terhadap permukaan jalan?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Rantai menyinggung kedua gir sekaligus. Garis seperti ini disebut <b>garis singgung persekutuan</b>, dan panjangnya bisa dihitung dari jarak kedua pusat serta jari-jarinya.')">
+            <h3>🚲 Rantai sepeda menyentuh dua gir sekaligus. Apa namanya?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Bisa. Dari titik di luar lingkaran selalu dapat dibuat <b>tepat dua</b> garis singgung, dan keduanya sama panjang.')">
+            <h3>✌️ Dari satu titik di luar lingkaran, berapa garis singgung bisa dibuat?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+        </div>
+        <div class="infobox kosong" id="pemantikBox" style="margin-top:16px;">👆 Ketuk salah satu kartu di atas untuk melihat petunjuknya di sini.</div>
+      </div>
+    </section>
+
+    <!-- 3 TUJUAN -->
+    <section class="slide" data-judul="Tujuan Pembelajaran">
+      <div class="inner">
+        <div class="eyebrow">Tujuan Pembelajaran</div>
+        <h1>Setelah belajar ini, kamu mampu…</h1>
+        <ul class="tujuan">
+          <li><span>01</span> Membedakan kedudukan garis terhadap lingkaran: memotong, menyinggung, atau tidak memotong.</li>
+          <li><span>02</span> Menjelaskan pengertian garis singgung dan titik singgung.</li>
+          <li><span>03</span> Menyebutkan sifat-sifat garis singgung lingkaran, termasuk sifat tegak lurus terhadap jari-jari.</li>
+          <li><span>04</span> Menghitung panjang garis singgung dari sebuah titik di luar lingkaran.</li>
+          <li><span>05</span> Menghitung panjang garis singgung persekutuan luar dua lingkaran.</li>
+          <li><span>06</span> Menghitung panjang garis singgung persekutuan dalam dua lingkaran.</li>
+          <li><span>07</span> Menyelesaikan masalah sehari-hari yang berkaitan dengan garis singgung lingkaran.</li>
+        </ul>
+        <div class="card" style="margin-top:18px;">
+          <h3>Bekal yang dipakai</h3>
+          <p class="lead" style="font-size:14px;">Seluruh perhitungan pada bab ini bertumpu pada Teorema Pythagoras <span class="mono" style="color:var(--pi)">a² + b² = c²</span> serta cara menarik akar kuadrat. Pastikan kamu masih ingat keduanya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 KEDUDUKAN GARIS -->
+    <section class="slide" data-judul="Kedudukan Garis" data-init="kedudukan">
+      <div class="inner">
+        <div class="eyebrow">Konsep Dasar</div>
+        <h1>Tiga kemungkinan kedudukan garis</h1>
+        <p class="lead">Geser slider untuk mengubah jarak garis ke titik pusat O. Bandingkan jarak itu dengan jari-jari (r = 6 cm) dan perhatikan berapa titik potongnya.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 230" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px;">
+              <circle cx="140" cy="140" r="72" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>
+              <circle cx="140" cy="140" r="4.5" fill="#fff"/>
+              <text x="148" y="156" fill="#fff" font-family="JetBrains Mono" font-size="12">O</text>
+              <line id="garisK" x1="20" y1="80" x2="260" y2="80" stroke="var(--pi)" stroke-width="4" stroke-linecap="round"/>
+              <line id="jarakK" x1="140" y1="140" x2="140" y2="80" stroke="var(--jari)" stroke-width="2.5" stroke-dasharray="5 4"/>
+              <circle class="ttk" id="ttk1" cx="0" cy="0" r="5.5" fill="var(--pi)" opacity="0"/>
+              <circle class="ttk" id="ttk2" cx="0" cy="0" r="5.5" fill="var(--pi)" opacity="0"/>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Jarak O ke garis</span><b><span id="kdNilai">3</span> cm</b></div>
+              <input type="range" id="kdSlider" min="0" max="10" step="1" value="3" oninput="updateKedudukan()">
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="hasil" id="kdHasil"></p>
+              <p class="status-ket" id="kdStatus"></p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:13.5px;">💡 Garis singgung terjadi tepat pada satu keadaan istimewa: ketika jarak titik pusat ke garis <b>sama persis</b> dengan jari-jari.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 PENGERTIAN -->
+    <section class="slide" data-judul="Pengertian Garis Singgung">
+      <div class="inner">
+        <div class="eyebrow">Definisi</div>
+        <h1>Pengertian garis singgung</h1>
+        <div class="card">
+          <p class="lead" style="font-size:clamp(15px,4vw,17.5px); color:var(--text);">Garis singgung lingkaran adalah garis yang <b style="color:var(--sing)">memotong lingkaran tepat di satu titik</b>. Titik pertemuan itu disebut <b style="color:var(--pi)">titik singgung</b>.</p>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <svg viewBox="0 0 280 210" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px; display:block; margin:0 auto;">
+              <circle cx="140" cy="130" r="62" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>
+              <line x1="25" y1="68" x2="255" y2="68" stroke="var(--pi)" stroke-width="4" stroke-linecap="round"/>
+              <line x1="140" y1="130" x2="140" y2="68" stroke="var(--jari)" stroke-width="3"/>
+              <rect x="140" y="68" width="16" height="16" fill="none" stroke="#fff" stroke-width="1.8"/>
+              <circle cx="140" cy="68" r="6" fill="var(--pi)"/>
+              <circle cx="140" cy="130" r="4.5" fill="#fff"/>
+              <text x="118" y="60" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+              <text x="148" y="146" fill="#fff" font-family="JetBrains Mono" font-size="13">O</text>
+              <text x="108" y="106" fill="var(--jari)" font-family="JetBrains Mono" font-size="13" font-weight="700">r</text>
+            </svg>
+            <div class="legend">
+              <span><b style="background:var(--pi)"></b>garis singgung &amp; titik singgung A</span>
+              <span><b style="background:var(--jari)"></b>jari-jari OA</span>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <h3>Istilah yang perlu dikenali</h3>
+              <p class="lead" style="font-size:14px; margin-bottom:8px;"><b style="color:var(--pi)">Titik singgung</b> — satu-satunya titik persekutuan antara garis dan lingkaran.</p>
+              <p class="lead" style="font-size:14px; margin-bottom:8px;"><b style="color:var(--sing)">Garis sekan (tali busur)</b> — garis yang memotong lingkaran di dua titik, bukan garis singgung.</p>
+              <p class="lead" style="font-size:14px;"><b style="color:var(--jari)">Jari-jari singgung</b> — jari-jari yang ditarik ke titik singgung; inilah kunci semua perhitungan berikutnya.</p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:13.5px;">Catatan: garis singgung boleh berada di posisi mana saja — atas, bawah, samping, atau miring. Yang menentukan bukan arahnya, melainkan jumlah titik persekutuannya.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 SIFAT 1 -->
+    <section class="slide" data-judul="Sifat Garis Singgung (1)">
+      <div class="inner">
+        <div class="eyebrow">Sifat Utama</div>
+        <h1>Selalu tegak lurus jari-jari</h1>
+        <p class="lead">Ketuk gambar untuk memunculkan sudutnya. Sifat ini membuat segitiga yang terbentuk selalu segitiga siku-siku, sehingga Teorema Pythagoras dapat dipakai.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 230" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px;">
+              <circle cx="110" cy="150" r="58" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>
+              <line class="hot" x1="20" y1="92" x2="265" y2="92" stroke="var(--pi)" stroke-width="4" stroke-linecap="round" onclick="bukaSiku()"/>
+              <line x1="110" y1="150" x2="110" y2="92" stroke="var(--jari)" stroke-width="3"/>
+              <rect id="kotakSiku" x="110" y="92" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" opacity="0"/>
+              <text id="tulisSiku" x="134" y="86" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="700" opacity="0">90°</text>
+              <circle cx="110" cy="92" r="6" fill="var(--pi)"/>
+              <circle cx="110" cy="150" r="4.5" fill="#fff"/>
+              <text x="118" y="166" fill="#fff" font-family="JetBrains Mono" font-size="13">O</text>
+              <text x="88" y="84" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+            </svg>
+            <p class="lead" style="font-size:13px; margin:10px auto 0;">Ketuk garis kuning untuk melihat sudut siku-sikunya.</p>
+          </div>
+          <div>
+            <div class="card">
+              <h3>Sifat 1</h3>
+              <p class="lead" style="font-size:14.5px;">Garis singgung lingkaran <b style="color:var(--text)">tegak lurus terhadap jari-jari</b> yang melalui titik singgungnya. Ditulis: OA ⊥ garis singgung di A, sehingga ∠OAB = 90°.</p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <h3>Sifat 2</h3>
+              <p class="lead" style="font-size:14.5px;">Melalui satu titik <b>pada</b> lingkaran hanya dapat dibuat <b style="color:var(--sing)">tepat satu</b> garis singgung. Melalui titik <b>di luar</b> lingkaran dapat dibuat <b style="color:var(--sing)">tepat dua</b> garis singgung. Dari titik <b>di dalam</b> lingkaran tidak dapat dibuat garis singgung sama sekali.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 SIFAT 2 (layang-layang) -->
+    <section class="slide" data-judul="Sifat Garis Singgung (2)">
+      <div class="inner">
+        <div class="eyebrow">Sifat Lanjutan</div>
+        <h1>Dua garis singgung dari satu titik</h1>
+        <p class="lead">Dari titik P di luar lingkaran ditarik dua garis singgung PA dan PB. Kedua garis singgung ini selalu sama panjang, dan bangun OAPB yang terbentuk disebut layang-layang garis singgung.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px;">
+              <polygon points="80,110 128,62 250,110 128,158" fill="var(--ungu)" fill-opacity="0.16" stroke="var(--ungu)" stroke-width="2" stroke-dasharray="5 4"/>
+              <circle cx="80" cy="110" r="62" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>
+              <line x1="128" y1="62" x2="250" y2="110" stroke="var(--pi)" stroke-width="4" stroke-linecap="round"/>
+              <line x1="128" y1="158" x2="250" y2="110" stroke="var(--pi)" stroke-width="4" stroke-linecap="round"/>
+              <line x1="80" y1="110" x2="128" y2="62" stroke="var(--jari)" stroke-width="3"/>
+              <line x1="80" y1="110" x2="128" y2="158" stroke="var(--jari)" stroke-width="3"/>
+              <line x1="80" y1="110" x2="250" y2="110" stroke="#fff" stroke-width="2" stroke-dasharray="4 4" opacity="0.6"/>
+              <circle cx="128" cy="62" r="5.5" fill="var(--pi)"/>
+              <circle cx="128" cy="158" r="5.5" fill="var(--pi)"/>
+              <circle cx="80" cy="110" r="4.5" fill="#fff"/>
+              <circle cx="250" cy="110" r="5" fill="#fff"/>
+              <text x="118" y="52" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+              <text x="118" y="178" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">B</text>
+              <text x="60" y="126" fill="#fff" font-family="JetBrains Mono" font-size="13">O</text>
+              <text x="258" y="114" fill="#fff" font-family="JetBrains Mono" font-size="13">P</text>
+            </svg>
+          </div>
+          <div>
+            <div class="card">
+              <h3>Yang selalu berlaku</h3>
+              <p class="lead" style="font-size:14px; margin-bottom:8px;">• PA = PB (dua garis singgung dari titik yang sama selalu sama panjang).</p>
+              <p class="lead" style="font-size:14px; margin-bottom:8px;">• OA = OB = r, dan keduanya tegak lurus garis singgungnya.</p>
+              <p class="lead" style="font-size:14px; margin-bottom:8px;">• Segitiga OAP dan OBP kongruen, keduanya siku-siku di A dan B.</p>
+              <p class="lead" style="font-size:14px;">• Garis OP membagi layang-layang menjadi dua bagian yang sama, dan membagi sudut APB menjadi dua sama besar.</p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:13.5px;">💡 Luas layang-layang garis singgung = r × panjang garis singgung, karena bangun itu terdiri atas dua segitiga siku-siku yang sama.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 PANJANG GARIS SINGGUNG -->
+    <section class="slide" data-judul="Rumus Panjang Garis Singgung">
+      <div class="inner">
+        <div class="eyebrow">Rumus Pertama</div>
+        <h1>Panjang garis singgung dari titik luar</h1>
+        <p class="lead">Perhatikan segitiga OAP: siku-siku di A, dengan OA = r (jari-jari), OP = d (jarak titik P ke pusat) sebagai sisi miring, dan AP = g (garis singgung yang dicari).</p>
+        <div class="card tengah" style="margin-top:14px;">
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px;">
+            <circle cx="80" cy="130" r="48" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="2.5"/>
+            <polygon points="80,130 116,98 270,130" fill="var(--pi)" fill-opacity="0.10"/>
+            <line x1="80" y1="130" x2="116" y2="98" stroke="var(--jari)" stroke-width="3.5"/>
+            <line x1="116" y1="98" x2="270" y2="130" stroke="var(--pi)" stroke-width="3.5"/>
+            <line x1="80" y1="130" x2="270" y2="130" stroke="#fff" stroke-width="2.5" stroke-dasharray="5 4"/>
+            <circle cx="116" cy="98" r="5" fill="var(--pi)"/>
+            <circle cx="80" cy="130" r="4" fill="#fff"/>
+            <circle cx="270" cy="130" r="4.5" fill="#fff"/>
+            <text x="86" y="106" fill="var(--jari)" font-family="JetBrains Mono" font-size="13" font-weight="700">r</text>
+            <text x="186" y="104" fill="var(--pi)" font-family="JetBrains Mono" font-size="13" font-weight="700">g</text>
+            <text x="166" y="148" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="700">d</text>
+            <text x="108" y="86" fill="var(--pi)" font-family="JetBrains Mono" font-size="12">A</text>
+            <text x="62" y="146" fill="#fff" font-family="JetBrains Mono" font-size="12">O</text>
+            <text x="278" y="134" fill="#fff" font-family="JetBrains Mono" font-size="12">P</text>
+          </svg>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <h3>Penurunan rumusnya</h3>
+          <p class="lead" style="font-size:14px;">Karena segitiga OAP siku-siku di A, berlaku Pythagoras dengan OP sebagai sisi miring:</p>
+          <p class="mono" style="color:var(--pi); font-size:15px; line-height:2.1; margin-top:8px;">
+            OA² + AP² = OP²<br>
+            r² + g² = d²<br>
+            g² = d² − r²
+          </p>
+        </div>
+        <div class="rumus-hero">
+          <span class="t s">g = √(d² − r²)</span>
+        </div>
+        <div class="grid3">
+          <div class="rumus-kartu"><div class="ket">Mencari garis singgung</div><div class="f" style="color:var(--sing)">g = √(d² − r²)</div></div>
+          <div class="rumus-kartu"><div class="ket">Mencari jarak ke pusat</div><div class="f" style="color:var(--pi)">d = √(g² + r²)</div></div>
+          <div class="rumus-kartu"><div class="ket">Mencari jari-jari</div><div class="f" style="color:var(--jari)">r = √(d² − g²)</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 SIMULASI PANJANG -->
+    <section class="slide" data-judul="Simulasi Panjang" data-init="panjang">
+      <div class="inner">
+        <div class="eyebrow">Coba Sendiri</div>
+        <h1>Geser r dan d, lihat panjang g</h1>
+        <p class="lead">Ubah jari-jari dan jarak titik P ke pusat. Perhatikan: jika d ≤ r, titik P berada di dalam atau pada lingkaran sehingga garis singgung tidak dapat dibuat.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px;">
+              <g id="gsGroup"></g>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Jari-jari (r)</span><b><span id="gsRNilai">6</span> cm</b></div>
+              <input type="range" id="gsR" min="1" max="10" step="1" value="6" oninput="updatePanjang()">
+            </div>
+            <div class="card slider-card" style="margin-top:12px;">
+              <div class="lbl"><span>Jarak pusat ke titik P (d)</span><b><span id="gsDNilai">10</span> cm</b></div>
+              <input type="range" id="gsD" min="2" max="20" step="1" value="10" oninput="updatePanjang()">
+            </div>
+            <div class="card" style="margin-top:12px;">
+              <p class="hasil" id="gsHasil"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 CONTOH 1 -->
+    <section class="slide" data-judul="Contoh 1">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 1</div>
+        <h1>Menghitung panjang garis singgung</h1>
+        <div class="card">
+          <p class="soal-teks">Sebuah lingkaran berpusat di O dengan jari-jari <b>6 cm</b>. Dari titik P yang berjarak <b>10 cm</b> dari O ditarik garis singgung menyentuh lingkaran di titik A. Berapa panjang garis singgung AP?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: yang menjadi sisi miring adalah jarak dari titik ke pusat, bukan garis singgungnya.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">r = 6 cm, d = OP = 10 cm, ditanya g = AP</span></div>
+          <div class="langkah"><b>Langkah 2 — Gunakan sifatnya.</b> OA ⊥ AP, jadi segitiga OAP siku-siku di A dan berlaku <span class="f">g = √(d² − r²)</span></div>
+          <div class="langkah"><b>Langkah 3 — Masukkan nilai.</b><br><span class="f">g = √(10² − 6²) = √(100 − 36)</span></div>
+          <div class="langkah"><b>Langkah 4 — Hitung.</b><br><span class="f">g = √64 = 8</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> panjang garis singgung AP adalah <span class="f">8 cm</span> ✅ (perhatikan 6-8-10 adalah tripel Pythagoras)</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 CONTOH 2 -->
+    <section class="slide" data-judul="Contoh 2">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 2</div>
+        <h1>Rumus yang dibalik</h1>
+        <div class="card">
+          <p class="soal-teks">Panjang garis singgung sebuah lingkaran dari titik P adalah <b>12 cm</b>, sedangkan jari-jari lingkaran <b>5 cm</b>. Berapa jarak titik P ke titik pusat lingkaran?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: kali ini yang dicari adalah sisi miring segitiga siku-sikunya.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">g = 12 cm, r = 5 cm, ditanya d</span></div>
+          <div class="langkah"><b>Langkah 2 — Pilih bentuk rumus.</b> Karena d adalah sisi miring, <span class="f">d = √(g² + r²)</span></div>
+          <div class="langkah"><b>Langkah 3 — Masukkan nilai.</b><br><span class="f">d = √(12² + 5²) = √(144 + 25)</span></div>
+          <div class="langkah"><b>Langkah 4 — Hitung.</b><br><span class="f">d = √169 = 13</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> jarak titik P ke pusat adalah <span class="f">13 cm</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 PENGENALAN GSP -->
+    <section class="slide" data-judul="Garis Singgung Persekutuan">
+      <div class="inner">
+        <div class="eyebrow">Konsep Baru</div>
+        <h1>Garis singgung persekutuan dua lingkaran</h1>
+        <p class="lead">Jika ada dua lingkaran, sebuah garis dapat menyinggung keduanya sekaligus. Garis seperti ini disebut garis singgung persekutuan, dan ada dua jenis.</p>
+        <div class="grid2">
+          <div class="card">
+            <h3 style="color:var(--sing);">Persekutuan luar</h3>
+            <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; display:block; margin:6px auto 0;">
+              <circle cx="80" cy="100" r="48" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="2.5"/>
+              <circle cx="220" cy="100" r="26" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="2.5"/>
+              <line x1="76" y1="52" x2="224" y2="74" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="76" y1="148" x2="224" y2="126" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="80" y1="100" x2="220" y2="100" stroke="#fff" stroke-width="2" stroke-dasharray="5 4" opacity="0.6"/>
+              <circle cx="80" cy="100" r="4" fill="#fff"/><circle cx="220" cy="100" r="4" fill="#fff"/>
+            </svg>
+            <p class="lead" style="font-size:13.5px; margin-top:8px;">Garis singgung berada di sisi yang sama terhadap kedua lingkaran, dan <b>tidak memotong</b> garis penghubung kedua pusat.</p>
+          </div>
+          <div class="card">
+            <h3 style="color:var(--ungu);">Persekutuan dalam</h3>
+            <svg viewBox="0 0 300 170" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; display:block; margin:6px auto 0;">
+              <circle cx="80" cy="100" r="42" fill="var(--ungu)" fill-opacity="0.10" stroke="var(--ungu)" stroke-width="2.5"/>
+              <circle cx="228" cy="100" r="26" fill="var(--ungu)" fill-opacity="0.10" stroke="var(--ungu)" stroke-width="2.5"/>
+              <line x1="52" y1="68" x2="248" y2="124" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="52" y1="132" x2="248" y2="76" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+              <line x1="80" y1="100" x2="228" y2="100" stroke="#fff" stroke-width="2" stroke-dasharray="5 4" opacity="0.6"/>
+              <circle cx="80" cy="100" r="4" fill="#fff"/><circle cx="228" cy="100" r="4" fill="#fff"/>
+            </svg>
+            <p class="lead" style="font-size:13.5px; margin-top:8px;">Garis singgung menyilang di antara kedua lingkaran, sehingga <b>memotong</b> garis penghubung kedua pusat.</p>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px;">
+          <h3>Lambang yang dipakai</h3>
+          <p class="lead" style="font-size:14px;"><span class="mono" style="color:var(--pi)">p</span> = jarak kedua titik pusat · <span class="mono" style="color:var(--sing)">R</span> = jari-jari lingkaran besar · <span class="mono" style="color:var(--jari)">r</span> = jari-jari lingkaran kecil · <span class="mono" style="color:var(--ungu)">l</span> atau <span class="mono" style="color:var(--ungu)">k</span> = panjang garis singgung persekutuannya.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 GSPL -->
+    <section class="slide" data-judul="Rumus Persekutuan Luar" data-init="gspl">
+      <div class="inner">
+        <div class="eyebrow">Rumus Kedua</div>
+        <h1>Garis singgung persekutuan luar</h1>
+        <p class="lead">Geser salah satu jari-jari sampai berimpit, maka terbentuk segitiga siku-siku dengan sisi tegak sepanjang <b>R − r</b> dan sisi miring <b>p</b>.</p>
+        <div class="card tengah" style="margin-top:14px;">
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px;">
+            <circle cx="86" cy="106" r="50" fill="var(--sing)" fill-opacity="0.08" stroke="var(--sing)" stroke-width="2.5"/>
+            <circle cx="238" cy="106" r="24" fill="var(--sing)" fill-opacity="0.08" stroke="var(--sing)" stroke-width="2.5"/>
+            <line x1="78" y1="57" x2="234" y2="82" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="86" y1="106" x2="238" y2="106" stroke="#fff" stroke-width="2.5"/>
+            <line x1="86" y1="106" x2="86" y2="82" stroke="var(--jari)" stroke-width="3"/>
+            <line x1="86" y1="82" x2="238" y2="82" stroke="var(--ungu)" stroke-width="3" stroke-dasharray="6 4"/>
+            <rect x="86" y="82" width="14" height="14" fill="none" stroke="#fff" stroke-width="1.6"/>
+            <circle cx="86" cy="106" r="4" fill="#fff"/><circle cx="238" cy="106" r="4" fill="#fff"/>
+            <text x="56" y="100" fill="var(--jari)" font-family="JetBrains Mono" font-size="12" font-weight="700">R−r</text>
+            <text x="150" y="76" fill="var(--ungu)" font-family="JetBrains Mono" font-size="13" font-weight="700">l</text>
+            <text x="152" y="122" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="700">p</text>
+          </svg>
+          <p class="lead" style="font-size:13px; margin:10px auto 0;">Garis putus-putus ungu sejajar dan sama panjang dengan garis singgungnya.</p>
+        </div>
+        <div class="rumus-hero">
+          <span class="t s">l = √( p² − (R − r)² )</span>
+        </div>
+        <div class="card">
+          <h3>Kalkulator persekutuan luar</h3>
+          <div class="baris">
+            <input type="number" id="glP" placeholder="p (jarak pusat)" inputmode="decimal">
+            <input type="number" id="glR" placeholder="R (besar)" inputmode="decimal">
+            <input type="number" id="glr" placeholder="r (kecil)" inputmode="decimal">
+            <button class="btn utama" onclick="hitungGSPL()">Hitung l</button>
+            <span class="umpan" id="glHasil"></span>
+          </div>
+          <p class="lead" style="font-size:13px; margin-top:12px;">Coba isi p = 13, R = 7, r = 2 lalu tekan Hitung.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 GSPD -->
+    <section class="slide" data-judul="Rumus Persekutuan Dalam" data-init="gspd">
+      <div class="inner">
+        <div class="eyebrow">Rumus Ketiga</div>
+        <h1>Garis singgung persekutuan dalam</h1>
+        <p class="lead">Untuk garis singgung yang menyilang, kedua jari-jari mengarah berlawanan sehingga yang dijumlahkan adalah <b>R + r</b>, bukan dikurangkan.</p>
+        <div class="card tengah" style="margin-top:14px;">
+          <svg viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:340px;">
+            <circle cx="80" cy="96" r="40" fill="var(--ungu)" fill-opacity="0.08" stroke="var(--ungu)" stroke-width="2.5"/>
+            <circle cx="244" cy="96" r="22" fill="var(--ungu)" fill-opacity="0.08" stroke="var(--ungu)" stroke-width="2.5"/>
+            <line x1="52" y1="68" x2="262" y2="112" stroke="var(--pi)" stroke-width="3.5" stroke-linecap="round"/>
+            <line x1="80" y1="96" x2="244" y2="96" stroke="#fff" stroke-width="2.5"/>
+            <line x1="80" y1="56" x2="80" y2="96" stroke="var(--jari)" stroke-width="3"/>
+            <line x1="244" y1="96" x2="244" y2="118" stroke="var(--jari)" stroke-width="3"/>
+            <line x1="80" y1="56" x2="244" y2="118" stroke="var(--sing)" stroke-width="2.6" stroke-dasharray="6 4"/>
+            <circle cx="80" cy="96" r="4" fill="#fff"/><circle cx="244" cy="96" r="4" fill="#fff"/>
+            <text x="46" y="80" fill="var(--jari)" font-family="JetBrains Mono" font-size="12" font-weight="700">R</text>
+            <text x="252" y="116" fill="var(--jari)" font-family="JetBrains Mono" font-size="12" font-weight="700">r</text>
+            <text x="150" y="76" fill="var(--sing)" font-family="JetBrains Mono" font-size="13" font-weight="700">k</text>
+            <text x="156" y="112" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="700">p</text>
+          </svg>
+          <p class="lead" style="font-size:13px; margin:10px auto 0;">Sisi tegak segitiga siku-sikunya sepanjang R + r, sisi miringnya tetap p.</p>
+        </div>
+        <div class="rumus-hero">
+          <span class="t j">k = √( p² − (R + r)² )</span>
+        </div>
+        <div class="card">
+          <h3>Kalkulator persekutuan dalam</h3>
+          <div class="baris">
+            <input type="number" id="gdP" placeholder="p (jarak pusat)" inputmode="decimal">
+            <input type="number" id="gdR" placeholder="R (besar)" inputmode="decimal">
+            <input type="number" id="gdr" placeholder="r (kecil)" inputmode="decimal">
+            <button class="btn utama" onclick="hitungGSPD()">Hitung k</button>
+            <span class="umpan" id="gdHasil"></span>
+          </div>
+          <p class="lead" style="font-size:13px; margin-top:12px;">Coba isi p = 17, R = 6, r = 2 lalu tekan Hitung.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 CONTOH 3 -->
+    <section class="slide" data-judul="Contoh 3">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 3</div>
+        <h1>Soal persekutuan luar</h1>
+        <div class="card">
+          <p class="soal-teks">Dua lingkaran berjari-jari <b>7 cm</b> dan <b>2 cm</b>. Jarak kedua titik pusatnya <b>13 cm</b>. Hitunglah panjang garis singgung persekutuan luarnya.</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: kata "luar" berarti kedua jari-jari searah, sehingga dikurangkan.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">p = 13 cm, R = 7 cm, r = 2 cm, ditanya l</span></div>
+          <div class="langkah"><b>Langkah 2 — Pilih rumus.</b><br><span class="f">l = √(p² − (R − r)²)</span></div>
+          <div class="langkah"><b>Langkah 3 — Hitung selisih jari-jari.</b><br><span class="f">R − r = 7 − 2 = 5</span></div>
+          <div class="langkah"><b>Langkah 4 — Masukkan dan hitung.</b><br><span class="f">l = √(169 − 25) = √144 = 12</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> panjang garis singgung persekutuan luar adalah <span class="f">12 cm</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 CONTOH 4 -->
+    <section class="slide" data-judul="Contoh 4">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 4</div>
+        <h1>Soal persekutuan dalam (cerita)</h1>
+        <div class="card">
+          <p class="soal-teks">Dua buah pipa dengan jari-jari <b>6 cm</b> dan <b>2 cm</b> diletakkan sejajar. Jarak kedua pusat pipa <b>17 cm</b>. Sebuah tali direntangkan menyilang menyinggung kedua pipa. Berapa panjang bagian tali yang menyinggung itu?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: kata "menyilang" menandakan garis singgung persekutuan dalam.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">p = 17 cm, R = 6 cm, r = 2 cm, ditanya k</span></div>
+          <div class="langkah"><b>Langkah 2 — Pilih rumus.</b> Karena menyilang, jari-jari dijumlahkan: <span class="f">k = √(p² − (R + r)²)</span></div>
+          <div class="langkah"><b>Langkah 3 — Hitung jumlah jari-jari.</b><br><span class="f">R + r = 6 + 2 = 8</span></div>
+          <div class="langkah"><b>Langkah 4 — Masukkan dan hitung.</b><br><span class="f">k = √(289 − 64) = √225 = 15</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> panjang tali yang menyinggung adalah <span class="f">15 cm</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 LATIHAN -->
+    <section class="slide" data-judul="Latihan Mandiri">
+      <div class="inner">
+        <div class="eyebrow">Latihan Bertingkat</div>
+        <h1>Sekarang giliranmu</h1>
+        <p class="lead">Tulis jawabanmu berupa angka saja, lalu ketuk "Cek Jawaban".</p>
+
+        <div class="latihan" style="margin-top:18px;">
+          <span class="tingkat" style="color:var(--benar)">MUDAH</span>
+          <p class="soal-teks" style="margin-top:10px;">1. Jari-jari sebuah lingkaran 9 cm. Dari titik P yang berjarak 15 cm dari pusat ditarik garis singgung. Berapa panjang garis singgungnya (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in1" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('1',12,'g = √(15² − 9²) = √(225 − 81) = √144 = 12 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb1"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--benar)">MUDAH</span>
+          <p class="soal-teks" style="margin-top:10px;">2. Panjang garis singgung sebuah lingkaran 24 cm dan jari-jarinya 7 cm. Berapa jarak titik tersebut ke pusat lingkaran (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in2" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('2',25,'d = √(24² + 7²) = √(576 + 49) = √625 = 25 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb2"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--pi)">SEDANG</span>
+          <p class="soal-teks" style="margin-top:10px;">3. Dua lingkaran berjari-jari 8 cm dan 2 cm dengan jarak kedua pusat 10 cm. Berapa panjang garis singgung persekutuan luarnya (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in3" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('3',8,'R − r = 8 − 2 = 6, maka l = √(10² − 6²) = √(100 − 36) = √64 = 8 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb3"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--pi)">SEDANG</span>
+          <p class="soal-teks" style="margin-top:10px;">4. Dua lingkaran berjari-jari 9 cm dan 6 cm dengan jarak kedua pusat 25 cm. Berapa panjang garis singgung persekutuan dalamnya (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in4" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('4',20,'R + r = 9 + 6 = 15, maka k = √(25² − 15²) = √(625 − 225) = √400 = 20 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb4"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--salah)">MENANTANG</span>
+          <p class="soal-teks" style="margin-top:10px;">5. Panjang garis singgung persekutuan luar dua lingkaran 8 cm. Jari-jarinya 10 cm dan 4 cm. Berapa jarak kedua titik pusatnya (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in5" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('5',10,'R − r = 10 − 4 = 6. p = √(l² + (R − r)²) = √(64 + 36) = √100 = 10 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb5"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--salah)">MENANTANG</span>
+          <p class="soal-teks" style="margin-top:10px;">6. Panjang garis singgung persekutuan dalam dua lingkaran 16 cm, jarak kedua pusat 20 cm, dan jari-jari lingkaran besar 8 cm. Berapa jari-jari lingkaran kecil (cm)?</p>
+          <div class="baris">
+            <input type="number" id="in6" placeholder="…cm" inputmode="decimal">
+            <button class="btn" onclick="cek('6',4,'R + r = √(p² − k²) = √(400 − 256) = √144 = 12. Maka r = 12 − 8 = 4 cm.')">Cek Jawaban</button>
+            <span class="umpan" id="fb6"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 KUIS -->
+    <section class="slide" data-judul="Kuis Interaktif" data-init="kuis">
+      <div class="inner">
+        <div class="eyebrow">Evaluasi</div>
+        <h1>Kuis interaktif</h1>
+        <p class="lead">Jawab semua soal berikut. Skor dihitung otomatis, dan pembahasan lengkapnya ada di slide berikutnya.</p>
+        <div style="max-width:720px; margin-top:18px;">
+          <div class="kuis-dots" id="kuisDots"></div>
+          <div id="kuisArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 PEMBAHASAN -->
+    <section class="slide" data-judul="Pembahasan Kuis" data-init="bahas">
+      <div class="inner">
+        <div class="eyebrow">Pembahasan</div>
+        <h1>Pembahasan setiap soal</h1>
+        <div id="bahasArea" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- 20 RINGKASAN -->
+    <section class="slide" data-judul="Ringkasan">
+      <div class="inner">
+        <div class="eyebrow">Penguatan</div>
+        <h1>🧠 Ringkasan &amp; yang perlu diingat</h1>
+        <div class="ring-grid">
+          <div class="ring"><span class="judul">PENGERTIAN</span>Garis singgung adalah garis yang memotong lingkaran tepat di satu titik. Titik itu disebut titik singgung.</div>
+          <div class="ring"><span class="judul">KEDUDUKAN GARIS</span>jarak &lt; r → memotong 2 titik · jarak = r → menyinggung · jarak &gt; r → tidak memotong.</div>
+          <div class="ring"><span class="judul">SIFAT 1</span>Garis singgung selalu <b>tegak lurus</b> jari-jari di titik singgungnya, sehingga terbentuk segitiga siku-siku.</div>
+          <div class="ring"><span class="judul">SIFAT 2</span>Dari titik di luar lingkaran dapat dibuat tepat dua garis singgung yang <b>sama panjang</b> (layang-layang garis singgung).</div>
+          <div class="ring"><span class="judul">PANJANG GARIS SINGGUNG</span><span class="f">g = √(d² − r²)</span>, dengan d = jarak titik ke pusat sebagai sisi miring.</div>
+          <div class="ring"><span class="judul">PERSEKUTUAN LUAR</span><span class="f">l = √(p² − (R − r)²)</span> — jari-jari <b>dikurangkan</b>.</div>
+          <div class="ring"><span class="judul">PERSEKUTUAN DALAM</span><span class="f">k = √(p² − (R + r)²)</span> — jari-jari <b>dijumlahkan</b>.</div>
+          <div class="ring"><span class="judul">LANGKAH PENGERJAAN</span>1) Tentukan jenisnya · 2) Tulis p, R, r · 3) Hitung (R−r) atau (R+r) · 4) Gunakan Pythagoras · 5) Tulis satuan.</div>
+          <div class="ring salah-umum"><span class="judul" style="color:var(--salah)">KESALAHAN UMUM 1</span>Tertukar antara rumus luar dan dalam. Ingat: <b>luar dikurang, dalam ditambah</b>.</div>
+          <div class="ring salah-umum"><span class="judul" style="color:var(--salah)">KESALAHAN UMUM 2</span>Menempatkan garis singgung sebagai sisi miring. Sisi miring selalu d atau p, karena sudut siku-sikunya ada di titik singgung.</div>
+          <div class="ring salah-umum"><span class="judul" style="color:var(--salah)">KESALAHAN UMUM 3</span>Lupa mengakarkan hasil akhir, sehingga yang dilaporkan masih berupa g² atau l².</div>
+          <div class="ring"><span class="judul">SYARAT ADA</span>Garis singgung persekutuan luar ada jika p &gt; R − r; yang dalam ada jika p &gt; R + r (kedua lingkaran terpisah).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 GAME -->
+    <section class="slide" data-judul="Ayo Bermain Game" data-init="game">
+      <div class="inner">
+        <div class="eyebrow">Tantangan</div>
+        <h1>🎮 Ayo bermain game!</h1>
+        <div class="game-box">
+          <span class="game-emoji">🎮</span>
+          <h2 style="margin-top:0;">Uji kecepatan dan ketepatanmu</h2>
+          <p class="lead" style="margin:0 auto 6px;">Sudah siap menguji kemampuanmu? Yuk lanjutkan ke game interaktif!</p>
+          <div class="btn-row" style="justify-content:center;">
+            <a class="btn utama" href="game-interaktif.html">🎮 AYO BERMAIN GAME</a>
+          </div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+          <p class="lead" style="font-size:13.5px;">Setelah selesai bermain, kembali ke halaman ini dan lanjutkan ke slide terakhir untuk menutup pembelajaran.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22 SELESAI -->
+    <section class="slide" data-judul="Pembelajaran Selesai" data-init="selesai">
+      <div class="inner">
+        <div class="eyebrow">Penutup</div>
+        <h1>🎉 Pembelajaran selesai!</h1>
+        <div class="selesai-box">
+          <div class="ceklis">🎓</div>
+          <h2 style="margin-top:0;">Selamat, kamu telah menyelesaikan pembelajaran ini!</h2>
+          <div class="identitas">
+            Materi: <b>Lingkaran</b><br>
+            Submateri: <b>2.5 Garis Singgung Lingkaran</b><br>
+            Skor kuis: <b id="skorAkhir">belum dikerjakan</b>
+          </div>
+          <p class="lead" style="margin:0 auto;">Semua rumus hari ini sebenarnya satu rumus yang sama: Pythagoras. Kalau kamu bisa menggambar segitiga siku-sikunya, kamu bisa menyelesaikan soalnya. Terus berlatih, ya!</p>
+          <div id="statusSelesai">✓ PEMBELAJARAN SELESAI</div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn hijau" id="btnSelesai" onclick="selesaikanPembelajaran()">✅ SELESAI</button>
+            <button class="btn" onclick="pelajariLagi()">↺ PELAJARI LAGI</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="navbar">
+    <button class="nav-btn" id="btnPrev" onclick="slideSebelum()" aria-label="Sebelumnya">←</button>
+    <div class="nav-tengah">
+      <div class="nav-judul" id="navJudul">Pembuka</div>
+      <div class="titik" id="titikWrap"></div>
+    </div>
+    <button class="nav-btn" onclick="keSlide(0)" aria-label="Kembali ke awal" title="Kembali ke awal">⌂</button>
+    <button class="nav-btn" id="btnNext" onclick="slideBerikut()" aria-label="Berikutnya">→</button>
+  </nav>
+</div>
+
+<script>
+/* ============ PENYIMPANAN ============ */
+var KEY = { status:'gsl_status', slide:'gsl_slide', skor:'gsl_skor', selesai:'gsl_selesai' };
+function simpan(k,v){ try{ localStorage.setItem(k,String(v)); }catch(e){} }
+function ambil(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+var statusSekarang = ambil(KEY.status) || 'BELUM MULAI';
+function setStatus(s){
+  var urut = ['BELUM MULAI','SEDANG BELAJAR','KUIS','GAME','SELESAI'];
+  if(urut.indexOf(s) < urut.indexOf(statusSekarang)) return;
+  statusSekarang = s;
+  document.getElementById('statusChip').textContent = s;
+  simpan(KEY.status, s);
+}
+
+/* ============ NAVIGASI ============ */
+var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+var jumlah = slides.length;
+var aktif = 0;
+var titikWrap = document.getElementById('titikWrap');
+document.getElementById('slideTotal').textContent = jumlah;
+for(var i=0;i<jumlah;i++){
+  (function(idx){
+    var t = document.createElement('i');
+    t.title = slides[idx].getAttribute('data-judul') || ('Slide '+(idx+1));
+    t.onclick = function(){ keSlide(idx); };
+    titikWrap.appendChild(t);
+  })(i);
+}
+var titikEls = Array.prototype.slice.call(titikWrap.children);
+
+function tampilkan(){
+  for(var i=0;i<jumlah;i++){
+    if(i===aktif){ slides[i].classList.add('active'); titikEls[i].classList.add('aktif'); }
+    else { slides[i].classList.remove('active'); titikEls[i].classList.remove('aktif'); }
+  }
+  document.getElementById('slideNow').textContent = aktif+1;
+  document.getElementById('progressFill').style.width = (((aktif+1)/jumlah)*100)+'%';
+  document.getElementById('navJudul').textContent = slides[aktif].getAttribute('data-judul') || '';
+  document.getElementById('btnPrev').disabled = (aktif===0);
+  document.getElementById('btnNext').disabled = (aktif===jumlah-1);
+  window.scrollTo(0,0);
+  if(aktif > 0) setStatus('SEDANG BELAJAR');
+  simpan(KEY.slide, aktif);
+
+  var init = slides[aktif].getAttribute('data-init');
+  if(init === 'kedudukan') updateKedudukan();
+  if(init === 'panjang') updatePanjang();
+  if(init === 'kuis'){ setStatus('KUIS'); if(!kuisSudahMulai) mulaiKuis(); }
+  if(init === 'bahas') tampilPembahasan();
+  if(init === 'game') setStatus('GAME');
+  if(init === 'selesai') tampilSkorAkhir();
+}
+function keSlide(i){ if(i<0||i>=jumlah) return; aktif=i; tampilkan(); }
+function slideBerikut(){ if(aktif<jumlah-1){ aktif++; tampilkan(); } }
+function slideSebelum(){ if(aktif>0){ aktif--; tampilkan(); } }
+document.addEventListener('keydown', function(e){
+  if(e.key==='ArrowRight') slideBerikut();
+  if(e.key==='ArrowLeft') slideSebelum();
+});
+
+/* ============ APERSEPSI ============ */
+function pemantik(teks){
+  var b = document.getElementById('pemantikBox');
+  b.classList.remove('kosong');
+  b.innerHTML = teks;
+}
+
+/* ============ KEDUDUKAN GARIS ============ */
+function updateKedudukan(){
+  var s = document.getElementById('kdSlider');
+  if(!s) return;
+  var jarak = parseInt(s.value,10);
+  var r = 6;
+  var skala = 12; /* 6 cm -> 72 px */
+  var y = 140 - jarak*skala;
+  document.getElementById('kdNilai').textContent = jarak;
+  document.getElementById('garisK').setAttribute('y1', y);
+  document.getElementById('garisK').setAttribute('y2', y);
+  document.getElementById('jarakK').setAttribute('y2', y);
+
+  var t1 = document.getElementById('ttk1');
+  var t2 = document.getElementById('ttk2');
+  var ket = document.getElementById('kdStatus');
+  var hasil = document.getElementById('kdHasil');
+
+  if(jarak < r){
+    var dx = Math.sqrt(r*r - jarak*jarak)*skala;
+    t1.setAttribute('cx', 140-dx); t1.setAttribute('cy', y); t1.setAttribute('opacity', 1);
+    t2.setAttribute('cx', 140+dx); t2.setAttribute('cy', y); t2.setAttribute('opacity', 1);
+    ket.innerHTML = '<span style="color:var(--ungu)">Garis memotong lingkaran (2 titik)</span>';
+  } else if(jarak === r){
+    t1.setAttribute('cx', 140); t1.setAttribute('cy', y); t1.setAttribute('opacity', 1);
+    t2.setAttribute('opacity', 0);
+    ket.innerHTML = '<span style="color:var(--benar)">Garis menyinggung lingkaran (1 titik) ✅</span>';
+  } else {
+    t1.setAttribute('opacity', 0);
+    t2.setAttribute('opacity', 0);
+    ket.innerHTML = '<span style="color:var(--salah)">Garis tidak memotong lingkaran (0 titik)</span>';
+  }
+  hasil.innerHTML = 'jari-jari r = 6 cm<br>jarak O ke garis = '+jarak+' cm<br>'+
+    'bandingkan: '+jarak+' '+(jarak<r?'&lt;':(jarak===r?'=':'&gt;'))+' 6';
+}
+
+/* ============ SIFAT SIKU-SIKU ============ */
+function bukaSiku(){
+  document.getElementById('kotakSiku').setAttribute('opacity', 1);
+  document.getElementById('tulisSiku').setAttribute('opacity', 1);
+}
+
+/* ============ SIMULASI PANJANG GARIS SINGGUNG ============ */
+function updatePanjang(){
+  var sr = document.getElementById('gsR');
+  var sd = document.getElementById('gsD');
+  if(!sr || !sd) return;
+  var r = parseInt(sr.value,10);
+  var d = parseInt(sd.value,10);
+  document.getElementById('gsRNilai').textContent = r;
+  document.getElementById('gsDNilai').textContent = d;
+
+  var skala = 11, Ox = 60, Oy = 150;
+  var Px = Ox + d*skala;
+  var g = '';
+  var hasil = document.getElementById('gsHasil');
+
+  if(d <= r){
+    g = '<circle cx="'+Ox+'" cy="'+Oy+'" r="'+(r*skala)+'" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>'+
+        '<circle cx="'+Ox+'" cy="'+Oy+'" r="4" fill="#fff"/>'+
+        '<circle cx="'+Px+'" cy="'+Oy+'" r="5" fill="var(--salah)"/>'+
+        '<text x="'+(Px-6)+'" y="'+(Oy-14)+'" fill="var(--salah)" font-family="JetBrains Mono" font-size="13">P</text>';
+    hasil.innerHTML = 'r = '+r+' cm, d = '+d+' cm<br>'+
+      '<span style="color:var(--salah)">Karena d ≤ r, titik P berada di dalam atau pada lingkaran, sehingga garis singgung tidak dapat dibuat.</span>';
+  } else {
+    var cosA = r/d;
+    var Tx = Ox + r*skala*cosA;
+    var Ty = Oy - r*skala*Math.sqrt(1-cosA*cosA);
+    var panjang = Math.sqrt(d*d - r*r);
+    g = '<circle cx="'+Ox+'" cy="'+Oy+'" r="'+(r*skala)+'" fill="var(--sing)" fill-opacity="0.10" stroke="var(--sing)" stroke-width="3"/>'+
+        '<line x1="'+Ox+'" y1="'+Oy+'" x2="'+Px+'" y2="'+Oy+'" stroke="#fff" stroke-width="2.5" stroke-dasharray="5 4"/>'+
+        '<line x1="'+Ox+'" y1="'+Oy+'" x2="'+Tx.toFixed(1)+'" y2="'+Ty.toFixed(1)+'" stroke="var(--jari)" stroke-width="3.5"/>'+
+        '<line x1="'+Tx.toFixed(1)+'" y1="'+Ty.toFixed(1)+'" x2="'+Px+'" y2="'+Oy+'" stroke="var(--pi)" stroke-width="3.5"/>'+
+        '<circle cx="'+Tx.toFixed(1)+'" cy="'+Ty.toFixed(1)+'" r="5" fill="var(--pi)"/>'+
+        '<circle cx="'+Ox+'" cy="'+Oy+'" r="4" fill="#fff"/>'+
+        '<circle cx="'+Px+'" cy="'+Oy+'" r="4.5" fill="#fff"/>'+
+        '<text x="'+(Ox-14)+'" y="'+(Oy+16)+'" fill="#fff" font-family="JetBrains Mono" font-size="12">O</text>'+
+        '<text x="'+(Px+6)+'" y="'+(Oy+4)+'" fill="#fff" font-family="JetBrains Mono" font-size="12">P</text>'+
+        '<text x="'+(Tx-10).toFixed(1)+'" y="'+(Ty-10).toFixed(1)+'" fill="var(--pi)" font-family="JetBrains Mono" font-size="12">A</text>';
+    hasil.innerHTML = 'g = √(d² − r²)<br>'+
+      'g = √('+(d*d)+' − '+(r*r)+') = √'+(d*d-r*r)+'<br>'+
+      '<span class="akhir" style="color:var(--pi)">g ≈ '+panjang.toFixed(2)+' cm</span>';
+  }
+  document.getElementById('gsGroup').innerHTML = g;
+}
+
+/* ============ KALKULATOR GSP ============ */
+function hitungGSPL(){
+  var p = parseFloat(document.getElementById('glP').value);
+  var R = parseFloat(document.getElementById('glR').value);
+  var r = parseFloat(document.getElementById('glr').value);
+  var out = document.getElementById('glHasil');
+  if(isNaN(p)||isNaN(R)||isNaN(r)){ out.className='umpan no'; out.textContent='Isi ketiga nilai terlebih dahulu.'; return; }
+  var beda = Math.abs(R-r);
+  var sisa = p*p - beda*beda;
+  if(sisa <= 0){ out.className='umpan no'; out.innerHTML='Tidak dapat dihitung: syaratnya p harus lebih besar dari (R − r) = '+beda+'.'; return; }
+  out.className='umpan ok';
+  out.innerHTML = 'R − r = '+beda+' → l = √('+(p*p)+' − '+(beda*beda)+') = √'+sisa+' ≈ <b>'+Math.sqrt(sisa).toFixed(2)+'</b> satuan panjang.';
+}
+function hitungGSPD(){
+  var p = parseFloat(document.getElementById('gdP').value);
+  var R = parseFloat(document.getElementById('gdR').value);
+  var r = parseFloat(document.getElementById('gdr').value);
+  var out = document.getElementById('gdHasil');
+  if(isNaN(p)||isNaN(R)||isNaN(r)){ out.className='umpan no'; out.textContent='Isi ketiga nilai terlebih dahulu.'; return; }
+  var jml = R + r;
+  var sisa = p*p - jml*jml;
+  if(sisa <= 0){ out.className='umpan no'; out.innerHTML='Tidak dapat dihitung: syaratnya p harus lebih besar dari (R + r) = '+jml+'.'; return; }
+  out.className='umpan ok';
+  out.innerHTML = 'R + r = '+jml+' → k = √('+(p*p)+' − '+(jml*jml)+') = √'+sisa+' ≈ <b>'+Math.sqrt(sisa).toFixed(2)+'</b> satuan panjang.';
+}
+
+/* ============ LANGKAH CONTOH SOAL ============ */
+function bukaLangkah(btn){
+  var kotak = btn.closest('.card');
+  var semua = Array.prototype.slice.call(kotak.querySelectorAll('.langkah'));
+  var belum = null;
+  for(var i=0;i<semua.length;i++){ if(!semua[i].classList.contains('tampil')){ belum = semua[i]; break; } }
+  if(belum) belum.classList.add('tampil');
+  var sisa = 0;
+  for(var j=0;j<semua.length;j++){ if(!semua[j].classList.contains('tampil')) sisa++; }
+  if(sisa === 0){
+    btn.textContent = '↺ Sembunyikan Langkah';
+    btn.onclick = function(){
+      for(var k=0;k<semua.length;k++) semua[k].classList.remove('tampil');
+      btn.textContent = 'Tampilkan Langkah';
+      btn.onclick = function(){ bukaLangkah(btn); };
+    };
+  }
+}
+
+/* ============ LATIHAN ============ */
+function cek(no, jawaban, pembahasan){
+  var inp = document.getElementById('in'+no);
+  var fb = document.getElementById('fb'+no);
+  var nilai = parseFloat(inp.value);
+  if(isNaN(nilai)){ fb.className='umpan no'; fb.textContent='Isi dulu jawabanmu di kotak, ya.'; return; }
+  if(Math.abs(nilai-jawaban) < 0.05){
+    fb.className='umpan ok';
+    fb.innerHTML = '✅ Benar! ' + pembahasan;
+  } else {
+    fb.className='umpan no';
+    fb.innerHTML = '❌ Belum tepat. Jawaban yang benar: <b>'+jawaban+'</b>. ' + pembahasan;
+  }
+}
+
+/* ============ KUIS ============ */
+var soalKuis = [
+  { tipe:'pg', q:'Garis singgung lingkaran adalah garis yang memotong lingkaran di…',
+    opsi:['dua titik','tepat satu titik','tiga titik','tidak ada titik'], benar:1,
+    bahas:'Garis singgung memotong lingkaran tepat di satu titik yang disebut titik singgung. Garis yang memotong di dua titik disebut garis sekan.' },
+  { tipe:'bs', q:'Benar atau salah: garis singgung selalu tegak lurus terhadap jari-jari di titik singgungnya.',
+    opsi:['Benar','Salah'], benar:0,
+    bahas:'Benar. Inilah sifat utama garis singgung, dan karena itulah terbentuk segitiga siku-siku sehingga Pythagoras dapat dipakai.' },
+  { tipe:'pg', q:'Jarak titik pusat sebuah lingkaran ke suatu garis adalah 9 cm, sedangkan jari-jarinya 9 cm. Kedudukan garis tersebut adalah…',
+    opsi:['memotong lingkaran','menyinggung lingkaran','di luar lingkaran','tidak dapat ditentukan'], benar:1,
+    bahas:'Jika jarak pusat ke garis sama dengan jari-jari, garis itu menyinggung lingkaran tepat di satu titik.' },
+  { tipe:'pg', q:'Jari-jari lingkaran 8 cm dan jarak titik P ke pusat 17 cm. Panjang garis singgung dari P adalah…',
+    opsi:['9 cm','12 cm','15 cm','25 cm'], benar:2,
+    bahas:'g = √(17² − 8²) = √(289 − 64) = √225 = 15 cm.' },
+  { tipe:'pg', q:'Rumus panjang garis singgung persekutuan luar dua lingkaran adalah…',
+    opsi:['l = √(p² − (R + r)²)','l = √(p² − (R − r)²)','l = √(p² + (R − r)²)','l = p − (R − r)'], benar:1,
+    bahas:'Pada persekutuan luar, jari-jari dikurangkan: l = √(p² − (R − r)²).' },
+  { tipe:'bs', q:'Benar atau salah: pada garis singgung persekutuan dalam, kedua jari-jari dijumlahkan.',
+    opsi:['Benar','Salah'], benar:0,
+    bahas:'Benar. Karena arah jari-jari berlawanan, yang dipakai adalah (R + r) sehingga k = √(p² − (R + r)²).' },
+  { tipe:'isian', q:'Dua lingkaran berjari-jari 10 cm dan 4 cm dengan jarak pusat 10 cm. Berapa panjang garis singgung persekutuan luarnya (cm)?',
+    jawab:8, bahas:'R − r = 10 − 4 = 6, maka l = √(100 − 36) = √64 = 8 cm.' },
+  { tipe:'isian', q:'Dua lingkaran berjari-jari 7 cm dan 5 cm dengan jarak pusat 20 cm. Berapa panjang garis singgung persekutuan dalamnya (cm)?',
+    jawab:16, bahas:'R + r = 7 + 5 = 12, maka k = √(400 − 144) = √256 = 16 cm.' },
+  { tipe:'pg', q:'Dari sebuah titik di luar lingkaran ditarik dua garis singgung. Pernyataan yang benar adalah…',
+    opsi:['keduanya selalu sama panjang','yang satu selalu lebih panjang','panjangnya tergantung arah garis','hanya bisa dibuat satu garis singgung'], benar:0,
+    bahas:'Dua garis singgung dari satu titik di luar lingkaran selalu sama panjang karena kedua segitiga yang terbentuk kongruen.' },
+  { tipe:'pg', q:'Panjang garis singgung persekutuan luar dua lingkaran 24 cm, jarak kedua pusat 25 cm, dan jari-jari lingkaran besar 10 cm. Jari-jari lingkaran kecil adalah…',
+    opsi:['3 cm','5 cm','7 cm','13 cm'], benar:0,
+    bahas:'R − r = √(25² − 24²) = √(625 − 576) = √49 = 7, sehingga r = 10 − 7 = 3 cm.' }
+];
+
+var idxKuis=0, skorKuis=0, jawabanUser=[], kuisSudahMulai=false, kuisSelesai=false;
+
+function mulaiKuis(){
+  kuisSudahMulai = true; kuisSelesai = false;
+  idxKuis = 0; skorKuis = 0; jawabanUser = [];
+  for(var i=0;i<soalKuis.length;i++) jawabanUser.push(null);
+  gambarDots(); gambarSoal();
+}
+function gambarDots(){
+  var w = document.getElementById('kuisDots');
+  w.innerHTML = '';
+  for(var i=0;i<soalKuis.length;i++){
+    var d = document.createElement('i');
+    if(jawabanUser[i] !== null) d.className = jawabanUser[i].benar ? 'ok' : 'no';
+    w.appendChild(d);
+  }
+}
+function gambarSoal(){
+  var area = document.getElementById('kuisArea');
+  if(idxKuis >= soalKuis.length){ gambarHasil(); return; }
+  var s = soalKuis[idxKuis];
+  var html = '<div class="card"><h3 style="margin-bottom:12px;">Soal '+(idxKuis+1)+' dari '+soalKuis.length+'</h3>'+
+             '<p class="soal-teks">'+s.q+'</p>';
+  if(s.tipe === 'isian'){
+    html += '<div class="baris"><input type="number" id="kuisInput" placeholder="tulis jawabanmu" inputmode="decimal">'+
+            '<button class="btn utama" id="kuisJawabBtn" onclick="jawabIsian()">Jawab</button></div>';
+  } else {
+    html += '<div class="opsi" id="opsiWrap"></div>';
+  }
+  html += '<div class="kuis-umpan" id="kuisUmpan"></div>'+
+          '<div class="kuis-bar"><span class="mono" style="font-size:12px; color:var(--dim)">Skor sementara: '+skorKuis+'/'+soalKuis.length+'</span>'+
+          '<button class="btn utama" id="kuisNext" style="display:none;" onclick="soalBerikut()">Lanjut</button></div></div>';
+  area.innerHTML = html;
+  if(s.tipe !== 'isian'){
+    var wrap = document.getElementById('opsiWrap');
+    for(var i=0;i<s.opsi.length;i++){
+      (function(k){
+        var b = document.createElement('button');
+        b.textContent = s.opsi[k];
+        b.onclick = function(){ jawabPilihan(k); };
+        wrap.appendChild(b);
+      })(i);
+    }
+  }
+}
+function jawabPilihan(pilih){
+  var s = soalKuis[idxKuis];
+  var tombol = Array.prototype.slice.call(document.querySelectorAll('#opsiWrap button'));
+  for(var i=0;i<tombol.length;i++) tombol[i].disabled = true;
+  var benar = (pilih === s.benar);
+  if(benar){ tombol[pilih].classList.add('benar'); skorKuis++; }
+  else { tombol[pilih].classList.add('salah'); tombol[s.benar].classList.add('benar'); }
+  jawabanUser[idxKuis] = { isi:s.opsi[pilih], benar:benar };
+  tutupSoal(benar, s.bahas);
+}
+function jawabIsian(){
+  var inp = document.getElementById('kuisInput');
+  var nilai = parseFloat(inp.value);
+  if(isNaN(nilai)){ document.getElementById('kuisUmpan').innerHTML = '<span style="color:var(--salah)">Isi dulu jawabanmu, ya.</span>'; return; }
+  var s = soalKuis[idxKuis];
+  var benar = Math.abs(nilai - s.jawab) < 0.05;
+  if(benar) skorKuis++;
+  inp.disabled = true;
+  document.getElementById('kuisJawabBtn').disabled = true;
+  jawabanUser[idxKuis] = { isi:String(nilai), benar:benar };
+  tutupSoal(benar, s.bahas);
+}
+function tutupSoal(benar, bahas){
+  var u = document.getElementById('kuisUmpan');
+  u.innerHTML = (benar ? '<b style="color:var(--benar)">✅ Benar!</b> ' : '<b style="color:var(--salah)">❌ Belum tepat.</b> ') + bahas;
+  gambarDots();
+  var nx = document.getElementById('kuisNext');
+  nx.style.display = 'inline-flex';
+  nx.textContent = (idxKuis < soalKuis.length-1) ? 'Lanjut' : 'Lihat Hasil';
+}
+function soalBerikut(){ idxKuis++; gambarSoal(); }
+function gambarHasil(){
+  kuisSelesai = true;
+  var total = soalKuis.length;
+  var salah = total - skorKuis;
+  var persen = Math.round(skorKuis/total*100);
+  var kategori, warna;
+  if(persen >= 90){ kategori='Luar Biasa'; warna='var(--benar)'; }
+  else if(persen >= 75){ kategori='Hebat'; warna='var(--sing)'; }
+  else if(persen >= 60){ kategori='Cukup Baik'; warna='var(--pi)'; }
+  else { kategori='Perlu Belajar Lagi'; warna='var(--salah)'; }
+  simpan(KEY.skor, skorKuis+'/'+total);
+  document.getElementById('kuisArea').innerHTML =
+    '<div class="card tengah">'+
+      '<p class="mono" style="font-size:12px; color:var(--dim)">Hasil kuismu</p>'+
+      '<div class="skor-besar">'+skorKuis+'/'+total+'</div>'+
+      '<div class="stat-grid">'+
+        '<div class="stat"><b style="color:var(--benar)">'+skorKuis+'</b><span>Benar</span></div>'+
+        '<div class="stat"><b style="color:var(--salah)">'+salah+'</b><span>Salah</span></div>'+
+        '<div class="stat"><b style="color:var(--pi)">'+persen+'%</b><span>Persentase</span></div>'+
+        '<div class="stat"><b style="color:'+warna+'; font-size:14px;">'+kategori+'</b><span>Kategori</span></div>'+
+      '</div>'+
+      '<p class="lead" style="margin:0 auto 6px;">Pembahasan lengkap setiap soal ada di slide berikutnya.</p>'+
+      '<div class="btn-row" style="justify-content:center;">'+
+        '<button class="btn utama" onclick="mulaiKuis()">↻ ULANGI KUIS</button>'+
+        '<button class="btn" onclick="slideBerikut()">Lihat Pembahasan</button>'+
+      '</div>'+
+    '</div>';
+}
+
+/* ============ PEMBAHASAN ============ */
+function tampilPembahasan(){
+  var area = document.getElementById('bahasArea');
+  var html = '';
+  if(!kuisSelesai){
+    html += '<div class="card" style="margin-bottom:14px;"><p class="lead" style="font-size:14px;">Kuisnya belum diselesaikan. Pembahasan di bawah tetap bisa dibaca, tetapi akan lebih bermakna kalau kuisnya dikerjakan lebih dulu.</p>'+
+            '<div class="btn-row"><button class="btn" onclick="keSlide(17)">← Kerjakan Kuis Dulu</button></div></div>';
+  }
+  for(var i=0;i<soalKuis.length;i++){
+    var s = soalKuis[i];
+    var kunci = (s.tipe === 'isian') ? String(s.jawab) : s.opsi[s.benar];
+    var tanda = '';
+    if(jawabanUser[i]){
+      tanda = jawabanUser[i].benar
+        ? '<span style="color:var(--benar)"> ✅ jawabanmu benar</span>'
+        : '<span style="color:var(--salah)"> ❌ jawabanmu: '+jawabanUser[i].isi+'</span>';
+    }
+    html += '<div class="bahas"><p class="soal">'+(i+1)+'. '+s.q+'</p>'+
+            '<p class="jwb">Kunci: '+kunci+tanda+'</p>'+
+            '<p class="pjls">'+s.bahas+'</p></div>';
+  }
+  area.innerHTML = html;
+}
+
+/* ============ SELESAI ============ */
+function tampilSkorAkhir(){
+  var s = ambil(KEY.skor);
+  document.getElementById('skorAkhir').textContent = s ? (s + ' benar') : 'belum dikerjakan';
+}
+function selesaikanPembelajaran(){
+  document.getElementById('btnSelesai').disabled = true;
+  document.getElementById('statusSelesai').classList.add('tampil');
+  setStatus('SELESAI');
+  simpan(KEY.selesai, 'ya');
+  if(kuisSelesai) simpan(KEY.skor, skorKuis+'/'+soalKuis.length);
+  setTimeout(function(){ window.location.href = 'bab1.html'; }, 1600);
+}
+function pelajariLagi(){ keSlide(0); }
+
+/* ============ MULAI ============ */
+document.getElementById('statusChip').textContent = statusSekarang;
+(function(){
+  var terakhir = parseInt(ambil(KEY.slide),10);
+  var skor = ambil(KEY.skor);
+  var info = document.getElementById('resumeInfo');
+  if(!isNaN(terakhir) && terakhir > 0 && terakhir < jumlah){
+    info.innerHTML = 'Terakhir kamu berhenti di slide '+(terakhir+1)+' ('+slides[terakhir].getAttribute('data-judul')+'). '+
+      '<button class="btn" style="padding:8px 16px; min-height:38px; margin-top:8px;" onclick="keSlide('+terakhir+')">Lanjutkan dari sana</button>';
+  }
+  if(skor){
+    info.innerHTML = (info.innerHTML || '') + '<div style="margin-top:8px;">Skor kuis tersimpan: <b>'+skor+'</b></div>';
+  }
+})();
+tampilkan();
+</script>
+</body>
+</html>

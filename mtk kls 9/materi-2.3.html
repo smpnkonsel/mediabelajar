@@ -1,471 +1,955 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bab 2: Panjang Busur & Luas Juring Lingkaran</title>
-  <style>
-    :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --bg-card-inner: #0f172a;
-      --accent-yellow: #f59e0b;
-      --accent-blue: #38bdf8;
-      --accent-green: #10b981;
-      --accent-purple: #a855f7;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --border-color: #334155;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bab 2 — Panjang Busur & Luas Juring Lingkaran</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1220;
+    --bg-line: rgba(255,255,255,0.045);
+    --bg-line-strong: rgba(255,255,255,0.14);
+    --ink:#F5F7FF;
+    --ink-soft:#93A0C4;
+    --card:#131B33;
+    --card-2:#1B2542;
+    --amber:#FBBF24;
+    --amber-soft: rgba(251,191,36,0.14);
+    --green:#34D399;
+    --green-soft: rgba(52,211,153,0.14);
+    --blue:#38BDF8;
+    --blue-soft: rgba(56,189,248,0.14);
+    --purple:#A78BFA;
+    --purple-soft: rgba(167,139,250,0.14);
+    --rose:#FB7185;
+    --rose-soft: rgba(251,113,133,0.14);
+    --shadow: 0 18px 40px -18px rgba(0,0,0,0.65);
+    --vh: 1vh;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% -10%, rgba(167,139,250,0.16), transparent 55%),
+      radial-gradient(circle at 100% 110%, rgba(56,189,248,0.14), transparent 55%),
+      linear-gradient(var(--bg-line) 1px, transparent 1px) 0 0/28px 28px,
+      linear-gradient(90deg, var(--bg-line) 1px, transparent 1px) 0 0/28px 28px,
+      var(--bg);
+    overflow:hidden;
+    height:calc(var(--vh, 1vh) * 100);
+    display:flex;
+    flex-direction:column;
+  }
+  .display{ font-family:'Fredoka', sans-serif; }
+  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.01em; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+  /* ---------- HEADER ---------- */
+  .topbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 20px 10px; flex-shrink:0; }
+  .brand{ display:flex; align-items:center; gap:9px; min-width:0; }
+  .brand-mark{ width:26px;height:26px; border-radius:50%; border:2px solid var(--ink); position:relative; flex-shrink:0; }
+  .brand-mark::after{ content:""; position:absolute; inset:6px; border-radius:50%; background:var(--amber); }
+  .brand-text{ font-size:11px; font-weight:600; letter-spacing:0.06em; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-text b{ color:var(--ink); }
+  .status-badge{ font-family:'JetBrains Mono'; font-size:9.5px; font-weight:700; letter-spacing:0.06em; padding:4px 9px; border-radius:100px; border:1.5px solid var(--bg-line-strong); color:var(--ink-soft); white-space:nowrap; flex-shrink:0; margin-left:8px; }
+  .progress-track{ flex:1; max-width:340px; height:5px; background:var(--bg-line-strong); border-radius:3px; overflow:hidden; display:none; }
+  .progress-fill{ height:100%; background:var(--amber); width:0%; transition:width .4s ease; border-radius:3px; }
+  .dots{ display:flex; gap:5px; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:38vw; }
+  .dots::-webkit-scrollbar{ display:none; }
+  .dot{ width:14px; height:6px; flex-shrink:0; background:transparent; border:1.5px solid var(--bg-line-strong); border-radius:3px; cursor:pointer; transition:all .25s ease; padding:0; }
+  .dot.active{ background:var(--amber); border-color:var(--amber); width:22px; }
+  .dot.done{ background:var(--ink-soft); border-color:var(--ink-soft); }
+  .slide-count{ font-size:10.5px; color:var(--ink-soft); min-width:52px; text-align:right; flex-shrink:0; }
 
-    /* Frame Utama Presentasi */
-    .deck-container { 
-      width: 100%; 
-      max-width: 900px; 
-      height: 640px; 
-      background-color: var(--bg-card); 
-      border-radius: 16px; 
-      box-shadow: 0 15px 30px rgba(0,0,0,0.5); 
-      position: relative; 
-      display: flex; 
-      flex-direction: column; 
-      overflow: hidden; 
-      border: 1px solid var(--border-color); 
-    }
+  /* ---------- SLIDES ---------- */
+  main{ flex:1; position:relative; overflow:hidden; }
+  .slide{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 7% 24px; opacity:0; transform:translateX(30px); pointer-events:none; transition:opacity .4s ease, transform .4s ease; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
+  .slide.prevslide{ transform:translateX(-30px); }
+  .slide-inner{ width:100%; max-width:980px; margin:auto; padding-block:6px; }
 
-    /* Area Slide */
-    .slide { 
-      display: none; 
-      padding: 25px 30px; 
-      height: calc(100% - 70px); 
-      overflow-y: auto; 
-      flex-direction: column; 
-      align-items: center; 
-      text-align: center; 
-    }
-    .slide.active { display: flex; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:10.5px; font-weight:700; letter-spacing:0.1em; color:var(--amber); margin-bottom:12px; }
+  .eyebrow::before{ content:""; width:14px; height:1.5px; background:var(--amber); }
+  h1.big{ font-size:clamp(24px, 5.2vw, 44px); line-height:1.15; font-weight:600; letter-spacing:-0.01em; font-family:'Fredoka'; }
+  h2.slide-title{ font-size:clamp(20px, 3.6vw, 28px); font-weight:600; line-height:1.2; margin-bottom:6px; font-family:'Fredoka'; }
+  .slide-sub{ font-size:clamp(12.5px,2vw,14.5px); color:var(--ink-soft); margin-bottom:18px; max-width:680px; line-height:1.55; }
 
-    /* Tipografi */
-    h1 { font-size: 1.8rem; color: var(--accent-yellow); margin-bottom: 12px; line-height: 1.3; }
-    h2 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 10px; }
-    p { font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; max-width: 750px; margin-bottom: 15px; }
+  .dim{ display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:600; color:var(--ink); background:var(--card); border:1.5px dashed var(--bg-line-strong); padding:5px 10px 5px 6px; border-radius:100px; }
+  .dim .arrow{ color:var(--amber); font-size:13px; }
 
-    .badge { background-color: var(--border-color); padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; color: var(--accent-yellow); font-weight: bold; margin-bottom: 15px; display: inline-block; line-height: 1.4; }
+  /* ---------- BUTTONS ---------- */
+  .btn{ font-family:'Fredoka', sans-serif; font-weight:600; font-size:14px; padding:12px 20px; border-radius:12px; border:none; cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition:transform .15s ease, box-shadow .15s ease; min-height:44px; }
+  .btn:hover{ transform:translateY(-2px); }
+  .btn:active{ transform:translateY(0); }
+  .btn-primary{ background:var(--ink); color:var(--card); box-shadow:var(--shadow); }
+  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--bg-line-strong); }
+  .btn-ghost:hover{ border-color:var(--ink); }
+  .btn-amber{ background:var(--amber); color:#1a1400; box-shadow:0 14px 30px -14px rgba(251,191,36,.5); }
+  .btn-green{ background:var(--green); color:#04241a; box-shadow:0 14px 30px -14px rgba(52,211,153,.5); }
+  .btn[disabled]{ opacity:.4; pointer-events:none; }
 
-    /* Layout Grid & Card */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 800px; text-align: left; }
-    .card { background: var(--bg-card-inner); padding: 16px; border-radius: 10px; border: 1px solid var(--border-color); }
-    .card h3 { font-size: 1rem; margin-bottom: 8px; }
+  /* ---------- COVER ---------- */
+  #s0 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .cover-cta{ margin-top:24px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .cp-line{ margin-top:16px; font-size:12.5px; color:var(--ink-soft); max-width:600px; line-height:1.6; border-left:2px solid var(--amber); padding-left:14px; text-align:left; }
 
-    /* Rumus Box */
-    .formula-box {
-      background: #1e293b; 
-      padding: 10px; 
-      border-radius: 6px; 
-      font-weight: bold; 
-      text-align: center; 
-      font-size: 0.95rem;
-      border: 1px solid var(--border-color);
-      margin-top: 6px;
-    }
+  /* ---------- APERSEPSI ---------- */
+  .aper-card{ background:var(--card); border-radius:20px; padding:26px 24px; box-shadow:var(--shadow); text-align:left; max-width:640px; margin:0 auto; }
+  .aper-card .qmark{ font-family:'Fredoka'; font-size:34px; color:var(--amber); line-height:1; margin-bottom:10px; }
+  .aper-card p{ font-size:14.5px; line-height:1.65; color:var(--ink); }
+  .aper-reveal{ margin-top:16px; border-top:1px dashed var(--bg-line-strong); padding-top:14px; display:none; }
+  .aper-reveal.show{ display:block; }
+  .aper-reveal p{ color:var(--ink-soft); font-size:13px; }
+  .aper-reveal b{ color:var(--blue); }
 
-    /* Interactive Box Layout */
-    .interactive-box { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 800px; margin-top: 10px; }
-    .controls { background: var(--bg-card-inner); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); text-align: left; min-width: 280px; flex: 1; }
-    .controls label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 0.88rem; }
-    .controls input[type=range] { width: 100%; margin-bottom: 12px; accent-color: var(--accent-blue); }
+  /* ---------- TP SLIDE ---------- */
+  .tp-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+  .pill{ font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:100px; border:1.5px solid; }
+  .pill-amber{ color:var(--amber); border-color:var(--amber); background:var(--amber-soft); }
+  .cp-box{ background:var(--card); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); margin-bottom:18px; border-left:3px solid var(--amber); }
+  .cp-box b{ color:var(--amber); font-size:11px; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:6px; font-family:'Fredoka';}
+  .cp-box p{ font-size:14px; line-height:1.55; color:var(--ink); }
+  .tp-list{ display:flex; flex-direction:column; gap:10px; }
+  .tp-item{ background:var(--card); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); display:flex; gap:14px; align-items:flex-start; }
+  .tp-num{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--amber); flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--amber-soft); display:flex; align-items:center; justify-content:center; }
+  .tp-item p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; padding-top:3px; }
 
-    /* Accordion Soal */
-    .soal-container { width: 100%; max-width: 800px; text-align: left; }
-    .soal-item { background: var(--bg-card-inner); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-    .soal-header { padding: 12px 16px; background: #1e293b; cursor: pointer; font-weight: bold; color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; }
-    .soal-header:hover { background: #334155; }
-    .soal-body { padding: 15px; display: none; line-height: 1.6; font-size: 0.9rem; background: var(--bg-card-inner); border-top: 1px solid var(--border-color); }
+  /* ---------- CONCEPT GRID / FORMULA CARDS ---------- */
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .fcard{ background:var(--card); border-radius:16px; padding:18px; box-shadow:var(--shadow); text-align:left; }
+  .fcard h3{ font-family:'Fredoka'; font-size:15px; margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .fcard p{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; margin-bottom:10px; }
+  .formula-box{ font-family:'JetBrains Mono'; font-weight:700; font-size:14px; text-align:center; padding:12px 10px; border-radius:10px; background:var(--card-2); border:1.5px dashed var(--bg-line-strong); }
+  .ratio-box{ background:var(--card); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); border-left:3px solid var(--purple); margin-top:14px; }
+  .ratio-box h3{ color:var(--purple); font-family:'Fredoka'; font-size:14.5px; margin-bottom:6px; }
+  .ratio-box p{ font-size:12.5px; color:var(--ink-soft); margin-bottom:8px; line-height:1.55; }
 
-    /* Kuis */
-    .quiz-card { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 100%; max-width: 700px; text-align: left; }
-    .quiz-option { display: block; width: 100%; padding: 10px 14px; margin: 8px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; text-align: left; transition: 0.2s; }
-    .quiz-option:hover { background: #475569; }
-    .quiz-option.correct { background: var(--accent-green) !important; font-weight: bold; }
-    .quiz-option.wrong { background: #ef4444 !important; font-weight: bold; }
+  /* ---------- CALC / RATIO INTERAKTIF ---------- */
+  .calc-wrap{ background:var(--card); border-radius:18px; padding:20px 22px; box-shadow:var(--shadow); }
+  .calc-select{ width:100%; padding:12px 14px; border-radius:10px; background:var(--card-2); border:1.5px solid var(--bg-line-strong); color:var(--ink); font-family:'Fredoka'; font-size:13.5px; font-weight:600; margin-bottom:16px; min-height:44px; }
+  .calc-fields{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:18px; }
+  .calc-field label{ font-size:11.5px; color:var(--ink-soft); display:block; margin-bottom:5px; }
+  .calc-field input{ width:100%; padding:10px 12px; border-radius:8px; background:var(--bg); border:1.5px solid var(--bg-line-strong); color:var(--ink); font-family:'JetBrains Mono'; font-size:13.5px; min-height:42px; }
+  .calc-result-card{ background:var(--card-2); border-radius:14px; padding:18px; text-align:center; }
+  .calc-result-card h5{ font-family:'Fredoka'; font-size:12.5px; margin-bottom:6px; color:var(--ink-soft); }
+  .calc-result-card .val{ font-family:'JetBrains Mono'; font-size:26px; font-weight:700; color:var(--purple); }
+  .calc-result-card .formula{ font-size:11px; color:var(--ink-soft); margin-top:8px; font-family:'JetBrains Mono'; }
 
-    /* Navigasi Bawah */
-    .nav-bar { height: 70px; background-color: #0f172a; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; border-top: 1px solid var(--border-color); margin-top: auto; width: 100%; }
-    .nav-btn { background: var(--accent-blue); color: #0f172a; font-weight: bold; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-    .nav-btn:hover { opacity: 0.9; }
-    .nav-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
+  /* ---------- SIMULATOR ---------- */
+  .sim-layout{ display:grid; grid-template-columns:230px 1fr; gap:24px; align-items:center; }
+  .sim-wrap{ background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:14px; display:flex; align-items:center; justify-content:center; }
+  svg.simsvg{ width:100%; height:auto; display:block; max-width:200px; }
+  .sim-controls{ background:var(--card); border-radius:18px; padding:18px 20px; box-shadow:var(--shadow); }
+  .sim-controls label{ display:block; font-size:12px; font-weight:600; margin-bottom:6px; color:var(--ink); }
+  .sim-controls input[type=range]{ width:100%; margin-bottom:16px; accent-color:var(--amber); }
+  .sim-results{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .sim-res-item{ background:var(--card-2); border-radius:10px; padding:10px 12px; }
+  .sim-res-item .l{ font-size:10.5px; color:var(--ink-soft); margin-bottom:3px; }
+  .sim-res-item .v{ font-family:'JetBrains Mono'; font-weight:700; font-size:15px; }
 
-    .dots-container { display: flex; gap: 6px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #475569; cursor: pointer; }
-    .dot.active { background-color: var(--accent-yellow); width: 20px; border-radius: 5px; transition: 0.3s; }
-  </style>
+  /* ---------- CASE STUDY (accordion) ---------- */
+  .case-context{ background:var(--card); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow); margin-bottom:14px; border-left:3px solid var(--amber); }
+  .case-context p{ font-size:13px; line-height:1.6; color:var(--ink); }
+  .case-context .ctitle{ font-family:'Fredoka'; font-weight:600; font-size:13.5px; color:var(--amber); margin-bottom:5px; }
+  .step-acc{ background:var(--card); border-radius:14px; margin-bottom:10px; overflow:hidden; box-shadow:var(--shadow); }
+  .step-acc-head{ display:flex; align-items:center; gap:12px; padding:13px 16px; cursor:pointer; min-height:44px; }
+  .step-acc-num{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--blue); flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--blue-soft); display:flex; align-items:center; justify-content:center; }
+  .step-acc-title{ font-family:'Fredoka'; font-weight:600; font-size:13px; flex:1; }
+  .step-acc-icon{ transition:transform .25s ease; color:var(--ink-soft); flex-shrink:0; }
+  .step-acc.open .step-acc-icon{ transform:rotate(180deg); }
+  .step-acc-body{ max-height:0; overflow:hidden; transition:max-height .3s ease; }
+  .step-acc.open .step-acc-body{ max-height:260px; }
+  .step-acc-body-inner{ padding:0 16px 14px 54px; font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
+  .step-acc-body-inner b{ color:var(--ink); font-family:'JetBrains Mono'; }
+
+  /* ---------- LATIHAN MANDIRI (flip cards) ---------- */
+  .gallery{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .card-flip{ perspective:1200px; height:150px; cursor:pointer; }
+  .card-flip-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.2,.2,1); }
+  .card-flip.flipped .card-flip-inner{ transform:rotateY(180deg); }
+  .card-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; padding:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:var(--shadow); text-align:center; gap:6px; }
+  .card-front{ background:var(--card); }
+  .card-front .lvl{ font-family:'JetBrains Mono'; font-size:9px; font-weight:700; padding:3px 8px; border-radius:100px; letter-spacing:.05em; }
+  .card-front .tnum{ font-size:12px; line-height:1.4; }
+  .card-front .ctap{ font-size:9.5px; color:var(--ink-soft); }
+  .card-back{ transform:rotateY(180deg); background:var(--blue); color:#04141f; }
+  .card-back .veq{ font-family:'JetBrains Mono'; font-size:14px; font-weight:700; line-height:1.4; }
+
+  /* ---------- QUIZ ---------- */
+  .quiz-box{ background:var(--card); border-radius:20px; box-shadow:var(--shadow); padding:24px 26px; min-height:320px; display:flex; flex-direction:column; }
+  .quiz-progress{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:10px; }
+  .qbar{ flex:1; height:5px; background:var(--bg-line); border-radius:3px; margin:0 10px; overflow:hidden; }
+  .qbar-fill{ height:100%; background:var(--amber); width:0%; transition:width .4s ease; border-radius:3px; }
+  .qnum{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; }
+  .qscore{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--green); font-weight:600; white-space:nowrap; }
+  .q-text{ font-family:'Fredoka'; font-size:16.5px; font-weight:600; margin-bottom:18px; line-height:1.45; }
+  .options{ display:flex; flex-direction:column; gap:9px; flex:1; }
+  .opt{ text-align:left; padding:12px 15px; border-radius:12px; border:1.5px solid var(--bg-line-strong); background:var(--bg); color:var(--ink); font-family:'Plus Jakarta Sans'; font-size:13.5px; font-weight:500; cursor:pointer; transition:all .18s ease; display:flex; align-items:center; gap:10px; min-height:46px; }
+  .opt:hover{ border-color:var(--ink-soft); }
+  .opt .letter{ font-family:'JetBrains Mono'; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px; background:var(--card-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid var(--bg-line-strong); }
+  .opt.correct{ background:var(--green-soft); border-color:var(--green); }
+  .opt.correct .letter{ background:var(--green); color:#04241a; border-color:var(--green); }
+  .opt.wrong{ background:var(--rose-soft); border-color:var(--rose); }
+  .opt.wrong .letter{ background:var(--rose); color:#2a0a0f; border-color:var(--rose); }
+  .opt.disabled{ pointer-events:none; }
+  .feedback{ margin-top:14px; font-size:12.5px; color:var(--ink-soft); background:var(--bg); border-left:3px solid var(--purple); padding:10px 14px; border-radius:8px; display:none; line-height:1.5; }
+  .feedback.show{ display:block; }
+  .quiz-nav{ margin-top:18px; display:flex; justify-content:flex-end; }
+  .quiz-result{ text-align:center; display:none; flex-direction:column; align-items:center; justify-content:center; flex:1; }
+  .quiz-result.show{ display:flex; }
+  .result-score{ font-family:'Fredoka'; font-size:46px; font-weight:600; }
+  .result-score span{ font-size:19px; color:var(--ink-soft); font-weight:500; }
+  .result-msg{ font-size:13px; color:var(--ink-soft); margin:10px 0 20px; max-width:380px; }
+  .result-btns{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+
+  /* ---------- PEMBAHASAN ---------- */
+  .review-item{ background:var(--card); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); margin-bottom:10px; text-align:left; }
+  .review-item .rq{ font-family:'Fredoka'; font-size:13.5px; font-weight:600; margin-bottom:8px; }
+  .review-row{ font-size:12px; margin-bottom:4px; display:flex; gap:6px; }
+  .review-row .tag{ font-family:'JetBrains Mono'; font-weight:700; font-size:10px; padding:2px 7px; border-radius:100px; flex-shrink:0; height:fit-content; }
+  .tag-correct{ background:var(--green-soft); color:var(--green); }
+  .tag-wrong{ background:var(--rose-soft); color:var(--rose); }
+  .review-exp{ font-size:11.5px; color:var(--ink-soft); margin-top:6px; line-height:1.5; border-top:1px dashed var(--bg-line-strong); padding-top:6px; }
+
+  /* ---------- RINGKASAN CARDS ---------- */
+  .ring-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .ring-card{ background:var(--card); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow); text-align:left; border-top:3px solid var(--amber); }
+  .ring-card.c-green{ border-top-color:var(--green); }
+  .ring-card.c-blue{ border-top-color:var(--blue); }
+  .ring-card.c-purple{ border-top-color:var(--purple); }
+  .ring-card.c-rose{ border-top-color:var(--rose); }
+  .ring-card h4{ font-family:'Fredoka'; font-size:13.5px; margin-bottom:6px; }
+  .ring-card p{ font-size:12px; color:var(--ink-soft); line-height:1.55; }
+  .ring-card .f{ font-family:'JetBrains Mono'; font-weight:700; font-size:13px; color:var(--ink); margin-top:6px; display:block; }
+
+  /* ---------- GAME SLIDE ---------- */
+  #s13 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .game-icon{ font-size:52px; margin-bottom:10px; }
+  .game-card{ background:var(--card); border-radius:22px; padding:30px 26px; box-shadow:var(--shadow); max-width:480px; }
+
+  /* ---------- SELESAI SLIDE ---------- */
+  #s14 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+  .done-check{ width:62px; height:62px; border-radius:50%; background:var(--green-soft); border:2px solid var(--green); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--green); margin:0 auto 14px; transform:scale(0); transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .done-check.show{ transform:scale(1); }
+  .done-status{ font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--green); letter-spacing:.05em; margin-bottom:16px; opacity:0; transition:opacity .3s ease; }
+  .done-status.show{ opacity:1; }
+  .recap-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:18px 0 22px; width:100%; max-width:560px; }
+  .recap-item{ background:var(--card); border-radius:14px; padding:14px 8px; box-shadow:var(--shadow); }
+  .recap-item .n{ font-family:'JetBrains Mono'; font-weight:700; font-size:14px; }
+  .recap-item .l{ font-size:10px; color:var(--ink-soft); margin-top:2px; }
+  .done-btns{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottombar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 20px 16px; flex-shrink:0; }
+  .navbtn{ display:flex; align-items:center; gap:6px; background:var(--card); border:1.5px solid var(--bg-line-strong); border-radius:10px; padding:10px 16px; font-family:'Fredoka'; font-weight:600; font-size:13px; cursor:pointer; transition:all .18s ease; min-height:44px; flex-shrink:0; }
+  .navbtn:hover{ border-color:var(--ink); }
+  .navbtn:disabled{ opacity:.35; pointer-events:none; }
+  .navbtn.primary{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+  .step-label{ font-size:10.5px; color:var(--ink-soft); text-align:center; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 6px; }
+  .step-label b{ color:var(--ink); }
+
+  ::-webkit-scrollbar{ width:6px; }
+  ::-webkit-scrollbar-thumb{ background:var(--bg-line-strong); border-radius:3px; }
+
+  img, svg, canvas{ max-width:100%; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 900px){
+    .sim-layout{ grid-template-columns:1fr; }
+    .sim-wrap{ max-width:200px; margin:0 auto; }
+    .gallery{ grid-template-columns:repeat(3,1fr); }
+  }
+  @media (max-width: 680px){
+    .topbar{ padding:12px 14px 8px; }
+    .brand-text{ display:none; }
+    .dots{ display:none; }
+    .progress-track{ display:block; }
+    .slide{ padding:10px 5.5% 18px; }
+    .slide-sub{ margin-bottom:14px; }
+    .grid-2{ grid-template-columns:1fr; }
+    .ring-grid{ grid-template-columns:1fr; }
+    .gallery{ grid-template-columns:1fr 1fr; }
+    .card-flip{ height:130px; }
+    .recap-grid{ grid-template-columns:1fr 1fr 1fr; gap:8px; }
+    .recap-item{ padding:10px 6px; }
+    .recap-item .n{ font-size:11px; }
+    .recap-item .l{ font-size:9px; }
+    .bottombar{ padding:10px 12px 14px; }
+    .navbtn{ padding:10px 12px; font-size:12px; }
+    .navbtn span.lbl{ display:none; }
+    .step-label{ font-size:9.5px; }
+    .quiz-box{ padding:18px 16px; }
+    .q-text{ font-size:15px; }
+    h1.big{ font-size:clamp(22px,7vw,32px); }
+    .step-acc-body-inner{ padding-left:16px; }
+    .status-badge{ display:none; }
+  }
+  @media (max-width: 420px){
+    .gallery{ grid-template-columns:1fr 1fr; }
+    .calc-fields{ grid-template-columns:1fr 1fr; }
+    .sim-results{ grid-template-columns:1fr 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
+  }
+</style>
 </head>
 <body>
 
-<div class="deck-container">
-  
-  <!-- Slide 1: Cover -->
-  <div class="slide active" id="slide-1">
-    <p style="color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Matematika SMP Kelas 9 • Buku Terbitan Erlangga</p>
-    <h1>Bab 2: Panjang Busur & Luas Juring Lingkaran</h1>
-    <p>Media pembelajaran interaktif: Konsep Dasar, Simulasi Visual SVG, Contoh Soal Pembahasan, dan Kuis Latihan Evaluasi.</p>
-    <div class="badge">🎯 Capaian Pembelajaran: Peserta didik mampu menentukan panjang busur dan luas juring lingkaran serta menyelesaikannya dalam konteks masalah.</div>
-    <div style="margin-top: 10px;">
-      <button class="nav-btn" style="background: var(--accent-yellow); padding: 12px 24px; font-size: 1rem;" onclick="goToSlide(1)">Mulai Belajar →</button>
-    </div>
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text"><b>Matematika</b> · Bab 2 Busur &amp; Juring Lingkaran</div>
   </div>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="dots" id="dots"></div>
+  <span class="status-badge" id="statusBadge">BELUM MULAI</span>
+  <div class="slide-count mono" id="slideCount">01/15</div>
+</div>
 
-  <!-- Slide 2: Rangkuman Konsep & Rumus -->
-  <div class="slide" id="slide-2">
-    <h2>1. Konsep & Rumus Utama</h2>
-    <p>Perbandingan sudut pusat (<b>α</b>) terhadap satu lingkaran penuh (<b>360°</b>) sebanding dengan perbandingan panjang busur terhadap keliling lingkaran dan luas juring terhadap luas lingkaran.</p>
+<main id="main">
 
-    <div class="grid-2">
-      <div class="card">
-        <h3 style="color: var(--accent-yellow);">📏 Panjang Busur (Garis Lengkung)</h3>
-        <p style="font-size:0.85rem; margin-bottom:8px;">Merupakan bagian dari <b>Keliling Lingkaran</b> (K = 2 × π × r).</p>
-        <div class="formula-box" style="color: var(--accent-yellow);">
-          Panjang Busur = (α / 360°) × 2 × π × r
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="color: var(--accent-green);">🍕 Luas Juring (Daerah Arsiran)</h3>
-        <p style="font-size:0.85rem; margin-bottom:8px;">Merupakan bagian dari <b>Luas Lingkaran</b> (L = π × r²).</p>
-        <div class="formula-box" style="color: var(--accent-green);">
-          Luas Juring = (α / 360°) × π × r²
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top: 12px; width:100%; max-width:800px;">
-      <h3 style="color: var(--accent-purple);">🔄 Hubungan Perbandingan Dua Juring</h3>
-      <p style="font-size:0.85rem; margin-bottom:6px;">Pada lingkaran yang sama, berlaku hubungan perbandingan sebanding:</p>
-      <div class="formula-box" style="color: var(--accent-purple); font-size:0.88rem;">
-        (Busur AB / Busur CD) = (Luas Juring AOB / Luas Juring COD) = (Sudut AOB / Sudut COD)
-      </div>
-    </div>
-  </div>
-
-  <!-- Slide 3: Simulator Visual Interaktif -->
-  <div class="slide" id="slide-3">
-    <h2>2. Visualisasi Interaktif Dinamis</h2>
-    <p>Geser slider <b>Sudut Pusat (α)</b> dan <b>Jari-jari (r)</b> untuk melihat gambar dan perhitungan nilai berubah secara langsung!</p>
-    
-    <div class="interactive-box">
-      <svg id="circleCanvas" width="200" height="200" viewBox="-90 -90 180 180" style="background:#0f172a; border-radius:50%; border:1px solid #334155;">
-        <circle id="baseCircle" cx="0" cy="0" r="45" fill="none" stroke="#334155" stroke-width="2"/>
-        <path id="juringPath" fill="rgba(16, 185, 129, 0.35)" stroke="none" />
-        <path id="busurPath" fill="none" stroke="#f59e0b" stroke-width="5" />
-        <line id="baseRadius" x1="0" y1="0" x2="45" y2="0" stroke="#38bdf8" stroke-width="2"/>
-        <line id="radiusLine" x1="0" y1="0" x2="0" y2="0" stroke="#38bdf8" stroke-width="2"/>
-        <circle cx="0" cy="0" r="4" fill="#ffffff"/>
+  <!-- 0 COVER -->
+  <section class="slide" id="s0">
+    <div class="slide-inner">
+      <svg viewBox="0 0 220 180" style="width:130px;height:auto;margin:0 auto 10px;display:block;">
+        <circle cx="110" cy="90" r="70" fill="none" stroke="#93A0C4" stroke-width="3"/>
+        <path d="M 110 90 L 180 90 A 70 70 0 0 1 133 152 Z" fill="rgba(251,191,36,0.28)" stroke="#FBBF24" stroke-width="3"/>
+        <path d="M 180 90 A 70 70 0 0 1 133 152" fill="none" stroke="#34D399" stroke-width="4"/>
+        <circle cx="110" cy="90" r="3.5" fill="#F5F7FF"/>
       </svg>
+      <div class="eyebrow" style="justify-content:center;display:flex">Bab 2 · Lingkaran</div>
+      <h1 class="big">Panjang Busur &amp; Luas Juring Lingkaran</h1>
+      <p class="slide-sub" style="margin:14px auto 0;">Belajar menghitung bagian dari lingkaran menggunakan perbandingan sudut pusat terhadap satu putaran penuh.</p>
+      <div class="cp-line">
+        <b>Topik:</b> Menentukan panjang busur dan luas juring lingkaran, hubungan perbandingannya, serta penerapannya dalam soal sehari-hari.
+      </div>
+      <div class="cover-cta">
+        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
+        <span class="dim"><span class="arrow">↔</span> <span id="coverSlideCount">15</span> slide</span>
+      </div>
+    </div>
+  </section>
 
-      <div class="controls">
-        <label>Sudut Pusat (α): <span id="angleVal" style="color:var(--accent-yellow)">60</span>°</label>
-        <input type="range" id="angleSlider" min="10" max="350" value="60">
-
-        <label>Jari-jari (r): <span id="radiusVal" style="color:var(--accent-blue)">14</span> cm</label>
-        <input type="range" id="radiusSlider" min="7" max="28" step="7" value="14">
-
-        <div style="margin-top: 6px; font-size: 0.85rem; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-          <p style="margin-bottom: 4px;">🔸 Panjang Busur: <b id="arcResult" style="color: var(--accent-yellow)">--</b> cm</p>
-          <p style="margin-bottom: 0;">🔹 Luas Juring: <b id="sectorResult" style="color: var(--accent-green)">--</b> cm²</p>
+  <!-- 1 APERSEPSI -->
+  <section class="slide" id="s1">
+    <div class="slide-inner">
+      <div class="eyebrow">Apersepsi</div>
+      <h2 class="slide-title">Sebelum Mulai, Coba Pikirkan Ini…</h2>
+      <p class="slide-sub">Klik pertanyaannya untuk melihat kaitannya dengan materi hari ini.</p>
+      <div class="aper-card" onclick="toggleAper()" id="aperCard" style="cursor:pointer;">
+        <div class="qmark">🍕</div>
+        <p>Saat kamu memotong pizza bundar menjadi beberapa potongan, bagaimana cara mengetahui <b>seberapa besar</b> satu potongan itu dibandingkan seluruh pizza — baik dari <b>lengkungan pinggirnya</b> maupun <b>luas permukaannya</b>?</p>
+        <div class="aper-reveal" id="aperReveal">
+          <p>Satu potongan pizza sebenarnya adalah <b>juring lingkaran</b>, dan lengkungan pinggirnya disebut <b>busur</b>. Besar potongan itu ditentukan oleh <b>sudut pusatnya</b> dibandingkan satu putaran penuh (360°) — dan itulah yang akan kita pelajari di bab ini!</p>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Slide 4: Contoh Soal & Pembahasan Bertahap -->
-  <div class="slide" id="slide-4">
-    <h2>3. Contoh Soal & Pembahasan</h2>
-    <p>Klik pada judul soal di bawah untuk melihat penjelasan dan langkah penyelesaiannya.</p>
-
-    <div class="soal-container">
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Soal 1: Menghitung Panjang Busur (Dasar)</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Diketahui lingkaran dengan jari-jari r = 21 cm dan sudut pusat α = 60°. Hitunglah panjang busur lingkaran tersebut! (Gunakan π = 22/7)<br><br>
-          <b>Penyelesaian:</b><br>
-          Panjang Busur = (α / 360°) × 2 × π × r<br>
-          Panjang Busur = (60° / 360°) × 2 × (22/7) × 21<br>
-          Panjang Busur = (1/6) × 132 = <b>22 cm</b>.
-        </div>
+  <!-- 2 TUJUAN PEMBELAJARAN -->
+  <section class="slide" id="s2">
+    <div class="slide-inner">
+      <div class="eyebrow">Panjang Busur &amp; Luas Juring</div>
+      <div class="tp-head">
+        <h2 class="slide-title" style="margin:0;">Tujuan Pembelajaran</h2>
+        <span class="pill pill-amber">Bab 2</span>
       </div>
-
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Soal 2: Menghitung Luas Juring (Soal Cerita)</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Sepotong pizza berbentuk juring lingkaran memiliki sudut pusat 45° dan jari-jari 14 cm. Berapakah luas permukaan atas pizza tersebut?<br><br>
-          <b>Penyelesaian:</b><br>
-          Luas Juring = (α / 360°) × π × r²<br>
-          Luas Juring = (45° / 360°) × (22/7) × 14 × 14<br>
-          Luas Juring = (1/8) × 616 = <b>77 cm²</b>.
-        </div>
+      <div class="cp-box">
+        <b>Capaian Pembelajaran</b>
+        <p>Peserta didik mampu menentukan panjang busur dan luas juring lingkaran serta menyelesaikan masalah kontekstual yang berkaitan dengannya.</p>
       </div>
+      <div class="tp-list">
+        <div class="tp-item"><div class="tp-num">1</div><p>Memahami hubungan sudut pusat, busur, dan juring pada lingkaran.</p></div>
+        <div class="tp-item"><div class="tp-num">2</div><p>Menghitung panjang busur menggunakan perbandingan terhadap keliling lingkaran.</p></div>
+        <div class="tp-item"><div class="tp-num">3</div><p>Menghitung luas juring menggunakan perbandingan terhadap luas lingkaran.</p></div>
+        <div class="tp-item"><div class="tp-num">4</div><p>Menggunakan hubungan perbandingan antar dua juring untuk mencari nilai yang belum diketahui.</p></div>
+      </div>
+    </div>
+  </section>
 
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Soal 3: Perbandingan Dua Juring Lingkaran</span> <span>▼</span>
+  <!-- 3 KONSEP DASAR & RUMUS -->
+  <section class="slide" id="s3">
+    <div class="slide-inner">
+      <div class="eyebrow">Konsep Dasar</div>
+      <h2 class="slide-title">Busur, Juring, dan Rumusnya</h2>
+      <p class="slide-sub">Perbandingan sudut pusat (α) terhadap satu putaran penuh (360°) menentukan berapa bagian busur dan juring yang terbentuk.</p>
+      <div class="grid-2">
+        <div class="fcard">
+          <h3 style="color:var(--amber);">📏 Panjang Busur</h3>
+          <p>Busur adalah bagian lengkung dari <b>keliling lingkaran</b> (K = 2 × π × r).</p>
+          <div class="formula-box" style="color:var(--amber);">Busur = (α/360°) × 2πr</div>
         </div>
-        <div class="soal-body">
-          <b>Soal:</b> Pada suatu lingkaran, juring AOB memiliki sudut pusat 40° dan luas 24 cm². Jika juring COD memiliki sudut pusat 100°, tentukan luas juring COD!<br><br>
-          <b>Penyelesaian:</b><br>
-          Gunakan rumus perbandingan:<br>
-          (Luas COD / Luas AOB) = (Sudut COD / Sudut AOB)<br>
-          (Luas COD / 24) = (100° / 40°)<br>
-          Luas COD = (100 / 40) × 24 = 2,5 × 24 = <b>60 cm²</b>.
+        <div class="fcard">
+          <h3 style="color:var(--green);">🍕 Luas Juring</h3>
+          <p>Juring adalah bagian dari <b>luas lingkaran</b> (L = π × r²), dibatasi dua jari-jari dan satu busur.</p>
+          <div class="formula-box" style="color:var(--green);">Juring = (α/360°) × πr²</div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Slide 5: Kuis Latihan Evaluasi (5 Soal) -->
-  <div class="slide" id="slide-5">
-    <h2>4. Kuis Latihan Pemahaman</h2>
-    <p>Pilih salah satu jawaban yang benar dari 5 soal latihan berikut!</p>
-
-    <div class="quiz-card">
-      <div id="quizContent">
-        <h3 id="quizQuestion" style="margin-bottom:12px; color:var(--accent-yellow); font-size:0.95rem;">Pertanyaan Kuis...</h3>
-        <div id="quizOptions"></div>
-        <p id="quizFeedback" style="margin-top:10px; font-weight:bold; font-size:0.88rem;"></p>
-        <button id="nextQuizBtn" class="nav-btn" style="margin-top:10px; display:none;" onclick="loadNextQuiz()">Soal Selanjutnya →</button>
+  <!-- 4 HUBUNGAN PERBANDINGAN DUA JURING -->
+  <section class="slide" id="s4">
+    <div class="slide-inner">
+      <div class="eyebrow">Konsep Lanjutan · Interaktif</div>
+      <h2 class="slide-title">Hubungan Perbandingan Dua Juring</h2>
+      <p class="slide-sub">Pada lingkaran yang sama, perbandingan sudut pusat sebanding dengan perbandingan busur maupun luas juringnya.</p>
+      <div class="ratio-box">
+        <h3>Rumus Perbandingan</h3>
+        <p>Busur AB / Busur CD &nbsp;=&nbsp; Juring AOB / Juring COD &nbsp;=&nbsp; Sudut AOB / Sudut COD</p>
       </div>
-      <div id="quizResult" style="display:none; text-align:center;">
-        <h3 style="color:var(--accent-green); font-size:1.3rem;">🎉 Kuis Selesai!</h3>
-        <p id="scoreText" style="font-size:1.1rem; margin:15px 0;">Skor Anda: 0 / 5</p>
-        <button class="nav-btn" onclick="resetQuiz()">Ulangi Kuis ↺</button>
+      <div class="calc-wrap" style="margin-top:16px;">
+        <p style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;">Coba sendiri: masukkan sudut &amp; luas juring pertama, lalu sudut juring kedua untuk mencari luasnya.</p>
+        <div class="calc-fields">
+          <div class="calc-field"><label>Sudut Juring 1 (°)</label><input type="number" id="rA" value="40" min="1" max="359" oninput="computeRatio()"></div>
+          <div class="calc-field"><label>Luas Juring 1 (cm²)</label><input type="number" id="rLA" value="24" min="0.1" oninput="computeRatio()"></div>
+          <div class="calc-field"><label>Sudut Juring 2 (°)</label><input type="number" id="rB" value="100" min="1" max="359" oninput="computeRatio()"></div>
+        </div>
+        <div class="calc-result-card">
+          <h5>Luas Juring 2</h5>
+          <div class="val" id="rResult">–</div>
+          <div class="formula" id="rFormula"></div>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Slide 6: Ringkasan & Menu Utama -->
-  <div class="slide" id="slide-6">
-    <h2>Rangkuman Bab 2</h2>
-    <p>Selamat! Kamu telah menguasai materi Bab 2: Panjang Busur dan Luas Juring Lingkaran.</p>
-
-    <div class="card" style="text-align: left; max-width:700px; width:100%; margin-bottom:20px; line-height:1.7; font-size:0.9rem;">
-      ✔️ <b>Panjang Busur</b> dihitung proporsional terhadap keliling lingkaran: <code>(α / 360°) × 2 × π × r</code>.<br>
-      ✔️ <b>Luas Juring</b> dihitung proporsional terhadap luas lingkaran: <code>(α / 360°) × π × r²</code>.<br>
-      ✔️ Besar sudut pusat sebanding lurus dengan panjang busur dan luas juring yang dibentuknya.
+  <!-- 5 SIMULASI VISUAL -->
+  <section class="slide" id="s5">
+    <div class="slide-inner">
+      <div class="eyebrow">Visualisasi · Interaktif</div>
+      <h2 class="slide-title">Simulasi Busur &amp; Juring</h2>
+      <p class="slide-sub">Geser slider untuk melihat perubahan bentuk juring dan hasil perhitungannya secara langsung.</p>
+      <div class="sim-layout">
+        <div class="sim-wrap">
+          <svg class="simsvg" id="simSvg" viewBox="-90 -90 180 180">
+            <circle id="baseCircle" cx="0" cy="0" r="60" fill="none" stroke="#93A0C4" stroke-width="2"/>
+            <path id="juringPath" fill="rgba(52,211,153,0.32)" stroke="none"></path>
+            <path id="busurPath" fill="none" stroke="#FBBF24" stroke-width="5"></path>
+            <line id="baseRadius" x1="0" y1="0" x2="60" y2="0" stroke="#38BDF8" stroke-width="2"></line>
+            <line id="radiusLine" x1="0" y1="0" x2="0" y2="0" stroke="#38BDF8" stroke-width="2"></line>
+            <circle cx="0" cy="0" r="3.5" fill="#F5F7FF"></circle>
+          </svg>
+        </div>
+        <div class="sim-controls">
+          <label>Sudut Pusat (α): <span id="angleVal" class="mono" style="color:var(--amber)">60</span>°</label>
+          <input type="range" id="angleSlider" min="10" max="350" value="60">
+          <label>Jari-jari (r): <span id="radiusVal" class="mono" style="color:var(--blue)">14</span> cm</label>
+          <input type="range" id="radiusSlider" min="7" max="28" step="7" value="14">
+          <div class="sim-results">
+            <div class="sim-res-item"><div class="l">Panjang Busur</div><div class="v" id="arcResult" style="color:var(--amber)">–</div></div>
+            <div class="sim-res-item"><div class="l">Luas Juring</div><div class="v" id="sectorResult" style="color:var(--green)">–</div></div>
+          </div>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <!-- Tombol Kembali ke Bab Menu -->
-        <button class="reveal-btn" onclick="window.location.href='bab2.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 2 </button>
+  <!-- 6 CONTOH 1: PANJANG BUSUR -->
+  <section class="slide" id="s6">
+    <div class="slide-inner">
+      <div class="eyebrow">Contoh Soal · Interaktif</div>
+      <h2 class="slide-title">Menghitung Panjang Busur</h2>
+      <p class="slide-sub">Klik tiap langkah untuk mengikuti proses penyelesaiannya. (Gunakan π = 22/7)</p>
+      <div class="case-context"><div class="ctitle">Soal</div><p>Diketahui lingkaran dengan jari-jari r = 21 cm dan sudut pusat α = 60°. Hitunglah panjang busur lingkaran tersebut!</p></div>
+      <div id="case1"></div>
+    </div>
+  </section>
 
-  </div>
+  <!-- 7 CONTOH 2: LUAS JURING -->
+  <section class="slide" id="s7">
+    <div class="slide-inner">
+      <div class="eyebrow">Contoh Soal · Interaktif</div>
+      <h2 class="slide-title">Menghitung Luas Juring — Soal Cerita</h2>
+      <p class="slide-sub">Klik tiap langkah untuk mengikuti proses penyelesaiannya. (Gunakan π = 22/7)</p>
+      <div class="case-context"><div class="ctitle">Soal</div><p>Sepotong pizza berbentuk juring lingkaran memiliki sudut pusat 45° dan jari-jari 14 cm. Berapakah luas permukaan pizza tersebut?</p></div>
+      <div id="case2"></div>
+    </div>
+  </section>
 
-  <!-- Navigation Bar Bawah -->
-  <div class="nav-bar">
-    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← SBLM</button>
-    <div class="dots-container" id="dotsContainer"></div>
-    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">SLDN →</button>
-  </div>
+  <!-- 8 CONTOH 3: PERBANDINGAN JURING -->
+  <section class="slide" id="s8">
+    <div class="slide-inner">
+      <div class="eyebrow">Contoh Soal · Interaktif</div>
+      <h2 class="slide-title">Perbandingan Dua Juring</h2>
+      <p class="slide-sub">Klik tiap langkah untuk mengikuti proses penyelesaiannya.</p>
+      <div class="case-context"><div class="ctitle">Soal</div><p>Pada suatu lingkaran, juring AOB memiliki sudut pusat 40° dan luas 24 cm². Jika juring COD memiliki sudut pusat 100°, tentukan luas juring COD!</p></div>
+      <div id="case3"></div>
+    </div>
+  </section>
 
+  <!-- 9 LATIHAN MANDIRI -->
+  <section class="slide" id="s9">
+    <div class="slide-inner">
+      <div class="eyebrow">Interaktif · Klik kartu untuk membalik</div>
+      <h2 class="slide-title">Latihan Mandiri Cepat</h2>
+      <p class="slide-sub">Coba hitung dulu sebelum membalik kartu — dari yang mudah sampai yang menantang!</p>
+      <div class="gallery" id="practiceGallery"></div>
+    </div>
+  </section>
+
+  <!-- 10 KUIS -->
+  <section class="slide" id="s10">
+    <div class="slide-inner">
+      <div class="eyebrow">Latihan</div>
+      <h2 class="slide-title">Uji Pemahamanmu</h2>
+      <p class="slide-sub">8 soal pilihan ganda seputar panjang busur dan luas juring lingkaran.</p>
+      <div class="quiz-box">
+        <div id="quizPlay">
+          <div class="quiz-progress">
+            <span class="qnum" id="qnum">Soal 1/8</span>
+            <div class="qbar"><div class="qbar-fill" id="qbarFill"></div></div>
+            <span class="qscore" id="qscore">Skor: 0</span>
+          </div>
+          <div class="q-text" id="qtext"></div>
+          <div class="options" id="qoptions"></div>
+          <div class="feedback" id="qfeedback"></div>
+          <div class="quiz-nav">
+            <button class="btn btn-primary" id="qnextBtn" onclick="nextQuestion()" style="display:none;">Lanjut →</button>
+          </div>
+        </div>
+        <div class="quiz-result" id="quizResult">
+          <div class="result-score"><span id="resultScore">0</span><span>/8 benar</span></div>
+          <div class="result-msg" id="resultMsg"></div>
+          <div class="result-btns">
+            <button class="btn btn-ghost" onclick="restartQuiz()">↺ Ulangi Kuis</button>
+            <button class="btn btn-amber" onclick="goTo(11)">Lihat Pembahasan →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 PEMBAHASAN -->
+  <section class="slide" id="s11">
+    <div class="slide-inner">
+      <div class="eyebrow">Pembahasan Kuis</div>
+      <h2 class="slide-title">Yuk, Cek Jawabanmu</h2>
+      <p class="slide-sub">Berikut pembahasan lengkap untuk setiap soal pada kuis.</p>
+      <div id="reviewList"></div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="btn btn-primary" onclick="goTo(12)">Lanjut ke Ringkasan →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 RINGKASAN & YANG PERLU DIINGAT -->
+  <section class="slide" id="s12">
+    <div class="slide-inner">
+      <div class="eyebrow">🧠 Ringkasan &amp; Yang Perlu Diingat</div>
+      <h2 class="slide-title">Poin-poin Penting Bab Ini</h2>
+      <div class="ring-grid">
+        <div class="ring-card">
+          <h4>Panjang Busur</h4>
+          <p>Bagian dari keliling lingkaran, sebanding dengan sudut pusatnya.</p>
+          <span class="f">Busur = (α/360°) × 2πr</span>
+        </div>
+        <div class="ring-card c-green">
+          <h4>Luas Juring</h4>
+          <p>Bagian dari luas lingkaran, sebanding dengan sudut pusatnya.</p>
+          <span class="f">Juring = (α/360°) × πr²</span>
+        </div>
+        <div class="ring-card c-purple">
+          <h4>Hubungan Perbandingan</h4>
+          <p>Pada lingkaran yang sama, rasio sudut = rasio busur = rasio luas juring.</p>
+        </div>
+        <div class="ring-card c-blue">
+          <h4>Nilai π</h4>
+          <p>Gunakan 22/7 jika jari-jari kelipatan 7, atau 3,14 untuk nilai lainnya.</p>
+        </div>
+        <div class="ring-card c-rose">
+          <h4>Kesalahan Umum</h4>
+          <p>Tertukar antara rumus keliling/luas lingkaran penuh dengan rumus busur/juring — jangan lupa kalikan dengan (α/360°).</p>
+        </div>
+        <div class="ring-card">
+          <h4>Ingat Selalu</h4>
+          <p>Sudut pusat yang lebih besar selalu menghasilkan busur yang lebih panjang dan juring yang lebih luas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 AYO BERMAIN GAME -->
+  <section class="slide" id="s13">
+    <div class="slide-inner">
+      <div class="game-card">
+        <div class="game-icon">🎮</div>
+        <h2 class="slide-title">Ayo Bermain Game!</h2>
+        <p class="slide-sub" style="margin:0 auto 18px;">Sudah siap menguji kemampuanmu? Yuk lanjutkan ke game interaktif!</p>
+        <a href="game-interaktif.html" class="btn btn-green" onclick="onGameClick()" style="text-decoration:none;">🎮 Ayo Bermain Game</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 PEMBELAJARAN SELESAI -->
+  <section class="slide" id="s14">
+    <div class="slide-inner">
+      <div class="eyebrow" style="justify-content:center;display:flex">🎉 Pembelajaran Selesai!</div>
+      <h2 class="slide-title">Kerja Bagus!</h2>
+      <p class="slide-sub" style="margin:0 auto;">Kamu sudah menyelesaikan materi <b id="doneMateri">Lingkaran</b> — <b id="doneSubmateri">Panjang Busur &amp; Luas Juring Lingkaran</b>.</p>
+      <div class="recap-grid">
+        <div class="recap-item"><div class="n" style="color:var(--amber)" id="doneScore">–</div><div class="l">Skor Kuis</div></div>
+        <div class="recap-item"><div class="n" style="color:var(--green)">15</div><div class="l">Slide Dipelajari</div></div>
+        <div class="recap-item"><div class="n" style="color:var(--purple)">✓</div><div class="l">Materi Tuntas</div></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--ink-soft);max-width:420px;margin:0 auto 6px;">Teruslah berlatih! Semakin sering berlatih soal, semakin cepat kamu memahami perbandingan busur dan juring.</p>
+      <div class="done-check" id="doneCheck">✓</div>
+      <div class="done-status mono" id="doneStatus">✓ PEMBELAJARAN SELESAI</div>
+      <div class="done-btns">
+        <button class="btn btn-ghost" onclick="restartLearning()">↺ Pelajari Lagi</button>
+        <button class="btn btn-primary" id="finishBtn" onclick="finish()">✅ Selesai</button>
+      </div>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:14px;">Tombol ini akan membuka <span class="mono">bab1.html</span></p>
+    </div>
+  </section>
+
+</main>
+
+<div class="bottombar">
+  <button class="navbtn" id="prevBtn" onclick="goTo(current-1)">← <span class="lbl">Sebelumnya</span></button>
+  <div class="step-label" id="stepLabel"></div>
+  <button class="navbtn primary" id="nextBtn" onclick="goTo(current+1)"><span class="lbl">Selanjutnya</span> →</button>
 </div>
 
 <script>
-  let currentSlide = 0;
-  const slides = document.querySelectorAll('.slide');
-  const dotsContainer = document.getElementById('dotsContainer');
+/* ================= viewport height fix (mobile) ================= */
+function setVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
+setVh();
+window.addEventListener('resize', setVh);
+window.addEventListener('orientationchange', setVh);
 
-  // Inisialisasi Dot Navigation
-  slides.forEach((_, idx) => {
-    const dot = document.createElement('div');
-    dot.classList.add('dot');
-    if (idx === 0) dot.classList.add('active');
-    dot.addEventListener('click', () => goToSlide(idx));
-    dotsContainer.appendChild(dot);
+/* ================= DATA ================= */
+const slideNames = ["Sampul","Apersepsi","Tujuan","Konsep Dasar","Perbandingan Juring","Simulasi Visual","Contoh Busur","Contoh Juring","Contoh Perbandingan","Latihan Mandiri","Kuis","Pembahasan","Ringkasan","Main Game","Selesai"];
+const totalSlides = slideNames.length;
+let current = 0;
+document.getElementById('coverSlideCount').textContent = totalSlides;
+
+/* ================= LOCAL STORAGE STATUS ================= */
+const LS_KEY = 'busurjuring_state';
+function loadState(){
+  try{ return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveState(patch){
+  try{
+    const s = Object.assign(loadState(), patch);
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }catch(e){ /* localStorage unavailable — ignore silently */ }
+}
+function setStatus(label){
+  saveState({ status: label });
+  const badge = document.getElementById('statusBadge');
+  if(badge) badge.textContent = label;
+}
+(function initStatus(){
+  const s = loadState();
+  const badge = document.getElementById('statusBadge');
+  if(badge) badge.textContent = s.status || 'BELUM MULAI';
+})();
+
+/* ================= SLIDE NAV ================= */
+function buildDots(){
+  const wrap = document.getElementById('dots');
+  wrap.innerHTML = '';
+  for(let i=0;i<totalSlides;i++){
+    const d = document.createElement('button');
+    d.className = 'dot'; d.title = slideNames[i]; d.onclick = () => goTo(i);
+    wrap.appendChild(d);
+  }
+}
+function goTo(i){
+  if(i<0 || i>=totalSlides) return;
+  const dir = i > current ? 1 : -1;
+  document.getElementById('s'+current).classList.remove('active');
+  if(dir>0) document.getElementById('s'+current).classList.add('prevslide');
+  current = i;
+  const el = document.getElementById('s'+current);
+  el.classList.remove('prevslide'); el.classList.add('active');
+  setTimeout(()=>{ document.querySelectorAll('.slide').forEach(s=>{ if(!s.classList.contains('active')) s.classList.remove('prevslide'); }); }, 420);
+  document.querySelectorAll('.dot').forEach((d,idx)=>{ d.classList.toggle('active', idx===current); d.classList.toggle('done', idx<current); });
+  document.getElementById('slideCount').textContent = String(current+1).padStart(2,'0') + '/' + String(totalSlides).padStart(2,'0');
+  document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100) + '%';
+  document.getElementById('stepLabel').innerHTML = (current+1) + '/' + totalSlides + ' · <b>' + slideNames[current] + '</b>';
+  document.getElementById('prevBtn').disabled = current===0;
+  document.getElementById('nextBtn').disabled = current===totalSlides-1;
+
+  saveState({ lastSlide: current });
+  if(current > 0){
+    const s = loadState();
+    if(!s.status || s.status === 'BELUM MULAI') setStatus('SEDANG BELAJAR');
+  }
+  if(current === 10) setStatus('KUIS');
+  if(current === 14) renderDoneSlide();
+}
+
+/* ================= APERSEPSI (slide 1) ================= */
+function toggleAper(){
+  document.getElementById('aperReveal').classList.toggle('show');
+}
+
+/* ================= RATIO CALCULATOR (slide 4) ================= */
+function computeRatio(){
+  const a = parseFloat(document.getElementById('rA').value) || 0;
+  const la = parseFloat(document.getElementById('rLA').value) || 0;
+  const b = parseFloat(document.getElementById('rB').value) || 0;
+  if(a<=0){ document.getElementById('rResult').textContent = '–'; document.getElementById('rFormula').textContent=''; return; }
+  const result = (b/a) * la;
+  document.getElementById('rResult').textContent = result.toFixed(2) + ' cm²';
+  document.getElementById('rFormula').textContent = `(${b}° / ${a}°) × ${la} cm²`;
+}
+computeRatio();
+
+/* ================= SIMULATOR (slide 5) ================= */
+const angleSlider = document.getElementById('angleSlider');
+const radiusSlider = document.getElementById('radiusSlider');
+const angleVal = document.getElementById('angleVal');
+const radiusVal = document.getElementById('radiusVal');
+const baseCircle = document.getElementById('baseCircle');
+const baseRadius = document.getElementById('baseRadius');
+const juringPath = document.getElementById('juringPath');
+const busurPath = document.getElementById('busurPath');
+const radiusLine = document.getElementById('radiusLine');
+
+function updateSim(){
+  const alpha = parseFloat(angleSlider.value);
+  const r = parseFloat(radiusSlider.value);
+  angleVal.textContent = alpha;
+  radiusVal.textContent = r;
+
+  const visualR = (r/28) * 80;
+  baseCircle.setAttribute('r', visualR);
+  baseRadius.setAttribute('x2', visualR);
+
+  const rad = (alpha * Math.PI) / 180;
+  const x = visualR * Math.cos(rad);
+  const y = visualR * Math.sin(rad);
+  const largeArc = alpha > 180 ? 1 : 0;
+
+  busurPath.setAttribute('d', `M ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y}`);
+  juringPath.setAttribute('d', `M 0 0 L ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y} Z`);
+  radiusLine.setAttribute('x2', x);
+  radiusLine.setAttribute('y2', y);
+
+  const pi = 22/7;
+  const busur = ((alpha/360) * 2 * pi * r).toFixed(2);
+  const juring = ((alpha/360) * pi * r * r).toFixed(2);
+  document.getElementById('arcResult').textContent = busur + ' cm';
+  document.getElementById('sectorResult').textContent = juring + ' cm²';
+}
+angleSlider.addEventListener('input', updateSim);
+radiusSlider.addEventListener('input', updateSim);
+updateSim();
+
+/* ================= CASE STUDIES (accordion, slide 6-8) ================= */
+function buildCase(containerId, steps){
+  const wrap = document.getElementById(containerId);
+  steps.forEach((s, i)=>{
+    const acc = document.createElement('div');
+    acc.className = 'step-acc' + (i===0 ? ' open' : '');
+    acc.innerHTML = `
+      <div class="step-acc-head">
+        <div class="step-acc-num">${i+1}</div>
+        <div class="step-acc-title">${s.t}</div>
+        <div class="step-acc-icon">▾</div>
+      </div>
+      <div class="step-acc-body"><div class="step-acc-body-inner">${s.b}</div></div>`;
+    acc.querySelector('.step-acc-head').addEventListener('click', ()=> acc.classList.toggle('open'));
+    wrap.appendChild(acc);
   });
+}
+buildCase('case1', [
+  { t:"Pahami Soal", b:"Diketahui jari-jari r = 21 cm dan sudut pusat α = 60°. Ditanya: panjang busur." },
+  { t:"Petunjuk / Pilih Rumus", b:"Karena mencari busur, gunakan: <b>Busur = (α/360°) × 2πr</b>" },
+  { t:"Langkah Perhitungan", b:"Busur = (60°/360°) × 2 × (22/7) × 21 = (1/6) × 132" },
+  { t:"Jawaban & Kesimpulan", b:"Busur = <b>22 cm</b>." },
+]);
+buildCase('case2', [
+  { t:"Pahami Soal", b:"Sepotong pizza (juring) memiliki sudut pusat 45° dan jari-jari 14 cm. Ditanya: luas permukaan pizza." },
+  { t:"Petunjuk / Pilih Rumus", b:"Karena mencari luas juring, gunakan: <b>Juring = (α/360°) × πr²</b>" },
+  { t:"Langkah Perhitungan", b:"Juring = (45°/360°) × (22/7) × 14 × 14 = (1/8) × 616" },
+  { t:"Jawaban & Kesimpulan", b:"Luas juring = <b>77 cm²</b>." },
+]);
+buildCase('case3', [
+  { t:"Pahami Soal", b:"Juring AOB: sudut 40°, luas 24 cm². Juring COD: sudut 100°. Ditanya: luas juring COD." },
+  { t:"Petunjuk / Pilih Rumus", b:"Gunakan hubungan perbandingan: <b>Luas COD / Luas AOB = Sudut COD / Sudut AOB</b>" },
+  { t:"Langkah Perhitungan", b:"Luas COD / 24 = 100°/40° = 2,5 → Luas COD = 2,5 × 24" },
+  { t:"Jawaban & Kesimpulan", b:"Luas juring COD = <b>60 cm²</b>." },
+]);
 
-  const dots = document.querySelectorAll('.dot');
+/* ================= LATIHAN MANDIRI (slide 9) ================= */
+const practice = [
+  { lvl:"MUDAH", color:"var(--green)", q:"α=90°, r=14 cm\nBusur = ?", a:"22 cm" },
+  { lvl:"MUDAH", color:"var(--green)", q:"α=180°, r=7 cm\nJuring = ?", a:"77 cm²" },
+  { lvl:"SEDANG", color:"var(--amber)", q:"α=120°, r=21 cm\nBusur = ?", a:"44 cm" },
+  { lvl:"SEDANG", color:"var(--amber)", q:"α=90°, r=28 cm\nJuring = ?", a:"616 cm²" },
+  { lvl:"SEDANG", color:"var(--amber)", q:"Busur AB=15cm (30°)\nBusur CD (90°) = ?", a:"45 cm" },
+  { lvl:"MENANTANG", color:"var(--rose)", q:"Juring 120°, luas 154 cm²\nr = ?", a:"r = 21 cm" },
+  { lvl:"MENANTANG", color:"var(--rose)", q:"Keliling=110cm, α=72°\nBusur = ?", a:"22 cm" },
+  { lvl:"MENANTANG", color:"var(--rose)", q:"α=60°, r=7 cm\nJuring = ?", a:"25,67 cm²" },
+];
+const practiceWrap = document.getElementById('practiceGallery');
+practice.forEach(p=>{
+  const card = document.createElement('div');
+  card.className = 'card-flip';
+  card.innerHTML = `
+    <div class="card-flip-inner">
+      <div class="card-face card-front">
+        <span class="lvl" style="background:${p.color};color:#04141f;">${p.lvl}</span>
+        <div class="tnum">${p.q.replace('\n','<br>')}</div>
+        <div class="ctap">klik untuk jawaban</div>
+      </div>
+      <div class="card-face card-back">
+        <div class="veq">${p.a}</div>
+      </div>
+    </div>`;
+  card.addEventListener('click', ()=> card.classList.toggle('flipped'));
+  practiceWrap.appendChild(card);
+});
 
-  function updateNav() {
-    slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
-    dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    document.getElementById('prevBtn').disabled = currentSlide === 0;
-    document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
-  }
+/* ================= QUIZ ================= */
+const quiz = [
+  { q:"Lingkaran berjari-jari 14 cm, sudut pusat 90°. Berapa panjang busurnya? (π=22/7)", opts:["11 cm","22 cm","44 cm","88 cm"], correct:1, exp:"Busur = (90/360) × 2 × 22/7 × 14 = 22 cm." },
+  { q:"Sudut pusat juring 60°, jari-jari 7 cm. Berapa luas juringnya?", opts:["25,67 cm²","51,33 cm²","77,00 cm²","154,00 cm²"], correct:0, exp:"Juring = (60/360) × 22/7 × 7² = 25,67 cm²." },
+  { q:"Busur AB = 15 cm pada sudut 30°. Berapa busur CD pada sudut 90° (lingkaran sama)?", opts:["30 cm","45 cm","60 cm","90 cm"], correct:1, exp:"Busur CD = (90/30) × 15 = 45 cm." },
+  { q:"Juring bersudut 120° memiliki luas 154 cm². Berapa jari-jari lingkarannya? (π=22/7)", opts:["7 cm","14 cm","21 cm","28 cm"], correct:2, exp:"154 = (120/360)×22/7×r² → r² = 441 → r = 21 cm." },
+  { q:"Juring AOB bersudut 72° pada lingkaran berkeliling 110 cm. Berapa panjang busur AB?", opts:["11 cm","22 cm","33 cm","44 cm"], correct:1, exp:"Busur = (72/360) × 110 = 22 cm." },
+  { q:"Manakah rumus yang benar untuk luas juring?", opts:["(α/360°)×2πr","(α/360°)×πr²","2πr × α","πr² + α"], correct:1, exp:"Luas juring = (α/360°) × πr², karena juring adalah bagian dari luas lingkaran." },
+  { q:"Jika sudut pusat diperbesar dua kali lipat (radius tetap), maka luas juring akan...", opts:["Tetap sama","Menjadi dua kali lipat","Menjadi setengahnya","Menjadi empat kali lipat"], correct:1, exp:"Luas juring berbanding lurus dengan sudut pusat, jadi jika sudut ×2 maka luas juring juga ×2." },
+  { q:"Lingkaran berjari-jari 21 cm, sudut pusat 60°. Berapa luas juringnya? (π=22/7)", opts:["231 cm²","462 cm²","693 cm²","924 cm²"], correct:0, exp:"Juring = (60/360) × 22/7 × 21² = (1/6) × 1386 = 231 cm²." },
+];
+let qIndex = 0, qScore = 0, answered = false, userAnswers = [];
 
-  function changeSlide(direction) {
-    currentSlide += direction;
-    updateNav();
-  }
-
-  function goToSlide(index) {
-    currentSlide = index;
-    updateNav();
-  }
-
-  // Keyboard Navigation
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) changeSlide(1);
-    if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
+function renderQuestion(){
+  answered = false;
+  const item = quiz[qIndex];
+  document.getElementById('qnum').textContent = `Soal ${qIndex+1}/${quiz.length}`;
+  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
+  document.getElementById('qbarFill').style.width = (qIndex/quiz.length*100) + '%';
+  document.getElementById('qtext').textContent = item.q;
+  document.getElementById('qfeedback').classList.remove('show');
+  document.getElementById('qnextBtn').style.display = 'none';
+  const optWrap = document.getElementById('qoptions');
+  optWrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  item.opts.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    b.onclick = () => selectAnswer(i, b);
+    optWrap.appendChild(b);
   });
+}
+function selectAnswer(i, btn){
+  if(answered) return;
+  answered = true;
+  const item = quiz[qIndex];
+  const correct = i === item.correct;
+  if(correct) qScore++;
+  userAnswers[qIndex] = i;
+  document.querySelectorAll('#qoptions .opt').forEach((el, idx)=>{
+    el.classList.add('disabled');
+    if(idx === item.correct) el.classList.add('correct');
+    else if(idx === i) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('qfeedback');
+  fb.innerHTML = (correct ? '✅ Benar! ' : '❌ Belum tepat. ') + item.exp;
+  fb.classList.add('show');
+  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
+  document.getElementById('qnextBtn').textContent = qIndex < quiz.length-1 ? 'Lanjut →' : 'Lihat Hasil →';
+  document.getElementById('qnextBtn').style.display = 'inline-flex';
+}
+function nextQuestion(){
+  if(qIndex < quiz.length-1){ qIndex++; renderQuestion(); }
+  else { document.getElementById('qbarFill').style.width = '100%'; showResult(); }
+}
+function showResult(){
+  document.getElementById('quizPlay').style.display = 'none';
+  const rEl = document.getElementById('quizResult');
+  rEl.classList.add('show');
+  document.getElementById('resultScore').textContent = qScore;
+  let msg;
+  if(qScore === quiz.length) msg = "Sempurna! Kamu sudah mahir menghitung panjang busur dan luas juring.";
+  else if(qScore >= quiz.length*0.6) msg = "Bagus! Sedikit lagi kamu akan menguasai materi ini sepenuhnya.";
+  else msg = "Ayo coba lagi! Cek kembali contoh soal dan simulasi sebelumnya.";
+  document.getElementById('resultMsg').textContent = msg;
+  saveState({ quizScore: qScore, quizTotal: quiz.length });
+  renderReview();
+}
+function restartQuiz(){
+  qIndex = 0; qScore = 0; userAnswers = [];
+  document.getElementById('quizResult').classList.remove('show');
+  document.getElementById('quizPlay').style.display = 'block';
+  renderQuestion();
+}
+renderQuestion();
 
-  // Accordion Toggle
-  function toggleSoal(header) {
-    const body = header.nextElementSibling;
-    const isVisible = body.style.display === 'block';
-    body.style.display = isVisible ? 'none' : 'block';
-    header.querySelector('span:last-child').textContent = isVisible ? '▼' : '▲';
-  }
+/* ================= PEMBAHASAN (slide 11) ================= */
+function renderReview(){
+  const wrap = document.getElementById('reviewList');
+  wrap.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  quiz.forEach((item, i)=>{
+    const ua = userAnswers[i];
+    const isCorrect = ua === item.correct;
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <div class="rq">${i+1}. ${item.q}</div>
+      <div class="review-row"><span class="tag ${isCorrect?'tag-correct':'tag-wrong'}">${isCorrect ? 'BENAR' : 'KURANG TEPAT'}</span>
+        <span>Jawabanmu: ${ua!==undefined ? letters[ua]+'. '+item.opts[ua] : '–'}</span></div>
+      ${!isCorrect ? `<div class="review-row"><span class="tag tag-correct">KUNCI</span><span>${letters[item.correct]}. ${item.opts[item.correct]}</span></div>` : ''}
+      <div class="review-exp">${item.exp}</div>`;
+    wrap.appendChild(div);
+  });
+}
 
-  // Interactive Canvas Logic (Updated: Visual R ikut membesar)
-  const angleSlider = document.getElementById('angleSlider');
-  const radiusSlider = document.getElementById('radiusSlider');
-  const angleVal = document.getElementById('angleVal');
-  const radiusVal = document.getElementById('radiusVal');
+/* ================= GAME LINK (slide 13) ================= */
+function onGameClick(){
+  setStatus('GAME');
+}
 
-  const baseCircle = document.getElementById('baseCircle');
-  const baseRadius = document.getElementById('baseRadius');
-  const juringPath = document.getElementById('juringPath');
-  const busurPath = document.getElementById('busurPath');
-  const radiusLine = document.getElementById('radiusLine');
+/* ================= SELESAI (slide 14) ================= */
+function renderDoneSlide(){
+  document.getElementById('doneScore').textContent = (qScore) + '/' + quiz.length;
+}
+function finish(){
+  const btn = document.getElementById('finishBtn');
+  btn.disabled = true;
+  document.getElementById('doneCheck').classList.add('show');
+  setTimeout(()=>{
+    document.getElementById('doneStatus').classList.add('show');
+    saveState({ status:'SELESAI', completed:true, quizScore:qScore, quizTotal:quiz.length, lastSlide:current });
+    const badge = document.getElementById('statusBadge');
+    if(badge) badge.textContent = 'SELESAI';
+    setTimeout(()=>{ window.location.href = 'bab1.html'; }, 900);
+  }, 350);
+}
+function restartLearning(){
+  goTo(0);
+}
 
-  function updateCircleVisual() {
-    const alpha = parseFloat(angleSlider.value);
-    const r = parseFloat(radiusSlider.value);
+/* ================= KEYBOARD NAV ================= */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') goTo(current+1);
+  if(e.key === 'ArrowLeft') goTo(current-1);
+});
 
-    angleVal.textContent = alpha;
-    radiusVal.textContent = r;
+/* ================= TOUCH SWIPE NAV ================= */
+let touchStartX = 0, touchStartY = 0;
+main.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive:true});
+main.addEventListener('touchend', (e)=>{
+  const dx = e.changedTouches[0].screenX - touchStartX;
+  const dy = e.changedTouches[0].screenY - touchStartY;
+  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ if(dx < 0) goTo(current+1); else goTo(current-1); }
+}, {passive:true});
 
-    // Skala visual SVG (Radius 7 cm -> 22.5px, 28 cm -> 80px)
-    const visualR = (r / 28) * 80;
-
-    // Update lingkaran dasar & radius awal
-    baseCircle.setAttribute('r', visualR);
-    baseRadius.setAttribute('x2', visualR);
-
-    // Hitung posisi koordinat busur berdasarkan sudut & jari-jari visual
-    const rad = (alpha * Math.PI) / 180;
-    const x = visualR * Math.cos(rad);
-    const y = visualR * Math.sin(rad);
-    const largeArc = alpha > 180 ? 1 : 0;
-
-    busurPath.setAttribute('d', `M ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y}`);
-    juringPath.setAttribute('d', `M 0 0 L ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y} Z`);
-    radiusLine.setAttribute('x2', x);
-    radiusLine.setAttribute('y2', y);
-
-    // Perhitungan Matematis Sebenarnya
-    const pi = 22 / 7;
-    const busur = ((alpha / 360) * 2 * pi * r).toFixed(2);
-    const juring = ((alpha / 360) * pi * r * r).toFixed(2);
-
-    document.getElementById('arcResult').textContent = busur;
-    document.getElementById('sectorResult').textContent = juring;
-  }
-
-  angleSlider.addEventListener('input', updateCircleVisual);
-  radiusSlider.addEventListener('input', updateCircleVisual);
-  updateCircleVisual();
-
-  // Kuis Logic (5 Soal)
-  const quizData = [
-    {
-      q: "1. Sebuah lingkaran memiliki jari-jari 14 cm dan sudut pusat 90°. Berapakah panjang busurnya? (π = 22/7)",
-      options: ["11 cm", "22 cm", "44 cm", "88 cm"],
-      correct: 1,
-      exp: "Panjang Busur = (90°/360°) × 2 × (22/7) × 14 = (1/4) × 88 = 22 cm."
-    },
-    {
-      q: "2. Diketahui sudut pusat juring adalah 60° dengan jari-jari 7 cm. Berapakah luas juring tersebut?",
-      options: ["25,67 cm²", "51,33 cm²", "77,00 cm²", "154,00 cm²"],
-      correct: 0,
-      exp: "Luas Juring = (60°/360°) × (22/7) × 7 × 7 = (1/6) × 154 = 25,67 cm²."
-    },
-    {
-      q: "3. Jika panjang busur AB = 15 cm dengan sudut pusat 30°, berapakah panjang busur CD jika sudut pusatnya 90° pada lingkaran yang sama?",
-      options: ["30 cm", "45 cm", "60 cm", "90 cm"],
-      correct: 1,
-      exp: "Busur CD = (Sudut CD / Sudut AB) × Busur AB = (90°/30°) × 15 = 3 × 15 = 45 cm."
-    },
-    {
-      q: "4. Sebuah juring memiliki sudut pusat 120° dan luas 154 cm². Berapakah jari-jari lingkaran tersebut? (π = 22/7)",
-      options: ["7 cm", "14 cm", "21 cm", "28 cm"],
-      correct: 2,
-      exp: "Luas Juring = (120°/360°) × (22/7) × r² => 154 = (1/3) × (22/7) × r² => r² = 441 => r = 21 cm."
-    },
-    {
-      q: "5. Suatu juring AOB memiliki sudut pusat 72°. Jika keliling lingkaran adalah 110 cm, berapakah panjang busur AB?",
-      options: ["11 cm", "22 cm", "33 cm", "44 cm"],
-      correct: 1,
-      exp: "Panjang Busur AB = (72°/360°) × Keliling Lingkaran = (1/5) × 110 = 22 cm."
-    }
-  ];
-
-  let currentQuizIdx = 0;
-  let score = 0;
-
-  function loadQuiz() {
-    const q = quizData[currentQuizIdx];
-    document.getElementById('quizQuestion').textContent = q.q;
-    const optionsContainer = document.getElementById('quizOptions');
-    optionsContainer.innerHTML = '';
-    document.getElementById('quizFeedback').textContent = '';
-    document.getElementById('nextQuizBtn').style.display = 'none';
-
-    q.options.forEach((opt, i) => {
-      const btn = document.createElement('button');
-      btn.classList.add('quiz-option');
-      btn.textContent = opt;
-      btn.onclick = () => checkQuiz(btn, i);
-      optionsContainer.appendChild(btn);
-    });
-  }
-
-  function checkQuiz(btn, selectedIdx) {
-    const q = quizData[currentQuizIdx];
-    const options = document.querySelectorAll('.quiz-option');
-    options.forEach(o => o.style.pointerEvents = 'none');
-
-    const feedback = document.getElementById('quizFeedback');
-    if (selectedIdx === q.correct) {
-      btn.classList.add('correct');
-      feedback.textContent = "✨ Benar! " + q.exp;
-      feedback.style.color = "var(--accent-green)";
-      score++;
-    } else {
-      btn.classList.add('wrong');
-      options[q.correct].classList.add('correct');
-      feedback.textContent = "❌ Belum tepat. " + q.exp;
-      feedback.style.color = "#ef4444";
-    }
-
-    document.getElementById('nextQuizBtn').style.display = 'inline-block';
-  }
-
-  function loadNextQuiz() {
-    currentQuizIdx++;
-    if (currentQuizIdx < quizData.length) {
-      loadQuiz();
-    } else {
-      document.getElementById('quizContent').style.display = 'none';
-      document.getElementById('quizResult').style.display = 'block';
-      document.getElementById('scoreText').textContent = `Skor Anda: ${score} / ${quizData.length}`;
-    }
-  }
-
-  function resetQuiz() {
-    currentQuizIdx = 0;
-    score = 0;
-    document.getElementById('quizContent').style.display = 'block';
-    document.getElementById('quizResult').style.display = 'none';
-    loadQuiz();
-  }
-
-  loadQuiz();
+/* ================= INIT ================= */
+buildDots();
+goTo(0);
 </script>
-
 </body>
 </html>

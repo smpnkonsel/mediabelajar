@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.6 Pemecahan Masalah Lingkaran — Media Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1224;
+  --bg-2:#131a33;
+  --card:#1a2240;
+  --card-2:#212b52;
+  --line:#2e3a66;
+  --text:#eaf0ff;
+  --muted:#a4b0d6;
+  --teal:#2dd4bf;
+  --sky:#38bdf8;
+  --violet:#a78bfa;
+  --amber:#fbbf24;
+  --rose:#fb7185;
+  --green:#4ade80;
+  --grad-main:linear-gradient(135deg,#38bdf8 0%,#a78bfa 55%,#fb7185 100%);
+  --grad-soft:linear-gradient(135deg,rgba(56,189,248,.16),rgba(167,139,250,.16));
+  --radius:20px;
+  --radius-sm:14px;
+  --shadow:0 14px 40px rgba(0,0,0,.42);
+  --f-title:'Fredoka',system-ui,sans-serif;
+  --f-body:'Plus Jakarta Sans',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box;}
+img,svg,canvas{max-width:100%;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(900px 500px at 12% -8%,rgba(56,189,248,.18),transparent 60%),
+    radial-gradient(800px 520px at 92% 4%,rgba(167,139,250,.18),transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--f-body);
+  font-size:16px;
+  line-height:1.65;
+  overflow-x:hidden;
+  -webkit-text-size-adjust:100%;
+  padding-bottom:104px;
+}
+h1,h2,h3,h4{font-family:var(--f-title);line-height:1.25;margin:0 0 10px;letter-spacing:.2px;}
+p{margin:0 0 12px;}
+b,strong{color:#fff;}
+
+/* ===== HEADER ===== */
+header{
+  position:sticky;top:0;z-index:40;
+  background:rgba(13,18,36,.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:10px 14px 8px;
+}
+.head-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:1000px;margin:0 auto;}
+.brand{font-family:var(--f-title);font-size:15px;font-weight:600;flex:1 1 180px;min-width:0;}
+.brand span{display:block;font-family:var(--f-body);font-size:11.5px;color:var(--muted);font-weight:500;}
+.badge-status{
+  font-family:var(--f-mono);font-size:10.5px;font-weight:700;
+  padding:6px 11px;border-radius:999px;white-space:nowrap;
+  background:rgba(56,189,248,.14);color:var(--sky);border:1px solid rgba(56,189,248,.4);
+}
+.badge-status.s-kuis{background:rgba(251,191,36,.14);color:var(--amber);border-color:rgba(251,191,36,.45);}
+.badge-status.s-game{background:rgba(167,139,250,.16);color:var(--violet);border-color:rgba(167,139,250,.45);}
+.badge-status.s-selesai{background:rgba(74,222,128,.16);color:var(--green);border-color:rgba(74,222,128,.45);}
+.progress-wrap{max-width:1000px;margin:9px auto 0;display:flex;align-items:center;gap:9px;}
+.progress-track{flex:1;height:8px;border-radius:999px;background:#202a4d;overflow:hidden;}
+.progress-fill{height:100%;width:0;border-radius:999px;background:var(--grad-main);transition:width .35s ease;}
+.progress-num{font-family:var(--f-mono);font-size:11px;color:var(--muted);white-space:nowrap;}
+
+/* ===== SLIDE ===== */
+main{max-width:1000px;margin:0 auto;padding:18px 14px 10px;}
+.slide{display:none;animation:in .38s ease;}
+.slide.active{display:block;}
+@keyframes in{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.eyebrow{
+  display:inline-block;font-family:var(--f-mono);font-size:11px;font-weight:700;
+  color:var(--teal);background:rgba(45,212,191,.12);border:1px solid rgba(45,212,191,.35);
+  padding:4px 10px;border-radius:999px;margin-bottom:10px;
+}
+.slide h2{font-size:clamp(21px,5.6vw,31px);}
+.lead{color:var(--muted);font-size:15px;}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin:12px 0;box-shadow:var(--shadow);
+}
+.card.soft{background:var(--grad-soft);}
+.card h3{font-size:18px;}
+.grid{display:grid;gap:12px;grid-template-columns:1fr;}
+@media(min-width:640px){.grid.two{grid-template-columns:1fr 1fr;}.grid.three{grid-template-columns:repeat(3,1fr);}}
+.hero{
+  text-align:center;padding:28px 16px;border-radius:26px;
+  background:linear-gradient(160deg,rgba(56,189,248,.2),rgba(167,139,250,.18) 55%,rgba(251,113,133,.16));
+  border:1px solid var(--line);box-shadow:var(--shadow);
+}
+.hero h1{font-size:clamp(25px,7.4vw,44px);background:var(--grad-main);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .sub{font-size:15px;color:var(--muted);}
+.chip{
+  display:inline-block;font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid var(--line);margin:3px;
+}
+.mono{font-family:var(--f-mono);}
+.rumus{
+  font-family:var(--f-mono);font-size:clamp(13px,3.6vw,16px);font-weight:700;
+  background:#0f1730;border:1px dashed var(--line);border-left:4px solid var(--teal);
+  border-radius:var(--radius-sm);padding:12px;margin:10px 0;
+  overflow-x:auto;white-space:nowrap;color:#d6ffff;
+}
+ul.tick{list-style:none;padding:0;margin:0;}
+ul.tick li{position:relative;padding-left:26px;margin-bottom:9px;}
+ul.tick li::before{content:"●";position:absolute;left:4px;top:0;color:var(--teal);font-size:12px;}
+.num-list{counter-reset:s;list-style:none;padding:0;margin:0;}
+.num-list li{counter-increment:s;position:relative;padding-left:40px;margin-bottom:12px;}
+.num-list li::before{
+  content:counter(s);position:absolute;left:0;top:1px;width:27px;height:27px;border-radius:9px;
+  display:grid;place-items:center;font-family:var(--f-mono);font-size:13px;font-weight:700;
+  background:rgba(56,189,248,.16);color:var(--sky);border:1px solid rgba(56,189,248,.4);
+}
+
+/* ===== BUTTONS ===== */
+button,.btn{font-family:var(--f-body);}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:11px 18px;border-radius:14px;border:1px solid var(--line);
+  background:var(--card-2);color:var(--text);font-size:14.5px;font-weight:700;
+  cursor:pointer;text-decoration:none;transition:transform .15s,filter .2s,background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:hover{filter:brightness(1.14);transform:translateY(-2px);}
+.btn:active{transform:translateY(0);}
+.btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+.btn.primary{background:var(--grad-main);border-color:transparent;color:#0c1023;}
+.btn.teal{background:linear-gradient(135deg,#2dd4bf,#38bdf8);border-color:transparent;color:#07231f;}
+.btn.violet{background:linear-gradient(135deg,#a78bfa,#f472b6);border-color:transparent;color:#1a0f2e;}
+.btn.green{background:linear-gradient(135deg,#4ade80,#22d3ee);border-color:transparent;color:#052914;}
+.btn.wide{width:100%;}
+.btn-row{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px;}
+
+/* ===== REVEAL / ACCORDION ===== */
+.reveal{display:none;margin-top:10px;animation:in .3s ease;}
+.reveal.show{display:block;}
+.acc-item{border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:9px;background:var(--card-2);}
+.acc-head{
+  width:100%;text-align:left;background:transparent;border:0;color:var(--text);
+  padding:13px 14px;font-size:14.5px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:10px;font-family:var(--f-title);
+}
+.acc-head .ico{
+  width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;
+  background:rgba(167,139,250,.18);color:var(--violet);font-family:var(--f-mono);font-size:13px;font-weight:700;
+}
+.acc-head .arw{margin-left:auto;transition:transform .25s;color:var(--muted);}
+.acc-item.open .arw{transform:rotate(180deg);}
+.acc-body{display:none;padding:0 14px 14px;font-size:14.5px;color:var(--muted);}
+.acc-item.open .acc-body{display:block;}
+
+/* ===== STEP BOX ===== */
+.step{
+  border:1px solid var(--line);border-left:4px solid var(--violet);border-radius:var(--radius-sm);
+  background:#161e3c;padding:12px;margin-bottom:10px;
+}
+.step .lbl{font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--violet);}
+.answer-box{
+  border:1px solid rgba(74,222,128,.45);background:rgba(74,222,128,.1);
+  border-radius:var(--radius-sm);padding:12px;margin-top:10px;
+}
+.answer-box .lbl{font-family:var(--f-mono);font-size:11px;font-weight:700;color:var(--green);}
+.warn-box{
+  border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.1);
+  border-radius:var(--radius-sm);padding:12px;margin-top:10px;
+}
+
+/* ===== TABLE ===== */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:var(--radius-sm);border:1px solid var(--line);}
+table{border-collapse:collapse;width:100%;min-width:430px;font-size:13.5px;}
+th,td{padding:10px 11px;text-align:left;border-bottom:1px solid var(--line);}
+th{background:#182047;font-family:var(--f-title);font-size:13px;color:var(--sky);}
+td.mono{font-family:var(--f-mono);}
+
+/* ===== SIMULATOR ===== */
+.sim-grid{display:grid;gap:14px;grid-template-columns:1fr;align-items:center;}
+@media(min-width:720px){.sim-grid{grid-template-columns:1fr 1fr;}}
+.slider-row{margin-bottom:14px;}
+.slider-row label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;margin-bottom:6px;gap:10px;}
+.slider-row label .val{font-family:var(--f-mono);color:var(--teal);}
+input[type=range]{
+  width:100%;height:32px;appearance:none;background:transparent;cursor:pointer;
+}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:999px;background:#25315c;}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:26px;height:26px;margin-top:-9px;border-radius:50%;
+  background:linear-gradient(135deg,#38bdf8,#a78bfa);border:2px solid #fff;
+}
+input[type=range]::-moz-range-track{height:8px;border-radius:999px;background:#25315c;}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#38bdf8;border:2px solid #fff;}
+.out-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.out{background:#101838;border:1px solid var(--line);border-radius:12px;padding:10px;}
+.out .k{font-size:11.5px;color:var(--muted);display:block;}
+.out .v{font-family:var(--f-mono);font-size:15px;font-weight:700;color:var(--amber);word-break:break-word;}
+
+/* ===== LATIHAN / KUIS ===== */
+.level{
+  display:inline-block;font-family:var(--f-mono);font-size:11px;font-weight:700;
+  padding:4px 10px;border-radius:999px;margin-bottom:8px;
+}
+.lv-1{background:rgba(74,222,128,.14);color:var(--green);border:1px solid rgba(74,222,128,.4);}
+.lv-2{background:rgba(251,191,36,.14);color:var(--amber);border:1px solid rgba(251,191,36,.4);}
+.lv-3{background:rgba(251,113,133,.14);color:var(--rose);border:1px solid rgba(251,113,133,.4);}
+.opt{
+  display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px 13px;
+  border-radius:13px;border:1px solid var(--line);background:var(--card-2);
+  color:var(--text);font-size:14.5px;cursor:pointer;transition:.18s;font-weight:500;
+}
+.opt:hover{border-color:var(--sky);}
+.opt.sel{border-color:var(--sky);background:rgba(56,189,248,.14);}
+.opt.ok{border-color:var(--green);background:rgba(74,222,128,.16);}
+.opt.no{border-color:var(--rose);background:rgba(251,113,133,.16);}
+.opt:disabled{cursor:default;opacity:.95;}
+.q-num{font-family:var(--f-mono);font-size:11.5px;color:var(--muted);}
+.fb{border-radius:12px;padding:11px;margin-top:9px;font-size:14px;display:none;}
+.fb.show{display:block;}
+.fb.ok{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.42);}
+.fb.no{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.42);}
+input[type=text],input[type=number]{
+  width:100%;padding:12px;border-radius:13px;border:1px solid var(--line);
+  background:#101838;color:var(--text);font-family:var(--f-mono);font-size:15px;
+}
+input[type=text]:focus,input[type=number]:focus{outline:2px solid var(--sky);border-color:var(--sky);}
+.quiz-dots{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.qdot{
+  width:26px;height:26px;border-radius:8px;display:grid;place-items:center;
+  font-family:var(--f-mono);font-size:11.5px;font-weight:700;
+  background:#1c2549;border:1px solid var(--line);color:var(--muted);
+}
+.qdot.now{border-color:var(--sky);color:var(--sky);}
+.qdot.done{background:rgba(56,189,248,.18);color:#fff;border-color:rgba(56,189,248,.5);}
+.score-ring{
+  width:132px;height:132px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;
+  background:conic-gradient(var(--teal) 0deg,#232c54 0deg);
+}
+.score-ring .in{
+  width:104px;height:104px;border-radius:50%;background:var(--card);display:grid;place-items:center;
+  font-family:var(--f-mono);font-weight:700;
+}
+.score-ring .in b{font-size:28px;color:var(--teal);display:block;line-height:1;}
+.score-ring .in small{font-size:11px;color:var(--muted);}
+.stat{background:#101838;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;}
+.stat b{display:block;font-family:var(--f-mono);font-size:19px;}
+.stat small{color:var(--muted);font-size:11.5px;}
+.rev-item{border:1px solid var(--line);border-left:4px solid var(--rose);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;background:#161e3c;}
+.rev-item.benar{border-left-color:var(--green);}
+
+/* ===== SUMMARY CARDS ===== */
+.sum{
+  border-radius:var(--radius-sm);padding:14px;border:1px solid var(--line);
+  background:linear-gradient(150deg,rgba(56,189,248,.1),rgba(167,139,250,.08));
+}
+.sum h4{font-size:15.5px;margin-bottom:8px;}
+.sum p,.sum li{font-size:14px;color:var(--muted);}
+
+/* ===== FINISH ===== */
+#finishAnim{display:none;text-align:center;padding:14px 0;}
+#finishAnim.show{display:block;}
+.check-pop{
+  width:88px;height:88px;border-radius:50%;margin:0 auto 10px;display:grid;place-items:center;
+  font-size:44px;background:linear-gradient(135deg,#4ade80,#22d3ee);color:#06281a;
+  animation:pop .6s cubic-bezier(.2,1.4,.4,1);
+}
+@keyframes pop{0%{transform:scale(0) rotate(-40deg);opacity:0;}70%{transform:scale(1.18) rotate(6deg);}100%{transform:scale(1);opacity:1;}}
+.done-tag{
+  display:inline-block;font-family:var(--f-mono);font-weight:700;font-size:13px;
+  padding:8px 16px;border-radius:999px;background:rgba(74,222,128,.16);
+  color:var(--green);border:1px solid rgba(74,222,128,.5);
+}
+.dots-run{display:flex;gap:6px;justify-content:center;margin-top:12px;}
+.dots-run i{width:9px;height:9px;border-radius:50%;background:var(--sky);animation:bl 1s infinite;}
+.dots-run i:nth-child(2){animation-delay:.18s;}
+.dots-run i:nth-child(3){animation-delay:.36s;}
+@keyframes bl{0%,100%{opacity:.25;}50%{opacity:1;}}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:rgba(13,18,36,.95);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+}
+.nav-in{max-width:1000px;margin:0 auto;display:flex;align-items:center;gap:8px;}
+.nav-in .btn{flex:1;min-height:48px;padding:10px 8px;font-size:14px;}
+.nav-in .btn.icon{flex:0 0 48px;min-width:48px;padding:10px 0;font-size:17px;}
+.slide-ind{
+  flex:0 0 auto;font-family:var(--f-mono);font-size:12px;color:var(--muted);
+  padding:0 4px;text-align:center;min-width:52px;
+}
+@media(max-width:380px){.nav-in .btn{font-size:13px;}.slide-ind{font-size:11px;min-width:44px;}}
+.sr-hint{font-size:12px;color:var(--muted);text-align:center;margin-top:8px;}
+@media(max-width:700px){.sr-hint{display:none;}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-row">
+    <div class="brand">Lingkaran — Matematika SMP
+      <span>2.6 Pemecahan Masalah Lingkaran</span>
+    </div>
+    <div class="badge-status" id="statusBadge">BELUM MULAI</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-num" id="progressNum">0%</div>
+  </div>
+</header>
+
+<main id="deck">
+
+<!-- 1 PEMBUKA -->
+<section class="slide active" data-status="SEDANG BELAJAR">
+  <div class="hero">
+    <div style="font-size:46px;line-height:1">⭕</div>
+    <h1>Pemecahan Masalah Lingkaran</h1>
+    <p class="sub">Menggabungkan keliling, luas, panjang busur, luas juring, dan sudut pusat untuk menyelesaikan masalah nyata di sekitarmu.</p>
+    <div>
+      <span class="chip">📘 Materi: Lingkaran</span>
+      <span class="chip">🔢 Submateri 2.6</span>
+      <span class="chip">🎓 Jenjang SMP</span>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Apa yang akan kamu lakukan di sini?</h3>
+    <ul class="tick">
+      <li>Membaca masalah sehari-hari dan mengubahnya menjadi model matematika lingkaran.</li>
+      <li>Memilih rumus yang tepat: keliling, luas, busur, atau juring.</li>
+      <li>Menghitung dengan runtut, lalu memeriksa kembali kemasukakalan jawaban.</li>
+      <li>Menguji pemahaman lewat latihan bertingkat, kuis berskor, dan game.</li>
+    </ul>
+    <p class="lead" style="margin-bottom:0">Geser atau tekan tombol <b>Berikutnya</b> di bawah untuk memulai.</p>
+  </div>
+</section>
+
+<!-- 2 APERSEPSI -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">APERSEPSI</div>
+  <h2>Lingkaran ada di mana-mana</h2>
+  <p class="lead">Perhatikan benda-benda di sekitarmu. Tanpa sadar, kamu sering memakai konsep lingkaran setiap hari.</p>
+  <div class="grid two">
+    <div class="card"><h3>🚲 Roda sepeda</h3><p class="lead" style="margin:0">Satu putaran roda menempuh jarak sepanjang <b>keliling</b> roda. Makin besar roda, makin jauh sekali putaran.</p></div>
+    <div class="card"><h3>🍕 Pizza dipotong</h3><p class="lead" style="margin:0">Setiap potong adalah <b>juring</b>. Besar potongan ditentukan oleh <b>sudut pusat</b>nya.</p></div>
+    <div class="card"><h3>🌀 Kipas angin</h3><p class="lead" style="margin:0">Baling-baling yang berputar 120° menyapu daerah berbentuk <b>juring</b>.</p></div>
+    <div class="card"><h3>🏃 Lintasan lari</h3><p class="lead" style="margin:0">Tikungan lintasan adalah <b>busur</b> lingkaran. Panjangnya dihitung dari sudut pusat.</p></div>
+  </div>
+  <div class="card soft">
+    <h3>💭 Pertanyaan pemantik</h3>
+    <ul class="tick">
+      <li>Mengapa penjual pizza memotong kue dari titik pusat, bukan sembarang arah?</li>
+      <li>Roda sepeda ayah lebih besar dari roda sepeda adik. Siapa yang mengayuh lebih sedikit untuk jarak yang sama?</li>
+      <li>Untuk memagari taman berbentuk seperempat lingkaran, yang dihitung keliling atau luas?</li>
+    </ul>
+    <button class="btn teal" data-reveal="rv-pemantik">💡 Lihat arah jawabannya</button>
+    <div class="reveal" id="rv-pemantik">
+      <div class="answer-box">
+        <span class="lbl">ARAH JAWABAN</span>
+        <p style="margin:6px 0 0">Memotong dari titik pusat menghasilkan juring yang adil karena sudut pusatnya bisa dibuat sama besar. Roda yang lebih besar punya keliling lebih panjang, jadi ayah mengayuh lebih sedikit. Untuk memagari, yang dihitung adalah <b>keliling</b> (panjang tepi), sedangkan untuk menanam rumput barulah <b>luas</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 TUJUAN -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">TUJUAN PEMBELAJARAN</div>
+  <h2>Setelah belajar ini, kamu mampu…</h2>
+  <div class="card">
+    <ol class="num-list">
+      <li>Mengidentifikasi konsep lingkaran yang diperlukan dalam sebuah masalah kontekstual (keliling, luas, busur, juring, atau sudut pusat).</li>
+      <li>Mengubah masalah sehari-hari menjadi model matematika lingkaran secara tepat.</li>
+      <li>Menggabungkan dua konsep atau lebih dalam satu penyelesaian, misalnya panjang busur dengan biaya, atau luas juring dengan luas bangun lain.</li>
+      <li>Menyelesaikan masalah bangun gabungan yang memuat bagian lingkaran.</li>
+      <li>Memeriksa kembali hasil hitungan, termasuk satuan dan kemasukakalannya.</li>
+    </ol>
+  </div>
+  <div class="card soft">
+    <h3>🎒 Bekal yang kamu perlukan</h3>
+    <p class="lead" style="margin-bottom:0">Unsur-unsur lingkaran (pusat, jari-jari, diameter, busur, juring), rumus keliling dan luas lingkaran, serta operasi hitung pecahan dan perbandingan. Semua akan kita segarkan di slide berikutnya.</p>
+  </div>
+</section>
+
+<!-- 4 KILAS RUMUS -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">KILAS BALIK</div>
+  <h2>Lima rumus kunci</h2>
+  <p class="lead">Ketuk setiap kartu untuk membuka rumus dan kapan rumus itu dipakai.</p>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">K</span>Keliling lingkaran<span class="arw">▾</span></button>
+    <div class="acc-body">
+      <div class="rumus">K = 2 × π × r   atau   K = π × d</div>
+      <p style="margin:0">Dipakai saat menghitung <b>panjang tepi</b>: pagar, renda taplak, tali pengikat, atau jarak satu putaran roda.</p>
+    </div>
+  </div>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">L</span>Luas lingkaran<span class="arw">▾</span></button>
+    <div class="acc-body">
+      <div class="rumus">L = π × r²</div>
+      <p style="margin:0">Dipakai saat menghitung <b>daerah permukaan</b>: rumput taman, kain penutup, cat kolam, atau luas kue.</p>
+    </div>
+  </div>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">∠</span>Sudut pusat dan perbandingan<span class="arw">▾</span></button>
+    <div class="acc-body">
+      <div class="rumus">α/360° = panjang busur/K = luas juring/L</div>
+      <p style="margin:0">Inilah kunci penghubungnya: <b>bagian</b> lingkaran selalu sebanding dengan <b>sudut pusat</b>nya.</p>
+    </div>
+  </div>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">⌒</span>Panjang busur<span class="arw">▾</span></button>
+    <div class="acc-body">
+      <div class="rumus">Busur = (α/360°) × 2 × π × r</div>
+      <p style="margin:0">Dipakai untuk <b>bagian tepi</b> yang melengkung: tikungan lintasan, tepi potongan kue, lengkung jembatan.</p>
+    </div>
+  </div>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">◔</span>Luas juring<span class="arw">▾</span></button>
+    <div class="acc-body">
+      <div class="rumus">Juring = (α/360°) × π × r²</div>
+      <p style="margin:0">Dipakai untuk <b>daerah</b> berbentuk potongan kue: taman seperempat lingkaran, daerah sapuan kipas, sektor grafik.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📌 Memilih nilai π</h3>
+    <p style="margin-bottom:0">Gunakan <span class="mono">π = 22/7</span> bila jari-jari atau diameter merupakan kelipatan 7 (misal 7, 14, 21, 28, 35). Selain itu gunakan <span class="mono">π = 3,14</span>. Pemilihan yang tepat membuat hitunganmu jauh lebih rapi.</p>
+  </div>
+</section>
+
+<!-- 5 VISUAL SUDUT -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">KONSEP INTI</div>
+  <h2>Sudut pusat menentukan segalanya</h2>
+  <p class="lead">Busur dan juring hanyalah "sebagian" dari lingkaran penuh. Bagian itu ditentukan oleh perbandingan sudut pusat terhadap 360°.</p>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Sudut pusat</th><th>Pecahan lingkaran</th><th>Panjang busur</th><th>Luas juring</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">90°</td><td class="mono">1/4</td><td class="mono">¼ × K</td><td class="mono">¼ × L</td></tr>
+          <tr><td class="mono">120°</td><td class="mono">1/3</td><td class="mono">⅓ × K</td><td class="mono">⅓ × L</td></tr>
+          <tr><td class="mono">180°</td><td class="mono">1/2</td><td class="mono">½ × K</td><td class="mono">½ × L</td></tr>
+          <tr><td class="mono">45°</td><td class="mono">1/8</td><td class="mono">⅛ × K</td><td class="mono">⅛ × L</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="lead" style="margin:12px 0 0">Karena itu, banyak soal bisa diselesaikan cepat dengan berpikir "ini berapa bagian dari lingkaran penuh?" sebelum menghitung.</p>
+  </div>
+  <div class="card soft">
+    <h3>⚠️ Perhatikan bedanya</h3>
+    <p style="margin-bottom:0">Keliling juring <b>bukan</b> hanya panjang busur. Tepi sebuah juring terdiri atas busur ditambah <b>dua jari-jari</b>:</p>
+    <div class="rumus">Keliling juring = busur + r + r</div>
+    <p style="margin:0">Soal tentang pagar taman berbentuk juring hampir selalu menguji hal ini.</p>
+  </div>
+</section>
+
+<!-- 6 SIMULASI -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">VISUALISASI INTERAKTIF</div>
+  <h2>Coba geser sendiri</h2>
+  <p class="lead">Ubah jari-jari dan sudut pusat, lalu amati bagaimana busur dan juring ikut berubah. Nilai dihitung dengan π = 3,14.</p>
+  <div class="card">
+    <div class="sim-grid">
+      <div>
+        <svg viewBox="0 0 300 300" width="100%" height="auto" role="img" aria-label="Visualisasi juring lingkaran">
+          <circle cx="150" cy="150" r="118" fill="rgba(255,255,255,.04)" stroke="#2e3a66" stroke-width="2"/>
+          <circle id="simCircle" cx="150" cy="150" r="100" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4 5"/>
+          <path id="simSector" d="" fill="rgba(167,139,250,.35)" stroke="#a78bfa" stroke-width="2"/>
+          <path id="simArc" d="" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round"/>
+          <line id="simR1" x1="150" y1="150" x2="250" y2="150" stroke="#2dd4bf" stroke-width="3"/>
+          <line id="simR2" x1="150" y1="150" x2="250" y2="150" stroke="#2dd4bf" stroke-width="3"/>
+          <circle cx="150" cy="150" r="5" fill="#fff"/>
+          <text id="simLabel" x="150" y="286" text-anchor="middle" fill="#a4b0d6" font-size="14" font-family="JetBrains Mono, monospace">α = 90°</text>
+        </svg>
+      </div>
+      <div>
+        <div class="slider-row">
+          <label for="simR">Jari-jari (r) <span class="val" id="simRVal">10 cm</span></label>
+          <input type="range" id="simR" min="3" max="25" value="10" step="1">
+        </div>
+        <div class="slider-row">
+          <label for="simA">Sudut pusat (α) <span class="val" id="simAVal">90°</span></label>
+          <input type="range" id="simA" min="0" max="360" value="90" step="5">
+        </div>
+        <div class="out-grid">
+          <div class="out"><span class="k">Keliling lingkaran</span><span class="v" id="outK">62,8 cm</span></div>
+          <div class="out"><span class="k">Luas lingkaran</span><span class="v" id="outL">314 cm²</span></div>
+          <div class="out"><span class="k">Panjang busur</span><span class="v" id="outB">15,7 cm</span></div>
+          <div class="out"><span class="k">Luas juring</span><span class="v" id="outJ">78,5 cm²</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card soft">
+    <p style="margin:0">Amati: saat sudut menjadi dua kali lipat, panjang busur dan luas juring juga menjadi dua kali lipat. Namun saat <b>jari-jari</b> menjadi dua kali lipat, luas menjadi <b>empat kali</b> lipat karena r dikuadratkan.</p>
+  </div>
+</section>
+
+<!-- 7 STRATEGI -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">STRATEGI</div>
+  <h2>Empat langkah memecahkan masalah</h2>
+  <p class="lead">Gunakan urutan ini setiap kali menemui soal cerita tentang lingkaran.</p>
+  <div class="card">
+    <ol class="num-list">
+      <li><b>Pahami.</b> Tulis yang diketahui dan ditanya. Waspadai diameter yang disamarkan sebagai jari-jari, dan satuan yang berbeda (cm dengan m).</li>
+      <li><b>Rencanakan.</b> Tanyakan: ini soal tepi atau daerah? Utuh atau sebagian? Tepi → keliling/busur. Daerah → luas/juring.</li>
+      <li><b>Selesaikan.</b> Hitung bertahap, pilih π yang memudahkan, tulis satuan di setiap langkah.</li>
+      <li><b>Periksa kembali.</b> Masuk akalkah hasilnya? Luas taman 5 m² untuk lapangan jelas tidak masuk akal. Cek juga satuan akhir.</li>
+    </ol>
+  </div>
+  <div class="card soft">
+    <h3>🔍 Kata kunci penolong</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Kata dalam soal</th><th>Konsep yang dipakai</th></tr></thead>
+        <tbody>
+          <tr><td>pagar, renda, tali, lintasan, putaran roda</td><td class="mono">keliling / busur</td></tr>
+          <tr><td>rumput, cat, kain, kue, daerah arsir</td><td class="mono">luas / juring</td></tr>
+          <tr><td>potongan, sektor, bagian, sapuan</td><td class="mono">juring + sudut pusat</td></tr>
+          <tr><td>tikungan, lengkungan, tepi melengkung</td><td class="mono">panjang busur</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- 8 CONTOH 1 -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">CONTOH 1 — KELILING</div>
+  <h2>Roda sepeda Bima</h2>
+  <div class="card">
+    <p style="margin:0"><b>Soal.</b> Roda sepeda Bima berdiameter 70 cm. Bima bersepeda dari rumah ke sekolah sejauh 132 m. Berapa kali roda sepedanya berputar?</p>
+  </div>
+  <button class="btn teal" data-reveal="c1-p">🔎 Lihat petunjuk</button>
+  <div class="reveal" id="c1-p">
+    <div class="card soft" style="margin-top:10px">
+      <p style="margin:0">Satu putaran roda menempuh jarak sepanjang keliling roda. Jadi banyak putaran = jarak tempuh ÷ keliling. Samakan dulu satuannya!</p>
+    </div>
+  </div>
+  <button class="btn violet" data-reveal="c1-l" style="margin-top:8px">🧩 Lihat langkah penyelesaian</button>
+  <div class="reveal" id="c1-l">
+    <div class="step"><span class="lbl">LANGKAH 1 — PAHAMI</span><p style="margin:4px 0 0">Diketahui d = 70 cm, jarak = 132 m. Ditanya: banyak putaran.</p></div>
+    <div class="step"><span class="lbl">LANGKAH 2 — SAMAKAN SATUAN</span><div class="rumus">132 m = 132 × 100 = 13.200 cm</div></div>
+    <div class="step"><span class="lbl">LANGKAH 3 — KELILING RODA</span><div class="rumus">K = π × d = 22/7 × 70 = 220 cm</div></div>
+    <div class="step"><span class="lbl">LANGKAH 4 — BANYAK PUTARAN</span><div class="rumus">n = 13.200 ÷ 220 = 60</div></div>
+    <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Roda sepeda Bima berputar sebanyak <b>60 kali</b>.</p></div>
+    <div class="card" style="margin-top:10px">
+      <h3>💬 Pembahasan</h3>
+      <p style="margin:0">Karena d = 70 (kelipatan 7), π = 22/7 dipilih agar hasilnya bulat. Kesalahan paling sering di soal ini adalah lupa mengubah 132 m menjadi cm, sehingga hasilnya 0,6 putaran — jelas tidak masuk akal untuk perjalanan ke sekolah.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 CONTOH 2 -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">CONTOH 2 — LUAS JURING</div>
+  <h2>Taman seperempat lingkaran</h2>
+  <div class="card">
+    <p style="margin:0"><b>Soal.</b> Pak Rudi memiliki taman berbentuk juring dengan jari-jari 14 m dan sudut pusat 90°. Seluruh taman akan ditanami rumput seharga Rp25.000 per m². Berapa biaya yang diperlukan?</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <svg viewBox="0 0 220 180" width="230" height="auto" role="img" aria-label="Taman berbentuk juring 90 derajat">
+      <path d="M40 150 L180 150 A140 140 0 0 0 40 10 Z" fill="rgba(74,222,128,.25)" stroke="#4ade80" stroke-width="3"/>
+      <line x1="40" y1="150" x2="180" y2="150" stroke="#2dd4bf" stroke-width="3"/>
+      <line x1="40" y1="150" x2="40" y2="10" stroke="#2dd4bf" stroke-width="3"/>
+      <path d="M40 130 L60 130 L60 150" fill="none" stroke="#fbbf24" stroke-width="2"/>
+      <text x="110" y="168" text-anchor="middle" fill="#a4b0d6" font-size="13" font-family="JetBrains Mono, monospace">r = 14 m</text>
+      <text x="72" y="122" fill="#fbbf24" font-size="12" font-family="JetBrains Mono, monospace">90°</text>
+    </svg>
+  </div>
+  <button class="btn teal" data-reveal="c2-p">🔎 Lihat petunjuk</button>
+  <div class="reveal" id="c2-p">
+    <div class="card soft" style="margin-top:10px"><p style="margin:0">Sudut 90° berarti taman adalah ¼ lingkaran. Hitung luas juring lebih dulu, baru kalikan dengan harga per m².</p></div>
+  </div>
+  <button class="btn violet" data-reveal="c2-l" style="margin-top:8px">🧩 Lihat langkah penyelesaian</button>
+  <div class="reveal" id="c2-l">
+    <div class="step"><span class="lbl">LANGKAH 1 — LUAS LINGKARAN PENUH</span><div class="rumus">L = 22/7 × 14 × 14 = 616 m²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 2 — LUAS JURING</span><div class="rumus">Lj = 90/360 × 616 = ¼ × 616 = 154 m²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 3 — BIAYA</span><div class="rumus">Biaya = 154 × 25.000 = 3.850.000</div></div>
+    <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Biaya yang diperlukan Pak Rudi adalah <b>Rp3.850.000,00</b>.</p></div>
+    <div class="card" style="margin-top:10px">
+      <h3>💬 Pembahasan</h3>
+      <p style="margin:0">Kata "ditanami rumput" menunjuk pada <b>daerah</b>, jadi yang dipakai luas juring. Bila soal diubah menjadi "dipagari", jawabannya berbeda: kelilingnya = busur + 2r = 22 + 28 = 50 m.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 CONTOH 3 -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">CONTOH 3 — BANGUN GABUNGAN</div>
+  <h2>Kolam setengah lingkaran</h2>
+  <div class="card">
+    <p style="margin:0"><b>Soal.</b> Sebuah kolam berbentuk setengah lingkaran dengan diameter 14 m. Seluruh tepi kolam akan dipasang keramik seharga Rp75.000 per meter. Berapa total biayanya?</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <svg viewBox="0 0 240 140" width="250" height="auto" role="img" aria-label="Kolam setengah lingkaran">
+      <path d="M30 110 A90 90 0 0 1 210 110 Z" fill="rgba(56,189,248,.22)" stroke="#38bdf8" stroke-width="3"/>
+      <line x1="30" y1="110" x2="210" y2="110" stroke="#fb7185" stroke-width="4"/>
+      <text x="120" y="130" text-anchor="middle" fill="#fb7185" font-size="13" font-family="JetBrains Mono, monospace">d = 14 m</text>
+      <text x="120" y="42" text-anchor="middle" fill="#38bdf8" font-size="13" font-family="JetBrains Mono, monospace">busur ½ lingkaran</text>
+    </svg>
+  </div>
+  <button class="btn teal" data-reveal="c3-p">🔎 Lihat petunjuk</button>
+  <div class="reveal" id="c3-p">
+    <div class="card soft" style="margin-top:10px"><p style="margin:0">Tepi kolam terdiri atas dua bagian: lengkungan setengah lingkaran <b>dan</b> sisi lurus sepanjang diameter. Jangan sampai sisi lurusnya terlupa.</p></div>
+  </div>
+  <button class="btn violet" data-reveal="c3-l" style="margin-top:8px">🧩 Lihat langkah penyelesaian</button>
+  <div class="reveal" id="c3-l">
+    <div class="step"><span class="lbl">LANGKAH 1 — BUSUR SETENGAH LINGKARAN</span><div class="rumus">½ × K = ½ × 22/7 × 14 = ½ × 44 = 22 m</div></div>
+    <div class="step"><span class="lbl">LANGKAH 2 — TAMBAHKAN SISI LURUS</span><div class="rumus">Keliling kolam = 22 + 14 = 36 m</div></div>
+    <div class="step"><span class="lbl">LANGKAH 3 — BIAYA KERAMIK</span><div class="rumus">Biaya = 36 × 75.000 = 2.700.000</div></div>
+    <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Total biaya keramik adalah <b>Rp2.700.000,00</b>.</p></div>
+    <div class="warn-box"><b>Kesalahan umum:</b> menjawab 22 m karena hanya menghitung lengkungannya. Untuk bangun setengah lingkaran, keliling selalu = ½K + d.</div>
+  </div>
+</section>
+
+<!-- 11 CONTOH 4 -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">CONTOH 4 — BUSUR + JURING</div>
+  <h2>Pizza delapan potong</h2>
+  <div class="card">
+    <p style="margin:0"><b>Soal.</b> Sebuah pizza berdiameter 28 cm dipotong menjadi 8 bagian sama besar dari titik pusatnya. Tentukan sudut pusat, luas, dan panjang tepi melengkung setiap potong.</p>
+  </div>
+  <button class="btn violet" data-reveal="c4-l">🧩 Lihat langkah penyelesaian</button>
+  <div class="reveal" id="c4-l">
+    <div class="step"><span class="lbl">LANGKAH 1 — SUDUT PUSAT TIAP POTONG</span><div class="rumus">α = 360° ÷ 8 = 45°</div></div>
+    <div class="step"><span class="lbl">LANGKAH 2 — LUAS PIZZA UTUH (r = 14)</span><div class="rumus">L = 22/7 × 14² = 616 cm²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 3 — LUAS SATU POTONG</span><div class="rumus">Lj = 45/360 × 616 = ⅛ × 616 = 77 cm²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 4 — PANJANG BUSUR SATU POTONG</span><div class="rumus">K = 22/7 × 28 = 88 cm → busur = ⅛ × 88 = 11 cm</div></div>
+    <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Setiap potong memiliki sudut pusat <b>45°</b>, luas <b>77 cm²</b>, dan tepi melengkung sepanjang <b>11 cm</b>.</p></div>
+    <div class="card" style="margin-top:10px">
+      <h3>💬 Pembahasan</h3>
+      <p style="margin:0">Menghitung lingkaran penuh dulu, lalu membaginya 8, jauh lebih cepat daripada memasukkan 45/360 ke setiap rumus. Strategi "hitung utuh, lalu ambil bagiannya" sangat berguna saat pembagiannya sama besar.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 CONTOH 5 -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">CONTOH 5 — DAERAH ARSIR</div>
+  <h2>Luas daerah yang tersisa</h2>
+  <div class="card">
+    <p style="margin:0"><b>Soal.</b> Sebuah karton berbentuk persegi dengan sisi 28 cm. Dari karton itu dipotong satu lingkaran terbesar yang mungkin. Berapa luas karton yang tersisa?</p>
+  </div>
+  <div class="card" style="text-align:center">
+    <svg viewBox="0 0 200 200" width="215" height="auto" role="img" aria-label="Persegi dengan lingkaran di dalamnya">
+      <rect x="20" y="20" width="160" height="160" fill="rgba(251,191,36,.22)" stroke="#fbbf24" stroke-width="3" rx="4"/>
+      <circle cx="100" cy="100" r="80" fill="#131a33" stroke="#38bdf8" stroke-width="3"/>
+      <line x1="100" y1="100" x2="180" y2="100" stroke="#2dd4bf" stroke-width="2" stroke-dasharray="4 4"/>
+      <text x="140" y="94" fill="#2dd4bf" font-size="11" font-family="JetBrains Mono, monospace">r=14</text>
+      <text x="100" y="194" text-anchor="middle" fill="#fbbf24" font-size="12" font-family="JetBrains Mono, monospace">sisi 28 cm</text>
+    </svg>
+  </div>
+  <button class="btn teal" data-reveal="c5-p">🔎 Lihat petunjuk</button>
+  <div class="reveal" id="c5-p">
+    <div class="card soft" style="margin-top:10px"><p style="margin:0">Lingkaran terbesar dalam persegi memiliki diameter sama dengan sisi persegi. Luas sisa = luas persegi − luas lingkaran.</p></div>
+  </div>
+  <button class="btn violet" data-reveal="c5-l" style="margin-top:8px">🧩 Lihat langkah penyelesaian</button>
+  <div class="reveal" id="c5-l">
+    <div class="step"><span class="lbl">LANGKAH 1 — LUAS PERSEGI</span><div class="rumus">Lp = 28 × 28 = 784 cm²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 2 — JARI-JARI LINGKARAN</span><div class="rumus">d = 28 cm → r = 14 cm</div></div>
+    <div class="step"><span class="lbl">LANGKAH 3 — LUAS LINGKARAN</span><div class="rumus">Ll = 22/7 × 14² = 616 cm²</div></div>
+    <div class="step"><span class="lbl">LANGKAH 4 — LUAS SISA</span><div class="rumus">L sisa = 784 − 616 = 168 cm²</div></div>
+    <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Luas karton yang tersisa adalah <b>168 cm²</b>.</p></div>
+    <div class="warn-box"><b>Kesalahan umum:</b> memakai r = 28 karena mengira sisi persegi adalah jari-jari. Selalu gambar sketsanya lebih dulu agar hubungan sisi dan diameter terlihat jelas.</div>
+  </div>
+</section>
+
+<!-- 13 KESALAHAN UMUM -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">WASPADA</div>
+  <h2>Lima jebakan yang sering menjatuhkan</h2>
+  <p class="lead">Ketuk setiap jebakan untuk melihat cara menghindarinya.</p>
+
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">1</span>Tertukar jari-jari dan diameter<span class="arw">▾</span></button>
+    <div class="acc-body">Soal sering menyebut diameter, tetapi rumus luas memakai jari-jari. Biasakan menulis "d = … maka r = d ÷ 2" sebagai baris pertama penyelesaian.</div>
+  </div>
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">2</span>Satuan tidak disamakan<span class="arw">▾</span></button>
+    <div class="acc-body">Jari-jari dalam cm tetapi jarak dalam m, atau harga per m² sementara luas dalam cm². Samakan satuan sebelum menghitung, bukan sesudahnya.</div>
+  </div>
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">3</span>Memakai luas padahal butuh keliling<span class="arw">▾</span></button>
+    <div class="acc-body">Pagar, tali, renda, dan putaran roda berkaitan dengan <b>tepi</b> (keliling). Rumput, cat, dan kain berkaitan dengan <b>daerah</b> (luas). Tandai kata kuncinya saat membaca soal.</div>
+  </div>
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">4</span>Keliling juring hanya dihitung busurnya<span class="arw">▾</span></button>
+    <div class="acc-body">Tepi juring mencakup dua jari-jari. Begitu pula setengah lingkaran yang tepinya mencakup diameter. Bayangkan berjalan mengelilingi bangun itu — setiap sisi yang kamu lalui ikut dihitung.</div>
+  </div>
+  <div class="acc-item">
+    <button class="acc-head" data-acc><span class="ico">5</span>Nilai π dipilih asal<span class="arw">▾</span></button>
+    <div class="acc-body">Memakai 3,14 untuk r = 21 membuat hitungan berantakan. Bila r atau d kelipatan 7, gunakan 22/7. Selain itu gunakan 3,14.</div>
+  </div>
+</section>
+
+<!-- 14 LATIHAN MUDAH -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">LATIHAN BERTINGKAT</div>
+  <span class="level lv-1">TINGKAT 1 — MUDAH</span>
+  <h2>Renda taplak meja</h2>
+  <div class="card">
+    <p>Ibu membuat taplak meja berbentuk lingkaran dengan jari-jari 35 cm. Seluruh tepinya akan dipasang renda. Berapa panjang renda yang dibutuhkan (dalam cm)?</p>
+    <input type="number" id="lat1" placeholder="Tulis angka jawabanmu, contoh: 220" inputmode="numeric">
+    <div class="btn-row">
+      <button class="btn teal" id="lat1Btn">✔️ Periksa jawaban</button>
+      <button class="btn" data-reveal="lat1Bahas">💬 Lihat pembahasan</button>
+    </div>
+    <div class="fb" id="lat1Fb"></div>
+    <div class="reveal" id="lat1Bahas">
+      <div class="step"><span class="lbl">PENYELESAIAN</span>
+        <div class="rumus">K = 2 × 22/7 × 35 = 2 × 110 = 220 cm</div>
+        <p style="margin:0">Renda dipasang di <b>tepi</b>, jadi yang dihitung keliling. Karena r = 35 (kelipatan 7), π = 22/7 dipilih. Jawabannya <b>220 cm</b> atau 2,2 m.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 LATIHAN SEDANG -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">LATIHAN BERTINGKAT</div>
+  <span class="level lv-2">TINGKAT 2 — SEDANG</span>
+  <h2>Sapuan kipas angin</h2>
+  <div class="card">
+    <p>Baling-baling kipas angin memiliki panjang 21 cm dari poros. Kipas berputar membentuk sudut 120°. Berapa luas daerah yang disapu baling-baling (dalam cm²)?</p>
+    <input type="number" id="lat2" placeholder="Tulis angka jawabanmu" inputmode="numeric">
+    <div class="btn-row">
+      <button class="btn teal" id="lat2Btn">✔️ Periksa jawaban</button>
+      <button class="btn" data-reveal="lat2Bahas">💬 Lihat pembahasan</button>
+    </div>
+    <div class="fb" id="lat2Fb"></div>
+    <div class="reveal" id="lat2Bahas">
+      <div class="step"><span class="lbl">PENYELESAIAN</span>
+        <div class="rumus">L = 22/7 × 21² = 22/7 × 441 = 1.386 cm²</div>
+        <div class="rumus">Lj = 120/360 × 1.386 = ⅓ × 1.386 = 462 cm²</div>
+        <p style="margin:0">Panjang baling-baling berperan sebagai jari-jari, dan daerah sapuan berbentuk juring. Jawabannya <b>462 cm²</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 16 LATIHAN MENANTANG -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">LATIHAN BERTINGKAT</div>
+  <span class="level lv-3">TINGKAT 3 — MENANTANG</span>
+  <h2>Lintasan lari sekolah</h2>
+  <div class="card">
+    <p>Lintasan lari berbentuk persegi panjang dengan panjang 20 m, ditutup setengah lingkaran berdiameter 14 m pada kedua ujungnya. Andi berlari 5 putaran penuh. Berapa meter jarak yang ditempuh Andi?</p>
+    <div style="text-align:center;margin:10px 0">
+      <svg viewBox="0 0 260 120" width="100%" height="auto" role="img" aria-label="Lintasan lari berbentuk stadion">
+        <path d="M70 25 L190 25 A35 35 0 0 1 190 95 L70 95 A35 35 0 0 1 70 25 Z" fill="rgba(45,212,191,.16)" stroke="#2dd4bf" stroke-width="3"/>
+        <text x="130" y="18" text-anchor="middle" fill="#a4b0d6" font-size="11" font-family="JetBrains Mono, monospace">panjang 20 m</text>
+        <text x="130" y="112" text-anchor="middle" fill="#a4b0d6" font-size="11" font-family="JetBrains Mono, monospace">diameter 14 m</text>
+      </svg>
+    </div>
+    <input type="number" id="lat3" placeholder="Tulis angka jawabanmu" inputmode="numeric">
+    <div class="btn-row">
+      <button class="btn teal" id="lat3Btn">✔️ Periksa jawaban</button>
+      <button class="btn" data-reveal="lat3Bahas">💬 Lihat pembahasan</button>
+    </div>
+    <div class="fb" id="lat3Fb"></div>
+    <div class="reveal" id="lat3Bahas">
+      <div class="step"><span class="lbl">LANGKAH 1 — DUA SISI LURUS</span><div class="rumus">2 × 20 = 40 m</div></div>
+      <div class="step"><span class="lbl">LANGKAH 2 — DUA SETENGAH LINGKARAN = SATU LINGKARAN</span><div class="rumus">K = 22/7 × 14 = 44 m</div></div>
+      <div class="step"><span class="lbl">LANGKAH 3 — SATU PUTARAN</span><div class="rumus">40 + 44 = 84 m</div></div>
+      <div class="step"><span class="lbl">LANGKAH 4 — LIMA PUTARAN</span><div class="rumus">5 × 84 = 420 m</div></div>
+      <div class="answer-box"><span class="lbl">JAWABAN</span><p style="margin:5px 0 0">Andi menempuh jarak <b>420 m</b>. Kuncinya: dua setengah lingkaran yang berdiameter sama menyatu menjadi satu lingkaran penuh.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 17 KUIS -->
+<section class="slide" data-status="KUIS">
+  <div class="eyebrow">KUIS INTERAKTIF</div>
+  <h2>Uji pemahamanmu</h2>
+  <p class="lead">10 soal campuran: pilihan ganda, benar/salah, dan isian. Jawab satu per satu, skor dihitung otomatis di akhir.</p>
+
+  <div id="quizArea">
+    <div class="quiz-dots" id="quizDots"></div>
+    <div class="card">
+      <div class="q-num" id="qNum">Soal 1 dari 10</div>
+      <h3 id="qText" style="margin-top:6px"></h3>
+      <div id="qBody"></div>
+      <div class="fb" id="qFb"></div>
+      <div class="btn-row">
+        <button class="btn primary" id="qCheck">✔️ Jawab</button>
+        <button class="btn" id="qNext" style="display:none">Soal berikutnya →</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizResult" style="display:none">
+    <div class="card" style="text-align:center">
+      <div class="score-ring" id="scoreRing"><div class="in"><b id="scoreVal">0</b><small>skor</small></div></div>
+      <h3 id="scoreCat">—</h3>
+      <p class="lead" id="scoreMsg" style="margin-bottom:12px"></p>
+      <div class="grid three">
+        <div class="stat"><b style="color:var(--green)" id="statBenar">0</b><small>benar</small></div>
+        <div class="stat"><b style="color:var(--rose)" id="statSalah">0</b><small>salah</small></div>
+        <div class="stat"><b style="color:var(--amber)" id="statPersen">0%</b><small>ketuntasan</small></div>
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn teal" id="btnUlangKuis">↻ ULANGI KUIS</button>
+        <button class="btn primary" id="btnKePembahasan">Lihat pembahasan →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 18 PEMBAHASAN KUIS -->
+<section class="slide" data-status="KUIS">
+  <div class="eyebrow">PEMBAHASAN KUIS</div>
+  <h2>Ulasan setiap soal</h2>
+  <p class="lead" id="reviewNote">Kerjakan kuisnya lebih dulu, ya. Pembahasan lengkap akan muncul di sini setelah kuis selesai.</p>
+  <div id="reviewList"></div>
+  <div class="btn-row">
+    <button class="btn teal" id="btnUlangKuis2">↻ ULANGI KUIS</button>
+  </div>
+</section>
+
+<!-- 19 RINGKASAN -->
+<section class="slide" data-status="SEDANG BELAJAR">
+  <div class="eyebrow">RANGKUMAN</div>
+  <h2>🧠 Ringkasan &amp; Yang Perlu Diingat</h2>
+  <div class="grid two">
+    <div class="sum">
+      <h4>🔑 Konsep utama</h4>
+      <ul class="tick">
+        <li>Masalah <b>tepi</b> → keliling atau busur.</li>
+        <li>Masalah <b>daerah</b> → luas atau juring.</li>
+        <li>Bagian lingkaran ditentukan sudut pusat.</li>
+      </ul>
+    </div>
+    <div class="sum">
+      <h4>📐 Rumus wajib</h4>
+      <div class="rumus">K = 2πr = πd</div>
+      <div class="rumus">L = πr²</div>
+      <div class="rumus">busur = (α/360°) × K</div>
+      <div class="rumus">juring = (α/360°) × L</div>
+    </div>
+    <div class="sum">
+      <h4>📏 Definisi penting</h4>
+      <p style="margin:0"><b>Busur</b>: bagian lengkung dari keliling lingkaran. <b>Juring</b>: daerah yang dibatasi dua jari-jari dan satu busur. <b>Sudut pusat</b>: sudut yang titik sudutnya di pusat lingkaran.</p>
+    </div>
+    <div class="sum">
+      <h4>🪜 Prosedur empat langkah</h4>
+      <p style="margin:0">Pahami yang diketahui → rencanakan rumusnya → selesaikan bertahap dengan satuan → periksa kembali kemasukakalan hasil.</p>
+    </div>
+    <div class="sum">
+      <h4>🔗 Hubungan antarkonsep</h4>
+      <div class="rumus">α/360° = busur/K = juring/L</div>
+      <p style="margin:0">Satu perbandingan ini menghubungkan sudut, busur, dan juring sekaligus.</p>
+    </div>
+    <div class="sum">
+      <h4>🧮 Bangun gabungan</h4>
+      <p style="margin:0">Setengah lingkaran: keliling = ½K + d. Juring: keliling = busur + 2r. Daerah arsir: luas bangun besar − luas bagian lingkaran.</p>
+    </div>
+    <div class="sum">
+      <h4>⚠️ Kesalahan yang harus dihindari</h4>
+      <ul class="tick">
+        <li>Memakai diameter sebagai jari-jari.</li>
+        <li>Lupa menyamakan satuan.</li>
+        <li>Lupa menambahkan dua jari-jari pada keliling juring.</li>
+        <li>Memilih π yang menyulitkan hitungan.</li>
+      </ul>
+    </div>
+    <div class="sum">
+      <h4>⭐ Wajib diingat</h4>
+      <p style="margin:0">Banyak putaran roda = jarak ÷ keliling roda. Dua setengah lingkaran berdiameter sama = satu lingkaran penuh. Bila r kelipatan 7, pakai 22/7.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 20 GAME -->
+<section class="slide" data-status="GAME">
+  <div class="eyebrow">TANTANGAN BERIKUTNYA</div>
+  <h2>🎮 Ayo Bermain Game!</h2>
+  <div class="hero" style="margin-top:12px">
+    <div style="font-size:52px;line-height:1">🕹️</div>
+    <h3 style="font-size:20px;margin-top:8px">Sudah siap menguji kemampuanmu? Yuk lanjutkan ke game interaktif!</h3>
+    <p class="sub">Semua rumus keliling, luas, busur, dan juring yang baru kamu pelajari akan terpakai di sana. Kerjakan dengan santai tapi teliti.</p>
+    <a class="btn violet wide" href="game-interaktif.html" id="btnGame" style="max-width:340px;margin:8px auto 0">🎮 AYO BERMAIN GAME</a>
+  </div>
+  <div class="card soft">
+    <p style="margin:0">Setelah selesai bermain, kembalilah ke halaman ini dan tekan <b>Berikutnya</b> untuk menutup pembelajaran.</p>
+  </div>
+</section>
+
+<!-- 21 SELESAI -->
+<section class="slide" data-status="GAME">
+  <div class="eyebrow">PENUTUP</div>
+  <div class="hero">
+    <div style="font-size:50px;line-height:1">🎉</div>
+    <h1 style="font-size:clamp(23px,6.6vw,38px)">Pembelajaran Selesai!</h1>
+    <p class="sub">Selamat! Kamu sudah menuntaskan seluruh rangkaian pembelajaran ini dengan baik.</p>
+    <div>
+      <span class="chip">📘 Materi: Lingkaran</span>
+      <span class="chip">🔢 Submateri: 2.6 Pemecahan Masalah Lingkaran</span>
+    </div>
+  </div>
+  <div class="card" style="text-align:center">
+    <h3>Skor kuis terakhirmu</h3>
+    <p class="mono" id="finalScore" style="font-size:24px;font-weight:700;color:var(--amber);margin:4px 0 6px">Belum dikerjakan</p>
+    <p class="lead" style="margin-bottom:0">Kemampuan memecahkan masalah tumbuh dari latihan yang konsisten. Salah itu bagian dari belajar — yang penting kamu tahu letak kelirunya dan memperbaikinya. Terus semangat! 💪</p>
+  </div>
+
+  <div id="finishAnim">
+    <div class="check-pop">✓</div>
+    <div class="done-tag">✓ PEMBELAJARAN SELESAI</div>
+    <p class="lead" style="margin-top:10px">Menyimpan status dan skormu, lalu membuka bab1.html…</p>
+    <div class="dots-run"><i></i><i></i><i></i></div>
+  </div>
+
+  <div class="btn-row" id="finishBtns">
+    <button class="btn green" id="btnSelesai" style="flex:1;min-width:190px">✅ SELESAI</button>
+    <button class="btn" id="btnPelajariLagi" style="flex:1;min-width:190px">↺ PELAJARI LAGI</button>
+  </div>
+</section>
+
+<p class="sr-hint">Tips: gunakan tombol panah ← dan → pada keyboard untuk berpindah slide.</p>
+</main>
+
+<nav>
+  <div class="nav-in">
+    <button class="btn icon" id="btnAwal" title="Kembali ke awal" aria-label="Kembali ke slide pertama">⟲</button>
+    <button class="btn" id="btnPrev">← Sebelumnya</button>
+    <div class="slide-ind" id="slideInd">1 / 21</div>
+    <button class="btn primary" id="btnNext">Berikutnya →</button>
+  </div>
+</nav>
+
+<script>
+(function(){
+"use strict";
+
+/* ================= STORAGE AMAN ================= */
+var KEY = 'lingkaran26_';
+function save(k,v){ try{ localStorage.setItem(KEY+k,String(v)); }catch(e){} }
+function load(k){ try{ return localStorage.getItem(KEY+k); }catch(e){ return null; } }
+
+/* ================= NAVIGASI SLIDE ================= */
+var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+var total = slides.length;
+var idx = 0;
+var fill = document.getElementById('progressFill');
+var pnum = document.getElementById('progressNum');
+var ind  = document.getElementById('slideInd');
+var badge= document.getElementById('statusBadge');
+var btnPrev = document.getElementById('btnPrev');
+var btnNext = document.getElementById('btnNext');
+
+var statusRank = {'BELUM MULAI':0,'SEDANG BELAJAR':1,'KUIS':2,'GAME':3,'SELESAI':4};
+var currentStatus = load('status') || 'BELUM MULAI';
+
+function setStatus(s){
+  if(statusRank[s] === undefined) return;
+  if(s !== 'SELESAI' && currentStatus === 'SELESAI') { paintStatus(); return; }
+  currentStatus = s;
+  save('status', s);
+  paintStatus();
+}
+function paintStatus(){
+  badge.textContent = currentStatus;
+  badge.className = 'badge-status';
+  if(currentStatus === 'KUIS') badge.classList.add('s-kuis');
+  else if(currentStatus === 'GAME') badge.classList.add('s-game');
+  else if(currentStatus === 'SELESAI') badge.classList.add('s-selesai');
+}
+
+function show(i){
+  if(i < 0) i = 0;
+  if(i > total-1) i = total-1;
+  slides[idx].classList.remove('active');
+  idx = i;
+  slides[idx].classList.add('active');
+  var pct = Math.round(((idx+1)/total)*100);
+  fill.style.width = pct + '%';
+  pnum.textContent = pct + '%';
+  ind.textContent = (idx+1) + ' / ' + total;
+  btnPrev.disabled = (idx === 0);
+  btnPrev.style.opacity = (idx === 0) ? .45 : 1;
+  btnNext.style.visibility = (idx === total-1) ? 'hidden' : 'visible';
+  var st = slides[idx].getAttribute('data-status');
+  if(st) setStatus(st);
+  save('slide', idx);
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(idx === total-1) paintFinalScore();
+}
+btnNext.addEventListener('click', function(){ show(idx+1); });
+btnPrev.addEventListener('click', function(){ show(idx-1); });
+document.getElementById('btnAwal').addEventListener('click', function(){ show(0); });
+document.addEventListener('keydown', function(e){
+  var t = e.target.tagName;
+  if(t === 'INPUT' || t === 'TEXTAREA') return;
+  if(e.key === 'ArrowRight') show(idx+1);
+  if(e.key === 'ArrowLeft') show(idx-1);
+});
+
+/* ================= REVEAL & ACCORDION ================= */
+document.querySelectorAll('[data-reveal]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var el = document.getElementById(b.getAttribute('data-reveal'));
+    if(!el) return;
+    el.classList.toggle('show');
+    b.style.opacity = el.classList.contains('show') ? .75 : 1;
+  });
+});
+document.querySelectorAll('[data-acc]').forEach(function(h){
+  h.addEventListener('click', function(){ h.parentElement.classList.toggle('open'); });
+});
+
+/* ================= SIMULATOR JURING ================= */
+var simR = document.getElementById('simR'), simA = document.getElementById('simA');
+var PI = 3.14, CX = 150, CY = 150, RPX = 100;
+function fmt(n){
+  var s = (Math.round(n*100)/100).toString().replace('.',',');
+  return s;
+}
+function drawSim(){
+  var r = parseFloat(simR.value), a = parseFloat(simA.value);
+  document.getElementById('simRVal').textContent = r + ' cm';
+  document.getElementById('simAVal').textContent = a + '°';
+  document.getElementById('simLabel').textContent = 'α = ' + a + '°  |  r = ' + r + ' cm';
+  var K = 2*PI*r, L = PI*r*r;
+  document.getElementById('outK').textContent = fmt(K) + ' cm';
+  document.getElementById('outL').textContent = fmt(L) + ' cm²';
+  document.getElementById('outB').textContent = fmt(a/360*K) + ' cm';
+  document.getElementById('outJ').textContent = fmt(a/360*L) + ' cm²';
+
+  var rad = a * Math.PI/180;
+  var x2 = CX + RPX*Math.cos(-rad), y2 = CY + RPX*Math.sin(-rad);
+  var big = a > 180 ? 1 : 0;
+  var sector = document.getElementById('simSector');
+  var arc = document.getElementById('simArc');
+  if(a >= 359.5){
+    sector.setAttribute('d','M '+(CX-RPX)+' '+CY+' a '+RPX+' '+RPX+' 0 1 0 '+(2*RPX)+' 0 a '+RPX+' '+RPX+' 0 1 0 '+(-2*RPX)+' 0 Z');
+    arc.setAttribute('d','M '+(CX-RPX)+' '+CY+' a '+RPX+' '+RPX+' 0 1 0 '+(2*RPX)+' 0 a '+RPX+' '+RPX+' 0 1 0 '+(-2*RPX)+' 0');
+  } else if(a <= 0.5){
+    sector.setAttribute('d','');
+    arc.setAttribute('d','');
+  } else {
+    var dPath = 'M '+CX+' '+CY+' L '+(CX+RPX)+' '+CY+' A '+RPX+' '+RPX+' 0 '+big+' 0 '+x2.toFixed(2)+' '+y2.toFixed(2)+' Z';
+    sector.setAttribute('d', dPath);
+    arc.setAttribute('d','M '+(CX+RPX)+' '+CY+' A '+RPX+' '+RPX+' 0 '+big+' 0 '+x2.toFixed(2)+' '+y2.toFixed(2));
+  }
+  document.getElementById('simR2').setAttribute('x2', x2.toFixed(2));
+  document.getElementById('simR2').setAttribute('y2', y2.toFixed(2));
+}
+simR.addEventListener('input', drawSim);
+simA.addEventListener('input', drawSim);
+drawSim();
+
+/* ================= LATIHAN ================= */
+function cekLatihan(inputId, btnId, fbId, jawab, satuan, pesanBenar){
+  var inp = document.getElementById(inputId);
+  var fb = document.getElementById(fbId);
+  document.getElementById(btnId).addEventListener('click', function(){
+    var raw = inp.value.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');
+    var v = parseFloat(raw);
+    fb.classList.add('show');
+    if(isNaN(v)){
+      fb.className = 'fb no show';
+      fb.innerHTML = '<b>Belum ada jawaban.</b> Tuliskan angkanya dulu di kotak di atas, lalu tekan Periksa jawaban.';
+      return;
+    }
+    if(Math.abs(v - jawab) < 0.01){
+      fb.className = 'fb ok show';
+      fb.innerHTML = '<b>Tepat sekali! 🎉</b> ' + pesanBenar;
+    } else {
+      fb.className = 'fb no show';
+      fb.innerHTML = '<b>Belum tepat.</b> Jawabanmu ' + inp.value + '. Periksa lagi pilihan rumus dan satuannya, lalu buka pembahasan bila perlu. Jawaban yang benar: <span class="mono">' + jawab + ' ' + satuan + '</span>.';
+    }
+  });
+}
+cekLatihan('lat1','lat1Btn','lat1Fb',220,'cm','Renda sepanjang 220 cm dibutuhkan karena K = 2 × 22/7 × 35.');
+cekLatihan('lat2','lat2Btn','lat2Fb',462,'cm²','Daerah sapuan adalah juring 120°, yaitu ⅓ dari 1.386 cm².');
+cekLatihan('lat3','lat3Btn','lat3Fb',420,'m','Satu putaran 84 m, sehingga 5 putaran menempuh 420 m.');
+
+/* ================= DATA KUIS ================= */
+var SOAL = [
+  {t:'mc', q:'Roda sebuah becak berdiameter 56 cm. Berapa jarak yang ditempuh dalam satu putaran roda?',
+   o:['88 cm','176 cm','246 cm','2.464 cm'], a:1,
+   e:'Jarak satu putaran = keliling roda. K = π × d = 22/7 × 56 = 176 cm. Jika terjawab 2.464, berarti yang dihitung luas, bukan keliling.'},
+  {t:'mc', q:'Sebuah juring memiliki jari-jari 21 cm dan sudut pusat 60°. Berapa luas juring tersebut?',
+   o:['154 cm²','231 cm²','462 cm²','1.386 cm²'], a:1,
+   e:'Luas lingkaran = 22/7 × 21² = 1.386 cm². Luas juring = 60/360 × 1.386 = ⅙ × 1.386 = 231 cm².'},
+  {t:'tf', q:'Pada lingkaran yang sama, panjang busur selalu sebanding dengan besar sudut pusatnya.',
+   o:['Benar','Salah'], a:0,
+   e:'Benar. Berlaku perbandingan α/360° = panjang busur/keliling, sehingga sudut yang dua kali lebih besar menghasilkan busur dua kali lebih panjang.'},
+  {t:'mc', q:'Panjang busur pada lingkaran berjari-jari 28 cm dengan sudut pusat 45° adalah…',
+   o:['11 cm','22 cm','44 cm','77 cm'], a:1,
+   e:'K = 2 × 22/7 × 28 = 176 cm. Busur = 45/360 × 176 = ⅛ × 176 = 22 cm.'},
+  {t:'isian', q:'Sebuah kolam berbentuk setengah lingkaran dengan diameter 14 m. Berapa meter panjang seluruh tepi kolam tersebut?',
+   a:36, sat:'m',
+   e:'Tepi setengah lingkaran = ½K + d. ½ × (22/7 × 14) + 14 = 22 + 14 = 36 m. Menjawab 22 berarti sisi lurus diameternya terlupa.'},
+  {t:'mc', q:'Pizza berdiameter 42 cm dibagi menjadi 6 potong sama besar. Berapa luas satu potong?',
+   o:['154 cm²','231 cm²','264 cm²','1.386 cm²'], a:1,
+   e:'r = 21 cm, luas pizza = 22/7 × 21² = 1.386 cm². Satu potong = 1.386 ÷ 6 = 231 cm².'},
+  {t:'mc', q:'Karton persegi bersisi 28 cm dipotong satu lingkaran terbesar di dalamnya. Berapa luas karton yang tersisa?',
+   o:['168 cm²','196 cm²','616 cm²','784 cm²'], a:0,
+   e:'Luas persegi 28 × 28 = 784 cm². Lingkaran terbesar berdiameter 28 sehingga r = 14 dan luasnya 616 cm². Sisa = 784 − 616 = 168 cm².'},
+  {t:'tf', q:'Untuk menentukan banyak putaran roda pada suatu lintasan, jarak lintasan dibagi dengan luas roda.',
+   o:['Benar','Salah'], a:1,
+   e:'Salah. Jarak dibagi dengan keliling roda, sebab satu putaran menempuh jarak sepanjang kelilingnya.'},
+  {t:'isian', q:'Taman berbentuk lingkaran berjari-jari 7 m akan dipagari seluruh tepinya. Berapa meter pagar yang dibutuhkan?',
+   a:44, sat:'m',
+   e:'Memagari berarti menghitung keliling: K = 2 × 22/7 × 7 = 44 m. Bila terjawab 154, yang dihitung adalah luasnya.'},
+  {t:'mc', q:'Luas sebuah juring sama dengan seperempat luas lingkarannya. Berapa besar sudut pusat juring itu?',
+   o:['45°','60°','90°','120°'], a:2,
+   e:'Perbandingan α/360° = ¼, sehingga α = ¼ × 360° = 90°.'}
+];
+
+var qi = 0, jawaban = [], benarCt = 0, sudahJawab = false, pilihanNow = null;
+var qNum=document.getElementById('qNum'), qText=document.getElementById('qText'),
+    qBody=document.getElementById('qBody'), qFb=document.getElementById('qFb'),
+    qCheck=document.getElementById('qCheck'), qNext=document.getElementById('qNext'),
+    quizArea=document.getElementById('quizArea'), quizResult=document.getElementById('quizResult'),
+    quizDots=document.getElementById('quizDots');
+
+function buildDots(){
+  quizDots.innerHTML = '';
+  for(var i=0;i<SOAL.length;i++){
+    var d = document.createElement('div');
+    d.className = 'qdot' + (i===qi?' now':'') + (jawaban[i]!==undefined&&jawaban[i]!==null?' done':'');
+    d.textContent = (i+1);
+    quizDots.appendChild(d);
+  }
+}
+function renderSoal(){
+  var s = SOAL[qi];
+  sudahJawab = false; pilihanNow = null;
+  qNum.textContent = 'Soal ' + (qi+1) + ' dari ' + SOAL.length;
+  qText.textContent = s.q;
+  qFb.className = 'fb'; qFb.innerHTML = '';
+  qCheck.style.display = 'inline-flex';
+  qNext.style.display = 'none';
+  qBody.innerHTML = '';
+  if(s.t === 'isian'){
+    var inp = document.createElement('input');
+    inp.type = 'number'; inp.id = 'qInput'; inp.setAttribute('inputmode','numeric');
+    inp.placeholder = 'Tulis angka jawabanmu (satuan ' + s.sat + ')';
+    qBody.appendChild(inp);
+  } else {
+    s.o.forEach(function(txt, i){
+      var b = document.createElement('button');
+      b.className = 'opt'; b.type = 'button';
+      b.textContent = (s.t==='tf' ? '' : String.fromCharCode(65+i) + '. ') + txt;
+      b.addEventListener('click', function(){
+        if(sudahJawab) return;
+        qBody.querySelectorAll('.opt').forEach(function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel');
+        pilihanNow = i;
+      });
+      qBody.appendChild(b);
+    });
+  }
+  buildDots();
+}
+qCheck.addEventListener('click', function(){
+  if(sudahJawab) return;
+  var s = SOAL[qi], benar = false, isiUser = null;
+  if(s.t === 'isian'){
+    var el = document.getElementById('qInput');
+    var raw = el.value.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.');
+    var v = parseFloat(raw);
+    if(isNaN(v)){
+      qFb.className = 'fb no show';
+      qFb.innerHTML = '<b>Jawaban masih kosong.</b> Tuliskan angkanya dulu, lalu tekan Jawab.';
+      return;
+    }
+    isiUser = v;
+    benar = Math.abs(v - s.a) < 0.01;
+    el.disabled = true;
+  } else {
+    if(pilihanNow === null){
+      qFb.className = 'fb no show';
+      qFb.innerHTML = '<b>Belum ada pilihan.</b> Pilih salah satu jawaban dulu, lalu tekan Jawab.';
+      return;
+    }
+    isiUser = pilihanNow;
+    benar = (pilihanNow === s.a);
+    var opts = qBody.querySelectorAll('.opt');
+    opts.forEach(function(o,i){
+      o.disabled = true;
+      o.classList.remove('sel');
+      if(i === s.a) o.classList.add('ok');
+      else if(i === pilihanNow) o.classList.add('no');
+    });
+  }
+  sudahJawab = true;
+  jawaban[qi] = isiUser;
+  if(benar) benarCt++;
+  qFb.className = 'fb ' + (benar ? 'ok' : 'no') + ' show';
+  qFb.innerHTML = '<b>' + (benar ? 'Benar! 🎉 ' : 'Belum tepat. ') + '</b>' + s.e;
+  qCheck.style.display = 'none';
+  qNext.style.display = 'inline-flex';
+  qNext.textContent = (qi === SOAL.length-1) ? 'Lihat hasil kuis →' : 'Soal berikutnya →';
+  buildDots();
+});
+qNext.addEventListener('click', function(){
+  if(qi < SOAL.length-1){ qi++; renderSoal(); }
+  else tampilkanHasil();
+});
+
+function tampilkanHasil(){
+  var n = SOAL.length;
+  var skor = Math.round(benarCt/n*100);
+  quizArea.style.display = 'none';
+  quizResult.style.display = 'block';
+  document.getElementById('scoreVal').textContent = skor;
+  document.getElementById('statBenar').textContent = benarCt;
+  document.getElementById('statSalah').textContent = n - benarCt;
+  document.getElementById('statPersen').textContent = skor + '%';
+  document.getElementById('scoreRing').style.background =
+    'conic-gradient(var(--teal) ' + (skor*3.6) + 'deg, #232c54 ' + (skor*3.6) + 'deg)';
+  var cat, msg;
+  if(skor >= 90){ cat='🏆 Sangat Baik'; msg='Pemahamanmu tentang pemecahan masalah lingkaran sudah matang. Lanjutkan ke game untuk menantang dirimu.'; }
+  else if(skor >= 75){ cat='😃 Baik'; msg='Kamu sudah menguasai sebagian besar konsep. Cermati kembali soal yang keliru pada pembahasan.'; }
+  else if(skor >= 60){ cat='🙂 Cukup'; msg='Dasarnya sudah ada. Ulangi contoh soal keliling, juring, dan bangun gabungan, lalu coba kuis lagi.'; }
+  else { cat='💪 Perlu Belajar Lagi'; msg='Jangan berkecil hati. Baca ulang slide strategi dan contoh soal, lalu ulangi kuisnya. Kamu pasti bisa.'; }
+  document.getElementById('scoreCat').textContent = cat;
+  document.getElementById('scoreMsg').textContent = msg;
+  save('skor', skor);
+  save('benar', benarCt);
+  buildReview();
+  paintFinalScore();
+}
+function buildReview(){
+  var list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  document.getElementById('reviewNote').textContent =
+    'Hasilmu: ' + benarCt + ' benar dari ' + SOAL.length + ' soal. Berikut ulasan setiap nomor.';
+  SOAL.forEach(function(s,i){
+    var ju = jawaban[i];
+    var benar;
+    if(s.t === 'isian') benar = (ju !== undefined && ju !== null && Math.abs(ju - s.a) < 0.01);
+    else benar = (ju === s.a);
+    var kunci = (s.t === 'isian') ? (s.a + ' ' + s.sat) : s.o[s.a];
+    var jw;
+    if(ju === undefined || ju === null) jw = 'tidak dijawab';
+    else jw = (s.t === 'isian') ? String(ju) : s.o[ju];
+    var d = document.createElement('div');
+    d.className = 'rev-item' + (benar ? ' benar' : '');
+    d.innerHTML =
+      '<div class="q-num">Soal ' + (i+1) + ' — ' + (benar ? '<span style="color:var(--green)">benar</span>' : '<span style="color:var(--rose)">belum tepat</span>') + '</div>' +
+      '<p style="margin:6px 0 8px"><b>' + s.q + '</b></p>' +
+      '<p style="margin:0 0 4px;font-size:13.5px;color:var(--muted)">Jawabanmu: <span class="mono">' + jw + '</span></p>' +
+      '<p style="margin:0 0 8px;font-size:13.5px;color:var(--muted)">Kunci: <span class="mono" style="color:var(--green)">' + kunci + '</span></p>' +
+      '<p style="margin:0;font-size:14px">' + s.e + '</p>';
+    list.appendChild(d);
+  });
+}
+function resetKuis(){
+  qi = 0; jawaban = []; benarCt = 0;
+  quizArea.style.display = 'block';
+  quizResult.style.display = 'none';
+  renderSoal();
+}
+document.getElementById('btnUlangKuis').addEventListener('click', function(){ resetKuis(); });
+document.getElementById('btnUlangKuis2').addEventListener('click', function(){
+  resetKuis();
+  var iq = slides.indexOf(document.getElementById('quizArea').closest('.slide'));
+  if(iq >= 0) show(iq);
+});
+document.getElementById('btnKePembahasan').addEventListener('click', function(){ show(idx+1); });
+renderSoal();
+
+/* ================= SKOR AKHIR ================= */
+function paintFinalScore(){
+  var el = document.getElementById('finalScore');
+  if(!el) return;
+  var sk = load('skor');
+  var bn = load('benar');
+  if(sk === null || sk === ''){ el.textContent = 'Belum dikerjakan'; }
+  else { el.textContent = sk + ' / 100  (' + (bn || 0) + ' benar dari ' + SOAL.length + ' soal)'; }
+}
+
+/* ================= TOMBOL GAME ================= */
+document.getElementById('btnGame').addEventListener('click', function(){ setStatus('GAME'); });
+
+/* ================= SELESAI & PELAJARI LAGI ================= */
+document.getElementById('btnSelesai').addEventListener('click', function(){
+  document.getElementById('finishBtns').style.display = 'none';
+  document.getElementById('finishAnim').classList.add('show');
+  setStatus('SELESAI');
+  save('selesai','true');
+  save('skor', load('skor') === null ? 0 : load('skor'));
+  save('waktuSelesai', new Date().toISOString());
+  window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
+  setTimeout(function(){ window.location.href = 'bab1.html'; }, 2200);
+});
+document.getElementById('btnPelajariLagi').addEventListener('click', function(){
+  show(0);
+});
+
+/* ================= MULAI ================= */
+paintStatus();
+show(0);
+paintFinalScore();
+})();
+</script>
+</body>
+</html>

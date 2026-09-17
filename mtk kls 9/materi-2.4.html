@@ -1,472 +1,1177 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bab 2: Penerapan Kontekstual Lingkaran - Kelas 9 SMP</title>
-  <style>
-    :root {
-      --bg-main: #0f172a;
-      --bg-card: #1e293b;
-      --bg-card-inner: #0f172a;
-      --accent-yellow: #f59e0b;
-      --accent-blue: #38bdf8;
-      --accent-green: #10b981;
-      --accent-purple: #a855f7;
-      --text-main: #f8fafc;
-      --text-sub: #94a3b8;
-      --border-color: #334155;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2.4 Sudut Pusat dan Sudut Keliling — Pembelajaran Interaktif</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1526;
+  --bg-deep:#080f1c;
+  --card:#152040;
+  --card-2:#1c2b52;
+  --line:rgba(255,255,255,0.10);
+  --text:#f3f5fb;
+  --dim:#9aabcd;
+  --pusat:#ffc857;
+  --kel:#4ecdc4;
+  --busur:#a78bfa;
+  --jari:#c4e86b;
+  --salah:#ff6b6b;
+  --benar:#5ee39b;
+  --r-lg:20px;
+  --r-md:14px;
+  --f-judul:'Fredoka', sans-serif;
+  --f-teks:'Plus Jakarta Sans', sans-serif;
+  --f-mono:'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+img,svg,canvas{max-width:100%;}
+html,body{height:100%; width:100%; overflow-x:hidden;}
+body{
+  font-family:var(--f-teks); color:var(--text);
+  background:
+    radial-gradient(ellipse at 12% -10%, #1b2b57 0%, transparent 55%),
+    radial-gradient(ellipse at 92% 108%, #23315e 0%, transparent 50%),
+    linear-gradient(var(--bg), var(--bg-deep));
+  background-color:var(--bg);
+  min-height:100dvh;
+}
+.app{ display:flex; flex-direction:column; min-height:100dvh; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg-main); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+.topbar{ position:sticky; top:0; z-index:20; background:rgba(13,21,38,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+.topbar-inner{ display:flex; align-items:center; gap:10px; padding:10px clamp(14px,4vw,40px); flex-wrap:wrap; }
+.brand{ display:flex; align-items:center; gap:8px; font-family:var(--f-judul); font-weight:600; font-size:clamp(12.5px,3.4vw,15px); color:var(--dim); }
+.logo{ width:20px; height:20px; border-radius:50%; border:2.5px solid var(--kel); position:relative; flex-shrink:0; }
+.logo::after{ content:""; position:absolute; left:2px; top:2px; width:14px; height:14px; border-top:2.5px solid var(--pusat); border-right:2.5px solid var(--pusat); border-radius:0 100% 0 0; }
+.status-chip{ font-family:var(--f-mono); font-size:10.5px; letter-spacing:.06em; padding:4px 10px; border-radius:100px; border:1px solid var(--line); color:var(--pusat); background:var(--card); white-space:nowrap; }
+.counter{ margin-left:auto; font-family:var(--f-mono); font-size:12px; color:var(--dim); }
+.progress-track{ height:4px; background:rgba(255,255,255,0.08); }
+.progress-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--pusat),var(--kel),var(--busur)); transition:width .45s cubic-bezier(.65,0,.35,1); }
 
-    /* Frame Utama Presentasi */
-    .deck-container { 
-      width: 100%; 
-      max-width: 900px; 
-      height: 670px; 
-      background-color: var(--bg-card); 
-      border-radius: 16px; 
-      box-shadow: 0 15px 30px rgba(0,0,0,0.5); 
-      position: relative; 
-      display: flex; 
-      flex-direction: column; 
-      overflow: hidden; 
-      border: 1px solid var(--border-color); 
-    }
+.stage{ flex:1; position:relative; }
+.slide{ display:none; padding:clamp(20px,5vw,44px) clamp(16px,5vw,56px) 124px; animation:masuk .4s ease; }
+.slide.active{ display:block; }
+@keyframes masuk{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+.inner{ max-width:1020px; margin:0 auto; }
 
-    /* Area Slide */
-    .slide { 
-      display: none; 
-      padding: 25px 30px; 
-      height: calc(100% - 70px); 
-      overflow-y: auto; 
-      flex-direction: column; 
-      align-items: center; 
-      text-align: center; 
-    }
-    .slide.active { display: flex; }
+.eyebrow{ display:inline-flex; align-items:center; gap:8px; font-family:var(--f-mono); font-size:11.5px; color:var(--kel); margin-bottom:10px; }
+.eyebrow::before{ content:""; width:16px; height:2px; background:var(--kel); border-radius:2px; }
+h1{ font-family:var(--f-judul); font-weight:700; font-size:clamp(24px,6vw,42px); line-height:1.15; margin-bottom:12px; }
+h2{ font-family:var(--f-judul); font-weight:600; font-size:clamp(18px,4.4vw,25px); margin:20px 0 10px; }
+h3{ font-family:var(--f-judul); font-weight:600; font-size:clamp(15px,3.8vw,18px); margin-bottom:8px; }
+p.lead{ color:var(--dim); font-size:clamp(14px,3.6vw,16.5px); line-height:1.7; max-width:64ch; }
+.mono{ font-family:var(--f-mono); }
 
-    /* Tipografi */
-    h1 { font-size: 1.8rem; color: var(--accent-yellow); margin-bottom: 12px; line-height: 1.3; }
-    h2 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 10px; }
-    p { font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; max-width: 750px; margin-bottom: 15px; }
+.card{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(16px,4vw,24px); }
+.grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start; margin-top:18px; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:16px; }
+@media(max-width:780px){ .grid2,.grid3{ grid-template-columns:1fr; } }
 
-    .badge { background-color: var(--border-color); padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; color: var(--accent-yellow); font-weight: bold; margin-bottom: 15px; display: inline-block; line-height: 1.4; }
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; font-family:var(--f-teks); font-weight:600;
+  font-size:clamp(13.5px,3.6vw,15px); padding:12px 20px; border-radius:100px; border:1px solid var(--line);
+  background:var(--card-2); color:var(--text); cursor:pointer; min-height:46px; transition:transform .15s, border-color .2s; }
+.btn:hover{ border-color:var(--kel); }
+.btn:active{ transform:scale(.97); }
+.btn.utama{ background:linear-gradient(120deg,var(--pusat),#ffb02e); color:#20170a; border-color:transparent; }
+.btn.hijau{ background:linear-gradient(120deg,var(--kel),#2fb3ab); color:#052623; border-color:transparent; }
+.btn:disabled{ opacity:.45; cursor:default; }
+.btn-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+a.btn{ text-decoration:none; }
 
-    /* Layout Grid & Card */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 800px; text-align: left; }
-    .card { background: var(--bg-card-inner); padding: 16px; border-radius: 10px; border: 1px solid var(--border-color); }
-    .card h3 { font-size: 1rem; margin-bottom: 8px; }
+.hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:26px; align-items:center; }
+@media(max-width:780px){ .hero{ grid-template-columns:1fr; } }
+.chips{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+.chip{ font-size:12px; padding:6px 12px; border-radius:100px; background:var(--card); border:1px solid var(--line); color:var(--dim); }
+.resume{ margin-top:16px; font-size:13px; color:var(--dim); }
 
-    /* Interactive Box Layout */
-    .interactive-box { display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap; width: 100%; max-width: 800px; margin-top: 10px; }
-    .controls { background: var(--bg-card-inner); padding: 18px; border-radius: 12px; border: 1px solid var(--border-color); text-align: left; min-width: 280px; flex: 1; }
-    .controls label { display: block; margin-bottom: 6px; font-weight: bold; font-size: 0.88rem; }
-    .controls input[type=range] { width: 100%; margin-bottom: 12px; accent-color: var(--accent-blue); }
+.tujuan{ list-style:none; display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+.tujuan li{ display:flex; gap:10px; background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:12px 16px; font-size:14.5px; line-height:1.6; }
+.tujuan li span{ color:var(--pusat); font-family:var(--f-mono); }
 
-    /* Accordion Soal */
-    .soal-container { width: 100%; max-width: 800px; text-align: left; }
-    .soal-item { background: var(--bg-card-inner); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
-    .soal-header { padding: 12px 16px; background: #1e293b; cursor: pointer; font-weight: bold; color: var(--accent-blue); display: flex; justify-content: space-between; align-items: center; font-size: 0.92rem; }
-    .soal-header:hover { background: #334155; }
-    .soal-body { padding: 15px; display: none; line-height: 1.6; font-size: 0.9rem; background: var(--bg-card-inner); border-top: 1px solid var(--border-color); }
+.hot{ cursor:pointer; transition:opacity .2s; }
+.hot:hover{ opacity:.72; }
+.infobox{ background:var(--card-2); border:1px solid var(--line); border-radius:var(--r-md); padding:14px 16px; font-size:14px; line-height:1.65; min-height:78px; }
+.infobox.kosong{ color:var(--dim); font-style:italic; }
+.legend{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:12px; font-size:12px; color:var(--dim); font-family:var(--f-mono); }
+.legend b{ width:11px; height:11px; border-radius:3px; display:inline-block; margin-right:5px; vertical-align:middle; }
 
-    /* Kuis Card */
-    .quiz-card { background: var(--bg-card-inner); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; width: 100%; max-width: 750px; text-align: left; }
-    .quiz-option { display: block; width: 100%; padding: 10px 14px; margin: 8px 0; background: #334155; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; text-align: left; transition: 0.2s; }
-    .quiz-option:hover { background: #475569; }
-    .quiz-option.correct { background: var(--accent-green) !important; font-weight: bold; }
-    .quiz-option.wrong { background: #ef4444 !important; font-weight: bold; }
+.slider-card .lbl{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; font-size:13.5px; color:var(--dim); }
+.slider-card .lbl b{ font-family:var(--f-judul); font-size:20px; color:var(--pusat); }
+input[type=range]{ -webkit-appearance:none; appearance:none; width:100%; height:6px; border-radius:6px; background:var(--line); outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:24px; height:24px; border-radius:50%; background:var(--pusat); border:4px solid var(--bg-deep); cursor:pointer; }
+input[type=range]::-moz-range-thumb{ width:22px; height:22px; border-radius:50%; background:var(--pusat); border:4px solid var(--bg-deep); cursor:pointer; }
+.hasil{ font-family:var(--f-mono); font-size:14px; line-height:2; color:var(--dim); word-break:break-word; }
+.hasil .akhir{ font-family:var(--f-judul); font-size:clamp(20px,5vw,26px); display:block; margin-top:6px; }
 
-    /* Navigasi Bawah */
-    .nav-bar { height: 70px; background-color: #0f172a; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; border-top: 1px solid var(--border-color); margin-top: auto; width: 100%; }
-    .nav-btn { background: var(--accent-blue); color: #0f172a; font-weight: bold; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
-    .nav-btn:hover { opacity: 0.9; }
-    .nav-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
+.rumus-hero{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;
+  background:linear-gradient(135deg,var(--card-2),var(--card)); border:1px solid var(--line); border-radius:var(--r-lg); padding:22px 14px; margin:18px 0; }
+.rumus-hero .t{ font-family:var(--f-mono); font-weight:700; font-size:clamp(17px,5.4vw,28px); padding:6px 14px; border-radius:12px; }
+.t.k{ color:var(--kel); background:rgba(78,205,196,.16); }
+.t.p{ color:var(--pusat); background:rgba(255,200,87,.16); }
+.rumus-kartu{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px; text-align:center; }
+.rumus-kartu .ket{ font-size:12px; color:var(--dim); margin-bottom:8px; }
+.rumus-kartu .f{ font-family:var(--f-mono); font-weight:700; font-size:16px; }
 
-    .dots-container { display: flex; gap: 6px; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background-color: #475569; cursor: pointer; }
-    .dot.active { background-color: var(--accent-yellow); width: 20px; border-radius: 5px; transition: 0.3s; }
-  </style>
+.langkah{ display:none; border-left:3px solid var(--kel); background:var(--card-2); border-radius:0 10px 10px 0; padding:12px 14px; margin-bottom:10px; font-size:14px; line-height:1.65; }
+.langkah.tampil{ display:block; animation:masuk .3s ease; }
+.langkah.akhir{ border-left-color:var(--benar); }
+.langkah .f{ font-family:var(--f-mono); color:var(--pusat); }
+.langkah.akhir .f{ color:var(--benar); }
+.soal-teks{ font-size:15px; line-height:1.7; margin-bottom:14px; }
+.soal-teks b{ color:var(--pusat); }
+
+.latihan{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:18px; margin-bottom:14px; }
+.tingkat{ font-family:var(--f-mono); font-size:10.5px; padding:3px 9px; border-radius:100px; border:1px solid var(--line); color:var(--dim); }
+.baris{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+.baris input{ flex:1 1 130px; min-width:110px; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-deep); color:var(--text); font-family:var(--f-mono); font-size:15px; }
+.umpan{ font-size:13px; font-family:var(--f-mono); width:100%; line-height:1.7; }
+.umpan.ok{ color:var(--benar); }
+.umpan.no{ color:var(--salah); }
+
+.kuis-dots{ display:flex; gap:5px; margin-bottom:16px; }
+.kuis-dots i{ flex:1; height:5px; border-radius:4px; background:var(--card-2); }
+.kuis-dots i.ok{ background:var(--benar); }
+.kuis-dots i.no{ background:var(--salah); }
+.opsi{ display:flex; flex-direction:column; gap:10px; }
+.opsi button{ text-align:left; background:var(--bg-deep); border:1px solid var(--line); border-radius:12px; padding:13px 16px;
+  color:var(--text); font-family:var(--f-teks); font-size:14.5px; cursor:pointer; min-height:46px; }
+.opsi button:hover:not(:disabled){ border-color:var(--kel); }
+.opsi button.benar{ border-color:var(--benar); background:rgba(94,227,155,.14); }
+.opsi button.salah{ border-color:var(--salah); background:rgba(255,107,107,.14); }
+.opsi button:disabled{ cursor:default; }
+.kuis-umpan{ margin-top:14px; font-size:13.5px; line-height:1.65; color:var(--dim); }
+.kuis-bar{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.skor-besar{ font-family:var(--f-judul); font-size:clamp(38px,12vw,58px); color:var(--pusat); }
+.stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0; }
+@media(max-width:560px){ .stat-grid{ grid-template-columns:repeat(2,1fr); } }
+.stat{ background:var(--card-2); border:1px solid var(--line); border-radius:var(--r-md); padding:12px; text-align:center; }
+.stat b{ display:block; font-family:var(--f-judul); font-size:20px; }
+.stat span{ font-size:11.5px; color:var(--dim); }
+
+.bahas{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px; margin-bottom:12px; }
+.bahas .soal{ font-size:14.5px; line-height:1.6; margin-bottom:8px; }
+.bahas .jwb{ font-family:var(--f-mono); font-size:13px; color:var(--benar); }
+.bahas .pjls{ font-size:13.5px; color:var(--dim); line-height:1.7; margin-top:6px; }
+
+.ring-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; margin-top:16px; }
+@media(max-width:700px){ .ring-grid{ grid-template-columns:1fr; } }
+.ring{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-md); padding:16px 18px; font-size:14px; line-height:1.65; }
+.ring .judul{ font-family:var(--f-mono); font-size:11.5px; color:var(--pusat); display:block; margin-bottom:6px; letter-spacing:.05em; }
+.ring .f{ font-family:var(--f-mono); color:var(--kel); }
+.salah-umum{ border-left:3px solid var(--salah); }
+
+.tengah{ text-align:center; }
+.game-box{ background:linear-gradient(135deg,#1f2a55,#152040); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(24px,6vw,40px); text-align:center; }
+.game-emoji{ font-size:clamp(46px,14vw,70px); display:block; margin-bottom:10px; }
+.selesai-box{ background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); padding:clamp(20px,5vw,32px); text-align:center; }
+.identitas{ font-family:var(--f-mono); font-size:13px; color:var(--dim); line-height:2; margin:14px 0; }
+.identitas b{ color:var(--text); }
+#statusSelesai{ display:none; margin-top:18px; font-family:var(--f-judul); font-size:clamp(17px,5vw,22px); color:var(--benar); }
+#statusSelesai.tampil{ display:block; animation:pop .6s cubic-bezier(.2,1.3,.4,1); }
+@keyframes pop{ 0%{opacity:0; transform:scale(.6);} 100%{opacity:1; transform:scale(1);} }
+.ceklis{ width:74px; height:74px; margin:0 auto 12px; border-radius:50%; border:4px solid var(--benar); display:flex; align-items:center; justify-content:center; font-size:36px; }
+
+.navbar{ position:fixed; left:0; right:0; bottom:0; z-index:30; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:10px clamp(10px,4vw,32px); background:rgba(8,15,28,0.94); backdrop-filter:blur(10px); border-top:1px solid var(--line); }
+.nav-btn{ width:48px; height:48px; border-radius:50%; border:1px solid var(--line); background:var(--card-2); color:var(--text); font-size:19px; cursor:pointer; flex-shrink:0; }
+.nav-btn:disabled{ opacity:.3; cursor:default; }
+.nav-tengah{ flex:1; text-align:center; min-width:0; }
+.nav-judul{ font-family:var(--f-mono); font-size:11.5px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.titik{ display:flex; gap:6px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
+.titik i{ width:7px; height:7px; border-radius:50%; background:var(--card-2); border:1px solid var(--line); cursor:pointer; }
+.titik i.aktif{ background:var(--pusat); width:18px; border-radius:4px; border-color:var(--pusat); }
+@media(max-width:680px){ .titik{ display:none; } }
+</style>
 </head>
 <body>
+<div class="app">
 
-<div class="deck-container">
-  
-  <!-- Slide 1: Cover Presentasi -->
-  <div class="slide active" id="slide-1">
-    <p style="color: var(--accent-blue); font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Matematika SMP Kelas 9 • Buku Terbitan Erlangga</p>
-    <h1>Bab 2: Penerapan Kontekstual Lingkaran</h1>
-    <p>Media Pembelajaran Interaktif: Menentukan dan Menghitung Panjang Busur serta Luas Juring Lingkaran dalam Penerapan Sehari-hari.</p>
-    <div class="badge">🎯 Capaian Pembelajaran: Peserta didik mampu menyelesaikan masalah kontekstual yang berkaitan dengan lingkaran.</div>
-    <div style="margin-top: 10px;">
-      <button class="nav-btn" style="background: var(--accent-yellow); padding: 12px 24px; font-size: 1rem;" onclick="goToSlide(1)">Mulai Belajar →</button>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand"><span class="logo"></span> 2.4 Sudut Pusat &amp; Sudut Keliling</div>
+      <span class="status-chip" id="statusChip">BELUM MULAI</span>
+      <span class="counter"><span id="slideNow">1</span>/<span id="slideTotal">19</span></span>
     </div>
-  </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </header>
 
-  <!-- Slide 2: Aplikasi Lingkaran di Dunia Nyata -->
-  <div class="slide" id="slide-2">
-    <h2>1. Penerapan Lingkaran Saat Ini</h2>
-    <p>Prinsip panjang busur dan luas juring banyak digunakan dalam kehidupan sehari-hari, antara lain:</p>
+  <main class="stage">
 
-    <div class="grid-2">
-      <div class="card">
-        <h3 style="color: var(--accent-yellow);">💧 Penyiram Taman Otomatis</h3>
-        <p style="font-size:0.85rem;">Luas rumput yang basah terkena semprotan air berbentuk juring lingkaran dengan sudut sapuan tertentu.</p>
+    <!-- 1 PEMBUKA -->
+    <section class="slide active" data-judul="Pembuka">
+      <div class="inner hero">
+        <div>
+          <div class="eyebrow">Matematika SMP · Bab Lingkaran</div>
+          <h1>Sudut Pusat dan Sudut Keliling</h1>
+          <p class="lead">Perhatikan jam dinding: jarum yang berputar dari titik pusat membentuk satu jenis sudut, sedangkan sudut yang dilihat dari tepi lingkaran adalah jenis yang lain. Di pembelajaran ini kita akan membedakan keduanya, menemukan hubungan istimewa di antaranya, lalu memakainya untuk menentukan besar sudut yang belum diketahui.</p>
+          <div class="chips">
+            <span class="chip">🎯 Simulasi sudut interaktif</span>
+            <span class="chip">🧮 Kalkulator sudut</span>
+            <span class="chip">📝 Kuis &amp; pembahasan</span>
+            <span class="chip">🎮 Game</span>
+          </div>
+          <div class="btn-row">
+            <button class="btn utama" onclick="keSlide(1)">Mulai Belajar</button>
+            <button class="btn" onclick="keSlide(14)">Langsung ke Kuis</button>
+          </div>
+          <div class="resume" id="resumeInfo"></div>
+        </div>
+        <div>
+          <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:320px; display:block; margin:0 auto;">
+            <circle cx="150" cy="140" r="88" fill="var(--kel)" fill-opacity="0.08" stroke="var(--kel)" stroke-width="3"/>
+            <path d="M150 52 A88 88 0 0 1 226 182" fill="none" stroke="var(--busur)" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+            <line x1="150" y1="140" x2="150" y2="52" stroke="var(--pusat)" stroke-width="3.5"/>
+            <line x1="150" y1="140" x2="226" y2="182" stroke="var(--pusat)" stroke-width="3.5"/>
+            <path d="M150 106 A34 34 0 0 1 172 121" fill="none" stroke="var(--pusat)" stroke-width="2.5"/>
+            <line x1="65" y1="176" x2="150" y2="52" stroke="var(--kel)" stroke-width="3"/>
+            <line x1="65" y1="176" x2="226" y2="182" stroke="var(--kel)" stroke-width="3"/>
+            <path d="M78 168 A20 20 0 0 0 90 179" fill="none" stroke="var(--kel)" stroke-width="2.5"/>
+            <circle cx="150" cy="140" r="4.5" fill="#fff"/>
+            <circle cx="150" cy="52" r="4.5" fill="var(--busur)"/>
+            <circle cx="226" cy="182" r="4.5" fill="var(--busur)"/>
+            <circle cx="65" cy="176" r="4.5" fill="var(--kel)"/>
+            <text x="160" y="100" fill="var(--pusat)" font-family="JetBrains Mono" font-size="13" font-weight="700">∠pusat</text>
+            <text x="45" y="200" fill="var(--kel)" font-family="JetBrains Mono" font-size="13" font-weight="700">∠keliling</text>
+          </svg>
+        </div>
       </div>
+    </section>
 
-      <div class="card">
-        <h3 style="color: var(--accent-green);">📡 Jangkauan Radar Navigasi</h3>
-        <p style="font-size:0.85rem;">Area sapuan gelombang radar kapal atau pesawat membentuk juring lingkaran.</p>
+    <!-- 2 APERSEPSI -->
+    <section class="slide" data-judul="Apersepsi">
+      <div class="inner">
+        <div class="eyebrow">Apersepsi</div>
+        <h1>Pernahkah kamu memperhatikan?</h1>
+        <p class="lead">Ketuk tiap kartu untuk melihat arah jawabannya sebelum masuk ke konsepnya.</p>
+        <div class="grid2">
+          <div class="card hot" onclick="pemantik('Kedua jarum jam bertemu tepat di titik pusat jam. Sudut yang dibentuk di titik pusat inilah yang disebut <b>sudut pusat</b>.')">
+            <h3>🕐 Di titik mana jarum jam pendek dan panjang bertemu?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Ya, selama titik pengamatan berada di tepi lingkaran yang sama dan menghadap busur yang sama, sudut yang terbentuk akan selalu <b>sama besar</b>, meskipun posisi pengamatnya berbeda.')">
+            <h3>👀 Apakah orang-orang di sekeliling lapangan bundar melihat sudut yang sama besar ke satu titik?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Sudut yang dibentuk di pusat lingkaran (sudut pusat) untuk busur yang sama selalu <b>dua kali lebih besar</b> daripada sudut yang dibentuk dari tepi lingkaran (sudut keliling).')">
+            <h3>📐 Menurutmu, mana yang lebih besar: sudut yang diukur dari titik pusat atau dari tepi lingkaran?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+          <div class="card hot" onclick="pemantik('Bisa. Karena ada hubungan tetap antara sudut pusat dan sudut keliling yang menghadap busur sama, salah satu sudut selalu bisa dicari kalau sudut yang satunya diketahui.')">
+            <h3>🔍 Kalau hanya satu sudut yang diketahui, bisakah sudut lainnya dicari?</h3>
+            <p class="lead" style="font-size:13.5px; margin-top:6px;">Ketuk untuk petunjuk.</p>
+          </div>
+        </div>
+        <div class="infobox kosong" id="pemantikBox" style="margin-top:16px;">👆 Ketuk salah satu kartu di atas untuk melihat petunjuknya di sini.</div>
       </div>
+    </section>
+
+    <!-- 3 TUJUAN -->
+    <section class="slide" data-judul="Tujuan Pembelajaran">
+      <div class="inner">
+        <div class="eyebrow">Tujuan Pembelajaran</div>
+        <h1>Setelah belajar ini, kamu mampu…</h1>
+        <ul class="tujuan">
+          <li><span>01</span> Menjelaskan pengertian sudut pusat dan menunjukkan unsurnya pada gambar lingkaran.</li>
+          <li><span>02</span> Menjelaskan pengertian sudut keliling dan menunjukkan unsurnya pada gambar lingkaran.</li>
+          <li><span>03</span> Menemukan hubungan antara sudut pusat dan sudut keliling yang menghadap busur yang sama.</li>
+          <li><span>04</span> Menjelaskan sifat sudut keliling yang menghadap busur yang sama dan sudut keliling yang menghadap diameter.</li>
+          <li><span>05</span> Menentukan besar sudut pusat, sudut keliling, atau ukuran busur yang belum diketahui.</li>
+          <li><span>06</span> Menyelesaikan masalah sehari-hari yang berkaitan dengan sudut pusat dan sudut keliling.</li>
+        </ul>
+        <div class="card" style="margin-top:18px;">
+          <h3>Bekal yang dipakai</h3>
+          <p class="lead" style="font-size:14px;">Kamu perlu mengingat kembali bahwa satu lingkaran penuh besarnya <span class="mono" style="color:var(--pusat)">360°</span>, dan cara menjumlahkan atau membagi dua suatu sudut.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 UNSUR BUSUR -->
+    <section class="slide" data-judul="Mengenal Busur">
+      <div class="inner">
+        <div class="eyebrow">Konsep Dasar</div>
+        <h1>Mengenal busur pada lingkaran</h1>
+        <p class="lead">Sebelum bicara sudut, kita perlu mengenal busur — bagian lengkung dari tepi lingkaran yang "dihadapi" oleh sudut pusat maupun sudut keliling. Ketuk gambar untuk melihat perbedaannya.</p>
+        <div class="grid2">
+          <div class="card">
+            <svg viewBox="0 0 300 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+              <circle cx="150" cy="120" r="86" fill="none" stroke="#3a4a76" stroke-width="2.5"/>
+              <path class="hot" d="M150 34 A86 86 0 0 1 224 160" fill="none" stroke="var(--busur)" stroke-width="7" stroke-linecap="round" onclick="unsur('minor')"/>
+              <path class="hot" d="M224 160 A86 86 0 1 1 150 34" fill="none" stroke="var(--jari)" stroke-width="7" stroke-linecap="round" opacity="0.55" onclick="unsur('mayor')"/>
+              <circle class="hot" cx="150" cy="34" r="6" fill="var(--busur)" onclick="unsur('titikA')"/>
+              <circle class="hot" cx="224" cy="160" r="6" fill="var(--busur)" onclick="unsur('titikB')"/>
+              <text x="128" y="24" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+              <text x="232" y="168" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">B</text>
+            </svg>
+          </div>
+          <div>
+            <div class="infobox kosong" id="unsurBox">👆 Ketuk bagian lengkung atau titik pada gambar untuk melihat penjelasannya.</div>
+            <div class="card" style="margin-top:14px;">
+              <h3>Yang perlu diingat</h3>
+              <p class="lead" style="font-size:14px;">Busur AB yang lebih pendek disebut <b style="color:var(--busur)">busur minor</b>, dan busur AB yang lebih panjang (melewati sisi lainnya) disebut <b style="color:var(--jari)">busur mayor</b>. Ukuran busur dinyatakan dalam derajat, sama seperti sudut pusatnya.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 SUDUT PUSAT -->
+    <section class="slide" data-judul="Pengertian Sudut Pusat" data-init="pusat">
+      <div class="inner">
+        <div class="eyebrow">Definisi 1</div>
+        <h1>Pengertian sudut pusat</h1>
+        <p class="lead">Geser slider untuk mengubah besar sudut pusat dan lihat bagaimana busur AB ikut berubah mengikutinya.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:280px;">
+              <g id="pusatGroup"></g>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Sudut pusat ∠AOB</span><b><span id="pusatNilai">90</span>°</b></div>
+              <input type="range" id="pusatSlider" min="20" max="300" step="5" value="90" oninput="updatePusat()">
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:14.5px; color:var(--text);"><b style="color:var(--pusat)">Sudut pusat</b> adalah sudut yang titik sudutnya terletak tepat di <b>titik pusat lingkaran (O)</b>, dibentuk oleh dua jari-jari yang menghadap sebuah busur.</p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:13.5px;">💡 Perhatikan: besar sudut pusat AOB selalu <b>sama dengan</b> besar busur AB yang dihadapinya, karena satu lingkaran penuh = 360°.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 SUDUT KELILING -->
+    <section class="slide" data-judul="Pengertian Sudut Keliling" data-init="keliling">
+      <div class="inner">
+        <div class="eyebrow">Definisi 2</div>
+        <h1>Pengertian sudut keliling</h1>
+        <p class="lead">Geser slider untuk memindahkan titik C ke berbagai posisi pada tepi lingkaran (di busur mayor). Perhatikan apa yang terjadi pada besar sudut ACB.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:280px;">
+              <g id="kelilingGroup"></g>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Posisi titik C</span><b><span id="kelPosNilai">geser</span></b></div>
+              <input type="range" id="kelSlider" min="0" max="100" step="1" value="50" oninput="updateKeliling()">
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="hasil" id="kelHasil"></p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:14.5px; color:var(--text);"><b style="color:var(--kel)">Sudut keliling</b> adalah sudut yang titik sudutnya terletak <b>pada lingkaran</b>, dibentuk oleh dua tali busur yang menghadap busur yang sama.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 HUBUNGAN -->
+    <section class="slide" data-judul="Hubungan Sudut Pusat & Keliling" data-init="hubungan">
+      <div class="inner">
+        <div class="eyebrow">Temuan Utama</div>
+        <h1>Hubungan sudut pusat dan sudut keliling</h1>
+        <p class="lead">Geser sudut pusatnya dan perhatikan sudut keliling yang menghadap busur yang sama — nilainya selalu setengah dari sudut pusat.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:280px;">
+              <g id="hubGroup"></g>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Sudut pusat ∠AOB</span><b><span id="hubPusatNilai">100</span>°</b></div>
+              <input type="range" id="hubSlider" min="20" max="280" step="5" value="100" oninput="updateHubungan()">
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="hasil" id="hubHasil"></p>
+            </div>
+          </div>
+        </div>
+        <div class="rumus-hero">
+          <span class="t p">∠pusat = 2 × ∠keliling</span>
+        </div>
+        <div class="grid3">
+          <div class="rumus-kartu"><div class="ket">Diketahui sudut keliling</div><div class="f" style="color:var(--pusat)">∠pusat = 2 × ∠keliling</div></div>
+          <div class="rumus-kartu"><div class="ket">Diketahui sudut pusat</div><div class="f" style="color:var(--kel)">∠keliling = ½ × ∠pusat</div></div>
+          <div class="rumus-kartu"><div class="ket">Syarat berlaku</div><div class="f" style="font-size:13px;">menghadap busur yang sama</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 SIFAT 1: SUDUT KELILING SAMA BUSUR -->
+    <section class="slide" data-judul="Sifat 1 — Busur yang Sama">
+      <div class="inner">
+        <div class="eyebrow">Sifat Turunan</div>
+        <h1>Sudut keliling yang menghadap busur sama</h1>
+        <p class="lead">Ketuk titik-titik pada busur mayor untuk melihat sudut kelilingnya dari beberapa posisi berbeda.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px;">
+              <circle cx="150" cy="130" r="90" fill="var(--kel)" fill-opacity="0.06" stroke="var(--kel)" stroke-width="2.5"/>
+              <path d="M85 68 A90 90 0 0 0 92 202" fill="none" stroke="var(--busur)" stroke-width="6" opacity="0.7"/>
+              <line x1="85" y1="68" x2="92" y2="202" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.4"/>
+              <g id="tigaTitikGroup"></g>
+              <circle cx="85" cy="68" r="5" fill="var(--busur)"/>
+              <circle cx="92" cy="202" r="5" fill="var(--busur)"/>
+              <text x="60" y="60" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+              <text x="98" y="220" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">B</text>
+            </svg>
+          </div>
+          <div>
+            <div class="infobox kosong" id="tigaTitikBox">👆 Ketuk salah satu titik C1, C2, atau C3 pada gambar untuk melihat besar sudutnya.</div>
+            <div class="card" style="margin-top:14px;">
+              <h3>Sifatnya</h3>
+              <p class="lead" style="font-size:14.5px;">Semua sudut keliling yang menghadap busur AB yang sama, dari sisi lingkaran yang sama, akan selalu <b style="color:var(--text)">sama besar</b> — tidak peduli di mana posisi titik sudutnya pada busur mayor.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 SIFAT 2: SUDUT KELILING DIAMETER -->
+    <section class="slide" data-judul="Sifat 2 — Menghadap Diameter" data-init="diameter">
+      <div class="inner">
+        <div class="eyebrow">Sifat Turunan</div>
+        <h1>Sudut keliling yang menghadap diameter</h1>
+        <p class="lead">Kali ini AB adalah diameter lingkaran (busur setengah lingkaran = 180°). Geser posisi titik C dan perhatikan besar sudut ACB.</p>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:300px;">
+              <g id="diaGroup"></g>
+            </svg>
+          </div>
+          <div>
+            <div class="card slider-card">
+              <div class="lbl"><span>Posisi titik C</span><b><span id="diaPosNilai">geser</span></b></div>
+              <input type="range" id="diaSlider" min="5" max="95" step="1" value="50" oninput="updateDiameter()">
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="hasil" id="diaHasil"></p>
+            </div>
+            <div class="card" style="margin-top:14px;">
+              <p class="lead" style="font-size:14px;">Karena busur AB (setengah lingkaran) = 180°, sudut pusatnya = 180°, sehingga sudut kelilingnya = ½ × 180° = <b style="color:var(--benar)">90°</b>, di mana pun posisi C. Ini disebut sudut siku-siku pada sudut keliling diameter.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 CONTOH 1 -->
+    <section class="slide" data-judul="Contoh 1">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 1</div>
+        <h1>Sudut pusat dari sudut keliling</h1>
+        <div class="card">
+          <p class="soal-teks">Pada suatu lingkaran berpusat di O, sudut keliling ∠ACB menghadap busur AB besarnya <b>35°</b>. Berapa besar sudut pusat ∠AOB?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: sudut pusat menghadap busur yang sama selalu dua kali sudut kelilingnya.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">∠ACB = 35°, ditanya ∠AOB</span></div>
+          <div class="langkah"><b>Langkah 2 — Gunakan hubungannya.</b><br><span class="f">∠AOB = 2 × ∠ACB</span></div>
+          <div class="langkah"><b>Langkah 3 — Masukkan nilai.</b><br><span class="f">∠AOB = 2 × 35°</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> sudut pusat ∠AOB = <span class="f">70°</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 CONTOH 2 -->
+    <section class="slide" data-judul="Contoh 2">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 2</div>
+        <h1>Sudut keliling dari sudut pusat</h1>
+        <div class="card">
+          <p class="soal-teks">Sudut pusat ∠AOB pada suatu lingkaran besarnya <b>124°</b>. Titik C terletak pada busur mayor AB. Berapa besar sudut keliling ∠ACB?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: kali ini yang dicari adalah kebalikannya, yaitu setengah dari sudut pusat.</p>
+          <div class="langkah"><b>Langkah 1 — Tulis yang diketahui.</b><br><span class="f">∠AOB = 124°, ditanya ∠ACB</span></div>
+          <div class="langkah"><b>Langkah 2 — Gunakan hubungannya.</b><br><span class="f">∠ACB = ½ × ∠AOB</span></div>
+          <div class="langkah"><b>Langkah 3 — Masukkan nilai.</b><br><span class="f">∠ACB = ½ × 124°</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> sudut keliling ∠ACB = <span class="f">62°</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 CONTOH 3 -->
+    <section class="slide" data-judul="Contoh 3">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 3</div>
+        <h1>Dua sudut keliling menghadap busur sama</h1>
+        <div class="grid2">
+          <div class="card tengah">
+            <svg viewBox="0 0 280 240" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:280px;">
+              <circle cx="140" cy="120" r="86" fill="var(--kel)" fill-opacity="0.06" stroke="var(--kel)" stroke-width="2.5"/>
+              <path d="M78 62 A86 86 0 0 0 84 190" fill="none" stroke="var(--busur)" stroke-width="6" opacity="0.7"/>
+              <line x1="78" y1="62" x2="215" y2="70" stroke="var(--kel)" stroke-width="3"/>
+              <line x1="84" y1="190" x2="215" y2="70" stroke="var(--kel)" stroke-width="3"/>
+              <line x1="78" y1="62" x2="150" y2="200" stroke="var(--jari)" stroke-width="3"/>
+              <line x1="84" y1="190" x2="150" y2="200" stroke="var(--jari)" stroke-width="3"/>
+              <circle cx="78" cy="62" r="5" fill="var(--busur)"/>
+              <circle cx="84" cy="190" r="5" fill="var(--busur)"/>
+              <circle cx="215" cy="70" r="5" fill="var(--kel)"/>
+              <circle cx="150" cy="200" r="5" fill="var(--jari)"/>
+              <text x="55" y="52" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">A</text>
+              <text x="60" y="210" fill="var(--busur)" font-family="JetBrains Mono" font-size="13" font-weight="700">B</text>
+              <text x="222" y="68" fill="var(--kel)" font-family="JetBrains Mono" font-size="13" font-weight="700">C</text>
+              <text x="156" y="216" fill="var(--jari)" font-family="JetBrains Mono" font-size="13" font-weight="700">D</text>
+            </svg>
+          </div>
+          <div class="card" style="margin:0;">
+            <p class="soal-teks">Titik C dan D terletak pada busur mayor AB yang sama. Jika besar sudut ∠ACB = <b>48°</b>, berapa besar sudut ∠ADB?</p>
+            <div class="langkah"><b>Langkah 1 — Kenali sifatnya.</b> C dan D menghadap busur AB yang sama, dari sisi lingkaran yang sama.</div>
+            <div class="langkah"><b>Langkah 2 — Terapkan sifat sudut keliling.</b> Sudut keliling yang menghadap busur sama selalu sama besar.</div>
+            <div class="langkah akhir"><b>Jawaban:</b> ∠ADB = ∠ACB = <span class="f">48°</span> ✅ (tidak perlu dihitung ulang, cukup disamakan)</div>
+            <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 CONTOH 4 -->
+    <section class="slide" data-judul="Contoh 4">
+      <div class="inner">
+        <div class="eyebrow">Contoh Soal 4</div>
+        <h1>Sudut keliling menghadap diameter</h1>
+        <div class="card">
+          <p class="soal-teks">AB adalah diameter suatu lingkaran berpusat di O. Titik C terletak pada lingkaran sehingga terbentuk segitiga ACB. Jika besar ∠CAB = <b>35°</b>, berapa besar ∠ABC?</p>
+          <p class="lead" style="font-size:13.5px; margin-bottom:14px;">Petunjuk: karena AB diameter, sudut ACB otomatis siku-siku.</p>
+          <div class="langkah"><b>Langkah 1 — Kenali sifat diameter.</b> AB diameter → ∠ACB = 90° (sudut keliling menghadap diameter).</div>
+          <div class="langkah"><b>Langkah 2 — Gunakan jumlah sudut segitiga.</b><br><span class="f">∠CAB + ∠ABC + ∠ACB = 180°</span></div>
+          <div class="langkah"><b>Langkah 3 — Masukkan nilai yang diketahui.</b><br><span class="f">35° + ∠ABC + 90° = 180°</span></div>
+          <div class="langkah akhir"><b>Jawaban:</b> ∠ABC = 180° − 125° = <span class="f">55°</span> ✅</div>
+          <div class="btn-row"><button class="btn utama" onclick="bukaLangkah(this)">Tampilkan Langkah</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 LATIHAN -->
+    <section class="slide" data-judul="Latihan Mandiri">
+      <div class="inner">
+        <div class="eyebrow">Latihan Bertingkat</div>
+        <h1>Sekarang giliranmu menghitung</h1>
+        <p class="lead">Tulis jawabanmu dalam satuan derajat (angka saja), lalu ketuk "Cek Jawaban".</p>
+
+        <div class="latihan" style="margin-top:18px;">
+          <span class="tingkat" style="color:var(--benar)">MUDAH</span>
+          <p class="soal-teks" style="margin-top:10px;">1. Sudut keliling ∠ACB menghadap busur AB besarnya 40°. Berapa besar sudut pusat ∠AOB (derajat)?</p>
+          <div class="baris">
+            <input type="number" id="in1" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('1',80,'∠AOB = 2 × ∠ACB = 2 × 40° = 80°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb1"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--benar)">MUDAH</span>
+          <p class="soal-teks" style="margin-top:10px;">2. Sudut pusat ∠AOB besarnya 150°. Berapa besar sudut keliling ∠ACB yang menghadap busur AB yang sama (derajat)?</p>
+          <div class="baris">
+            <input type="number" id="in2" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('2',75,'∠ACB = ½ × ∠AOB = ½ × 150° = 75°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb2"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--pi, var(--pusat))">SEDANG</span>
+          <p class="soal-teks" style="margin-top:10px;">3. Titik C dan D berada pada busur mayor AB yang sama. Jika ∠ACB = 63°, berapa besar ∠ADB (derajat)?</p>
+          <div class="baris">
+            <input type="number" id="in3" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('3',63,'C dan D menghadap busur AB yang sama, sehingga ∠ADB = ∠ACB = 63°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb3"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--pusat)">SEDANG</span>
+          <p class="soal-teks" style="margin-top:10px;">4. AB adalah diameter lingkaran, dan C titik pada lingkaran dengan ∠CAB = 28°. Berapa besar ∠ABC (derajat)?</p>
+          <div class="baris">
+            <input type="number" id="in4" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('4',62,'∠ACB = 90° (menghadap diameter). ∠ABC = 180° − 90° − 28° = 62°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb4"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--salah)">MENANTANG</span>
+          <p class="soal-teks" style="margin-top:10px;">5. Busur AB suatu lingkaran besarnya 96°. Berapa besar sudut keliling yang menghadap busur AB tersebut (derajat)?</p>
+          <div class="baris">
+            <input type="number" id="in5" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('5',48,'Ukuran busur = sudut pusat, jadi ∠AOB = 96°. Sudut keliling = ½ × 96° = 48°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb5"></span>
+          </div>
+        </div>
+
+        <div class="latihan">
+          <span class="tingkat" style="color:var(--salah)">MENANTANG</span>
+          <p class="soal-teks" style="margin-top:10px;">6. Sudut keliling ∠ACB = 42° dan menghadap busur AB. Titik D berada pada busur minor AB (sisi berlawanan dari C). Berapa besar ∠ADB (derajat)? (petunjuk: ACBD adalah segiempat tali busur, sudut berhadapan berjumlah 180°)</p>
+          <div class="baris">
+            <input type="number" id="in6" placeholder="…°" inputmode="decimal">
+            <button class="btn" onclick="cek('6',138,'C dan D berada pada busur yang berlawanan (sisi berbeda), sehingga ∠ACB dan ∠ADB saling berhadapan pada segiempat tali busur: ∠ADB = 180° − 42° = 138°.')">Cek Jawaban</button>
+            <span class="umpan" id="fb6"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 KUIS -->
+    <section class="slide" data-judul="Kuis Interaktif" data-init="kuis">
+      <div class="inner">
+        <div class="eyebrow">Evaluasi</div>
+        <h1>Kuis interaktif</h1>
+        <p class="lead">Jawab semua soal berikut. Skor dihitung otomatis, dan pembahasan lengkapnya ada di slide berikutnya.</p>
+        <div style="max-width:720px; margin-top:18px;">
+          <div class="kuis-dots" id="kuisDots"></div>
+          <div id="kuisArea"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 PEMBAHASAN -->
+    <section class="slide" data-judul="Pembahasan Kuis" data-init="bahas">
+      <div class="inner">
+        <div class="eyebrow">Pembahasan</div>
+        <h1>Pembahasan setiap soal</h1>
+        <div id="bahasArea" style="margin-top:16px;"></div>
+      </div>
+    </section>
+
+    <!-- 17 RINGKASAN -->
+    <section class="slide" data-judul="Ringkasan">
+      <div class="inner">
+        <div class="eyebrow">Penguatan</div>
+        <h1>🧠 Ringkasan &amp; yang perlu diingat</h1>
+        <div class="ring-grid">
+          <div class="ring"><span class="judul">SUDUT PUSAT</span>Sudut yang titik sudutnya di <b>titik pusat</b> lingkaran, dibentuk oleh dua jari-jari. Besarnya sama dengan ukuran busur yang dihadapinya.</div>
+          <div class="ring"><span class="judul">SUDUT KELILING</span>Sudut yang titik sudutnya <b>pada lingkaran</b>, dibentuk oleh dua tali busur yang menghadap busur yang sama.</div>
+          <div class="ring"><span class="judul">HUBUNGAN UTAMA</span><span class="f">∠pusat = 2 × ∠keliling</span>, berlaku untuk sudut pusat dan sudut keliling yang menghadap busur yang sama.</div>
+          <div class="ring"><span class="judul">SIFAT 1</span>Sudut-sudut keliling yang menghadap <b>busur yang sama</b>, dari sisi lingkaran yang sama, selalu <b>sama besar</b>.</div>
+          <div class="ring"><span class="judul">SIFAT 2</span>Sudut keliling yang menghadap <b>diameter</b> selalu besarnya <span class="f">90°</span> (sudut siku-siku).</div>
+          <div class="ring"><span class="judul">SEGIEMPAT TALI BUSUR</span>Jika empat titik sudut segiempat terletak pada satu lingkaran, sudut-sudut yang saling berhadapan berjumlah <span class="f">180°</span>.</div>
+          <div class="ring"><span class="judul">LANGKAH PENGERJAAN</span>1) Kenali jenis sudutnya · 2) Cek busur yang dihadapi sama atau tidak · 3) Pilih hubungan/sifat yang sesuai · 4) Hitung.</div>
+          <div class="ring salah-umum"><span class="judul" style="color:var(--salah)">KESALAHAN UMUM 1</span>Mengira sudut pusat dan sudut keliling sama besar, padahal keduanya berbeda kecuali disebutkan menghadap busur berbeda.</div>
+          <div class="ring salah-umum"><span class="judul" style="color:var(--salah)">KESALAHAN UMUM 2</span>Menyamakan dua sudut keliling padahal titik sudutnya berada pada busur yang berlawanan (seharusnya berjumlah 180°, bukan sama besar).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 GAME -->
+    <section class="slide" data-judul="Ayo Bermain Game" data-init="game">
+      <div class="inner">
+        <div class="eyebrow">Tantangan</div>
+        <h1>🎮 Ayo bermain game!</h1>
+        <div class="game-box">
+          <span class="game-emoji">🎮</span>
+          <h2 style="margin-top:0;">Sudah siap menguji kemampuanmu?</h2>
+          <p class="lead" style="margin:0 auto 6px;">Sudah siap menguji kemampuanmu? Yuk lanjutkan ke game interaktif!</p>
+          <div class="btn-row" style="justify-content:center;">
+            <a class="btn utama" href="game-interaktif.html">🎮 AYO BERMAIN GAME</a>
+          </div>
+        </div>
+        <div class="card" style="margin-top:18px;">
+          <p class="lead" style="font-size:13.5px;">Setelah selesai bermain, kembali ke halaman ini dan lanjutkan ke slide terakhir untuk menutup pembelajaran.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 SELESAI -->
+    <section class="slide" data-judul="Pembelajaran Selesai" data-init="selesai">
+      <div class="inner">
+        <div class="eyebrow">Penutup</div>
+        <h1>🎉 Pembelajaran selesai!</h1>
+        <div class="selesai-box">
+          <div class="ceklis">🎓</div>
+          <h2 style="margin-top:0;">Selamat, kamu telah menyelesaikan pembelajaran ini!</h2>
+          <div class="identitas">
+            Materi: <b>Lingkaran</b><br>
+            Submateri: <b>2.4 Sudut Pusat dan Sudut Keliling</b><br>
+            Skor kuis: <b id="skorAkhir">belum dikerjakan</b>
+          </div>
+          <p class="lead" style="margin:0 auto;">Ingat satu hal saja: sudut pusat selalu dua kali sudut keliling yang menghadap busur yang sama. Dari situ, hampir semua soal bisa kamu selesaikan. Terus berlatih, ya!</p>
+          <div id="statusSelesai">✓ PEMBELAJARAN SELESAI</div>
+          <div class="btn-row" style="justify-content:center;">
+            <button class="btn hijau" id="btnSelesai" onclick="selesaikanPembelajaran()">✅ SELESAI</button>
+            <button class="btn" onclick="pelajariLagi()">↺ PELAJARI LAGI</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="navbar">
+    <button class="nav-btn" id="btnPrev" onclick="slideSebelum()" aria-label="Sebelumnya">←</button>
+    <div class="nav-tengah">
+      <div class="nav-judul" id="navJudul">Pembuka</div>
+      <div class="titik" id="titikWrap"></div>
     </div>
-
-    <div class="card" style="margin-top: 12px; width:100%; max-width:800px; text-align:left;">
-      <h3 style="color: var(--accent-purple);">🎡 Bianglala & Tikungan Lintasan Lari</h3>
-      <p style="font-size:0.85rem;">Lintasan melengkung yang dilalui kabin bianglala atau jarak tempuh pelari di tikungan dihitung dengan rumus <b>Panjang Busur Lingkaran</b>.</p>
-    </div>
-  </div>
-
-  <!-- Slide 3: Simulasi Visual Sprinkler Taman -->
-  <div class="slide" id="slide-3">
-    <h2>2. Visualisasi Interaktif: Sprinkler Taman</h2>
-    <p>Geser slider <b>Jangkauan (r)</b> dan <b>Sudut Putaran (α)</b> untuk mengamati perubahan panjang busur dan luas juring secara rinci!</p>
-    
-    <div class="interactive-box">
-      <svg id="circleCanvas" width="200" height="200" viewBox="-90 -90 180 180" style="background:#0f172a; border-radius:50%; border:1px solid #334155;">
-        <circle id="baseCircle" cx="0" cy="0" r="45" fill="none" stroke="#334155" stroke-width="2"/>
-        <path id="juringPath" fill="rgba(16, 185, 129, 0.35)" stroke="none" />
-        <path id="busurPath" fill="none" stroke="#f59e0b" stroke-width="5" />
-        <line id="baseRadius" x1="0" y1="0" x2="45" y2="0" stroke="#38bdf8" stroke-width="2"/>
-        <line id="radiusLine" x1="0" y1="0" x2="0" y2="0" stroke="#38bdf8" stroke-width="2"/>
-        <circle cx="0" cy="0" r="5" fill="#38bdf8"/>
-      </svg>
-
-      <div class="controls">
-        <label>Sudut Putaran (α): <span id="angleVal" style="color:var(--accent-yellow)">120</span>°</label>
-        <input type="range" id="angleSlider" min="10" max="350" value="120">
-
-        <label>Jangkauan/Jari-jari (r): <span id="radiusVal" style="color:var(--accent-blue)">7</span> m</label>
-        <input type="range" id="radiusSlider" min="7" max="28" step="7" value="7">
-
-        <div style="margin-top: 6px; font-size: 0.85rem; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-          <p style="margin-bottom: 4px;">🔸 Panjang Busur Lengkung: <b id="arcResult" style="color: var(--accent-yellow)">--</b> m</p>
-          <p style="margin-bottom: 0;">🔹 Luas Juring (Daerah Tersiram): <b id="sectorResult" style="color: var(--accent-green)">--</b> m²</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Slide 4: Contoh Masalah Kontekstual Beragam (5 Kasus) -->
-  <div class="slide" id="slide-4">
-    <h2>3. Contoh Masalah Kontekstual (Aplikasi Lingkaran)</h2>
-    <p>Klik judul masalah di bawah untuk membuka pembahasan solusinya secara terperinci:</p>
-
-    <div class="soal-container">
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Kasus 1: Luas Semprotan Penyiram Rumput</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Alat penyiram rumput berputar menyemprotkan air sejauh <b>7 meter</b> dengan sudut putaran <b>120°</b>. Berapa luas area rumput yang tersiram air? (Gunakan $\pi = \frac{22}{7}$)<br><br>
-          <b>Penyelesaian:</b><br>
-          • $r = 7\text{ m}$, $\alpha = 120^\circ$<br>
-          • $\text{Luas Juring} = \frac{\alpha}{360^\circ} \times \pi \times r^2$<br>
-          • $\text{Luas} = \frac{120^\circ}{360^\circ} \times \frac{22}{7} \times 7 \times 7 = \frac{1}{3} \times 154 = \mathbf{51{,}33\text{ m}^2}$.
-        </div>
-      </div>
-
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Kasus 2: Jarak Tempuh Kabin Bianglala</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Sebuah wahana Bianglala memiliki jari-jari <b>14 meter</b>. Jika kabin bergerak berputar membentuk sudut pusat <b>45°</b>, tentukan panjang lintasan busur yang ditempuh kabin tersebut!<br><br>
-          <b>Penyelesaian:</b><br>
-          • $r = 14\text{ m}$, $\alpha = 45^\circ$<br>
-          • $\text{Panjang Busur} = \frac{\alpha}{360^\circ} \times 2 \times \pi \times r$<br>
-          • $\text{Busur} = \frac{45^\circ}{360^\circ} \times 2 \times \frac{22}{7} \times 14 = \frac{1}{8} \times 88 = \mathbf{11\text{ meter}}$.
-        </div>
-      </div>
-
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Kasus 3: Luas Potongan Pizza / Kue Ultah</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Sebuah pizza berbentuk lingkaran sempurna berdiameter <b>28 cm</b> dipotong menjadi <b>8 bagian sama besar</b>. Berapakah luas satu potong pizza tersebut?<br><br>
-          <b>Penyelesaian:</b><br>
-          • Jari-jari ($r$) = $14\text{ cm}$. Sudut 1 potong ($\alpha$) = $360^\circ / 8 = 45^\circ$.<br>
-          • $\text{Luas Potongan} = \frac{45^\circ}{360^\circ} \times \frac{22}{7} \times 14 \times 14 = \frac{1}{8} \times 616 = \mathbf{77\text{ cm}^2}$.
-        </div>
-      </div>
-
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Kasus 4: Tikungan Lintasan Lari Stadion</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Tikungan lintasan atletik berbentuk busur lingkaran dengan jari-jari <b>35 meter</b> dan sudut pusat <b>72°</b>. Berapakah panjang tikungan lintasan yang dilewati pelari?<br><br>
-          <b>Penyelesaian:</b><br>
-          • $r = 35\text{ m}$, $\alpha = 72^\circ$<br>
-          • $\text{Panjang Busur} = \frac{72^\circ}{360^\circ} \times 2 \times \frac{22}{7} \times 35 = \frac{1}{5} \times 220 = \mathbf{44\text{ meter}}$.
-        </div>
-      </div>
-
-      <div class="soal-item">
-        <div class="soal-header" onclick="toggleSoal(this)">
-          <span>Kasus 5: Perbandingan Cakupan Stasiun Radar</span> <span>▼</span>
-        </div>
-        <div class="soal-body">
-          <b>Soal:</b> Radar pemancar A memindai daerah berbentuk juring dengan sudut <b>40°</b> dan memiliki luas area <b>30 km²</b>. Berapakah luas jangkauan Radar B jika sudut pemindaiannya diperbesar menjadi <b>120°</b> pada jarak/radius yang sama?<br><br>
-          <b>Penyelesaian:</b><br>
-          • Gunakan hubungan perbandingan senilai juring:<br>
-          $$\frac{\text{Luas B}}{\text{Luas A}} = \frac{\text{Sudut B}}{\text{Sudut A}}$$
-          $$\frac{\text{Luas B}}{30} = \frac{120^\circ}{40^\circ} = 3 \implies \text{Luas B} = 3 \times 30 = \mathbf{90\text{ km}^2}.$$
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Slide 5: Kuis Latihan Evaluasi 5 Soal Presisi -->
-  <div class="slide" id="slide-5">
-    <h2>4. Kuis Latihan Evaluasi (5 Soal)</h2>
-    <p>Pilih satu jawaban yang benar untuk menguji tingkat pemahamanmu!</p>
-
-    <div class="quiz-card">
-      <div id="quizContent">
-        <h3 id="quizQuestion" style="margin-bottom:12px; color:var(--accent-yellow); font-size:0.95rem; line-height:1.5;">Pertanyaan Kuis...</h3>
-        <div id="quizOptions"></div>
-        <p id="quizFeedback" style="margin-top:10px; font-weight:bold; font-size:0.88rem; line-height: 1.5;"></p>
-        <button id="nextQuizBtn" class="nav-btn" style="margin-top:12px; display:none;" onclick="loadNextQuiz()">Soal Selanjutnya →</button>
-      </div>
-      <div id="quizResult" style="display:none; text-align:center;">
-        <h3 style="color:var(--accent-green); font-size:1.3rem;">🎉 Kuis Selesai!</h3>
-        <p id="scoreText" style="font-size:1.1rem; margin:15px 0;">Skor Anda: 0 / 5</p>
-        <button class="nav-btn" onclick="resetQuiz()">Ulangi Kuis ↺</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Slide 6: Ringkasan & Navigasi Utama -->
-  <div class="slide" id="slide-6">
-    <h2>Rangkuman Bab 2: Lingkaran</h2>
-    <p>Selamat! Kamu telah menguasai materi penerapan panjang busur dan luas juring lingkaran.</p>
-
-    <div class="card" style="text-align: left; max-width:750px; width:100%; margin-bottom:20px; line-height:1.7; font-size:0.9rem;">
-      ✔️ <b>Panjang Busur</b> menghitung panjang garis lengkung tepi lingkaran:
-      $$\text{Panjang Busur} = \frac{\alpha}{360^\circ} \times 2\pi r$$
-      ✔️ <b>Luas Juring</b> menghitung luas daerah berbentuk pecahan lingkaran:
-      $$\text{Luas Juring} = \frac{\alpha}{360^\circ} \times \pi r^2$$
-      ✔️ Besar sudut pusat ($\alpha$) berbanding lurus dengan panjang busur dan luas juring.
-    </div>
-
-    <!-- Tombol Kembali ke Menu Utama Bab 2 -->
-        <button class="reveal-btn" onclick="window.location.href='bab2.html'" style="margin-top:22px; background:var(--coral);"> ⟲ Kembali ke Menu Bab 2 </button>
-
-  </div>
-
-  <!-- Navigation Bar Bawah -->
-  <div class="nav-bar">
-    <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">← SBLM</button>
-    <div class="dots-container" id="dotsContainer"></div>
-    <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">SLDN →</button>
-  </div>
-
+    <button class="nav-btn" onclick="keSlide(0)" aria-label="Kembali ke awal" title="Kembali ke awal">⌂</button>
+    <button class="nav-btn" id="btnNext" onclick="slideBerikut()" aria-label="Berikutnya">→</button>
+  </nav>
 </div>
 
 <script>
-  let currentSlide = 0;
-  const slides = document.querySelectorAll('.slide');
-  const dotsContainer = document.getElementById('dotsContainer');
+/* ============ PENYIMPANAN ============ */
+var KEY = { status:'spk_status', slide:'spk_slide', skor:'spk_skor', selesai:'spk_selesai' };
+function simpan(k,v){ try{ localStorage.setItem(k,String(v)); }catch(e){} }
+function ambil(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+var statusSekarang = ambil(KEY.status) || 'BELUM MULAI';
+function setStatus(s){
+  var urut = ['BELUM MULAI','SEDANG BELAJAR','KUIS','GAME','SELESAI'];
+  if(urut.indexOf(s) < urut.indexOf(statusSekarang)) return;
+  statusSekarang = s;
+  document.getElementById('statusChip').textContent = s;
+  simpan(KEY.status, s);
+}
 
-  // Inisialisasi Navigasi Titik
-  slides.forEach((_, idx) => {
-    const dot = document.createElement('div');
-    dot.classList.add('dot');
-    if (idx === 0) dot.classList.add('active');
-    dot.addEventListener('click', () => goToSlide(idx));
-    dotsContainer.appendChild(dot);
-  });
+/* ============ NAVIGASI ============ */
+var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+var jumlah = slides.length;
+var aktif = 0;
+var titikWrap = document.getElementById('titikWrap');
+document.getElementById('slideTotal').textContent = jumlah;
+for(var i=0;i<jumlah;i++){
+  (function(idx){
+    var t = document.createElement('i');
+    t.title = slides[idx].getAttribute('data-judul') || ('Slide '+(idx+1));
+    t.onclick = function(){ keSlide(idx); };
+    titikWrap.appendChild(t);
+  })(i);
+}
+var titikEls = Array.prototype.slice.call(titikWrap.children);
 
-  const dots = document.querySelectorAll('.dot');
-
-  function updateNav() {
-    slides.forEach((s, i) => s.classList.toggle('active', i === currentSlide));
-    dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
-    document.getElementById('prevBtn').disabled = currentSlide === 0;
-    document.getElementById('nextBtn').disabled = currentSlide === slides.length - 1;
+function tampilkan(){
+  for(var i=0;i<jumlah;i++){
+    if(i===aktif){ slides[i].classList.add('active'); titikEls[i].classList.add('aktif'); }
+    else { slides[i].classList.remove('active'); titikEls[i].classList.remove('aktif'); }
   }
+  document.getElementById('slideNow').textContent = aktif+1;
+  document.getElementById('progressFill').style.width = (((aktif+1)/jumlah)*100)+'%';
+  document.getElementById('navJudul').textContent = slides[aktif].getAttribute('data-judul') || '';
+  document.getElementById('btnPrev').disabled = (aktif===0);
+  document.getElementById('btnNext').disabled = (aktif===jumlah-1);
+  window.scrollTo(0,0);
+  if(aktif > 0) setStatus('SEDANG BELAJAR');
+  simpan(KEY.slide, aktif);
 
-  function changeSlide(direction) {
-    currentSlide += direction;
-    updateNav();
+  var init = slides[aktif].getAttribute('data-init');
+  if(init === 'pusat') updatePusat();
+  if(init === 'keliling') updateKeliling();
+  if(init === 'hubungan') updateHubungan();
+  if(init === 'diameter') updateDiameter();
+  if(init === 'kuis'){ setStatus('KUIS'); if(!kuisSudahMulai) mulaiKuis(); }
+  if(init === 'bahas') tampilPembahasan();
+  if(init === 'game') setStatus('GAME');
+  if(init === 'selesai') tampilSkorAkhir();
+  if(slides[aktif].getAttribute('data-judul') === 'Sifat 1 — Busur yang Sama') gambarTigaTitik();
+}
+function keSlide(i){ if(i<0||i>=jumlah) return; aktif=i; tampilkan(); }
+function slideBerikut(){ if(aktif<jumlah-1){ aktif++; tampilkan(); } }
+function slideSebelum(){ if(aktif>0){ aktif--; tampilkan(); } }
+document.addEventListener('keydown', function(e){
+  if(e.key==='ArrowRight') slideBerikut();
+  if(e.key==='ArrowLeft') slideSebelum();
+});
+
+/* ============ APERSEPSI ============ */
+function pemantik(teks){
+  var b = document.getElementById('pemantikBox');
+  b.classList.remove('kosong');
+  b.innerHTML = teks;
+}
+
+/* ============ UNSUR BUSUR ============ */
+var dataUnsur = {
+  minor:'<b style="color:var(--busur)">Busur minor AB</b> — bagian lengkung yang lebih pendek di antara titik A dan B.',
+  mayor:'<b style="color:var(--jari)">Busur mayor AB</b> — bagian lengkung yang lebih panjang di antara titik A dan B, melewati sisi lainnya.',
+  titikA:'Titik <b style="color:var(--busur)">A</b> — salah satu ujung busur yang sedang kita amati.',
+  titikB:'Titik <b style="color:var(--busur)">B</b> — ujung busur yang lain. Bersama titik A, keduanya membatasi busur minor dan busur mayor.'
+};
+function unsur(k){
+  var box = document.getElementById('unsurBox');
+  box.classList.remove('kosong');
+  box.innerHTML = dataUnsur[k];
+}
+
+/* ============ util sudut lingkaran ============ */
+function titikLingkaran(cx, cy, r, sudutDerajat){
+  var rad = (sudutDerajat - 90) * Math.PI / 180;
+  return { x: cx + r*Math.cos(rad), y: cy + r*Math.sin(rad) };
+}
+
+/* ============ SLIDE 5: SUDUT PUSAT ============ */
+function updatePusat(){
+  var s = document.getElementById('pusatSlider');
+  if(!s) return;
+  var sudut = parseInt(s.value,10);
+  document.getElementById('pusatNilai').textContent = sudut;
+  var cx=140, cy=120, r=88;
+  var awal = 250; /* posisi A tetap */
+  var A = titikLingkaran(cx,cy,r,awal);
+  var B = titikLingkaran(cx,cy,r,awal+sudut);
+  var besar = sudut > 180 ? 1 : 0;
+  var arc = 'M '+A.x.toFixed(1)+' '+A.y.toFixed(1)+' A '+r+' '+r+' 0 '+besar+' 1 '+B.x.toFixed(1)+' '+B.y.toFixed(1);
+  var g = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="var(--pusat)" fill-opacity="0.05" stroke="#3a4a76" stroke-width="2"/>'+
+    '<path d="'+arc+'" fill="none" stroke="var(--busur)" stroke-width="7" stroke-linecap="round"/>'+
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+A.x.toFixed(1)+'" y2="'+A.y.toFixed(1)+'" stroke="var(--pusat)" stroke-width="3.5"/>'+
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--pusat)" stroke-width="3.5"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="4.5" fill="#fff"/>'+
+    '<circle cx="'+A.x.toFixed(1)+'" cy="'+A.y.toFixed(1)+'" r="5" fill="var(--busur)"/>'+
+    '<circle cx="'+B.x.toFixed(1)+'" cy="'+B.y.toFixed(1)+'" r="5" fill="var(--busur)"/>'+
+    '<text x="'+(cx-10)+'" y="'+(cy+18)+'" fill="#fff" font-family="JetBrains Mono" font-size="12">O</text>'+
+    '<text x="'+(A.x-16).toFixed(1)+'" y="'+(A.y-6).toFixed(1)+'" fill="var(--busur)" font-family="JetBrains Mono" font-size="12" font-weight="700">A</text>'+
+    '<text x="'+(B.x+6).toFixed(1)+'" y="'+(B.y+4).toFixed(1)+'" fill="var(--busur)" font-family="JetBrains Mono" font-size="12" font-weight="700">B</text>';
+  document.getElementById('pusatGroup').innerHTML = g;
+}
+
+/* ============ SLIDE 6: SUDUT KELILING ============ */
+function sudutAntaraTiga(Px,Py,Ax,Ay,Bx,By){
+  var v1x=Ax-Px, v1y=Ay-Py, v2x=Bx-Px, v2y=By-Py;
+  var dot=v1x*v2x+v1y*v2y;
+  var m1=Math.sqrt(v1x*v1x+v1y*v1y), m2=Math.sqrt(v2x*v2x+v2y*v2y);
+  var cosv = Math.max(-1,Math.min(1,dot/(m1*m2)));
+  return Math.acos(cosv)*180/Math.PI;
+}
+function updateKeliling(){
+  var s = document.getElementById('kelSlider');
+  if(!s) return;
+  var pos = parseInt(s.value,10);
+  var cx=140, cy=130, r=92;
+  var A = titikLingkaran(cx,cy,r,220);
+  var B = titikLingkaran(cx,cy,r,320);
+  var sudutC = 20 + pos*2.4; /* posisi C berjalan di busur mayor */
+  var C = titikLingkaran(cx,cy,r,sudutC);
+  var sudut = sudutAntaraTiga(C.x,C.y,A.x,A.y,B.x,B.y);
+  document.getElementById('kelPosNilai').textContent = 'C bergeser';
+  var g = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="var(--kel)" fill-opacity="0.05" stroke="#3a4a76" stroke-width="2"/>'+
+    '<path d="M '+A.x.toFixed(1)+' '+A.y.toFixed(1)+' A '+r+' '+r+' 0 0 1 '+B.x.toFixed(1)+' '+B.y.toFixed(1)+'" fill="none" stroke="var(--busur)" stroke-width="6" opacity="0.7"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+A.x.toFixed(1)+'" y2="'+A.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3.2"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3.2"/>'+
+    '<circle cx="'+A.x.toFixed(1)+'" cy="'+A.y.toFixed(1)+'" r="5" fill="var(--busur)"/>'+
+    '<circle cx="'+B.x.toFixed(1)+'" cy="'+B.y.toFixed(1)+'" r="5" fill="var(--busur)"/>'+
+    '<circle cx="'+C.x.toFixed(1)+'" cy="'+C.y.toFixed(1)+'" r="5.5" fill="var(--kel)"/>'+
+    '<text x="'+(A.x-16).toFixed(1)+'" y="'+(A.y+2).toFixed(1)+'" fill="var(--busur)" font-family="JetBrains Mono" font-size="12" font-weight="700">A</text>'+
+    '<text x="'+(B.x+8).toFixed(1)+'" y="'+(B.y+2).toFixed(1)+'" fill="var(--busur)" font-family="JetBrains Mono" font-size="12" font-weight="700">B</text>'+
+    '<text x="'+(C.x-6).toFixed(1)+'" y="'+(C.y-10).toFixed(1)+'" fill="var(--kel)" font-family="JetBrains Mono" font-size="12" font-weight="700">C</text>';
+  document.getElementById('kelilingGroup').innerHTML = g;
+  document.getElementById('kelHasil').innerHTML = 'Sudut ACB ≈ <span class="akhir" style="color:var(--kel)">'+sudut.toFixed(0)+'°</span><br><span style="font-size:12.5px;">Coba geser ke posisi lain — besar sudutnya tidak berubah, karena semua menghadap busur AB yang sama.</span>';
+}
+
+/* ============ SLIDE 7: HUBUNGAN ============ */
+function updateHubungan(){
+  var s = document.getElementById('hubSlider');
+  if(!s) return;
+  var sudutPusat = parseInt(s.value,10);
+  document.getElementById('hubPusatNilai').textContent = sudutPusat;
+  var cx=140, cy=130, r=90;
+  var awal = 250;
+  var A = titikLingkaran(cx,cy,r,awal);
+  var B = titikLingkaran(cx,cy,r,awal+sudutPusat);
+  var besar = sudutPusat > 180 ? 1 : 0;
+  var sudutC = (awal + sudutPusat + 360 + (360-sudutPusat)/2) % 360; /* di tengah busur mayor */
+  var C = titikLingkaran(cx,cy,r,sudutC);
+  var arc = 'M '+A.x.toFixed(1)+' '+A.y.toFixed(1)+' A '+r+' '+r+' 0 '+besar+' 1 '+B.x.toFixed(1)+' '+B.y.toFixed(1);
+  var g = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="var(--pusat)" fill-opacity="0.04" stroke="#3a4a76" stroke-width="2"/>'+
+    '<path d="'+arc+'" fill="none" stroke="var(--busur)" stroke-width="6" opacity="0.65"/>'+
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+A.x.toFixed(1)+'" y2="'+A.y.toFixed(1)+'" stroke="var(--pusat)" stroke-width="3"/>'+
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--pusat)" stroke-width="3"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+A.x.toFixed(1)+'" y2="'+A.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#fff"/>'+
+    '<circle cx="'+A.x.toFixed(1)+'" cy="'+A.y.toFixed(1)+'" r="4.5" fill="var(--busur)"/>'+
+    '<circle cx="'+B.x.toFixed(1)+'" cy="'+B.y.toFixed(1)+'" r="4.5" fill="var(--busur)"/>'+
+    '<circle cx="'+C.x.toFixed(1)+'" cy="'+C.y.toFixed(1)+'" r="5" fill="var(--kel)"/>'+
+    '<text x="'+(cx-10)+'" y="'+(cy+18)+'" fill="#fff" font-family="JetBrains Mono" font-size="11">O</text>'+
+    '<text x="'+(C.x-6).toFixed(1)+'" y="'+(C.y-10).toFixed(1)+'" fill="var(--kel)" font-family="JetBrains Mono" font-size="12" font-weight="700">C</text>';
+  document.getElementById('hubGroup').innerHTML = g;
+  var kelilingSudut = sudutPusat/2;
+  document.getElementById('hubHasil').innerHTML =
+    '∠pusat (kuning) = '+sudutPusat+'°<br>'+
+    '∠keliling (hijau toska) = ½ × '+sudutPusat+'° = <span class="akhir" style="color:var(--kel)">'+kelilingSudut+'°</span>';
+}
+
+/* ============ SLIDE 8: TIGA TITIK BUSUR SAMA ============ */
+var posisiTiga = [ {label:'C1', sudut:290}, {label:'C2', sudut:330}, {label:'C3', sudut:15} ];
+function gambarTigaTitik(){
+  var cx=150, cy=130, r=90;
+  var A = {x:85,y:68}, B = {x:92,y:202};
+  var html = '';
+  for(var i=0;i<posisiTiga.length;i++){
+    var p = titikLingkaran(cx,cy,r,posisiTiga[i].sudut);
+    html += '<circle class="hot" cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="7" fill="var(--kel)" onclick="tampilSudutTiga('+i+')" />'+
+            '<text x="'+(p.x+9).toFixed(1)+'" y="'+(p.y+4).toFixed(1)+'" fill="var(--kel)" font-family="JetBrains Mono" font-size="11" font-weight="700">'+posisiTiga[i].label+'</text>';
   }
+  document.getElementById('tigaTitikGroup').innerHTML = html;
+}
+function tampilSudutTiga(i){
+  var cx=150, cy=130, r=90;
+  var A = {x:85,y:68}, B = {x:92,y:202};
+  var p = titikLingkaran(cx,cy,r,posisiTiga[i].sudut);
+  var sudut = sudutAntaraTiga(p.x,p.y,A.x,A.y,B.x,B.y);
+  var box = document.getElementById('tigaTitikBox');
+  box.classList.remove('kosong');
+  box.innerHTML = 'Sudut A'+posisiTiga[i].label+'B ≈ <b style="color:var(--kel)">'+sudut.toFixed(0)+'°</b>. Coba ketuk titik lain — hasilnya akan selalu mendekati angka yang sama, karena semuanya menghadap busur AB yang sama.';
+}
 
-  function goToSlide(index) {
-    currentSlide = index;
-    updateNav();
+/* ============ SLIDE 9: DIAMETER ============ */
+function updateDiameter(){
+  var s = document.getElementById('diaSlider');
+  if(!s) return;
+  var pos = parseInt(s.value,10);
+  var cx=140, cy=100, r=80;
+  var A = titikLingkaran(cx,cy,r,270);
+  var B = titikLingkaran(cx,cy,r,90);
+  var sudutC = 90 + pos*1.8;
+  var C = titikLingkaran(cx,cy,r,sudutC);
+  var sudut = sudutAntaraTiga(C.x,C.y,A.x,A.y,B.x,B.y);
+  document.getElementById('diaPosNilai').textContent = 'C bergeser';
+  var g = '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="var(--kel)" fill-opacity="0.05" stroke="#3a4a76" stroke-width="2"/>'+
+    '<line x1="'+A.x.toFixed(1)+'" y1="'+A.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--pusat)" stroke-width="3.5"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+A.x.toFixed(1)+'" y2="'+A.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3.2"/>'+
+    '<line x1="'+C.x.toFixed(1)+'" y1="'+C.y.toFixed(1)+'" x2="'+B.x.toFixed(1)+'" y2="'+B.y.toFixed(1)+'" stroke="var(--kel)" stroke-width="3.2"/>'+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#fff"/>'+
+    '<circle cx="'+A.x.toFixed(1)+'" cy="'+A.y.toFixed(1)+'" r="5" fill="var(--pusat)"/>'+
+    '<circle cx="'+B.x.toFixed(1)+'" cy="'+B.y.toFixed(1)+'" r="5" fill="var(--pusat)"/>'+
+    '<circle cx="'+C.x.toFixed(1)+'" cy="'+C.y.toFixed(1)+'" r="5.5" fill="var(--kel)"/>'+
+    '<text x="'+(A.x-18).toFixed(1)+'" y="'+(A.y+4).toFixed(1)+'" fill="var(--pusat)" font-family="JetBrains Mono" font-size="12" font-weight="700">A</text>'+
+    '<text x="'+(B.x+8).toFixed(1)+'" y="'+(B.y+4).toFixed(1)+'" fill="var(--pusat)" font-family="JetBrains Mono" font-size="12" font-weight="700">B</text>'+
+    '<text x="'+(C.x-6).toFixed(1)+'" y="'+(C.y-10).toFixed(1)+'" fill="var(--kel)" font-family="JetBrains Mono" font-size="12" font-weight="700">C</text>';
+  document.getElementById('diaGroup').innerHTML = g;
+  document.getElementById('diaHasil').innerHTML = 'Sudut ACB ≈ <span class="akhir" style="color:var(--benar)">'+sudut.toFixed(0)+'°</span><br><span style="font-size:12.5px;">Geser terus — sudutnya akan selalu mendekati 90°, di posisi mana pun C berada.</span>';
+}
+
+/* ============ LANGKAH CONTOH SOAL ============ */
+function bukaLangkah(btn){
+  var kotak = btn.closest('.card');
+  var semua = Array.prototype.slice.call(kotak.querySelectorAll('.langkah'));
+  var belum = null;
+  for(var i=0;i<semua.length;i++){ if(!semua[i].classList.contains('tampil')){ belum = semua[i]; break; } }
+  if(belum) belum.classList.add('tampil');
+  var sisa = 0;
+  for(var j=0;j<semua.length;j++){ if(!semua[j].classList.contains('tampil')) sisa++; }
+  if(sisa === 0){
+    btn.textContent = '↺ Sembunyikan Langkah';
+    btn.onclick = function(){
+      for(var k=0;k<semua.length;k++) semua[k].classList.remove('tampil');
+      btn.textContent = 'Tampilkan Langkah';
+      btn.onclick = function(){ bukaLangkah(btn); };
+    };
   }
+}
 
-  // Navigasi Keyboard Arrow
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowRight' && currentSlide < slides.length - 1) changeSlide(1);
-    if (e.key === 'ArrowLeft' && currentSlide > 0) changeSlide(-1);
-  });
-
-  // Toggle Accordion Pembahasan Soal
-  function toggleSoal(header) {
-    const body = header.nextElementSibling;
-    const isVisible = body.style.display === 'block';
-    body.style.display = isVisible ? 'none' : 'block';
-    header.querySelector('span:last-child').textContent = isVisible ? '▼' : '▲';
+/* ============ LATIHAN ============ */
+function cek(no, jawaban, pembahasan){
+  var inp = document.getElementById('in'+no);
+  var fb = document.getElementById('fb'+no);
+  var nilai = parseFloat(inp.value);
+  if(isNaN(nilai)){ fb.className='umpan no'; fb.textContent='Isi dulu jawabanmu di kotak, ya.'; return; }
+  if(Math.abs(nilai-jawaban) < 0.5){
+    fb.className='umpan ok';
+    fb.innerHTML = '✅ Benar! ' + pembahasan;
+  } else {
+    fb.className='umpan no';
+    fb.innerHTML = '❌ Belum tepat. Jawaban yang benar: <b>'+jawaban+'°</b>. ' + pembahasan;
   }
+}
 
-  // Interactive Canvas Logic (Interaktivitas Visual Sprinkler)
-  const angleSlider = document.getElementById('angleSlider');
-  const radiusSlider = document.getElementById('radiusSlider');
-  const angleVal = document.getElementById('angleVal');
-  const radiusVal = document.getElementById('radiusVal');
+/* ============ KUIS ============ */
+var soalKuis = [
+  { tipe:'pg', q:'Sudut yang titik sudutnya terletak di titik pusat lingkaran disebut…',
+    opsi:['sudut keliling','sudut pusat','sudut lancip','sudut sekan'], benar:1,
+    bahas:'Sudut pusat adalah sudut yang titik sudutnya di titik pusat lingkaran, dibentuk oleh dua jari-jari.' },
+  { tipe:'pg', q:'Sudut yang titik sudutnya terletak pada lingkaran, dibentuk oleh dua tali busur, disebut…',
+    opsi:['sudut pusat','sudut keliling','sudut siku-siku','sudut lurus'], benar:1,
+    bahas:'Sudut keliling adalah sudut yang titik sudutnya pada lingkaran, dibentuk oleh dua tali busur yang menghadap busur yang sama.' },
+  { tipe:'pg', q:'Sudut keliling ∠ACB menghadap busur AB besarnya 42°. Berapa besar sudut pusat ∠AOB?',
+    opsi:['21°','42°','84°','168°'], benar:2,
+    bahas:'∠AOB = 2 × ∠ACB = 2 × 42° = 84°.' },
+  { tipe:'pg', q:'Sudut pusat ∠AOB besarnya 100°. Berapa besar sudut keliling ∠ACB yang menghadap busur yang sama?',
+    opsi:['25°','50°','100°','200°'], benar:1,
+    bahas:'∠ACB = ½ × ∠AOB = ½ × 100° = 50°.' },
+  { tipe:'bs', q:'Benar atau salah: sudut keliling yang menghadap busur yang sama, dari sisi lingkaran yang sama, selalu sama besar.',
+    opsi:['Benar','Salah'], benar:0,
+    bahas:'Benar. Ini adalah sifat penting sudut keliling: nilainya tidak berubah meskipun titik sudutnya digeser sepanjang busur mayor.' },
+  { tipe:'pg', q:'AB adalah diameter suatu lingkaran, dan C terletak pada lingkaran. Berapa besar sudut ACB?',
+    opsi:['45°','60°','90°','180°'], benar:2,
+    bahas:'Sudut keliling yang menghadap diameter selalu 90°, karena busur setengah lingkaran = 180° dan sudut kelilingnya = ½ × 180° = 90°.' },
+  { tipe:'isian', q:'Ukuran busur AB pada suatu lingkaran adalah 76°. Berapa besar sudut keliling yang menghadap busur AB tersebut (derajat)?',
+    jawab:38, bahas:'Ukuran busur = sudut pusat = 76°. Sudut keliling = ½ × 76° = 38°.' },
+  { tipe:'isian', q:'Sudut keliling ∠ACB = 55°. Titik D berada pada busur mayor AB yang sama dengan C. Berapa besar ∠ADB (derajat)?',
+    jawab:55, bahas:'C dan D menghadap busur AB yang sama, sehingga ∠ADB = ∠ACB = 55°.' },
+  { tipe:'pg', q:'AB diameter suatu lingkaran, C pada lingkaran dengan ∠CAB = 40°. Berapa besar ∠ABC?',
+    opsi:['40°','50°','90°','140°'], benar:1,
+    bahas:'∠ACB = 90° (menghadap diameter). ∠ABC = 180° − 90° − 40° = 50°.' },
+  { tipe:'pg', q:'Pada segiempat tali busur ACBD, jika ∠ACB = 70°, dan D berada pada busur yang berlawanan dari C, berapa besar ∠ADB?',
+    opsi:['35°','70°','110°','140°'], benar:2,
+    bahas:'C dan D berhadapan pada segiempat tali busur, sehingga ∠ACB + ∠ADB = 180°. Maka ∠ADB = 180° − 70° = 110°.' }
+];
 
-  const baseCircle = document.getElementById('baseCircle');
-  const baseRadius = document.getElementById('baseRadius');
-  const juringPath = document.getElementById('juringPath');
-  const busurPath = document.getElementById('busurPath');
-  const radiusLine = document.getElementById('radiusLine');
+var idxKuis=0, skorKuis=0, jawabanUser=[], kuisSudahMulai=false, kuisSelesai=false;
 
-  function updateCircleVisual() {
-    const alpha = parseFloat(angleSlider.value);
-    const r = parseFloat(radiusSlider.value);
-
-    angleVal.textContent = alpha;
-    radiusVal.textContent = r;
-
-    // Skala visual SVG (Radius 7m -> 22.5px, 28m -> 80px)
-    const visualR = (r / 28) * 80;
-
-    baseCircle.setAttribute('r', visualR);
-    baseRadius.setAttribute('x2', visualR);
-
-    const rad = (alpha * Math.PI) / 180;
-    const x = visualR * Math.cos(rad);
-    const y = visualR * Math.sin(rad);
-    const largeArc = alpha > 180 ? 1 : 0;
-
-    busurPath.setAttribute('d', `M ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y}`);
-    juringPath.setAttribute('d', `M 0 0 L ${visualR} 0 A ${visualR} ${visualR} 0 ${largeArc} 1 ${x} ${y} Z`);
-    radiusLine.setAttribute('x2', x);
-    radiusLine.setAttribute('y2', y);
-
-    const pi = 22 / 7;
-    const busur = ((alpha / 360) * 2 * pi * r).toFixed(2);
-    const juring = ((alpha / 360) * pi * r * r).toFixed(2);
-
-    document.getElementById('arcResult').textContent = busur;
-    document.getElementById('sectorResult').textContent = juring;
+function mulaiKuis(){
+  kuisSudahMulai = true; kuisSelesai = false;
+  idxKuis = 0; skorKuis = 0; jawabanUser = [];
+  for(var i=0;i<soalKuis.length;i++) jawabanUser.push(null);
+  gambarDots(); gambarSoal();
+}
+function gambarDots(){
+  var w = document.getElementById('kuisDots');
+  w.innerHTML = '';
+  for(var i=0;i<soalKuis.length;i++){
+    var d = document.createElement('i');
+    if(jawabanUser[i] !== null) d.className = jawabanUser[i].benar ? 'ok' : 'no';
+    w.appendChild(d);
   }
-
-  angleSlider.addEventListener('input', updateCircleVisual);
-  radiusSlider.addEventListener('input', updateCircleVisual);
-  updateCircleVisual();
-
-  // Bank Soal Kuis (5 Soal Kontekstual Presisi)
-  const quizData = [
-    {
-      q: "1. Alat penyiram rumput otomatis menyemprotkan air sejauh 14 meter dengan sudut putaran 90°. Berapakah panjang lintasan busur semprotan air tersebut? (π = 22/7)",
-      options: ["11 meter", "22 meter", "44 meter", "88 meter"],
-      correct: 1,
-      exp: "Panjang Busur = (90°/360°) × 2 × (22/7) × 14 = (1/4) × 88 = 22 meter."
-    },
-    {
-      q: "2. Sebuah juring lingkaran memiliki sudut pusat 60° dan panjang jari-jari 21 cm. Berapakah luas daerah juring tersebut? (π = 22/7)",
-      options: ["154 cm²", "231 cm²", "308 cm²", "462 cm²"],
-      correct: 1,
-      exp: "Luas Juring = (60°/360°) × (22/7) × 21 × 21 = (1/6) × 1386 = 231 cm²."
-    },
-    {
-      q: "3. Wahana Bianglala memiliki jari-jari 14 meter. Jika penumpang menempuh lintasan busur sepanjang 22 meter, berapakah sudut pusat putaran bianglala tersebut?",
-      options: ["45°", "60°", "90°", "120°"],
-      correct: 2,
-      exp: "Panjang Busur = (α/360°) × 2 × (22/7) × 14 => 22 = (α/360°) × 88 => α/360° = 1/4 => α = 90°."
-    },
-    {
-      q: "4. Sebuah pizza berdiameter 28 cm dipotong menjadi 6 bagian sama besar. Berapakah luas satu potong pizza tersebut?",
-      options: ["102,67 cm²", "154,00 cm²", "205,33 cm²", "308,00 cm²"],
-      correct: 0,
-      exp: "Jari-jari (r) = 14 cm. Luas Total = (22/7) × 14 × 14 = 616 cm². Luas 1 Potong = 616 / 6 = 102,67 cm²."
-    },
-    {
-      q: "5. Dua buah juring A dan B berada pada lingkaran yang sama. Juring A memiliki sudut pusat 40° dan luas 24 cm². Jika juring B memiliki sudut pusat 100°, berapakah luas juring B?",
-      options: ["48 cm²", "50 cm²", "60 cm²", "72 cm²"],
-      correct: 2,
-      exp: "Gunakan perbandingan senilai: (Luas B / Luas A) = (Sudut B / Sudut A) => Luas B / 24 = 100° / 40° => Luas B = 2,5 × 24 = 60 cm²."
+}
+function gambarSoal(){
+  var area = document.getElementById('kuisArea');
+  if(idxKuis >= soalKuis.length){ gambarHasil(); return; }
+  var s = soalKuis[idxKuis];
+  var html = '<div class="card"><h3 style="margin-bottom:12px;">Soal '+(idxKuis+1)+' dari '+soalKuis.length+'</h3>'+
+             '<p class="soal-teks">'+s.q+'</p>';
+  if(s.tipe === 'isian'){
+    html += '<div class="baris"><input type="number" id="kuisInput" placeholder="tulis jawabanmu (°)" inputmode="decimal">'+
+            '<button class="btn utama" id="kuisJawabBtn" onclick="jawabIsian()">Jawab</button></div>';
+  } else {
+    html += '<div class="opsi" id="opsiWrap"></div>';
+  }
+  html += '<div class="kuis-umpan" id="kuisUmpan"></div>'+
+          '<div class="kuis-bar"><span class="mono" style="font-size:12px; color:var(--dim)">Skor sementara: '+skorKuis+'/'+soalKuis.length+'</span>'+
+          '<button class="btn utama" id="kuisNext" style="display:none;" onclick="soalBerikut()">Lanjut</button></div></div>';
+  area.innerHTML = html;
+  if(s.tipe !== 'isian'){
+    var wrap = document.getElementById('opsiWrap');
+    for(var i=0;i<s.opsi.length;i++){
+      (function(k){
+        var b = document.createElement('button');
+        b.textContent = s.opsi[k];
+        b.onclick = function(){ jawabPilihan(k); };
+        wrap.appendChild(b);
+      })(i);
     }
-  ];
-
-  let currentQuizIdx = 0;
-  let score = 0;
-
-  function loadQuiz() {
-    const q = quizData[currentQuizIdx];
-    document.getElementById('quizQuestion').textContent = q.q;
-    const optionsContainer = document.getElementById('quizOptions');
-    optionsContainer.innerHTML = '';
-    document.getElementById('quizFeedback').textContent = '';
-    document.getElementById('nextQuizBtn').style.display = 'none';
-
-    q.options.forEach((opt, i) => {
-      const btn = document.createElement('button');
-      btn.classList.add('quiz-option');
-      btn.textContent = opt;
-      btn.onclick = () => checkQuiz(btn, i);
-      optionsContainer.appendChild(btn);
-    });
   }
+}
+function jawabPilihan(pilih){
+  var s = soalKuis[idxKuis];
+  var tombol = Array.prototype.slice.call(document.querySelectorAll('#opsiWrap button'));
+  for(var i=0;i<tombol.length;i++) tombol[i].disabled = true;
+  var benar = (pilih === s.benar);
+  if(benar){ tombol[pilih].classList.add('benar'); skorKuis++; }
+  else { tombol[pilih].classList.add('salah'); tombol[s.benar].classList.add('benar'); }
+  jawabanUser[idxKuis] = { isi:s.opsi[pilih], benar:benar };
+  tutupSoal(benar, s.bahas);
+}
+function jawabIsian(){
+  var inp = document.getElementById('kuisInput');
+  var nilai = parseFloat(inp.value);
+  if(isNaN(nilai)){ document.getElementById('kuisUmpan').innerHTML = '<span style="color:var(--salah)">Isi dulu jawabanmu, ya.</span>'; return; }
+  var s = soalKuis[idxKuis];
+  var benar = Math.abs(nilai - s.jawab) < 0.5;
+  if(benar) skorKuis++;
+  inp.disabled = true;
+  document.getElementById('kuisJawabBtn').disabled = true;
+  jawabanUser[idxKuis] = { isi:String(nilai), benar:benar };
+  tutupSoal(benar, s.bahas);
+}
+function tutupSoal(benar, bahas){
+  var u = document.getElementById('kuisUmpan');
+  u.innerHTML = (benar ? '<b style="color:var(--benar)">✅ Benar!</b> ' : '<b style="color:var(--salah)">❌ Belum tepat.</b> ') + bahas;
+  gambarDots();
+  var nx = document.getElementById('kuisNext');
+  nx.style.display = 'inline-flex';
+  nx.textContent = (idxKuis < soalKuis.length-1) ? 'Lanjut' : 'Lihat Hasil';
+}
+function soalBerikut(){ idxKuis++; gambarSoal(); }
+function gambarHasil(){
+  kuisSelesai = true;
+  var total = soalKuis.length;
+  var salah = total - skorKuis;
+  var persen = Math.round(skorKuis/total*100);
+  var kategori, warna;
+  if(persen >= 90){ kategori='Luar Biasa'; warna='var(--benar)'; }
+  else if(persen >= 75){ kategori='Hebat'; warna='var(--kel)'; }
+  else if(persen >= 60){ kategori='Cukup Baik'; warna='var(--pusat)'; }
+  else { kategori='Perlu Belajar Lagi'; warna='var(--salah)'; }
+  simpan(KEY.skor, skorKuis+'/'+total);
+  document.getElementById('kuisArea').innerHTML =
+    '<div class="card tengah">'+
+      '<p class="mono" style="font-size:12px; color:var(--dim)">Hasil kuismu</p>'+
+      '<div class="skor-besar">'+skorKuis+'/'+total+'</div>'+
+      '<div class="stat-grid">'+
+        '<div class="stat"><b style="color:var(--benar)">'+skorKuis+'</b><span>Benar</span></div>'+
+        '<div class="stat"><b style="color:var(--salah)">'+salah+'</b><span>Salah</span></div>'+
+        '<div class="stat"><b style="color:var(--pusat)">'+persen+'%</b><span>Persentase</span></div>'+
+        '<div class="stat"><b style="color:'+warna+'; font-size:14px;">'+kategori+'</b><span>Kategori</span></div>'+
+      '</div>'+
+      '<p class="lead" style="margin:0 auto 6px;">Pembahasan lengkap setiap soal ada di slide berikutnya.</p>'+
+      '<div class="btn-row" style="justify-content:center;">'+
+        '<button class="btn utama" onclick="mulaiKuis()">↻ ULANGI KUIS</button>'+
+        '<button class="btn" onclick="slideBerikut()">Lihat Pembahasan</button>'+
+      '</div>'+
+    '</div>';
+}
 
-  function checkQuiz(btn, selectedIdx) {
-    const q = quizData[currentQuizIdx];
-    const options = document.querySelectorAll('.quiz-option');
-    options.forEach(o => o.style.pointerEvents = 'none');
-
-    const feedback = document.getElementById('quizFeedback');
-    if (selectedIdx === q.correct) {
-      btn.classList.add('correct');
-      feedback.textContent = "✨ Benar! Pembahasan: " + q.exp;
-      feedback.style.color = "var(--accent-green)";
-      score++;
-    } else {
-      btn.classList.add('wrong');
-      options[q.correct].classList.add('correct');
-      feedback.textContent = "❌ Belum tepat. Pembahasan: " + q.exp;
-      feedback.style.color = "#ef4444";
+/* ============ PEMBAHASAN ============ */
+function tampilPembahasan(){
+  var area = document.getElementById('bahasArea');
+  var html = '';
+  if(!kuisSelesai){
+    html += '<div class="card" style="margin-bottom:14px;"><p class="lead" style="font-size:14px;">Kuisnya belum diselesaikan. Pembahasan di bawah tetap bisa dibaca, tetapi akan lebih bermakna kalau kuisnya dikerjakan lebih dulu.</p>'+
+            '<div class="btn-row"><button class="btn" onclick="keSlide(14)">← Kerjakan Kuis Dulu</button></div></div>';
+  }
+  for(var i=0;i<soalKuis.length;i++){
+    var s = soalKuis[i];
+    var kunci = (s.tipe === 'isian') ? (s.jawab+'°') : s.opsi[s.benar];
+    var tanda = '';
+    if(jawabanUser[i]){
+      tanda = jawabanUser[i].benar
+        ? '<span style="color:var(--benar)"> ✅ jawabanmu benar</span>'
+        : '<span style="color:var(--salah)"> ❌ jawabanmu: '+jawabanUser[i].isi+'</span>';
     }
-
-    document.getElementById('nextQuizBtn').style.display = 'inline-block';
+    html += '<div class="bahas"><p class="soal">'+(i+1)+'. '+s.q+'</p>'+
+            '<p class="jwb">Kunci: '+kunci+tanda+'</p>'+
+            '<p class="pjls">'+s.bahas+'</p></div>';
   }
+  area.innerHTML = html;
+}
 
-  function loadNextQuiz() {
-    currentQuizIdx++;
-    if (currentQuizIdx < quizData.length) {
-      loadQuiz();
-    } else {
-      document.getElementById('quizContent').style.display = 'none';
-      document.getElementById('quizResult').style.display = 'block';
-      document.getElementById('scoreText').textContent = `Skor Anda: ${score} / ${quizData.length}`;
-    }
+/* ============ SELESAI ============ */
+function tampilSkorAkhir(){
+  var s = ambil(KEY.skor);
+  document.getElementById('skorAkhir').textContent = s ? (s + ' benar') : 'belum dikerjakan';
+}
+function selesaikanPembelajaran(){
+  document.getElementById('btnSelesai').disabled = true;
+  document.getElementById('statusSelesai').classList.add('tampil');
+  setStatus('SELESAI');
+  simpan(KEY.selesai, 'ya');
+  if(kuisSelesai) simpan(KEY.skor, skorKuis+'/'+soalKuis.length);
+  setTimeout(function(){ window.location.href = 'bab1.html'; }, 1600);
+}
+function pelajariLagi(){ keSlide(0); }
+
+/* ============ MULAI ============ */
+document.getElementById('statusChip').textContent = statusSekarang;
+(function(){
+  var terakhir = parseInt(ambil(KEY.slide),10);
+  var skor = ambil(KEY.skor);
+  var info = document.getElementById('resumeInfo');
+  if(!isNaN(terakhir) && terakhir > 0 && terakhir < jumlah){
+    info.innerHTML = 'Terakhir kamu berhenti di slide '+(terakhir+1)+' ('+slides[terakhir].getAttribute('data-judul')+'). '+
+      '<button class="btn" style="padding:8px 16px; min-height:38px; margin-top:8px;" onclick="keSlide('+terakhir+')">Lanjutkan dari sana</button>';
   }
-
-  function resetQuiz() {
-    currentQuizIdx = 0;
-    score = 0;
-    document.getElementById('quizContent').style.display = 'block';
-    document.getElementById('quizResult').style.display = 'none';
-    loadQuiz();
+  if(skor){
+    info.innerHTML = (info.innerHTML || '') + '<div style="margin-top:8px;">Skor kuis tersimpan: <b>'+skor+'</b></div>';
   }
-
-  loadQuiz();
+})();
+tampilkan();
 </script>
-
 </body>
 </html>
