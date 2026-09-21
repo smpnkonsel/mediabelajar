@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluasi Pembelajaran Interaktif SMP</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #7c3aed;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --background: #f5f7fb;
+            --card: #ffffff;
+            --text: #172033;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        #app {
+            width: min(100%, 760px);
+            background-color: var(--card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            color: var(--text);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: #e0e7ff;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .badge-level {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 8px;
+            min-height: 44px;
+            text-decoration: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-direction: column;
+        }
+
+        @media (min-width: 600px) {
+            .btn-group {
+                flex-direction: row;
+            }
+            .btn-group .btn {
+                flex: 1;
+            }
+        }
+
+        /* Slide Control */
+        .slide {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .slide { animation: none; }
+        }
+
+        /* Header Info & Progress */
+        .header-info {
+            border-bottom: 2px solid var(--background);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .progress-container {
+            margin: 16px 0;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* Number Tracker / Nav Indicators */
+        .tracker-container {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding: 8px 0;
+            margin-bottom: 20px;
+            scrollbar-width: thin;
+        }
+
+        .tracker-item {
+            min-width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .tracker-item.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background-color: #e0e7ff;
+            font-weight: 800;
+        }
+
+        .tracker-item.correct {
+            background-color: #dcfce7;
+            color: var(--success);
+            border-color: #86efac;
+        }
+
+        .tracker-item.wrong {
+            background-color: #fee2e2;
+            color: var(--danger);
+            border-color: #fca5a5;
+        }
+
+        /* Questions & Options */
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            background-color: var(--card);
+            cursor: pointer;
+            text-align: left;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background-color: #f8fafc;
+        }
+
+        .option-btn.selected-correct {
+            background-color: #dcfce7;
+            border-color: var(--success);
+            color: #14532d;
+            font-weight: 600;
+        }
+
+        .option-btn.selected-wrong {
+            background-color: #fee2e2;
+            border-color: var(--danger);
+            color: #7f1d1d;
+        }
+
+        .option-btn.show-correct {
+            border-color: var(--success);
+            background-color: #f0fdf4;
+        }
+
+        .option-prefix {
+            font-weight: bold;
+            margin-right: 12px;
+            min-width: 24px;
+        }
+
+        /* Discussion Box */
+        .discussion-box {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: var(--radius);
+            background-color: #f8fafc;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+
+        .discussion-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .discussion-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        /* Essay Inputs & Scoring */
+        textarea.essay-input {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 2px solid var(--border);
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        textarea.essay-input:focus {
+            border-color: var(--primary);
+        }
+
+        .teacher-score-panel {
+            background-color: #f1f5f9;
+            padding: 16px;
+            border-radius: var(--radius);
+            margin-top: 16px;
+        }
+
+        .score-input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .score-input-group input {
+            width: 80px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        /* Accordion for Discussion */
+        .accordion-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 12px 16px;
+            background-color: #f8fafc;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-content {
+            padding: 16px;
+            display: none;
+            border-top: 1px solid var(--border);
+            background-color: var(--card);
+        }
+
+        .accordion-content.open {
+            display: block;
+        }
+
+        /* Results Display */
+        .result-card {
+            text-align: center;
+            padding: 24px 16px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+        }
+
+        .score-big {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin: 12px 0;
+        }
+
+        .category-badge {
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            background-color: white;
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-lbl {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .subtopic-analysis {
+            margin-top: 24px;
+        }
+
+        .subtopic-item {
+            margin-bottom: 16px;
+        }
+
+        .subtopic-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .recom-box {
+            font-size: 0.85rem;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 6px;
+            background-color: #f1f5f9;
+        }
+
+        .error-banner {
+            background-color: #fee2e2;
+            color: var(--danger);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #fca5a5;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app"></div>
+
+    <script>
+        // 1. DATA MATERI
+        const DATA_MATERI = {
+            mataPelajaran: "MATEMATIKA",
+            kelas: "KELAS 8 / FASE D",
+            bab: "Bab 6 Statistika",
+            
+            submateri: [
+                "Konsep Dasar Statistika",
+                "Penyajian Data dalam Tabel",
+                "Penyajian Data dalam Diagram",
+                "Membaca dan Menafsirkan Data",
+                "Rata-Rata (Mean)",
+                "Median dan Modus",
+                "Ukuran Penyebaran Data",
+                "Penerapan dan Pemecahan Masalah Statistika"
+            ],
+
+            jumlahPG: 16,
+            jumlahEsai: 4,
+
+            nextBabUrl: "", 
+            dashboardUrl: "matb-bab6.html"
+        };
+
+        // 2. GENERATOR SOAL OTOMATIS
+        function generateQuestions() {
+            const pgList = [
+                {
+                    submateri: "Konsep Dasar Statistika",
+                    level: "Pemahaman",
+                    question: "Seorang peneliti ingin mengetahui rata-rata tinggi badan seluruh siswa SMP Nusantara. Untuk itu, ia mengukur 50 siswa yang dipilih secara acak. Sampel dari penelitian tersebut adalah...",
+                    options: [
+                        "Seluruh siswa SMP Nusantara",
+                        "50 siswa yang dipilih secara acak",
+                        "Rata-rata tinggi badan siswa",
+                        "Seluruh siswa SMP di Indonesia"
+                    ],
+                    answer: 1,
+                    discussion: "Populasi adalah seluruh subjek (seluruh siswa SMP Nusantara), sedangkan sampel adalah bagian dari populasi yang diteliti secara langsung (50 siswa acak)."
+                },
+                {
+                    submateri: "Konsep Dasar Statistika",
+                    level: "Penerapan",
+                    question: "Data berikut yang merupakan contoh data kuantitatif kontinu adalah...",
+                    options: [
+                        "Jumlah mobil di parkiran sekolah",
+                        "Waktu tempuh siswa menuju ke sekolah",
+                        "Banyaknya buku di perpustakaan",
+                        "Jumlah anggota keluarga siswa"
+                    ],
+                    answer: 1,
+                    discussion: "Data kontinu diperoleh dari hasil pengukuran dan nilainya berupa pecahan/desimal (seperti waktu tempuh)."
+                },
+                {
+                    submateri: "Penyajian Data dalam Tabel",
+                    level: "Penerapan",
+                    question: "Data nilai matematika 10 siswa: 7, 8, 6, 8, 9, 7, 8, 9, 6, 8. Frekuensi untuk nilai 8 adalah...",
+                    options: ["2", "3", "4", "5"],
+                    answer: 2,
+                    discussion: "Nilai 8 muncul sebanyak 4 kali pada data tersebut."
+                },
+                {
+                    submateri: "Penyajian Data dalam Tabel",
+                    level: "Analisis",
+                    question: "Sebuah tabel distribusi frekuensi menunjukkan total data N = 40. Jika kelas pertama memiliki frekuensi relatif 25%, maka frekuensi absolut kelas tersebut adalah...",
+                    options: ["8", "10", "12", "15"],
+                    answer: 1,
+                    discussion: "Frekuensi absolut = 25% × 40 = 10."
+                },
+                {
+                    submateri: "Penyajian Data dalam Diagram",
+                    level: "Penerapan",
+                    question: "Dalam diagram lingkaran, juring untuk mata pelajaran IPA berukuran 90°. Jika total siswa adalah 120 orang, maka banyak siswa yang menyukai IPA adalah...",
+                    options: ["20 siswa", "30 siswa", "40 siswa", "45 siswa"],
+                    answer: 1,
+                    discussion: "Banyak siswa = (90° / 360°) × 120 = 30 siswa."
+                },
+                {
+                    submateri: "Penyajian Data dalam Diagram",
+                    level: "Analisis",
+                    question: "Jenis diagram yang paling cocok digunakan untuk menyajikan perkembangan hasil penjualan beras dari bulan Januari sampai Desember adalah...",
+                    options: ["Diagram Lingkaran", "Diagram Batang", "Diagram Garis", "Diagram Lambang (Piktogram)"],
+                    answer: 2,
+                    discussion: "Diagram garis paling efektif untuk menampilkan data yang berkesinambungan/kontinu dari waktu ke waktu."
+                },
+                {
+                    submateri: "Membaca dan Menafsirkan Data",
+                    level: "Analisis",
+                    question: "Data penjualan HP toko A (senin-jumat): 12, 15, 10, 20, 18. Kenaikan penjualan terbesar terjadi pada hari...",
+                    options: ["Senin ke Selasa", "Selasa ke Rabu", "Rabu ke Kamis", "Kamis ke Jumat"],
+                    answer: 2,
+                    discussion: "Kenaikan terbesar terjadi dari hari Rabu (10) ke Kamis (20) yaitu naik 10 unit."
+                },
+                {
+                    submateri: "Membaca dan Menafsirkan Data",
+                    level: "Penalaran",
+                    question: "Grafik hasil panen menunjukkan penurunan 20% pada tahun 2023 dari tahun 2022 (50 ton). Banyak hasil panen tahun 2023 adalah...",
+                    options: ["30 ton", "40 ton", "42 ton", "45 ton"],
+                    answer: 1,
+                    discussion: "Penurunan = 20% × 50 = 10 ton. Hasil 2023 = 50 - 10 = 40 ton."
+                },
+                {
+                    submateri: "Rata-Rata (Mean)",
+                    level: "Penerapan",
+                    question: "Nilai ulangan matematika 5 siswa adalah 70, 80, 85, 60, dan 75. Rata-rata nilai mereka adalah...",
+                    options: ["72", "74", "75", "76"],
+                    answer: 1,
+                    discussion: "Mean = (70 + 80 + 85 + 60 + 75) / 5 = 370 / 5 = 74."
+                },
+                {
+                    submateri: "Rata-Rata (Mean)",
+                    level: "Penalaran",
+                    question: "Rata-rata nilai 9 siswa adalah 75. Jika nilai Budi digabungkan, rata-rata nilainya menjadi 76. Nilai ulangan Budi adalah...",
+                    options: ["82", "85", "88", "90"],
+                    answer: 1,
+                    discussion: "Total awal = 9 × 75 = 675. Total baru = 10 × 76 = 760. Nilai Budi = 760 - 675 = 85."
+                },
+                {
+                    submateri: "Median dan Modus",
+                    level: "Pemahaman",
+                    question: "Modus dari kelompok data: 4, 6, 7, 5, 6, 8, 6, 7, 9, 5 adalah...",
+                    options: ["5", "6", "7", "8"],
+                    answer: 1,
+                    discussion: "Modus adalah nilai paling sering muncul. Angka 6 muncul 3 kali."
+                },
+                {
+                    submateri: "Median dan Modus",
+                    level: "Penerapan",
+                    question: "Median dari data terurut: 3, 5, 6, 7, 8, 10, 11, 12 adalah...",
+                    options: ["6.5", "7.0", "7.5", "8.0"],
+                    answer: 2,
+                    discussion: "Median = rata-rata data ke-4 dan ke-5 = (7 + 8) / 2 = 7,5."
+                },
+                {
+                    submateri: "Ukuran Penyebaran Data",
+                    level: "Pemahaman",
+                    question: "Jangkauan (range) dari kumpulan data: 15, 8, 22, 11, 19, 5, 18 adalah...",
+                    options: ["13", "15", "17", "19"],
+                    answer: 2,
+                    discussion: "Jangkauan = Nilai Maksimum - Nilai Minimum = 22 - 5 = 17."
+                },
+                {
+                    submateri: "Ukuran Penyebaran Data",
+                    level: "Analisis",
+                    question: "Diberikan data: 4, 6, 8, 10, 12. Kuartil pertama (Q1) dari data tersebut adalah...",
+                    options: ["4", "5", "6", "7"],
+                    answer: 1,
+                    discussion: "Q1 adalah median dari separuh data bagian bawah (4, 6), yaitu (4+6)/2 = 5."
+                },
+                {
+                    submateri: "Penerapan dan Pemecahan Masalah Statistika",
+                    level: "HOTS",
+                    question: "Nilai rata-rata tes Matematika kelas 8A adalah 72. Rata-rata siswa putra 70 dan siswa putri 75. Jika jumlah siswa kelas tersebut 30 orang, banyak siswa putri adalah...",
+                    options: ["12 orang", "15 orang", "18 orang", "20 orang"],
+                    answer: 0,
+                    discussion: "Misal putri = p, putra = (30-p). Total: 70(30-p) + 75p = 72(30) => 5p = 60 => p = 12."
+                },
+                {
+                    submateri: "Penerapan dan Pemecahan Masalah Statistika",
+                    level: "HOTS",
+                    question: "Siswa dinyatakan lulus jika nilainya lebih tinggi dari rata-rata kelas dikurangi 5. Nilai 5 siswa: 60, 70, 75, 80, 90. Banyak siswa yang LULUS adalah...",
+                    options: ["2 siswa", "3 siswa", "4 siswa", "5 siswa"],
+                    answer: 2,
+                    discussion: "Rata-rata = 75. Batas lulus = 70. Nilai > 70 adalah 75, 80, 90 (3 siswa)."
+                }
+            ];
+
+            const essayList = [
+                {
+                    submateri: "Penyajian Data dalam Diagram",
+                    question: "Data jenis olahraga favorit 40 siswa: Sepak Bola 15, Bulu Tangkis 10, Basket 8, dan Voli sisanya. Hitunglah besar sudut pusat juring masing-masing olahraga!",
+                    answerGuide: "1. Sepak bola = (15/40) × 360° = 135°.\n2. Bulu tangkis = (10/40) × 360° = 90°.\n3. Basket = (8/40) × 360° = 72°.\n4. Voli = (7/40) × 360° = 63°.",
+                    maxScore: 10
+                },
+                {
+                    submateri: "Rata-Rata (Mean)",
+                    question: "Rata-rata berat badan 12 pemain adalah 65 kg. Setelah 2 pemain keluar, rata-ratanya menjadi 64 kg. Berapakah rata-rata berat 2 pemain yang keluar?",
+                    answerGuide: "Total awal = 12 × 65 = 780 kg.\nTotal sisa = 10 × 64 = 640 kg.\nTotal 2 pemain = 140 kg.\nRata-rata = 70 kg.",
+                    maxScore: 10
+                },
+                {
+                    submateri: "Median dan Modus",
+                    question: "Tentukan Q1, Q2 (Median), dan Q3 dari data: 6, 8, 4, 7, 9, 5, 8, 6, 7, 8, 9, 10!",
+                    answerGuide: "Terurut: 4, 5, 6, 6, 7, 7, 8, 8, 8, 9, 9, 10.\nQ2 = 7.5\nQ1 = 6\nQ3 = 8.5.",
+                    maxScore: 10
+                },
+                {
+                    submateri: "Penerapan dan Pemecahan Masalah Statistika",
+                    question: "Penjualan buku 5 hari: Senin 20, Selasa 25, Rabu 30, Kamis 15, Jumat 30. Pemilik ingin rata-rata 6 hari = 25 buku. Berapa buku harus terjual pada hari Sabtu?",
+                    answerGuide: "Target total 6 hari = 150 buku.\nTotal 5 hari = 120 buku.\nSabtu = 150 - 120 = 30 buku.",
+                    maxScore: 10
+                }
+            ];
+
+            let finalPG = [];
+            for (let i = 0; i < DATA_MATERI.jumlahPG; i++) {
+                finalPG.push(pgList[i % pgList.length]);
+            }
+            finalPG = finalPG.map((q, idx) => ({ ...q, id: idx + 1 }));
+
+            let finalEssay = [];
+            for (let i = 0; i < DATA_MATERI.jumlahEsai; i++) {
+                finalEssay.push(essayList[i % essayList.length]);
+            }
+            finalEssay = finalEssay.map((q, idx) => ({ ...q, id: idx + 1 }));
+
+            return { questions: finalPG, essayQuestions: finalEssay };
+        }
+
+        const { questions, essayQuestions } = generateQuestions();
+
+        // 3. STATE APLIKASI
+        let currentSlide = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let essayAnswers = new Array(essayQuestions.length).fill("");
+        let essayScores = new Array(essayQuestions.length).fill(0);
+
+        // 4. GENERATOR SLIDE
+        function renderApp() {
+            const app = document.getElementById('app');
+            let html = '';
+
+            // SLIDE COVER
+            html += `
+            <div class="slide active" id="slide-cover">
+                <div class="header-info">
+                    <span class="badge">${DATA_MATERI.kelas}</span>
+                    <h2>${DATA_MATERI.mataPelajaran}</h2>
+                    <p style="font-weight:700; font-size: 1.2rem; color:var(--primary);">${DATA_MATERI.bab}</p>
+                </div>
+                <div style="margin: 24px 0;">
+                    <p>Evaluasi ini menguji pemahaman Anda melalui submateri:</p>
+                    <ul style="margin-left: 20px; color: var(--text-muted); font-size: 0.95rem;">
+                        ${DATA_MATERI.submateri.map(s => `<li style="margin-bottom:4px;">${s}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-val">${questions.length}</div>
+                        <div class="stat-lbl">Pilihan Ganda</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">${essayQuestions.length}</div>
+                        <div class="stat-lbl">Soal Esai</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="nextSlide()">🚀 MULAI EVALUASI</button>
+            </div>`;
+
+            // SLIDE PILIHAN GANDA
+            questions.forEach((q, idx) => {
+                const totalPG = questions.length;
+                const answeredCount = userAnswers.filter(a => a !== null).length;
+                const progressPct = Math.round((answeredCount / totalPG) * 100);
+
+                const isAnswered = userAnswers[idx] !== null;
+                const selectedOpt = userAnswers[idx];
+                const isCorrect = selectedOpt === q.answer;
+
+                html += `
+                <div class="slide" id="slide-pg-${idx}">
+                    <div class="header-info">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span class="badge">${q.submateri}</span>
+                            <span class="badge badge-level" style="margin-left:auto;">${q.level}</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" style="width: ${progressPct}%"></div>
+                            </div>
+                            <div class="progress-text">
+                                <span>Soal ${idx + 1} dari ${totalPG} (PG)</span>
+                                <span>Terjawab: ${answeredCount}/${totalPG} (${progressPct}%)</span>
+                            </div>
+                        </div>
+                        <div class="tracker-container">
+                            ${questions.map((_, i) => {
+                                let cls = '';
+                                if (userAnswers[i] !== null) {
+                                    cls = userAnswers[i] === questions[i].answer ? 'correct' : 'wrong';
+                                }
+                                if (i === idx) cls += ' active';
+                                return `<div class="tracker-item ${cls}" onclick="goToSlide(${i + 1})">${i + 1}</div>`;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div class="question-text">${idx + 1}. ${q.question}</div>
+
+                    <div class="options-list">
+                        ${q.options.map((opt, optIdx) => {
+                            const letters = ['A', 'B', 'C', 'D'];
+                            let btnCls = "option-btn";
+                            
+                            if (isAnswered) {
+                                if (optIdx === selectedOpt) {
+                                    btnCls += isCorrect ? " selected-correct" : " selected-wrong";
+                                } else if (optIdx === q.answer) {
+                                    btnCls += " show-correct";
+                                }
+                            }
+
+                            return `
+                            <button class="${btnCls}" id="opt-${idx}-${optIdx}" onclick="selectOption(${idx}, ${optIdx})" ${isAnswered ? 'disabled' : ''}>
+                                <span class="option-prefix">${letters[optIdx]}.</span>
+                                <span>${opt}</span>
+                            </button>`;
+                        }).join('')}
+                    </div>
+
+                    <div class="discussion-box ${isAnswered ? 'show' : ''}" id="disc-${idx}">
+                        <div class="discussion-title" id="disc-status-${idx}">
+                            ${isAnswered ? (isCorrect ? "✅ Benar!" : "❌ Kurang Tepat!") : ""}
+                        </div>
+                        <p id="disc-text-${idx}" style="font-size:0.9rem; margin-bottom:0;">
+                            ${isAnswered ? q.discussion : ""}
+                        </p>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevSlide()">← Sebelumnya</button>
+                        <button class="btn btn-primary" onclick="nextSlide()">Berikutnya →</button>
+                    </div>
+                </div>`;
+            });
+
+            // SLIDE ESAI INTRO
+            if (essayQuestions.length > 0) {
+                html += `
+                <div class="slide" id="slide-essay-intro">
+                    <div style="text-align:center; padding: 20px 0;">
+                        <h2 style="font-size: 2rem;">✍️ BAGIAN SOAL ESAI</h2>
+                        <p>Anda dapat mengerjakan soal esai di bawah ini. Jawaban tersimpan otomatis.</p>
+                        <button class="btn btn-primary" style="margin-top:20px;" onclick="nextSlide()">Mulai Soal Esai →</button>
+                    </div>
+                </div>`;
+            }
+
+            // SLIDE SOAL ESAI
+            essayQuestions.forEach((q, idx) => {
+                const totalEssay = essayQuestions.length;
+                html += `
+                <div class="slide" id="slide-essay-${idx}">
+                    <div class="header-info">
+                        <span class="badge">${q.submateri}</span>
+                        <h3>Soal Esai ${idx + 1} dari ${totalEssay}</h3>
+                    </div>
+
+                    <div class="question-text">${q.question}</div>
+
+                    <label style="font-size:0.85rem; font-weight:600; color:var(--text-muted);">Jawaban Siswa:</label>
+                    <textarea class="essay-input" id="essay-ans-${idx}" placeholder="Ketikkan jawaban lengkap Anda di sini..." oninput="saveEssayAnswer(${idx}, this.value)">${essayAnswers[idx]}</textarea>
+
+                    <div class="teacher-score-panel">
+                        <label style="font-weight:600; font-size:0.9rem;">Mode Penilaian Guru / Evaluasi Mandiri:</label>
+                        <div class="score-input-group">
+                            <span style="font-size:0.9rem;">Skor (0 - ${q.maxScore}):</span>
+                            <input type="number" id="essay-score-${idx}" min="0" max="${q.maxScore}" value="${essayScores[idx]}" onchange="saveEssayScore(${idx}, this.value, ${q.maxScore})">
+                            <button class="btn btn-secondary" style="padding: 6px 12px; min-height:unset;" onclick="saveEssayScore(${idx}, document.getElementById('essay-score-${idx}').value, ${q.maxScore})">Simpan Skor</button>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="prevSlide()">← Sebelumnya</button>
+                        <button class="btn btn-primary" onclick="nextSlide()">Berikutnya →</button>
+                    </div>
+                </div>`;
+            });
+
+            // SLIDE KUNCI & PEMBAHASAN
+            html += `
+            <div class="slide" id="slide-key">
+                <div class="header-info">
+                    <h2>🔑 KUNCI JAWABAN & PEMBAHASAN</h2>
+                    <p style="font-size:0.9rem; color:var(--text-muted);">Silakan periksa pembahasan seluruh soal di bawah ini.</p>
+                </div>
+
+                <h3 style="margin-top:16px;">Pilihan Ganda</h3>
+                ${questions.map((q, i) => {
+                    const letters = ['A', 'B', 'C', 'D'];
+                    return `
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-pg-${i}')">
+                            <span>Soal ${i + 1} (${q.submateri})</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content" id="acc-pg-${i}">
+                            <p><strong>Pertanyaan:</strong> ${q.question}</p>
+                            <p><strong>Kunci Jawaban:</strong> ${letters[q.answer]}.${q.options[q.answer]}</p>
+                            <p><strong>Pembahasan:</strong> ${q.discussion}</p>
+                        </div>
+                    </div>`;
+                }).join('')}
+
+                ${essayQuestions.length > 0 ? `<h3 style="margin-top:24px;">Esai</h3>` : ''}
+                ${essayQuestions.map((q, i) => `
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('acc-es-${i}')">
+                            <span>Esai ${i + 1} (${q.submateri})</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content" id="acc-es-${i}">
+                            <p><strong>Pertanyaan:</strong> ${q.question}</p>
+                            <p style="white-space: pre-line;"><strong>Pedoman Jawaban:</strong><br>${q.answerGuide}</p>
+                        </div>
+                    </div>
+                `).join('')}
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="nextSlide()">Lihat Hasil Evaluasi 🎉</button>
+                </div>
+            </div>`;
+
+            // SLIDE HASIL & ANALISIS
+            html += `
+            <div class="slide" id="slide-result">
+                <div id="result-content"></div>
+            </div>`;
+
+            app.innerHTML = html;
+        }
+
+        // 5. INTERAKSI & JAWABAN
+        function selectOption(qIdx, optIdx) {
+            if (userAnswers[qIdx] !== null) return; 
+
+            userAnswers[qIdx] = optIdx;
+            
+            // Re-render agar indikator progress & jawaban ter-update tanpa mengunci navigasi
+            renderApp();
+            showSlide(currentSlide);
+        }
+
+        function saveEssayAnswer(idx, val) {
+            essayAnswers[idx] = val;
+        }
+
+        function saveEssayScore(idx, val, max) {
+            let num = parseFloat(val);
+            if (isNaN(num) || num < 0 || num > max) {
+                alert(`Skor harus berupa angka antara 0 hingga ${max}`);
+                document.getElementById(`essay-score-${idx}`).value = essayScores[idx];
+                return;
+            }
+            essayScores[idx] = num;
+            alert(`Skor Esai ${idx + 1} berhasil disimpan: ${num}`);
+        }
+
+        function toggleAccordion(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('open');
+        }
+
+        // 6. SISTEM NAVIGASI SLIDE
+        function getSlideElements() {
+            return document.querySelectorAll('.slide');
+        }
+
+        function showSlide(index) {
+            const slides = getSlideElements();
+            if (index < 0 || index >= slides.length) return;
+
+            slides.forEach((s, i) => {
+                s.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+
+            if (slides[index].id === 'slide-result') {
+                calculateAndRenderResults();
+            }
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        function goToSlide(targetIndex) {
+            showSlide(targetIndex);
+        }
+
+        // 7. SISTEM PENILAIAN & ANALISIS
+        function calculateAndRenderResults() {
+            const totalPG = questions.length;
+            let correctPG = 0;
+            if (totalPG > 0) {
+                userAnswers.forEach((ans, idx) => {
+                    if (ans === questions[idx].answer) correctPG++;
+                });
+            }
+            const scorePG = totalPG > 0 ? (correctPG / totalPG) * 100 : 0;
+
+            const totalEssay = essayQuestions.length;
+            let sumEssayScore = 0;
+            let sumEssayMax = 0;
+            if (totalEssay > 0) {
+                essayQuestions.forEach((q, idx) => {
+                    sumEssayScore += essayScores[idx];
+                    sumEssayMax += q.maxScore;
+                });
+            }
+            const scoreEssay = sumEssayMax > 0 ? (sumEssayScore / sumEssayMax) * 100 : 0;
+
+            let finalScore = 0;
+            if (totalPG > 0 && totalEssay > 0) {
+                finalScore = (scorePG * 0.70) + (scoreEssay * 0.30);
+            } else if (totalPG > 0) {
+                finalScore = scorePG;
+            } else if (totalEssay > 0) {
+                finalScore = scoreEssay;
+            }
+            finalScore = Math.round(finalScore * 100) / 100;
+
+            let category = "";
+            let analysisText = "";
+            if (finalScore >= 85) {
+                category = "Sangat Baik";
+                analysisText = "Pemahaman terhadap materi sudah sangat baik. Pertahankan hasil belajar dan lanjutkan ke materi berikutnya.";
+            } else if (finalScore >= 70) {
+                category = "Baik";
+                analysisText = "Pemahaman terhadap materi sudah baik. Masih terdapat beberapa bagian yang perlu diperkuat melalui latihan.";
+            } else if (finalScore >= 55) {
+                category = "Cukup";
+                analysisText = "Beberapa konsep sudah dipahami. Pelajari kembali bagian yang masih kurang dan lakukan latihan tambahan.";
+            } else {
+                category = "Perlu Bimbingan";
+                analysisText = "Pemahaman materi masih perlu diperkuat. Pelajari kembali submateri yang belum dikuasai dan lakukan latihan ulang.";
+            }
+
+            const subStats = {};
+            DATA_MATERI.submateri.forEach(sub => {
+                subStats[sub] = { total: 0, correct: 0 };
+            });
+
+            questions.forEach((q, idx) => {
+                if (subStats[q.submateri]) {
+                    subStats[q.submateri].total++;
+                    if (userAnswers[idx] === q.answer) {
+                        subStats[q.submateri].correct++;
+                    }
+                }
+            });
+
+            let subAnalysisHtml = "";
+            Object.keys(subStats).forEach(sub => {
+                const stat = subStats[sub];
+                if (stat.total > 0) {
+                    const pct = Math.round((stat.correct / stat.total) * 100);
+                    let recom = "";
+                    let recomColor = "";
+                    if (pct >= 80) {
+                        recom = "Sudah dikuasai dengan baik.";
+                        recomColor = "#dcfce7";
+                    } else if (pct >= 60) {
+                        recom = "Perlu latihan tambahan.";
+                        recomColor = "#fef3c7";
+                    } else {
+                        recom = "Disarankan mempelajari kembali submateri ini.";
+                        recomColor = "#fee2e2";
+                    }
+
+                    subAnalysisHtml += `
+                    <div class="subtopic-item">
+                        <div class="subtopic-meta">
+                            <span>${sub}</span>
+                            <span>${pct}% (${stat.correct}/${stat.total})</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="recom-box" style="background-color: ${recomColor}">
+                            💡 <strong>Rekomendasi:</strong> ${recom}
+                        </div>
+                    </div>`;
+                }
+            });
+
+            const resultContent = document.getElementById('result-content');
+            resultContent.innerHTML = `
+                <h2>🎯 HASIL EVALUASI</h2>
+                <p style="color:var(--text-muted); font-size:0.9rem;">${DATA_MATERI.bab} - ${DATA_MATERI.mataPelajaran}</p>
+
+                <div class="result-card">
+                    <div style="font-size:0.9rem; font-weight:600; color:var(--text-muted);">NILAI AKHIR</div>
+                    <div class="score-big">${finalScore}</div>
+                    <div class="category-badge">${category}</div>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <div class="stat-val" style="color:var(--success);">${correctPG}</div>
+                        <div class="stat-lbl">Benar (PG)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val" style="color:var(--danger);">${totalPG - correctPG}</div>
+                        <div class="stat-lbl">Salah (PG)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">${Math.round(scorePG)}</div>
+                        <div class="stat-lbl">Nilai PG</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-val">${Math.round(scoreEssay)}</div>
+                        <div class="stat-lbl">Nilai Esai</div>
+                    </div>
+                </div>
+
+                <div style="background:#f8fafc; padding:16px; border-radius:8px; margin-bottom:20px; border-left:4px solid var(--primary);">
+                    <strong>Analisis Performa:</strong>
+                    <p style="margin-bottom:0; font-size:0.95rem;">${analysisText}</p>
+                </div>
+
+                <div class="subtopic-analysis">
+                    <h3>📊 Analisis Penguasaan Submateri</h3>
+                    ${subAnalysisHtml}
+                </div>
+
+                <div class="btn-group" style="margin-top:32px;">
+                    <button class="btn btn-secondary" onclick="resetEvaluation()">🔄 ULANGI EVALUASI</button>
+                    ${DATA_MATERI.dashboardUrl ? `<button class="btn btn-secondary" onclick="window.location.href='${DATA_MATERI.dashboardUrl}'">📚 KEMBALI KE DASHBOARD</button>` : ''}
+                    ${DATA_MATERI.nextBabUrl ? `<button class="btn btn-primary" onclick="window.location.href='${DATA_MATERI.nextBabUrl}'">➡️ BAB BERIKUTNYA</button>` : ''}
+                </div>
+            `;
+        }
+
+        // 8. RESET FUNCTION
+        function resetEvaluation() {
+            userAnswers = new Array(questions.length).fill(null);
+            essayAnswers = new Array(essayQuestions.length).fill("");
+            essayScores = new Array(essayQuestions.length).fill(0);
+            renderApp();
+            showSlide(0);
+        }
+
+        // INIT
+        renderApp();
+    </script>
+</body>
+
+</html>

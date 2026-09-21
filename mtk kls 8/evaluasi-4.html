@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Evaluasi Pembelajaran</title>
+<style>
+:root{
+  --primary:#4f46e5;
+  --secondary:#7c3aed;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --warning:#f59e0b;
+  --background:#f5f7fb;
+  --card:#ffffff;
+  --text:#172033;
+  --muted:#5b6478;
+  --line:#e4e8f2;
+  --radius:16px;
+  --shadow:0 6px 24px rgba(23,32,51,.08);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  background:var(--background);
+  background-image:radial-gradient(circle at 8% 0%,rgba(124,58,237,.10),transparent 42%),
+                   radial-gradient(circle at 100% 0%,rgba(79,70,229,.10),transparent 40%);
+  background-attachment:fixed;
+  color:var(--text);
+  line-height:1.6;
+  font-size:16px;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+#app{width:min(100%,780px);margin:0 auto;padding:16px 14px 48px;}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:20px 18px;
+  max-width:100%;
+  animation:fadeUp .28s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.97)}60%{transform:scale(1.02)}100%{transform:scale(1)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.pop{animation:pop .3s ease}
+.shake{animation:shakeX .3s ease}
+
+/* ---------- Topbar ---------- */
+.topbar{
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.topbar h1{margin:0;font-size:1rem;letter-spacing:.2px;}
+.topbar p{margin:2px 0 0;font-size:.82rem;opacity:.9;}
+
+/* ---------- Cover ---------- */
+.cover{text-align:center;padding:30px 18px;}
+.cover .badge{
+  display:inline-block;background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;padding:6px 16px;border-radius:999px;font-size:.76rem;font-weight:600;letter-spacing:.6px;
+}
+.cover h2{font-size:1.6rem;margin:16px 0 6px;line-height:1.25;}
+.cover .sub{color:var(--muted);font-size:.95rem;margin:0;}
+.meta-grid{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:20px 0 4px;}
+.meta{
+  flex:1 1 130px;min-width:130px;background:#f2f4fd;border:1px solid var(--line);
+  border-radius:12px;padding:12px 10px;
+}
+.meta b{display:block;font-size:1.35rem;color:var(--primary);line-height:1.2;}
+.meta span{font-size:.78rem;color:var(--muted);}
+.sublist{text-align:left;margin:20px 0 0;padding:0;list-style:none;}
+.sublist li{
+  display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);
+  border-radius:12px;margin-bottom:8px;font-size:.9rem;background:#fbfbff;
+}
+.sublist li i{
+  flex:0 0 auto;font-style:normal;font-size:.72rem;font-weight:700;color:#fff;
+  background:var(--secondary);border-radius:6px;padding:2px 7px;margin-top:3px;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:48px;padding:12px 20px;border:none;border-radius:12px;
+  font-size:.95rem;font-weight:600;font-family:inherit;cursor:pointer;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;
+  transition:transform .15s ease,box-shadow .15s ease,opacity .15s ease;
+  width:100%;max-width:100%;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(79,70,229,.28);}
+.btn:active{transform:translateY(0);}
+.btn.ghost{background:#eef0fa;color:var(--primary);border:1px solid var(--line);}
+.btn.ghost:hover{box-shadow:0 8px 18px rgba(23,32,51,.10);}
+.btn.ok{background:linear-gradient(135deg,#16a34a,#059669);}
+.btn.warn{background:linear-gradient(135deg,#f59e0b,#f97316);}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.btn-row .btn{flex:1 1 140px;}
+:focus-visible{outline:3px solid #a5b4fc;outline-offset:2px;}
+
+/* ---------- Progress ---------- */
+.progress-head{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:6px;flex-wrap:wrap;gap:4px;}
+.bar{height:10px;background:#e8ebf5;border-radius:99px;overflow:hidden;}
+.bar>span{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--secondary));transition:width .4s ease;}
+.dots{display:flex;gap:5px;overflow-x:auto;padding:10px 2px 4px;-webkit-overflow-scrolling:touch;}
+.dots i{flex:0 0 auto;width:7px;height:7px;border-radius:99px;background:#d6dbeb;}
+.dots i.on{background:var(--primary);width:18px;}
+.dots i.done{background:#a5b4fc;}
+.nums{display:flex;gap:6px;overflow-x:auto;padding:10px 2px;-webkit-overflow-scrolling:touch;}
+.nums button{
+  flex:0 0 auto;min-width:40px;height:40px;border-radius:10px;border:1px solid var(--line);
+  background:#fff;color:var(--muted);font-weight:700;font-size:.82rem;font-family:inherit;cursor:pointer;
+}
+.nums button.cur{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 2px rgba(79,70,229,.16);}
+.nums button.ok{background:#dcfce7;border-color:#86efac;color:#166534;}
+.nums button.no{background:#fee2e2;border-color:#fca5a5;color:#991b1b;}
+.nums button:disabled{opacity:.6;cursor:not-allowed;}
+
+/* ---------- Question ---------- */
+.tag{
+  display:inline-block;background:#eef0fa;color:var(--primary);border-radius:99px;
+  padding:4px 12px;font-size:.74rem;font-weight:600;margin:0 6px 6px 0;
+}
+.tag.lvl{background:#f3e8ff;color:var(--secondary);}
+.qtext{font-size:1.04rem;font-weight:600;margin:12px 0 16px;line-height:1.55;}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;
+  min-height:48px;padding:13px 14px;margin-bottom:10px;border:2px solid var(--line);
+  border-radius:12px;background:#fff;font-size:.95rem;font-family:inherit;color:var(--text);
+  cursor:pointer;transition:border-color .15s ease,background .15s ease;line-height:1.5;
+}
+.opt:hover:not(:disabled){border-color:#b9c0e8;background:#fafbff;}
+.opt:disabled{cursor:default;}
+.opt .lt{
+  flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:#eef0fa;color:var(--primary);
+  font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;
+}
+.opt.right{border-color:var(--success);background:#f0fdf4;}
+.opt.right .lt{background:var(--success);color:#fff;}
+.opt.wrong{border-color:var(--danger);background:#fef2f2;}
+.opt.wrong .lt{background:var(--danger);color:#fff;}
+.feedback{border-radius:12px;padding:13px 14px;margin-top:14px;font-size:.9rem;animation:fadeUp .25s ease both;}
+.feedback.right{background:#f0fdf4;border:1px solid #bbf7d0;}
+.feedback.wrong{background:#fef2f2;border:1px solid #fecaca;}
+.feedback b{display:block;margin-bottom:5px;font-size:.95rem;}
+.feedback .dis{color:#334155;}
+.hint{font-size:.82rem;color:var(--muted);margin-top:10px;text-align:center;}
+
+/* ---------- Essay ---------- */
+textarea{
+  width:100%;max-width:100%;min-height:150px;padding:13px;border:2px solid var(--line);
+  border-radius:12px;font-family:inherit;font-size:.95rem;line-height:1.6;resize:vertical;color:var(--text);
+}
+textarea:focus{border-color:var(--primary);outline:none;}
+.score-box{margin-top:16px;border:1px dashed #c7cbe0;border-radius:12px;padding:14px;background:#fbfbff;}
+.score-box h4{margin:0 0 4px;font-size:.92rem;}
+.score-box p{margin:0 0 10px;font-size:.8rem;color:var(--muted);}
+.score-row{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch;}
+.score-row input{
+  flex:1 1 90px;min-width:90px;min-height:48px;padding:10px 12px;border:2px solid var(--line);
+  border-radius:12px;font-family:inherit;font-size:1rem;text-align:center;font-weight:700;color:var(--text);
+}
+.score-row input:focus{border-color:var(--primary);outline:none;}
+.score-row .btn{flex:2 1 150px;width:auto;}
+.note{margin-top:10px;font-size:.85rem;border-radius:10px;padding:9px 12px;display:none;}
+.note.show{display:block;}
+.note.ok{background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;}
+.note.bad{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+
+/* ---------- Result ---------- */
+.score-hero{
+  text-align:center;background:linear-gradient(135deg,var(--primary),var(--secondary));
+  color:#fff;border-radius:var(--radius);padding:26px 18px;margin-bottom:16px;
+}
+.score-hero .val{font-size:3.6rem;font-weight:800;line-height:1;}
+.score-hero .cat{
+  display:inline-block;margin-top:10px;background:rgba(255,255,255,.2);
+  padding:6px 18px;border-radius:99px;font-weight:700;font-size:.9rem;letter-spacing:.5px;
+}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;}
+.stat{
+  flex:1 1 calc(50% - 5px);min-width:130px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:12px;text-align:center;
+}
+.stat b{display:block;font-size:1.3rem;}
+.stat span{font-size:.76rem;color:var(--muted);}
+.sec-title{font-size:1rem;font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:8px;}
+.ana{margin-bottom:12px;}
+.ana .row{display:flex;justify-content:space-between;font-size:.88rem;gap:10px;margin-bottom:5px;}
+.ana .row b{font-weight:600;}
+.ana .bar>span{transition:width .6s ease;}
+.ana .rec{font-size:.8rem;color:var(--muted);margin-top:4px;}
+.callout{border-radius:12px;padding:14px;font-size:.9rem;border:1px solid var(--line);background:#f8f9ff;}
+
+/* ---------- Accordion ---------- */
+.acc{border:1px solid var(--line);border-radius:12px;margin-bottom:9px;overflow:hidden;background:#fff;}
+.acc>button{
+  width:100%;min-height:48px;display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:13px 14px;background:#fff;border:none;font-family:inherit;font-size:.92rem;font-weight:600;
+  text-align:left;cursor:pointer;color:var(--text);
+}
+.acc>button span.k{font-size:.76rem;color:var(--muted);font-weight:600;}
+.acc .body{display:none;padding:0 14px 14px;font-size:.89rem;color:#334155;border-top:1px solid var(--line);}
+.acc.open .body{display:block;padding-top:12px;}
+.acc .body .q{font-weight:600;color:var(--text);margin:0 0 8px;}
+.acc .body .key{display:inline-block;background:#dcfce7;color:#166534;border-radius:8px;padding:3px 10px;font-weight:700;font-size:.82rem;margin-bottom:8px;}
+
+.err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:12px;padding:14px;margin-bottom:14px;font-size:.88rem;}
+.center{text-align:center;}
+.mt{margin-top:16px;}
+
+@media (max-width:600px){
+  body{font-size:15px;}
+  #app{padding:12px 12px 40px;}
+  .card{padding:16px 14px;border-radius:14px;}
+  .cover{padding:22px 10px;}
+  .cover h2{font-size:1.35rem;}
+  .score-hero .val{font-size:3rem;}
+  .btn-row .btn{flex:1 1 100%;}
+  .stat{flex:1 1 100%;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none !important;transition:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* =========================================================
+   1. DATA MATERI  — satu-satunya bagian yang perlu diubah
+   ========================================================= */
+const DATA_MATERI = {
+    mataPelajaran: "Matematika",
+    kelas: "Kelas 8 / Fase D",
+    bab: "Bab 4 — Relasi dan Fungsi",
+
+    submateri: [
+        "Konsep Relasi",
+        "Penyajian Relasi",
+        "Konsep Fungsi",
+        "Penyajian Fungsi",
+        "Menentukan Nilai Fungsi",
+        "Rumus dan Grafik Fungsi",
+        "Korespondensi Satu-Satu",
+        "Penerapan dan Pemecahan Masalah Relasi dan Fungsi"
+    ],
+
+    jumlahPG: 15,
+    jumlahEsai: 5,
+
+    nextBabUrl: "matb-bab5.html",
+    dashboardUrl: "matb-bab4.html"
+};
+
+/* =========================================================
+   2. DATA SOAL PILIHAN GANDA
+   ========================================================= */
+const questions = [
+  {
+    id:1, submateri:"Konsep Relasi", level:"Pemahaman",
+    question:"Relasi dari himpunan A ke himpunan B adalah aturan yang …",
+    options:[
+      "memasangkan setiap anggota A dengan tepat satu anggota B",
+      "memasangkan anggota-anggota himpunan A dengan anggota-anggota himpunan B",
+      "mengharuskan banyak anggota A sama dengan banyak anggota B",
+      "memasangkan setiap anggota B dengan tepat satu anggota A"
+    ],
+    answer:1,
+    discussion:"Relasi hanyalah aturan yang memasangkan anggota himpunan A dengan anggota himpunan B. Tidak ada syarat setiap anggota harus dipasangkan, tidak ada syarat pasangannya tunggal, dan banyak anggota kedua himpunan boleh berbeda. Pilihan A justru merupakan definisi fungsi, yaitu relasi khusus."
+  },
+  {
+    id:2, submateri:"Konsep Relasi", level:"Penerapan",
+    question:"Diketahui A = {2, 3, 4} dan B = {4, 6, 8, 9}. Relasi dari A ke B adalah \u201cfaktor dari\u201d. Anggota B yang menjadi pasangan dari angka 3 adalah …",
+    options:["4 dan 8","6 dan 9","4, 6, dan 8","6, 8, dan 9"],
+    answer:1,
+    discussion:"Angka 3 dipasangkan dengan anggota B yang habis dibagi 3. Dari B = {4, 6, 8, 9}: 6 : 3 = 2 (habis) dan 9 : 3 = 3 (habis), sedangkan 4 dan 8 tidak habis dibagi 3. Jadi pasangan dari 3 adalah 6 dan 9."
+  },
+  {
+    id:3, submateri:"Penyajian Relasi", level:"Pemahaman",
+    question:"Tiga cara yang digunakan untuk menyajikan suatu relasi adalah …",
+    options:[
+      "diagram panah, diagram Cartesius, dan himpunan pasangan berurutan",
+      "diagram panah, diagram lingkaran, dan grafik batang",
+      "diagram Venn, rumus fungsi, dan tabel frekuensi",
+      "diagram Cartesius, diagram batang, dan himpunan bagian"
+    ],
+    answer:0,
+    discussion:"Relasi disajikan dengan tiga cara baku: (1) diagram panah, (2) diagram Cartesius, dan (3) himpunan pasangan berurutan. Diagram lingkaran, grafik batang, dan tabel frekuensi adalah penyajian data statistik, bukan relasi."
+  },
+  {
+    id:4, submateri:"Penyajian Relasi", level:"Penerapan",
+    question:"Sebuah diagram panah menunjukkan relasi \u201cgemar bermain\u201d dari A = {Ani, Budi, Cita} ke B = {Voli, Catur}, dengan Ani \u2192 Voli, Budi \u2192 Catur, dan Cita \u2192 Voli. Himpunan pasangan berurutan dari relasi tersebut adalah …",
+    options:[
+      "{(Voli, Ani), (Catur, Budi), (Voli, Cita)}",
+      "{(Ani, Voli), (Budi, Voli), (Cita, Catur)}",
+      "{(Ani, Voli), (Budi, Catur), (Cita, Voli)}",
+      "{(Ani, Catur), (Budi, Voli), (Cita, Catur)}"
+    ],
+    answer:2,
+    discussion:"Pada himpunan pasangan berurutan (x, y), x selalu berasal dari daerah asal (himpunan A) dan y dari daerah kawan (himpunan B), mengikuti arah panah. Karena Ani \u2192 Voli, Budi \u2192 Catur, dan Cita \u2192 Voli, pasangannya adalah {(Ani, Voli), (Budi, Catur), (Cita, Voli)}."
+  },
+  {
+    id:5, submateri:"Konsep Fungsi", level:"Analisis",
+    question:"Di antara himpunan pasangan berurutan berikut, yang merupakan fungsi adalah …",
+    options:[
+      "{(1, a), (1, b), (2, c)}",
+      "{(1, a), (2, a), (3, b)}",
+      "{(1, a), (2, b), (2, c)}",
+      "{(1, a), (2, b), (3, c), (3, d)}"
+    ],
+    answer:1,
+    discussion:"Fungsi mensyaratkan setiap anggota daerah asal muncul tepat satu kali sebagai komponen pertama. Pada pilihan A angka 1 berpasangan dua kali, pada pilihan C angka 2 berpasangan dua kali, dan pada pilihan D angka 3 berpasangan dua kali, sehingga ketiganya bukan fungsi. Pada {(1, a), (2, a), (3, b)} setiap anggota daerah asal muncul sekali; pasangan yang sama (a) untuk dua anggota berbeda tetap diperbolehkan."
+  },
+  {
+    id:6, submateri:"Konsep Fungsi", level:"Pemahaman",
+    question:"Fungsi f memetakan A = {1, 2, 3} ke B = {2, 4, 6, 8} dengan aturan f(x) = 2x. Range (daerah hasil) fungsi tersebut adalah …",
+    options:["{1, 2, 3}","{2, 4, 6}","{2, 4, 6, 8}","{4, 6, 8}"],
+    answer:1,
+    discussion:"Range adalah himpunan anggota kodomain yang benar-benar menjadi hasil pemetaan. f(1) = 2, f(2) = 4, f(3) = 6, sehingga range = {2, 4, 6}. Himpunan {1, 2, 3} adalah domain dan {2, 4, 6, 8} adalah kodomain; angka 8 tidak termasuk range karena tidak ada anggota domain yang dipetakan ke 8."
+  },
+  {
+    id:7, submateri:"Penyajian Fungsi", level:"Penerapan",
+    question:"Fungsi f dari A = {1, 2, 3} ke B = {3, 5, 7, 9} ditentukan oleh f(x) = 2x + 1. Himpunan pasangan berurutan yang menyatakan fungsi tersebut adalah …",
+    options:[
+      "{(1, 3), (2, 5), (3, 7)}",
+      "{(1, 2), (2, 3), (3, 4)}",
+      "{(3, 1), (5, 2), (7, 3)}",
+      "{(1, 3), (2, 5), (3, 9)}"
+    ],
+    answer:0,
+    discussion:"Hitung nilai fungsi untuk setiap anggota domain: f(1) = 2(1) + 1 = 3, f(2) = 2(2) + 1 = 5, dan f(3) = 2(3) + 1 = 7. Maka pasangan berurutannya {(1, 3), (2, 5), (3, 7)}. Pilihan C keliru karena membalik urutan (x, y), sedangkan pilihan D salah pada nilai f(3)."
+  },
+  {
+    id:8, submateri:"Penyajian Fungsi", level:"Analisis",
+    question:"Fungsi g disajikan dalam tabel berikut. x : 1, 2, 3, 4 dan g(x) : 4, 7, 10, 13. Jika fungsi g disajikan dalam bentuk grafik pada bidang koordinat, titik-titik yang dilalui grafik adalah …",
+    options:[
+      "(4, 1), (7, 2), (10, 3), (13, 4)",
+      "(1, 4), (2, 7), (3, 10), (4, 13)",
+      "(0, 4), (1, 7), (2, 10), (3, 13)",
+      "(1, 1), (2, 2), (3, 3), (4, 4)"
+    ],
+    answer:1,
+    discussion:"Dalam penyajian grafik, nilai x ditulis pada sumbu mendatar dan nilai g(x) pada sumbu tegak, sehingga setiap titik berbentuk (x, g(x)). Dari tabel diperoleh (1, 4), (2, 7), (3, 10), dan (4, 13). Pilihan A salah karena membalik letak koordinat."
+  },
+  {
+    id:9, submateri:"Menentukan Nilai Fungsi", level:"Penerapan",
+    question:"Diketahui fungsi f(x) = 3x \u2212 5. Nilai dari f(4) adalah …",
+    options:["2","7","12","17"],
+    answer:1,
+    discussion:"Substitusikan x = 4 ke dalam rumus: f(4) = 3 \u00d7 4 \u2212 5 = 12 \u2212 5 = 7. Jawaban 12 muncul bila lupa mengurangi 5, sedangkan 17 muncul bila 5 justru ditambahkan."
+  },
+  {
+    id:10, submateri:"Menentukan Nilai Fungsi", level:"Penalaran",
+    question:"Fungsi f dinyatakan dengan f(x) = ax + b. Jika f(2) = 7 dan f(4) = 13, maka nilai f(6) adalah …",
+    options:["16","19","21","25"],
+    answer:1,
+    discussion:"Dari f(2) = 7 diperoleh 2a + b = 7 dan dari f(4) = 13 diperoleh 4a + b = 13. Mengurangkan kedua persamaan menghasilkan 2a = 6 sehingga a = 3, lalu b = 7 \u2212 2(3) = 1. Jadi f(x) = 3x + 1 dan f(6) = 3(6) + 1 = 19."
+  },
+  {
+    id:11, submateri:"Rumus dan Grafik Fungsi", level:"Penalaran",
+    question:"Suatu fungsi dinyatakan dengan f(x) = px + q. Diketahui f(1) = 5 dan f(3) = 11. Rumus fungsi tersebut adalah …",
+    options:["f(x) = 3x + 2","f(x) = 2x + 3","f(x) = 3x \u2212 2","f(x) = 2x \u2212 3"],
+    answer:0,
+    discussion:"Dari f(1) = 5 diperoleh p + q = 5 dan dari f(3) = 11 diperoleh 3p + q = 11. Selisih kedua persamaan memberi 2p = 6 sehingga p = 3, lalu q = 5 \u2212 3 = 2. Rumus fungsinya f(x) = 3x + 2. Uji kembali: f(1) = 5 dan f(3) = 11, keduanya sesuai."
+  },
+  {
+    id:12, submateri:"Rumus dan Grafik Fungsi", level:"Pemahaman",
+    question:"Grafik fungsi f(x) = x + 2 dengan daerah asal bilangan real memotong sumbu-Y di titik …",
+    options:["(0, 2)","(2, 0)","(0, \u22122)","(\u22122, 0)"],
+    answer:0,
+    discussion:"Setiap titik pada sumbu-Y memiliki absis nol, sehingga cukup substitusikan x = 0: f(0) = 0 + 2 = 2. Titik potongnya (0, 2). Titik (\u22122, 0) adalah titik potong dengan sumbu-X, karena f(x) = 0 saat x = \u22122."
+  },
+  {
+    id:13, submateri:"Korespondensi Satu-Satu", level:"Pemahaman",
+    question:"Dua himpunan A dan B dapat berkorespondensi satu-satu apabila …",
+    options:[
+      "anggota A dan B berupa bilangan",
+      "banyak anggota A sama dengan banyak anggota B",
+      "banyak anggota A lebih sedikit daripada banyak anggota B",
+      "semua anggota A dipasangkan dengan satu anggota B yang sama"
+    ],
+    answer:1,
+    discussion:"Korespondensi satu-satu menuntut setiap anggota A berpasangan dengan tepat satu anggota B dan sebaliknya, tanpa ada anggota yang tersisa. Syarat itu hanya mungkin terpenuhi jika n(A) = n(B). Jenis anggotanya tidak harus bilangan, dan bila banyak anggotanya berbeda pasti ada anggota yang tidak mendapat pasangan."
+  },
+  {
+    id:14, submateri:"Korespondensi Satu-Satu", level:"Penalaran",
+    question:"Banyaknya korespondensi satu-satu yang mungkin terjadi antara A = {1, 2, 3, 4} dan B = {p, q, r, s} adalah …",
+    options:["4","16","24","256"],
+    answer:2,
+    discussion:"Banyak korespondensi satu-satu dari dua himpunan dengan n anggota adalah n! Untuk n = 4 diperoleh 4! = 4 \u00d7 3 \u00d7 2 \u00d7 1 = 24. Angka 16 dan 256 berasal dari perhitungan pemetaan biasa (4\u00b2 dan 4\u2074) yang membolehkan pasangan berulang, sehingga tidak berlaku di sini."
+  },
+  {
+    id:15, submateri:"Penerapan dan Pemecahan Masalah Relasi dan Fungsi", level:"HOTS",
+    question:"Tarif sebuah taksi terdiri atas biaya awal Rp8.000,00 ditambah Rp4.000,00 untuk setiap kilometer perjalanan. Jika seorang penumpang membayar Rp40.000,00, maka jarak yang ditempuh taksi tersebut adalah …",
+    options:["6 km","7 km","8 km","10 km"],
+    answer:2,
+    discussion:"Hubungan biaya dan jarak dimodelkan sebagai fungsi f(x) = 8.000 + 4.000x dengan x jarak dalam kilometer. Karena f(x) = 40.000, maka 4.000x = 40.000 \u2212 8.000 = 32.000 sehingga x = 8. Jarak yang ditempuh 8 km. Jawaban 10 km muncul bila biaya awal Rp8.000,00 tidak dikurangkan lebih dulu."
+  }
+];
+
+/* =========================================================
+   3. DATA SOAL ESAI
+   ========================================================= */
+const essayQuestions = [
+  {
+    id:1, submateri:"Konsep Relasi", maxScore:10,
+    question:"Jelaskan dengan kalimatmu sendiri apa yang dimaksud dengan relasi antara dua himpunan. Kemudian berikan satu contoh relasi dalam kehidupan sehari-hari lengkap dengan kedua himpunannya dan nama relasinya.",
+    answerGuide:"Relasi dari himpunan A ke himpunan B adalah aturan yang memasangkan anggota-anggota himpunan A dengan anggota-anggota himpunan B (skor 4). Contoh kontekstual yang benar beserta dua himpunannya, misalnya A = {Ani, Bima, Cita} dan B = {Bakso, Sate, Soto} dengan relasi \u201cmenyukai makanan\u201d, lalu menuliskan pasangannya (skor 4). Penulisan yang runtut dan penggunaan istilah daerah asal serta daerah kawan secara tepat (skor 2)."
+  },
+  {
+    id:2, submateri:"Konsep Fungsi", maxScore:10,
+    question:"Perhatikan dua himpunan pasangan berurutan berikut. P = {(1, a), (2, b), (3, b)} dan Q = {(1, a), (1, c), (2, b)}. Tentukan manakah yang merupakan fungsi dan manakah yang bukan fungsi, lalu jelaskan alasannya berdasarkan syarat suatu fungsi.",
+    answerGuide:"Menyebutkan syarat fungsi, yaitu setiap anggota daerah asal dipasangkan dengan tepat satu anggota daerah kawan (skor 3). Menyatakan P sebagai fungsi karena 1, 2, dan 3 masing-masing muncul satu kali sebagai komponen pertama, dan menjelaskan bahwa dua anggota domain boleh memiliki pasangan sama, yaitu b (skor 4). Menyatakan Q bukan fungsi karena angka 1 dipasangkan dengan dua anggota berbeda, yaitu a dan c (skor 3)."
+  },
+  {
+    id:3, submateri:"Menentukan Nilai Fungsi", maxScore:10,
+    question:"Diketahui fungsi f(x) = 4x \u2212 3. Tentukan nilai f(\u22122) dan f(5), kemudian tentukan nilai x yang memenuhi f(x) = 17. Tuliskan langkah pengerjaannya.",
+    answerGuide:"f(\u22122) = 4(\u22122) \u2212 3 = \u22128 \u2212 3 = \u221211 dengan langkah substitusi yang terlihat (skor 3). f(5) = 4(5) \u2212 3 = 20 \u2212 3 = 17 (skor 3). Menyelesaikan 4x \u2212 3 = 17 menjadi 4x = 20 sehingga x = 5 (skor 3). Penulisan langkah yang runtut dan kesimpulan yang jelas (skor 1). Peserta didik boleh menyimpulkan bahwa hasil f(5) = 17 konsisten dengan jawaban bagian terakhir."
+  },
+  {
+    id:4, submateri:"Korespondensi Satu-Satu", maxScore:10,
+    question:"Diketahui A = {1, 2, 3} dan B = {a, b, c}. Jelaskan syarat terjadinya korespondensi satu-satu antara kedua himpunan tersebut, tentukan banyaknya korespondensi satu-satu yang mungkin, lalu tuliskan dua contoh pemetaannya.",
+    answerGuide:"Menjelaskan syarat korespondensi satu-satu: setiap anggota A berpasangan dengan tepat satu anggota B dan sebaliknya, sehingga n(A) harus sama dengan n(B), yaitu 3 = 3 (skor 4). Menghitung banyak korespondensi satu-satu 3! = 3 \u00d7 2 \u00d7 1 = 6 disertai cara (skor 3). Menuliskan dua contoh pemetaan yang benar, misalnya {(1, a), (2, b), (3, c)} dan {(1, b), (2, c), (3, a)} (skor 3)."
+  },
+  {
+    id:5, submateri:"Penerapan dan Pemecahan Masalah Relasi dan Fungsi", maxScore:10,
+    question:"Tarif parkir sebuah pusat perbelanjaan adalah Rp2.000,00 untuk satu jam pertama dan bertambah Rp1.000,00 untuk setiap jam berikutnya. Susunlah rumus fungsi biaya parkir f(x) dengan x menyatakan lama parkir dalam jam, hitung biaya parkir selama 5 jam, lalu tentukan lama parkir seorang pengunjung yang membayar Rp9.000,00.",
+    answerGuide:"Menyusun model fungsi yang tepat, yaitu f(x) = 2.000 + 1.000(x \u2212 1) atau bentuk setaranya f(x) = 1.000x + 1.000 untuk x \u2265 1, disertai penjelasan makna x (skor 4). Menghitung biaya 5 jam: f(5) = 1.000(5) + 1.000 = Rp6.000,00 (skor 3). Menyelesaikan 1.000x + 1.000 = 9.000 sehingga x = 8, artinya pengunjung parkir selama 8 jam (skor 3). Berikan skor penuh pada model setara yang konsisten dengan hasil perhitungannya."
+  }
+];
+
+/* =========================================================
+   4. STATE
+   ========================================================= */
+let userAnswers  = [];
+let essayAnswers = [];
+let essayScores  = [];
+let slides       = [];
+let currentSlide = 0;
+
+const app = document.getElementById("app");
+
+function initState(){
+  userAnswers  = new Array(questions.length).fill(null);
+  essayAnswers = new Array(essayQuestions.length).fill("");
+  essayScores  = new Array(essayQuestions.length).fill(null);
+}
+
+/* =========================================================
+   5. VALIDASI DATA
+   ========================================================= */
+function validateData(){
+  const errors = [];
+  const nPG = Number(DATA_MATERI.jumlahPG) || 0;
+  const nES = Number(DATA_MATERI.jumlahEsai) || 0;
+
+  if(questions.length !== nPG){
+    errors.push("Jumlah soal pilihan ganda (" + questions.length + ") tidak sama dengan jumlahPG pada DATA_MATERI (" + nPG + ").");
+  }
+  if(essayQuestions.length !== nES){
+    errors.push("Jumlah soal esai (" + essayQuestions.length + ") tidak sama dengan jumlahEsai pada DATA_MATERI (" + nES + ").");
+  }
+  questions.forEach(function(q,i){
+    const no = i + 1;
+    if(!q.question) errors.push("Soal PG nomor " + no + " tidak memiliki pertanyaan.");
+    if(!Array.isArray(q.options) || q.options.length !== 4) errors.push("Soal PG nomor " + no + " tidak memiliki 4 pilihan jawaban.");
+    if(typeof q.answer !== "number" || q.answer < 0 || q.answer > 3) errors.push("Soal PG nomor " + no + " memiliki kunci jawaban di luar rentang 0\u20133.");
+    if(!q.discussion) errors.push("Soal PG nomor " + no + " tidak memiliki pembahasan.");
+    if(!q.submateri) errors.push("Soal PG nomor " + no + " tidak memiliki submateri.");
+  });
+  essayQuestions.forEach(function(e,i){
+    const no = i + 1;
+    if(!e.question) errors.push("Soal esai nomor " + no + " tidak memiliki pertanyaan.");
+    if(!e.answerGuide) errors.push("Soal esai nomor " + no + " tidak memiliki pedoman jawaban.");
+    if(typeof e.maxScore !== "number" || e.maxScore <= 0) errors.push("Soal esai nomor " + no + " tidak memiliki skor maksimal yang sah.");
+  });
+  return errors;
+}
+
+/* =========================================================
+   6. UTILITAS
+   ========================================================= */
+function esc(s){
+  return String(s === undefined || s === null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+const LETTERS = ["A","B","C","D","E","F"];
+function firstUnanswered(){
+  for(let i=0;i<questions.length;i++){ if(userAnswers[i] === null) return i; }
+  return questions.length;
+}
+function allPGAnswered(){ return firstUnanswered() >= questions.length; }
+function hasUrl(u){ return typeof u === "string" && u.trim() !== ""; }
+
+/* =========================================================
+   7. GENERATOR SLIDE
+   ========================================================= */
+function buildSlides(){
+  slides = [];
+  slides.push({type:"cover"});
+  questions.forEach(function(q,i){ slides.push({type:"pg", index:i}); });
+  if(essayQuestions.length > 0){
+    slides.push({type:"essayIntro"});
+    essayQuestions.forEach(function(e,i){ slides.push({type:"essay", index:i}); });
+  }
+  slides.push({type:"result"});
+  slides.push({type:"keys"});
+}
+function slideIndexOf(type, index){
+  for(let i=0;i<slides.length;i++){
+    if(slides[i].type === type && (index === undefined || slides[i].index === index)) return i;
+  }
+  return 0;
+}
+
+/* =========================================================
+   8. SISTEM PENILAIAN
+   ========================================================= */
+function countCorrect(){
+  let c = 0;
+  questions.forEach(function(q,i){ if(userAnswers[i] !== null && userAnswers[i] === q.answer) c++; });
+  return c;
+}
+function computeScores(){
+  const totalPG = questions.length;
+  const benar   = countCorrect();
+  const salah   = totalPG - benar;
+
+  const nilaiPG = totalPG > 0 ? (benar / totalPG) * 100 : 0;
+
+  let totalSkorEsai = 0, totalSkorMaksEsai = 0;
+  essayQuestions.forEach(function(e,i){
+    totalSkorMaksEsai += (typeof e.maxScore === "number" ? e.maxScore : 0);
+    totalSkorEsai     += (typeof essayScores[i] === "number" ? essayScores[i] : 0);
+  });
+  const nilaiEsai = totalSkorMaksEsai > 0 ? (totalSkorEsai / totalSkorMaksEsai) * 100 : 0;
+
+  let nilaiAkhir;
+  if(totalPG > 0 && essayQuestions.length > 0)      nilaiAkhir = nilaiPG * 0.70 + nilaiEsai * 0.30;
+  else if(essayQuestions.length === 0)              nilaiAkhir = nilaiPG;
+  else                                              nilaiAkhir = nilaiEsai;
+
+  const round2 = function(n){ return Math.round((n + Number.EPSILON) * 100) / 100; };
+  return {
+    benar:benar, salah:salah, totalPG:totalPG,
+    nilaiPG:round2(nilaiPG), nilaiEsai:round2(nilaiEsai), nilaiAkhir:round2(nilaiAkhir),
+    totalSkorEsai:totalSkorEsai, totalSkorMaksEsai:totalSkorMaksEsai
+  };
+}
+function kategori(n){
+  if(n >= 85) return {label:"SANGAT BAIK", color:"var(--success)"};
+  if(n >= 70) return {label:"BAIK", color:"var(--primary)"};
+  if(n >= 55) return {label:"CUKUP", color:"var(--warning)"};
+  return {label:"PERLU BIMBINGAN", color:"var(--danger)"};
+}
+function analisisNilai(n){
+  if(n >= 85) return "Pemahaman terhadap materi sudah sangat baik. Pertahankan hasil belajar ini dan lanjutkan ke materi berikutnya.";
+  if(n >= 70) return "Pemahaman terhadap materi sudah baik. Masih terdapat beberapa bagian yang perlu diperkuat melalui latihan.";
+  if(n >= 55) return "Beberapa konsep sudah dipahami. Pelajari kembali bagian yang masih kurang dan lakukan latihan tambahan.";
+  return "Pemahaman materi masih perlu diperkuat. Pelajari kembali submateri yang belum dikuasai dan lakukan latihan ulang.";
+}
+function analisisSubmateri(){
+  const map = {};
+  questions.forEach(function(q,i){
+    const s = q.submateri;
+    if(!map[s]) map[s] = {total:0, benar:0};
+    map[s].total++;
+    if(userAnswers[i] !== null && userAnswers[i] === q.answer) map[s].benar++;
+  });
+  const out = [];
+  Object.keys(map).forEach(function(s){
+    const d = map[s];
+    if(d.total > 0){
+      out.push({nama:s, total:d.total, benar:d.benar, persen:Math.round((d.benar / d.total) * 100)});
+    }
+  });
+  return out;
+}
+function rekomendasi(p){
+  if(p >= 80) return "Sudah dikuasai dengan baik.";
+  if(p >= 60) return "Perlu latihan tambahan.";
+  return "Disarankan mempelajari kembali submateri ini.";
+}
+
+/* =========================================================
+   9. KOMPONEN TAMPILAN
+   ========================================================= */
+function topbar(){
+  return '<div class="topbar"><h1>' + esc(DATA_MATERI.bab) + '</h1>' +
+         '<p>' + esc(DATA_MATERI.mataPelajaran) + ' \u2022 ' + esc(DATA_MATERI.kelas) + '</p></div>';
+}
+function slideDots(){
+  let h = '<div class="dots" aria-hidden="true">';
+  for(let i=0;i<slides.length;i++){
+    const cls = i === currentSlide ? "on" : (i < currentSlide ? "done" : "");
+    h += '<i class="' + cls + '"></i>';
+  }
+  return h + '</div>';
+}
+function numberNav(active){
+  const limit = firstUnanswered();
+  let h = '<div class="nums">';
+  for(let i=0;i<questions.length;i++){
+    let cls = "";
+    if(userAnswers[i] !== null) cls = (userAnswers[i] === questions[i].answer) ? "ok" : "no";
+    if(i === active) cls += " cur";
+    const locked = i > limit;
+    h += '<button class="' + cls.trim() + '" ' + (locked ? "disabled" : 'data-jump="' + i + '"') +
+         ' aria-label="Soal ' + (i+1) + '">' + (i+1 < 10 ? "0" + (i+1) : (i+1)) + '</button>';
+  }
+  return h + '</div>';
+}
+
+/* =========================================================
+   10. RENDER SLIDE
+   ========================================================= */
+function render(){
+  const s = slides[currentSlide];
+  if(!s){ currentSlide = 0; }
+  const t = slides[currentSlide].type;
+  if(t === "cover")           app.innerHTML = viewCover();
+  else if(t === "pg")         app.innerHTML = viewPG(slides[currentSlide].index);
+  else if(t === "essayIntro") app.innerHTML = viewEssayIntro();
+  else if(t === "essay")      app.innerHTML = viewEssay(slides[currentSlide].index);
+  else if(t === "result")     app.innerHTML = viewResult();
+  else if(t === "keys")       app.innerHTML = viewKeys();
+  window.scrollTo({top:0, behavior:"auto"});
+}
+
+/* ---------- Cover ---------- */
+function viewCover(){
+  let subs = "";
+  if(DATA_MATERI.submateri && DATA_MATERI.submateri.length > 0){
+    subs = '<ul class="sublist">';
+    DATA_MATERI.submateri.forEach(function(s,i){
+      subs += '<li><i>' + (i+1) + '</i><span>' + esc(s) + '</span></li>';
+    });
+    subs += '</ul>';
+  }
+  const bisaMulai = questions.length > 0 || essayQuestions.length > 0;
+  return '<div class="card cover">' +
+      '<span class="badge">EVALUASI PEMBELAJARAN</span>' +
+      '<h2>' + esc(DATA_MATERI.bab) + '</h2>' +
+      '<p class="sub">' + esc(DATA_MATERI.mataPelajaran) + ' \u2022 ' + esc(DATA_MATERI.kelas) + '</p>' +
+      '<div class="meta-grid">' +
+        '<div class="meta"><b>' + questions.length + '</b><span>Soal Pilihan Ganda</span></div>' +
+        '<div class="meta"><b>' + essayQuestions.length + '</b><span>Soal Esai</span></div>' +
+        '<div class="meta"><b>' + (DATA_MATERI.submateri ? DATA_MATERI.submateri.length : 0) + '</b><span>Submateri</span></div>' +
+      '</div>' +
+      subs +
+      '<div class="mt">' +
+        (bisaMulai
+          ? '<button class="btn" data-act="start">\uD83D\uDE80 MULAI EVALUASI</button>'
+          : '<div class="err">Belum ada soal yang tersedia pada evaluasi ini.</div>') +
+      '</div>' +
+      '<p class="hint">Jawaban akan terkunci setelah dipilih, jadi pikirkan baik-baik sebelum menjawab.</p>' +
+    '</div>';
+}
+
+/* ---------- Pilihan Ganda ---------- */
+function viewPG(i){
+  const q = questions[i];
+  const answered = userAnswers[i] !== null;
+  const correct  = answered && userAnswers[i] === q.answer;
+  const persen   = Math.round(((i + 1) / questions.length) * 100);
+
+  let opts = "";
+  q.options.forEach(function(o,k){
+    let cls = "opt";
+    if(answered){
+      if(k === q.answer) cls += " right";
+      else if(k === userAnswers[i]) cls += " wrong";
+    }
+    opts += '<button class="' + cls + '" ' + (answered ? "disabled" : 'data-pick="' + k + '"') + '>' +
+              '<span class="lt">' + LETTERS[k] + '</span><span>' + esc(o) + '</span>' +
+            '</button>';
+  });
+
+  let fb = "";
+  if(answered){
+    fb = '<div class="feedback ' + (correct ? "right" : "wrong") + '">' +
+           '<b>' + (correct ? "\u2705 Benar" : "\u274C Kurang tepat") + '</b>' +
+           (correct ? "" : '<div style="margin-bottom:6px;">Jawaban yang benar: <b style="display:inline">' + LETTERS[q.answer] + '. ' + esc(q.options[q.answer]) + '</b></div>') +
+           '<div class="dis"><b style="display:inline">Pembahasan:</b> ' + esc(q.discussion) + '</div>' +
+         '</div>';
+  }
+
+  const isLast = (i === questions.length - 1);
+  const nextLabel = isLast ? (essayQuestions.length > 0 ? "Lanjut ke Esai \u2192" : "Lihat Hasil \u2192") : "Berikutnya \u2192";
+
+  return topbar() +
+    '<div class="card">' +
+      '<div class="progress-head"><span>Pilihan Ganda \u2022 Soal ' + (i+1) + ' dari ' + questions.length + '</span><span>' + persen + '%</span></div>' +
+      '<div class="bar"><span style="width:' + persen + '%"></span></div>' +
+      numberNav(i) +
+      '<div><span class="tag">' + esc(q.submateri) + '</span><span class="tag lvl">' + esc(q.level || "Pemahaman") + '</span></div>' +
+      '<p class="qtext">' + esc(q.question) + '</p>' +
+      opts +
+      fb +
+      (answered ? "" : '<p class="hint">Pilih salah satu jawaban untuk melanjutkan.</p>') +
+      '<div class="btn-row">' +
+        '<button class="btn ghost" ' + (i === 0 ? "disabled" : 'data-act="prev"') + '>\u2190 Sebelumnya</button>' +
+        '<button class="btn" ' + (answered ? 'data-act="next"' : "disabled") + '>' + nextLabel + '</button>' +
+      '</div>' +
+      slideDots() +
+    '</div>';
+}
+
+/* ---------- Pembuka Esai ---------- */
+function viewEssayIntro(){
+  return topbar() +
+    '<div class="card cover">' +
+      '<span class="badge">BAGIAN KEDUA</span>' +
+      '<h2>\u270D\uFE0F Soal Esai</h2>' +
+      '<p class="sub">Tuliskan jawaban beserta langkah pengerjaannya pada kotak yang tersedia. Jawabanmu tersimpan otomatis saat berpindah soal.</p>' +
+      '<div class="meta-grid">' +
+        '<div class="meta"><b>' + essayQuestions.length + '</b><span>Soal Esai</span></div>' +
+        '<div class="meta"><b>' + countCorrect() + '/' + questions.length + '</b><span>PG Benar</span></div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn ghost" data-act="prev">\u2190 Kembali</button>' +
+        '<button class="btn" data-act="next">Mulai Esai \u2192</button>' +
+      '</div>' +
+      slideDots() +
+    '</div>';
+}
+
+/* ---------- Esai ---------- */
+function viewEssay(i){
+  const e = essayQuestions[i];
+  const persen = Math.round(((i + 1) / essayQuestions.length) * 100);
+  const isLast = (i === essayQuestions.length - 1);
+  const skor = (typeof essayScores[i] === "number") ? essayScores[i] : "";
+
+  return topbar() +
+    '<div class="card">' +
+      '<div class="progress-head"><span>Esai \u2022 Soal ' + (i+1) + ' dari ' + essayQuestions.length + '</span><span>' + persen + '%</span></div>' +
+      '<div class="bar"><span style="width:' + persen + '%"></span></div>' +
+      '<div style="margin-top:12px;"><span class="tag">' + esc(e.submateri) + '</span></div>' +
+      '<p class="qtext">' + esc(e.question) + '</p>' +
+      '<textarea id="essayInput" placeholder="Tulis jawabanmu di sini \u2026">' + esc(essayAnswers[i]) + '</textarea>' +
+      '<div class="score-box">' +
+        '<h4>\uD83D\uDC69\u200D\uD83C\uDFEB Penilaian Guru</h4>' +
+        '<p>Skor maksimal untuk soal ini: ' + e.maxScore + '</p>' +
+        '<div class="score-row">' +
+          '<input id="scoreInput" type="number" inputmode="numeric" min="0" max="' + e.maxScore + '" step="1" value="' + skor + '" placeholder="0">' +
+          '<button class="btn ok" data-act="saveScore">\uD83D\uDCBE Simpan Skor</button>' +
+        '</div>' +
+        '<div class="note" id="scoreNote"></div>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn ghost" data-act="prev">\u2190 Sebelumnya</button>' +
+        '<button class="btn" data-act="next">' + (isLast ? "\uD83C\uDFAF Lihat Hasil" : "Berikutnya \u2192") + '</button>' +
+      '</div>' +
+      slideDots() +
+    '</div>';
+}
+
+/* ---------- Hasil ---------- */
+function viewResult(){
+  const r = computeScores();
+  const k = kategori(r.nilaiAkhir);
+  const ana = analisisSubmateri();
+
+  let anaHtml = "";
+  if(ana.length > 0){
+    ana.forEach(function(a){
+      const warna = a.persen >= 80 ? "var(--success)" : (a.persen >= 60 ? "var(--warning)" : "var(--danger)");
+      anaHtml += '<div class="ana">' +
+          '<div class="row"><b>' + esc(a.nama) + '</b><span>' + a.benar + '/' + a.total + ' \u2022 ' + a.persen + '%</span></div>' +
+          '<div class="bar"><span style="width:' + a.persen + '%;background:' + warna + '"></span></div>' +
+          '<div class="rec">' + esc(rekomendasi(a.persen)) + '</div>' +
+        '</div>';
+    });
+  }else{
+    anaHtml = '<div class="callout">Belum ada soal pilihan ganda yang dapat dianalisis.</div>';
+  }
+
+  const nextOk = hasUrl(DATA_MATERI.nextBabUrl);
+  const dashOk = hasUrl(DATA_MATERI.dashboardUrl);
+
+  return topbar() +
+    '<div class="card">' +
+      '<div class="score-hero">' +
+        '<div style="font-size:.82rem;letter-spacing:1px;opacity:.9;">\uD83C\uDFAF HASIL EVALUASI</div>' +
+        '<div class="val">' + r.nilaiAkhir + '</div>' +
+        '<div class="cat">' + k.label + '</div>' +
+      '</div>' +
+
+      '<div class="stats">' +
+        '<div class="stat"><b style="color:var(--success)">' + r.benar + '</b><span>Jawaban Benar</span></div>' +
+        '<div class="stat"><b style="color:var(--danger)">' + r.salah + '</b><span>Jawaban Salah</span></div>' +
+        '<div class="stat"><b style="color:var(--primary)">' + r.nilaiPG + '</b><span>Nilai Pilihan Ganda</span></div>' +
+        '<div class="stat"><b style="color:var(--secondary)">' + r.nilaiEsai + '</b><span>Nilai Esai (' + r.totalSkorEsai + '/' + r.totalSkorMaksEsai + ')</span></div>' +
+      '</div>' +
+      '<div class="callout">Persentase ketercapaian: <b>' + r.nilaiAkhir + '%</b>' +
+        (questions.length > 0 && essayQuestions.length > 0 ? ' \u2014 dihitung dari 70% nilai pilihan ganda dan 30% nilai esai.' : '') +
+      '</div>' +
+
+      '<div class="sec-title">\uD83D\uDCCA Analisis Hasil Belajar</div>' +
+      '<div class="callout">' + esc(analisisNilai(r.nilaiAkhir)) + '</div>' +
+
+      '<div class="sec-title">\uD83D\uDCDA Analisis Penguasaan Submateri</div>' +
+      anaHtml +
+
+      '<div class="sec-title">\uD83D\uDCA1 Rekomendasi Belajar</div>' +
+      '<div class="callout">' + esc(rekomendasiUmum(ana)) + '</div>' +
+
+      '<div class="btn-row">' +
+        '<button class="btn warn" data-act="keys">\uD83D\uDD10 Lihat Kunci &amp; Pembahasan</button>' +
+      '</div>' +
+      '<div class="btn-row">' +
+        '<button class="btn ghost" data-act="reset">\uD83D\uDD04 Ulangi Evaluasi</button>' +
+        '<button class="btn ghost" ' + (dashOk ? 'data-act="dashboard"' : "disabled") + '>\uD83D\uDCDA Kembali ke Dashboard</button>' +
+        '<button class="btn" ' + (nextOk ? 'data-act="nextbab"' : "disabled") + '>\u27A1\uFE0F Bab Berikutnya</button>' +
+      '</div>' +
+      slideDots() +
+    '</div>';
+}
+function rekomendasiUmum(ana){
+  const lemah = ana.filter(function(a){ return a.persen < 60; }).map(function(a){ return a.nama; });
+  const sedang = ana.filter(function(a){ return a.persen >= 60 && a.persen < 80; }).map(function(a){ return a.nama; });
+  if(ana.length === 0) return "Kerjakan soal pilihan ganda terlebih dahulu agar rekomendasi belajar dapat disusun.";
+  if(lemah.length === 0 && sedang.length === 0) return "Seluruh submateri sudah dikuasai dengan baik. Lanjutkan ke bab berikutnya dan pertahankan cara belajarmu.";
+  let t = "";
+  if(lemah.length > 0)  t += "Pelajari kembali submateri: " + lemah.join(", ") + ". ";
+  if(sedang.length > 0) t += "Perbanyak latihan pada submateri: " + sedang.join(", ") + ". ";
+  return t.trim();
+}
+
+/* ---------- Kunci & Pembahasan ---------- */
+function viewKeys(){
+  let pg = "";
+  if(questions.length > 0){
+    questions.forEach(function(q,i){
+      const jawab = userAnswers[i] === null ? "Belum dijawab" :
+        ("Jawabanmu: " + LETTERS[userAnswers[i]] + (userAnswers[i] === q.answer ? " \u2705" : " \u274C"));
+      pg += '<div class="acc"><button data-acc="pg' + i + '"><span>Soal ' + (i+1) + ' \u2014 ' + esc(q.submateri) + '</span><span class="k">\u25BC</span></button>' +
+            '<div class="body">' +
+              '<p class="q">' + esc(q.question) + '</p>' +
+              '<span class="key">Kunci: ' + LETTERS[q.answer] + '. ' + esc(q.options[q.answer]) + '</span>' +
+              '<div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">' + esc(jawab) + '</div>' +
+              '<div><b>Pembahasan:</b> ' + esc(q.discussion) + '</div>' +
+            '</div></div>';
+    });
+  }else{
+    pg = '<div class="callout">Tidak ada soal pilihan ganda.</div>';
+  }
+
+  let es = "";
+  if(essayQuestions.length > 0){
+    essayQuestions.forEach(function(e,i){
+      const skor = (typeof essayScores[i] === "number") ? (essayScores[i] + "/" + e.maxScore) : ("Belum dinilai (maks " + e.maxScore + ")");
+      es += '<div class="acc"><button data-acc="es' + i + '"><span>Esai ' + (i+1) + ' \u2014 ' + esc(e.submateri) + '</span><span class="k">\u25BC</span></button>' +
+            '<div class="body">' +
+              '<p class="q">' + esc(e.question) + '</p>' +
+              '<div style="font-size:.8rem;color:var(--muted);margin-bottom:8px;">Skor: ' + esc(skor) + '</div>' +
+              '<div><b>Pedoman Jawaban:</b> ' + esc(e.answerGuide) + '</div>' +
+              '<div style="margin-top:8px;"><b>Jawabanmu:</b> ' + (essayAnswers[i] ? esc(essayAnswers[i]) : "<i>belum diisi</i>") + '</div>' +
+            '</div></div>';
+    });
+  }else{
+    es = '<div class="callout">Tidak ada soal esai.</div>';
+  }
+
+  return topbar() +
+    '<div class="card">' +
+      '<div class="sec-title" style="margin-top:0;">\uD83D\uDD11 Kunci Jawaban &amp; Pembahasan</div>' +
+      '<p style="font-size:.86rem;color:var(--muted);margin-top:0;">Ketuk setiap nomor untuk membuka pembahasannya.</p>' +
+      '<div class="sec-title">Pilihan Ganda</div>' + pg +
+      '<div class="sec-title">Esai</div>' + es +
+      '<div class="btn-row">' +
+        '<button class="btn" data-act="backResult">\u2190 Kembali ke Hasil</button>' +
+      '</div>' +
+      slideDots() +
+    '</div>';
+}
+
+/* =========================================================
+   11. AKSI & NAVIGASI
+   ========================================================= */
+function saveEssayIfNeeded(){
+  const s = slides[currentSlide];
+  if(s && s.type === "essay"){
+    const ta = document.getElementById("essayInput");
+    if(ta) essayAnswers[s.index] = ta.value;
+  }
+}
+function goNext(){
+  const s = slides[currentSlide];
+  if(s.type === "pg" && userAnswers[s.index] === null) return;
+  saveEssayIfNeeded();
+  if(currentSlide < slides.length - 1){
+    const target = slides[currentSlide + 1];
+    if(target.type === "keys"){ return; }
+    currentSlide++;
+    render();
+  }
+}
+function goPrev(){
+  saveEssayIfNeeded();
+  if(currentSlide > 0){ currentSlide--; render(); }
+}
+function pick(k){
+  const s = slides[currentSlide];
+  if(s.type !== "pg") return;
+  if(userAnswers[s.index] !== null) return;
+  userAnswers[s.index] = k;
+  render();
+  const fb = document.querySelector(".feedback");
+  if(fb) fb.classList.add(userAnswers[s.index] === questions[s.index].answer ? "pop" : "shake");
+}
+function saveScore(){
+  const s = slides[currentSlide];
+  if(s.type !== "essay") return;
+  const e = essayQuestions[s.index];
+  const input = document.getElementById("scoreInput");
+  const note  = document.getElementById("scoreNote");
+  if(!input || !note) return;
+
+  const raw = input.value.trim();
+  const showNote = function(txt, ok){
+    note.textContent = txt;
+    note.className = "note show " + (ok ? "ok" : "bad");
+  };
+  if(raw === ""){ showNote("Skor belum diisi. Masukkan angka 0 sampai " + e.maxScore + ".", false); return; }
+  const val = Number(raw);
+  if(isNaN(val)){ showNote("Skor harus berupa angka.", false); return; }
+  if(val < 0){ showNote("Skor tidak boleh negatif.", false); return; }
+  if(val > e.maxScore){ showNote("Skor melebihi batas. Skor maksimal soal ini " + e.maxScore + ".", false); return; }
+
+  essayScores[s.index] = val;
+  showNote("Skor " + val + " dari " + e.maxScore + " tersimpan.", true);
+}
+function resetEvaluation(){
+  initState();
+  buildSlides();
+  currentSlide = 0;
+  render();
+}
+
+/* Delegasi event untuk seluruh aplikasi */
+app.addEventListener("click", function(ev){
+  const btn = ev.target.closest("button");
+  if(!btn) return;
+
+  if(btn.hasAttribute("data-pick")){ pick(Number(btn.getAttribute("data-pick"))); return; }
+
+  if(btn.hasAttribute("data-jump")){
+    const idx = Number(btn.getAttribute("data-jump"));
+    if(idx <= firstUnanswered()){ currentSlide = slideIndexOf("pg", idx); render(); }
+    return;
+  }
+
+  if(btn.hasAttribute("data-acc")){
+    const acc = btn.parentElement;
+    acc.classList.toggle("open");
+    btn.querySelector(".k").textContent = acc.classList.contains("open") ? "\u25B2" : "\u25BC";
+    return;
+  }
+
+  const act = btn.getAttribute("data-act");
+  if(!act) return;
+
+  if(act === "start"){ currentSlide = 1; render(); }
+  else if(act === "next")  goNext();
+  else if(act === "prev")  goPrev();
+  else if(act === "saveScore") saveScore();
+  else if(act === "keys"){ currentSlide = slideIndexOf("keys"); render(); }
+  else if(act === "backResult"){ currentSlide = slideIndexOf("result"); render(); }
+  else if(act === "reset"){ resetEvaluation(); }
+  else if(act === "dashboard"){ if(hasUrl(DATA_MATERI.dashboardUrl)) window.location.href = DATA_MATERI.dashboardUrl; }
+  else if(act === "nextbab"){ if(hasUrl(DATA_MATERI.nextBabUrl)) window.location.href = DATA_MATERI.nextBabUrl; }
+});
+
+/* Simpan jawaban esai saat diketik */
+app.addEventListener("input", function(ev){
+  if(ev.target && ev.target.id === "essayInput"){
+    const s = slides[currentSlide];
+    if(s && s.type === "essay") essayAnswers[s.index] = ev.target.value;
+  }
+});
+
+/* =========================================================
+   12. INISIALISASI
+   ========================================================= */
+(function start(){
+  const errors = validateData();
+  initState();
+  buildSlides();
+  currentSlide = 0;
+  render();
+  if(errors.length > 0){
+    const box = document.createElement("div");
+    box.className = "err";
+    box.innerHTML = "<b>Data evaluasi belum sesuai:</b><ul style='margin:8px 0 0;padding-left:18px;'>" +
+      errors.map(function(e){ return "<li>" + esc(e) + "</li>"; }).join("") + "</ul>";
+    app.insertBefore(box, app.firstChild);
+  }
+})();
+</script>
+</body>
+</html>

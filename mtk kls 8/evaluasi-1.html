@@ -25,7 +25,12 @@
     --vh: 1vh;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  button,input,textarea,select{font:inherit;}
+  button{touch-action:manipulation;}
+  img,svg,video,canvas{max-width:100%;height:auto;}
+  p,li,h1,h2,h3,h4,h5,h6,td,th,span{overflow-wrap:anywhere;}
   html,body{height:100%;}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   body{
     font-family:'Inter', sans-serif;
     color:var(--ink);
@@ -145,7 +150,8 @@
   .grade-card h5{ font-family:'Space Grotesk'; font-size:14px; margin-bottom:8px; }
   .grade-card .big-num{ font-family:'JetBrains Mono'; font-weight:700; font-size:26px; margin-bottom:4px; }
   .grade-card p{ font-size:12px; color:var(--ink-soft); line-height:1.55; }
-  .rubric-table{ width:100%; border-collapse:collapse; background:var(--white); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
+  .rubric-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:14px;}
+  .rubric-table{ width:100%; min-width:420px; border-collapse:collapse; background:var(--white); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); }
   .rubric-table th{ font-family:'Space Grotesk'; font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); text-align:left; padding:10px 14px; border-bottom:1px solid var(--paper-line-strong); }
   .rubric-table td{ padding:10px 14px; font-size:12.5px; border-bottom:1px solid var(--paper-line); color:var(--ink); }
   .rubric-table tr:last-child td{ border-bottom:none; }
@@ -190,6 +196,25 @@
     .cover-tri svg{ width:100px; }
     .predikat-row{ flex-direction:column; }
   }
+  @media (max-width: 680px){
+    .slide{justify-content:flex-start;}
+    .slide-inner{max-width:100%;padding-block:4px;}
+    .btn{width:100%;justify-content:center;}
+    .cover-cta{width:100%;}
+    .cover-cta .btn{max-width:320px;}
+    .cover-stats{width:100%;}
+    .cover-stat{flex:1 1 90px;padding:9px 10px;}
+    .petunjuk-box{padding:15px 16px;}
+    .pg-opt{font-size:13.5px;padding:13px 12px;}
+    .essay-list{gap:16px;}
+    .grade-card{padding:15px 16px;}
+    .formula-note{font-size:11.5px;padding:12px 10px;}
+    .kunci-essay-item{padding:12px 13px;}
+    .kunci-pg-item{padding:9px 3px;}
+    .kunci-pg-item .ans{font-size:14px;}
+    .navbtn{min-width:44px;justify-content:center;}
+  }
+
   @media (max-width: 420px){
     .kunci-pg-grid{ grid-template-columns:repeat(5,1fr); gap:6px; }
   }
@@ -331,15 +356,14 @@
           <p>Setiap soal esai bernilai maksimal <b style="color:var(--ink)">8 poin</b>, dinilai berdasarkan rubrik berikut. Skor maksimal bagian ini adalah <b style="color:var(--ink)">40 poin</b>.</p>
         </div>
       </div>
-      <table class="rubric-table">
+      <div class="rubric-table-wrap">\n      <table class="rubric-table">
         <thead><tr><th>Komponen Penilaian Esai</th><th style="text-align:center;">Poin</th></tr></thead>
         <tbody>
           <tr><td>Pemahaman konsep &amp; rumus yang digunakan tepat</td><td class="pts">3</td></tr>
           <tr><td>Langkah penyelesaian sistematis dan benar</td><td class="pts">3</td></tr>
           <tr><td>Jawaban akhir tepat beserta satuan yang benar</td><td class="pts">2</td></tr>
         </tbody>
-      </table>
-      <div class="formula-note">Nilai Akhir = Skor Pilihan Ganda (maks 60) + Skor Esai (maks 40) = <b style="color:var(--coral)">maks 100</b></div>
+      </table>\n      </div>\n      <div class="formula-note">Nilai Akhir = Skor Pilihan Ganda (maks 60) + Skor Esai (maks 40) = <b style="color:var(--coral)">maks 100</b></div>
       <div class="predikat-row">
         <div class="predikat-chip"><div class="p" style="color:var(--teal)">90–100</div><div class="r">Sangat Baik</div></div>
         <div class="predikat-chip"><div class="p" style="color:var(--amber)">75–89</div><div class="r">Baik</div></div>
@@ -372,8 +396,9 @@
 /* ================= viewport height fix (mobile) ================= */
 function setVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
 setVh();
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
+let vhTimer;
+window.addEventListener('resize', ()=>{ clearTimeout(vhTimer); vhTimer=setTimeout(setVh,80); });
+window.addEventListener('orientationchange', ()=>setTimeout(setVh,120));
 
 /* ================= DATA: PG ================= */
 const pgQuestions = [
@@ -530,11 +555,16 @@ document.addEventListener('keydown', (e)=>{
 
 /* ================= TOUCH SWIPE NAV ================= */
 let touchStartX = 0, touchStartY = 0;
-main.addEventListener('touchstart', (e)=>{ touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }, {passive:true});
+let touchIgnore = false;
+main.addEventListener('touchstart', (e)=>{
+  touchIgnore = !!e.target.closest('button,a,input,textarea,select');
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, {passive:true});
 main.addEventListener('touchend', (e)=>{
   const dx = e.changedTouches[0].screenX - touchStartX;
   const dy = e.changedTouches[0].screenY - touchStartY;
-  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ if(dx < 0) goTo(current+1); else goTo(current-1); }
+  if(!touchIgnore && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){ if(dx < 0) goTo(current+1); else goTo(current-1); }
 }, {passive:true});
 
 /* ================= INIT ================= */
