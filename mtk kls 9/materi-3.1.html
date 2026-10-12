@@ -7,394 +7,183 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --paper:#0A0F24;
-    --paper-line: rgba(255,255,255,0.045);
-    --paper-line-strong: rgba(255,255,255,0.14);
-    --ink:#F3F5FC;
-    --ink-soft:#8D96B8;
-    --white:#151B36;
-    --white-2:#1C2444;
-    --coral:#FB923C;
-    --coral-soft: rgba(251,146,60,0.14);
-    --amber:#A78BFA;
-    --amber-soft: rgba(167,139,250,0.14);
-    --teal:#2DD4BF;
-    --teal-soft: rgba(45,212,191,0.14);
-    --shadow: 0 18px 40px -18px rgba(0,0,0,0.65);
-    --vh: 1vh;
-  }
-  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
-  body{
-    font-family:'Inter', sans-serif;
-    color:var(--ink);
-    background:
-      linear-gradient(var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
-      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px) 0 0/28px 28px,
-      var(--paper);
-    overflow:hidden;
-    height:calc(var(--vh, 1vh) * 100);
-    display:flex;
-    flex-direction:column;
-  }
-  .display{ font-family:'Space Grotesk', sans-serif; }
-  .mono{ font-family:'JetBrains Mono', monospace; letter-spacing:0.02em; }
-
-  /* ---------- HEADER / PROGRESS ---------- */
-  .topbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    padding:14px 20px 10px;
-    flex-shrink:0;
-  }
-  .brand{ display:flex; align-items:center; gap:9px; min-width:0; }
-  .brand-mark{
-    width:26px;height:26px;
-    border:2px solid var(--ink);
-    position:relative; flex-shrink:0;
-    transform:rotate(10deg);
-  }
-  .brand-mark::after{ content:""; position:absolute; inset:5px; border:2px solid var(--coral); }
-  .brand-text{
-    font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
-    color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
-  .brand-text b{ color:var(--ink); }
-
-  .progress-track{
-    flex:1; max-width:340px; height:5px; background:var(--paper-line-strong);
-    border-radius:3px; overflow:hidden; display:none;
-  }
-  .progress-fill{ height:100%; background:var(--coral); width:0%; transition:width .4s ease; border-radius:3px; }
-
-  .dots{ display:flex; gap:5px; align-items:center; overflow-x:auto; scrollbar-width:none; max-width:44vw; }
-  .dots::-webkit-scrollbar{ display:none; }
-  .dot{
-    width:16px; height:6px; flex-shrink:0;
-    background:transparent; border:1.5px solid var(--paper-line-strong);
-    border-radius:3px; cursor:pointer; transition:all .25s ease; padding:0;
-  }
-  .dot.active{ background:var(--coral); border-color:var(--coral); width:24px; }
-  .dot.done{ background:var(--ink-soft); border-color:var(--ink-soft); }
-
-  .slide-count{ font-size:10.5px; color:var(--ink-soft); min-width:48px; text-align:right; flex-shrink:0; }
-
-  /* ---------- MAIN / SLIDES ---------- */
-  main{ flex:1; position:relative; overflow:hidden; }
-  .slide{
-    position:absolute; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    padding:14px 7% 24px;
-    opacity:0; transform:translateX(30px); pointer-events:none;
-    transition:opacity .4s ease, transform .4s ease;
-    overflow-y:auto; -webkit-overflow-scrolling:touch;
-  }
-  .slide.active{ opacity:1; transform:translateX(0); pointer-events:auto; }
-  .slide.prevslide{ transform:translateX(-30px); }
-
-  .slide-inner{ width:100%; max-width:960px; margin:auto; padding-block:6px; }
-
-  .eyebrow{
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:10.5px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase;
-    color:var(--coral); margin-bottom:12px;
-  }
-  .eyebrow::before{ content:""; width:14px; height:1.5px; background:var(--coral); }
-
-  h1.big{ font-size:clamp(28px, 6vw, 50px); line-height:1.05; font-weight:700; letter-spacing:-0.01em; font-family:'Space Grotesk'; }
-  h2.slide-title{ font-size:clamp(21px, 4vw, 30px); font-weight:700; line-height:1.15; margin-bottom:6px; font-family:'Space Grotesk'; }
-  .slide-sub{ font-size:clamp(12.5px,2vw,14.5px); color:var(--ink-soft); margin-bottom:20px; max-width:640px; line-height:1.55; }
-
-  .dim{
-    display:inline-flex; align-items:center; gap:6px;
-    font-family:'JetBrains Mono', monospace; font-size:11.5px; font-weight:600; color:var(--ink);
-    background:var(--white); border:1.5px dashed var(--paper-line-strong);
-    padding:5px 10px 5px 6px; border-radius:100px;
-  }
-  .dim .arrow{ color:var(--coral); font-size:13px; }
-
-  /* ---------- BUTTONS ---------- */
-  .btn{
-    font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14px;
-    padding:12px 20px; border-radius:10px; border:none; cursor:pointer;
-    display:inline-flex; align-items:center; gap:8px;
-    transition:transform .15s ease, box-shadow .15s ease;
-    min-height:44px;
-  }
-  .btn:hover{ transform:translateY(-2px); }
-  .btn:active{ transform:translateY(0); }
-  .btn-primary{ background:var(--ink); color:var(--white); box-shadow:var(--shadow); }
-  .btn-ghost{ background:transparent; color:var(--ink); border:1.5px solid var(--paper-line-strong); }
-  .btn-ghost:hover{ border-color:var(--ink); }
-  .btn-coral{ background:var(--coral); color:#12121a; box-shadow:0 14px 30px -14px rgba(251,146,60,.5); }
-
-  /* ---------- COVER ---------- */
-  #s0 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
-  .cover-shapes{ display:flex; gap:16px; margin-bottom:22px; flex-wrap:wrap; justify-content:center; }
-  .cover-shapes svg{ width:46px; height:46px; }
-  .cover-cta{ margin-top:26px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; justify-content:center; }
-  .cp-line{
-    margin-top:18px; font-size:12.5px; color:var(--ink-soft); max-width:560px; line-height:1.6;
-    border-left:2px solid var(--coral); padding-left:14px; text-align:left;
-  }
-
-  /* ---------- TP SLIDE ---------- */
-  .tp-head{
-    display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;
-  }
-  .pill{
-    font-family:'JetBrains Mono'; font-size:11.5px; font-weight:700;
-    padding:6px 12px; border-radius:100px; border:1.5px solid;
-  }
-  .pill-teal{ color:var(--teal); border-color:var(--teal); background:var(--teal-soft); }
-  .pill-purple{ color:var(--amber); border-color:var(--amber); background:var(--amber-soft); }
-  .cp-box{
-    background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow);
-    margin-bottom:18px; border-left:3px solid var(--teal);
-  }
-  .cp-box b{ color:var(--teal); font-size:11px; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:6px; font-family:'Space Grotesk';}
-  .cp-box p{ font-size:14px; line-height:1.55; color:var(--ink); }
-  .tp-list{ display:flex; flex-direction:column; gap:10px; }
-  .tp-item{
-    background:var(--white); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow);
-    display:flex; gap:14px; align-items:flex-start;
-  }
-  .tp-num{
-    font-family:'JetBrains Mono'; font-size:12px; font-weight:700; color:var(--coral);
-    flex-shrink:0; width:26px; height:26px; border-radius:8px; background:var(--coral-soft);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .tp-item p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; padding-top:3px; }
-
-  /* ---------- COMPARE ---------- */
-  .compare-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px; }
-  .compare-card{ background:var(--white); border-radius:16px; padding:18px; box-shadow:var(--shadow); }
-  .compare-card h4{ font-family:'Space Grotesk'; font-size:14.5px; margin-bottom:8px; }
-  .compare-card p{ font-size:12.5px; color:var(--ink-soft); line-height:1.55; }
-  .flat-icons{ display:flex; gap:10px; margin-top:12px; }
-  .flat-icons svg{ width:30px; height:30px; }
-
-  /* ---------- OBJECTS (slide 3) ---------- */
-  .obj-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
-  .obj-card{
-    background:var(--white); border-radius:14px; padding:14px 10px; text-align:center;
-    box-shadow:var(--shadow); cursor:pointer; border:1.5px solid transparent;
-    transition:border-color .2s ease;
-  }
-  .obj-card .emoji{ font-size:30px; display:block; margin-bottom:6px; }
-  .obj-card .oname{ font-size:11.5px; font-weight:600; color:var(--ink); }
-  .obj-card .oans{
-    margin-top:8px; font-family:'JetBrains Mono'; font-size:10px; font-weight:700;
-    color:var(--teal); opacity:0; max-height:0; overflow:hidden; transition:all .25s ease;
-  }
-  .obj-card.revealed{ border-color:var(--teal); }
-  .obj-card.revealed .oans{ opacity:1; max-height:30px; margin-top:8px; }
-
-  /* ---------- UNSUR (interactive cube) ---------- */
-  .unsur-layout{ display:grid; grid-template-columns:240px 1fr; gap:26px; align-items:center; }
-  .cube-wrap{
-    background:var(--white); border-radius:20px; box-shadow:var(--shadow); padding:12px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  svg.cubebase polygon{
-    fill: rgba(255,255,255,0.035); stroke:var(--ink); stroke-width:1.4; stroke-linejoin:round;
-    transition:fill .25s ease, stroke .25s ease; cursor:pointer;
-  }
-  svg.cubebase line.edge{
-    stroke:var(--ink); stroke-width:2; stroke-linecap:round;
-    transition:stroke .25s ease, stroke-width .25s ease; cursor:pointer;
-  }
-  svg.cubebase circle{
-    fill:var(--ink); stroke:var(--paper); stroke-width:1.5;
-    transition:fill .25s ease, r .25s ease; cursor:pointer;
-  }
-  #cubeSvg.mode-sisi polygon{ fill:var(--coral-soft); stroke:var(--coral); }
-  #cubeSvg.mode-rusuk line.edge{ stroke:var(--amber); stroke-width:3.4; }
-  #cubeSvg.mode-titik circle{ fill:var(--teal); r:7; }
-
-  .unsur-tabs{ display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-  .utab{
-    font-family:'Space Grotesk'; font-size:12.5px; font-weight:600;
-    padding:10px 14px; border-radius:10px; border:1.5px solid var(--paper-line-strong);
-    background:var(--white); cursor:pointer; transition:all .2s ease; min-height:40px;
-  }
-  .utab[data-mode="sisi"].active{ background:var(--coral); border-color:var(--coral); color:#12121a; }
-  .utab[data-mode="rusuk"].active{ background:var(--amber); border-color:var(--amber); color:#12121a; }
-  .utab[data-mode="titik"].active{ background:var(--teal); border-color:var(--teal); color:#12121a; }
-
-  .unsur-desc{ background:var(--white); border-radius:16px; padding:18px 20px; box-shadow:var(--shadow); min-height:130px; }
-  .unsur-desc h4{ font-family:'Space Grotesk'; font-size:16px; margin-bottom:7px; }
-  .unsur-desc p{ font-size:13px; color:var(--ink-soft); line-height:1.6; }
-  .unsur-desc .dim{ margin-top:12px; }
-  .hint{ font-size:11px; color:var(--ink-soft); margin-top:10px; font-style:italic; }
-
-  /* diagonal overlay */
-  #diagBidang, #diagRuang{ stroke-dasharray:6 5; opacity:0; transition:opacity .3s ease; stroke-width:2.6; }
-  #diagBidang{ stroke:var(--coral); }
-  #diagRuang{ stroke:var(--teal); }
-  #bidangPlane{ opacity:0; transition:opacity .3s ease; fill:var(--amber); fill-opacity:0.22; stroke:var(--amber); stroke-width:1.6; }
-  #diagSvg.mode-bidang #diagBidang{ opacity:1; }
-  #diagSvg.mode-ruang #diagRuang{ opacity:1; }
-  #diagSvg.mode-plane #bidangPlane{ opacity:1; }
-
-  /* ---------- GALLERY ---------- */
-  .gallery{ display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; }
-  .gallery.g3{ grid-template-columns:repeat(3,1fr); }
-  .card{ perspective:1200px; height:180px; cursor:pointer; }
-  .card-inner{ position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,.2,.2,1); }
-  .card.flipped .card-inner{ transform:rotateY(180deg); }
-  .card-face{ position:absolute; inset:0; backface-visibility:hidden; border-radius:14px; padding:13px; display:flex; flex-direction:column; box-shadow:var(--shadow); }
-  .card-front{ background:var(--white); align-items:center; justify-content:center; gap:7px; }
-  .card-front svg{ width:46px; height:46px; }
-  .card-front .cname{ font-family:'Space Grotesk'; font-weight:600; font-size:13px; text-align:center; }
-  .card-front .ctap{ font-size:9.5px; color:var(--ink-soft); }
-  .card-back{ transform:rotateY(180deg); color:#12121a; justify-content:center; }
-  .card-back .cname{ font-family:'Space Grotesk'; font-weight:700; font-size:13.5px; margin-bottom:7px; }
-  .card-back .stat{ font-family:'JetBrains Mono'; font-size:10px; margin-bottom:3px; }
-  .card-back .sifat{ font-size:10px; margin-top:7px; line-height:1.4; }
-
-  /* ---------- FORMULA SLIDER ---------- */
-  .formula-wrap{ background:var(--white); border-radius:18px; padding:22px 24px; box-shadow:var(--shadow); }
-  .slider-row{ display:flex; align-items:center; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
-  .slider-row input[type=range]{ flex:1; min-width:160px; accent-color:var(--coral); height:6px; }
-  .n-badge{ font-family:'JetBrains Mono'; font-weight:700; font-size:14px; background:var(--coral-soft); color:var(--coral); padding:7px 14px; border-radius:100px; white-space:nowrap; }
-  .formula-cards{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .fcard{ background:var(--white-2); border-radius:14px; padding:16px; }
-  .fcard h5{ font-family:'Space Grotesk'; font-size:14px; margin-bottom:10px; }
-  .fcard .frow{ display:flex; justify-content:space-between; font-size:12.5px; color:var(--ink-soft); padding:6px 0; border-bottom:1px solid var(--paper-line); }
-  .fcard .frow:last-child{ border-bottom:none; }
-  .fcard .frow b{ color:var(--ink); font-family:'JetBrains Mono'; }
-
-  /* ---------- RANGKUMAN TABLE ---------- */
-  .table-wrap{ background:var(--white); border-radius:16px; padding:6px; box-shadow:var(--shadow); overflow-x:auto; }
-  table.recap-table{ width:100%; border-collapse:collapse; min-width:520px; }
-  table.recap-table th{
-    font-family:'Space Grotesk'; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em;
-    color:var(--ink-soft); text-align:left; padding:12px 14px; border-bottom:1px solid var(--paper-line-strong);
-  }
-  table.recap-table td{ padding:12px 14px; font-size:13px; border-bottom:1px solid var(--paper-line); }
-  table.recap-table tr:last-child td{ border-bottom:none; }
-  table.recap-table td.shape-name{ font-weight:600; font-family:'Space Grotesk'; }
-
-  /* ---------- QUIZ ---------- */
-  .quiz-box{ background:var(--white); border-radius:20px; box-shadow:var(--shadow); padding:24px 26px; min-height:320px; display:flex; flex-direction:column; }
-  .quiz-progress{ display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; gap:10px; }
-  .qbar{ flex:1; height:5px; background:var(--paper-line); border-radius:3px; margin:0 10px; overflow:hidden; }
-  .qbar-fill{ height:100%; background:var(--coral); width:0%; transition:width .4s ease; border-radius:3px; }
-  .qnum{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--ink-soft); white-space:nowrap; }
-  .qscore{ font-family:'JetBrains Mono'; font-size:11.5px; color:var(--teal); font-weight:600; white-space:nowrap; }
-  .q-text{ font-family:'Space Grotesk'; font-size:17px; font-weight:600; margin-bottom:18px; line-height:1.4; }
-  .options{ display:flex; flex-direction:column; gap:9px; flex:1; }
-  .opt{
-    text-align:left; padding:12px 15px; border-radius:12px; border:1.5px solid var(--paper-line-strong);
-    background:var(--paper); font-family:'Inter'; font-size:13.5px; font-weight:500; cursor:pointer;
-    transition:all .18s ease; display:flex; align-items:center; gap:10px; min-height:46px;
-  }
-  .opt:hover{ border-color:var(--ink-soft); }
-  .opt .letter{
-    font-family:'JetBrains Mono'; font-size:11px; font-weight:700; width:22px; height:22px; border-radius:6px;
-    background:var(--white-2); display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    border:1px solid var(--paper-line-strong);
-  }
-  .opt.correct{ background:var(--teal-soft); border-color:var(--teal); }
-  .opt.correct .letter{ background:var(--teal); color:#12121a; border-color:var(--teal); }
-  .opt.wrong{ background:var(--coral-soft); border-color:var(--coral); }
-  .opt.wrong .letter{ background:var(--coral); color:#12121a; border-color:var(--coral); }
-  .opt.disabled{ pointer-events:none; }
-  .feedback{ margin-top:14px; font-size:12.5px; color:var(--ink-soft); background:var(--paper); border-left:3px solid var(--amber); padding:10px 14px; border-radius:8px; display:none; line-height:1.5; }
-  .feedback.show{ display:block; }
-  .quiz-nav{ margin-top:18px; display:flex; justify-content:flex-end; }
-  .quiz-result{ text-align:center; display:none; flex-direction:column; align-items:center; justify-content:center; flex:1; }
-  .quiz-result.show{ display:flex; }
-  .result-score{ font-family:'Space Grotesk'; font-size:46px; font-weight:700; }
-  .result-score span{ font-size:19px; color:var(--ink-soft); font-weight:500; }
-  .result-msg{ font-size:13px; color:var(--ink-soft); margin:10px 0 20px; max-width:380px; }
-  .result-btns{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
-
-  /* ---------- PENUTUP ---------- */
-  #s11 .slide-inner{ text-align:center; display:flex; flex-direction:column; align-items:center; }
-  .recap-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:22px 0 26px; width:100%; max-width:600px; }
-  .recap-item{ background:var(--white); border-radius:14px; padding:14px 8px; box-shadow:var(--shadow); }
-  .recap-item .n{ font-family:'JetBrains Mono'; font-weight:700; font-size:19px; }
-  .recap-item .l{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
-
-  /* ---------- BOTTOM NAV ---------- */
-  .bottombar{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px 20px 16px; flex-shrink:0; }
-  .navbtn{
-    display:flex; align-items:center; gap:6px; background:var(--white); border:1.5px solid var(--paper-line-strong);
-    border-radius:10px; padding:10px 16px; font-family:'Space Grotesk'; font-weight:600; font-size:13px;
-    cursor:pointer; transition:all .18s ease; min-height:44px; flex-shrink:0;
-  }
-  .navbtn:hover{ border-color:var(--ink); }
-  .navbtn:disabled{ opacity:.35; pointer-events:none; }
-  .navbtn.primary{ background:var(--ink); color:var(--paper); border-color:var(--ink); }
-  .step-label{ font-size:10.5px; color:var(--ink-soft); text-align:center; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:0 6px; }
-  .step-label b{ color:var(--ink); }
-
-  ::-webkit-scrollbar{ width:6px; }
-  ::-webkit-scrollbar-thumb{ background:var(--paper-line-strong); border-radius:3px; }
-
-  /* ================= RESPONSIVE ================= */
-  @media (max-width: 900px){
-    .unsur-layout{ grid-template-columns:1fr; }
-    .cube-wrap{ max-width:220px; margin:0 auto; }
-    .compare-row{ grid-template-columns:1fr; }
-    .formula-cards{ grid-template-columns:1fr; }
-    .gallery{ grid-template-columns:repeat(3,1fr); }
-    .gallery.g3{ grid-template-columns:repeat(3,1fr); }
-  }
-  @media (max-width: 680px){
-    .topbar{ padding:12px 14px 8px; }
-    .brand-text{ display:none; }
-    .dots{ display:none; }
-    .progress-track{ display:block; }
-    .slide{ padding:10px 5.5% 18px; }
-    .slide-sub{ margin-bottom:16px; }
-    .obj-grid{ grid-template-columns:repeat(2,1fr); }
-    .gallery, .gallery.g3{ grid-template-columns:repeat(2,1fr); }
-    .card{ height:168px; }
-    .recap-grid{ grid-template-columns:1fr 1fr 1fr; gap:8px; }
-    .recap-item{ padding:10px 6px; }
-    .recap-item .n{ font-size:15px; }
-    .recap-item .l{ font-size:9px; }
-    .bottombar{ padding:10px 12px 14px; }
-    .navbtn{ padding:10px 12px; font-size:12px; }
-    .navbtn span.lbl{ display:none; }
-    .step-label{ font-size:9.5px; }
-    .quiz-box{ padding:18px 16px; }
-    .q-text{ font-size:15.5px; }
-    h1.big{ font-size:clamp(26px,8vw,38px); }
-    .cover-shapes svg{ width:36px; height:36px; }
-    table.recap-table{ min-width:0; }
-    table.recap-table thead{ display:none; }
-    table.recap-table, table.recap-table tbody, table.recap-table tr, table.recap-table td{ display:block; width:100%; }
-    table.recap-table tr{ padding:10px 4px; border-bottom:1px solid var(--paper-line-strong); }
-    table.recap-table tr:last-child{ border-bottom:none; }
-    table.recap-table td{ border-bottom:none; padding:3px 10px; display:flex; justify-content:space-between; font-size:12.5px; }
-    table.recap-table td::before{ content:attr(data-label); color:var(--ink-soft); font-size:11px; font-family:'Space Grotesk'; }
-    table.recap-table td.shape-name{ font-size:14px; padding-top:8px; }
-    table.recap-table td.shape-name::before{ content:""; }
-  }
-  @media (max-width: 400px){
-    .obj-grid{ grid-template-columns:repeat(2,1fr); }
-    .gallery, .gallery.g3{ grid-template-columns:repeat(2,1fr); }
-    .recap-grid{ grid-template-columns:1fr; }
-  }
-  @media (prefers-reduced-motion: reduce){
-    *{ transition-duration:.01ms !important; animation-duration:.01ms !important; }
-  }
+:root{--paper:#0A0F24;--paper-line:rgba(255,255,255,.045);--paper-line-strong:rgba(255,255,255,.14);--ink:#F3F5FC;--ink-soft:#8D96B8;--white:#151B36;--white-2:#1C2444;--coral:#FB923C;--coral-soft:rgba(251,146,60,.14);--amber:#A78BFA;--amber-soft:rgba(167,139,250,.14);--teal:#2DD4BF;--teal-soft:rgba(45,212,191,.14);--shadow:0 18px 40px -18px rgba(0,0,0,.65);--vh:1vh}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;color:var(--ink);background:linear-gradient(var(--paper-line) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--paper-line) 1px,transparent 1px) 0 0/28px 28px,var(--paper);overflow:hidden;height:calc(var(--vh,1vh)*100);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.mono{font-family:'JetBrains Mono',monospace}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 20px 10px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:9px;min-width:0}
+.brand-mark{width:26px;height:26px;border:2px solid var(--ink);position:relative;flex-shrink:0;transform:rotate(10deg)}
+.brand-mark::after{content:"";position:absolute;top:5px;left:5px;right:5px;bottom:5px;border:2px solid var(--coral)}
+.brand-text{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-text b{color:var(--ink)}
+.progress-track{flex:1;max-width:340px;height:5px;background:var(--paper-line-strong);border-radius:3px;overflow:hidden;display:none}
+.progress-fill{height:100%;background:var(--coral);width:0;transition:width .4s ease;border-radius:3px}
+.dots{display:flex;gap:5px;align-items:center;overflow-x:auto;scrollbar-width:none;max-width:44vw}
+.dots::-webkit-scrollbar{display:none}
+.dot{width:16px;height:6px;flex-shrink:0;background:transparent;border:1.5px solid var(--paper-line-strong);border-radius:3px;cursor:pointer;transition:all .25s ease;padding:0}
+.dot.active{background:var(--coral);border-color:var(--coral);width:24px}
+.dot.done{background:var(--ink-soft);border-color:var(--ink-soft)}
+.slide-count{font-size:10.5px;color:var(--ink-soft);min-width:48px;text-align:right;flex-shrink:0}
+main{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px 7% 24px;opacity:0;transform:translateX(30px);pointer-events:none;transition:opacity .4s ease,transform .4s ease;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.prevslide{transform:translateX(-30px)}
+.slide-inner{width:100%;max-width:960px;margin:auto;padding-block:6px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--coral);margin-bottom:12px}
+.eyebrow::before{content:"";width:14px;height:1.5px;background:var(--coral)}
+h1.big{font-size:clamp(28px,6vw,50px);line-height:1.05;font-weight:700;letter-spacing:-.01em;font-family:'Space Grotesk'}
+h2.slide-title{font-size:clamp(21px,4vw,30px);font-weight:700;line-height:1.15;margin-bottom:6px;font-family:'Space Grotesk'}
+.slide-sub{font-size:clamp(12.5px,2vw,14.5px);color:var(--ink-soft);margin-bottom:20px;max-width:640px;line-height:1.55}
+.dim{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;color:var(--ink);background:var(--white);border:1.5px dashed var(--paper-line-strong);padding:5px 10px 5px 6px;border-radius:100px}
+.dim .arrow{color:var(--coral);font-size:13px}
+.btn{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;padding:12px 20px;border-radius:10px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease;min-height:44px}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{background:var(--ink);color:var(--white);box-shadow:var(--shadow)}
+.btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--paper-line-strong)}
+.btn-coral{background:var(--coral);color:#12121a;box-shadow:0 14px 30px -14px rgba(251,146,60,.5)}
+#s0 .slide-inner,#s11 .slide-inner{text-align:center;display:flex;flex-direction:column;align-items:center}
+.cover-shapes{display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap;justify-content:center}
+.cover-cta{margin-top:26px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:center}
+.cp-line{margin-top:18px;font-size:12.5px;color:var(--ink-soft);max-width:560px;line-height:1.6;border-left:2px solid var(--coral);padding-left:14px;text-align:left}
+.tp-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.pill{font-family:'JetBrains Mono';font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:100px;border:1.5px solid}
+.pill-teal{color:var(--teal);border-color:var(--teal);background:var(--teal-soft)}
+.pill-purple{color:var(--amber);border-color:var(--amber);background:var(--amber-soft)}
+.cp-box{background:var(--white);border-radius:16px;padding:16px 20px;box-shadow:var(--shadow);margin-bottom:16px;border-left:3px solid var(--teal)}
+.cp-box b{color:var(--teal);font-size:11px;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:6px;font-family:'Space Grotesk'}
+.cp-box p{font-size:13.5px;line-height:1.55;color:var(--ink)}
+.cp-box ul{padding-left:18px;font-size:12.5px;line-height:1.6;color:var(--ink-soft);columns:2;column-gap:24px}
+.tp-list{display:flex;flex-direction:column;gap:10px}
+.tp-item{background:var(--white);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);display:flex;gap:14px;align-items:flex-start}
+.tp-num{font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:var(--coral);flex-shrink:0;width:26px;height:26px;border-radius:8px;background:var(--coral-soft);display:flex;align-items:center;justify-content:center}
+.tp-item p{font-size:13.5px;color:var(--ink-soft);line-height:1.5;padding-top:3px}
+.compare-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.compare-card{background:var(--white);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.compare-card h4{font-family:'Space Grotesk';font-size:14.5px;margin-bottom:8px}
+.compare-card p{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.flat-icons{display:flex;gap:10px;margin-top:12px}
+.flat-icons svg{width:30px;height:30px}
+.table-wrap{background:var(--white);border-radius:16px;padding:6px;box-shadow:var(--shadow);overflow-x:auto}
+table.recap-table{width:100%;border-collapse:collapse;min-width:520px}
+table.recap-table th{font-family:'Space Grotesk';font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);text-align:left;padding:12px 14px;border-bottom:1px solid var(--paper-line-strong)}
+table.recap-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--paper-line)}
+table.recap-table tr:last-child td{border-bottom:none}
+table.recap-table td.shape-name{font-weight:600;font-family:'Space Grotesk'}
+.quiz-box{background:var(--white);border-radius:20px;box-shadow:var(--shadow);padding:24px 26px;min-height:320px;display:flex;flex-direction:column}
+.quiz-progress{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:10px}
+.qbar{flex:1;height:5px;background:var(--paper-line);border-radius:3px;margin:0 10px;overflow:hidden}
+.qbar-fill{height:100%;background:var(--coral);width:0;transition:width .4s ease;border-radius:3px}
+.qnum{font-family:'JetBrains Mono';font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+.qscore{font-family:'JetBrains Mono';font-size:11.5px;color:var(--teal);font-weight:600;white-space:nowrap}
+.q-text{font-family:'Space Grotesk';font-size:17px;font-weight:600;margin-bottom:18px;line-height:1.4}
+.options{display:flex;flex-direction:column;gap:9px;flex:1}
+.opt{text-align:left;padding:12px 15px;border-radius:12px;border:1.5px solid var(--paper-line-strong);background:var(--paper);color:var(--ink);font-family:'Inter';font-size:13.5px;font-weight:500;cursor:pointer;transition:all .18s ease;display:flex;align-items:center;gap:10px;min-height:46px}
+.opt:hover{border-color:var(--ink-soft)}
+.opt .letter{font-family:'JetBrains Mono';font-size:11px;font-weight:700;width:22px;height:22px;border-radius:6px;background:var(--white-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid var(--paper-line-strong)}
+.opt.correct{background:var(--teal-soft);border-color:var(--teal)}
+.opt.correct .letter{background:var(--teal);color:#12121a;border-color:var(--teal)}
+.opt.wrong{background:var(--coral-soft);border-color:var(--coral)}
+.opt.wrong .letter{background:var(--coral);color:#12121a;border-color:var(--coral)}
+.opt.disabled{pointer-events:none}
+.feedback{margin-top:14px;font-size:12.5px;color:var(--ink-soft);background:var(--paper);border-left:3px solid var(--amber);padding:10px 14px;border-radius:8px;display:none;line-height:1.5}
+.feedback.show{display:block}
+.quiz-nav{margin-top:18px;display:flex;justify-content:flex-end}
+.quiz-result{text-align:center;display:none;flex-direction:column;align-items:center;justify-content:center;flex:1}
+.quiz-result.show{display:flex}
+.result-score{font-family:'Space Grotesk';font-size:46px;font-weight:700}
+.result-score span{font-size:19px;color:var(--ink-soft);font-weight:500}
+.result-msg{font-size:13px;color:var(--ink-soft);margin:10px 0 20px;max-width:380px}
+.result-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.recap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0 26px;width:100%;max-width:600px}
+.recap-item{background:var(--white);border-radius:14px;padding:14px 8px;box-shadow:var(--shadow)}
+.recap-item .n{font-family:'JetBrains Mono';font-weight:700;font-size:19px}
+.recap-item .l{font-size:10.5px;color:var(--ink-soft);margin-top:2px}
+.bottombar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 20px 16px;flex-shrink:0}
+.navbtn{display:flex;align-items:center;gap:6px;background:var(--white);color:var(--ink);border:1.5px solid var(--paper-line-strong);border-radius:10px;padding:10px 16px;font-family:'Space Grotesk';font-weight:600;font-size:13px;cursor:pointer;min-height:44px;flex-shrink:0}
+.navbtn:hover{border-color:var(--ink)}
+.navbtn:disabled{opacity:.35;pointer-events:none}
+.navbtn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.step-label{font-size:10.5px;color:var(--ink-soft);text-align:center;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 6px}
+.step-label b{color:var(--ink)}
+/* ---------- 3D ---------- */
+.slide.fill{padding:8px 3% 10px;overflow:hidden;justify-content:flex-start}
+.slide.fill .slide-inner{flex:1;min-height:0;max-width:1100px;display:flex;flex-direction:column;margin:0 auto;padding:0}
+.slide.fill .eyebrow{margin-bottom:4px}
+.slide.fill h2.slide-title{font-size:clamp(17px,3vh,24px);margin-bottom:2px}
+.slide.fill .slide-sub{margin-bottom:8px;font-size:clamp(11px,1.7vh,13px)}
+.lab{flex:1;min-height:0;display:grid;grid-template-columns:1.05fr 1fr;gap:10px;background:var(--white);border:1.5px solid var(--paper-line-strong);border-radius:18px;padding:10px;box-shadow:var(--shadow)}
+.lb-l{min-height:0;border-radius:12px;background:radial-gradient(circle at 50% 42%,#3b3a9e,#0d1130 80%);display:flex;flex-direction:column;padding:8px;gap:5px}
+.lb-c{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;flex:none}
+.lb-c>*{flex:none;white-space:nowrap}
+.lb-t{display:none}
+.lb-l{overflow-y:auto}
+.lb-h{color:#c9ccff;font-size:11px;text-align:center;min-height:1.3em}
+.lb-s{flex:1;min-height:170px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.lb-s canvas,.mv canvas{width:100%;height:100%;display:block}
+.lbb{font:600 11px 'Space Grotesk',sans-serif;padding:4px 9px;min-height:28px;border-radius:8px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+.lbb[aria-pressed="true"]{background:#fff;color:#1b1840}
+.lbb:disabled,.lbn:disabled{opacity:.35;cursor:default}
+.nr{width:84px;accent-color:#fff}
+.lb-r{min-height:0;display:flex;flex-direction:column;border-radius:12px;border:1.5px solid var(--paper-line-strong);overflow:hidden;background:var(--white-2)}
+.lb-p{flex:1;min-height:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
+.lb-p::-webkit-scrollbar{display:none}
+.lb-pg{flex:0 0 100%;scroll-snap-align:start;padding:12px 14px;overflow-y:auto;font-size:clamp(11.5px,1.85vh,13.5px);line-height:1.5;color:var(--ink-soft)}
+.lb-pg h4{font-family:'Space Grotesk';color:var(--ink);font-size:1.15em;margin-bottom:5px}
+.lb-pg p,.lb-pg li{margin:3px 0}
+.lb-pg ul,.lb-pg ol{padding-left:18px}
+.lb-pg table{width:100%;border-collapse:collapse}
+.lb-pg td{padding:5px 6px;border-bottom:1px solid var(--paper-line)}
+.lb-pg td:last-child{color:var(--ink);font-weight:700;text-align:right}
+.lb-pg summary{cursor:pointer;color:var(--teal);font-weight:600;margin:6px 0}
+.lb-n{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-top:1.5px solid var(--paper-line-strong);background:var(--white)}
+.lbn{font:600 12px 'Space Grotesk',sans-serif;padding:5px 12px;border-radius:8px;border:1.5px solid var(--paper-line-strong);background:var(--white-2);color:var(--ink);cursor:pointer;min-height:30px}
+.pd{display:flex;gap:7px}.pd i{width:8px;height:8px;border-radius:50%;background:var(--paper-line-strong)}.pd i.on{background:var(--coral);transform:scale(1.25)}
+.mv{width:60px;height:60px;touch-action:none;cursor:grab}
+.mv.big3{width:100%;max-width:230px;height:150px;margin:8px auto}
+.sf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.sf-card{background:var(--white);border-radius:14px;padding:10px;box-shadow:var(--shadow)}
+.sf-card h5{font-family:'Space Grotesk';font-size:13.5px;text-align:center}
+.sf-card .mv{width:100%;height:92px}
+.sf-card ul{padding-left:16px;font-size:11px;color:var(--ink-soft);line-height:1.45;margin-top:4px}
+td .mv{width:46px;height:46px;flex-shrink:0}
+.sn{display:flex;align-items:center;gap:8px}
+@media(max-height:500px){.topbar{padding:6px 16px 4px}.bottombar{padding:6px 16px 8px}.navbtn{min-height:34px;padding:6px 12px}}
+@media(max-height:620px){.slide.fill{overflow-y:auto}.slide.fill .slide-inner{flex:1 0 auto;min-height:100%}.lab{flex:1 0 auto;min-height:440px}.slide.fill .slide-sub{display:none}}
+@media(max-width:900px){.compare-row{grid-template-columns:1fr}.sf-grid{grid-template-columns:repeat(3,1fr)}.cp-box ul{columns:1}}
+@media(max-width:760px){
+.lab{display:flex;flex-direction:column}
+.lb-t{display:flex;gap:6px;margin-bottom:8px;flex:none}
+.lbt{flex:1;font:600 12px 'Space Grotesk',sans-serif;padding:7px;border-radius:9px;border:1.5px solid var(--paper-line-strong);background:var(--white-2);color:var(--ink);cursor:pointer}
+.lbt[aria-pressed="true"]{background:var(--coral);border-color:var(--coral);color:#12121a}
+.slide.fill{overflow-y:auto}.slide.fill .slide-inner{flex:1 0 auto;min-height:100%}.slide.fill .slide-sub{display:none}
+.lab{flex:1 0 auto;min-height:500px}
+.lb-l,.lb-r{flex:1;min-height:0}.lb-s{min-height:230px}
+.lab[data-t="m"] .lb-r{display:none}.lab[data-t="p"] .lb-l{display:none}
+.sf-grid{grid-template-columns:repeat(2,1fr)}.lbb{font-size:11px;padding:4px 9px;min-height:32px}}
+@media(max-width:680px){
+.topbar{padding:12px 14px 8px}.brand-text,.dots{display:none}.progress-track{display:block}
+.slide{padding:10px 5.5% 18px}.slide.fill{padding:6px 2.5% 8px}.slide-sub{margin-bottom:12px}
+.recap-grid{gap:8px}.recap-item{padding:10px 6px}.recap-item .n{font-size:15px}.recap-item .l{font-size:9px}
+.bottombar{padding:10px 12px 14px}.navbtn{padding:10px 12px;font-size:12px}.navbtn span.lbl{display:none}.step-label{font-size:9.5px}
+.quiz-box{padding:18px 16px}.q-text{font-size:15.5px}h1.big{font-size:clamp(26px,8vw,38px)}
+table.recap-table{min-width:0}table.recap-table thead{display:none}
+table.recap-table,table.recap-table tbody,table.recap-table tr,table.recap-table td{display:block;width:100%}
+table.recap-table tr{padding:8px 4px;border-bottom:1px solid var(--paper-line-strong)}
+table.recap-table td{border-bottom:none;padding:3px 10px;display:flex;justify-content:space-between;gap:10px;font-size:12.5px}
+table.recap-table td::before{content:attr(data-label);color:var(--ink-soft);font-size:11px;font-family:'Space Grotesk';flex-shrink:0}
+table.recap-table td.shape-name{font-size:14px;padding-top:6px;justify-content:flex-start}
+table.recap-table td.shape-name::before{content:""}
+}
+@media(max-width:400px){.recap-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="brand">
-    <div class="brand-mark"></div>
-    <div class="brand-text"><b>Matematika</b> · Bab 3 Bangun Ruang</div>
-  </div>
+  <div class="brand"><div class="brand-mark"></div><div class="brand-text"><b>Matematika</b> · Bab 3 Bangun Ruang</div></div>
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
   <div class="dots" id="dots"></div>
   <div class="slide-count mono" id="slideCount">01/12</div>
@@ -402,284 +191,166 @@
 
 <main id="main">
 
-  <!-- 0 COVER -->
-  <section class="slide" id="s0">
-    <div class="slide-inner">
-      <div class="cover-shapes" id="coverShapes"></div>
-      <div class="eyebrow" style="justify-content:center;display:flex">Bab 3 · 3.1 · Fase D</div>
-      <h1 class="big">Bangun Ruang</h1>
-      <p class="slide-sub" style="margin:14px auto 0;">Mengenal jenis, unsur, dan sifat bangun ruang lewat visual yang bisa kamu klik langsung.</p>
-      <div class="cp-line">
-        <b>Capaian Pembelajaran:</b> Peserta didik mampu mengidentifikasi jenis, unsur, dan sifat bangun ruang.
-      </div>
-      <div class="cover-cta">
-        <button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button>
-        <span class="dim"><span class="arrow">↔</span> 12 slide · 4 JP</span>
-      </div>
-    </div>
-  </section>
+<!-- 0 SAMPUL -->
+<section class="slide" id="s0"><div class="slide-inner">
+  <div class="cover-shapes">
+    <div class="mv" data-m="Kubus"></div><div class="mv" data-m="Limas"></div><div class="mv" data-m="Tabung"></div><div class="mv" data-m="Bola"></div>
+  </div>
+  <div class="eyebrow" style="justify-content:center;display:flex">Bab 3 · 3.1 · Fase D</div>
+  <h1 class="big">Bangun Ruang</h1>
+  <p class="slide-sub" style="margin:14px auto 0">Mengenal jenis, unsur, dan sifat bangun ruang lewat model 3D yang bisa kamu putar dan sentuh langsung.</p>
+  <div class="cp-line"><b>Capaian Pembelajaran:</b> Peserta didik mampu mengidentifikasi jenis, unsur, dan sifat bangun ruang.</div>
+  <div class="cover-cta"><button class="btn btn-primary" onclick="goTo(1)">Mulai Belajar →</button><span class="dim"><span class="arrow">↔</span> 12 slide · 4 JP</span></div>
+</div></section>
 
-  <!-- 1 TUJUAN PEMBELAJARAN -->
-  <section class="slide" id="s1">
-    <div class="slide-inner">
-      <div class="eyebrow">3.1 Unsur dan Sifat Bangun Ruang</div>
-      <div class="tp-head">
-        <h2 class="slide-title" style="margin:0;">Tujuan Pembelajaran</h2>
-        <span class="pill pill-teal">3.1</span>
-        <span class="pill pill-purple">⏱ 4 JP</span>
-      </div>
-      <div class="cp-box">
-        <b>Capaian Pembelajaran</b>
-        <p>Peserta didik mampu mengidentifikasi jenis, unsur, dan sifat bangun ruang.</p>
-      </div>
-      <div class="tp-list">
-        <div class="tp-item"><div class="tp-num">1</div><p>Membedakan bangun ruang dan bangun datar berdasarkan ciri-cirinya.</p></div>
-        <div class="tp-item"><div class="tp-num">2</div><p>Mengidentifikasi unsur-unsur bangun ruang: sisi, rusuk, titik sudut, diagonal bidang, diagonal ruang, dan bidang diagonal.</p></div>
-        <div class="tp-item"><div class="tp-num">3</div><p>Mengelompokkan bangun ruang berdasarkan bentuk sisinya: sisi datar dan sisi lengkung.</p></div>
-        <div class="tp-item"><div class="tp-num">4</div><p>Menjelaskan sifat-sifat khusus setiap jenis bangun ruang, termasuk pola umum pada prisma dan limas segi-n.</p></div>
-      </div>
-    </div>
-  </section>
+<!-- 1 TUJUAN -->
+<section class="slide" id="s1"><div class="slide-inner">
+  <div class="eyebrow">3.1 Unsur dan Sifat Bangun Ruang</div>
+  <div class="tp-head"><h2 class="slide-title" style="margin:0">Tujuan Pembelajaran</h2><span class="pill pill-teal">3.1</span><span class="pill pill-purple">4 JP</span></div>
+  <div class="cp-box"><b>Capaian Pembelajaran</b><p>Peserta didik mampu mengidentifikasi jenis, unsur, dan sifat bangun ruang.</p></div>
+  <div class="tp-list">
+    <div class="tp-item"><div class="tp-num">1</div><p>Menjelaskan pengertian bangun ruang dan membedakannya dari bangun datar.</p></div>
+    <div class="tp-item"><div class="tp-num">2</div><p>Mengelompokkan bangun ruang sisi datar (kubus, balok, prisma, limas) dan sisi lengkung (tabung, kerucut, bola).</p></div>
+    <div class="tp-item"><div class="tp-num">3</div><p>Menjelaskan perbedaan bangun ruang sisi datar dan sisi lengkung.</p></div>
+    <div class="tp-item"><div class="tp-num">4</div><p>Mengidentifikasi unsur (sisi, rusuk, titik sudut, diagonal) serta sifat atau ciri-ciri setiap bangun ruang.</p></div>
+  </div>
+</div></section>
 
-  <!-- 2 APERSEPSI -->
-  <section class="slide" id="s2">
-    <div class="slide-inner">
-      <div class="eyebrow">Apersepsi</div>
-      <h2 class="slide-title">Bangun Datar vs Bangun Ruang</h2>
-      <p class="slide-sub">Sebelum masuk ke unsur bangun ruang, yuk ingat kembali perbedaan mendasarnya.</p>
-      <div class="compare-row">
-        <div class="compare-card">
-          <h4>📐 Bangun Datar (2D)</h4>
-          <p>Hanya memiliki panjang dan lebar. Bisa digambar rata di atas kertas, tidak memiliki isi/volume.</p>
-          <div class="flat-icons">
-            <svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
-            <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
-            <svg viewBox="0 0 40 40"><polygon points="20,6 34,32 6,32" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
-          </div>
-        </div>
-        <div class="compare-card" style="border:1.5px solid var(--coral)">
-          <h4 style="color:var(--coral)">🧊 Bangun Ruang (3D)</h4>
-          <p>Punya panjang, lebar, dan tinggi. Berbentuk padat, punya isi/volume, dan bisa dilihat dari banyak sisi.</p>
-          <div class="flat-icons" id="introCubeIcon"></div>
-        </div>
-      </div>
-      <div class="cp-box" style="margin-top:16px; border-left-color:var(--coral);">
-        <b style="color:var(--coral)">Kenapa penting?</b>
-        <p>Hampir semua benda di sekitar kita — kotak pensil, kaleng, bola — berbentuk bangun ruang. Memahami unsur & sifatnya membantu kita menghitung luas permukaan dan volume di bab berikutnya.</p>
+<!-- 2 PENGERTIAN -->
+<section class="slide" id="s2"><div class="slide-inner">
+  <div class="eyebrow">3.1 · Pengertian</div>
+  <h2 class="slide-title">Pengertian Bangun Ruang</h2>
+  <p class="slide-sub">Putar kubus di bawah ini, lalu bandingkan dengan bangun datar.</p>
+  <div class="cp-box" style="border-left-color:var(--coral)"><b style="color:var(--coral)">Pengertian</b><p>Bangun ruang adalah bangun tiga dimensi yang memiliki panjang, lebar, dan tinggi, dibatasi oleh sisi-sisi, serta memiliki volume (isi).</p></div>
+  <div class="compare-row">
+    <div class="compare-card">
+      <h4>Bangun Datar (2D)</h4>
+      <p>Hanya memiliki panjang dan lebar. Bisa digambar rata di atas kertas, tidak memiliki isi atau volume.</p>
+      <div class="flat-icons">
+        <svg viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="15" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
+        <svg viewBox="0 0 40 40"><polygon points="20,6 34,32 6,32" fill="none" stroke="#F3F5FC" stroke-width="2.5"/></svg>
       </div>
     </div>
-  </section>
-
-  <!-- 3 BANGUN RUANG DI SEKITAR KITA -->
-  <section class="slide" id="s3">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Klik tiap kartu</div>
-      <h2 class="slide-title">Bangun Ruang di Sekitar Kita</h2>
-      <p class="slide-sub">Semua benda ini punya bentuk bangun ruang. Klik untuk menebak, lalu lihat jawabannya!</p>
-      <div class="obj-grid" id="objGrid"></div>
+    <div class="compare-card" style="border:1.5px solid var(--coral)">
+      <h4 style="color:var(--coral)">Bangun Ruang (3D)</h4>
+      <p>Punya panjang, lebar, dan tinggi. Berbentuk padat, punya isi, dan bisa dilihat dari banyak sisi.</p>
+      <div class="mv big3" data-m="Kubus"></div>
     </div>
-  </section>
+  </div>
+</div></section>
 
-  <!-- 4 UNSUR UTAMA (interactive) -->
-  <section class="slide" id="s4">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Klik untuk mencoba</div>
-      <h2 class="slide-title">Unsur Utama Bangun Ruang</h2>
-      <p class="slide-sub">Setiap bangun ruang tersusun dari tiga unsur utama. Klik tombol atau langsung klik bagian kubus di samping.</p>
-      <div class="unsur-layout">
-        <div class="cube-wrap">
-          <svg class="cubebase" id="cubeSvg" viewBox="0 0 260 260" width="220" height="220">
-            <polygon class="face" data-mode="sisi" points="130,20 220,75 130,130 40,75"></polygon>
-            <polygon class="face" data-mode="sisi" points="220,75 220,185 130,240 130,130"></polygon>
-            <polygon class="face" data-mode="sisi" points="40,75 40,185 130,240 130,130"></polygon>
-            <line class="edge" data-mode="rusuk" x1="130" y1="20" x2="220" y2="75"></line>
-            <line class="edge" data-mode="rusuk" x1="130" y1="20" x2="40" y2="75"></line>
-            <line class="edge" data-mode="rusuk" x1="220" y1="75" x2="130" y2="130"></line>
-            <line class="edge" data-mode="rusuk" x1="40" y1="75" x2="130" y2="130"></line>
-            <line class="edge" data-mode="rusuk" x1="220" y1="75" x2="220" y2="185"></line>
-            <line class="edge" data-mode="rusuk" x1="40" y1="75" x2="40" y2="185"></line>
-            <line class="edge" data-mode="rusuk" x1="130" y1="130" x2="130" y2="240"></line>
-            <line class="edge" data-mode="rusuk" x1="220" y1="185" x2="130" y2="240"></line>
-            <line class="edge" data-mode="rusuk" x1="40" y1="185" x2="130" y2="240"></line>
-            <circle class="vertex" data-mode="titik" cx="130" cy="20" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="220" cy="75" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="40" cy="75" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="130" cy="130" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="220" cy="185" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="40" cy="185" r="5"></circle>
-            <circle class="vertex" data-mode="titik" cx="130" cy="240" r="5"></circle>
-          </svg>
-        </div>
-        <div>
-          <div class="unsur-tabs">
-            <button class="utab" data-mode="sisi" onclick="setUnsur('sisi')">🟧 Sisi</button>
-            <button class="utab" data-mode="rusuk" onclick="setUnsur('rusuk')">🟪 Rusuk</button>
-            <button class="utab" data-mode="titik" onclick="setUnsur('titik')">🟢 Titik Sudut</button>
-          </div>
-          <div class="unsur-desc" id="unsurDesc"></div>
-          <div class="hint">💡 Pada kubus di atas, 3 sisi/rusuk/titik sudut lainnya tersembunyi di baliknya.</div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- 3 SEKITAR KITA (gambar nyata) -->
+<section class="slide fill" id="s3"><div class="slide-inner">
+  <div class="eyebrow">Interaktif · Putar bendanya</div>
+  <h2 class="slide-title">Bangun Ruang di Sekitar Kita</h2>
+  <p class="slide-sub">Benda nyata di sekitar kita berbentuk bangun ruang. Putar, amati, lalu tebak!</p>
+  <div class="lab" id="labObj"></div>
+</div></section>
 
-  <!-- 5 UNSUR LANJUTAN: DIAGONAL -->
-  <section class="slide" id="s5">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Khusus kubus & balok</div>
-      <h2 class="slide-title">Unsur Lanjutan: Diagonal</h2>
-      <p class="slide-sub">Selain sisi, rusuk, dan titik sudut, kubus & balok juga punya tiga unsur khusus ini.</p>
-      <div class="unsur-layout">
-        <div class="cube-wrap">
-          <svg class="cubebase" id="diagSvg" viewBox="0 0 260 260" width="220" height="220">
-            <polygon points="130,20 220,75 130,130 40,75"></polygon>
-            <polygon points="220,75 220,185 130,240 130,130"></polygon>
-            <polygon points="40,75 40,185 130,240 130,130"></polygon>
-            <line class="edge" x1="130" y1="20" x2="220" y2="75"></line>
-            <line class="edge" x1="130" y1="20" x2="40" y2="75"></line>
-            <line class="edge" x1="220" y1="75" x2="130" y2="130"></line>
-            <line class="edge" x1="40" y1="75" x2="130" y2="130"></line>
-            <line class="edge" x1="220" y1="75" x2="220" y2="185"></line>
-            <line class="edge" x1="40" y1="75" x2="40" y2="185"></line>
-            <line class="edge" x1="130" y1="130" x2="130" y2="240"></line>
-            <line class="edge" x1="220" y1="185" x2="130" y2="240"></line>
-            <line class="edge" x1="40" y1="185" x2="130" y2="240"></line>
-            <polygon id="bidangPlane" points="130,20 220,185 130,240 40,185"></polygon>
-            <line id="diagBidang" x1="220" y1="75" x2="40" y2="75"></line>
-            <line id="diagRuang" x1="130" y1="20" x2="130" y2="240"></line>
-            <circle cx="130" cy="20" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="220" cy="75" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="40" cy="75" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="130" cy="130" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="220" cy="185" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="40" cy="185" r="4.5" fill="var(--ink)"></circle>
-            <circle cx="130" cy="240" r="4.5" fill="var(--ink)"></circle>
-          </svg>
-        </div>
-        <div>
-          <div class="unsur-tabs">
-            <button class="utab" data-mode="bidang" onclick="setDiag('bidang')">🟧 Diagonal Bidang</button>
-            <button class="utab" data-mode="ruang" onclick="setDiag('ruang')">🟢 Diagonal Ruang</button>
-            <button class="utab" data-mode="plane" onclick="setDiag('plane')">🟪 Bidang Diagonal</button>
-          </div>
-          <div class="unsur-desc" id="diagDesc"></div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- 4 SISI DATAR -->
+<section class="slide fill" id="s4"><div class="slide-inner">
+  <div class="eyebrow">Interaktif · Kubus, Balok, Prisma, Limas</div>
+  <h2 class="slide-title">Bangun Ruang Sisi Datar</h2>
+  <p class="slide-sub">Seluruh permukaannya berupa bidang datar. Tandai unsurnya dan buka jaring-jaringnya.</p>
+  <div class="lab" id="labDatar"></div>
+</div></section>
 
-  <!-- 6 SISI DATAR GALLERY -->
-  <section class="slide" id="s6">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Klik kartu untuk membalik</div>
-      <h2 class="slide-title">Kelompok Bangun Ruang Sisi Datar</h2>
-      <p class="slide-sub">Bangun ruang dengan sisi berupa bidang datar (tidak melengkung).</p>
-      <div class="gallery" id="galleryFlat"></div>
-    </div>
-  </section>
+<!-- 5 SISI LENGKUNG -->
+<section class="slide fill" id="s5"><div class="slide-inner">
+  <div class="eyebrow">Interaktif · Tabung, Kerucut, Bola</div>
+  <h2 class="slide-title">Bangun Ruang Sisi Lengkung</h2>
+  <p class="slide-sub">Memiliki permukaan lengkung. Tandai alas, tutup, selimut, lalu buka jaring-jaringnya.</p>
+  <div class="lab" id="labLengkung"></div>
+</div></section>
 
-  <!-- 7 SISI LENGKUNG GALLERY -->
-  <section class="slide" id="s7">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Klik kartu untuk membalik</div>
-      <h2 class="slide-title">Kelompok Bangun Ruang Sisi Lengkung</h2>
-      <p class="slide-sub">Bangun ruang dengan sisi berupa bidang lengkung.</p>
-      <div class="gallery g3" id="galleryCurved"></div>
-    </div>
-  </section>
+<!-- 6 PERBEDAAN -->
+<section class="slide" id="s6"><div class="slide-inner">
+  <div class="eyebrow">Perbedaan</div>
+  <h2 class="slide-title">Sisi Datar vs Sisi Lengkung</h2>
+  <p class="slide-sub">Putar kedua bangun, lalu bandingkan permukaannya.</p>
+  <div class="compare-row">
+    <div class="compare-card" style="border:1.5px solid var(--coral)"><h4 style="color:var(--coral)">Sisi Datar · Kubus</h4><div class="mv big3" data-m="Kubus"></div><p>Seluruh permukaannya berupa bidang datar.</p></div>
+    <div class="compare-card" style="border:1.5px solid var(--teal)"><h4 style="color:var(--teal)">Sisi Lengkung · Tabung</h4><div class="mv big3" data-m="Tabung"></div><p>Memiliki setidaknya satu permukaan lengkung.</p></div>
+  </div>
+  <div class="table-wrap" style="margin-top:14px"><table class="recap-table">
+    <thead><tr><th>Aspek</th><th>Sisi Datar</th><th>Sisi Lengkung</th></tr></thead>
+    <tbody>
+      <tr><td class="shape-name">Permukaan</td><td data-label="Sisi Datar">Seluruhnya bidang datar</td><td data-label="Sisi Lengkung">Ada bidang lengkung</td></tr>
+      <tr><td class="shape-name">Rusuk</td><td data-label="Sisi Datar">Garis lurus pertemuan dua sisi</td><td data-label="Sisi Lengkung">Lengkung, atau tidak ada</td></tr>
+      <tr><td class="shape-name">Titik sudut</td><td data-label="Sisi Datar">Ada</td><td data-label="Sisi Lengkung">Tidak ada (kerucut punya titik puncak)</td></tr>
+      <tr><td class="shape-name">Jaring-jaring</td><td data-label="Sisi Datar">Persegi, persegi panjang, segitiga</td><td data-label="Sisi Lengkung">Lingkaran, juring, persegi panjang (bola: tidak ada)</td></tr>
+      <tr><td class="shape-name">Contoh</td><td data-label="Sisi Datar">Kubus, balok, prisma, limas</td><td data-label="Sisi Lengkung">Tabung, kerucut, bola</td></tr>
+    </tbody></table></div>
+</div></section>
 
-  <!-- 8 POLA / FORMULA -->
-  <section class="slide" id="s8">
-    <div class="slide-inner">
-      <div class="eyebrow">Interaktif · Geser slider-nya</div>
-      <h2 class="slide-title">Menemukan Pola: Prisma & Limas Segi-n</h2>
-      <p class="slide-sub">Jumlah sisi, rusuk, dan titik sudut prisma & limas mengikuti pola berdasarkan banyak sisi alasnya (n).</p>
-      <div class="formula-wrap">
-        <div class="slider-row">
-          <span style="font-size:13px;color:var(--ink-soft);white-space:nowrap;">Alas segi-<span id="nLabel">4</span> (<span id="nName">segiempat</span>)</span>
-          <input type="range" min="3" max="8" value="4" id="nSlider" oninput="updateFormula()">
-          <span class="n-badge">n = <span id="nVal">4</span></span>
-        </div>
-        <div class="formula-cards">
-          <div class="fcard">
-            <h5 style="color:var(--coral)">🔺 Prisma segi-n</h5>
-            <div class="frow"><span>Sisi = n + 2</span><b id="pSisi">6</b></div>
-            <div class="frow"><span>Rusuk = 3n</span><b id="pRusuk">12</b></div>
-            <div class="frow"><span>Titik sudut = 2n</span><b id="pTitik">8</b></div>
-          </div>
-          <div class="fcard">
-            <h5 style="color:var(--amber)">🔻 Limas segi-n</h5>
-            <div class="frow"><span>Sisi = n + 1</span><b id="lSisi">5</b></div>
-            <div class="frow"><span>Rusuk = 2n</span><b id="lRusuk">8</b></div>
-            <div class="frow"><span>Titik sudut = n + 1</span><b id="lTitik">5</b></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- 7 UNSUR -->
+<section class="slide" id="s7"><div class="slide-inner">
+  <div class="eyebrow">Unsur</div>
+  <h2 class="slide-title">Unsur Setiap Bangun Ruang</h2>
+  <p class="slide-sub">Putar tiap bangun, lalu bandingkan jumlah unsurnya.</p>
+  <div class="cp-box"><b>Arti tiap unsur</b><ul>
+    <li><b style="display:inline;color:var(--coral)">Sisi</b>: bidang pembatas bangun ruang</li>
+    <li><b style="display:inline;color:var(--coral)">Rusuk</b>: pertemuan dua sisi</li>
+    <li><b style="display:inline;color:var(--coral)">Titik sudut</b>: pertemuan rusuk-rusuk</li>
+    <li><b style="display:inline;color:var(--coral)">Diagonal bidang</b>: garis antar titik sudut berhadapan pada satu sisi</li>
+    <li><b style="display:inline;color:var(--coral)">Diagonal ruang</b>: garis antar titik sudut berhadapan yang tidak sebidang</li>
+    <li><b style="display:inline;color:var(--coral)">Bidang diagonal</b>: bidang oleh dua rusuk berhadapan dan dua diagonal bidang</li></ul></div>
+  <div class="table-wrap"><table class="recap-table">
+    <thead><tr><th>Bangun</th><th>Sisi</th><th>Rusuk</th><th>Titik sudut</th><th>Diag. bidang</th><th>Diag. ruang</th></tr></thead>
+    <tbody id="unsurBody"></tbody></table></div>
+</div></section>
 
-  <!-- 9 RANGKUMAN TABEL -->
-  <section class="slide" id="s9">
-    <div class="slide-inner">
-      <div class="eyebrow">Rangkuman</div>
-      <h2 class="slide-title">Tabel Perbandingan Bangun Ruang</h2>
-      <p class="slide-sub">Ringkasan unsur dari tujuh bangun ruang yang sudah kita pelajari.</p>
-      <div class="table-wrap">
-        <table class="recap-table" id="recapTable">
-          <thead><tr><th>Bangun Ruang</th><th>Sisi</th><th>Rusuk</th><th>Titik Sudut</th></tr></thead>
-          <tbody id="recapBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+<!-- 8 SIFAT -->
+<section class="slide" id="s8"><div class="slide-inner">
+  <div class="eyebrow">Sifat</div>
+  <h2 class="slide-title">Sifat dan Ciri-ciri Setiap Bangun</h2>
+  <p class="slide-sub">Putar tiap bangun sambil membaca ciri-cirinya.</p>
+  <div class="sf-grid" id="sfGrid"></div>
+</div></section>
 
-  <!-- 10 QUIZ -->
-  <section class="slide" id="s10">
-    <div class="slide-inner">
-      <div class="eyebrow">Latihan</div>
-      <h2 class="slide-title">Uji Pemahamanmu</h2>
-      <p class="slide-sub">8 soal pilihan ganda seputar unsur dan sifat bangun ruang.</p>
-      <div class="quiz-box">
-        <div id="quizPlay">
-          <div class="quiz-progress">
-            <span class="qnum" id="qnum">Soal 1/8</span>
-            <div class="qbar"><div class="qbar-fill" id="qbarFill"></div></div>
-            <span class="qscore" id="qscore">Skor: 0</span>
-          </div>
-          <div class="q-text" id="qtext"></div>
-          <div class="options" id="qoptions"></div>
-          <div class="feedback" id="qfeedback"></div>
-          <div class="quiz-nav">
-            <button class="btn btn-primary" id="qnextBtn" onclick="nextQuestion()" style="display:none;">Lanjut →</button>
-          </div>
-        </div>
-        <div class="quiz-result" id="quizResult">
-          <div class="result-score"><span id="resultScore">0</span><span>/8 benar</span></div>
-          <div class="result-msg" id="resultMsg"></div>
-          <div class="result-btns">
-            <button class="btn btn-ghost" onclick="restartQuiz()">↺ Ulangi Kuis</button>
-            <button class="btn btn-coral" onclick="goTo(11)">Lanjut ke Penutup →</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<!-- 9 VISUALISASI 3D -->
+<section class="slide fill" id="s9"><div class="slide-inner">
+  <div class="eyebrow">Laboratorium 3D · Semua bangun</div>
+  <h2 class="slide-title">Visualisasi 3D Interaktif</h2>
+  <p class="slide-sub">Pilih bangun, putar, tandai unsurnya, lalu buka jaring-jaringnya.</p>
+  <div class="lab" id="labAll"></div>
+</div></section>
 
-  <!-- 11 PENUTUP -->
-  <section class="slide" id="s11">
-    <div class="slide-inner">
-      <div class="eyebrow" style="justify-content:center;display:flex">Ringkasan</div>
-      <h2 class="slide-title">Kerja Bagus! 🎉</h2>
-      <p class="slide-sub" style="margin:0 auto;">Kamu sudah mengenal unsur dan sifat berbagai bangun ruang. Ini ringkasannya:</p>
-      <div class="recap-grid">
-        <div class="recap-item"><div class="n" style="color:var(--coral)">Sisi</div><div class="l">Bidang pembatas</div></div>
-        <div class="recap-item"><div class="n" style="color:var(--amber)">Rusuk</div><div class="l">Pertemuan 2 sisi</div></div>
-        <div class="recap-item"><div class="n" style="color:var(--teal)">Titik Sudut</div><div class="l">Pertemuan rusuk</div></div>
-      </div>
-      <button class="btn btn-primary" onclick="finish()">✓ Selesai — Kembali ke Bab 3</button>
-      <p style="font-size:11px;color:var(--ink-soft);margin-top:14px;">Tombol ini akan membuka ulang <span class="mono">bab3.html</span></p>
+<!-- 10 KUIS -->
+<section class="slide" id="s10"><div class="slide-inner">
+  <div class="eyebrow">Latihan</div>
+  <h2 class="slide-title">Uji Pemahamanmu</h2>
+  <p class="slide-sub">8 soal pilihan ganda seputar unsur dan sifat bangun ruang.</p>
+  <div class="quiz-box">
+    <div id="quizPlay">
+      <div class="quiz-progress"><span class="qnum" id="qnum">Soal 1/8</span><div class="qbar"><div class="qbar-fill" id="qbarFill"></div></div><span class="qscore" id="qscore">Skor: 0</span></div>
+      <div class="q-text" id="qtext"></div>
+      <div class="options" id="qoptions"></div>
+      <div class="feedback" id="qfeedback"></div>
+      <div class="quiz-nav"><button class="btn btn-primary" id="qnextBtn" onclick="nextQuestion()" style="display:none">Lanjut →</button></div>
     </div>
-  </section>
+    <div class="quiz-result" id="quizResult">
+      <div class="result-score"><span id="resultScore" style="font-size:46px;color:var(--ink);font-weight:700">0</span><span>/8 benar</span></div>
+      <div class="result-msg" id="resultMsg"></div>
+      <div class="result-btns"><button class="btn btn-ghost" onclick="restartQuiz()">Ulangi Kuis</button><button class="btn btn-coral" onclick="goTo(11)">Lanjut ke Penutup →</button></div>
+    </div>
+  </div>
+</div></section>
+
+<!-- 11 PENUTUP -->
+<section class="slide" id="s11"><div class="slide-inner">
+  <div class="eyebrow" style="justify-content:center;display:flex">Ringkasan</div>
+  <h2 class="slide-title">Kerja Bagus! 🎉</h2>
+  <p class="slide-sub" style="margin:0 auto">Kamu sudah mengenal unsur dan sifat berbagai bangun ruang. Ini ringkasannya:</p>
+  <div class="recap-grid">
+    <div class="recap-item"><div class="n" style="color:var(--coral)">Sisi</div><div class="l">Bidang pembatas</div></div>
+    <div class="recap-item"><div class="n" style="color:var(--amber)">Rusuk</div><div class="l">Pertemuan 2 sisi</div></div>
+    <div class="recap-item"><div class="n" style="color:var(--teal)">Titik Sudut</div><div class="l">Pertemuan rusuk</div></div>
+  </div>
+  <button class="btn btn-primary" onclick="finish()">✓ Selesai — Kembali ke Bab 3</button>
+  <p style="font-size:11px;color:var(--ink-soft);margin-top:14px">Tombol ini akan membuka ulang <span class="mono">bab3.html</span></p>
+</div></section>
 
 </main>
 
@@ -690,288 +361,292 @@
 </div>
 
 <script>
-/* ================= viewport height fix (mobile) ================= */
-function setVh(){ document.documentElement.style.setProperty('--vh', (window.innerHeight*0.01)+'px'); }
-setVh();
-window.addEventListener('resize', setVh);
-window.addEventListener('orientationchange', setVh);
+function setVh(){document.documentElement.style.setProperty('--vh',(window.innerHeight*.01)+'px')}
+setVh();addEventListener('resize',setVh);addEventListener('orientationchange',setVh);
+const $=id=>document.getElementById(id);
+const slideNames=["Sampul","Tujuan","Pengertian","Sekitar Kita","Sisi Datar","Sisi Lengkung","Perbedaan","Unsur","Sifat","Visualisasi 3D","Kuis","Penutup"];
+const totalSlides=slideNames.length;let current=0;
 
-/* ================= DATA ================= */
-const slideNames = ["Sampul","Tujuan","Apersepsi","Sekitar Kita","Unsur Utama","Diagonal","Sisi Datar","Sisi Lengkung","Pola Segi-n","Rangkuman","Kuis","Penutup"];
-const totalSlides = slideNames.length;
-let current = 0;
-
-const unsurInfo = {
-  sisi: { title:"Sisi", text:"Sisi adalah bidang datar atau lengkung yang membatasi bagian dalam dan luar bangun ruang. Kubus memiliki 6 sisi berbentuk persegi yang kongruen.", dim:"6 SISI" },
-  rusuk: { title:"Rusuk", text:"Rusuk adalah garis pertemuan dua sisi bangun ruang, membentuk kerangka bangun ruang. Kubus memiliki 12 rusuk yang semuanya sama panjang.", dim:"12 RUSUK" },
-  titik: { title:"Titik Sudut", text:"Titik sudut adalah titik pertemuan tiga rusuk atau lebih, sering disebut juga 'pojok' bangun ruang. Kubus memiliki 8 titik sudut.", dim:"8 TITIK SUDUT" }
-};
-const diagInfo = {
-  bidang: { title:"Diagonal Bidang", text:"Garis yang menghubungkan dua titik sudut yang sebidang (segaris pada satu sisi) tetapi tidak segaris rusuk. Kubus memiliki 12 diagonal bidang.", dim:"12 DIAGONAL BIDANG" },
-  ruang: { title:"Diagonal Ruang", text:"Garis yang menghubungkan dua titik sudut yang tidak sebidang, dan menembus bagian dalam bangun ruang. Kubus memiliki 4 diagonal ruang.", dim:"4 DIAGONAL RUANG" },
-  plane: { title:"Bidang Diagonal", text:"Bidang di dalam bangun ruang yang dibentuk oleh dua rusuk sejajar yang tidak sebidang beserta dua diagonal bidang. Kubus memiliki 6 bidang diagonal.", dim:"6 BIDANG DIAGONAL" }
-};
-
-const iso = {
-  kubus: `<svg viewBox="0 0 100 100"><polygon points="50,8 88,28 50,48 12,28" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="12,28 50,48 50,92 12,72" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="88,28 50,48 50,92 88,72" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
-  balok: `<svg viewBox="0 0 100 100"><polygon points="50,10 90,26 50,42 10,26" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="10,26 50,42 50,90 10,74" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="90,26 50,42 50,90 90,74" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
-  prisma: `<svg viewBox="0 0 100 100"><polygon points="30,15 70,15 50,42" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="30,15 30,63 50,90" fill="none" stroke="currentColor" stroke-width="3"/><polygon points="70,15 70,63 50,90" fill="none" stroke="currentColor" stroke-width="3"/><line x1="50" y1="42" x2="50" y2="90" stroke="currentColor" stroke-width="3"/><polygon points="30,63 70,63 50,90" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
-  limas: `<svg viewBox="0 0 100 100"><polygon points="50,10 85,60 50,80 15,60" fill="none" stroke="currentColor" stroke-width="3"/><line x1="50" y1="10" x2="15" y2="60" stroke="currentColor" stroke-width="3"/><line x1="50" y1="10" x2="50" y2="80" stroke="currentColor" stroke-width="3"/><line x1="50" y1="10" x2="85" y2="60" stroke="currentColor" stroke-width="3"/></svg>`,
-  tabung: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="20" rx="34" ry="12" fill="none" stroke="currentColor" stroke-width="3"/><ellipse cx="50" cy="80" rx="34" ry="12" fill="none" stroke="currentColor" stroke-width="3"/><line x1="16" y1="20" x2="16" y2="80" stroke="currentColor" stroke-width="3"/><line x1="84" y1="20" x2="84" y2="80" stroke="currentColor" stroke-width="3"/></svg>`,
-  kerucut: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="82" rx="34" ry="12" fill="none" stroke="currentColor" stroke-width="3"/><line x1="16" y1="82" x2="50" y2="10" stroke="currentColor" stroke-width="3"/><line x1="84" y1="82" x2="50" y2="10" stroke="currentColor" stroke-width="3"/></svg>`,
-  bola: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="none" stroke="currentColor" stroke-width="3"/><ellipse cx="50" cy="50" rx="38" ry="13" fill="none" stroke="currentColor" stroke-width="2" opacity="0.55"/></svg>`
-};
-
-const shapesFlat = [
-  { name:"Kubus", icon:iso.kubus, color:"var(--coral)", sisi:"6 sisi (persegi)", rusuk:"12 rusuk sama panjang", titik:"8 titik sudut", sifat:"Semua sisi berbentuk persegi yang kongruen. Punya 12 diagonal bidang dan 4 diagonal ruang." },
-  { name:"Balok", icon:iso.balok, color:"var(--coral)", sisi:"6 sisi (persegi panjang)", rusuk:"12 rusuk, 3 kelompok ukuran", titik:"8 titik sudut", sifat:"Sisi-sisi yang berhadapan berbentuk sama dan sebangun (kongruen berpasangan)." },
-  { name:"Prisma Segitiga", icon:iso.prisma, color:"var(--amber)", sisi:"5 sisi (2 alas + 3 sisi tegak)", rusuk:"9 rusuk", titik:"6 titik sudut", sifat:"Kedua alasnya kongruen berbentuk segitiga, sisi tegaknya berbentuk persegi panjang." },
-  { name:"Limas Segiempat", icon:iso.limas, color:"var(--amber)", sisi:"5 sisi (1 alas + 4 sisi tegak)", rusuk:"8 rusuk", titik:"5 titik sudut", sifat:"Alas berbentuk segiempat, seluruh sisi tegaknya berbentuk segitiga bertemu di satu titik puncak." },
-];
-const shapesCurved = [
-  { name:"Tabung", icon:iso.tabung, color:"var(--teal)", sisi:"3 sisi (2 lingkaran + selimut)", rusuk:"2 rusuk lengkung", titik:"tidak punya titik sudut", sifat:"Alas dan tutup berbentuk lingkaran yang kongruen, sisi selimut berbentuk lengkung." },
-  { name:"Kerucut", icon:iso.kerucut, color:"var(--teal)", sisi:"2 sisi (alas + selimut)", rusuk:"1 rusuk lengkung", titik:"1 titik puncak", sifat:"Alas berbentuk lingkaran, selimutnya melengkung dan mengerucut ke satu titik puncak." },
-  { name:"Bola", icon:iso.bola, color:"var(--teal)", sisi:"1 sisi lengkung", rusuk:"tidak punya rusuk", titik:"tidak punya titik sudut", sifat:"Semua titik pada permukaannya berjarak sama terhadap titik pusat (disebut jari-jari)." },
-];
-const allShapes = [...shapesFlat, ...shapesCurved];
-
-const objects = [
-  { emoji:"🧊", name:"Kubus Rubik", shape:"Kubus" },
-  { emoji:"📦", name:"Kardus", shape:"Balok" },
-  { emoji:"🥫", name:"Kaleng Susu", shape:"Tabung" },
-  { emoji:"🎉", name:"Topi Ultah", shape:"Kerucut" },
-  { emoji:"⚽", name:"Bola Sepak", shape:"Bola" },
-  { emoji:"⛺", name:"Tenda", shape:"Prisma Segitiga" },
-  { emoji:"🔺", name:"Piramida Mesir", shape:"Limas Segiempat" },
-  { emoji:"🎲", name:"Dadu", shape:"Kubus" },
-];
-
-const quiz = [
-  { q:"Berapa jumlah sisi pada sebuah kubus?", opts:["4","6","8","12"], correct:1, exp:"Kubus memiliki 6 sisi berbentuk persegi yang kongruen." },
-  { q:"Bangun ruang manakah yang tidak memiliki titik sudut sama sekali?", opts:["Limas segiempat","Prisma segitiga","Bola","Balok"], correct:2, exp:"Bola hanya memiliki 1 sisi lengkung tanpa rusuk maupun titik sudut." },
-  { q:"Rusuk adalah...", opts:["Bidang pembatas bangun ruang","Garis pertemuan dua sisi","Titik pertemuan tiga rusuk","Titik pusat bangun ruang"], correct:1, exp:"Rusuk merupakan garis hasil pertemuan dua sisi pada bangun ruang." },
-  { q:"Balok memiliki berapa rusuk?", opts:["6","8","10","12"], correct:3, exp:"Balok memiliki 12 rusuk yang terbagi dalam 3 kelompok ukuran." },
-  { q:"Limas segiempat memiliki alas berbentuk segiempat dan sisi tegak berbentuk...", opts:["Segitiga","Persegi panjang","Lingkaran","Trapesium"], correct:0, exp:"Sisi tegak limas selalu berbentuk segitiga yang bertemu di titik puncak." },
-  { q:"Tabung memiliki berapa sisi?", opts:["1","2","3","4"], correct:2, exp:"Tabung memiliki 3 sisi: alas lingkaran, tutup lingkaran, dan selimut lengkung." },
-  { q:"Garis yang menghubungkan dua titik sudut yang tidak sebidang dan menembus bagian dalam bangun ruang disebut...", opts:["Diagonal bidang","Diagonal ruang","Bidang diagonal","Rusuk"], correct:1, exp:"Itulah definisi diagonal ruang — kubus memiliki 4 diagonal ruang." },
-  { q:"Prisma segienam (segi-6) memiliki berapa rusuk? (rusuk = 3n)", opts:["12","16","18","20"], correct:2, exp:"Rusuk prisma segi-n = 3n, maka 3 × 6 = 18 rusuk." },
-];
-
-/* ================= SLIDE NAV ================= */
-function buildDots(){
-  const wrap = document.getElementById('dots');
-  wrap.innerHTML = '';
-  for(let i=0;i<totalSlides;i++){
-    const d = document.createElement('button');
-    d.className = 'dot';
-    d.title = slideNames[i];
-    d.onclick = () => goTo(i);
-    wrap.appendChild(d);
-  }
-}
+/* ================= NAVIGASI SLIDE ================= */
+function buildDots(){const w=$('dots');w.innerHTML='';for(let i=0;i<totalSlides;i++){const d=document.createElement('button');d.className='dot';d.title=slideNames[i];d.onclick=()=>goTo(i);w.appendChild(d)}}
 function goTo(i){
-  if(i<0 || i>=totalSlides) return;
-  const dir = i > current ? 1 : -1;
-  document.getElementById('s'+current).classList.remove('active');
-  if(dir>0) document.getElementById('s'+current).classList.add('prevslide');
-  current = i;
-  const el = document.getElementById('s'+current);
-  el.classList.remove('prevslide');
-  el.classList.add('active');
-  setTimeout(()=>{ document.querySelectorAll('.slide').forEach(s=>{ if(!s.classList.contains('active')) s.classList.remove('prevslide'); }); }, 420);
-
-  document.querySelectorAll('.dot').forEach((d,idx)=>{
-    d.classList.toggle('active', idx===current);
-    d.classList.toggle('done', idx<current);
-  });
-  document.getElementById('slideCount').textContent = String(current+1).padStart(2,'0') + '/' + String(totalSlides).padStart(2,'0');
-  document.getElementById('progressFill').style.width = ((current+1)/totalSlides*100) + '%';
-  document.getElementById('stepLabel').innerHTML = (current+1) + '/' + totalSlides + ' · <b>' + slideNames[current] + '</b>';
-  document.getElementById('prevBtn').disabled = current===0;
-  document.getElementById('nextBtn').disabled = current===totalSlides-1;
+  if(i<0||i>=totalSlides)return;
+  const dir=i>current?1:-1;
+  $('s'+current).classList.remove('active');
+  if(dir>0)$('s'+current).classList.add('prevslide');
+  current=i;const el=$('s'+current);el.classList.remove('prevslide');el.classList.add('active');
+  setTimeout(()=>{document.querySelectorAll('.slide').forEach(s=>{if(!s.classList.contains('active'))s.classList.remove('prevslide')})},420);
+  document.querySelectorAll('.dot').forEach((d,k)=>{d.classList.toggle('active',k===current);d.classList.toggle('done',k<current)});
+  $('slideCount').textContent=String(current+1).padStart(2,'0')+'/'+String(totalSlides).padStart(2,'0');
+  $('progressFill').style.width=((current+1)/totalSlides*100)+'%';
+  $('stepLabel').innerHTML=(current+1)+'/'+totalSlides+' · <b>'+slideNames[current]+'</b>';
+  $('prevBtn').disabled=current===0;$('nextBtn').disabled=current===totalSlides-1;
 }
 
-/* ================= COVER ICONS ================= */
-document.getElementById('coverShapes').innerHTML =
-  `<span style="color:var(--coral)">${iso.kubus}</span><span style="color:var(--amber)">${iso.limas}</span><span style="color:var(--teal)">${iso.tabung}</span><span style="color:var(--teal)">${iso.bola}</span>`;
-document.getElementById('introCubeIcon').innerHTML = `<span style="color:var(--coral)">${iso.kubus}</span>`;
+/* ================= MESIN 3D ================= */
+const sub=(a,b)=>a.map((x,k)=>x-b[k]),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const nrm3=v=>{const l=Math.hypot(...v)||1;return v.map(x=>x/l)};
+const I3=()=>[[1,0,0],[0,1,0],[0,0,1]];
+const mul=(A,B)=>A.map(r=>B[0].map((_,j)=>r[0]*B[0][j]+r[1]*B[1][j]+r[2]*B[2][j]));
+const orth=M=>{const a=nrm3(M[0]),b=nrm3(sub(M[1],a.map(x=>x*dot(a,M[1]))));return[a,b,cross(a,b)]};
+const rg=n=>[...Array(n).keys()],PI=Math.PI;
+const P=(n,r,o=0)=>rg(n).map(i=>{const a=o+2*PI*i/n;return[r*Math.cos(a),r*Math.sin(a)]});
+const box=(w,h,d)=>{const v=[];for(const x of[-1,1])for(const y of[-1,1])for(const z of[-1,1])v.push([x*w/2,y*h/2,z*d/2]);
+ return{v,f:[[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]]}};
+const prism=(b,t)=>{const n=b.length;return{v:b.map(p=>[p[0],-t/2,p[1]]).concat(b.map(p=>[p[0],t/2,p[1]])),f:[rg(n),rg(n).map(i=>i+n),...rg(n).map(i=>[i,(i+1)%n,(i+1)%n+n,i+n])]}};
+const pyr=(b,t)=>{const n=b.length;return{v:b.map(p=>[p[0],-t/2,p[1]]).concat([[0,t/2,0]]),f:[rg(n),...rg(n).map(i=>[i,(i+1)%n,n])]}};
+const sph=(r,N=10,M=20)=>{const v=[[0,r,0]];for(let i=1;i<N;i++)for(let j=0;j<M;j++){const a=PI*i/N,b=2*PI*j/M;v.push([r*Math.sin(a)*Math.cos(b),r*Math.cos(a),r*Math.sin(a)*Math.sin(b)])}
+ v.push([0,-r,0]);const id=(i,j)=>1+(i-1)*M+j%M,L=v.length-1,f=[];
+ for(let j=0;j<M;j++)f.push([0,id(1,j+1),id(1,j)]);
+ for(let i=1;i<N-1;i++)for(let j=0;j<M;j++)f.push([id(i,j),id(i,j+1),id(i+1,j+1),id(i+1,j)]);
+ for(let j=0;j<M;j++)f.push([L,id(N-1,j),id(N-1,j+1)]);return{v,f}};
+const HUE=[350,200,45,160,270,25,320,100];
+const FLAT=[{k:'rusuk',l:'Rusuk',tx:g=>`Rusuk: ${g.E} (garis kuning tebal)`},{k:'sisi',l:'Sisi',tx:g=>`Sisi: ${g.F} (S1 sampai S${g.F})`},{k:'titik',l:'Titik sudut',tx:g=>`Titik sudut: ${g.V} (huruf A, B, C, ...)`},{k:'dsisi',l:'Diagonal bidang',tx:g=>`Diagonal bidang: ${g.ds.length} (putus-putus oranye)`},{k:'druang',l:'Diagonal ruang',tx:g=>`Diagonal ruang: ${g.dr.length} (putus-putus merah muda)`}];
 
-/* ================= UNSUR INTERACTIVE ================= */
-function setUnsur(mode){
-  document.querySelectorAll('#s4 .utab').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
-  const svg = document.getElementById('cubeSvg');
-  svg.classList.remove('mode-sisi','mode-rusuk','mode-titik');
-  svg.classList.add('mode-'+mode);
-  const info = unsurInfo[mode];
-  document.getElementById('unsurDesc').innerHTML =
-    `<h4>${info.title}</h4><p>${info.text}</p><div class="dim"><span class="arrow">↔</span>${info.dim}</div>`;
+function mkGeo(s){
+ const g=s.g(),V=g.v;
+ const mn=[0,1,2].map(k=>Math.min(...V.map(p=>p[k]))),mx=[0,1,2].map(k=>Math.max(...V.map(p=>p[k])));
+ const c=mn.map((m,k)=>(m+mx[k])/2);
+ let v=V.map(p=>p.map((x,k)=>x-c[k]));const sc=Math.max(...v.map(p=>Math.hypot(...p)));v=v.map(p=>p.map(x=>x/sc));
+ const gm=[0,1,2].map(k=>v.reduce((a,p)=>a+p[k],0)/v.length);
+ const f=g.f.map(fc=>{const t=fc.map(i=>v[i]),m=[0,1,2].map(k=>t.reduce((a,p)=>a+p[k],0)/t.length);
+  return dot(cross(sub(t[1],t[0]),sub(t[2],t[0])),sub(m,gm))<0?[...fc].reverse():fc});
+ const n=f.map(fc=>nrm3(cross(sub(v[fc[1]],v[fc[0]]),sub(v[fc[2]],v[fc[0]]))));
+ const em={};f.forEach((fc,i)=>fc.forEach((a,k)=>{const b=fc[(k+1)%fc.length],key=Math.min(a,b)+'-'+Math.max(a,b);(em[key]=em[key]||[]).push(i)}));
+ const G={v,f,of:g.f,n,F:f.length,V:v.length,E:Object.keys(em).length,ds:[],dr:[],h:[],rt:s.rt||0,net:!s.nonet};
+ if(!s.ne){f.forEach((fc,fi)=>{const m=fc.length;for(let a=0;a<m;a++)for(let b=a+2;b<m;b++)if(!(a===0&&b===m-1))G.ds.push([fc[a],fc[b],fi])});
+  const fs=f.map(fc=>new Set(fc));for(let i=0;i<v.length;i++)for(let j=i+1;j<v.length;j++)if(!fs.some(x=>x.has(i)&&x.has(j)))G.dr.push([i,j])}
+ if(G.net){const par=Array(f.length).fill(-2),qu=[G.rt];par[G.rt]=-1;
+  for(let h=0;h<qu.length;h++){const x=qu[h];if(s.lf&&s.lf.includes(x))continue;f[x].forEach((a,k)=>{const b=f[x][(k+1)%f[x].length],o=em[Math.min(a,b)+'-'+Math.max(a,b)].find(y=>y!==x);
+   if(par[o]===-2){par[o]=x;const e=nrm3(sub(v[b],v[a]));G.h[o]={p:x,A:v[a],e,a:Math.atan2(dot(e,cross(n[o],n[x])),dot(n[o],n[x]))};qu.push(o)}})}}
+ return G;
 }
-document.querySelectorAll('#cubeSvg .face, #cubeSvg .edge, #cubeSvg .vertex').forEach(el=>{
-  el.addEventListener('click', ()=> setUnsur(el.dataset.mode));
-});
-setUnsur('sisi');
+function fold(G,i,p,u){let x=i;while(x!==G.rt){const h=G.h[x],a=h.a*u,c=Math.cos(a),s=Math.sin(a),d=sub(p,h.A),k=cross(h.e,d),e=dot(h.e,d);
+ p=p.map((_,m)=>h.A[m]+d[m]*c+k[m]*s+h.e[m]*e*(1-c));x=h.p}return p}
+function netR(G){const n=G.n[G.rt],z=[0,0,1],ax=cross(n,z),l=Math.hypot(...ax);
+ if(l<1e-6)return n[2]>0?I3():[[1,0,0],[0,-1,0],[0,0,-1]];
+ const e=ax.map(t=>t/l),a=Math.acos(Math.max(-1,Math.min(1,dot(n,z)))),c=Math.cos(a),s=Math.sin(a),[x,y,w]=e;
+ return[[c+x*x*(1-c),x*y*(1-c)-w*s,x*w*(1-c)+y*s],[y*x*(1-c)+w*s,c+y*y*(1-c),y*w*(1-c)-x*s],[w*x*(1-c)-y*s,w*y*(1-c)+x*s,c+w*w*(1-c)]]}
 
-function setDiag(mode){
-  document.querySelectorAll('#s5 .utab').forEach(b=> b.classList.toggle('active', b.dataset.mode===mode));
-  const svg = document.getElementById('diagSvg');
-  svg.classList.remove('mode-bidang','mode-ruang','mode-plane');
-  svg.classList.add('mode-'+mode);
-  const info = diagInfo[mode];
-  document.getElementById('diagDesc').innerHTML =
-    `<h4>${info.title}</h4><p>${info.text}</p><div class="dim"><span class="arrow">↔</span>${info.dim}</div>`;
+function Eng(cv,SHP,o={}){
+ const ctx=cv.getContext('2d'),bx=cv.parentElement,K=o.z||.34;
+ let R=I3(),cur=0,G,vx=0,vy=0,drag=false,lx=0,ly=0,tp=false,mode=null,u=0,nt=null,RN=null,W=0,H=0,S=1,auto=!!o.auto,lt=null;
+ const rot=(dx,dy)=>{const a=dx*.01,b=dy*.01,ca=Math.cos(a),sa=Math.sin(a),cb=Math.cos(b),sb=Math.sin(b);R=mul([[1,0,0],[0,cb,-sb],[0,sb,cb]],mul([[ca,0,sa],[0,1,0],[-sa,0,ca]],R))};
+ const home=()=>{R=I3();rot(-45,35);vx=vy=0};
+ const MD=()=>SHP[cur].m||FLAT.filter(m=>m.k!=='druang'||G.dr.length);
+ const pj=p=>{const x=R[0][0]*p[0]+R[0][1]*p[1]+R[0][2]*p[2],y=R[1][0]*p[0]+R[1][1]*p[1]+R[1][2]*p[2],z=R[2][0]*p[0]+R[2][1]*p[1]+R[2][2]*p[2],k=7/(7-z);return{x,y,z,sx:W/2+x*k*S,sy:H/2-y*k*S}};
+ const pth=t=>{ctx.beginPath();t.forEach((p,k)=>k?ctx.lineTo(p.sx,p.sy):ctx.moveTo(p.sx,p.sy));ctx.closePath()};
+ const lab=(t,x,y)=>{ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='rgba(0,0,0,.75)';ctx.strokeText(t,x,y);ctx.fillStyle='#fff';ctx.fillText(t,x,y)};
+ const dotp=p=>{ctx.beginPath();ctx.arc(p.sx,p.sy,5,0,7);ctx.fillStyle='#ffd60a';ctx.fill();ctx.lineWidth=1.5;ctx.strokeStyle='#000';ctx.stroke()};
+ const seg=(a,b,c,w)=>{ctx.beginPath();ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);ctx.lineWidth=w;ctx.strokeStyle=c;ctx.stroke()};
+ function render(){
+  const S0=SHP[cur],dpr=devicePixelRatio||1;W=bx.clientWidth;H=bx.clientHeight;if(!W||!H)return;S=Math.min(W,H)*K;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr)}
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  if(o.shadow&&u<.02){ctx.save();ctx.translate(W/2,H/2+S*1.12);ctx.scale(1,.2);const sg=ctx.createRadialGradient(0,0,0,0,0,S*1.15);sg.addColorStop(0,'rgba(0,0,0,.5)');sg.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=sg;ctx.beginPath();ctx.arc(0,0,S*1.15,0,7);ctx.fill();ctx.restore()}
+  const md=MD().find(m=>m.k===mode),sel=md&&md.sel,dim=md&&(md.sel||md.ln||md.pt!==undefined);
+  let Q=G.f.map(fc=>fc.map(j=>G.v[j]));
+  if(u>.0005){Q=Q.map((t,i)=>t.map(p=>fold(G,i,p,u)));const all=Q.flat(),
+   c=[0,1,2].map(k=>(Math.min(...all.map(p=>p[k]))+Math.max(...all.map(p=>p[k])))/2),
+   rad=Math.max(1,...all.map(p=>Math.hypot(p[0]-c[0],p[1]-c[1],p[2]-c[2])));
+   Q=Q.map(t=>t.map(p=>[(p[0]-c[0])/rad,(p[1]-c[1])/rad,(p[2]-c[2])/rad]))}
+  const L=[.3,.5,.8],fs=[];
+  Q.forEach((t0,i)=>{const t=t0.map(pj);
+   const n=nrm3(cross([t[1].x-t[0].x,t[1].y-t[0].y,t[1].z-t[0].z],[t[2].x-t[0].x,t[2].y-t[0].y,t[2].z-t[0].z]));
+   const c=[t.reduce((a,p)=>a+p.x,0)/t.length,t.reduce((a,p)=>a+p.y,0)/t.length,t.reduce((a,p)=>a+p.z,0)/t.length],on=!!(sel&&sel(i));
+   if(-n[0]*c[0]-n[1]*c[1]+n[2]*(7-c[2])>0||tp||on)fs.push({t,z:c[2],i,on,sh:Math.max(0,dot(n,L)),cx:t.reduce((a,p)=>a+p.sx,0)/t.length,cy:t.reduce((a,p)=>a+p.sy,0)/t.length})});
+  fs.sort((a,b)=>a.z-b.z);ctx.lineJoin='round';
+  fs.forEach(f=>{pth(f.t);
+   const al=(dim&&!f.on)?0.28:(tp?0.38:1),tx=S0.sk&&S0.sk[f.i],fc=S0.fc&&S0.fc(f.i);
+   if(tx&&!f.on){const fi=G.f[f.i],q=G.of[f.i].slice(0,3).map(id=>f.t[fi.indexOf(id)]);
+    ctx.globalAlpha=al;ctx.fillStyle=tx.bg||'#999';ctx.fill();ctx.save();ctx.clip();
+    ctx.transform((q[1].sx-q[0].sx)/tx.width,(q[1].sy-q[0].sy)/tx.width,(q[2].sx-q[1].sx)/tx.height,(q[2].sy-q[1].sy)/tx.height,q[0].sx,q[0].sy);
+    ctx.drawImage(tx,0,0);ctx.restore();ctx.globalAlpha=1;
+    const a=(1-f.sh)*.32,rgb=(tx.rgb||[128,128,128]).map((v,k)=>Math.round(v*(1-a)+[25,35,95][k]*a));
+    pth(f.t);ctx.fillStyle=`rgba(25,35,95,${a})`;ctx.fill();ctx.lineJoin='round';ctx.lineWidth=S*.07;ctx.strokeStyle=`rgb(${rgb.join(',')})`;ctx.stroke();return}
+   const col=f.on?`hsla(48,100%,${52+10*f.sh}%,.92)`:fc?`hsla(${fc[0]},${fc[1]}%,${Math.min(100,fc[2]*(.62+.5*f.sh))}%,${al})`:`hsla(${S0.hue?S0.hue(f.i):HUE[f.i%8]},78%,${40+28*f.sh}%,${al})`;
+   ctx.fillStyle=col;ctx.fill();ctx.lineWidth=S0.ne?1:2;ctx.strokeStyle=S0.ne?(tp?'rgba(255,255,255,.22)':col):'rgba(255,255,255,.9)';ctx.stroke();
+   if(md&&md.k==='rusuk'){ctx.lineWidth=4.5;ctx.strokeStyle='#ffd60a';ctx.stroke()}});
+  if(md&&md.k==='sisi')fs.forEach(f=>lab('S'+(f.i+1),f.cx,f.cy));
+  if(sel){const a=fs.filter(f=>f.on);if(a.length)lab(md.l,a.reduce((s,f)=>s+f.cx,0)/a.length,a.reduce((s,f)=>s+f.cy,0)/a.length)}
+  if(md&&u<.001){const pv=G.v.map(pj);
+   if(md.k==='titik'){const us=new Set();fs.forEach(f=>G.f[f.i].forEach(j=>us.add(j)));us.forEach(j=>{dotp(pv[j]);lab(String.fromCharCode(65+j),pv[j].sx+10,pv[j].sy-8)})}
+   if(md.k==='dsisi'){ctx.setLineDash([6,4]);G.ds.forEach(d=>{if(fs.some(f=>f.i===d[2]))seg(pv[d[0]],pv[d[1]],'#ff9f1c',3)});ctx.setLineDash([])}
+   if(md.k==='druang'){ctx.setLineDash([6,4]);G.dr.forEach(d=>seg(pv[d[0]],pv[d[1]],'#ff5fa2',3));ctx.setLineDash([])}
+   if(md.ln){const a=md.ln.map(x=>x==='o'?pj([0,0,0]):pv[x]);seg(a[0],a[1],'#ffd60a',4);a.forEach(dotp);lab(md.lt,(a[0].sx+a[1].sx)/2,(a[0].sy+a[1].sy)/2-10);if(md.ln[0]==='o')lab('O',a[0].sx+10,a[0].sy-8)}
+   if(md.pt!==undefined){const p=pv[md.pt<0?G.v.length-1:md.pt];dotp(p);lab(md.l,p.sx+12,p.sy-8)}}
+  if(o.hint){const tx=u>.02?'Jaring-jaring · geser untuk memutar':md?(typeof md.tx==='function'?md.tx(G):md.tx):'Sentuh dan geser untuk memutar';if(tx!==lt){lt=tx;o.hint(tx)}}
+ }
+ function step(){
+  if(nt!==null){const d=nt-u;u+=Math.abs(d)<.015?d:Math.sign(d)*Math.max(.012,Math.abs(d)*.07);
+   if(nt===1&&RN)R=orth(R.map((r,i)=>r.map((x,j)=>x*.92+RN[i][j]*.08)));
+   if(Math.abs(nt-u)<.002){u=nt;nt=null}o.onu&&o.onu(u)}
+  else if(!drag){if(auto&&Math.abs(vx)<.3&&Math.abs(vy)<.3)rot(.6,.25);else if(Math.abs(vx)>.02||Math.abs(vy)>.02){rot(vx,vy);vx*=.95;vy*=.95}}
+  render();
+ }
+ bx.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;vx=vy=0;try{bx.setPointerCapture(e.pointerId)}catch(_){}});
+ bx.addEventListener('pointermove',e=>{if(!drag)return;vx=(e.clientX-lx)*.5;vy=(e.clientY-ly)*.5;lx=e.clientX;ly=e.clientY;rot(vx,vy)});
+ const up=()=>{drag=false};bx.addEventListener('pointerup',up);bx.addEventListener('pointercancel',up);
+ home();
+ return{cv,step,MD,set(i){cur=i;G=mkGeo(SHP[i]);u=0;nt=null;home();if(!MD().some(m=>m.k===mode))mode=null;o.onset&&o.onset(G)},
+  cur:()=>cur,mode:()=>mode,setMode(k){mode=k},tp(v){tp=v},auto(v){auto=v},home,u:()=>u,setU(v){u=v;nt=null},
+  net(t){if(!G.net)return;vx=vy=0;nt=t;if(t===1)RN=netR(G)}};
 }
-setDiag('bidang');
 
-/* ================= OBJECTS ================= */
-const objGrid = document.getElementById('objGrid');
-objects.forEach(o=>{
-  const card = document.createElement('div');
-  card.className = 'obj-card';
-  card.innerHTML = `<span class="emoji">${o.emoji}</span><div class="oname">${o.name}</div><div class="oans">→ ${o.shape}</div>`;
-  card.addEventListener('click', ()=> card.classList.toggle('revealed'));
-  objGrid.appendChild(card);
-});
+/* ================= DATA BANGUN RUANG ================= */
+const BN=16,BM=32,BEQ=1+(BN/2-1)*BM;
+const SH=[
+{n:'Kubus',kel:'datar',g:()=>box(1,1,1),def:'Bangun ruang yang dibatasi 6 sisi berbentuk persegi yang kongruen.',
+ ciri:['6 sisi persegi yang kongruen','12 rusuk sama panjang','Semua sudutnya siku-siku','4 diagonal ruang sama panjang'],note:'Bidang diagonal: 6 buah.',net:'Kubus punya 11 pola jaring-jaring berbeda. Tiap jaring-jaringnya tersusun dari 6 persegi yang kongruen.'},
+{n:'Balok',kel:'datar',g:()=>box(1.7,1,1.2),def:'Bangun ruang yang dibatasi 3 pasang persegi panjang yang berhadapan dan kongruen.',
+ ciri:['Sisi berhadapan kongruen dan sejajar','Rusuk yang sejajar sama panjang','Semua sudutnya siku-siku','4 diagonal ruang sama panjang'],note:'Bidang diagonal: 6 buah.',net:'Jaring-jaring balok tersusun dari 6 persegi panjang (3 pasang yang kongruen).'},
+{n:'Prisma',kel:'datar',g:()=>prism([[0,0],[4,0],[0,3]],5),def:'Bangun ruang dengan alas dan tutup yang kongruen dan sejajar, dihubungkan oleh sisi tegak berbentuk persegi panjang.',
+ ciri:['Alas dan tutup kongruen dan sejajar','Sisi tegak berbentuk persegi panjang','Rusuk tegak sejajar dan sama panjang','Dinamai menurut bentuk alasnya'],note:'Model ini prisma segitiga (alas segitiga siku-siku).',net:'2 segitiga (alas dan tutup) + 3 persegi panjang (sisi tegak).'},
+{n:'Limas',kel:'datar',g:()=>pyr(P(4,1.5,PI/4),2.6),def:'Bangun ruang dengan alas berbentuk segi banyak dan sisi tegak berbentuk segitiga yang bertemu di satu titik puncak.',
+ ciri:['Sisi tegak berbentuk segitiga','Semua sisi tegak bertemu di titik puncak','Punya 1 sisi alas','Dinamai menurut bentuk alasnya'],note:'Model ini limas segiempat (alas persegi).',net:'1 persegi (alas) + 4 segitiga (sisi tegak).'},
+{n:'Tabung',kel:'lengkung',ne:1,rt:20,lf:[0,1],g:()=>prism(P(36,1.6),4),hue:i=>i<2?200:45,
+ m:[{k:'alas',l:'Alas',sel:i=>i===0,tx:'Alas: lingkaran di bagian bawah'},{k:'tutup',l:'Tutup',sel:i=>i===1,tx:'Tutup: lingkaran di bagian atas'},{k:'selimut',l:'Selimut',sel:i=>i>1,tx:'Selimut: bidang lengkung (dibuka = persegi panjang)'}],
+ def:'Bangun ruang dengan alas dan tutup berupa dua lingkaran yang kongruen dan sejajar, dihubungkan oleh selimut yang lengkung.',
+ ciri:['Alas dan tutup lingkaran yang kongruen','Selimut berupa bidang lengkung','Tidak punya titik sudut','Selimut dibuka menjadi persegi panjang'],
+ u:[['Sisi','3 (alas, tutup, selimut)'],['Rusuk','2 (lengkung)'],['Titik sudut','0'],['Jari-jari','r'],['Tinggi','t']],cnt:['3','2 (lengkung)','0','—','—'],note:'Alas dan tutup berupa lingkaran, selimut berupa bidang lengkung.',
+ net:'2 lingkaran (alas dan tutup) + 1 persegi panjang (selimut). Panjang persegi panjang sama dengan keliling lingkaran.'},
+{n:'Kerucut',kel:'lengkung',ne:1,rt:19,lf:[0],g:()=>pyr(P(36,1.7),3.6),hue:i=>i<1?350:200,
+ m:[{k:'alas',l:'Alas',sel:i=>i===0,tx:'Alas: lingkaran di bagian bawah'},{k:'selimut',l:'Selimut',sel:i=>i>0,tx:'Selimut: bidang lengkung (dibuka = juring lingkaran)'},{k:'puncak',l:'Titik puncak',pt:-1,tx:'Titik puncak: ujung runcing kerucut'}],
+ def:'Bangun ruang dengan alas berupa lingkaran dan selimut lengkung yang meruncing ke satu titik puncak.',
+ ciri:['Alas berupa lingkaran','Selimut berupa bidang lengkung','Punya 1 titik puncak','Garis pelukis s = √(r² + t²)'],
+ u:[['Sisi','2 (alas, selimut)'],['Rusuk','1 (lengkung)'],['Titik puncak','1'],['Garis pelukis','s'],['Jari-jari / tinggi','r / t']],cnt:['2','1 (lengkung)','0 (1 titik puncak)','—','—'],note:'Alas berupa lingkaran, selimut meruncing ke titik puncak.',
+ net:'1 lingkaran (alas) + 1 juring lingkaran (selimut).'},
+{n:'Bola',kel:'lengkung',ne:1,nonet:1,g:()=>sph(1,BN,BM),hue:i=>Math.floor(i/BM)%2?190:212,
+ m:[{k:'perm',l:'Permukaan',sel:()=>true,tx:'Permukaan: 1 bidang lengkung, tanpa alas dan tutup'},{k:'jari',l:'Jari-jari',ln:['o',BEQ],lt:'r',tx:'Jari-jari (r): pusat ke permukaan'},{k:'diam',l:'Diameter',ln:[BEQ,BEQ+BM/2],lt:'d = 2r',tx:'Diameter (d) = 2 × jari-jari'}],
+ def:'Bangun ruang yang semua titik pada permukaannya berjarak sama dari satu titik pusat.',
+ ciri:['Hanya punya 1 sisi lengkung','Tidak punya rusuk dan titik sudut','Semua titik permukaan berjarak sama dari pusat','Diameter d = 2 × jari-jari'],
+ u:[['Sisi','1 (lengkung)'],['Rusuk','0'],['Titik sudut','0'],['Titik pusat','1'],['Jari-jari / diameter','r / d = 2r']],cnt:['1','0','0','—','—'],note:'Seluruh permukaannya lengkung.',
+ net:'Bola tidak punya jaring-jaring: seluruh permukaannya lengkung, tidak bisa dibentangkan rata tanpa merobek atau meregang.'}
+];
+const byN=n=>SH.find(s=>s.n===n);
 
-/* ================= GALLERIES ================= */
-function buildGallery(container, arr){
-  arr.forEach(s=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="card-inner">
-        <div class="card-face card-front">
-          <span style="color:${s.color}">${s.icon}</span>
-          <div class="cname">${s.name}</div>
-          <div class="ctap">klik untuk lihat detail</div>
-        </div>
-        <div class="card-face card-back" style="background:${s.color}">
-          <div class="cname">${s.name}</div>
-          <div class="stat">▸ ${s.sisi}</div>
-          <div class="stat">▸ ${s.rusuk}</div>
-          <div class="stat">▸ ${s.titik}</div>
-          <div class="sifat">${s.sifat}</div>
-        </div>
-      </div>`;
-    card.addEventListener('click', ()=> card.classList.toggle('flipped'));
-    container.appendChild(card);
-  });
+/* tekstur benda nyata */
+const tex=(w,h,fn)=>{const c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);return c};
+const DOT={1:[[.5,.5]],2:[[.28,.28],[.72,.72]],3:[[.25,.25],[.5,.5],[.75,.75]],4:[[.28,.28],[.72,.28],[.28,.72],[.72,.72]],5:[[.25,.25],[.75,.25],[.5,.5],[.25,.75],[.75,.75]],6:[[.3,.22],[.7,.22],[.3,.5],[.7,.5],[.3,.78],[.7,.78]]};
+const diceTex=n=>tex(160,160,(c,w,h)=>{const g=c.createLinearGradient(0,0,w,h);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#ece6d6');c.fillStyle=g;c.fillRect(0,0,w,h);
+ DOT[n].forEach(p=>{const x=p[0]*w,y=p[1]*h,r=n===1?21:14,hot=n===1,d=c.createRadialGradient(x-r*.3,y-r*.3,r*.1,x,y,r);
+  d.addColorStop(0,hot?'#ff5a6a':'#4a4a55');d.addColorStop(1,hot?'#b3122a':'#050507');c.fillStyle=d;c.beginPath();c.arc(x,y,r,0,7);c.fill()})});
+const DICE=[1,6,2,5,3,4].map(diceTex);
+const cardTex=t=>tex(128,128,(c,w,h)=>{c.fillStyle='#c4955a';c.fillRect(0,0,w,h);c.strokeStyle='rgba(90,55,20,.12)';c.lineWidth=2;for(let x=6;x<w;x+=8){c.beginPath();c.moveTo(x,0);c.lineTo(x,h);c.stroke()}
+ if(t){c.fillStyle='#e9d8a8';c.fillRect(w*.38,0,w*.24,h);c.strokeStyle='rgba(120,90,40,.35)';c.lineWidth=2;c.strokeRect(w*.38,-2,w*.24,h+4)}else{c.fillStyle='rgba(90,55,20,.35)';c.fillRect(0,h*.12,w,3)}});
+const KARDUS=[0,0,1,1,0,0].map(cardTex);DICE.forEach(c=>{c.bg='#f6f2e6';c.rgb=[246,242,230]});KARDUS.forEach(c=>{c.bg='#c4955a';c.rgb=[196,149,90]});
+
+const OB=[
+{...byN('Kubus'),n:'Dadu',e:'🎲',ans:'Kubus',why:'keenam sisinya persegi yang sama besar.',lain:'Rubik, es batu, kotak kado kecil.',sk:DICE},
+{...byN('Balok'),n:'Kardus',e:'📦',ans:'Balok',why:'sisinya tiga pasang persegi panjang yang berhadapan.',lain:'Kotak sepatu, kulkas, buku, batu bata.',g:()=>box(1.8,1,1.3),sk:KARDUS},
+{...byN('Tabung'),n:'Kaleng susu',e:'🥫',ans:'Tabung',why:'alas dan tutupnya lingkaran, badannya melengkung.',lain:'Drum, pipa, gelas, lilin.',fc:i=>i<2?[210,8,78]:((i-2)%9<3?[0,0,95]:[205,80,44])},
+{...byN('Kerucut'),n:'Topi ulang tahun',e:'🎉',ans:'Kerucut',why:'alasnya lingkaran dan badannya meruncing ke satu titik.',lain:'Cone es krim, topi petani, corong.',fc:i=>i===0?[50,90,62]:(i%2?[330,85,55]:[48,95,58])},
+{...byN('Bola'),n:'Bola sepak',e:'⚽',ans:'Bola',why:'seluruh permukaannya lengkung dan berjarak sama dari pusat.',lain:'Kelereng, bola basket, jeruk, globe.',fc:i=>((Math.floor(i/BM)*7+(i%BM)*13)%11<3)?[0,0,10]:[0,0,96]},
+{...byN('Prisma'),n:'Tenda',e:'⛺',ans:'Prisma segitiga',why:'depan dan belakangnya segitiga yang kongruen, sisi lainnya persegi panjang.',lain:'Atap rumah pelana, kotak cokelat segitiga.',
+ g:()=>{const r=prism([[-2,0],[2,0],[0,2.4]],5);r.v=r.v.map(p=>[p[0],p[2],p[1]]);return r},fc:i=>i===2?[110,25,30]:i<2?[25,80,38]:[25,95,58]},
+{...byN('Limas'),n:'Piramida Mesir',e:'🔺',ans:'Limas segiempat',why:'alasnya persegi dan sisi tegaknya segitiga yang bertemu di puncak.',lain:'Atap menara, tumpeng.',fc:i=>i?(i%2?[40,65,62]:[36,62,52]):[30,30,40]}
+];
+
+/* ================= HALAMAN PENJELASAN (PANEL KANAN) ================= */
+const kelTxt={datar:'Bangun ruang sisi datar',lengkung:'Bangun ruang sisi lengkung'};
+const stdPages=(s,G)=>{
+ const rows=s.u||[['Sisi (bidang)',G.F],['Rusuk',G.E],['Titik sudut',G.V],['Diagonal bidang',G.ds.length],['Diagonal ruang',G.dr.length]];
+ return[`<h4>${s.n}</h4><p>${s.def}</p><p><b>Kelompok:</b> ${kelTxt[s.kel]}</p>`,
+ `<h4>Unsur-unsur ${s.n}</h4><table>${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table><p>${s.note}</p><p>Tekan tombol di bawah model untuk menandai unsurnya.</p>`,
+ `<h4>Sifat / ciri-ciri ${s.n}</h4><ul>${s.ciri.map(c=>`<li>${c}</li>`).join('')}</ul>`,
+ `<h4>Jaring-jaring ${s.n}</h4><p>${s.net}</p><p>Tekan <b>Buka jaring-jaring</b> atau geser slider untuk melihat bangun ini dibentangkan.</p>`]};
+const objPages=s=>[`<h4>Benda: ${s.n}</h4><p>Putar bendanya dan amati permukaannya. Menurutmu ini berbentuk bangun ruang apa?</p><details><summary>Lihat jawaban</summary><p><b>${s.ans}</b>, karena ${s.why}</p></details>`,
+ `<h4>Ciri-ciri ${s.ans}</h4><ul>${s.ciri.map(c=>`<li>${c}</li>`).join('')}</ul>`,
+ `<h4>Benda lain di sekitarmu</h4><p>${s.lain}</p><p>Coba cari benda lain di kelas yang bentuknya sama.</p>`];
+const misiPages=(s,G)=>[
+ `<h4>Misi 3D</h4><ol><li>Pilih satu bangun ruang di bawah model.</li><li>Putar modelnya, lalu tekan tombol penanda unsur (Rusuk, Sisi, Titik sudut, atau Alas, Tutup, Selimut).</li><li>Tekan <b>Tembus pandang</b> untuk melihat bagian belakang.</li><li>Tekan <b>Buka jaring-jaring</b> dan amati bentuk tiap sisinya.</li></ol>`,
+ stdPages(s,G)[1],
+ `<h4>Tantangan</h4><p>Jawab dengan mengamati model, lalu cek jawabanmu.</p><details><summary>1. Bangun mana yang tidak punya titik sudut?</summary><p>Tabung dan bola.</p></details><details><summary>2. Bangun mana yang tidak punya jaring-jaring?</summary><p>Bola.</p></details><details><summary>3. Berapa diagonal ruang pada kubus?</summary><p>4 diagonal ruang.</p></details>`];
+
+/* ================= LAB (MODEL + PANEL) ================= */
+const ENG=[];
+function Lab(root,SHP,pf,opt={}){
+ root.innerHTML=`<div class="lb-t"><button class="lbt" aria-pressed="true" data-t="m">Model 3D</button><button class="lbt" aria-pressed="false" data-t="p">Penjelasan</button></div><div class="lb-l"><div class="lb-c ch"></div><div class="lb-h"></div><div class="lb-s"><canvas></canvas></div>${opt.plain?'':'<div class="lb-c md"></div>'}<div class="lb-c"><button class="lbb tpb" aria-pressed="false">Tembus pandang</button><button class="lbb aub" aria-pressed="false">Putar otomatis</button><button class="lbb rsb">Atur ulang</button>${opt.plain?'':'<button class="lbb jrb">Buka jaring-jaring</button><input class="nr" type="range" min="0" max="100" value="0" aria-label="Buka jaring-jaring">'}</div></div><div class="lb-r"><div class="lb-p"></div><div class="lb-n"><button class="lbn pv">‹ Kembali</button><div class="pd"></div><button class="lbn nx">Lanjut ›</button></div></div>`;
+ const q=s=>root.querySelector(s),hint=q('.lb-h'),nr=q('.nr'),jr=q('.jrb'),chips=q('.ch'),md=q('.md'),pgs=q('.lb-p'),pd=q('.pd'),pv=q('.pv'),nx=q('.nx');
+ let E;
+ SHP.forEach((s,i)=>{const b=document.createElement('button');b.className='lbb';b.textContent=s.n;b.onclick=()=>E.set(i);chips.appendChild(b)});
+ function modes(){if(!md)return;md.innerHTML='';E.MD().forEach(m=>{const b=document.createElement('button');b.className='lbb';b.textContent=m.l;b.setAttribute('aria-pressed',m.k===E.mode());b.onclick=()=>{E.setMode(E.mode()===m.k?null:m.k);modes()};md.appendChild(b)})}
+ const idx=()=>pgs.clientWidth?Math.round(pgs.scrollLeft/pgs.clientWidth):0;
+ const mark=()=>{const i=idx(),d=[...pd.children];d.forEach((x,k)=>x.classList.toggle('on',k===i));pv.disabled=i===0;nx.disabled=i>=d.length-1};
+ const go=i=>pgs.scrollTo({left:i*pgs.clientWidth,behavior:'smooth'});
+ pgs.addEventListener('scroll',mark);pv.onclick=()=>go(idx()-1);nx.onclick=()=>go(idx()+1);
+ root.dataset.t='m';root.querySelectorAll('.lbt').forEach(b=>b.onclick=()=>{root.dataset.t=b.dataset.t;root.querySelectorAll('.lbt').forEach(x=>x.setAttribute('aria-pressed',x===b));mark()});
+ E=Eng(q('canvas'),SHP,{shadow:!!opt.plain,hint:t=>{hint.textContent=t},onu:v=>{if(nr)nr.value=Math.round(v*100)},
+  onset:G=>{[...chips.children].forEach((b,k)=>b.setAttribute('aria-pressed',k===E.cur()));modes();
+   const h=pf(SHP[E.cur()],G);pgs.innerHTML=h.map(x=>`<article class="lb-pg">${x}</article>`).join('');pd.innerHTML=h.map(()=>'<i></i>').join('');
+   if(jr){jr.textContent='Buka jaring-jaring';jr.disabled=nr.disabled=!G.net;nr.value=0}mark()}});
+ const tg=(b,fn)=>b.onclick=()=>{const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);fn(on)};
+ tg(q('.tpb'),v=>E.tp(v));tg(q('.aub'),v=>E.auto(v));
+ if(matchMedia('(prefers-reduced-motion:reduce)').matches)q('.aub').disabled=true;
+ q('.rsb').onclick=()=>{E.home();E.setU(0);if(jr){jr.textContent='Buka jaring-jaring';nr.value=0}};
+ if(jr){jr.onclick=()=>{const t=E.u()<.5?1:0;E.net(t);jr.textContent=t?'Lipat kembali':'Buka jaring-jaring'};
+  nr.oninput=()=>{E.setU(nr.value/100);jr.textContent=nr.value>50?'Lipat kembali':'Buka jaring-jaring'}}
+ E.set(0);ENG.push(E);return E;
 }
-buildGallery(document.getElementById('galleryFlat'), shapesFlat);
-buildGallery(document.getElementById('galleryCurved'), shapesCurved);
+function mini(el,name,z){const cv=document.createElement('canvas');el.appendChild(cv);
+ const E=Eng(cv,[byN(name)],{auto:!matchMedia('(prefers-reduced-motion:reduce)').matches,z:z||.36});E.set(0);ENG.push(E);return E}
 
-/* ================= FORMULA SLIDER ================= */
-const segiNames = {3:"segitiga",4:"segiempat",5:"segilima",6:"segienam",7:"segitujuh",8:"segidelapan"};
-function updateFormula(){
-  const n = parseInt(document.getElementById('nSlider').value, 10);
-  document.getElementById('nLabel').textContent = n;
-  document.getElementById('nName').textContent = segiNames[n];
-  document.getElementById('nVal').textContent = n;
-  document.getElementById('pSisi').textContent = n+2;
-  document.getElementById('pRusuk').textContent = 3*n;
-  document.getElementById('pTitik').textContent = 2*n;
-  document.getElementById('lSisi').textContent = n+1;
-  document.getElementById('lRusuk').textContent = 2*n;
-  document.getElementById('lTitik').textContent = n+1;
-}
-updateFormula();
+Lab($('labObj'),OB,objPages,{plain:1});
+Lab($('labDatar'),SH.filter(s=>s.kel==='datar'),stdPages);
+Lab($('labLengkung'),SH.filter(s=>s.kel==='lengkung'),stdPages);
+Lab($('labAll'),SH,misiPages);
 
-/* ================= RANGKUMAN TABLE ================= */
-const recapBody = document.getElementById('recapBody');
-allShapes.forEach(s=>{
-  const tr = document.createElement('tr');
-  tr.innerHTML = `<td class="shape-name">${s.name}</td><td data-label="Sisi">${s.sisi}</td><td data-label="Rusuk">${s.rusuk}</td><td data-label="Titik Sudut">${s.titik}</td>`;
-  recapBody.appendChild(tr);
-});
+/* tabel unsur (dihitung dari model 3D) */
+$('unsurBody').innerHTML=SH.map(s=>{const c=s.cnt||(()=>{const G=mkGeo(s);return[G.F,G.E,G.V,G.ds.length,G.dr.length]})();
+ return`<tr><td class="shape-name"><div class="sn"><div class="mv" data-m="${s.n}"></div>${s.n}</div></td>${['Sisi','Rusuk','Titik sudut','Diag. bidang','Diag. ruang'].map((l,k)=>`<td data-label="${l}">${c[k]}</td>`).join('')}</tr>`}).join('');
+/* kartu sifat */
+$('sfGrid').innerHTML=SH.map(s=>`<div class="sf-card"><div class="mv" data-m="${s.n}"></div><h5>${s.n}</h5><ul>${s.ciri.map(c=>`<li>${c}</li>`).join('')}</ul></div>`).join('');
+document.querySelectorAll('.mv').forEach(el=>{if(!el.firstChild)mini(el,el.dataset.m)});
+(function loop(){ENG.forEach(e=>{e.sl=e.sl||e.cv.closest('.slide');if(e.sl.classList.contains('active'))e.step()});requestAnimationFrame(loop)})();
 
-/* ================= QUIZ ================= */
-let qIndex = 0, qScore = 0, answered = false;
+/* ================= KUIS ================= */
+const quiz=[
+ {q:"Berapa jumlah sisi pada sebuah kubus?",opts:["4","6","8","12"],correct:1,exp:"Kubus memiliki 6 sisi berbentuk persegi yang kongruen."},
+ {q:"Bangun ruang manakah yang tidak memiliki titik sudut sama sekali?",opts:["Limas segiempat","Prisma segitiga","Bola","Balok"],correct:2,exp:"Bola hanya memiliki 1 sisi lengkung tanpa rusuk maupun titik sudut."},
+ {q:"Rusuk adalah...",opts:["Bidang pembatas bangun ruang","Garis pertemuan dua sisi","Titik pertemuan tiga rusuk","Titik pusat bangun ruang"],correct:1,exp:"Rusuk merupakan garis hasil pertemuan dua sisi pada bangun ruang."},
+ {q:"Manakah yang termasuk bangun ruang sisi lengkung?",opts:["Kubus","Balok","Kerucut","Limas"],correct:2,exp:"Kerucut punya selimut yang lengkung, sedangkan kubus, balok, dan limas seluruh sisinya datar."},
+ {q:"Limas segiempat memiliki alas berbentuk segiempat dan sisi tegak berbentuk...",opts:["Segitiga","Persegi panjang","Lingkaran","Trapesium"],correct:0,exp:"Sisi tegak limas selalu berbentuk segitiga yang bertemu di titik puncak."},
+ {q:"Tabung memiliki berapa sisi?",opts:["1","2","3","4"],correct:2,exp:"Tabung memiliki 3 sisi: alas lingkaran, tutup lingkaran, dan selimut lengkung."},
+ {q:"Garis yang menghubungkan dua titik sudut yang tidak sebidang dan menembus bagian dalam bangun ruang disebut...",opts:["Diagonal bidang","Diagonal ruang","Bidang diagonal","Rusuk"],correct:1,exp:"Itulah definisi diagonal ruang. Kubus memiliki 4 diagonal ruang."},
+ {q:"Jaring-jaring tabung terdiri dari...",opts:["2 lingkaran dan 1 persegi panjang","1 lingkaran dan 1 juring","2 lingkaran dan 2 segitiga","3 lingkaran"],correct:0,exp:"Alas dan tutup berupa 2 lingkaran, sedangkan selimutnya jika dibuka berbentuk persegi panjang."}
+];
+let qIndex=0,qScore=0,answered=false;
 function renderQuestion(){
-  answered = false;
-  const item = quiz[qIndex];
-  document.getElementById('qnum').textContent = `Soal ${qIndex+1}/${quiz.length}`;
-  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
-  document.getElementById('qbarFill').style.width = (qIndex/quiz.length*100) + '%';
-  document.getElementById('qtext').textContent = item.q;
-  document.getElementById('qfeedback').classList.remove('show');
-  document.getElementById('qnextBtn').style.display = 'none';
-  const optWrap = document.getElementById('qoptions');
-  optWrap.innerHTML = '';
-  const letters = ['A','B','C','D'];
-  item.opts.forEach((opt, i)=>{
-    const b = document.createElement('button');
-    b.className = 'opt';
-    b.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
-    b.onclick = () => selectAnswer(i, b);
-    optWrap.appendChild(b);
-  });
+  answered=false;const item=quiz[qIndex];
+  $('qnum').textContent=`Soal ${qIndex+1}/${quiz.length}`;$('qscore').textContent=`Skor: ${qScore}`;
+  $('qbarFill').style.width=(qIndex/quiz.length*100)+'%';$('qtext').textContent=item.q;
+  $('qfeedback').classList.remove('show');$('qnextBtn').style.display='none';
+  const w=$('qoptions');w.innerHTML='';
+  item.opts.forEach((opt,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=`<span class="letter">${'ABCD'[i]}</span><span>${opt}</span>`;b.onclick=()=>selectAnswer(i);w.appendChild(b)});
 }
-function selectAnswer(i, btn){
-  if(answered) return;
-  answered = true;
-  const item = quiz[qIndex];
-  const correct = i === item.correct;
-  if(correct) qScore++;
-  document.querySelectorAll('#qoptions .opt').forEach((el, idx)=>{
-    el.classList.add('disabled');
-    if(idx === item.correct) el.classList.add('correct');
-    else if(idx === i) el.classList.add('wrong');
-  });
-  const fb = document.getElementById('qfeedback');
-  fb.innerHTML = (correct ? '✅ Benar! ' : '❌ Belum tepat. ') + item.exp;
-  fb.classList.add('show');
-  document.getElementById('qscore').textContent = `Skor: ${qScore}`;
-  document.getElementById('qnextBtn').textContent = qIndex < quiz.length-1 ? 'Lanjut →' : 'Lihat Hasil →';
-  document.getElementById('qnextBtn').style.display = 'inline-flex';
+function selectAnswer(i){
+  if(answered)return;answered=true;const item=quiz[qIndex],ok=i===item.correct;if(ok)qScore++;
+  document.querySelectorAll('#qoptions .opt').forEach((el,k)=>{el.classList.add('disabled');if(k===item.correct)el.classList.add('correct');else if(k===i)el.classList.add('wrong')});
+  const fb=$('qfeedback');fb.innerHTML=(ok?'Benar! ':'Belum tepat. ')+item.exp;fb.classList.add('show');
+  $('qscore').textContent=`Skor: ${qScore}`;$('qnextBtn').textContent=qIndex<quiz.length-1?'Lanjut →':'Lihat Hasil →';$('qnextBtn').style.display='inline-flex';
 }
-function nextQuestion(){
-  if(qIndex < quiz.length-1){ qIndex++; renderQuestion(); }
-  else { document.getElementById('qbarFill').style.width = '100%'; showResult(); }
-}
+function nextQuestion(){if(qIndex<quiz.length-1){qIndex++;renderQuestion()}else{$('qbarFill').style.width='100%';showResult()}}
 function showResult(){
-  document.getElementById('quizPlay').style.display = 'none';
-  const rEl = document.getElementById('quizResult');
-  rEl.classList.add('show');
-  document.getElementById('resultScore').textContent = qScore;
-  let msg;
-  if(qScore === quiz.length) msg = "Sempurna! Kamu sudah memahami unsur dan sifat bangun ruang dengan sangat baik.";
-  else if(qScore >= quiz.length*0.6) msg = "Bagus! Sedikit lagi kamu akan menguasai materi ini sepenuhnya.";
-  else msg = "Ayo coba lagi! Cek kembali materi unsur dan jenis bangun ruang sebelumnya.";
-  document.getElementById('resultMsg').textContent = msg;
+  $('quizPlay').style.display='none';$('quizResult').classList.add('show');$('resultScore').textContent=qScore;
+  $('resultMsg').textContent=qScore===quiz.length?"Sempurna! Kamu sudah memahami unsur dan sifat bangun ruang dengan sangat baik.":qScore>=quiz.length*.6?"Bagus! Sedikit lagi kamu akan menguasai materi ini sepenuhnya.":"Ayo coba lagi! Cek kembali materi unsur dan jenis bangun ruang sebelumnya.";
 }
-function restartQuiz(){
-  qIndex = 0; qScore = 0;
-  document.getElementById('quizResult').classList.remove('show');
-  document.getElementById('quizPlay').style.display = 'block';
-  renderQuestion();
-}
+function restartQuiz(){qIndex=0;qScore=0;$('quizResult').classList.remove('show');$('quizPlay').style.display='block';renderQuestion()}
 renderQuestion();
+function finish(){window.location.href='bab3.html'}
 
-/* ================= FINISH ================= */
-function finish(){ window.location.href = 'bab3.html'; }
+/* ================= KEYBOARD & SWIPE ================= */
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')goTo(current+1);if(e.key==='ArrowLeft')goTo(current-1)});
+let tX=0,tY=0,skip=false;
+main.addEventListener('touchstart',e=>{skip=!!e.target.closest('canvas,.mv,.lb-p,.lb-s,.lb-c,input,.table-wrap');tX=e.changedTouches[0].screenX;tY=e.changedTouches[0].screenY},{passive:true});
+main.addEventListener('touchend',e=>{if(skip)return;const dx=e.changedTouches[0].screenX-tX,dy=e.changedTouches[0].screenY-tY;
+ if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0)goTo(current+1);else goTo(current-1)}},{passive:true});
 
-/* ================= KEYBOARD NAV ================= */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'ArrowRight') goTo(current+1);
-  if(e.key === 'ArrowLeft') goTo(current-1);
-});
-
-/* ================= TOUCH SWIPE NAV ================= */
-let touchStartX = 0, touchStartY = 0;
-main.addEventListener('touchstart', (e)=>{
-  touchStartX = e.changedTouches[0].screenX;
-  touchStartY = e.changedTouches[0].screenY;
-}, {passive:true});
-main.addEventListener('touchend', (e)=>{
-  const dx = e.changedTouches[0].screenX - touchStartX;
-  const dy = e.changedTouches[0].screenY - touchStartY;
-  if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)*1.5){
-    if(dx < 0) goTo(current+1); else goTo(current-1);
-  }
-}, {passive:true});
-
-/* ================= INIT ================= */
-buildDots();
-goTo(0);
+buildDots();goTo(0);
 </script>
 </body>
 </html>
